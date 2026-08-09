@@ -1,0 +1,8 @@
+*.dll binary
+*.exe binary
+*.lib binary
+*.pdb binary
+*.bin binary
+*.hsaco binary
+LICENSE linguist-documentation
+benchmarks/results/*.json linguist-generated=false

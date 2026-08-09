@@ -1,0 +1,12 @@
+AIMA AMD395 Qwen3.6 35B Windows Engine
+Copyright 2026 Approaching AI Authors
+
+The initial release-staging revision contains no model weights, AMD runtime
+binaries, generated GPU binaries, or third-party source payload.
+
+Future source and binary releases will preserve all applicable upstream
+license and attribution notices. See THIRD_PARTY_NOTICES.md.
+
+AMD, Ryzen, ROCm, HIP and other names may be trademarks of their respective
+owners. Their use here identifies the qualified platform and does not imply
+endorsement.
