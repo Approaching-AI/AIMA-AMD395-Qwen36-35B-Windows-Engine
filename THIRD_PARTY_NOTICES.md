@@ -1,33 +1,58 @@
 # Third-party notices
 
-The repository is licensed under Apache License 2.0 except where a file carries
-a different SPDX identifier.
+Project-authored files are Apache-2.0 unless a file states another license.
+The following upstream material is present or used to build the release.
 
-## Initial staging revision
+## AMD AITER
 
-This revision contains release documentation and a Python-standard-library
-hygiene checker. It does not contain model weights, generated GPU objects,
-AMD redistributable binaries, Rust dependencies, or copied third-party source.
+Selected fixed-shape MoE and fused-GDN algorithms and generators are adapted
+from `amd-aiter 0.1.13`, under the MIT License. The license is preserved at
+`third_party/licenses/AMD-AITER.txt` and next to the adapted provider sources.
 
-## Qualified runtime inventory pending publication
+## AMD Composable Kernel
 
-The qualified private runtime uses or derives material from the following
-upstream surfaces. They are listed here for release planning; this staging
-revision does not distribute them:
+The FMHA provider uses and adapts AMD Composable Kernel interfaces under the
+MIT License. A Composable Kernel checkout is a source-build input and is not
+vendored in full. The applicable text is
+`third_party/licenses/AMD-Composable-Kernel.txt` and is also kept beside the
+FMHA provider.
 
-- AMD HIP SDK 7.1, hipBLASLt, rocBLAS, and their Windows runtime dependencies;
-- Rust crates pinned by `Cargo.lock` for the resident HTTP service and CLI;
-- AMD Composable Kernel, AMD AITER-derived algorithms, and selected
-  Triton-generated `gfx1151` code objects;
-- diagnostic-only adaptations from Flash Linear Attention and gpu-simulator;
-- the pinned MMLU-Pro dataset and official evaluation-harness semantics.
+## Flash Linear Attention
 
-Before any of those files or binaries are published, the release must include
-their exact versions, provenance, redistribution classification, complete
-license texts, and the notices required by each upstream project.
+Parts of the linear-attention/GDN implementation derive from Flash Linear
+Attention concepts and source under the MIT License. See
+`third_party/licenses/Flash-Linear-Attention.txt` and the adjacent provider
+license file.
 
-## Model weights not bundled
+## gpu-simulator
 
-Qwen3.6-35B-A3B model weights and tokenizer assets are not part of this
-repository. Users must obtain them independently and comply with the model's
-license and acceptable-use terms.
+The BF16 accumulator helper includes an attributed adaptation from
+gpu-simulator under the MIT License. See
+`third_party/licenses/gpu-simulator.txt` and the adjacent header notice.
+
+## Triton and AMD ROCm
+
+Triton 3.6 is used at build time to generate `gfx1151` code objects. AMD ROCm
+HIP SDK 7.1, hipBLASLt, and rocBLAS are build/runtime dependencies. This
+repository does not redistribute the Triton package, ROCm SDK, driver, or AMD
+runtime DLLs; obtain them from their publishers under their respective terms.
+
+## Rust crates
+
+`Cargo.lock` pins the Rust dependency graph. Package versions, declared
+licenses, and registry sources are listed in
+`third_party/RUST_DEPENDENCIES.md`. The release archive carries this notice and
+the project license; crate source is obtained from crates.io during builds.
+
+## MMLU-Pro
+
+The repository publishes sanitized evaluation results and harness-compatible
+question identifiers, predictions, and hashes. It does not redistribute the
+MMLU-Pro question text or answer choices. Users who reproduce the evaluation
+must obtain the dataset independently and comply with its terms.
+
+## Model weights
+
+`Qwen3.6-35B-A3B` weights and tokenizer assets are not part of the repository
+or release archive. Users must obtain them separately and comply with the model
+license and acceptable-use requirements.

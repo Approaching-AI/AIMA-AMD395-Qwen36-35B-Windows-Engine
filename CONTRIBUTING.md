@@ -1,33 +1,28 @@
 # Contributing
 
-The repository is currently in release staging. Documentation, packaging,
-licensing, and reproducibility fixes are welcome; runtime feature contributions
-will become practical after the qualified source snapshot is published.
+Contributions to runtime correctness, Windows packaging, API compatibility,
+tests, and performance are welcome. Changes should preserve the model/device
+scope and attach evidence proportional to their impact.
 
 ## Local checks
 
-The current checks require Python 3.10 or newer and no third-party package:
+Python 3.10+, a C11 compiler, and Rust are sufficient for CPU-safe checks:
 
-```powershell
-python -m unittest discover -s tests -p "test_*.py"
-python tools/public_hygiene.py .
+```shell
+make check
 ```
 
-The same commands work in a POSIX shell.
+Run `cargo fmt --all -- --check` before submitting Rust changes. Provider or
+kernel changes additionally require the relevant Windows `gfx1151` build/smoke
+script. Performance claims require a real-model run with the matching external
+BF16 correctness boundary; stubs, transport checks, estimates, and self-hashes
+are diagnostics only.
 
-## Evidence discipline
+## Data and licensing
 
-- Keep correctness, performance, startup, and API claims separate.
-- Never claim real inference from a stub, smoke test, self-hash, estimate, or
-  transport-only check.
-- Performance evidence must identify the target host class, command, model
-  reference, output/token result, source commit, and matching external
-  correctness boundary.
-- Never commit model weights, private endpoints, credentials, personal paths,
-  or unrestricted raw prompt/output logs.
-- Third-party code and binaries must retain their original license and
-  attribution.
-
-By submitting a contribution, you agree that it may be distributed under the
-repository's Apache-2.0 license unless the submitted file clearly carries a
-compatible upstream license.
+- Never commit model weights, credentials, private endpoints, personal paths,
+  or unrestricted prompt/output logs.
+- Keep evaluation rows sanitized and identify questions by stable IDs/hashes.
+- Preserve compatible upstream SPDX headers, copyright, and license texts.
+- By submitting project-authored work, you agree that it may be distributed
+  under Apache-2.0.

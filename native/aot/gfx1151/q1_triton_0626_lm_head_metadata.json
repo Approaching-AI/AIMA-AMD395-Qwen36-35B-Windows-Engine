@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1_triton_lm_head_0626.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "BF16 weights/input/output with FP32 accumulation",
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "shape": {
+    "batch": 1,
+    "hidden": 2048,
+    "vocab": 248320
+  },
+  "layout": {
+    "weights": "row-major BF16 [vocab][hidden]",
+    "input": "contiguous BF16 [hidden]",
+    "output": "contiguous BF16 [vocab]"
+  },
+  "kernels": [
+    {
+      "name": "lm_head_w8",
+      "file": "q1_triton_0626_lm_head_w8.hsaco",
+      "symbol": "_lm_head_row_kernel",
+      "sha256": "ce2fc2545c25fbb4286fc57aa9abad8d1c35ec4efcc02d11d72c94e1e4e85b40",
+      "bytes": 6424,
+      "grid": [
+        248320,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "weights_bf16",
+        "input_bf16",
+        "output_bf16"
+      ],
+      "compiled_hash": "01ea61066b22062402f31bfba4834fdf612a6a0555f9d9946cff86e5ccb8cd57"
+    }
+  ]
+}

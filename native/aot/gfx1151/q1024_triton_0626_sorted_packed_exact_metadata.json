@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_triton_moe_0626_exact.py",
+  "reference_source": "tools/compile_q1_triton_moe_0626.py",
+  "arithmetic": "q1-exact BF16 endpoints, FP32 accumulation, and route-order sum; expert-sorted programs reuse one weight row across 16 independent routes",
+  "shape": {
+    "tokens": 1024,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "experts": 256,
+    "sort_block_m": 64,
+    "routes_per_program": 16
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "kernels": [
+    {
+      "name": "sorted_packed_gate_up_silu_w8",
+      "file": "q1024_triton_0626_exact_sorted_packed_gate_up_silu_w8.hsaco",
+      "symbol": "_sorted_packed_gate_up_silu_kernel",
+      "sha256": "4df95a052274e382842484025f8180c8ae11bd2702d1f3e52b3e6544a0fcb8df",
+      "bytes": 8816,
+      "grid": [786432, 1, 1],
+      "threads": 256,
+      "dynamic_shared_bytes": 32
+    },
+    {
+      "name": "sorted_packed_down",
+      "file": "q1024_triton_0626_exact_sorted_packed_down.hsaco",
+      "symbol": "_sorted_packed_down_kernel",
+      "sha256": "ec9aba8cb22ee49694325536f5673ec3639f957988b72d8477aaeb1aa1c034b8",
+      "bytes": 8192,
+      "grid": [3145728, 1, 1],
+      "threads": 32,
+      "dynamic_shared_bytes": 0
+    },
+    {
+      "name": "sorted_packed_route_combine",
+      "file": "q1024_triton_0626_exact_sorted_packed_route_combine.hsaco",
+      "symbol": "_sorted_packed_route_combine_kernel",
+      "sha256": "8475ae6efaf95471bd7f08c4984ff70e86c38bdfddf2c2a4bcf9b5772f0668ca",
+      "bytes": 6168,
+      "grid": [2097152, 1, 1],
+      "threads": 32,
+      "dynamic_shared_bytes": 0
+    }
+  ]
+}

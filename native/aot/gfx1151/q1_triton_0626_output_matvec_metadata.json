@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1_triton_output_matvec_0626.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "BF16 weights/input/output with FP32 accumulation",
+  "weight_bits": 16,
+  "activation_bits": 16,
+  "accumulation_bits": 32,
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "shape": {
+    "batch": 1,
+    "layers": 39,
+    "linear_attention_layers": 30,
+    "ordinary_full_attention_layers": 9,
+    "hidden": 4096,
+    "rows": 2048
+  },
+  "layout": {
+    "weights": "row-major BF16 [2048,4096]",
+    "input": "contiguous BF16 [4096]",
+    "output": "contiguous BF16 [2048]"
+  },
+  "kernels": [
+    {
+      "name": "output_matvec_w8",
+      "file": "q1_triton_0626_output_matvec_w8.hsaco",
+      "symbol": "_output_matvec_row_kernel",
+      "sha256": "f4c82a4a3097c72ab70b43bb04f6b2546f8a8caefceb849f1587fcac271b7a0c",
+      "bytes": 7616,
+      "grid": [
+        2048,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "weights_bf16",
+        "input_bf16",
+        "output_bf16"
+      ],
+      "compiled_hash": "cfdff23c845d60bba2fb373a04e5460502824decd8604e03812df8b14e297771"
+    }
+  ]
+}

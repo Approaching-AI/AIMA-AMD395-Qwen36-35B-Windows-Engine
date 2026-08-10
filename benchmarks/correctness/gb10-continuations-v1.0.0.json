@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "record_type": "external_bf16_continuation_acceptance_publication",
+  "release": "v1.0.0",
+  "status": "pass",
+  "authority": "GB10 BF16 Qwen3.6-35B-A3B service",
+  "comparison": "token_for_token",
+  "output_tokens_per_request": 512,
+  "digest_role": "publication identifiers only; the acceptance decision used the complete token sequences",
+  "cases": [
+    {
+      "id": "cold-q131072",
+      "input_fnv1a64": "ffef18d340fb4fe8",
+      "output_fnv1a64": "4813300b562d057b",
+      "native_requests": 1,
+      "matching_tokens_per_request": 512,
+      "pass": true
+    },
+    {
+      "id": "prefix-q131072-suffix1024",
+      "input_fnv1a64": "9a681295dde809d4",
+      "output_fnv1a64": "fd69ca7327c912bf",
+      "native_requests": 2,
+      "matching_tokens_per_request": 512,
+      "unrelated_prefix_guard": true,
+      "copy_on_write_rollback": true,
+      "cached_hit_ttft_ms": 30.7988,
+      "pass": true
+    },
+    {
+      "id": "prefix-q262144-suffix1024",
+      "input_fnv1a64": "6aa7d9579bb8427c",
+      "output_fnv1a64": "7a8c5d8ec398878b",
+      "native_requests": 2,
+      "matching_tokens_per_request": 512,
+      "unrelated_prefix_guard": true,
+      "copy_on_write_rollback": true,
+      "cached_hit_ttft_ms": 74.2053,
+      "pass": true
+    }
+  ],
+  "source_authority": {
+    "gb10_capture_summary_sha256": "698622f6b0fa5e05809c25a7cc115d16b5c2bce32c4ffdc6f400023385835a04",
+    "gb10_attachment_summary_sha256": "539d9b8f5ce78094b1e025d14b9f7cdb9d08aec5b4c75b9435e092249087f992",
+    "attachment_commit": "8251f7cee56a11121fcaacc000c7f335b183baf1"
+  }
+}

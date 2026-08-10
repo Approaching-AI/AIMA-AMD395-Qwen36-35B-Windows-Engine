@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_triton_full_attention_qkv_0626_exact.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "q1-exact BF16 weights/input/output with FP32 accumulation",
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "shape": {
+    "tokens": 1024,
+    "hidden": 2048,
+    "q_rows": 8192,
+    "k_rows": 512,
+    "v_rows": 512,
+    "qkv_rows": 9216
+  },
+  "layout": {
+    "weights": "three independent row-major BF16 tensors",
+    "input": "token-major BF16",
+    "output": "token-major contiguous BF16 [Q][K][V]"
+  },
+  "kernels": [
+    {
+      "name": "full_attention_qkv_q1024_exact_w8",
+      "file": "q1024_triton_0626_full_attention_qkv_exact_w8.hsaco",
+      "symbol": "_full_attention_qkv_q1024_exact_kernel",
+      "sha256": "15f95e5f4f31c15e5fc5041b78e9145b33c30c0c1b6ed45c8996dc1297d8032f",
+      "bytes": 8096,
+      "grid": [
+        9216,
+        1024,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "q_weights_bf16",
+        "k_weights_bf16",
+        "v_weights_bf16",
+        "input_bf16",
+        "qkv_output_bf16"
+      ],
+      "compiled_hash": "c1d82f3a67dc7b52ddb249e15c0dbcd6c431768b96b425673a65d85424a63ea7"
+    }
+  ]
+}

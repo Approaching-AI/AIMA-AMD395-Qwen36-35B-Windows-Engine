@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1_triton_linear_qkvz_ab_0626.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "BF16 weights/input/output with FP32 accumulation",
+  "weight_bits": 16,
+  "activation_bits": 16,
+  "accumulation_bits": 32,
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "shape": {
+    "batch": 1,
+    "layers": 28,
+    "hidden": 2048,
+    "rows": 12352
+  },
+  "layout": {
+    "weights": "combined row-major BF16 QKVZ+A/B",
+    "output": "contiguous BF16 [QKVZ][A][B], plus optional split F32 QKV and Z+A/B surfaces after the same BF16 RNE endpoint"
+  },
+  "tensor_tile_screen_enabled": false,
+  "direct_f32_screen_enabled": true,
+  "kernels": [
+    {
+      "name": "linear_qkvz_ab_w8",
+      "file": "q1_triton_0626_linear_qkvz_ab_w8.hsaco",
+      "symbol": "_linear_qkvz_ab_row_kernel",
+      "sha256": "e4a67f935aba9812c3d7c6f60820cb39616ee3f635c412e19d48d8b27531b52e",
+      "bytes": 6784,
+      "grid": [
+        12352,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "weights_bf16",
+        "input_bf16",
+        "output_bf16"
+      ],
+      "compiled_hash": "ae4a9d1a843fed491df2f29f4bde4dc140437db9ef7c84fa1d9b1d2468608fe2"
+    },
+    {
+      "name": "linear_qkvz_ab_direct_f32_w8",
+      "family": "scalar_row_direct_f32",
+      "file": "q1_triton_0626_linear_qkvz_ab_direct_f32_w8.hsaco",
+      "symbol": "_linear_qkvz_ab_row_direct_f32_kernel",
+      "sha256": "d4ac40fee960bc398191af93450a5da31567aa729835bc9d824d077de2c8f686",
+      "bytes": 7040,
+      "grid": [
+        12352,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "weights_bf16",
+        "input_bf16",
+        "qkv_output_f32",
+        "aux_output_f32"
+      ],
+      "compiled_hash": "04a8ac5adc41f919f78eb4d4418020cd6792bbfd0bf335b3fbc6405cbecc3f0e",
+      "endpoint": "RNE BF16 projection value converted to split F32 QKV and Z+A/B surfaces in the projection owner"
+    }
+  ]
+}

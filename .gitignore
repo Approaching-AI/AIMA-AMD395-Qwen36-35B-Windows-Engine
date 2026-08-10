@@ -4,6 +4,7 @@ __pycache__/
 .ruff_cache/
 .venv/
 build/
+target/
 dist/
 output/
 state/

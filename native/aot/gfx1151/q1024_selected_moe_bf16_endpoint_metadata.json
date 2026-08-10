@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q8192_triton_selected_moe.py",
+  "provenance": "fixed-shape adaptation of AMD AITER Triton MoE (MIT)",
+  "shape": {
+    "tokens": 1024,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "experts": 256,
+    "route_output_bf16_endpoint": true,
+    "combined_output_bf16_endpoint": true,
+    "block_m": 64,
+    "down_block_n": 64,
+    "down_block_k": 64
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "kernel": {
+    "name": "down",
+    "file": "q1024_selected_moe_down_bf16_endpoint.hsaco",
+    "symbol": "_down_kernel",
+    "sha256": "7ef97a552863728c906bcb6a23ac20991830b39191d18208ad6a6eef4e34ed46",
+    "bytes": 14944,
+    "grid": [12288, 1, 1],
+    "threads": 128,
+    "dynamic_shared_bytes": 8192
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "file": "q8192_full_attention_qk1_pv4_bm32_bn16_sg2_w4.hsaco",
+  "sha256": "10b1d3d1ed8d8b047446bac994b9b84e21950f9ea1f8a8a54271f212bbad5d73",
+  "bytes": 83192,
+  "symbol": "_fwd_kernel",
+  "target": "gfx1151",
+  "source": "tools/compile_q8192_triton_full_attention.py::_fwd_kernel",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "compiled_hash": "1f22c9bb52417bc9c847d567dcce8274535062f52b6f8de6c00c47b72cfa87a4",
+  "shape": {
+    "tokens": 8192,
+    "query_heads": 16,
+    "kv_heads": 2,
+    "head_dim": 256,
+    "input_dtype": "float32",
+    "output_dtype": "float32",
+    "accumulator_dtype": "float32",
+    "input_precision": "ieee",
+    "qk_mode": 1,
+    "pv_mode": 4,
+    "block_m": 32,
+    "block_n": 16,
+    "block_d": 256,
+    "softmax_group": 2,
+    "qk_mode_description": "BF16 Q/K tensor dot with FP32 accumulation",
+    "pv_mode_description": "BF16 probability/value tensor dot plus probability-low x value-high correction",
+    "softmax_group_description": "two 16-key tensor tiles share one 32-key online max/sum update"
+  },
+  "launch": {
+    "grid": [
+      1,
+      16,
+      256
+    ],
+    "threads": 128,
+    "dynamic_shared_bytes": 16384
+  },
+  "abi": [
+    "history_rope_ptr",
+    "context_output_ptr"
+  ],
+  "compiler_metadata": {
+    "name": "_fwd_kernel",
+    "num_warps": 4,
+    "num_stages": 1,
+    "waves_per_eu": 0,
+    "num_ctas": 1,
+    "shared": 16384,
+    "private_segment_fixed_size": 676,
+    "vgpr_count": 256,
+    "vgpr_spill_count": 168,
+    "sgpr_spill_count": 104,
+    "global_scratch_size": 0,
+    "profile_scratch_size": 0
+  },
+  "retained_validation": {
+    "host": "baiying",
+    "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+    "command_file": "scripts/baiying_hprefill001.ps1",
+    "commit": "88eabb6f",
+    "dirty_tree": true,
+    "run_id": "hprefill001-attention-bn16-sg2-packaged-clean-20260710T162113Z-88eabb6f",
+    "build_reused": true,
+    "prompt_token_ids_fnv1a64": "71f149d685c59c4f",
+    "gb10_first_token_id": 23,
+    "native_first_token_id": 23,
+    "gb10_first_token_logit": 19.375,
+    "native_first_token_logit": 19.25,
+    "first_token_logit_abs_diff": 0.125,
+    "product_contract_matches": true,
+    "ttft_ms": 15946.5,
+    "prefill_tokens_per_second": 513.696,
+    "full_attention_layers_wall_clock_ms": 6467.84,
+    "full_attention_core_wall_clock_ms": 3511.31,
+    "full_attention_kernel_ms": 3396.92,
+    "startup_full_prepack_ms": 136633,
+    "standalone_zero_input_mean_kernel_ms": 218.366,
+    "standalone_timed_repetitions": 5
+  }
+}

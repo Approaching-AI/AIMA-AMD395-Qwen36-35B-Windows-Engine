@@ -1,0 +1,58 @@
+{
+  "abi": [
+    "probability_rows",
+    "prefix_value_bf16",
+    "tail_value_bf16",
+    "output_f32",
+    "tail_tokens"
+  ],
+  "bytes": 9480,
+  "compiled_hash": "ffa39de18f830153c8bc573e44e647e268d95b4b7fee3356a9a7d0439244f28a",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "dflash_loaded": false,
+  "file": "q1_triton_0626_full_attention_pv_n64_d16_w4_q32768_tail1536.hsaco",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "launch": {
+    "dynamic_shared_bytes": 2048,
+    "global_scratch_size": 0,
+    "grid": [
+      2,
+      16,
+      1
+    ],
+    "profile_scratch_size": 0,
+    "threads": 128
+  },
+  "mtp_enabled": false,
+  "quantized": false,
+  "schema_version": 1,
+  "sha256": "22c90720a3475f8809ed2be7a4365ca6426629695cc8b26eff7580ef5b905edb",
+  "shape": {
+    "accumulation_bits": 32,
+    "block_d": 16,
+    "block_n": 64,
+    "head_dim": 256,
+    "heads_per_kv": 8,
+    "kv_heads": 2,
+    "kv_stride": 512,
+    "max_tail_tokens": 1536,
+    "padded_heads": 16,
+    "prefix_tokens": 32768,
+    "probability_bits": 16,
+    "probability_head_stride": 68610,
+    "query_heads": 16,
+    "value_bits": 16
+  },
+  "speculative_decode": false,
+  "symbol": "_pv_kernel",
+  "target": "gfx1151"
+}

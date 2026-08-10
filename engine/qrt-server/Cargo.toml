@@ -1,0 +1,31 @@
+[package]
+name = "qrt-server"
+version = "1.0.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "qrt"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1.0"
+async-stream = "0.3"
+axum = { version = "0.8", features = ["http1", "json", "tokio"] }
+clap = { version = "4.5", features = ["derive", "env"] }
+futures-core = "0.3"
+libc = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tokenizers = { version = "0.22", default-features = false, features = ["onig"] }
+tokio = { version = "1.47", features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-stream = "0.1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[dev-dependencies]
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }

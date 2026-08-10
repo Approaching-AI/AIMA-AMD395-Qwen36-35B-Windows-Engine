@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_seeded_aiter_fused_gdn.py",
+  "provenance": "seeded direct-boundary adaptation of AMD AITER fused_recurrent.py (MIT)",
+  "shape": {
+    "batch": 1,
+    "tokens": 1024,
+    "qk_heads": 16,
+    "value_heads": 32,
+    "key_dim": 128,
+    "value_dim": 128,
+    "block_k": 128,
+    "block_v": 8,
+    "postconv_dtype": "float32 cells at native boundary",
+    "gate_dtype": "float32",
+    "output_dtype": "bfloat16-rounded float32 cells",
+    "initial_state_dtype": "float32",
+    "initial_state_layout": "value_head_key_value",
+    "final_state_dtype": "float32",
+    "final_state_layout": "value_head_key_value",
+    "query_scale": 1.0,
+    "use_g": true,
+    "use_gk": false,
+    "use_gv": false,
+    "use_qk_l2norm_in_kernel": false,
+    "is_beta_headwise": true,
+    "use_initial_state": true,
+    "store_final_state": true
+  },
+  "kernel": {
+    "file": "q1024_seeded_aiter_fused_gdn.hsaco",
+    "symbol": "_fixed_q1024_seeded_aiter_fused_gdn_kernel",
+    "sha256": "8a2711f9b047075f5d6ffb909c2bd93bf559e9e2cc8332386bd57f0e341562ee",
+    "bytes": 13752,
+    "grid": [
+      16,
+      32,
+      1
+    ],
+    "threads": 32,
+    "num_warps": 1,
+    "num_stages": 3,
+    "dynamic_shared_bytes": 512,
+    "abi": [
+      "postconv_values",
+      "gate_values",
+      "initial_state",
+      "outputs",
+      "final_state",
+      "gate_values_are_decay",
+      "tokens"
+    ],
+    "compiled_hash": "16520113731d23110866717484039fa732baf9fbda69d16f72474580ffa09148"
+  },
+  "q32768_seeded_bf16_kernel": {
+    "file": "q32768_seeded_aiter_fused_gdn_bf16.hsaco",
+    "symbol": "_fixed_q1024_seeded_aiter_fused_gdn_kernel",
+    "sha256": "7acbb2cfd32e5eb5a8252bbbb6abf7f6420b84b9cd70e52d6fc01409fe6a8834",
+    "bytes": 14832,
+    "grid": [
+      16,
+      32,
+      1
+    ],
+    "threads": 32,
+    "num_warps": 1,
+    "num_stages": 3,
+    "dynamic_shared_bytes": 256,
+    "abi": [
+      "postconv_values",
+      "gate_values",
+      "initial_state",
+      "outputs",
+      "final_state",
+      "gate_values_are_decay",
+      "tokens"
+    ],
+    "compiled_hash": "bc971bba05feca54398e6b23d8fbe4038c2274a60cf79d8a4a05604c73f7f4f2",
+    "tokens_per_chunk": 32768,
+    "correctness_authority": "structural q262144 temporal chunk; preserves F32 state between exact BF16 chunks"
+  }
+}

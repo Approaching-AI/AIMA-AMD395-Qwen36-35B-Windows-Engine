@@ -1,82 +1,141 @@
 # AIMA AMD395 Qwen3.6 35B Windows Engine
 
-Public release staging for a TileRT-style, model-specific native Windows
-inference engine for `Qwen3.6-35B-A3B-BF16` on AMD Ryzen AI Max+ 395
-(`gfx1151`). The runtime is designed for batch size 1 and uses a C core with
-thin Rust tooling.
+A native, model-specific Windows inference engine for
+`Qwen3.6-35B-A3B-BF16` on AMD Ryzen AI Max+ 395 (`gfx1151`). It provides a
+resident batch-one runtime, an OpenAI-compatible HTTP API, and a structured
+`qrt` command-line lifecycle.
 
-> **Release status:** the target runtime has passed its private qualification
-> matrix, but the source and binary package are not published yet. This first
-> public revision contains the release contract, governance, and publication
-> readiness record. It is not an installable engine release.
+[中文说明](README.zh-CN.md) ·
+[Linux companion](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine)
 
-[中文说明](README.zh-CN.md)
+## What is included
 
-## Qualified target
+- Native C/C++/HIP inference and model loading, with generated `gfx1151` AOT
+  kernels.
+- Rust `qrt serve`, `qrt start`, `qrt status`, and `qrt stop` commands.
+- `/v1/models`, `/v1/completions`, and `/v1/chat/completions` compatibility.
+- JSON and SSE streaming responses, including streamed function tool calls.
+- Deterministic greedy decode, tool-result continuation, and 512-token output.
+- Continuous prompt lengths up to the configured total-context limit.
+- Prefix-cache seed, copy-on-write reuse, resident reuse, and isolation checks.
+- A bounded FIFO request queue: one active batch-one request and configurable
+  waiting depth/timeout, with explicit `429`/`503` overload behavior.
+- Source-build, verification, performance, and MMLU-Pro evidence.
 
-The latest retained qualification snapshot was executed as a native Windows
-process on the project AMD395 host, using the real model and a separate BF16
-correctness authority. The q8192 product row reported:
+This is intentionally not a generic graph runtime. The kernels, layouts, and
+provider contract target one model family and one AMD GPU architecture.
 
-| Metric | Result | Required bound |
+## Qualified platform
+
+- Windows 11 x64
+- AMD Ryzen AI Max+ 395 (`gfx1151`)
+- AMD ROCm HIP SDK 7.1 and a compatible driver
+- `Qwen3.6-35B-A3B` BF16 model files obtained separately
+
+Model weights and AMD runtime binaries are not included.
+
+## Quick start
+
+Download the v1.0.0 runtime archive from
+[Releases](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases),
+or build it with [the source-build guide](docs/BUILD.md). Then run from
+PowerShell:
+
+```powershell
+$rt = Resolve-Path .\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.0
+$state = Join-Path $rt 'service.json'
+
+& "$rt\engine\qrt.exe" start `
+  --model 'C:\models\Qwen3.6-35B-A3B' `
+  --provider "$rt\whole-provider\qrt_qwen36_whole_provider.dll" `
+  --arbitrary-moe-provider "$rt\q1024-moe\qrt_triton_moe_q1024_exact_provider_slots64.dll" `
+  --arbitrary-moe-kernel-dir "$rt\q1024-moe\moe-kernels" `
+  --env-file "$rt\runtime.env" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR=$rt\aot\gfx1151" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL=$rt\ck-fmha\qrt_ck_fmha_continuous_long.dll" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=$rt\q8192-moe\qrt_triton_moe_q8192_provider.dll" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_KERNEL_DIR=$rt\q8192-moe" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_DLL=$rt\aiter-gdn\qrt_aiter_fused_gdn_q8192_provider.dll" `
+  --set-env "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_KERNEL_DIR=$rt\aiter-gdn" `
+  --model-id qwen3.6-35b-a3b `
+  --host 127.0.0.1 --port 8000 `
+  --max-model-len 262144 `
+  --max-queue-depth 64 --queue-timeout-seconds 600 `
+  --state-file $state --log-file "$rt\service.log"
+```
+
+The process remains resident after the launching terminal exits. Operate the
+exact recorded PID through the shared state file:
+
+```powershell
+& "$rt\engine\qrt.exe" status --state-file $state
+& "$rt\engine\qrt.exe" stop --state-file $state --wait-seconds 120
+```
+
+Use `--api-key` before binding beyond loopback. Unauthenticated non-loopback
+listeners are rejected unless explicitly enabled.
+
+## OpenAI client example
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:8000/v1", api_key="placeholder")
+stream = client.chat.completions.create(
+    model="qwen3.6-35b-a3b",
+    messages=[{"role": "user", "content": "Explain prefix caching briefly."}],
+    max_completion_tokens=128,
+    temperature=0,
+    stream=True,
+)
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="", flush=True)
+```
+
+See [API and operational behavior](docs/API.md) for tool calls, errors, queue
+semantics, context limits, and health fields.
+
+## Published qualification
+
+The retained q8192 real-model result on the qualified Windows platform was:
+
+| Metric | Result | Acceptance bound |
 |---|---:|---:|
-| TTFT | 3,852.909 ms | <= 4,187.416 ms |
-| Prefill throughput | 2,126.186 tok/s | >= 1,506.407 tok/s |
-| Decode throughput | 30.551 tok/s | >= 28.168 tok/s |
-| TPOT | 32.732 ms | <= 35.502 ms |
 | Model + engine load | 19,940.245 ms | <= 30,000 ms |
+| TTFT | 3,852.909 ms | <= 4,187.416 ms |
+| Prefill | 2,126.186 tok/s | >= 1,506.407 tok/s |
+| Decode | 30.551 tok/s | >= 28.168 tok/s |
+| TPOT | 32.732 ms | <= 35.502 ms |
 
-The complete qualification matrix contains 12 accepted rows covering:
+The repository publishes all 12 retained performance rows, GB10-anchored token
+correctness, maximum-context and prefix-continuation digests, OpenAI surface
+acceptance, and the complete sanitized MMLU-Pro candidate/reference parity
+data. See [performance](docs/PERFORMANCE.md),
+[evaluation](docs/EVALUATION.md), and [benchmarks](benchmarks/README.md).
 
-- the q8192 retained peak;
-- cold 8k through 128k contexts;
-- shared-prefix reuse from 16k through 256k;
-- 512-token decode and SSE streaming; and
-- first-token correctness anchored to the external BF16 authority.
+MMLU-Pro exact-answer accuracy was `7,486 / 12,032` (`62.2174%`) for both this
+engine and the BF16 authority, with zero projection mismatch across all 12,032
+questions.
 
-These numbers are qualification facts, not a promise that this staging tree
-can reproduce them. Public reproduction requires the source, generated kernel
-inventory, redistributable runtime manifest, compact evidence package, and
-clean-machine build instructions that are still being curated.
+## Build and test
 
-## Publication gates
+```powershell
+.\scripts\build-runtime.ps1 `
+  -CkRoot C:\src\composable_kernel `
+  -OutDir build\runtime
+```
 
-- [x] Native Windows real-model product qualification completed.
-- [x] External first-token correctness authority attached to the product rows.
-- [x] Windows public repository and Apache-2.0 governance created.
-- [ ] Remove private deployment paths and addresses from the release history.
-- [ ] Publish compact OpenAI API, MMLU-Pro, and product-matrix evidence.
-- [ ] Make every required provider reproducible from a clean checkout.
-- [ ] Complete the Windows redistributable and third-party license inventory.
-- [ ] Publish a checksummed source tag and portable binary package.
+CPU-safe checks also run on macOS/Linux:
 
-The release is ready to be **announced as work in release preparation**, but it
-is not ready to be presented as a reproducible open-source engine package.
-See [the readiness audit](docs/OPEN_SOURCE_READINESS.md) for the exact boundary.
+```shell
+make check
+```
 
-## Intended public layout
-
-The repository follows the same release organization as the companion Linux
-engine while keeping the implementation Windows-native:
-
-- `engine/`: public runtime API and orchestration;
-- `native/`: C/C++/HIP providers and generated `gfx1151` kernels;
-- `scripts/`: MSVC, Rust, HIP, packaging, and verification entry points;
-- `benchmarks/`: compact correctness-attached product evidence;
-- `packaging/`: portable Windows archive and license assembly;
-- `tests/`: CPU-safe and Windows ABI regression checks; and
-- `third_party/licenses/`: verbatim notices for redistributed material.
-
-## Scope
-
-This project is deliberately model- and device-specific. It is not a generic
-graph runtime and does not use smoke tests, transport checks, self-hashes, or
-proxy benchmarks as proof of real inference. Model weights are never bundled;
-users must obtain them separately and comply with their license.
+Target builds additionally require Visual Studio Build Tools, Rust, ROCm 7.1,
+WSL2, and Triton 3.6. Details are in [BUILD.md](docs/BUILD.md).
 
 ## License
 
-Project-authored material is licensed under the Apache License 2.0. Files that
-carry another license or attribution remain under their stated terms. See
-[LICENSE](LICENSE), [NOTICE](NOTICE), and
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Project-authored material is Apache-2.0. Adapted or redistributed upstream
+material remains under its stated permissive license. See [LICENSE](LICENSE),
+[NOTICE](NOTICE), and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

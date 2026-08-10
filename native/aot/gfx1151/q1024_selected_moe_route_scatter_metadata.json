@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q8192_triton_selected_moe.py",
+  "provenance": "fixed-shape adaptation of AMD AITER Triton MoE (MIT)",
+  "fix": "separate the 256-expert block-label grid from the 32 q1024 route-scatter programs",
+  "shape": {
+    "tokens": 1024,
+    "top_k": 8,
+    "routes": 8192,
+    "route_programs": 32,
+    "experts": 256,
+    "block_m": 64
+  },
+  "kernel": {
+    "name": "route_scatter",
+    "file": "q1024_selected_moe_route_scatter.hsaco",
+    "symbol": "_route_scatter_kernel",
+    "sha256": "2859b650f413d6e7f8610f8f2e9d9d2fcdf1f611c9615e2411f40ac1ba00dc20",
+    "bytes": 6416,
+    "grid": [256, 1, 1],
+    "threads": 128,
+    "dynamic_shared_bytes": 0
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false
+}

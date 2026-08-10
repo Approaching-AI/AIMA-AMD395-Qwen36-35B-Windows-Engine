@@ -1,66 +1,98 @@
 # AIMA AMD395 Qwen3.6 35B Windows Engine
 
-这是一个面向 `Qwen3.6-35B-A3B-BF16`、AMD Ryzen AI Max+ 395（`gfx1151`）
-的 TileRT 风格原生 Windows 推理引擎公开发布仓库。引擎针对 batch size 1，
-核心运行时使用 C，外层工具使用 Rust。
+这是一个面向 `Qwen3.6-35B-A3B-BF16` 和 AMD Ryzen AI Max+ 395
+（`gfx1151`）的原生 Windows 推理引擎。它以 batch size 1 为核心，提供常驻
+服务、OpenAI 兼容 HTTP API，以及结构化的 `qrt` 生命周期 CLI。
 
-> **发布状态：**目标运行时已经通过私有资格验收矩阵，但源码与二进制包
-> 尚未公开。当前首个公开版本只包含发布契约、社区治理和开源就绪审计，
-> 不是可安装的引擎版本。
+[English](README.md) ·
+[配套 Linux 版本](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine)
 
-[English](README.md)
+## 已包含的能力
 
-## 已通过的目标验收
+- C/C++/HIP 原生推理、模型加载和 `gfx1151` AOT kernel；
+- `qrt serve/start/status/stop`；
+- `/v1/models`、`/v1/completions`、`/v1/chat/completions`；
+- 普通 JSON、SSE streaming、流式 function tool calling；
+- tool result continuation 和最多 512 token 的确定性 greedy decode；
+- 在总上下文上限内连续、任意的输入 token 长度；
+- prefix cache seed、copy-on-write hit、resident hit 和污染隔离；
+- 有界 FIFO 队列：一个请求执行，其他请求按顺序等待，队列满或超时返回
+  明确的 `429`/`503`，不会无上限占用资源；
+- 完整源码构建、验收、性能和 MMLU-Pro 数据。
 
-最近一次保留结果在项目 AMD395 主机上以原生 Windows 进程执行，使用真实
-模型，并由独立 BF16 正确性基准提供权威边界。q8192 产品行结果如下：
+本项目有意限定到单一模型族和硬件架构，不是通用图运行时。模型权重和 AMD
+运行库不随仓库发布。
 
-| 指标 | 实测结果 | 验收边界 |
+## 运行环境
+
+- Windows 11 x64
+- AMD Ryzen AI Max+ 395（`gfx1151`）
+- AMD ROCm HIP SDK 7.1 与兼容驱动
+- 用户自行取得的 `Qwen3.6-35B-A3B` BF16 模型目录
+
+## 快速启动
+
+从 [Releases](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases)
+下载 v1.0.0，或按 [源码构建说明](docs/BUILD.md)生成 runtime。完整启动命令见
+英文 README；生命周期最常用的三条命令是：
+
+```powershell
+& .\engine\qrt.exe start <模型、provider、runtime.env 与端口参数>
+& .\engine\qrt.exe status --state-file .\service.json
+& .\engine\qrt.exe stop --state-file .\service.json --wait-seconds 120
+```
+
+`start` 完成模型预加载后会脱离当前终端并常驻；`status` 核验状态文件中的
+精确 PID 和 health endpoint；`stop` 先关闭 admission，再等待活跃请求完成，
+释放资源后退出。非 loopback 监听默认必须设置 `--api-key`。
+
+OpenAI Python 客户端使用：
+
+```python
+from openai import OpenAI
+
+client = OpenAI(base_url="http://127.0.0.1:8000/v1", api_key="placeholder")
+for chunk in client.chat.completions.create(
+    model="qwen3.6-35b-a3b",
+    messages=[{"role": "user", "content": "简要解释 prefix cache。"}],
+    max_completion_tokens=128,
+    temperature=0,
+    stream=True,
+):
+    print(chunk.choices[0].delta.content or "", end="", flush=True)
+```
+
+API、tool calling、错误码、队列和上下文限制详见 [API.md](docs/API.md)。
+
+## 已公布的真实模型数据
+
+| 指标 | 实测 | 验收边界 |
 |---|---:|---:|
-| TTFT | 3,852.909 ms | <= 4,187.416 ms |
-| Prefill 吞吐 | 2,126.186 tok/s | >= 1,506.407 tok/s |
-| Decode 吞吐 | 30.551 tok/s | >= 28.168 tok/s |
-| TPOT | 32.732 ms | <= 35.502 ms |
 | 模型与引擎加载 | 19,940.245 ms | <= 30,000 ms |
+| q8192 TTFT | 3,852.909 ms | <= 4,187.416 ms |
+| q8192 prefill | 2,126.186 tok/s | >= 1,506.407 tok/s |
+| decode | 30.551 tok/s | >= 28.168 tok/s |
+| TPOT | 32.732 ms | <= 35.502 ms |
 
-完整资格矩阵包含 12 条通过记录，覆盖 q8192 峰值、8k 到 128k 冷上下文、
-16k 到 256k 共享前缀、512 token 解码和 SSE 流式输出，以及由外部 BF16
-权威基准锚定的首 token 正确性。
+仓库公开 12 条性能记录、GB10 锚定的 token 正确性、长上下文 continuation、
+OpenAI 功能验收，以及完整脱敏后的 MMLU-Pro candidate/reference 逐题数据。
+MMLU-Pro 两端均为 `7,486 / 12,032`（`62.2174%`），12,032 题 projection
+mismatch 为 0。详见 [性能](docs/PERFORMANCE.md)、[评测](docs/EVALUATION.md)
+和 [benchmarks](benchmarks/README.md)。
 
-这些数据是资格验收事实，并不表示当前 staging 仓库可以复现。公开复现仍
-需要发布源码、生成 kernel 清单、Windows 可再分发运行库清单、精简证据包
-和干净环境构建说明。
+## 构建与许可
 
-## 公开发布门槛
+Windows 全量构建：
 
-- [x] 原生 Windows 真实模型产品验收完成。
-- [x] 产品行已经附加外部首 token 正确性权威边界。
-- [x] 建立 Windows public repo 和 Apache-2.0 治理文件。
-- [ ] 清除发布历史中的私有部署路径和地址。
-- [ ] 公开 OpenAI API、MMLU-Pro 和产品矩阵的精简证据。
-- [ ] 所有必要 provider 均可从干净 checkout 重建。
-- [ ] 完成 Windows 可再分发组件及第三方许可证清单。
-- [ ] 发布带校验和的源码 tag 和便携二进制包。
+```powershell
+.\scripts\build-runtime.ps1 `
+  -CkRoot C:\src\composable_kernel `
+  -OutDir build\runtime
+```
 
-因此，目前可以公开说明“正在准备发布”，但还不能宣称这是一个可复现、
-可安装的完整开源引擎。详细边界见
-[开源就绪审计](docs/OPEN_SOURCE_READINESS.md)。
+跨平台 CPU-safe 检查运行 `make check`。目标构建还需要 VS Build Tools、
+Rust、ROCm 7.1、WSL2 与 Triton 3.6，详见 [BUILD.md](docs/BUILD.md)。
 
-## 规划中的公共目录结构
-
-仓库沿用配套 Linux 引擎的发布组织方式，但实现保持 Windows 原生：
-
-- `engine/`：公共运行时 API 和编排；
-- `native/`：C/C++/HIP provider 和生成的 `gfx1151` kernel；
-- `scripts/`：MSVC、Rust、HIP、打包和验证入口；
-- `benchmarks/`：附带正确性边界的精简产品证据；
-- `packaging/`：便携 Windows 压缩包与许可证装配；
-- `tests/`：CPU 安全检查与 Windows ABI 回归测试；
-- `third_party/licenses/`：再分发组件的原始许可证文本。
-
-本项目有意限定到特定模型和硬件，不是通用图运行时。模型权重不会随仓库
-发布，用户必须自行取得并遵守相应许可证。
-
-项目原创内容采用 Apache License 2.0。另有许可证或署名的文件继续遵守其
-原始条款，详见 [LICENSE](LICENSE)、[NOTICE](NOTICE) 和
+项目原创内容采用 Apache-2.0；上游改编或再分发内容保持其原许可证。详见
+[LICENSE](LICENSE)、[NOTICE](NOTICE) 和
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

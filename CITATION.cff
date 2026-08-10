@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 title: AIMA AMD395 Qwen3.6 35B Windows Engine
-message: If you use this project, please cite the first supported software release.
+message: If you use this project, please cite the v1.0.0 software release.
 type: software
 authors:
   - family-names: Guan
@@ -9,5 +9,5 @@ authors:
     website: https://guanjiawei.ai
 repository-code: https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine
 license: Apache-2.0
-version: 0.1.0-dev
-date-released: 2026-08-09
+version: 1.0.0
+date-released: 2026-08-10

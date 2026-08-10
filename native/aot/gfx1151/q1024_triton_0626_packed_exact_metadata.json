@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_triton_moe_0626_exact.py",
+  "reference_source": "tools/compile_q1_triton_moe_0626.py",
+  "arithmetic": "q1-exact BF16 endpoints, FP32 accumulation, and route-order sum; eight independent output rows execute serially per program",
+  "shape": {
+    "tokens": 1024,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "experts": 256,
+    "outputs_per_program": 8
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "kernels": [
+    {
+      "name": "packed_gate_up_silu_w8",
+      "file": "q1024_triton_0626_exact_packed_gate_up_silu_w8.hsaco",
+      "symbol": "_packed_gate_up_silu_kernel",
+      "sha256": "cab98c2af402e3ac10e26ff81d255fc6938987a8611da9b377a0b72ef5421108",
+      "bytes": 8408,
+      "grid": [524288, 1, 1],
+      "threads": 256,
+      "dynamic_shared_bytes": 32
+    },
+    {
+      "name": "packed_down_sum",
+      "file": "q1024_triton_0626_exact_packed_down_sum.hsaco",
+      "symbol": "_packed_down_sum_kernel",
+      "sha256": "caafc7c36a87389d13dc53bc6956f605c83cfd0c298b744e5fc87ee50616e5f1",
+      "bytes": 7360,
+      "grid": [262144, 1, 1],
+      "threads": 32,
+      "dynamic_shared_bytes": 0
+    }
+  ]
+}

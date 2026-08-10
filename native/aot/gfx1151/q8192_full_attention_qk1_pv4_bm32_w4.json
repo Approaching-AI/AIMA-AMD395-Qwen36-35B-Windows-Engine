@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "file": "q8192_full_attention_qk1_pv4_bm32_w4.hsaco",
+  "sha256": "15397e8c28fc3b31cae0928172aef6502e577c2c483dc45e23255d4d5f79acec",
+  "bytes": 79704,
+  "symbol": "_fwd_kernel",
+  "target": "gfx1151",
+  "source": "tools/compile_q8192_triton_full_attention.py::_fwd_kernel",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "compiled_hash": "4a20b01d79ce854dc520de114f797248ec34168df29db2343d74fb2fec63ec69",
+  "shape": {
+    "tokens": 8192,
+    "query_heads": 16,
+    "kv_heads": 2,
+    "head_dim": 256,
+    "input_dtype": "float32",
+    "output_dtype": "float32",
+    "accumulator_dtype": "float32",
+    "input_precision": "ieee",
+    "qk_mode": 1,
+    "pv_mode": 4,
+    "block_m": 32,
+    "qk_mode_description": "BF16 Q/K tensor dot with FP32 accumulation",
+    "pv_mode_description": "BF16 probability/value tensor dot plus probability-low x value-high correction"
+  },
+  "launch": {
+    "grid": [
+      1,
+      16,
+      256
+    ],
+    "threads": 128,
+    "dynamic_shared_bytes": 32768
+  },
+  "abi": [
+    "history_rope_ptr",
+    "context_output_ptr"
+  ],
+  "compiler_metadata": {
+    "name": "_fwd_kernel",
+    "num_warps": 4,
+    "num_ctas": 1,
+    "shared": 32768,
+    "global_scratch_size": 0,
+    "profile_scratch_size": 0
+  },
+  "retained_validation": {
+    "host": "baiying",
+    "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+    "command_file": "scripts/baiying_hprefill001.ps1",
+    "commit": "2376c3c7",
+    "dirty_tree": true,
+    "run_id": "hprefill001-retained-triton-fresh-build-20260710T132055Z-2376c3c7",
+    "source_sha256": "0fd4a7f4fb5aa996776cd05da2b5667817e3172e2a67329380621c99f26417c1",
+    "build_reused": false,
+    "prompt_token_ids_fnv1a64": "71f149d685c59c4f",
+    "gb10_first_token_id": 23,
+    "native_first_token_id": 23,
+    "gb10_first_token_logit": 19.375,
+    "native_first_token_logit": 19.25,
+    "first_token_logit_abs_diff": 0.125,
+    "product_contract_matches": true,
+    "ttft_ms": 21071.1,
+    "prefill_tokens_per_second": 388.769,
+    "full_attention_layers_wall_clock_ms": 7826.66,
+    "full_attention_core_wall_clock_ms": 4811.5,
+    "startup_full_prepack_ms": 134301,
+    "standalone_zero_input_mean_kernel_ms": 348.695,
+    "standalone_timed_repetitions": 3,
+    "windows_build_artifacts": {
+      "hprefill001_prefill_body_slice.exe": "d61c38797b71b4542267b1fa86ce3fb484b6427e741095f9729097220fa7b6bd",
+      "qrt_prefill_descriptor_batch_hip.dll": "ad38a67abd388eeaf7320f31d77f70d82e38f2e857c8c8516584e1aa786a9fa0",
+      "qrt_qwen36_whole_provider.dll": "a0320032615e6ebe5605fc79cd692d06b61bb884be19323dd70eeec3e933b936"
+    }
+  }
+}

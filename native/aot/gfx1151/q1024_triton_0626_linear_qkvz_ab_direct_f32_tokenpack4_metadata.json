@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_triton_linear_qkvz_ab_0626_exact.py",
+  "file": "q1024_triton_0626_linear_qkvz_ab_direct_f32_tokenpack4_w8.hsaco",
+  "symbol": "_linear_qkvz_ab_q1024_direct_f32_kernel",
+  "sha256": "43ff7d43f2c264920da2070327faa03146d5209a3d375a7a91bd987f43855bc4",
+  "bytes": 8960,
+  "grid": [
+    12352,
+    256,
+    1
+  ],
+  "threads": 256,
+  "dynamic_shared_bytes": 128,
+  "launch_options": {
+    "num_warps": 8,
+    "num_stages": 1,
+    "waves_per_eu": 0
+  },
+  "abi": [
+    "weights_bf16",
+    "inputs_bf16",
+    "qkv_output_f32",
+    "aux_output_f32"
+  ],
+  "compiled_hash": "58c19f7cd026114c7ed2fcabaebeefd95432c58ba42643eb8957d544fd9795ac",
+  "arithmetic": "q1 scalar-row tl.sum BF16 weights/input, FP32 accumulation, RNE BF16 endpoint converted to split F32 outputs",
+  "shape": {
+    "tokens": 1024,
+    "hidden": 2048,
+    "rows": 12352,
+    "qkv_rows": 8192,
+    "aux_rows": 4160,
+    "token_pack": 4
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false
+}

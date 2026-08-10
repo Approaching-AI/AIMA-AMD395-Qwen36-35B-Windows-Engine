@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1_triton_moe_0626.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "BF16 weights and activations with FP32 accumulation",
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "shape": {
+    "batch": 1,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "experts": 256
+  },
+  "kernels": [
+    {
+      "name": "gate_up_silu",
+      "file": "q1_triton_0626_gate_up_silu.hsaco",
+      "symbol": "_gate_up_silu_kernel",
+      "sha256": "7d4b3f9a0625df6bf6a7bd19eeaf6601a4062ac98c44451842780983d0054aa9",
+      "bytes": 8848,
+      "grid": [
+        4096,
+        1,
+        1
+      ],
+      "threads": 128,
+      "dynamic_shared_bytes": 16,
+      "launch_options": {
+        "num_warps": 4,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_up_bf16",
+        "input_bf16",
+        "topk_ids",
+        "activated_bf16"
+      ],
+      "compiled_hash": "01aed458ca07210ff7c561dbea094af95f5a39d8a740de49e5a40708cc9f2bc1"
+    },
+    {
+      "name": "gate_up_silu_w8",
+      "file": "q1_triton_0626_gate_up_silu_w8.hsaco",
+      "symbol": "_gate_up_silu_kernel",
+      "sha256": "d8121b0d85c0a2c5e80e9a2b49177d72890a78d128a7fa309978b89829b87cad",
+      "bytes": 8136,
+      "grid": [
+        4096,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_up_bf16",
+        "input_bf16",
+        "topk_ids",
+        "activated_bf16"
+      ],
+      "compiled_hash": "d6d5b032d1810bb37b7b9382bde4abffc740d6c34bd0996c5f9bb37f8376cf25"
+    },
+    {
+      "name": "down_sum",
+      "file": "q1_triton_0626_down_sum.hsaco",
+      "symbol": "_down_sum_kernel",
+      "sha256": "4760439fdce74da05aec4747eccd317227829d50fdcb97a63c72ba5df342d125",
+      "bytes": 6920,
+      "grid": [
+        2048,
+        1,
+        1
+      ],
+      "threads": 32,
+      "dynamic_shared_bytes": 0,
+      "launch_options": {
+        "num_warps": 1,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "down_bf16",
+        "activated_bf16",
+        "topk_ids",
+        "topk_weights",
+        "routed_output_f32"
+      ],
+      "compiled_hash": "479ee7ece512d07c34058394dc7997902982bea7442e087da08ec911c61cf911"
+    },
+    {
+      "name": "shared_gate_up_silu",
+      "file": "q1_triton_0626_shared_gate_up_silu.hsaco",
+      "symbol": "_shared_gate_up_silu_kernel",
+      "sha256": "ded15a610818641d0c0739cdd931c5893d98b1c95aefbe1daafdd3c04100325f",
+      "bytes": 8896,
+      "grid": [
+        512,
+        1,
+        1
+      ],
+      "threads": 128,
+      "dynamic_shared_bytes": 16,
+      "launch_options": {
+        "num_warps": 4,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_bf16",
+        "up_bf16",
+        "input_bf16",
+        "activated_bf16"
+      ],
+      "compiled_hash": "0f56310350d7d63a18b51e7f8c371fb50e3d0b113c236dda7badd386887c676f"
+    },
+    {
+      "name": "shared_gate_logit",
+      "file": "q1_triton_0626_shared_gate_logit.hsaco",
+      "symbol": "_shared_gate_logit_kernel",
+      "sha256": "8cc8a08d3ed1d66f36a0d063ed501af38f676bbe48a3c4a1e2bb52db0750248d",
+      "bytes": 7392,
+      "grid": [
+        1,
+        1,
+        1
+      ],
+      "threads": 128,
+      "dynamic_shared_bytes": 16,
+      "launch_options": {
+        "num_warps": 4,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_scalar_bf16",
+        "input_bf16",
+        "gate_logit_bf16"
+      ],
+      "compiled_hash": "ff60a855151c633e5163d6a962acbdb66cdc11ec6717b2c1769e5271a5f4d398"
+    },
+    {
+      "name": "shared_down",
+      "file": "q1_triton_0626_shared_down.hsaco",
+      "symbol": "_shared_down_kernel",
+      "sha256": "f4c6f2ef82493194deb4c10a93ccd2825779e1cccb86422dd10880d85c0c47a2",
+      "bytes": 6488,
+      "grid": [
+        2048,
+        1,
+        1
+      ],
+      "threads": 32,
+      "dynamic_shared_bytes": 0,
+      "launch_options": {
+        "num_warps": 1,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "down_bf16",
+        "activated_bf16",
+        "down_output_bf16"
+      ],
+      "compiled_hash": "e8821696c1e500dd0755a2af0d6b34d1fdaf552a5f9a6b8324e61e201878f86a"
+    }
+  ]
+}

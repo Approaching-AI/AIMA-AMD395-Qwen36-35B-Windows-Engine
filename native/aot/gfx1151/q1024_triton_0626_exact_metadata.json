@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "tools/compile_q1024_triton_moe_0626_exact.py",
+  "reference_source": "tools/compile_q1_triton_moe_0626.py",
+  "hip_module_launch_hidden_arguments": [
+    {
+      "name": "global_scratch",
+      "value": "nullptr"
+    },
+    {
+      "name": "profile_scratch",
+      "value": "nullptr"
+    }
+  ],
+  "arithmetic": "q1-exact BF16 endpoints, FP32 accumulation, and route-order sum",
+  "shape": {
+    "tokens": 1024,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "experts": 256
+  },
+  "quantized": false,
+  "mtp_enabled": false,
+  "dflash_enabled": false,
+  "speculative_decode": false,
+  "kernels": [
+    {
+      "name": "gate_up_silu_w8",
+      "file": "q1024_triton_0626_exact_gate_up_silu_w8.hsaco",
+      "symbol": "_gate_up_silu_kernel",
+      "sha256": "27e225f8531b69c5422d9a0e58c2a0a9d6e88b8bdc34fbf44084b3b3f9af4efb",
+      "bytes": 8184,
+      "grid": [
+        4194304,
+        1,
+        1
+      ],
+      "threads": 256,
+      "dynamic_shared_bytes": 32,
+      "launch_options": {
+        "num_warps": 8,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_up_bf16",
+        "input_bf16",
+        "topk_ids",
+        "activated_bf16"
+      ],
+      "compiled_hash": "6b3ee512eb5a980319219d1451c369abbc18f15409e34e834720f0e71635ef8f"
+    },
+    {
+      "name": "down_sum",
+      "file": "q1024_triton_0626_exact_down_sum.hsaco",
+      "symbol": "_down_sum_kernel",
+      "sha256": "d2262872e5901f621cd76d71a55ebf1546e5942dc45bc628c08d1988d1c76669",
+      "bytes": 6968,
+      "grid": [
+        2097152,
+        1,
+        1
+      ],
+      "threads": 32,
+      "dynamic_shared_bytes": 0,
+      "launch_options": {
+        "num_warps": 1,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "down_bf16",
+        "activated_bf16",
+        "topk_ids",
+        "topk_weights",
+        "routed_output_f32"
+      ],
+      "compiled_hash": "f23a75c764ce78bce62b5548215a03bcd574400611e603567a512a26728572ac"
+    },
+    {
+      "name": "shared_gate_up_silu",
+      "file": "q1024_triton_0626_exact_shared_gate_up_silu.hsaco",
+      "symbol": "_shared_gate_up_silu_kernel",
+      "sha256": "3084f09e1f317ea02db6679d9049c72dd66f5ff708353d83ef74bdba3134eb39",
+      "bytes": 8952,
+      "grid": [
+        524288,
+        1,
+        1
+      ],
+      "threads": 128,
+      "dynamic_shared_bytes": 16,
+      "launch_options": {
+        "num_warps": 4,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_bf16",
+        "up_bf16",
+        "input_bf16",
+        "activated_bf16"
+      ],
+      "compiled_hash": "e0da15683eb20c7db68c2389c3a6a0c6c308bb80be22613312b064fe4e0550ad"
+    },
+    {
+      "name": "shared_gate_logit",
+      "file": "q1024_triton_0626_exact_shared_gate_logit.hsaco",
+      "symbol": "_shared_gate_logit_kernel",
+      "sha256": "ef4e89749c46eb71c0078d740ff8fd038aba645621c2e654f9e4b11acc915163",
+      "bytes": 7408,
+      "grid": [
+        1024,
+        1,
+        1
+      ],
+      "threads": 128,
+      "dynamic_shared_bytes": 16,
+      "launch_options": {
+        "num_warps": 4,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "gate_scalar_bf16",
+        "input_bf16",
+        "gate_logit_bf16"
+      ],
+      "compiled_hash": "16d8ba78f5be9391a852750338b3b2a5750ef8d62dcb6b9bfd8e600cc1b27ad0"
+    },
+    {
+      "name": "shared_down",
+      "file": "q1024_triton_0626_exact_shared_down.hsaco",
+      "symbol": "_shared_down_kernel",
+      "sha256": "59660c53509b2e890cbfa2aa27dd8246d856bb1262e7a5ce6a74e71f800befb0",
+      "bytes": 6560,
+      "grid": [
+        2097152,
+        1,
+        1
+      ],
+      "threads": 32,
+      "dynamic_shared_bytes": 0,
+      "launch_options": {
+        "num_warps": 1,
+        "num_stages": 1,
+        "waves_per_eu": 0
+      },
+      "abi": [
+        "down_bf16",
+        "activated_bf16",
+        "down_output_bf16"
+      ],
+      "compiled_hash": "61f156cfefe5ac2acefbde259e7768f11e0239e1b24ce1d0e06cdc1781176cad"
+    }
+  ]
+}

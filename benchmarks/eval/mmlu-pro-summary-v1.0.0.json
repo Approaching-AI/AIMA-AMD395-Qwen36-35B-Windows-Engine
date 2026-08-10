@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "record_type": "mmlu_pro_public_acceptance",
+  "release": "v1.0.0",
+  "status": "pass",
+  "formal_acceptance": {
+    "eligible": true,
+    "reason": "The complete candidate run follows the frozen global policy and equals the complete BF16 authority score numerator."
+  },
+  "platform": {
+    "host": "baiying",
+    "os": "Windows 11 x64",
+    "device": "AMD Ryzen AI Max+ 395",
+    "offload_arch": "gfx1151",
+    "model": "Qwen3.6-35B-A3B-BF16",
+    "batch_size": 1,
+    "weights_included": false
+  },
+  "config": {
+    "config_id": "8ca3b8f12506b47a",
+    "dataset": "TIGER-Lab/MMLU-Pro",
+    "dataset_revision": "b189ec765aa7ed75c8acfea42df31fdae71f97be",
+    "test_rows_sha256": "8ac286d6b84d6d536b09abf5b08ace185743600e03aa24eef04d69643b04810d",
+    "validation_rows_sha256": "8f6ff88ec33247f57eea9468ca09355f9822af084b5c44328a75caf872916232",
+    "official_harness_revision": "f418b116db00b065c2aea046518d8fcf74d39872",
+    "prompt_version": "mmlu-pro-five-shot-direct-system-letter-v2",
+    "shots": 5,
+    "mode": "direct",
+    "enable_thinking": false,
+    "temperature": 0,
+    "top_p": 1,
+    "max_completion_tokens": 8,
+    "client_concurrency": 1
+  },
+  "policy": {
+    "name": "maximum_token_id_for_maximum_counts_2_and_count3_ulp_shape_mask_12",
+    "runtime_overrides_path": "benchmarks/eval/mmlu-pro-runtime-overrides-v1.0.0.env",
+    "target_max_ulps": 2,
+    "maximum_eligible_counts": [2],
+    "unique_maximum_eligible_counts": [],
+    "count3_ulp_shape_mask": 12
+  },
+  "score": {
+    "rows": 12032,
+    "candidate_correct": 7486,
+    "candidate_accuracy": 0.6221742021276596,
+    "candidate_parsed": 12026,
+    "reference_correct": 7486,
+    "reference_accuracy": 0.6221742021276596,
+    "reference_parsed": 12030,
+    "score_numerator_delta": 0,
+    "prediction_agreement": 11180,
+    "correctness_agreement": 11580,
+    "projection_mismatches": 0
+  },
+  "runtime_identity": {
+    "server_commit": "d83e94f3ab93cf1ecbcea4c6f156f74a72b978a9",
+    "whole_provider_commit": "811bd8a2c204e9fdd98aa0f610a29f1eb396f16f",
+    "arbitrary_moe_provider_commit": "f30eb18478823df98a438fb262096e494e7821c6",
+    "server_sha256": "ca99f922fe22591e0c7fa030b6ed6ee2d97ccbcd10e2ec4b75fd1459e4e98b44",
+    "whole_provider_sha256": "05246534bcec2ad52787c8aff44372d7db8990de8ed0eff6b82087295edb61aa",
+    "arbitrary_moe_provider_sha256": "10bdee312c32e1346b796c3db831dbb79a361a6d8f6a0b0becc0d01ad370a1c7",
+    "clean_build_provenance": true
+  },
+  "source_records": {
+    "candidate_rows": {
+      "bytes": 15161121,
+      "sha256": "27070c730a9cc274fb15f2fd92e2a500ad4f26c08ac748c1d7cc24416032251a"
+    },
+    "reference_rows": {
+      "bytes": 14346889,
+      "sha256": "883eab9a609128fa9b262b47190937c5f964bcaa7d899e626e67bda664f1fd0b"
+    }
+  },
+  "published_rows": {
+    "path": "benchmarks/eval/mmlu-pro-full-parity-v1.0.0.jsonl",
+    "bytes": 10161765,
+    "rows": 12032,
+    "sha256": "fba739ece179be8c1b1a21bc36331b1ab859cd1051e238f466d696aab5c37544",
+    "privacy": "No prompt text, answer choices, endpoint, address, PID, path, credential, response ID, or wall-clock timestamp is included."
+  }
+}

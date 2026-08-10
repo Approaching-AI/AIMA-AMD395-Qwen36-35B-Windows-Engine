@@ -1,12 +1,16 @@
 AIMA AMD395 Qwen3.6 35B Windows Engine
 Copyright 2026 Approaching AI Authors
 
-The initial release-staging revision contains no model weights, AMD runtime
-binaries, generated GPU binaries, or third-party source payload.
+This product contains or adapts permissively licensed material from AMD AITER,
+AMD Composable Kernel, Flash Linear Attention, gpu-simulator, and the Rust
+ecosystem. Their copyright and license notices are preserved in source-adjacent
+LICENSE files, third_party/licenses, THIRD_PARTY_NOTICES.md, and
+third_party/RUST_DEPENDENCIES.md.
 
-Future source and binary releases will preserve all applicable upstream
-license and attribution notices. See THIRD_PARTY_NOTICES.md.
+Generated gfx1151 code objects are build products of the attributed source and
+toolchains. Model weights and AMD ROCm runtime binaries are not distributed by
+this project.
 
-AMD, Ryzen, ROCm, HIP and other names may be trademarks of their respective
-owners. Their use here identifies the qualified platform and does not imply
+AMD, Ryzen, ROCm, HIP, Qwen, and other names may be trademarks of their
+respective owners. Their use identifies compatibility and does not imply
 endorsement.

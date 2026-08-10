@@ -11,7 +11,11 @@ from public_hygiene import scan_bytes, scan_public_tree  # noqa: E402
 
 class PublicHygieneTests(unittest.TestCase):
     def test_detects_private_deployment_details(self) -> None:
-        payload = b"endpoint=" + b"192." + b"168.1.7\npath=/ho" + b"me/alice/model\n"
+        payload = (
+            b"endpoint=" + b"192." + b"168.1.7\n"
+            b"overlay=" + b"100." + b"91.39.109\n"
+            b"path=/ho" + b"me/alice/model\n"
+        )
         self.assertEqual(
             {finding.rule for finding in scan_bytes("sample.txt", payload)},
             {"private-ipv4", "private-home-path"},
