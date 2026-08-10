@@ -5,6 +5,26 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+function Get-PortableRelativePath {
+    param(
+        [Parameter(Mandatory = $true)][string]$BasePath,
+        [Parameter(Mandatory = $true)][string]$TargetPath
+    )
+
+    $separator = [IO.Path]::DirectorySeparatorChar
+    $baseFull = [IO.Path]::GetFullPath($BasePath).TrimEnd(
+        [char[]]@('\', '/')
+    ) + $separator
+    $targetFull = [IO.Path]::GetFullPath($TargetPath)
+    if (-not $targetFull.StartsWith(
+            $baseFull, [StringComparison]::OrdinalIgnoreCase
+        )) {
+        throw "path is outside the expected base directory: $targetFull"
+    }
+    return $targetFull.Substring($baseFull.Length).Replace('\', '/')
+}
+
 $repo = Split-Path -Parent $PSScriptRoot
 $RuntimeDir = [IO.Path]::GetFullPath($RuntimeDir)
 if (-not (Test-Path -LiteralPath $RuntimeDir -PathType Container)) {
@@ -141,7 +161,8 @@ Copy-Item -LiteralPath (Join-Path $repo "third_party") `
 
 $fileRecords = foreach ($file in Get-ChildItem -LiteralPath $stage `
         -Recurse -File | Sort-Object FullName) {
-    $relative = [IO.Path]::GetRelativePath($stage, $file.FullName).Replace('\', '/')
+    $relative = Get-PortableRelativePath -BasePath $stage `
+        -TargetPath $file.FullName
     [ordered]@{
         path = $relative
         bytes = $file.Length

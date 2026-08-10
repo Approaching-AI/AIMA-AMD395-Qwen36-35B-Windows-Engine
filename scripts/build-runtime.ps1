@@ -12,6 +12,26 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+function Get-PortableRelativePath {
+    param(
+        [Parameter(Mandatory = $true)][string]$BasePath,
+        [Parameter(Mandatory = $true)][string]$TargetPath
+    )
+
+    $separator = [IO.Path]::DirectorySeparatorChar
+    $baseFull = [IO.Path]::GetFullPath($BasePath).TrimEnd(
+        [char[]]@('\', '/')
+    ) + $separator
+    $targetFull = [IO.Path]::GetFullPath($TargetPath)
+    if (-not $targetFull.StartsWith(
+            $baseFull, [StringComparison]::OrdinalIgnoreCase
+        )) {
+        throw "path is outside the expected base directory: $targetFull"
+    }
+    return $targetFull.Substring($baseFull.Length).Replace('\', '/')
+}
+
 $repo = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($OutDir)) {
     $OutDir = Join-Path $repo "build\runtime"
@@ -133,7 +153,8 @@ $runtimeArtifactFiles = @($runtimeFiles + $runtimeKernelFiles | Sort-Object -Uni
 $artifacts = foreach ($path in $runtimeArtifactFiles) {
     $item = Get-Item -LiteralPath $path
     [ordered]@{
-        path = [IO.Path]::GetRelativePath($OutDir, $item.FullName).Replace('\', '/')
+        path = Get-PortableRelativePath -BasePath $OutDir `
+            -TargetPath $item.FullName
         bytes = $item.Length
         sha256 = (Get-FileHash -Algorithm SHA256 `
             -LiteralPath $item.FullName).Hash.ToLowerInvariant()
@@ -148,7 +169,8 @@ $ckDirty = if ($null -ne $ckCommit) {
 }
 $ckSourceFiles = @(Get-ChildItem -LiteralPath $CkRoot -Recurse -File | Sort-Object FullName)
 $ckTreeLines = foreach ($file in $ckSourceFiles) {
-    $relative = [IO.Path]::GetRelativePath($CkRoot, $file.FullName).Replace('\', '/')
+    $relative = Get-PortableRelativePath -BasePath $CkRoot `
+        -TargetPath $file.FullName
     $hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $file.FullName).Hash.ToLowerInvariant()
     "$relative`t$hash`n"
 }

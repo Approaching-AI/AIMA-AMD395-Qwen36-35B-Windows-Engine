@@ -25,6 +25,13 @@ class PackagingContractTests(unittest.TestCase):
         for fragment in ('"aot\\gfx1151"', 'prefix = "aot/gfx1151/"; count = 20'):
             self.assertIn(fragment, self.package)
 
+    def test_windows_powershell_51_path_compatibility(self) -> None:
+        for script in (self.build, self.package):
+            self.assertIn("function Get-PortableRelativePath", script)
+            self.assertNotIn("[IO.Path]::GetRelativePath", script)
+            self.assertIn("[IO.Path]::GetFullPath", script)
+            self.assertIn("[StringComparison]::OrdinalIgnoreCase", script)
+
     def test_quick_start_binds_base_aot_and_production_scopes_eval_policy(self) -> None:
         self.assertIn(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR=$rt\\aot\\gfx1151",
