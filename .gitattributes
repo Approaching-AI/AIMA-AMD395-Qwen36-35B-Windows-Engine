@@ -1,8 +1,3 @@
-*.dll binary
-*.exe binary
-*.lib binary
-*.pdb binary
-*.bin binary
+* text=auto eol=lf
+
 *.hsaco binary
-LICENSE linguist-documentation
-benchmarks/results/*.json linguist-generated=false
