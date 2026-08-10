@@ -160,12 +160,18 @@ $artifacts = foreach ($path in $runtimeArtifactFiles) {
             -LiteralPath $item.FullName).Hash.ToLowerInvariant()
     }
 }
-$ckCommitOutput = & git -C $CkRoot rev-parse HEAD 2>$null
-$ckCommit = if ($LASTEXITCODE -eq 0) { ($ckCommitOutput | Out-String).Trim() } else { $null }
-$ckDirty = if ($null -ne $ckCommit) {
-    @(& git -C $CkRoot status --porcelain).Count -ne 0
-} else {
-    $null
+$ckCommit = $null
+$ckDirty = $null
+$ckGitMetadata = Join-Path $CkRoot ".git"
+if (Test-Path -LiteralPath $ckGitMetadata) {
+    $ckCommit = (& git -C $CkRoot rev-parse HEAD).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "could not identify the Composable Kernel commit: $CkRoot"
+    }
+    $ckDirty = @(& git -C $CkRoot status --porcelain).Count -ne 0
+    if ($LASTEXITCODE -ne 0) {
+        throw "could not inspect the Composable Kernel worktree: $CkRoot"
+    }
 }
 $ckSourceFiles = @(Get-ChildItem -LiteralPath $CkRoot -Recurse -File | Sort-Object FullName)
 $ckTreeLines = foreach ($file in $ckSourceFiles) {

@@ -32,6 +32,12 @@ class PackagingContractTests(unittest.TestCase):
             self.assertIn("[IO.Path]::GetFullPath", script)
             self.assertIn("[StringComparison]::OrdinalIgnoreCase", script)
 
+    def test_ck_snapshot_uses_tree_fingerprint_without_requiring_git(self) -> None:
+        self.assertIn('$ckGitMetadata = Join-Path $CkRoot ".git"', self.build)
+        self.assertIn("if (Test-Path -LiteralPath $ckGitMetadata)", self.build)
+        self.assertIn("composable_kernel_tree_sha256 = $ckTreeSha256", self.build)
+        self.assertIn("composable_kernel_source_file_count", self.build)
+
     def test_quick_start_binds_base_aot_and_production_scopes_eval_policy(self) -> None:
         self.assertIn(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR=$rt\\aot\\gfx1151",
