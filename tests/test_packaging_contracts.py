@@ -38,6 +38,13 @@ class PackagingContractTests(unittest.TestCase):
         self.assertIn("composable_kernel_tree_sha256 = $ckTreeSha256", self.build)
         self.assertIn("composable_kernel_source_file_count", self.build)
 
+    def test_release_archive_and_checksum_are_cross_platform(self) -> None:
+        self.assertNotIn("Compress-Archive", self.package)
+        self.assertIn("System.IO.Compression.ZipArchive", self.package)
+        self.assertIn('$entryName = "$baseName/$relative"', self.package)
+        self.assertIn("[IO.File]::WriteAllText", self.package)
+        self.assertIn('"$sha256  $baseName.zip`n"', self.package)
+
     def test_quick_start_binds_base_aot_and_production_scopes_eval_policy(self) -> None:
         self.assertIn(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR=$rt\\aot\\gfx1151",

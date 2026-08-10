@@ -178,16 +178,53 @@ $releaseManifest = [ordered]@{
     source_commit = $runtimeManifest.repo_commit
     files = @($fileRecords)
 }
-$releaseManifest | ConvertTo-Json -Depth 6 |
-    Set-Content -LiteralPath (Join-Path $stage "FILE-SHA256SUMS.json") `
-        -Encoding UTF8
+$utf8 = New-Object System.Text.UTF8Encoding -ArgumentList $false
+[IO.File]::WriteAllText(
+    (Join-Path $stage "FILE-SHA256SUMS.json"),
+    ($releaseManifest | ConvertTo-Json -Depth 6) + "`n",
+    $utf8
+)
 
-Compress-Archive -LiteralPath $stage -DestinationPath $archive `
-    -CompressionLevel Optimal
+Add-Type -AssemblyName System.IO.Compression
+$archiveStream = [IO.File]::Open($archive, [IO.FileMode]::CreateNew)
+try {
+    $zip = New-Object -TypeName System.IO.Compression.ZipArchive `
+        -ArgumentList @(
+            $archiveStream,
+            [IO.Compression.ZipArchiveMode]::Create,
+            $false
+        )
+    try {
+        foreach ($file in Get-ChildItem -LiteralPath $stage `
+                -Recurse -File | Sort-Object FullName) {
+            $relative = Get-PortableRelativePath -BasePath $stage `
+                -TargetPath $file.FullName
+            $entryName = "$baseName/$relative"
+            $entry = $zip.CreateEntry(
+                $entryName, [IO.Compression.CompressionLevel]::Optimal
+            )
+            $entryStream = $entry.Open()
+            $sourceStream = [IO.File]::OpenRead($file.FullName)
+            try {
+                $sourceStream.CopyTo($entryStream)
+            } finally {
+                $sourceStream.Dispose()
+                $entryStream.Dispose()
+            }
+        }
+    } finally {
+        $zip.Dispose()
+    }
+} finally {
+    $archiveStream.Dispose()
+}
 $sha256 = (Get-FileHash -Algorithm SHA256 `
     -LiteralPath $archive).Hash.ToLowerInvariant()
-"$sha256  $baseName.zip" |
-    Set-Content -LiteralPath $archiveHash -Encoding ASCII
+[IO.File]::WriteAllText(
+    $archiveHash,
+    "$sha256  $baseName.zip`n",
+    [Text.Encoding]::ASCII
+)
 
 [ordered]@{
     archive = $archive
