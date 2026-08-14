@@ -33,6 +33,31 @@ The confirmed retained target is 1,506.407 prefill tok/s and 4,187.416 ms TTFT.
 The accepted row reached 2,126.186 tok/s and 3,852.909 ms. Model plus engine
 load remained below the 30-second product bound.
 
+## q8192-neighbor continuity gate
+
+The v1.0.1 repair replaces fixed-q8192-only CK-FMHA and fused-GDN calls with
+dynamic q8191/q8193 entries while leaving the retained q8192 entry points
+unchanged. The isolated gfx1151 provider smoke produced:
+
+| Provider | q8191 | q8192 fixed | q8193 | Neighbor/fixed ratio | Numerical gate |
+|---|---:|---:|---:|---:|---|
+| CK-FMHA | 19.888 ms | 19.983 ms | 20.067 ms | 0.995 / 1.004 | no value above `1e-5`; no nonfinite |
+| fused GDN, decay | 8.546 ms | 8.773 ms | 8.709 ms | 0.974 / 0.993 | max output error `7.63e-6`; async exact |
+| fused GDN, log-g | 8.731 ms | 8.727 ms | 8.703 ms | 1.000 / 0.997 | max output error `7.63e-6`; async exact |
+
+The q8191 CK comparison had 267 bit-level differences at the final compared
+token, with maximum absolute error `2.98e-8`; none exceeded the declared
+`1e-5` component tolerance. q8193's q8192 prefix was bitwise exact. The packed,
+fixed q8192, and q262144 tile-regression checks were also exact.
+
+These numbers are synthetic provider evidence, not a product inference result.
+The publication gate is a cold-prefix native Windows run at q8191/q8192/q8193,
+`max_tokens=1` and `2`, three repetitions each. Every returned token ID must
+match the GB10 reference exactly. Each neighbor median TTFT must be at most 2x
+q8192 and its positive residual over q8192 must be at most 5,000 ms. The
+machine-readable provider result and GB10 oracle are under `benchmarks/`; the
+real-model Windows row is intentionally not recorded until that gate passes.
+
 ## Correctness attachment
 
 At q8192 the external BF16 authority and native runtime selected token 16. The

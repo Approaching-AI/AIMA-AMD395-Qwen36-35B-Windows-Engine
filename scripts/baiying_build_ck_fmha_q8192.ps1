@@ -30,6 +30,7 @@ $q16384Suffix1024SmokeSource = Join-Path `
     "q16384_suffix1024_ck_fmha_smoke.cpp"
 $ckInclude = Join-Path $CkRoot "include"
 $ckExample = Join-Path $CkRoot "example\ck_tile\01_fmha"
+$ckArchHeader = Join-Path $ckInclude "ck_tile\core\arch\arch.hpp"
 if (-not (Test-Path -LiteralPath $ckExample -PathType Container)) {
     $ckExample = Join-Path $CkRoot "01_fmha"
 }
@@ -70,11 +71,21 @@ foreach ($required in @(
     }
 }
 
+$ckArchSource = Get-Content -Raw -LiteralPath $ckArchHeader
+if ($ckArchSource -match "struct\s+gfx115_t") {
+    $ckArchType = "ck_tile::gfx115_t"
+} elseif ($ckArchSource -match "struct\s+gfx11_t") {
+    $ckArchType = "ck_tile::gfx11_t"
+} else {
+    throw "CK-Tile architecture type for gfx1151 was not found in $ckArchHeader"
+}
+
 $arguments = @(
     "-std=c++17",
     "-O3",
     "--offload-arch=$OffloadArch",
     "-DCK_TILE_FMHA_FWD_FAST_EXP2=0",
+    "-DQRT_CK_ARCH_TYPE=$ckArchType",
     "-I", $ckInclude,
     "-I", $ckExample,
     "-shared",
@@ -163,6 +174,7 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     sha256 = $sha256
     offload_arch = $OffloadArch
     ck_root = (Resolve-Path -LiteralPath $CkRoot).Path
+    ck_arch_type = $ckArchType
     direct_smoke_ran = ($RunDirectSmoke -ne 0)
     direct_smoke_path = if ($RunDirectSmoke -ne 0) {
         (Resolve-Path -LiteralPath $DirectSmokePath).Path

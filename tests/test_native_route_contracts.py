@@ -21,8 +21,27 @@ class NativeRouteContractTests(unittest.TestCase):
         cls.ck_fmha = (
             ROOT / "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp"
         ).read_text(encoding="utf-8")
+        cls.ck_fmha_api = (
+            ROOT / "native/providers/ck_fmha/fmha_fwd_api.cpp"
+        ).read_text(encoding="utf-8")
+        cls.ck_fmha_instance = (
+            ROOT
+            / "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+        ).read_text(encoding="utf-8")
+        cls.ck_fmha_smoke = (
+            ROOT / "native/providers/ck_fmha/q8192_ck_fmha_direct_smoke.cpp"
+        ).read_text(encoding="utf-8")
+        cls.ck_fmha_build = (
+            ROOT / "scripts/baiying_build_ck_fmha_q8192.ps1"
+        ).read_text(encoding="utf-8")
         cls.aiter_gdn = (
             ROOT / "native/providers/gdn/qrt_aiter_fused_gdn_q8192_provider.cpp"
+        ).read_text(encoding="utf-8")
+        cls.aiter_gdn_smoke = (
+            ROOT / "native/providers/gdn/q8192_aiter_fused_gdn_smoke.cpp"
+        ).read_text(encoding="utf-8")
+        cls.aiter_gdn_build = (
+            ROOT / "scripts/baiying_build_aiter_fused_gdn_q8192.ps1"
         ).read_text(encoding="utf-8")
         cls.q8192_build = (
             ROOT / "scripts/baiying_build_triton_moe_q8192.ps1"
@@ -67,6 +86,135 @@ class NativeRouteContractTests(unittest.TestCase):
         ):
             self.assertIn(fragment, self.ck_fmha)
             self.assertIn(fragment, self.provider)
+
+    def test_q8192_neighbors_keep_runtime_lengths_on_fast_providers(self) -> None:
+        for fragment in (
+            "qrt_ck_fmha_dynamic_bf16_launch",
+            "tokens > kQ262144Tokens",
+            "mask_enum::mask_top_left",
+            "HasHeadPartitionFields",
+            "set_head_partition_fields(args, kQueryHeads)",
+        ):
+            self.assertIn(fragment, self.ck_fmha)
+        for fragment in (
+            "qrt_ck_fmha_dynamic_bf16_launch",
+            "ck_fmha_neighbor_smoke",
+            "kNeighborLowTokens",
+            "kNeighborHighTokens",
+            "kNeighborMaxAbsTolerance",
+            "neighbor_low_metrics.above_tolerance == 0u",
+            "neighbor_high_metrics.above_tolerance == 0u",
+            "dlopen(path, RTLD_NOW | RTLD_LOCAL)",
+        ):
+            self.assertIn(fragment, self.ck_fmha_smoke)
+        for source in (self.ck_fmha_api, self.ck_fmha_instance):
+            self.assertIn("QRT_CK_ARCH_TYPE", source)
+        self.assertIn("defined(__gfx1151__)", self.ck_fmha_instance)
+        for fragment in (
+            '"struct\\s+gfx115_t"',
+            '"struct\\s+gfx11_t"',
+            '"-DQRT_CK_ARCH_TYPE=$ckArchType"',
+            "ck_arch_type = $ckArchType",
+        ):
+            self.assertIn(fragment, self.ck_fmha_build)
+        for fragment in (
+            "qrt_aiter_fused_gdn_launch_async_dynamic",
+            "AITER dynamic F32 fused-GDN requires 1..262144 tokens",
+            'tokens,\n        "dynamic"',
+            "kPathSeparator",
+        ):
+            self.assertIn(fragment, self.aiter_gdn)
+        for fragment in (
+            "kQ8191Tokens",
+            "kQ8193Tokens",
+            "qrt_aiter_fused_gdn_launch_async_dynamic",
+            'use_dynamic_launch ? "dynamic" : "fixed"',
+            "dlopen(path, RTLD_NOW | RTLD_LOCAL)",
+            "target_device=AMD395",
+        ):
+            self.assertIn(fragment, self.aiter_gdn_smoke)
+        for fragment in (
+            "$smokeOutputQ8191",
+            "$smokeOutputQ8193",
+            "$asyncParityModeCount -ne 8",
+        ):
+            self.assertIn(fragment, self.aiter_gdn_build)
+        for fragment in (
+            "ck_fmha_exact_arbitrary_dynamic_shape",
+            "QRT_QWEN36_EXACT_ARBITRARY_DYNAMIC_CK_LAYER_MASK",
+            "QRT_QWEN36_EXACT_ARBITRARY_DYNAMIC_CK_LAYER_MASK_SEQUENCE",
+            "exact_arbitrary_dynamic_ck_mask_sequence",
+            "qwen36_resident_session_full_attention_layer_mask()",
+            "use_ck_fmha_dynamic_full_attention_provider",
+            "load_dynamic_aiter_fused_gdn_provider",
+            "use_exact_arbitrary_dynamic_aiter_fused_gdn",
+            "exact_arbitrary_q8192_moe",
+            "prefill_tokens >= 4096u",
+            "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
+            "provider_tile_tokens",
+            "token_position_count >= 4096u",
+            "token_position_count <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS",
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_TOPK_DIAGNOSTIC",
+            "qwen36_exact_arbitrary_lm_head_topk",
+        ):
+            self.assertIn(fragment, self.provider)
+        moe_start = self.provider.index(
+            "bool run_qwen36_whole_provider_selected_moe_full_v2("
+        )
+        moe_end = self.provider.index(
+            "bool run_qwen36_whole_provider_selected_moe_surface(", moe_start
+        )
+        moe_route = self.provider[moe_start:moe_end]
+        self.assertIn("!exact_arbitrary_q8192_moe", moe_route)
+        self.assertIn("static_cast<size_t>(kRetainedPrefillTokens)", moe_route)
+        self.assertIn("provider_tail_padded=", moe_route)
+        linear_start = self.provider.index(
+            "bool run_repeated_prefill_resident_linear_stack_for_targets("
+        )
+        linear_end = self.provider.index(
+            "bool run_early_resident_linear_attention_layers(",
+            linear_start,
+        )
+        linear_route = self.provider[linear_start:linear_end]
+        dynamic_gdn_start = linear_route.index(
+            "const bool use_exact_arbitrary_dynamic_aiter_fused_gdn"
+        )
+        dynamic_gdn_end = linear_route.index(
+            "const unsigned int use_exact_q131_context_aiter_fused_gdn",
+            dynamic_gdn_start,
+        )
+        dynamic_gdn_route = linear_route[dynamic_gdn_start:dynamic_gdn_end]
+        for fragment in (
+            "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
+            "!use_exact_q16384_aiter_fused_gdn",
+            "!use_exact_q32768_aiter_fused_gdn",
+            "!use_exact_q65536_aiter_fused_gdn",
+        ):
+            self.assertIn(fragment, dynamic_gdn_route)
+
+        attention_start = self.provider.index(
+            "bool run_full_attention_prefill_resident_core_for_targets("
+        )
+        attention_end = self.provider.index(
+            "bool run_full_attention_prefill_layer_helper_for_targets(",
+            attention_start,
+        )
+        attention_route = self.provider[attention_start:attention_end]
+        dynamic_ck_start = attention_route.index(
+            "const bool ck_fmha_exact_arbitrary_dynamic_shape"
+        )
+        dynamic_ck_end = attention_route.index(
+            "const bool ck_fmha_long_exact_shape", dynamic_ck_start
+        )
+        dynamic_ck_route = attention_route[dynamic_ck_start:dynamic_ck_end]
+        for fragment in (
+            "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
+            "!ck_fmha_q16384_exact_shape",
+            "!ck_fmha_q32768_exact_shape",
+            "!ck_fmha_q65536_exact_shape",
+            "!ck_fmha_q131_context_exact_shape",
+        ):
+            self.assertIn(fragment, dynamic_ck_route)
         for fragment in (
             "QRT_AITER_GDN_DEFINE_LONG_EXPORTS(kQ131073Tokens, q131073)",
             "QRT_AITER_GDN_DEFINE_LONG_EXPORTS(kQ262143Tokens, q262143)",

@@ -7,7 +7,12 @@
 
 #include <iostream>
 
-#if !defined(__HIP_DEVICE_COMPILE__) || (defined(__gfx115__))
+#ifndef QRT_CK_ARCH_TYPE
+#define QRT_CK_ARCH_TYPE ck_tile::gfx115_t
+#endif
+
+#if !defined(__HIP_DEVICE_COMPILE__) || defined(__gfx115__) || \
+    defined(__gfx1151__)
 
 using fmha_dtype = FmhaFwdBf16;
 
@@ -72,7 +77,7 @@ using trait = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 64, 32, 256, 32, 256
                         ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, fmha_mask, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
 
 template<>
-float fmha_fwd_<trait, ck_tile::gfx115_t>(const ck_tile::stream_config& s, fmha_fwd_args a)
+float fmha_fwd_<trait, QRT_CK_ARCH_TYPE>(const ck_tile::stream_config& s, fmha_fwd_args a)
 {
     using k_ = fmha_kernel;
     if(s.log_level_ > 0)
@@ -80,7 +85,7 @@ float fmha_fwd_<trait, ck_tile::gfx115_t>(const ck_tile::stream_config& s, fmha_
     auto [kargs, grids] = fmha_fwd_create_kargs_and_grids<k_>(a);
     const dim3 blocks                      = k_::BlockSize();
     constexpr ck_tile::index_t kBlockPerCu = k_::kBlockPerCu;
-    return ck_tile::launch_kernel(s, ck_tile::make_kernel<kBlockPerCu, ck_tile::gfx115_t>(k_{}, grids, blocks, 0, kargs));
+    return ck_tile::launch_kernel(s, ck_tile::make_kernel<kBlockPerCu, QRT_CK_ARCH_TYPE>(k_{}, grids, blocks, 0, kargs));
 }
 
-#endif // !defined(__HIP_DEVICE_COMPILE__) || (defined(__gfx115__))
+#endif // host pass or gfx115/gfx1151 device pass

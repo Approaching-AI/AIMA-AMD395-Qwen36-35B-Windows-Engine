@@ -7,6 +7,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <mutex>
+#include <type_traits>
+#include <utility>
 
 #include "fmha_fwd.hpp"
 
@@ -17,6 +19,26 @@
 #endif
 
 namespace {
+
+template <typename Args, typename = void>
+struct HasHeadPartitionFields : std::false_type {};
+
+template <typename Args>
+struct HasHeadPartitionFields<
+    Args,
+    std::void_t<
+        decltype(std::declval<Args &>().num_head_q_total),
+        decltype(std::declval<Args &>().head_start)
+    >
+> : std::true_type {};
+
+template <typename Args>
+void set_head_partition_fields(Args &args, unsigned int query_heads) {
+    if constexpr (HasHeadPartitionFields<Args>::value) {
+        args.num_head_q_total = query_heads;
+        args.head_start = 0;
+    }
+}
 
 constexpr unsigned int kQ8192Tokens = 8192u;
 constexpr unsigned int kQ16384Tokens = 16384u;
@@ -188,8 +210,7 @@ int launch_bf16_attention(
     args.hdim_v = kHeadDim;
     args.nhead_q = kQueryHeads;
     args.nhead_k = kKvHeads;
-    args.num_head_q_total = kQueryHeads;
-    args.head_start = 0;
+    set_head_partition_fields(args, kQueryHeads);
     args.scale_s = 1.0f / std::sqrt(static_cast<float>(kHeadDim));
     args.logits_soft_cap = 0.0f;
     args.stride_q = kQueryFeatures;
@@ -463,6 +484,27 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_bf16_launch(
         output,
         reinterpret_cast<hipStream_t>(stream_handle),
         kQ8192Tokens);
+}
+
+QRT_CK_EXPORT int qrt_ck_fmha_dynamic_bf16_launch(
+    const uint16_t *q,
+    const uint16_t *k,
+    const uint16_t *v,
+    float *output,
+    void *stream_handle,
+    unsigned int tokens) {
+    if (tokens == 0u || tokens > kQ262144Tokens) {
+        return static_cast<int>(hipErrorInvalidValue);
+    }
+    return launch_bf16_attention(
+        q,
+        k,
+        v,
+        output,
+        reinterpret_cast<hipStream_t>(stream_handle),
+        tokens,
+        tokens,
+        mask_enum::mask_top_left);
 }
 
 QRT_CK_EXPORT int qrt_ck_fmha_q16384_f32_launch(

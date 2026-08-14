@@ -32,7 +32,7 @@
 
 ## 快速启动
 
-从 [Releases](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases)
+从 [Releases](https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases)
 下载 v1.0.0，或按 [源码构建说明](docs/BUILD.md)生成 runtime。完整启动命令见
 英文 README；生命周期最常用的三条命令是：
 
@@ -86,7 +86,7 @@ Windows 全量构建：
 
 ```powershell
 .\scripts\build-runtime.ps1 `
-  -CkRoot C:\src\composable_kernel `
+  -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel `
   -OutDir build\runtime
 ```
 

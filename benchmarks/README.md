@@ -10,3 +10,17 @@ The evidence bundle is deliberately compact and reviewable:
 Evidence never includes model weights, evaluation question text, private
 endpoints, credentials, or personal deployment paths. SHA256 values bind each
 published artifact; diagnostic self-hashes are not correctness authority.
+
+The v1.0.1 q8192-neighbor repair adds two bounded artifacts:
+
+- `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
+  external BF16 token-ID oracle for q8191/q8192/q8193, one- and two-token
+  continuations, and three cold-prefix repetitions per shape; and
+- `performance/q8192-neighbor-provider-smoke-amd395-v1.0.1.json` records the
+  isolated CK-FMHA and fused-GDN q8191/q8192/q8193 provider checks on gfx1151.
+
+The provider record is synthetic component evidence only. Release still
+requires `scripts/verify_q8192_neighbor_continuity.py` to pass against the
+native Windows real-model service on `baiying`; the script checks exact GB10
+token IDs and rejects a neighbor median TTFT above 2x q8192 or more than 5,000
+ms slower than q8192.

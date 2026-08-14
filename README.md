@@ -37,7 +37,7 @@ Model weights and AMD runtime binaries are not included.
 ## Quick start
 
 Download the v1.0.0 runtime archive from
-[Releases](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases),
+[Releases](https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases),
 or build it with [the source-build guide](docs/BUILD.md). Then run from
 PowerShell:
 
@@ -121,7 +121,7 @@ questions.
 
 ```powershell
 .\scripts\build-runtime.ps1 `
-  -CkRoot C:\src\composable_kernel `
+  -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel `
   -OutDir build\runtime
 ```
 

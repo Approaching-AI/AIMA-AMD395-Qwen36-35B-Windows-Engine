@@ -7,7 +7,7 @@
 - Rust 1.95 (`x86_64-pc-windows-msvc`)
 - AMD ROCm HIP SDK 7.1
 - WSL2 Ubuntu 24.04 with Python and Triton 3.6
-- AMD Composable Kernel source checkout
+- AMD Composable Kernel from ROCm/aiter v0.1.13, pinned below
 - Python 3.10 or newer
 
 The WSL/Triton environment is needed for q1024 AOT generation and for optional
@@ -22,11 +22,17 @@ and does not run under WSL.
 From a Developer PowerShell:
 
 ```powershell
-git clone https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine.git
+git clone --branch v0.1.13 --recurse-submodules `
+  https://github.com/ROCm/aiter.git C:\src\aiter-v0.1.13
+git -C C:\src\aiter-v0.1.13 checkout cdcfa833bdf554ca75594c90dde4316ea9b50199
+git -C C:\src\aiter-v0.1.13\3rdparty\composable_kernel checkout `
+  fdf4bb7fcc984811cef48ce817d89aac064b984a
+
+git clone https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine.git
 Set-Location AIMA-AMD395-Qwen36-35B-Windows-Engine
 
 .\scripts\build-runtime.ps1 `
-  -CkRoot C:\src\composable_kernel `
+  -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel `
   -RocmRoot 'C:\Program Files\AMD\ROCm\7.1' `
   -WslDistribution Ubuntu-24.04 `
   -TritonPython /opt/qwen36-vllm/bin/python `
@@ -56,7 +62,8 @@ Each component script accepts explicit output/toolchain paths:
 .\scripts\baiying_build_whole_provider.ps1 -OutDir build\whole
 .\scripts\baiying_build_triton_moe_q1024_exact.ps1 -OutDir build\q1024
 .\scripts\baiying_build_triton_moe_q8192.ps1 -BuildDir build\q8192 -OutDir build\q8192
-.\scripts\baiying_build_ck_fmha_q8192.ps1 -CkRoot C:\src\composable_kernel
+.\scripts\baiying_build_ck_fmha_q8192.ps1 `
+  -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel
 .\scripts\baiying_build_aiter_fused_gdn_q8192.ps1 -BuildDir build\gdn
 .\scripts\baiying_build_qrt_server.ps1 -OutDir build\engine
 ```
@@ -64,6 +71,12 @@ Each component script accepts explicit output/toolchain paths:
 Use each script's `Get-Help`/parameter declaration for optional paths and
 timeouts. Builds are bounded and record provenance rather than invoking an
 unbounded remote job.
+
+The qualified CK source boundary is AITER commit
+`cdcfa833bdf554ca75594c90dde4316ea9b50199` with CK commit
+`fdf4bb7fcc984811cef48ce817d89aac064b984a`. Other CK revisions may change the
+FMHA host/device API or architecture tags; treat them as unqualified until the
+component smoke and native Windows GB10 product gate are rerun.
 
 ## CPU-safe validation
 

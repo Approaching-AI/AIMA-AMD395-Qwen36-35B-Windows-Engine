@@ -5,6 +5,8 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#else
+#include <dlfcn.h>
 #endif
 
 #include <algorithm>
@@ -21,7 +23,9 @@
 
 namespace {
 
+constexpr unsigned int kQ8191Tokens = 8191u;
 constexpr unsigned int kQ8192Tokens = 8192u;
+constexpr unsigned int kQ8193Tokens = 8193u;
 constexpr unsigned int kQ16384Tokens = 16384u;
 constexpr unsigned int kQkvRows = 8192u;
 constexpr unsigned int kKeyHeads = 16u;
@@ -45,6 +49,15 @@ using LaunchFunction = int (*)(
     int,
     void *
 );
+using DynamicLaunchFunction = int (*)(
+    const float *,
+    const float *,
+    float *,
+    float *,
+    int,
+    void *,
+    int32_t
+);
 using ScratchBytesFunction = uint64_t (*)();
 using LastErrorFunction = const char *(*)();
 using ReleaseFunction = void (*)();
@@ -52,10 +65,13 @@ using ReleaseFunction = void (*)();
 struct ProviderApi {
 #if defined(_WIN32)
     HMODULE module = nullptr;
+#else
+    void *module = nullptr;
 #endif
     PrepareFunction prepare = nullptr;
     LaunchFunction launch = nullptr;
     LaunchFunction launch_async = nullptr;
+    DynamicLaunchFunction dynamic_launch_async = nullptr;
     LaunchFunction q16384_launch = nullptr;
     LaunchFunction q16384_launch_async = nullptr;
     ScratchBytesFunction scratch_bytes = nullptr;
@@ -96,7 +112,8 @@ bool parse_tokens(const char *text, unsigned int *value) {
     char *end = nullptr;
     const unsigned long parsed = std::strtoul(text, &end, 10);
     if (end == text || *end != '\0' ||
-        (parsed != kQ8192Tokens && parsed != kQ16384Tokens)) {
+        (parsed != kQ8191Tokens && parsed != kQ8192Tokens &&
+         parsed != kQ8193Tokens && parsed != kQ16384Tokens)) {
         return false;
     }
     *value = static_cast<unsigned int>(parsed);
@@ -401,6 +418,12 @@ bool load_provider(const char *path, ProviderApi *api) {
     api->launch_async = reinterpret_cast<LaunchFunction>(
         GetProcAddress(api->module, "qrt_aiter_fused_gdn_q8192_launch_async")
     );
+    api->dynamic_launch_async = reinterpret_cast<DynamicLaunchFunction>(
+        GetProcAddress(
+            api->module,
+            "qrt_aiter_fused_gdn_launch_async_dynamic"
+        )
+    );
     api->q16384_launch = reinterpret_cast<LaunchFunction>(
         GetProcAddress(api->module, "qrt_aiter_fused_gdn_q16384_launch")
     );
@@ -418,14 +441,48 @@ bool load_provider(const char *path, ProviderApi *api) {
     );
     return api->prepare != nullptr && api->launch != nullptr &&
         api->launch_async != nullptr &&
+        api->dynamic_launch_async != nullptr &&
         api->q16384_launch != nullptr &&
         api->q16384_launch_async != nullptr &&
         api->scratch_bytes != nullptr && api->last_error != nullptr &&
         api->release != nullptr;
 #else
-    (void)path;
-    (void)api;
-    return false;
+    api->module = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+    if (api->module == nullptr) return false;
+    api->prepare = reinterpret_cast<PrepareFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_prepare")
+    );
+    api->launch = reinterpret_cast<LaunchFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_launch")
+    );
+    api->launch_async = reinterpret_cast<LaunchFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_launch_async")
+    );
+    api->dynamic_launch_async = reinterpret_cast<DynamicLaunchFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_launch_async_dynamic")
+    );
+    api->q16384_launch = reinterpret_cast<LaunchFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q16384_launch")
+    );
+    api->q16384_launch_async = reinterpret_cast<LaunchFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q16384_launch_async")
+    );
+    api->scratch_bytes = reinterpret_cast<ScratchBytesFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_scratch_bytes")
+    );
+    api->last_error = reinterpret_cast<LastErrorFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_last_error")
+    );
+    api->release = reinterpret_cast<ReleaseFunction>(
+        dlsym(api->module, "qrt_aiter_fused_gdn_q8192_release")
+    );
+    return api->prepare != nullptr && api->launch != nullptr &&
+        api->launch_async != nullptr &&
+        api->dynamic_launch_async != nullptr &&
+        api->q16384_launch != nullptr &&
+        api->q16384_launch_async != nullptr &&
+        api->scratch_bytes != nullptr && api->last_error != nullptr &&
+        api->release != nullptr;
 #endif
 }
 
@@ -438,7 +495,8 @@ int main(int argc, char **argv) {
         !parse_repetitions(argv[3], &repetitions) ||
         (argc == 5 && !parse_tokens(argv[4], &tokens))) {
         std::cerr << "usage: q8192_aiter_fused_gdn_smoke KERNEL_DIR "
-                     "PROVIDER_DLL REPETITIONS>=3 [8192|16384]\n";
+                     "PROVIDER_DLL REPETITIONS>=3 "
+                     "[8191|8192|8193|16384]\n";
         return 2;
     }
 
@@ -462,6 +520,8 @@ int main(int argc, char **argv) {
         tokens == kQ16384Tokens
         ? api.q16384_launch_async
         : api.launch_async;
+    const bool use_dynamic_launch =
+        tokens == kQ8191Tokens || tokens == kQ8193Tokens;
     hipStream_t provider_stream = nullptr;
     status = hipStreamCreate(&provider_stream);
     if (status != hipSuccess) return fail("hipStreamCreate(provider)", status);
@@ -563,14 +623,25 @@ int main(int argc, char **argv) {
         bool provider_launch_ok = true;
         const bool provider_timed = time_launch(
             [&]() {
-                if (provider_launch(
+                const int launch_status = use_dynamic_launch
+                    ? api.dynamic_launch_async(
+                          postconv,
+                          gate,
+                          provider_output,
+                          provider_state,
+                          decay_direct ? 1 : 0,
+                          provider_stream,
+                          static_cast<int32_t>(tokens)
+                      )
+                    : provider_launch(
                         postconv,
                         gate,
                         provider_output,
                         provider_state,
                         decay_direct ? 1 : 0,
                         provider_stream
-                    ) == 0) {
+                      );
+                if (launch_status == 0) {
                     provider_launch_ok = false;
                 }
             },
@@ -587,14 +658,25 @@ int main(int argc, char **argv) {
         bool provider_async_launch_ok = true;
         const bool provider_async_timed = time_launch(
             [&]() {
-                if (provider_launch_async(
+                const int launch_status = use_dynamic_launch
+                    ? api.dynamic_launch_async(
+                          postconv,
+                          gate,
+                          provider_async_output,
+                          provider_async_state,
+                          decay_direct ? 1 : 0,
+                          provider_stream,
+                          static_cast<int32_t>(tokens)
+                      )
+                    : provider_launch_async(
                         postconv,
                         gate,
                         provider_async_output,
                         provider_async_state,
                         decay_direct ? 1 : 0,
                         provider_stream
-                    ) == 0) {
+                      );
+                if (launch_status == 0) {
                     provider_async_launch_ok = false;
                 }
             },
@@ -694,6 +776,8 @@ int main(int argc, char **argv) {
                   << "q" << tokens << "_aiter_fused_gdn_mode"
                   << " mode=" << (decay_direct ? "decay" : "log_g")
                   << " tokens=" << tokens
+                  << " provider_surface="
+                  << (use_dynamic_launch ? "dynamic" : "fixed")
                   << " repetitions=" << repetitions
                   << " log_g_min=" << log_min
                   << " log_g_max=" << log_max
@@ -747,6 +831,8 @@ int main(int argc, char **argv) {
     api.release();
 #if defined(_WIN32)
     FreeLibrary(api.module);
+#else
+    dlclose(api.module);
 #endif
     hipFree(provider_state);
     hipFree(provider_async_state);
@@ -759,7 +845,7 @@ int main(int argc, char **argv) {
 
     std::cout << "q" << tokens << "_aiter_fused_gdn_smoke status="
               << (all_modes_close ? "pass" : "fail")
-              << " host=baiying"
+              << " target_device=AMD395"
               << " scratch_bytes=0"
               << " state_layout=value_head_value_key"
               << std::endl;

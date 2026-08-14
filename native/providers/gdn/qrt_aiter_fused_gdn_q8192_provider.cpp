@@ -32,6 +32,11 @@ constexpr int32_t kQ131072Tokens = 131072;
 constexpr int32_t kQ131073Tokens = 131073;
 constexpr int32_t kQ262143Tokens = 262143;
 constexpr int32_t kQ262144Tokens = 262144;
+#if defined(_WIN32)
+constexpr const char *kPathSeparator = "\\";
+#else
+constexpr const char *kPathSeparator = "/";
+#endif
 
 struct ProviderState {
     hipModule_t module = nullptr;
@@ -90,8 +95,9 @@ bool load_kernel(const char *directory) {
     const int length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\q8192_aiter_fused_gdn.hsaco",
-        directory
+        "%s%sq8192_aiter_fused_gdn.hsaco",
+        directory,
+        kPathSeparator
     );
     if (length <= 0 || static_cast<size_t>(length) >= sizeof(path)) {
         set_error_text("AITER fused-GDN kernel path is too long");
@@ -115,8 +121,9 @@ bool load_kernel(const char *directory) {
     const int q262144_bf16_length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\q262144_aiter_fused_gdn_bf16.hsaco",
-        directory
+        "%s%sq262144_aiter_fused_gdn_bf16.hsaco",
+        directory,
+        kPathSeparator
     );
     if (q262144_bf16_length <= 0 ||
         static_cast<size_t>(q262144_bf16_length) >= sizeof(path)) {
@@ -144,8 +151,9 @@ bool load_kernel(const char *directory) {
     const int seeded_length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\q1024_seeded_aiter_fused_gdn.hsaco",
-        directory
+        "%s%sq1024_seeded_aiter_fused_gdn.hsaco",
+        directory,
+        kPathSeparator
     );
     if (seeded_length <= 0 ||
         static_cast<size_t>(seeded_length) >= sizeof(path)) {
@@ -173,8 +181,9 @@ bool load_kernel(const char *directory) {
     const int q32768_seeded_bf16_length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\q32768_seeded_aiter_fused_gdn_bf16.hsaco",
-        directory
+        "%s%sq32768_seeded_aiter_fused_gdn_bf16.hsaco",
+        directory,
+        kPathSeparator
     );
     if (q32768_seeded_bf16_length <= 0 ||
         static_cast<size_t>(q32768_seeded_bf16_length) >= sizeof(path)) {
@@ -515,6 +524,33 @@ QRT_AITER_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_launch_async(
         stream_pointer,
         kQ8192Tokens,
         "q8192"
+    );
+}
+
+QRT_AITER_GDN_EXPORT int qrt_aiter_fused_gdn_launch_async_dynamic(
+    const float *postconv_f32,
+    const float *gate_f32,
+    float *output_f32,
+    float *final_state_f32,
+    int gate_values_are_decay,
+    void *stream_pointer,
+    int32_t tokens
+) {
+    if (tokens <= 0 || tokens > kQ262144Tokens) {
+        set_error_text(
+            "AITER dynamic F32 fused-GDN requires 1..262144 tokens"
+        );
+        return 0;
+    }
+    return launch_async(
+        postconv_f32,
+        gate_f32,
+        output_f32,
+        final_state_f32,
+        gate_values_are_decay,
+        stream_pointer,
+        tokens,
+        "dynamic"
     );
 }
 

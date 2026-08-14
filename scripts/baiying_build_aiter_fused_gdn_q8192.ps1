@@ -107,8 +107,12 @@ if ($LASTEXITCODE -ne 0) {
     throw "hipcc exited $LASTEXITCODE while building the chunked BF16 fused-GDN smoke"
 }
 
+$smokeOutputQ8191 = & $smokeExe $BuildDir $providerDll $Repetitions 8191
+$smokeExitCodeQ8191 = $LASTEXITCODE
 $smokeOutputQ8192 = & $smokeExe $BuildDir $providerDll $Repetitions 8192
 $smokeExitCodeQ8192 = $LASTEXITCODE
+$smokeOutputQ8193 = & $smokeExe $BuildDir $providerDll $Repetitions 8193
+$smokeExitCodeQ8193 = $LASTEXITCODE
 $smokeOutputQ16384 = & $smokeExe $BuildDir $providerDll $Repetitions 16384
 $smokeExitCodeQ16384 = $LASTEXITCODE
 $seededSuffixSmokeOutput = & $seededSuffixSmokeExe `
@@ -119,21 +123,25 @@ $seededSuffixSmokeExitCode = $LASTEXITCODE
 $chunkedBf16SmokeOutput = & $chunkedBf16SmokeExe $BuildDir $providerDll
 $chunkedBf16SmokeExitCode = $LASTEXITCODE
 $smokeExitCode = if (
+    $smokeExitCodeQ8191 -eq 0 -and
     $smokeExitCodeQ8192 -eq 0 -and
+    $smokeExitCodeQ8193 -eq 0 -and
     $smokeExitCodeQ16384 -eq 0 -and
     $seededSuffixSmokeExitCode -eq 0 -and
     $chunkedBf16SmokeExitCode -eq 0
 ) { 0 } else { 1 }
 $smokeText = @(
+    $smokeOutputQ8191
     $smokeOutputQ8192
+    $smokeOutputQ8193
     $smokeOutputQ16384
 ) -join "`n"
 $asyncParityModeCount = [regex]::Matches(
     $smokeText,
     '(?m)\basync_exact=1\b'
 ).Count
-if ($smokeExitCode -eq 0 -and $asyncParityModeCount -ne 4) {
-    throw "AITER fused-GDN smoke did not report exact sync/async parity for both shapes and gate modes"
+if ($smokeExitCode -eq 0 -and $asyncParityModeCount -ne 8) {
+    throw "AITER fused-GDN smoke did not report exact repeat parity for all four shapes and both gate modes"
 }
 $seededSuffixPassCount = [regex]::Matches(
     ($seededSuffixSmokeOutput -join "`n"),
@@ -184,7 +192,9 @@ $artifacts = foreach ($name in $artifactNames) {
     repetitions = $Repetitions
     seeded_suffix_repetitions = $SeededSuffixRepetitions
     smoke_exit_code = $smokeExitCode
+    q8191_smoke_exit_code = $smokeExitCodeQ8191
     q8192_smoke_exit_code = $smokeExitCodeQ8192
+    q8193_smoke_exit_code = $smokeExitCodeQ8193
     q16384_smoke_exit_code = $smokeExitCodeQ16384
     seeded_suffix_smoke_exit_code = $seededSuffixSmokeExitCode
     chunked_bf16_smoke_exit_code = $chunkedBf16SmokeExitCode

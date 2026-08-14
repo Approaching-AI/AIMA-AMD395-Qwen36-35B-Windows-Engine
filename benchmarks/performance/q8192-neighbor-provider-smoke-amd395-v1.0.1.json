@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "record_type": "q8192_neighbor_provider_smoke",
+  "release_candidate": "v1.0.1",
+  "status": "pass",
+  "measured_at_utc": "2026-08-14T10:08:23Z",
+  "scope": {
+    "evidence_class": "synthetic_provider_smoke_only",
+    "product_inference_claimed": false,
+    "gb10_numerical_correctness_claimed": false,
+    "windows_product_gate_satisfied": false,
+    "purpose": "Verify that the dynamic q8191/q8193 CK-FMHA and fused-GDN provider surfaces have no provider-level shape cliff while retaining the fixed q8192 entry point.",
+    "required_follow_up": "Run the token-ID GB10 verifier against a native Windows real-model service on baiying before release."
+  },
+  "source": {
+    "base_commit": "1b1567488f87e6a5899f201e95aff456d600ea1f",
+    "working_tree": true,
+    "files_sha256": {
+      "native/providers/ck_fmha/fmha_fwd_api.cpp": "66fb802afb0c23c3898c40109be581b5c0ca285a4b67a67950d2d7fad5ebb359",
+      "native/providers/ck_fmha/fmha_fwd_gfx1151_d256_bf16_f32out.cpp": "4bac84f9a14de10c4463f6b16df01114622bf124ab3500a675d71a5f8d8d0cf7",
+      "native/providers/ck_fmha/q8192_ck_fmha_direct_smoke.cpp": "4fd0297936465655b972e496f8ca46c2cdceeefea3e9446baa8c2bad054d6696",
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "03ffa5cefcdb6a922eb125fb38c415388977dfb277e7c60796bfa66b603e3753",
+      "native/providers/gdn/q8192_aiter_fused_gdn_smoke.cpp": "adefb999bf43dbb031798612a7a3c5eb3e1fcbf7b1bf24862a32081925a9e7bc",
+      "native/providers/gdn/qrt_aiter_fused_gdn_q8192_provider.cpp": "91db35d1bd2fa0dfa4d4dfd0f3bbdf8bfdcd73acbd0189f49b444d2d383e715f"
+    }
+  },
+  "platform": {
+    "host": "quings",
+    "os": "Linux 6.14.0-1020-oem x86_64",
+    "processor": "AMD Ryzen AI Max+ 395",
+    "gpu": "Radeon 8060S Graphics",
+    "offload_arch": "gfx1151",
+    "hip_version": "7.2.26015-fc0010cf6a",
+    "rocm_clang": "22.0.0git roc-7.2.0"
+  },
+  "dependencies": {
+    "aiter_tag": "v0.1.13",
+    "aiter_commit": "cdcfa833bdf554ca75594c90dde4316ea9b50199",
+    "composable_kernel_commit": "fdf4bb7fcc984811cef48ce817d89aac064b984a"
+  },
+  "commands": {
+    "working_directory": "<amd395-workdir>/build",
+    "ck_fmha": "timeout 180 ./q8192_ck_fmha_direct_smoke ./qrt_ck_fmha_q8192_provider-v013.so 3",
+    "gdn": [
+      "timeout 120 ./q8192_aiter_fused_gdn_smoke . ./qrt_aiter_fused_gdn_q8192_provider.so 3 8191",
+      "timeout 120 ./q8192_aiter_fused_gdn_smoke . ./qrt_aiter_fused_gdn_q8192_provider.so 3 8192",
+      "timeout 120 ./q8192_aiter_fused_gdn_smoke . ./qrt_aiter_fused_gdn_q8192_provider.so 3 8193"
+    ]
+  },
+  "artifacts_sha256": {
+    "ck_fmha_log": "535fcc289fc76e7b7b53c32e53d2029c1de46534ef2b41941ff464b91bd2b540",
+    "ck_fmha_smoke": "7acb29762b9938787e221db7e58f07532d642ff31952443c2fb1a374c72341ee",
+    "ck_fmha_provider": "2892780b3ea786e85809a7e16c6f42a0df0cf9fdf7bc048612eeaa051c3d6662",
+    "gdn_log": "0a0af7d8a3cb0ce431ad1334b3eed1385448dd60fbd27d57af4c13c7a19f754b",
+    "gdn_smoke": "d7aef5c2c2d94baecade334a7b7f701decad4f55f9c3145e467b8d6af2f73bc0",
+    "gdn_provider": "6ab4a771063714242e01713bc059f297933c74590c87938ceb7df273fe088612"
+  },
+  "ck_fmha": {
+    "repetitions": 3,
+    "fixed_q8192_ms": 19.982904,
+    "dynamic_q8191_ms": 19.887949,
+    "dynamic_q8193_ms": 20.066818,
+    "q8191_to_q8192_ratio": 0.995248,
+    "q8193_to_q8192_ratio": 1.004199,
+    "neighbor_max_abs_tolerance": 0.00001,
+    "q8191": {
+      "compared_elements": 33550336,
+      "bitwise_mismatches": 267,
+      "first_mismatch_token": 8190,
+      "above_tolerance": 0,
+      "nonfinite": 0,
+      "signed_zero_mismatches": 0,
+      "max_abs": 2.980232239e-08
+    },
+    "q8193_prefix_vs_q8192": {
+      "compared_elements": 33554432,
+      "bitwise_mismatches": 0,
+      "above_tolerance": 0,
+      "nonfinite": 0,
+      "signed_zero_mismatches": 0,
+      "max_abs": 0.0
+    },
+    "fixed_route_regressions": {
+      "packed_vs_direct_mismatches": 0,
+      "q262144_tile8192_vs_direct_mismatches": 0,
+      "q262144_suffix_vs_q16384_suffix_mismatches": 0,
+      "nonfinite": 0
+    }
+  },
+  "fused_gdn": {
+    "repetitions": 3,
+    "output_max_abs_tolerance": 0.00003051757812,
+    "state_max_abs_tolerance": 0.00001,
+    "cases": [
+      {
+        "tokens": 8191,
+        "provider_surface": "dynamic",
+        "mode": "decay",
+        "provider_ms": 8.546057701,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 9.313225746e-09,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      },
+      {
+        "tokens": 8191,
+        "provider_surface": "dynamic",
+        "mode": "log_g",
+        "provider_ms": 8.731085777,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 1.11758709e-08,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      },
+      {
+        "tokens": 8192,
+        "provider_surface": "fixed",
+        "mode": "decay",
+        "provider_ms": 8.772637367,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 9.313225746e-09,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      },
+      {
+        "tokens": 8192,
+        "provider_surface": "fixed",
+        "mode": "log_g",
+        "provider_ms": 8.726914406,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 1.11758709e-08,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      },
+      {
+        "tokens": 8193,
+        "provider_surface": "dynamic",
+        "mode": "decay",
+        "provider_ms": 8.709208488,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 9.313225746e-09,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      },
+      {
+        "tokens": 8193,
+        "provider_surface": "dynamic",
+        "mode": "log_g",
+        "provider_ms": 8.702836037,
+        "output_max_abs": 7.629394531e-06,
+        "state_max_abs": 1.11758709e-08,
+        "async_output_mismatches": 0,
+        "async_state_mismatches": 0,
+        "nonfinite": 0,
+        "pass": true
+      }
+    ]
+  }
+}
