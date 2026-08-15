@@ -76,6 +76,16 @@ class NativeRouteContractTests(unittest.TestCase):
         )
         self.assertNotIn("expected_output", route)
 
+    def test_neighbor_product_profile_uses_accepted_arithmetic(self) -> None:
+        self.assertIn(
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_MIN_LAYER=0",
+            self.runtime_env,
+        )
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_CONV_ARITHMETIC_MODE=3",
+            self.runtime_env,
+        )
+
     def test_exact_arbitrary_q8192_disables_specialized_q1_route(self) -> None:
         helper_start = self.provider.index(
             "bool qwen36_specialized_retained_q8192_path_enabled("

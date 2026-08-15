@@ -9,6 +9,8 @@
   packed alias or device corridor.
 - Added dynamic CK-FMHA and fused-GDN neighbor surfaces, a BF16 router endpoint,
   position-scoped decode tie policies, and inherited HIP launch-status cleanup.
+- Promoted the accepted exact-arbitrary convolution arithmetic and layer-zero
+  fused-GDN settings into the shipped runtime profile.
 - Added a deterministic 18-case q8191/q8192/q8193 continuation gate. Every
   one- and two-token output matched the GB10 BF16 oracle across three cold
   repetitions per shape; the worst neighbor ratio was 1.423x.

@@ -39,7 +39,11 @@
     "top_p": 1,
     "max_token_counts": [1, 2],
     "prompt_lengths": [8191, 8192, 8193],
-    "cold_prefix_contract": "globally_unique_first_token_id"
+    "cold_prefix_contract": "globally_unique_first_token_id",
+    "runtime_overrides": {
+      "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_MIN_LAYER": "0",
+      "QRT_QWEN36_EXACT_ARBITRARY_CONV_ARITHMETIC_MODE": "3"
+    }
   },
   "gb10_reference": {
     "authority_host": "gb10-4t",
