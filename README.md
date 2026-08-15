@@ -36,13 +36,13 @@ Model weights and AMD runtime binaries are not included.
 
 ## Quick start
 
-Download the v1.0.0 runtime archive from
+Download the v1.0.1 runtime archive from
 [Releases](https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases),
 or build it with [the source-build guide](docs/BUILD.md). Then run from
 PowerShell:
 
 ```powershell
-$rt = Resolve-Path .\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.0
+$rt = Resolve-Path .\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.1
 $state = Join-Path $rt 'service.json'
 
 & "$rt\engine\qrt.exe" start `
@@ -106,6 +106,12 @@ The retained q8192 real-model result on the qualified Windows platform was:
 | Prefill | 2,126.186 tok/s | >= 1,506.407 tok/s |
 | Decode | 30.551 tok/s | >= 28.168 tok/s |
 | TPOT | 32.732 ms | <= 35.502 ms |
+
+The v1.0.1 boundary repair was additionally qualified at q8191, q8192, and
+q8193 with one- and two-token continuations, three cold-prefix repetitions per
+shape. All 18 outputs matched the GB10 BF16 oracle exactly. q8192 TTFT was
+3,872.773–3,928.488 ms; the worst neighbor ratio was 1.423x and the worst
+positive residual was 1,642.653 ms.
 
 The repository publishes all 12 retained performance rows, GB10-anchored token
 correctness, maximum-context and prefix-continuation digests, OpenAI surface

@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import statistics
 import unittest
 
 
@@ -8,6 +9,80 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ReleaseEvidenceTests(unittest.TestCase):
+    def test_q8192_neighbor_product_gate_is_complete_and_bound(self) -> None:
+        performance_path = (
+            ROOT
+            / "benchmarks"
+            / "performance"
+            / "q8192-neighbor-product-gate-amd395-v1.0.1.json"
+        )
+        value = json.loads(performance_path.read_text(encoding="utf-8"))
+        self.assertEqual(value["status"], "pass")
+        self.assertRegex(value["source"]["commit"], r"^[0-9a-f]{40}$")
+        self.assertEqual(value["platform"]["host"], "baiying")
+        self.assertEqual(value["model"]["id"], "qwen3.6-35b-a3b")
+
+        reference_path = (
+            ROOT
+            / "benchmarks"
+            / "correctness"
+            / "gb10-q8192-neighbor-continuation-reference-v1.0.1.json"
+        )
+        verifier_path = ROOT / "scripts" / "verify_q8192_neighbor_continuity.py"
+        self.assertEqual(
+            hashlib.sha256(reference_path.read_bytes()).hexdigest(),
+            value["gb10_reference"]["sha256"],
+        )
+        self.assertEqual(
+            hashlib.sha256(verifier_path.read_bytes()).hexdigest(),
+            value["command"]["script_sha256"],
+        )
+
+        cases = value["cases"]
+        self.assertEqual(len(cases), 18)
+        self.assertEqual([case["ordinal"] for case in cases], list(range(18)))
+        self.assertTrue(all(case["gb10_match"] for case in cases))
+        expected_cohorts = {
+            (prompt_tokens, max_tokens): 3
+            for prompt_tokens in (8191, 8192, 8193)
+            for max_tokens in (1, 2)
+        }
+        actual_cohorts = {
+            key: sum(
+                case["prompt_tokens"] == key[0]
+                and case["max_tokens"] == key[1]
+                for case in cases
+            )
+            for key in expected_cohorts
+        }
+        self.assertEqual(actual_cohorts, expected_cohorts)
+        self.assertEqual(
+            value["summary"]["gb10_matching_cases"],
+            len(cases),
+        )
+
+        q8192_ttft = [
+            case["ttft_ms"] for case in cases if case["prompt_tokens"] == 8192
+        ]
+        self.assertAlmostEqual(
+            statistics.median(q8192_ttft),
+            value["summary"]["q8192_all_six_median_ttft_ms"],
+            places=6,
+        )
+        self.assertLessEqual(
+            max(q8192_ttft), value["acceptance"]["q8192_ttft_max_ms"]
+        )
+        for gate in value["continuity_gates"]:
+            self.assertTrue(gate["passed"])
+            self.assertLessEqual(
+                gate["neighbor_to_center_ratio"],
+                value["acceptance"]["neighbor_to_q8192_median_ratio_max"],
+            )
+            self.assertLessEqual(
+                gate["positive_residual_ms"],
+                value["acceptance"]["neighbor_positive_residual_max_ms"],
+            )
+
     def test_openai_acceptance_covers_product_surface_and_prompt_matrix(self) -> None:
         path = ROOT / "benchmarks" / "openai" / "openai-http-acceptance-v1.0.0.json"
         value = json.loads(path.read_text(encoding="utf-8"))

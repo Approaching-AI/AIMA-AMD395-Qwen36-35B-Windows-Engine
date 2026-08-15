@@ -48,15 +48,26 @@ unchanged. The isolated gfx1151 provider smoke produced:
 The q8191 CK comparison had 267 bit-level differences at the final compared
 token, with maximum absolute error `2.98e-8`; none exceeded the declared
 `1e-5` component tolerance. q8193's q8192 prefix was bitwise exact. The packed,
-fixed q8192, and q262144 tile-regression checks were also exact.
+fixed q8192, and q262144 tile-regression checks were also exact. These numbers
+remain synthetic component evidence rather than product inference evidence.
 
-These numbers are synthetic provider evidence, not a product inference result.
-The publication gate is a cold-prefix native Windows run at q8191/q8192/q8193,
-`max_tokens=1` and `2`, three repetitions each. Every returned token ID must
-match the GB10 reference exactly. Each neighbor median TTFT must be at most 2x
-q8192 and its positive residual over q8192 must be at most 5,000 ms. The
-machine-readable provider result and GB10 oracle are under `benchmarks/`; the
-real-model Windows row is intentionally not recorded until that gate passes.
+The native Windows real-model publication gate passed on `baiying` at source
+commit `212bd8159a92b33e46f7647b00957871b25fb639`. It used the model at
+`D:\models\Qwen3.6-35B-A3B`, the public GB10 oracle, `max_tokens=1` and `2`,
+and three cold-prefix repetitions per shape. All 18 returned token sequences
+matched GB10 exactly.
+
+| Prompt | max_tokens=1 median TTFT | max_tokens=2 median TTFT | All-six range |
+|---|---:|---:|---:|
+| q8191 | 4,185.807 ms | 4,253.678 ms | 4,099.691–4,272.996 ms |
+| q8192 | 3,883.923 ms | 3,887.042 ms | 3,872.773–3,928.488 ms |
+| q8193 | 5,483.337 ms | 5,529.695 ms | 5,482.172–5,541.596 ms |
+
+The worst neighbor/q8192 median ratio was `1.422597`; the worst positive
+residual was `1,642.653 ms`. Both pass the declared `2x` and `5,000 ms` limits,
+and every q8192 sample beats the retained `4,187.416 ms` TTFT target. The
+machine-readable product record, provider smoke, verifier, and GB10 oracle are
+under `benchmarks/` and `scripts/`.
 
 ## Correctness attachment
 

@@ -33,7 +33,7 @@
 ## 快速启动
 
 从 [Releases](https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine/releases)
-下载 v1.0.0，或按 [源码构建说明](docs/BUILD.md)生成 runtime。完整启动命令见
+下载 v1.0.1，或按 [源码构建说明](docs/BUILD.md)生成 runtime。完整启动命令见
 英文 README；生命周期最常用的三条命令是：
 
 ```powershell
@@ -73,6 +73,11 @@ API、tool calling、错误码、队列和上下文限制详见 [API.md](docs/AP
 | q8192 prefill | 2,126.186 tok/s | >= 1,506.407 tok/s |
 | decode | 30.551 tok/s | >= 28.168 tok/s |
 | TPOT | 32.732 ms | <= 35.502 ms |
+
+v1.0.1 还完成了 q8191、q8192、q8193 边界验收：每个长度分别测试一 token、
+两 token continuation，各重复三次，18/18 输出均与 GB10 BF16 oracle 完全一致。
+q8192 TTFT 为 3,872.773–3,928.488 ms，最差邻界比值为 1.423x，最差正残差为
+1,642.653 ms。
 
 仓库公开 12 条性能记录、GB10 锚定的 token 正确性、长上下文 continuation、
 OpenAI 功能验收，以及完整脱敏后的 MMLU-Pro candidate/reference 逐题数据。
