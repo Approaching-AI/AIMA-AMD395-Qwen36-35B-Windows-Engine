@@ -769,11 +769,11 @@ dependencies = [
 
 [[package]]
 name = "qrt-cli"
-version = "1.0.0"
+version = "1.0.1"
 
 [[package]]
 name = "qrt-server"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "anyhow",
  "async-stream",

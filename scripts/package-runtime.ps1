@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$RuntimeDir,
     [Parameter(Mandatory = $false)][string]$OutDir = "",
-    [Parameter(Mandatory = $false)][string]$Version = "1.0.0"
+    [Parameter(Mandatory = $false)][string]$Version = "1.0.1"
 )
 
 $ErrorActionPreference = "Stop"

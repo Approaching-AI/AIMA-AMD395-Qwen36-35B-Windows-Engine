@@ -5,4 +5,4 @@ resolver = "2"
 [workspace.package]
 edition = "2021"
 license = "Apache-2.0"
-repository = "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine"
+repository = "https://github.com/Approaching-AI/AIMA-AMD395-Qwen36-35B-Windows-Engine"

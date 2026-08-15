@@ -324,8 +324,8 @@ struct ProviderState {
 #endif
     uint16_t *input_bf16 = nullptr;
     uint16_t *transposed_router_weights = nullptr;
-#if QRT_TRITON_MOE_ROCBLAS_ROUTER
     uint16_t *router_logits_bf16 = nullptr;
+#if QRT_TRITON_MOE_ROCBLAS_ROUTER
     rocblas_handle router_handle = nullptr;
 #endif
     int32_t *topk_ids = nullptr;
@@ -350,6 +350,7 @@ struct ProviderState {
     hipblasLtHandle_t matrix_handle = nullptr;
     void *matrix_workspace = nullptr;
     size_t matrix_workspace_bytes = 0;
+    MatrixPlan router_plan;
     MatrixPlan shared_gate_plan;
     MatrixPlan shared_projection_plan;
     MatrixPlan shared_down_plan;
@@ -1303,7 +1304,6 @@ __global__ void convert_input_kernel(
     }
 }
 
-#if QRT_TRITON_MOE_ROCBLAS_ROUTER
 __global__ void router_bf16_logits_topk_kernel(
     const uint16_t *logits_bf16,
     int32_t *topk_ids,
@@ -1371,7 +1371,6 @@ __global__ void router_bf16_logits_topk_kernel(
         }
     }
 }
-#endif
 
 #if QRT_TRITON_MOE_NATIVE_WMMA_GATE || QRT_TRITON_MOE_NATIVE_WMMA_DOWN
 __global__ void native_wmma_gate_up_silu_kernel(
@@ -1797,7 +1796,8 @@ __global__ void router_topk_kernel(
     const float *post_attention,
     const uint16_t *router_weights,
     int32_t *topk_ids,
-    float *topk_weights
+    float *topk_weights,
+    bool bf16_logit_endpoint
 ) {
     __shared__ float shared_logits[kRouterTokenTile][kExperts];
 
@@ -1814,10 +1814,18 @@ __global__ void router_topk_kernel(
 #pragma unroll
         for (uint32_t token_slot = 0u; token_slot < kRouterTokenTile;
              ++token_slot) {
-            inputs[token_slot] = post_attention[
-                static_cast<size_t>(token_base + token_slot) * kHidden +
-                column
-            ];
+            // vLLM's router projection consumes the BF16 RMSNorm output.
+            // The provider retains that surface as F32 for the surrounding
+            // residual path, so restore the model-visible BF16 endpoint here
+            // before accumulating router logits.  Rounding only the completed
+            // logit is too late: near-tied experts can otherwise cross the
+            // top-k boundary.
+            inputs[token_slot] = bf16_to_float(float_to_bf16(
+                post_attention[
+                    static_cast<size_t>(token_base + token_slot) * kHidden +
+                    column
+                ]
+            ));
         }
 #pragma unroll
         for (uint32_t slot = 0u; slot < kExpertsPerThread; ++slot) {
@@ -1841,8 +1849,10 @@ __global__ void router_topk_kernel(
 #pragma unroll
         for (uint32_t token_slot = 0u; token_slot < kRouterTokenTile;
              ++token_slot) {
-            shared_logits[token_slot][expert] =
-                accumulators[token_slot][slot];
+            const float logit = accumulators[token_slot][slot];
+            shared_logits[token_slot][expert] = bf16_logit_endpoint
+                ? bf16_to_float(float_to_bf16(logit))
+                : logit;
         }
     }
 #else
@@ -1855,10 +1865,15 @@ __global__ void router_topk_kernel(
     float accumulator = 0.0f;
     for (uint32_t column = 0; column < kHidden; ++column) {
         const uint16_t weight = row_weights[column];
+        const float input_value = bf16_to_float(float_to_bf16(
+            token_input[column]
+        ));
         accumulator +=
-            bf16_to_float(weight) * token_input[column];
+            bf16_to_float(weight) * input_value;
     }
-    shared_logits[0][expert] = accumulator;
+    shared_logits[0][expert] = bf16_logit_endpoint
+        ? bf16_to_float(float_to_bf16(accumulator))
+        : accumulator;
 #endif
     __syncthreads();
 
@@ -2006,6 +2021,7 @@ __global__ void shared_combine_residual_kernel(
 __global__ void full_v3_fused_combine_residual_kernel(
     const float *route_outputs,
     const float *topk_weights,
+    const int32_t *topk_ids,
     const uint16_t *down_projection,
     const float *gate_scales,
     const float *residual_hidden,
@@ -2013,7 +2029,8 @@ __global__ void full_v3_fused_combine_residual_kernel(
     bool vllm_bf16_residual,
     bool vllm_routed_bf16_endpoint,
     bool vllm_route_sum_vt4,
-    bool vllm_route_sum_bf16_endpoint
+    bool vllm_route_sum_bf16_endpoint,
+    bool vllm_sorted_bf16_route_sum
 ) {
     const size_t work_item =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
@@ -2025,7 +2042,41 @@ __global__ void full_v3_fused_combine_residual_kernel(
     const size_t column_base = scalar_base - token * kHidden;
     const size_t route_base = token * kTopK;
     float routed[kFusedCombineWidth]{};
-    if (vllm_route_sum_vt4) {
+    if (vllm_sorted_bf16_route_sum) {
+        uint32_t route_order[kTopK]{};
+        uint32_t previous_expert = 0u;
+        for (uint32_t step = 0u; step < kTopK; ++step) {
+            uint32_t selected_route = kTopK;
+            uint32_t selected_expert = kExperts;
+            for (uint32_t route = 0u; route < kTopK; ++route) {
+                const uint32_t expert = static_cast<uint32_t>(
+                    topk_ids[route_base + route]
+                );
+                if ((step == 0u || expert > previous_expert) &&
+                    expert < selected_expert) {
+                    selected_expert = expert;
+                    selected_route = route;
+                }
+            }
+            route_order[step] = selected_route;
+            previous_expert = selected_expert;
+        }
+        for (uint32_t step = 0u; step < kTopK; ++step) {
+            const size_t route = route_base + route_order[step];
+#pragma unroll
+            for (uint32_t lane = 0u; lane < kFusedCombineWidth; ++lane) {
+                const float down_bf16 = bf16_to_float(float_to_bf16(
+                    route_outputs[route * kHidden + column_base + lane]
+                ));
+                const float contribution_bf16 = bf16_to_float(float_to_bf16(
+                    topk_weights[route] * down_bf16
+                ));
+                routed[lane] = bf16_to_float(float_to_bf16(
+                    __fadd_rn(routed[lane], contribution_bf16)
+                ));
+            }
+        }
+    } else if (vllm_route_sum_vt4) {
         // PyTorch a36e1d39's 16-bit CUDA reduction uses vt0=4.  For the
         // eight non-contiguous top-k rows, each output thread pairs routes
         // 0/4, 1/5, 2/6, and 3/7, then adds those four accumulators in order.
@@ -2412,6 +2463,7 @@ bool release_state() {
     release_matrix_plan(&g_state.shared_down_plan);
     release_matrix_plan(&g_state.shared_projection_plan);
     release_matrix_plan(&g_state.shared_gate_plan);
+    release_matrix_plan(&g_state.router_plan);
     if (g_state.matrix_workspace != nullptr) {
         (void)hipFree(g_state.matrix_workspace);
     }
@@ -2457,10 +2509,10 @@ bool release_state() {
     if (g_state.router_handle != nullptr) {
         (void)rocblas_destroy_handle(g_state.router_handle);
     }
+#endif
     if (g_state.router_logits_bf16 != nullptr) {
         (void)hipFree(g_state.router_logits_bf16);
     }
-#endif
     if (g_state.transposed_router_weights != nullptr) {
         (void)hipFree(g_state.transposed_router_weights);
     }
@@ -2623,6 +2675,30 @@ bool allocate_optional_transposed_router() {
 #else
     return true;
 #endif
+}
+
+bool q8192_hipblaslt_bf16_router_requested() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_HIPBLASLT_BF16"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool allocate_optional_hipblaslt_router_logits() {
+    if (!q8192_hipblaslt_bf16_router_requested()) {
+        return true;
+    }
+    return allocate(
+        &g_state.router_logits_bf16,
+        static_cast<size_t>(kTokens) * kExperts * sizeof(uint16_t),
+        "hipMalloc(router_logits_bf16)"
+    );
+}
+
+bool ensure_optional_hipblaslt_router_plan() {
+    return !q8192_hipblaslt_bf16_router_requested() ||
+        ensure_matrix_plan(&g_state.router_plan, kExperts, kHidden);
 }
 
 bool ensure_full_v3_execution_state() {
@@ -3177,6 +3253,38 @@ bool launch_router(
     const uint16_t *router_bf16,
     hipStream_t stream
 ) {
+    if (q8192_hipblaslt_bf16_router_requested()) {
+        if (g_state.router_logits_bf16 == nullptr ||
+            !launch_input_conversion(post_attention_f32, stream) ||
+            !launch_matrix(
+                &g_state.router_plan,
+                router_bf16,
+                g_state.input_bf16,
+                g_state.router_logits_bf16,
+                kExperts,
+                kHidden,
+                stream,
+                "hipblasLtMatmul(router_logits_bf16)"
+            )) {
+            return false;
+        }
+        hipLaunchKernelGGL(
+            router_bf16_logits_topk_kernel,
+            dim3(kTokens),
+            dim3(kExperts),
+            0,
+            stream,
+            g_state.router_logits_bf16,
+            g_state.topk_ids,
+            g_state.topk_weights
+        );
+        const hipError_t status = hipGetLastError();
+        if (status != hipSuccess) {
+            set_error("router_bf16_logits_topk_kernel", status);
+            return false;
+        }
+        return true;
+    }
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
     if (!launch_input_conversion(post_attention_f32, stream)) {
         return false;
@@ -3246,6 +3354,13 @@ bool launch_router(
     }
     return true;
 #else
+    const char *bf16_logit_endpoint_value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_BF16_LOGIT_ENDPOINT"
+    );
+    const bool bf16_logit_endpoint =
+        bf16_logit_endpoint_value != nullptr &&
+        bf16_logit_endpoint_value[0] != '\0' &&
+        std::strcmp(bf16_logit_endpoint_value, "0") != 0;
 #if QRT_TRITON_MOE_TRANSPOSED_ROUTER
     hipLaunchKernelGGL(
         transpose_router_weights_kernel,
@@ -3275,7 +3390,8 @@ bool launch_router(
         post_attention_f32,
         router_kernel_weights,
         g_state.topk_ids,
-        g_state.topk_weights
+        g_state.topk_weights,
+        bf16_logit_endpoint
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -3786,6 +3902,13 @@ bool q65536_vllm_bf16_residual_enabled() {
     const char *value = std::getenv(
         "QRT_QWEN36_Q65536_VLLM_BF16_RESIDUAL_NORM"
     );
+    if (value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0) {
+        return true;
+    }
+    value = std::getenv(
+        "QRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER"
+    );
     return value != nullptr && value[0] != '\0' &&
         std::strcmp(value, "0") != 0;
 }
@@ -3809,6 +3932,14 @@ bool q65536_vllm_route_sum_vt4_enabled() {
 bool q65536_vllm_route_sum_bf16_endpoint_enabled() {
     const char *value = std::getenv(
         "QRT_QWEN36_Q65536_VLLM_ROUTE_SUM_BF16_ENDPOINT"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool q8192_vllm_sorted_bf16_route_sum_enabled() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_VLLM_SORTED_BF16_ROUTE_SUM"
     );
     return value != nullptr && value[0] != '\0' &&
         std::strcmp(value, "0") != 0;
@@ -3860,6 +3991,7 @@ bool launch_full_v3_fused_combine_residual(
         stream,
         g_state.route_outputs,
         g_state.topk_weights,
+        g_state.topk_ids,
         g_state.shared_down_projection,
         g_state.shared_gate_scales,
         residual_hidden_f32,
@@ -3867,7 +3999,8 @@ bool launch_full_v3_fused_combine_residual(
         vllm_bf16_residual,
         q65536_vllm_routed_bf16_endpoint_enabled(),
         q65536_vllm_route_sum_vt4_enabled(),
-        q65536_vllm_route_sum_bf16_endpoint_enabled()
+        q65536_vllm_route_sum_bf16_endpoint_enabled(),
+        q8192_vllm_sorted_bf16_route_sum_enabled()
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -4280,12 +4413,13 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
 #endif
         !allocate(&g_state.input_bf16, kInputElements * sizeof(uint16_t), "hipMalloc(input_bf16)") ||
         !allocate_optional_transposed_router() ||
+        !allocate_optional_hipblaslt_router_logits() ||
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
-        !allocate(
+        (q8192_hipblaslt_bf16_router_requested() ? false : !allocate(
             &g_state.router_logits_bf16,
             static_cast<size_t>(kTokens) * kExperts * sizeof(uint16_t),
             "hipMalloc(router_logits_bf16)"
-        ) ||
+        )) ||
 #endif
         !allocate(&g_state.topk_ids, static_cast<size_t>(kRoutes) * sizeof(int32_t), "hipMalloc(topk_ids)") ||
         !allocate(&g_state.topk_weights, static_cast<size_t>(kRoutes) * sizeof(float), "hipMalloc(topk_weights)") ||
@@ -4310,6 +4444,7 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             "hipMalloc(early_f32_activated)"
         ) ||
 #endif
+        !ensure_optional_hipblaslt_router_plan() ||
         !ensure_matrix_plan(
             &g_state.shared_gate_plan,
             kSharedGateRows,
@@ -4703,6 +4838,77 @@ qrt_triton_moe_q8192_copy_token0_stage_debug(
         status = hipMemcpy(
             shared_gate_scale_host,
             g_state.shared_gate_scales,
+            sizeof(float),
+            hipMemcpyDeviceToHost
+        );
+    }
+    return status == hipSuccess ? 1 : 0;
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_stage_debug(
+    uint32_t token_index,
+    float *routed_combined_host,
+    uint16_t *shared_down_projection_host,
+    float *shared_gate_scale_host
+) {
+    if (!g_state.prepared || token_index >= kTokens ||
+        routed_combined_host == nullptr ||
+        shared_down_projection_host == nullptr ||
+        shared_gate_scale_host == nullptr) {
+        return 0;
+    }
+    const size_t hidden_offset =
+        static_cast<size_t>(token_index) * kHidden;
+    hipError_t status = hipSuccess;
+#if QRT_TRITON_MOE_FULL_V3_FUSED_COMBINE
+    std::array<float, kTopK * kHidden> route_outputs{};
+    std::array<float, kTopK> route_weights{};
+    const size_t route_base = static_cast<size_t>(token_index) * kTopK;
+    status = hipMemcpy(
+        route_outputs.data(),
+        g_state.route_outputs + route_base * kHidden,
+        route_outputs.size() * sizeof(float),
+        hipMemcpyDeviceToHost
+    );
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            route_weights.data(),
+            g_state.topk_weights + route_base,
+            route_weights.size() * sizeof(float),
+            hipMemcpyDeviceToHost
+        );
+    }
+    if (status == hipSuccess) {
+        for (size_t column = 0u; column < kHidden; ++column) {
+            float sum = 0.0f;
+            for (size_t route = 0u; route < kTopK; ++route) {
+                sum += route_weights[route] *
+                    route_outputs[route * kHidden + column];
+            }
+            routed_combined_host[column] = sum;
+        }
+    }
+#else
+    status = hipMemcpy(
+        routed_combined_host,
+        g_state.routed_combined + hidden_offset,
+        static_cast<size_t>(kHidden) * sizeof(float),
+        hipMemcpyDeviceToHost
+    );
+#endif
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            shared_down_projection_host,
+            g_state.shared_down_projection + hidden_offset,
+            static_cast<size_t>(kHidden) * sizeof(uint16_t),
+            hipMemcpyDeviceToHost
+        );
+    }
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            shared_gate_scale_host,
+            g_state.shared_gate_scales + token_index,
             sizeof(float),
             hipMemcpyDeviceToHost
         );
