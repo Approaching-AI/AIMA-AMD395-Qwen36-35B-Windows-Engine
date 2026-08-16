@@ -51,20 +51,21 @@ token, with maximum absolute error `2.98e-8`; none exceeded the declared
 fixed q8192, and q262144 tile-regression checks were also exact. These numbers
 remain synthetic component evidence rather than product inference evidence.
 
-The native Windows real-model publication gate passed on `baiying` at source
-commit `34264b47c468b52f626ef350ba7a3cd746550b5e`. It used the model at
+The native Windows real-model publication gate passed on `baiying` from a
+clean build at source commit `09bd96fd2d85a0715f1501d16fb6391ce199d0f1`.
+It used the model at
 `D:\models\Qwen3.6-35B-A3B`, the public GB10 oracle, `max_tokens=1` and `2`,
 and three cold-prefix repetitions per shape. All 18 returned token sequences
 matched GB10 exactly.
 
 | Prompt | max_tokens=1 median TTFT | max_tokens=2 median TTFT | All-six range |
 |---|---:|---:|---:|
-| q8191 | 3,956.174 ms | 4,030.357 ms | 3,858.328–4,031.200 ms |
-| q8192 | 3,881.627 ms | 3,884.071 ms | 3,852.914–3,891.808 ms |
-| q8193 | 3,894.552 ms | 3,893.829 ms | 3,863.929–3,912.984 ms |
+| q8191 | 3,948.904 ms | 4,027.895 ms | 3,911.132–4,046.155 ms |
+| q8192 | 3,878.767 ms | 3,885.607 ms | 3,858.763–3,903.565 ms |
+| q8193 | 3,904.950 ms | 3,892.132 ms | 3,846.939–3,905.346 ms |
 
-The worst neighbor/q8192 median ratio is now `1.037663`; the worst positive
-residual is `146.286 ms`. Both pass the tightened `1.10x` and `500 ms`
+The worst neighbor/q8192 median ratio is now `1.036619`; the worst positive
+residual is `142.288 ms`. Both pass the tightened `1.10x` and `500 ms`
 limits, and every q8192 sample beats the retained `4,187.416 ms` TTFT target.
 The former q8193 5.5-second fallback is no longer present.
 
@@ -78,21 +79,23 @@ BF16 authority.
 
 | Center | q-1 median TTFT | q median TTFT | q+1 median TTFT | Local max/min |
 |---:|---:|---:|---:|---:|
-| 4,096 | 2,266.678 ms | 2,194.764 ms | 2,235.846 ms | 1.032766 |
-| 6,144 | 3,542.818 ms | 3,475.555 ms | 3,367.777 ms | 1.051975 |
-| 8,192 | 3,970.170 ms | 3,867.689 ms | 3,925.276 ms | 1.026497 |
-| 9,216 | 4,616.410 ms | 4,564.467 ms | 4,579.720 ms | 1.011380 |
-| 10,240 | 5,111.462 ms | 5,069.652 ms | 5,091.924 ms | 1.008247 |
-| 12,288 | 6,025.344 ms | 5,972.787 ms | 6,029.855 ms | 1.009555 |
-| 14,336 | 7,293.122 ms | 7,296.177 ms | 7,603.634 ms | 1.042576 |
-| 16,384 | 8,314.751 ms | 8,037.034 ms | 8,083.771 ms | 1.034555 |
+| 4,096 | 2,265.420 ms | 2,193.201 ms | 2,187.632 ms | 1.035558 |
+| 6,144 | 3,310.968 ms | 3,254.327 ms | 3,384.861 ms | 1.040111 |
+| 8,192 | 3,956.523 ms | 3,889.966 ms | 3,890.921 ms | 1.017110 |
+| 9,216 | 4,614.217 ms | 4,601.238 ms | 4,620.542 ms | 1.004196 |
+| 10,240 | 5,134.645 ms | 5,120.694 ms | 5,143.162 ms | 1.004388 |
+| 12,288 | 6,037.402 ms | 6,023.924 ms | 6,028.683 ms | 1.002237 |
+| 14,336 | 7,504.772 ms | 7,396.619 ms | 7,675.859 ms | 1.037752 |
+| 16,384 | 8,456.237 ms | 8,047.645 ms | 8,089.251 ms | 1.050772 |
 
 All eight local gates remain below `1.10x` and `500 ms`; the worst observed
-values are `1.051975x` and `307.457 ms`. Median throughput ranges from
-`1,733.930` to `2,118.061 tok/s` across all 24 cohorts, a global max/min ratio
-of `1.221537`. This distinguishes normal shape-efficiency variation from a
-length-rounding cliff: no tested exact boundary or adjacent non-boundary length
-takes a separate multi-second fallback.
+values are `1.050772x` and `408.592 ms`. Median throughput ranges from
+`1,807.612` to `2,105.931 tok/s` across all 24 cohorts, a global max/min ratio
+of `1.165035`. The split-tail path now overlaps its two independent
+transactions; this raises the q6144 neighborhood without changing the retained
+direct-q8192 route. The result distinguishes normal shape-efficiency variation
+from a length-rounding cliff: no tested exact boundary or adjacent non-boundary
+length takes a separate multi-second fallback.
 
 The machine-readable q8192 product record, wide continuity record, provider
 smoke, verifiers, and GB10 oracle are under `benchmarks/` and `scripts/`.
