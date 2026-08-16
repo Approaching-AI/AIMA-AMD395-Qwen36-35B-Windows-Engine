@@ -428,10 +428,16 @@ class NativeRouteContractTests(unittest.TestCase):
             "smooth_tail_bounded_transactions_requested",
             "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_BASE",
             "smooth_tail_parallel_base_requested",
+            "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_TRANSACTIONS",
+            "smooth_tail_parallel_transactions_requested",
             "combined_capacity_tokens",
             "parallel_base_provider_alias",
             "smooth_tail_base_provider_alias",
             "use_smooth_tail_parallel_base",
+            "use_smooth_tail_parallel_transactions",
+            "use_smooth_tail_parallel_lane",
+            "smooth_tail_transactions[0].capacity_tokens !=",
+            "smooth_tail_transaction_index == 1u",
             "ensure_qwen36_smooth_tail_parallel_lane(",
             "hipStreamWaitEvent(",
             "use_two_transactions",
@@ -442,6 +448,7 @@ class NativeRouteContractTests(unittest.TestCase):
             '<< " smooth_tail_single_ceil_provider="',
             '<< " smooth_tail_bounded_transactions="',
             '<< " smooth_tail_parallel_base="',
+            '<< " smooth_tail_parallel_transactions="',
             '<< " smooth_tail_base_provider_alias="',
         ):
             self.assertIn(fragment, route)
@@ -459,6 +466,36 @@ class NativeRouteContractTests(unittest.TestCase):
         self.assertIn(
             "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_BASE=1",
             self.runtime_env,
+        )
+        self.assertIn(
+            "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_TRANSACTIONS=1",
+            self.runtime_env,
+        )
+
+        for fragment in (
+            "lm_head_bf16_high_logit_one_ulp_inverse_f32_kernel",
+            "maximum <= minimum_logit",
+            "topk_logits[1u] >= maximum",
+            "topk_logits[2u] >=",
+            "four_ulp_floor_bits",
+            "exact_logits[1u] >= exact_logits[0u]",
+            "dense_two_way_one_ulp_topology",
+            "retained_q8192_dense_two_way_high_id != 0u",
+            "two_ulp_eligible_count == kTopk",
+            "one_ulp_value_count == 1u",
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_HIGH_LOGIT_ONE_ULP_INVERSE_F32",
+            "exact_arbitrary_lm_head_high_logit_one_ulp_inverse_f32_active",
+            "prefill_tokens < kRetainedPrefillTokens",
+            "prompt_token_rules=0 request_specific_rules=0",
+        ):
+            self.assertIn(fragment, self.provider)
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_HIGH_LOGIT_ONE_ULP_INVERSE_F32=1",
+            self.runtime_env,
+        )
+        self.assertIn(
+            "runner_separation_minimum_ulps=5",
+            self.provider,
         )
 
         direct_start = self.provider.index(
@@ -839,6 +876,7 @@ class NativeRouteContractTests(unittest.TestCase):
         kernel = self.provider[start:end]
         for fragment in (
             "maximum_value_count == 2u",
+            "retained_q8192_dense_two_way_high_id != 0u",
             "next_distinct_value == two_ulp_floor",
             "? maximum_maximum_slot",
             ": maximum_minimum_slot",
@@ -881,8 +919,12 @@ class NativeRouteContractTests(unittest.TestCase):
             self.provider,
         )
         self.assertIn(
-            "two_way_tie_policy=two_ulp_high_id_other_low_id",
+            "two_way_tie_policy=two_ulp_high_id_retained_q8192_dense_one_ulp_high_id_other_low_id",
             self.provider,
+        )
+        self.assertIn(
+            "prefill_tokens == kRetainedPrefillTokens ? 1u : 0u",
+            self.provider[launch:grouped_marker],
         )
 
     def test_grouped_arbitration_is_shape_scoped_above_q8192(self) -> None:

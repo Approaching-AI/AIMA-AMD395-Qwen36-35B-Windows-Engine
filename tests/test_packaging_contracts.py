@@ -71,6 +71,10 @@ class PackagingContractTests(unittest.TestCase):
             "QRT_QWEN36_SMOOTH_TAIL_BOUNDED_TRANSACTIONS=1",
             self.runtime,
         )
+        self.assertIn(
+            "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_TRANSACTIONS=1",
+            self.runtime,
+        )
         for tokens in (32, 64, 128, 256, 512, 1024, 2048, 4096):
             self.assertIn(str(tokens), self.smooth_tail_build)
         for fragment in (
