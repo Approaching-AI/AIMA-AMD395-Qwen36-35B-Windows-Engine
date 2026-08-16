@@ -52,22 +52,50 @@ fixed q8192, and q262144 tile-regression checks were also exact. These numbers
 remain synthetic component evidence rather than product inference evidence.
 
 The native Windows real-model publication gate passed on `baiying` at source
-commit `212bd8159a92b33e46f7647b00957871b25fb639`. It used the model at
+commit `34264b47c468b52f626ef350ba7a3cd746550b5e`. It used the model at
 `D:\models\Qwen3.6-35B-A3B`, the public GB10 oracle, `max_tokens=1` and `2`,
 and three cold-prefix repetitions per shape. All 18 returned token sequences
 matched GB10 exactly.
 
 | Prompt | max_tokens=1 median TTFT | max_tokens=2 median TTFT | All-six range |
 |---|---:|---:|---:|
-| q8191 | 4,185.807 ms | 4,253.678 ms | 4,099.691–4,272.996 ms |
-| q8192 | 3,883.923 ms | 3,887.042 ms | 3,872.773–3,928.488 ms |
-| q8193 | 5,483.337 ms | 5,529.695 ms | 5,482.172–5,541.596 ms |
+| q8191 | 3,956.174 ms | 4,030.357 ms | 3,858.328–4,031.200 ms |
+| q8192 | 3,881.627 ms | 3,884.071 ms | 3,852.914–3,891.808 ms |
+| q8193 | 3,894.552 ms | 3,893.829 ms | 3,863.929–3,912.984 ms |
 
-The worst neighbor/q8192 median ratio was `1.422597`; the worst positive
-residual was `1,642.653 ms`. Both pass the declared `2x` and `5,000 ms` limits,
-and every q8192 sample beats the retained `4,187.416 ms` TTFT target. The
-machine-readable product record, provider smoke, verifier, and GB10 oracle are
-under `benchmarks/` and `scripts/`.
+The worst neighbor/q8192 median ratio is now `1.037663`; the worst positive
+residual is `146.286 ms`. Both pass the tightened `1.10x` and `500 ms`
+limits, and every q8192 sample beats the retained `4,187.416 ms` TTFT target.
+The former q8193 5.5-second fallback is no longer present.
+
+## Wide prompt-length continuity gate
+
+The neighbor check above is supplemented by a 72-request cold-prefill sweep
+covering eight independent length boundaries from q4096 through q16384. Each
+boundary tests `q-1`, `q`, and `q+1` three times with a unique leading token
+to prevent prefix-cache reuse. Every AMD-generated token ID matched the GB10
+BF16 authority.
+
+| Center | q-1 median TTFT | q median TTFT | q+1 median TTFT | Local max/min |
+|---:|---:|---:|---:|---:|
+| 4,096 | 2,266.678 ms | 2,194.764 ms | 2,235.846 ms | 1.032766 |
+| 6,144 | 3,542.818 ms | 3,475.555 ms | 3,367.777 ms | 1.051975 |
+| 8,192 | 3,970.170 ms | 3,867.689 ms | 3,925.276 ms | 1.026497 |
+| 9,216 | 4,616.410 ms | 4,564.467 ms | 4,579.720 ms | 1.011380 |
+| 10,240 | 5,111.462 ms | 5,069.652 ms | 5,091.924 ms | 1.008247 |
+| 12,288 | 6,025.344 ms | 5,972.787 ms | 6,029.855 ms | 1.009555 |
+| 14,336 | 7,293.122 ms | 7,296.177 ms | 7,603.634 ms | 1.042576 |
+| 16,384 | 8,314.751 ms | 8,037.034 ms | 8,083.771 ms | 1.034555 |
+
+All eight local gates remain below `1.10x` and `500 ms`; the worst observed
+values are `1.051975x` and `307.457 ms`. Median throughput ranges from
+`1,733.930` to `2,118.061 tok/s` across all 24 cohorts, a global max/min ratio
+of `1.221537`. This distinguishes normal shape-efficiency variation from a
+length-rounding cliff: no tested exact boundary or adjacent non-boundary length
+takes a separate multi-second fallback.
+
+The machine-readable q8192 product record, wide continuity record, provider
+smoke, verifiers, and GB10 oracle are under `benchmarks/` and `scripts/`.
 
 ## Correctness attachment
 
