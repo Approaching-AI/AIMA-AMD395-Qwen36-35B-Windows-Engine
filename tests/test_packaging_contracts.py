@@ -12,6 +12,9 @@ class PackagingContractTests(unittest.TestCase):
         cls.package = (ROOT / "scripts/package-runtime.ps1").read_text(
             encoding="utf-8"
         )
+        cls.smooth_tail_build = (
+            ROOT / "scripts/baiying_build_smooth_tail_moe.ps1"
+        ).read_text(encoding="utf-8")
         cls.readme = (ROOT / "README.md").read_text(encoding="utf-8")
         cls.runtime = (ROOT / "engine/runtime.env").read_text(encoding="utf-8")
 
@@ -58,6 +61,27 @@ class PackagingContractTests(unittest.TestCase):
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_GLOBAL=0",
             self.runtime,
         )
+
+    def test_smooth_tail_providers_are_built_and_packaged_for_every_tile(self) -> None:
+        self.assertIn("baiying_build_smooth_tail_moe.ps1", self.build)
+        self.assertIn('smooth_tail_moe_root = "smooth-tail"', self.build)
+        self.assertIn('prefix = "smooth-tail/q$tokens/"', self.package)
+        self.assertIn("count = 6", self.package)
+        self.assertIn(
+            "QRT_QWEN36_SMOOTH_TAIL_BOUNDED_TRANSACTIONS=1",
+            self.runtime,
+        )
+        for tokens in (32, 64, 128, 256, 512, 1024, 2048, 4096):
+            self.assertIn(str(tokens), self.smooth_tail_build)
+        for fragment in (
+            "Invoke-BoundedProcess",
+            '"-DQRT_TRITON_MOE_NATIVE_WMMA_GATE=1"',
+            '"-DQRT_TRITON_MOE_NATIVE_WMMA_DOWN=1"',
+            '"-DQRT_TRITON_MOE_TRANSPOSED_ROUTER=1"',
+            '"-DQRT_TRITON_MOE_FULL_V3_FUSED_COMBINE=1"',
+            "provider_backend_mask = 15",
+        ):
+            self.assertIn(fragment, self.smooth_tail_build)
 
 
 if __name__ == "__main__":

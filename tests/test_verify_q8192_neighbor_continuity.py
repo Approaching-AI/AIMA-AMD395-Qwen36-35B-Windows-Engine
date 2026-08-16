@@ -103,9 +103,21 @@ class NeighborContinuityTests(unittest.TestCase):
         return records
 
     def test_continuity_gate_accepts_smooth_neighbors(self) -> None:
-        summary = NEIGHBOR.continuity_summary(self.records(4500.0))
+        summary = NEIGHBOR.continuity_summary(self.records(4350.0))
         self.assertTrue(summary["all_gates_passed"])
         self.assertTrue(all(gate["passed"] for gate in summary["gates"]))
+        self.assertTrue(
+            all(
+                gate["neighbor_to_center_ratio_max"] == 1.10
+                and gate["positive_residual_max_ms"] == 500.0
+                for gate in summary["gates"]
+            )
+        )
+
+    def test_continuity_gate_rejects_eleven_percent_neighbor(self) -> None:
+        summary = NEIGHBOR.continuity_summary(self.records(4440.1))
+        self.assertFalse(summary["all_gates_passed"])
+        self.assertTrue(all(not gate["ratio_passed"] for gate in summary["gates"]))
 
     def test_continuity_gate_rejects_the_reported_cliff(self) -> None:
         summary = NEIGHBOR.continuity_summary(self.records(61_000.0))

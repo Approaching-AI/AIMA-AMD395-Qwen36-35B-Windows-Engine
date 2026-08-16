@@ -75,15 +75,26 @@ $requiredFiles = @(
     "runtime.env",
     "runtime-manifest.json"
 )
+$smoothTailTokenCounts = @(32, 64, 128, 256, 512, 1024, 2048, 4096)
+foreach ($tokens in $smoothTailTokenCounts) {
+    $requiredFiles += (
+        "smooth-tail\q{0}\qrt_triton_moe_q{0}_fast_tail_provider.dll" -f `
+            $tokens
+    )
+}
 foreach ($relative in $requiredFiles) {
     $path = Join-Path $RuntimeDir $relative
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw "runtime package input is missing: $path"
     }
 }
-foreach ($relative in @(
-        "q1024-moe\moe-kernels", "q8192-moe", "aiter-gdn", "aot\gfx1151"
-    )) {
+$requiredDirectories = @(
+    "q1024-moe\moe-kernels", "q8192-moe", "aiter-gdn", "aot\gfx1151"
+)
+foreach ($tokens in $smoothTailTokenCounts) {
+    $requiredDirectories += "smooth-tail\q$tokens"
+}
+foreach ($relative in $requiredDirectories) {
     $path = Join-Path $RuntimeDir $relative
     if (-not (Test-Path -LiteralPath $path -PathType Container)) {
         throw "runtime kernel directory is missing: $path"
@@ -130,6 +141,12 @@ $kernelMinimums = @(
     [ordered]@{ prefix = "aiter-gdn/"; count = 4 },
     [ordered]@{ prefix = "aot/gfx1151/"; count = 20 }
 )
+foreach ($tokens in $smoothTailTokenCounts) {
+    $kernelMinimums += [ordered]@{
+        prefix = "smooth-tail/q$tokens/"
+        count = 6
+    }
+}
 foreach ($minimum in $kernelMinimums) {
     $count = @(
         $runtimeArtifactPaths | Where-Object {

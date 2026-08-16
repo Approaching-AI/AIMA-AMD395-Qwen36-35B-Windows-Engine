@@ -48,11 +48,13 @@ New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 $wholeDir = Join-Path $OutDir "whole-provider"
 $moeDir = Join-Path $OutDir "q1024-moe"
 $q8192MoeDir = Join-Path $OutDir "q8192-moe"
+$smoothTailRoot = Join-Path $OutDir "smooth-tail"
+$smoothTailTokenCounts = @(32, 64, 128, 256, 512, 1024, 2048, 4096)
 $ckDir = Join-Path $OutDir "ck-fmha"
 $gdnDir = Join-Path $OutDir "aiter-gdn"
 $engineDir = Join-Path $OutDir "engine"
 $baseAotDir = Join-Path $OutDir ("aot\" + $OffloadArch)
-New-Item -ItemType Directory -Force -Path $ckDir | Out-Null
+New-Item -ItemType Directory -Force -Path $ckDir, $smoothTailRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $baseAotDir | Out-Null
 
 $runtimeProfileSource = Join-Path $repo "engine\runtime.env"
@@ -97,6 +99,17 @@ if ($LASTEXITCODE -ne 0) { throw "q1024 selected-MoE build failed" }
     -RequireExpectedFullProviderHash 1
 if ($LASTEXITCODE -ne 0) { throw "q8192 selected-MoE build failed" }
 
+foreach ($tokens in $smoothTailTokenCounts) {
+    $smoothTailDir = Join-Path $smoothTailRoot ("q{0}" -f $tokens)
+    & (Join-Path $PSScriptRoot "baiying_build_smooth_tail_moe.ps1") `
+        -Tokens $tokens -OutDir $smoothTailDir `
+        -RocmRoot $RocmRoot -OffloadArch $OffloadArch `
+        -WslDistribution $WslDistribution -TritonPython $TritonPython
+    if ($LASTEXITCODE -ne 0) {
+        throw "smooth-tail q$tokens selected-MoE build failed"
+    }
+}
+
 & (Join-Path $PSScriptRoot "baiying_build_ck_fmha_q8192.ps1") `
     -CkRoot $CkRoot `
     -OutPath (Join-Path $ckDir "qrt_ck_fmha_continuous_long.dll") `
@@ -127,6 +140,11 @@ $runtimeFiles = @(
     (Join-Path $gdnDir "qrt_aiter_fused_gdn_q8192_provider.dll"),
     $runtimeProfile
 )
+foreach ($tokens in $smoothTailTokenCounts) {
+    $runtimeFiles += Join-Path `
+        (Join-Path $smoothTailRoot ("q{0}" -f $tokens)) `
+        ("qrt_triton_moe_q{0}_fast_tail_provider.dll" -f $tokens)
+}
 foreach ($path in $runtimeFiles) {
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw "runtime build output is missing: $path"
@@ -141,6 +159,15 @@ $runtimeKernelFiles = @(
             $_.Extension -eq ".hsaco" -or $_.Name -eq "metadata.json"
         } |
         Select-Object -ExpandProperty FullName
+    foreach ($tokens in $smoothTailTokenCounts) {
+        Get-ChildItem `
+            -LiteralPath (Join-Path $smoothTailRoot ("q{0}" -f $tokens)) `
+            -File |
+            Where-Object {
+                $_.Extension -eq ".hsaco" -or $_.Name -eq "metadata.json"
+            } |
+            Select-Object -ExpandProperty FullName
+    }
     Get-ChildItem -LiteralPath $gdnDir -File |
         Where-Object { $_.Extension -in @(".hsaco", ".json") } |
         Select-Object -ExpandProperty FullName
@@ -188,6 +215,16 @@ try {
     $ckHasher.Dispose()
 }
 $ckTreeSha256 = ($ckTreeDigest | ForEach-Object { $_.ToString("x2") }) -join ""
+$smoothTailLayout = foreach ($tokens in $smoothTailTokenCounts) {
+    [ordered]@{
+        tokens = $tokens
+        provider = (
+            "smooth-tail/q{0}/qrt_triton_moe_q{0}_fast_tail_provider.dll" -f `
+                $tokens
+        )
+        kernel_dir = "smooth-tail/q$tokens"
+    }
+}
 $record = [ordered]@{
     schema_version = 1
     host = [Environment]::MachineName
@@ -206,6 +243,8 @@ $record = [ordered]@{
         arbitrary_moe_kernel_dir = "q1024-moe/moe-kernels"
         q8192_moe_provider = "q8192-moe/qrt_triton_moe_q8192_provider.dll"
         q8192_moe_kernel_dir = "q8192-moe"
+        smooth_tail_moe_root = "smooth-tail"
+        smooth_tail_moe = @($smoothTailLayout)
         ck_fmha_provider = "ck-fmha"
         aiter_gdn_provider = "aiter-gdn"
         base_aot = "aot/$OffloadArch"

@@ -18,6 +18,21 @@ use crate::api::{
 use crate::backend::{InferenceBackend, NativeBackend, NATIVE_THREAD_STACK_BYTES};
 use crate::tokenizer::{QwenTokenizer, TokenCodec};
 
+const SMOOTH_TAIL_MOE_TOKEN_COUNTS: [usize; 8] = [32, 64, 128, 256, 512, 1024, 2048, 4096];
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct SmoothTailMoeBinding {
+    tokens: usize,
+    provider: PathBuf,
+    kernel_dir: PathBuf,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct SmoothTailMoeLayout {
+    root: PathBuf,
+    bindings: Vec<SmoothTailMoeBinding>,
+}
+
 #[derive(Clone, Debug, Args)]
 pub struct ServeOptions {
     /// Model directory containing config.json, tokenizer.json, and safetensors.
@@ -35,6 +50,10 @@ pub struct ServeOptions {
     /// Kernel directory belonging to the arbitrary-prompt q1024 MoE DLL.
     #[arg(long, env = "QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_KERNEL_DIR")]
     pub arbitrary_moe_kernel_dir: Option<PathBuf>,
+
+    /// Root containing packaged q32..q4096 smooth-tail selected-MoE providers.
+    #[arg(long, env = "QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT")]
+    pub smooth_tail_moe_root: Option<PathBuf>,
 
     /// Retained runtime KEY=VALUE profile loaded before the model.
     #[arg(long, env = "QRT_RUNTIME_ENV_FILE")]
@@ -134,6 +153,8 @@ pub struct ServiceRecord {
     pub arbitrary_moe_provider_dll: Option<String>,
     #[serde(default)]
     pub arbitrary_moe_kernel_dir: Option<String>,
+    #[serde(default)]
+    pub smooth_tail_moe_root: Option<String>,
     pub max_model_len: usize,
     #[serde(default = "default_record_max_queue_depth")]
     pub max_queue_depth: usize,
@@ -159,6 +180,10 @@ pub async fn serve(options: ServeOptions) -> Result<()> {
         load_env_file(env_file)?;
     }
     apply_env_overrides(&options.env_overrides)?;
+    let smooth_tail_moe_root = configure_smooth_tail_moe_providers(
+        options.smooth_tail_moe_root.clone(),
+        options.env_file.as_deref(),
+    )?;
     let model_path = resolve_required_path(
         options.model.clone(),
         "QRT_MODEL_PATH",
@@ -215,6 +240,7 @@ pub async fn serve(options: ServeOptions) -> Result<()> {
         provider_dll: provider_path.display().to_string(),
         arbitrary_moe_provider_dll: Some(arbitrary_moe_provider.display().to_string()),
         arbitrary_moe_kernel_dir: Some(arbitrary_moe_kernel_dir.display().to_string()),
+        smooth_tail_moe_root: smooth_tail_moe_root.map(|path| path.display().to_string()),
         max_model_len: options.max_model_len,
         max_queue_depth: options.max_queue_depth,
         queue_timeout_seconds: options.queue_timeout_seconds,
@@ -467,6 +493,9 @@ fn append_serve_args(command: &mut Command, options: &ServeOptions, state_file: 
     if let Some(kernel_dir) = &options.arbitrary_moe_kernel_dir {
         command.arg("--arbitrary-moe-kernel-dir").arg(kernel_dir);
     }
+    if let Some(root) = &options.smooth_tail_moe_root {
+        command.arg("--smooth-tail-moe-root").arg(root);
+    }
     if let Some(env_file) = &options.env_file {
         command.arg("--env-file").arg(env_file);
     }
@@ -549,6 +578,99 @@ fn configure_arbitrary_moe_provider(
         &kernel_dir,
     );
     Ok((provider, kernel_dir))
+}
+
+fn resolve_smooth_tail_moe_layout(
+    explicit_root: Option<PathBuf>,
+    env_file: Option<&Path>,
+) -> Result<Option<SmoothTailMoeLayout>> {
+    let requested_root = explicit_root
+        .or_else(|| std::env::var_os("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT").map(PathBuf::from));
+    let root = if let Some(root) = requested_root {
+        root
+    } else if let Some(root) = env_file
+        .and_then(Path::parent)
+        .map(|parent| parent.join("smooth-tail"))
+    {
+        if !root.exists() {
+            return Ok(None);
+        }
+        root
+    } else {
+        return Ok(None);
+    };
+    if !root.is_dir() {
+        bail!(
+            "smooth-tail selected-MoE root does not exist or is not a directory: {}",
+            root.display()
+        );
+    }
+
+    let mut bindings = Vec::with_capacity(SMOOTH_TAIL_MOE_TOKEN_COUNTS.len());
+    for tokens in SMOOTH_TAIL_MOE_TOKEN_COUNTS {
+        let kernel_dir = root.join(format!("q{tokens}"));
+        let provider = kernel_dir.join(format!("qrt_triton_moe_q{tokens}_fast_tail_provider.dll"));
+        if !provider.is_file() {
+            bail!(
+                "smooth-tail q{tokens} provider is missing: {}",
+                provider.display()
+            );
+        }
+        if !kernel_dir.join("metadata.json").is_file() {
+            bail!(
+                "smooth-tail q{tokens} metadata is missing under {}",
+                kernel_dir.display()
+            );
+        }
+        for kernel in [
+            "route_count",
+            "route_prefix_by_program",
+            "route_padded_prefix",
+            "route_scatter",
+            "gate_up_silu",
+            "down",
+        ] {
+            let path = kernel_dir.join(format!("q{tokens}_selected_moe_{kernel}.hsaco"));
+            if !path.is_file() {
+                bail!(
+                    "smooth-tail q{tokens} kernel is missing: {}",
+                    path.display()
+                );
+            }
+        }
+        bindings.push(SmoothTailMoeBinding {
+            tokens,
+            provider,
+            kernel_dir,
+        });
+    }
+    Ok(Some(SmoothTailMoeLayout { root, bindings }))
+}
+
+fn configure_smooth_tail_moe_providers(
+    explicit_root: Option<PathBuf>,
+    env_file: Option<&Path>,
+) -> Result<Option<PathBuf>> {
+    let Some(layout) = resolve_smooth_tail_moe_layout(explicit_root, env_file)? else {
+        return Ok(None);
+    };
+    if std::env::var_os("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT").is_none() {
+        std::env::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT", &layout.root);
+    }
+    if std::env::var_os("QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER").is_none() {
+        std::env::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER", "1");
+    }
+    for binding in &layout.bindings {
+        let dll_env = format!("QRT_QWEN36_SMOOTH_TAIL_Q{}_MOE_DLL", binding.tokens);
+        let kernel_dir_env = format!("QRT_QWEN36_SMOOTH_TAIL_Q{}_MOE_KERNEL_DIR", binding.tokens);
+        if std::env::var_os(&dll_env).is_none() {
+            std::env::set_var(dll_env, &binding.provider);
+        }
+        if std::env::var_os(&kernel_dir_env).is_none() {
+            std::env::set_var(kernel_dir_env, &binding.kernel_dir);
+        }
+    }
+    Ok(Some(layout.root))
 }
 
 pub fn load_env_file(path: &Path) -> Result<usize> {
@@ -724,6 +846,7 @@ fn json_status(record: &ServiceRecord, reachable: bool) -> serde_json::Value {
         "provider_dll": record.provider_dll,
         "arbitrary_moe_provider_dll": record.arbitrary_moe_provider_dll,
         "arbitrary_moe_kernel_dir": record.arbitrary_moe_kernel_dir,
+        "smooth_tail_moe_root": record.smooth_tail_moe_root,
         "max_model_len": record.max_model_len,
         "max_queue_depth": record.max_queue_depth,
         "queue_timeout_seconds": record.queue_timeout_seconds,
@@ -824,6 +947,7 @@ mod tests {
             provider_dll: "provider".to_owned(),
             arbitrary_moe_provider_dll: Some("q1024-provider".to_owned()),
             arbitrary_moe_kernel_dir: Some("q1024-kernels".to_owned()),
+            smooth_tail_moe_root: Some("smooth-tail".to_owned()),
             max_model_len: 262_144,
             max_queue_depth: DEFAULT_MAX_QUEUE_DEPTH,
             queue_timeout_seconds: DEFAULT_QUEUE_TIMEOUT_SECONDS,
@@ -852,6 +976,7 @@ mod tests {
             provider_dll: "provider".to_owned(),
             arbitrary_moe_provider_dll: Some("q1024-provider".to_owned()),
             arbitrary_moe_kernel_dir: Some("q1024-kernels".to_owned()),
+            smooth_tail_moe_root: Some("smooth-tail".to_owned()),
             max_model_len: 262_144,
             max_queue_depth: DEFAULT_MAX_QUEUE_DEPTH,
             queue_timeout_seconds: DEFAULT_QUEUE_TIMEOUT_SECONDS,
@@ -873,5 +998,54 @@ mod tests {
         let mut still_ready = stopped;
         still_ready.status = "ready".to_owned();
         assert!(!stopped_record_matches(&still_ready, &expected));
+    }
+
+    #[test]
+    fn packaged_smooth_tail_layout_requires_every_provider_and_kernel() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root = std::env::temp_dir().join(format!(
+            "qrt-smooth-tail-layout-{}-{nonce}",
+            std::process::id()
+        ));
+        for tokens in SMOOTH_TAIL_MOE_TOKEN_COUNTS {
+            let dir = root.join(format!("q{tokens}"));
+            fs::create_dir_all(&dir).unwrap();
+            fs::write(
+                dir.join(format!("qrt_triton_moe_q{tokens}_fast_tail_provider.dll")),
+                b"provider",
+            )
+            .unwrap();
+            fs::write(dir.join("metadata.json"), b"{}").unwrap();
+            for kernel in [
+                "route_count",
+                "route_prefix_by_program",
+                "route_padded_prefix",
+                "route_scatter",
+                "gate_up_silu",
+                "down",
+            ] {
+                fs::write(
+                    dir.join(format!("q{tokens}_selected_moe_{kernel}.hsaco")),
+                    b"kernel",
+                )
+                .unwrap();
+            }
+        }
+
+        let layout = resolve_smooth_tail_moe_layout(Some(root.clone()), None)
+            .unwrap()
+            .unwrap();
+        assert_eq!(layout.root, root);
+        assert_eq!(layout.bindings.len(), SMOOTH_TAIL_MOE_TOKEN_COUNTS.len());
+        let missing = root.join("q256/q256_selected_moe_down.hsaco");
+        fs::remove_file(&missing).unwrap();
+        let error = resolve_smooth_tail_moe_layout(Some(root.clone()), None).unwrap_err();
+        assert!(error
+            .to_string()
+            .contains("smooth-tail q256 kernel is missing"));
+        fs::remove_dir_all(root).unwrap();
     }
 }

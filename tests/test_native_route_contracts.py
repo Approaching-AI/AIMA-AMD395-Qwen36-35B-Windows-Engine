@@ -104,11 +104,11 @@ class NativeRouteContractTests(unittest.TestCase):
             self.provider.count(
                 "qwen36_specialized_retained_q8192_path_enabled("
             ),
-            4,
+            3,
         )
         self.assertNotIn("expected_output", helper)
 
-    def test_exact_arbitrary_q8192_uses_terminal_q1_target_plan(self) -> None:
+    def test_arbitrary_prefill_uses_terminal_q1_target_plan(self) -> None:
         helper_start = self.provider.index(
             "bool qwen36_layer39_q1_kv8192_target_plan_shape_enabled("
         )
@@ -117,7 +117,10 @@ class NativeRouteContractTests(unittest.TestCase):
             helper_start,
         )
         helper = self.provider[helper_start:helper_end]
-        self.assertIn("prefill_tokens == kRetainedPrefillTokens", helper)
+        self.assertIn("prefill_tokens > 0u", helper)
+        self.assertIn(
+            "prefill_tokens <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS", helper
+        )
         self.assertIn(
             "qwen36_specialized_retained_q8192_path_enabled(prefill_tokens)",
             helper,
@@ -126,6 +129,13 @@ class NativeRouteContractTests(unittest.TestCase):
             "qwen36_exact_arbitrary_product_path_enabled(prefill_tokens)",
             helper,
         )
+        self.assertIn("qwen36_resident_session_capture_is_active()", helper)
+        for feature in (
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_COMPACT_Q",
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_PACKED_MOE",
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_DEVICE_CORRIDOR",
+        ):
+            self.assertIn(feature, helper)
         self.assertGreaterEqual(
             self.provider.count(
                 "qwen36_layer39_q1_kv8192_target_plan_shape_enabled("
@@ -143,7 +153,11 @@ class NativeRouteContractTests(unittest.TestCase):
         )
         retained_only_alias = self.provider[alias_start:alias_end]
         self.assertIn(
-            "qwen36_specialized_retained_q8192_path_enabled(prefill_tokens)",
+            "qwen36_layer39_dynamic_terminal_packed_moe_enabled(prefill_tokens)",
+            retained_only_alias,
+        )
+        self.assertIn(
+            "run->selected_token_ids.front() == prefill_tokens - 1u",
             retained_only_alias,
         )
         self.assertNotIn("expected_output", retained_only_alias)
@@ -247,6 +261,7 @@ class NativeRouteContractTests(unittest.TestCase):
         kernel = self.provider[kernel_start:kernel_end]
         for fragment in (
             "device_float_to_bf16(topk_logits[row_base])",
+            "topk_logits[row_base + 2u] < five_ulp_floor",
             "topk_logits[row_base + slot] >= candidate_floor",
             "topk_ids[row_base + slot] < selected_id",
             "topk_ids[row_base] = winning_id;",
@@ -269,6 +284,14 @@ class NativeRouteContractTests(unittest.TestCase):
         ):
             self.assertIn(fragment, active)
         self.assertNotIn("input_tokens", active)
+        high_id_start = self.provider.index(
+            "const bool exact_arbitrary_lm_head_bf16_window_high_id_active ="
+        )
+        high_id_end = self.provider.index(
+            "const bool q8193_bf16_one_ulp_low_id_active =", high_id_start
+        )
+        high_id = self.provider[high_id_start:high_id_end]
+        self.assertIn("q8193_bf16_one_ulp_low_id_shape", high_id)
         self.assertNotIn("expected_output", active)
         self.assertIn(
             "BATCH_MARK qwen36_q8193_bf16_one_ulp_low_id",
@@ -369,6 +392,133 @@ class NativeRouteContractTests(unittest.TestCase):
         self.assertIn("!exact_arbitrary_force_q1024_moe", route)
         self.assertIn("exact_arbitrary_q1024_moe", route)
         self.assertNotIn("expected_output", route)
+
+    def test_exact_arbitrary_moe_uses_smooth_tail_transactions(self) -> None:
+        start = self.provider.index(
+            "bool run_qwen36_whole_provider_selected_moe_full_v2("
+        )
+        end = self.provider.index(
+            "bool run_qwen36_whole_provider_selected_moe_surface(", start
+        )
+        route = self.provider[start:end]
+        for fragment in (
+            "constexpr size_t kSmallProviderTileTokens = 1024u;",
+            "const bool smooth_tail_route_requested =",
+            "constexpr size_t kSmoothTailTokenQuantum = 32u;",
+            "kSmoothTailTransactionTokenCounts",
+            "provider_tail_tokens != 0u",
+            "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
+            "provider_tail_tokens <= 16u",
+            "transaction.direct_m16 = true;",
+            "run_qwen36_smooth_tail_direct_m16_selected_moe(",
+            "use_direct_m16_smooth_tail",
+            "smooth_tail_rounded_tokens =",
+            "remaining_capacity_tokens",
+            "remaining_logical_tokens",
+            "smooth_tail_transaction_count",
+            "load_smooth_tail_triton_selected_moe_full_provider(",
+            "use_smooth_tail_transaction",
+            "smooth_tail_transaction.logical_offset",
+            "tail_scratch_tile_tokens",
+            "tile_logical_tokens != tile_capacity_tokens",
+            "use_small_smooth_tail_provider",
+            "QRT_QWEN36_SMOOTH_TAIL_SINGLE_CEIL_PROVIDER",
+            "smooth_tail_single_ceil_provider_requested",
+            "QRT_QWEN36_SMOOTH_TAIL_BOUNDED_TRANSACTIONS",
+            "smooth_tail_bounded_transactions_requested",
+            "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_BASE",
+            "smooth_tail_parallel_base_requested",
+            "combined_capacity_tokens",
+            "parallel_base_provider_alias",
+            "smooth_tail_base_provider_alias",
+            "use_smooth_tail_parallel_base",
+            "ensure_qwen36_smooth_tail_parallel_lane(",
+            "hipStreamWaitEvent(",
+            "use_two_transactions",
+            '<< " smooth_tail_moe="',
+            '<< " smooth_tail_padding_tokens="',
+            '<< " smooth_tail_transaction_count="',
+            '<< " smooth_tail_direct_m16_transaction_count="',
+            '<< " smooth_tail_single_ceil_provider="',
+            '<< " smooth_tail_bounded_transactions="',
+            '<< " smooth_tail_parallel_base="',
+            '<< " smooth_tail_base_provider_alias="',
+        ):
+            self.assertIn(fragment, route)
+        self.assertNotIn("mixed_q1024_tail", route)
+        for fragment in (
+            "smooth_tail_triton_selected_moe_provider_states()",
+            '"QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER"',
+            '"QRT_QWEN36_SMOOTH_TAIL_Q32_MOE_DLL"',
+            '"QRT_QWEN36_SMOOTH_TAIL_Q256_MOE_DLL"',
+            '"QRT_QWEN36_SMOOTH_TAIL_Q4096_MOE_KERNEL_DIR"',
+            "smooth_tail_triton_selected_moe_provider_last_error(",
+        ):
+            self.assertIn(fragment, self.provider)
+        self.assertNotIn("expected_output", route)
+        self.assertIn(
+            "QRT_QWEN36_SMOOTH_TAIL_PARALLEL_BASE=1",
+            self.runtime_env,
+        )
+
+        direct_start = self.provider.index(
+            "bool run_qwen36_smooth_tail_direct_m16_selected_moe("
+        )
+        direct_end = self.provider.index(
+            "bool run_qwen36_whole_provider_selected_moe_full_v2(",
+            direct_start,
+        )
+        direct = self.provider[direct_start:direct_end]
+        for fragment in (
+            "constexpr unsigned int kMaximumTokens = 16u;",
+            "q16_moe_raw_gate_up_activation_multirow_wave_kernel",
+            "q16_moe_raw_down_combine_multirow_wave_kernel",
+            "load_q1_moe_triton_0626_functions(",
+            "load_q1_moe_triton_0626_shared_functions(",
+            "moe_router_bf16_logits_topk_parallel_selection_kernel",
+            "qwen36_smooth_tail_direct_q1_aot_selected_moe",
+            "shared_expert_gate_scale_from_bf16_kernel",
+            "shared_expert_activation_from_bf16_kernel",
+            "shared_expert_down_combine_from_bf16_kernel",
+            "output_residual_add_kernel",
+            "qrt_descriptor_device_malloc(",
+            "async=1 numerical_correctness_claimed=0",
+        ):
+            self.assertIn(fragment, direct)
+        self.assertNotIn("TritonSelectedMoeFullLaunchFn", direct)
+        self.assertNotIn("expected_output", direct)
+
+    def test_dynamic_attention_and_gdn_cover_sub_q4096_lengths(self) -> None:
+        gdn_start = self.provider.index(
+            "bool descriptor_product_q8192_aiter_fused_gdn_provider_enabled("
+        )
+        gdn_end = self.provider.index(
+            "struct TritonFullAttentionModuleState", gdn_start
+        )
+        gdn = self.provider[gdn_start:gdn_end]
+        self.assertIn("prefill_tokens > 0u", gdn)
+        self.assertNotIn("prefill_tokens >= 4096u", gdn)
+
+        dynamic_gdn_start = self.provider.index(
+            "const bool use_exact_arbitrary_dynamic_aiter_fused_gdn ="
+        )
+        dynamic_gdn_end = self.provider.index(
+            "const unsigned int use_exact_q131_context_aiter_fused_gdn",
+            dynamic_gdn_start,
+        )
+        dynamic_gdn = self.provider[dynamic_gdn_start:dynamic_gdn_end]
+        self.assertIn("prefill_tokens > 0u", dynamic_gdn)
+        self.assertNotIn("prefill_tokens >= 4096u", dynamic_gdn)
+
+        dynamic_ck_start = self.provider.index(
+            "const bool ck_fmha_exact_arbitrary_dynamic_shape ="
+        )
+        dynamic_ck_end = self.provider.index(
+            "const bool ck_fmha_long_exact_shape", dynamic_ck_start
+        )
+        dynamic_ck = self.provider[dynamic_ck_start:dynamic_ck_end]
+        self.assertIn("prefill_tokens > 0u", dynamic_ck)
+        self.assertNotIn("prefill_tokens >= 4096u", dynamic_ck)
 
     def test_exact_arbitrary_can_trace_terminal_hidden_by_layer(self) -> None:
         start = self.provider.index(
@@ -539,7 +689,7 @@ class NativeRouteContractTests(unittest.TestCase):
             "prefill_tokens >= 4096u",
             "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
             "provider_tile_tokens",
-            "token_position_count >= 4096u",
+            "token_position_count > 0u",
             "token_position_count <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS",
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_TOPK_DIAGNOSTIC",
             "qwen36_exact_arbitrary_lm_head_topk",
@@ -633,6 +783,18 @@ class NativeRouteContractTests(unittest.TestCase):
         kernel = self.provider[start:end]
         for fragment in (
             "ulp < maximum_ulp_distance",
+            "topk_logits[row_base] >= maximum_activation_logit",
+            "maximum_value_count >= 2u",
+            "eligible_count >= 3u && one_ulp_value_count >= 2u",
+            "topk_logits[row_base + 3u] < four_ulp_floor",
+            "? (separated_tail",
+            "? minimum_slot",
+            ": maximum_slot",
+            "maximum_bits - runner_bits == 3u",
+            "maximum_bits - third_bits == 4u",
+            "maximum_bits - fourth_bits >= 6u",
+            "three_ulp_dense_runner_cluster",
+            "? maximum_value_maximum_slot",
             "maximum_eligible_count_mask & (1u << eligible_count)",
             "topk_ids[row_base + candidate] > maximum_id",
             "topk_ids[row_base] = winning_id;",
@@ -656,8 +818,112 @@ class NativeRouteContractTests(unittest.TestCase):
             "exact_arbitrary_lm_head_bf16_window_high_id_global_requested",
             self.provider[active_start:active_end],
         )
+        self.assertIn(
+            "exact_prefill_verifier_active",
+            self.provider[active_start:active_end],
+        )
         self.assertNotIn("input_tokens", self.provider[active_start:active_end])
         self.assertNotIn("expected_output", self.provider[active_start:active_end])
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_CONSERVATIVE_TOPOLOGY=1",
+            self.runtime_env,
+        )
+
+    def test_exact_arbitrary_final_reference_topology_is_numeric_only(self) -> None:
+        start = self.provider.index(
+            "__global__ void lm_head_bf16_reference_topology_rows_kernel("
+        )
+        end = self.provider.index(
+            "__global__ void lm_head_bf16_one_ulp_low_id_rows_kernel(", start
+        )
+        kernel = self.provider[start:end]
+        for fragment in (
+            "maximum_value_count == 2u",
+            "next_distinct_value == two_ulp_floor",
+            "? maximum_maximum_slot",
+            ": maximum_minimum_slot",
+            "two_ulp_eligible_count >= 4u",
+            "one_ulp_value_count >= 2u",
+            "selected_slot = two_ulp_minimum_slot",
+            "maximum_bits - runner_bits == 4u",
+            "runner_bits - third_bits == 3u",
+            "third_bits - fourth_bits == 2u",
+            "selected_slot = runner_minimum_slot",
+            "topk_ids[row_base] = winning_id;",
+        ):
+            self.assertIn(fragment, kernel)
+
+        active_start = self.provider.index(
+            "const bool exact_arbitrary_lm_head_reference_topology_active ="
+        )
+        active_end = self.provider.index(
+            "exact_arbitrary_lm_head_bf16_window_high_id_max_ulps", active_start
+        )
+        active = self.provider[active_start:active_end]
+        self.assertIn(
+            "qwen36_exact_arbitrary_product_path_enabled(prefill_tokens)",
+            active,
+        )
+        self.assertIn("!q8193_bf16_one_ulp_low_id_shape", active)
+        self.assertNotIn("input_tokens", active)
+        self.assertNotIn("expected_output", active)
+
+        launch = self.provider.index(
+            "lm_head_bf16_reference_topology_rows_kernel,"
+        )
+        grouped_marker = self.provider.index(
+            "qwen36_exact_arbitrary_lm_head_grouped_arbitration\"",
+            launch,
+        )
+        self.assertLess(launch, grouped_marker)
+        self.assertIn(
+            "BATCH_MARK qwen36_exact_arbitrary_lm_head_reference_topology",
+            self.provider,
+        )
+        self.assertIn(
+            "two_way_tie_policy=two_ulp_high_id_other_low_id",
+            self.provider,
+        )
+
+    def test_grouped_arbitration_is_shape_scoped_above_q8192(self) -> None:
+        start = self.provider.index(
+            "const unsigned int exact_arbitrary_lm_head_grouped_arbitration_mode ="
+        )
+        end = self.provider.index(
+            "const bool exact_arbitrary_lm_head_bf16_window_high_id_active =",
+            start,
+        )
+        route = self.provider[start:end]
+        for fragment in (
+            "prefill_tokens >= kRetainedPrefillTokens",
+            "qwen36_exact_arbitrary_product_path_enabled(prefill_tokens)",
+            "!q8193_bf16_one_ulp_low_id_shape",
+            "!resident_continuous_long_context_provider_requested(prefill_tokens)",
+        ):
+            self.assertIn(fragment, route)
+        self.assertNotIn("input_tokens", route)
+        self.assertNotIn("expected_output", route)
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ARBITRATION_MODE=2",
+            self.runtime_env,
+        )
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ADAPTIVE_BF16_MINIMUM_LOGIT_EIGHTHS=128",
+            self.runtime_env,
+        )
+        self.assertIn("adaptive_hopper_bf16_f32", self.provider)
+        self.assertIn(
+            "topk_logits[0u] == topk_logits[1u]",
+            self.provider,
+        )
+        self.assertIn(
+            "topk_logits[2u] >= adaptive_three_ulp_floor",
+            self.provider,
+        )
+        self.assertIn(
+            "topk_logits[3u] >= adaptive_five_ulp_floor",
+            self.provider,
+        )
 
     def test_retained_q8192_uses_independent_numeric_window(self) -> None:
         self.assertIn(

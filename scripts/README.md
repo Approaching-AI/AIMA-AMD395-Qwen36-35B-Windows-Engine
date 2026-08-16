@@ -10,3 +10,9 @@ tools, FIFO pressure, arbitrary lengths, context limits, prefix-cache logs, and
 optional external reference files. Capture/audit scripts produce compact
 runtime and shutdown records. MMLU scripts preserve the formal evaluation and
 projection-parity workflow.
+
+`verify_prefill_length_smoothness.py` runs cold, GB10-paired `center-1`,
+`center`, and `center+1` triplets from q4096 through q16384 by default. It
+requires every local TTFT triplet to stay within `1.10x` and `500 ms`, and the
+wide median-throughput envelope to stay within `1.30x`; controlled content and
+globally unique first tokens isolate length effects from prefix reuse.

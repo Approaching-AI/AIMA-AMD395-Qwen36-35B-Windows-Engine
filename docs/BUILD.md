@@ -10,8 +10,8 @@
 - AMD Composable Kernel from ROCm/aiter v0.1.13, pinned below
 - Python 3.10 or newer
 
-The WSL/Triton environment is needed for q1024 AOT generation and for optional
-q8192 regeneration experiments. The release build reuses the tracked,
+The WSL/Triton environment is needed for q1024 and q32..q4096 smooth-tail AOT
+generation and for optional q8192 regeneration experiments. The release build reuses the tracked,
 correctness-accepted q8192 code objects and recompiles their host provider;
 freshly regenerated q8192 bytes require a new real-model GB10 acceptance before
 they can replace that inventory. The resident process itself is native Windows
@@ -44,10 +44,18 @@ The orchestrator builds:
 1. the native whole-model provider;
 2. the exact q1024 arbitrary-length selected-MoE provider and kernels;
 3. the q8192 selected-MoE provider against the accepted tracked kernels;
-4. CK FMHA and AITER fused-GDN providers;
-5. the complete tracked q1/base AOT inventory under `aot/gfx1151`;
-6. the Rust resident server/lifecycle CLI; and
-7. `runtime-manifest.json` with commit, dirty state, paths, sizes, and SHA256.
+4. q32, q64, q128, q256, q512, q1024, q2048, and q4096 smooth-tail
+   selected-MoE providers used to keep non-aligned prompt lengths continuous;
+5. CK FMHA and AITER fused-GDN providers;
+6. the complete tracked q1/base AOT inventory under `aot/gfx1151`;
+7. the Rust resident server/lifecycle CLI; and
+8. `runtime-manifest.json` with commit, dirty state, paths, sizes, and SHA256.
+
+When `runtime.env` is loaded from a built runtime, `qrt` validates the complete
+`smooth-tail/q32` through `smooth-tail/q4096` inventory and binds all provider
+paths automatically. A partially copied tree is rejected during startup rather
+than silently falling back to a length-discontinuous route. An unpackaged tree
+can be selected explicitly with `--smooth-tail-moe-root`.
 
 The q8192 build submits 17 asynchronous calls through a 16-event ring and
 requires all outputs to match the synchronous fixed hash. This catches stale
@@ -62,6 +70,7 @@ Each component script accepts explicit output/toolchain paths:
 .\scripts\baiying_build_whole_provider.ps1 -OutDir build\whole
 .\scripts\baiying_build_triton_moe_q1024_exact.ps1 -OutDir build\q1024
 .\scripts\baiying_build_triton_moe_q8192.ps1 -BuildDir build\q8192 -OutDir build\q8192
+.\scripts\baiying_build_smooth_tail_moe.ps1 -Tokens 256 -OutDir build\smooth-tail\q256
 .\scripts\baiying_build_ck_fmha_q8192.ps1 `
   -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel
 .\scripts\baiying_build_aiter_fused_gdn_q8192.ps1 -BuildDir build\gdn

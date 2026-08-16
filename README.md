@@ -16,7 +16,8 @@ resident batch-one runtime, an OpenAI-compatible HTTP API, and a structured
 - `/v1/models`, `/v1/completions`, and `/v1/chat/completions` compatibility.
 - JSON and SSE streaming responses, including streamed function tool calls.
 - Deterministic greedy decode, tool-result continuation, and 512-token output.
-- Continuous prompt lengths up to the configured total-context limit.
+- Continuous prompt lengths up to the configured total-context limit, with
+  power-of-two smooth-tail providers that avoid aligned-length performance cliffs.
 - Prefix-cache seed, copy-on-write reuse, resident reuse, and isolation checks.
 - A bounded FIFO request queue: one active batch-one request and configurable
   waiting depth/timeout, with explicit `429`/`503` overload behavior.
@@ -63,6 +64,12 @@ $state = Join-Path $rt 'service.json'
   --max-queue-depth 64 --queue-timeout-seconds 600 `
   --state-file $state --log-file "$rt\service.log"
 ```
+
+The packaged `smooth-tail/q32` through `smooth-tail/q4096` providers are
+discovered and validated from the directory containing `runtime.env`; no eight
+provider-path overrides are needed. `--smooth-tail-moe-root` can point to the
+same layout when running an unpackaged component build. Startup rejects a
+partial smooth-tail tree instead of silently using the discontinuous fallback.
 
 The process remains resident after the launching terminal exits. Operate the
 exact recorded PID through the shared state file:

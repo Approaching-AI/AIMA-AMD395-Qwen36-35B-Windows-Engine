@@ -24,6 +24,8 @@ PROMPT_LENGTHS = (8191, 8192, 8193)
 MAX_TOKEN_COUNTS = (1, 2)
 REFERENCE_RECORD_TYPE = "gb10_q8192_neighbor_continuation_reference"
 VERIFICATION_RECORD_TYPE = "qrt_q8192_neighbor_continuity_verification"
+NEIGHBOR_TO_CENTER_RATIO_MAX = 1.10
+NEIGHBOR_POSITIVE_RESIDUAL_MAX_MS = 500.0
 
 
 class VerificationError(RuntimeError):
@@ -31,7 +33,7 @@ class VerificationError(RuntimeError):
 
 
 def utc_now() -> str:
-    return datetime.datetime.now(datetime.UTC).isoformat()
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 
 def redacted_command(argv: list[str]) -> list[str]:
@@ -307,9 +309,17 @@ def continuity_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
                     "center_prompt_tokens": 8192,
                     "neighbor_to_center_ratio": ratio,
                     "positive_residual_ms": max(0.0, residual_ms),
-                    "ratio_le_2x": ratio <= 2.0,
-                    "positive_residual_le_5000ms": residual_ms <= 5000.0,
-                    "passed": ratio <= 2.0 and residual_ms <= 5000.0,
+                    "neighbor_to_center_ratio_max":
+                        NEIGHBOR_TO_CENTER_RATIO_MAX,
+                    "positive_residual_max_ms":
+                        NEIGHBOR_POSITIVE_RESIDUAL_MAX_MS,
+                    "ratio_passed":
+                        ratio <= NEIGHBOR_TO_CENTER_RATIO_MAX,
+                    "positive_residual_passed":
+                        residual_ms <= NEIGHBOR_POSITIVE_RESIDUAL_MAX_MS,
+                    "passed":
+                        ratio <= NEIGHBOR_TO_CENTER_RATIO_MAX and
+                        residual_ms <= NEIGHBOR_POSITIVE_RESIDUAL_MAX_MS,
                 }
             )
     return {
