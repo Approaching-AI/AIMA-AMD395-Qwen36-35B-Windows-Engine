@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "record_type": "qrt_hprefill_q8192_gb10_oracle",
+  "status": "pass",
+  "correctness_authority": {
+    "host": "gb10-4t",
+    "service_hostname": "aitopatom-66c4",
+    "device": "NVIDIA GB10",
+    "model": "qwen3.6-35b-a3b",
+    "model_reference": "/models",
+    "dtype": "bfloat16",
+    "scope": "real q8192 prompt token IDs, first-token raw logit, and deterministic 32-token continuation"
+  },
+  "prompt": {
+    "token_id_materialization": "one explicit first token followed by Python random.Random(seed).randrange(256) plus 32",
+    "token_count": 8192,
+    "seed": 395518,
+    "first_token_id": 84411,
+    "random_token_min_inclusive": 32,
+    "random_token_max_inclusive": 287,
+    "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+    "u32le_fnv1a64": "1584e34d56e5d78b",
+    "generator": {
+      "path": "scripts/.candidate_generate_random_prompt.py",
+      "sha256": "573604e933f30842d52c085d1ff0943bd47e7742b618fbe63e2ea731e9dc5469",
+      "arguments": [
+        "--tokens",
+        "8192",
+        "--seed",
+        "395518",
+        "--first-token",
+        "84411"
+      ]
+    }
+  },
+  "expected": {
+    "first_token_id": 144,
+    "first_token_raw_logit": 10.375,
+    "first_token_raw_logit_tolerance": 0.125,
+    "continuation_comparison": "token_for_token",
+    "continuation_token_count": 32,
+    "decode_step_count": 31,
+    "output_token_ids_u32le_sha256": "97d1c7e3ae51a6aa3d55e41d38e410c3995c9dc017a133d8d1533ad3cc3ea9b4",
+    "output_token_ids_u32le_fnv1a64": "e60389077f247d2c",
+    "output_token_ids": [
+      144,
+      255,
+      82,
+      57,
+      79,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196
+    ]
+  },
+  "capture": {
+    "record_type": "gb10_q8192_first_token_raw_logit_capture",
+    "started_at_utc": "2026-08-21T06:23:06.974760Z",
+    "completed_at_utc": "2026-08-21T06:23:08.564094Z",
+    "repo_commit": "6cdce444177f54e8985a2d6148da863369bece32",
+    "dirty_tree": true,
+    "command_file": "scripts/capture_gb10_q8192_oracle.py",
+    "command_file_sha256": "a5869d6f9bad13475fa863590899e8877c9181546851ec794c606c8c382628c5",
+    "command": "ssh gb10-4t 'docker exec -i qwen36-lm-head-capture python3 -' < scripts/capture_gb10_q8192_oracle.py",
+    "endpoint": "http://127.0.0.1:8000/v1/completions",
+    "request_policy": {
+      "model": "qwen3.6-35b-a3b",
+      "max_tokens": 1,
+      "temperature": 0,
+      "top_p": 1,
+      "n": 1,
+      "ignore_eos": true,
+      "stream": false,
+      "return_token_ids": true,
+      "logprobs": 20
+    },
+    "request_sha256": "793fbb1586459564643f38fbbfc885753b9ff8707616d8d1b854bd4d700acdb1",
+    "response_sha256": "4b87b13bca2dbeedb810e8ec9191f8feb1185f9da23737707748de42cba9d6ff",
+    "http_status": 200,
+    "elapsed_ms": 1589.318661019206,
+    "usage": {
+      "prompt_tokens": 8192,
+      "completion_tokens": 1,
+      "total_tokens": 8193
+    },
+    "output_token_ids": [
+      144
+    ],
+    "selected_token_openai_logprob_diagnostic": -3.3221960067749023,
+    "raw_logit_method": "captured GB10 BF16 service LM-head input replayed with the exact BF16 lm_head.weight using torch.nn.functional.linear",
+    "base_lm_head_capture": {
+      "public_path": "<gb10-capture>/lm_head_hidden_0004.pt",
+      "file_sha256": "d5f82e9aa0c26e646799844091baf341f3b45e90eb20d5c88f01d1c55ecaa7bd",
+      "hidden_bf16_sha256": "3a00370d2d4a550debba9ecd403beb8af806851bcb65306359cd93f552644950",
+      "shape": [
+        1,
+        2048
+      ],
+      "dtype": "torch.bfloat16",
+      "argmax_token_id": 144,
+      "argmax_raw_logit": 10.375,
+      "selected_token_id": 144,
+      "selected_token_raw_logit_bf16": 10.375,
+      "selected_token_f32_dot": 10.378758430480957,
+      "bf16_rounding": {
+        "lower_neighbor_bf16": 10.3125,
+        "lower_rounding_midpoint": 10.34375,
+        "rounded_bf16": 10.375,
+        "upper_rounding_midpoint": 10.40625,
+        "upper_neighbor_bf16": 10.4375,
+        "nearest_midpoint_distance": 0.02749156951904297
+      },
+      "top5": [
+        {
+          "token_id": 144,
+          "raw_logit": 10.375
+        },
+        {
+          "token_id": 146,
+          "raw_logit": 9.9375
+        },
+        {
+          "token_id": 220,
+          "raw_logit": 9.875
+        },
+        {
+          "token_id": 81,
+          "raw_logit": 9.6875
+        },
+        {
+          "token_id": 36,
+          "raw_logit": 9.5625
+        }
+      ]
+    },
+    "mtp_capture_diagnostic": {
+      "public_path": "<gb10-capture>/lm_head_hidden_0005.pt",
+      "file_sha256": "38738cde88ee2700add9835da0c7c24f935e2a0d5c78fcd117fcf7b854338b8a",
+      "hidden_bf16_sha256": "b69e034298f4411dcee16e5e4cf82c2ad7f2d06cbdaf75619836b3ff33bbf096",
+      "argmax_token_id": 255,
+      "argmax_raw_logit": 18.625,
+      "role": "diagnostic only; excluded because its argmax does not match the real service output token"
+    }
+  },
+  "continuation_capture": {
+    "schema_version": 1,
+    "record_type": "gb10_q8192_continuation_capture",
+    "started_at_utc": "2026-08-21T07:54:19.397563Z",
+    "completed_at_utc": "2026-08-21T07:54:23.177508Z",
+    "repo_commit": "6cdce444177f54e8985a2d6148da863369bece32",
+    "dirty_tree": true,
+    "command_file": "scripts/capture_gb10_q8192_continuation.py",
+    "command_file_sha256": "87d978377f4c6dfbb6e90a0843f7e647171b87c72f6e8c7ab46a21738d2a716c",
+    "command": "ssh gb10-4t 'docker exec -i qwen36-lm-head-capture python3 -' < scripts/capture_gb10_q8192_continuation.py",
+    "authority": {
+      "host": "gb10-4t",
+      "service_container_hostname": "dd0c24b96b6b",
+      "model": "qwen3.6-35b-a3b",
+      "model_reference": "/models",
+      "dtype": "bfloat16"
+    },
+    "endpoint": "http://127.0.0.1:8000/v1/completions",
+    "capture_hook_armed": false,
+    "request_policy": {
+      "model": "qwen3.6-35b-a3b",
+      "max_tokens": 32,
+      "temperature": 0,
+      "top_p": 1,
+      "n": 1,
+      "ignore_eos": true,
+      "stream": false,
+      "return_token_ids": true
+    },
+    "request_sha256": "2dccd35496e1429b63f453b5b8f39cc1c1f4085bd899e2efc47f1df286d0f85b",
+    "response_sha256": "252cd2e2d7619c51993d07ad0e2d154b9d74b0cf2801e1a06a387fb57cfd3623",
+    "http_status": 200,
+    "elapsed_ms": 3779.931355966255,
+    "usage": {
+      "prompt_tokens": 8192,
+      "completion_tokens": 32,
+      "total_tokens": 8224
+    },
+    "output_token_ids_u32le_sha256": "97d1c7e3ae51a6aa3d55e41d38e410c3995c9dc017a133d8d1533ad3cc3ea9b4",
+    "output_token_ids_u32le_fnv1a64": "e60389077f247d2c",
+    "output_token_ids": [
+      144,
+      255,
+      82,
+      57,
+      79,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196
+    ],
+    "reproducibility": {
+      "request_count": 2,
+      "token_for_token_repeat_pass": true,
+      "repeat_started_at_utc": "2026-08-21T08:03:38.261604Z",
+      "repeat_completed_at_utc": "2026-08-21T08:03:40.816162Z",
+      "repeat_elapsed_ms": 2554.540978046134,
+      "repeat_request_sha256": "2dccd35496e1429b63f453b5b8f39cc1c1f4085bd899e2efc47f1df286d0f85b",
+      "repeat_response_sha256": "82a794e92dd0952abffa1cb615ce6b018ed7dacf1247efcf88038d968c35b2d5",
+      "repeat_output_token_ids_u32le_sha256": "97d1c7e3ae51a6aa3d55e41d38e410c3995c9dc017a133d8d1533ad3cc3ea9b4",
+      "repeat_output_token_ids_u32le_fnv1a64": "e60389077f247d2c"
+    }
+  },
+  "service": {
+    "container": "qwen36-lm-head-capture",
+    "container_hostname": "dd0c24b96b6b",
+    "image_reference": "qujing/vllm-gb10-mtp:latest",
+    "image_id": "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+    "started_at_utc": "2026-08-21T03:08:03.785830624Z",
+    "vllm_version": "0.19.1.dev0+g2a69949bd.d20260403",
+    "launch_command": [
+      "serve",
+      "/models",
+      "--port",
+      "8000",
+      "--attention-backend",
+      "TRITON_ATTN",
+      "--dtype",
+      "bfloat16",
+      "--enable-auto-tool-choice",
+      "--enforce-eager",
+      "--gpu-memory-utilization",
+      "0.8",
+      "--max-model-len",
+      "263680",
+      "--max-num-batched-tokens",
+      "8192",
+      "--max-num-seqs",
+      "4",
+      "--mm-encoder-attn-backend",
+      "TORCH_SDPA",
+      "--no-async-scheduling",
+      "--reasoning-parser",
+      "qwen3",
+      "--served-model-name",
+      "qwen3.6-35b-a3b",
+      "--skip-mm-profiling",
+      "--speculative-config",
+      "{\"method\":\"mtp\",\"num_speculative_tokens\":1}",
+      "--tool-call-parser",
+      "qwen3_xml",
+      "--trust-remote-code",
+      "--worker-extension-cls",
+      "gb10_layer_capture.GB10LayerCapture"
+    ],
+    "capture_hook": {
+      "sitecustomize_sha256": "1e0cb7e739d4c3dfe579888226773c44fdbab53581cd44c1ec7eea41c64eac73",
+      "worker_extension_sha256": "64b92690acbd97d6f1aeec9600780b36efad7175b024a3819ec79c346b44f48c",
+      "observation_policy": "dormant unless /capture/ARM exists; captures the unmodified LM-head input row"
+    }
+  },
+  "model_evidence": {
+    "config_file": "config.json",
+    "config_sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+    "index_file": "model.safetensors.index.json",
+    "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "weight_tensor_key": "lm_head.weight",
+    "weight_shape": [
+      248320,
+      2048
+    ],
+    "weight_dtype": "torch.bfloat16",
+    "weight_shard": "model-00026-of-00026.safetensors",
+    "weight_shard_bytes": 2231416848,
+    "weight_shard_sha256": "1a97404220077ed3d4182e10385b152004cab608377f50cec9f54a6b8d28b613"
+  },
+  "diagnostic_policy": {
+    "openai_logprob_is_raw_logit": false,
+    "engine_self_hashes_are_correctness_authority": false,
+    "continuation_captured_in_this_contract": true,
+    "decode_and_prefix_continuation_correctness_active": true
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "native/generators/compile_q8192_conditional_exact_down.py",
+  "source_sha256": "5edafd02560c5937347233fe2f40ee3eb111a530bd10effeb28c18f6e0a431af",
+  "arithmetic": "native WMMA down with conditional retained K512 FP32 reductions",
+  "shape": {
+    "tokens": 8192,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "rows_per_program": 4
+  },
+  "kernel": {
+    "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+    "symbol": "_conditional_exact_down_kernel",
+    "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4",
+    "bytes": 7504,
+    "grid": [33554432, 1, 1],
+    "threads": 32,
+    "dynamic_shared_bytes": 0,
+    "compiled_hash": "3f620cf2743d6ee3135872a1f337a839c5ee7d1516fdf3bbc1f4bb68116d56bb"
+  },
+  "postprocess": {
+    "debug_sections_stripped": true,
+    "tool": "llvm-strip, compatible with GNU strip",
+    "arguments": ["--strip-debug"],
+    "private_home_path_count": 0
+  },
+  "qualification": {
+    "host": "quings",
+    "evidence": "conditional-exact-down-matrix-r1117",
+    "logical_tokens": [2560, 8192],
+    "exact_output_hash_match": true,
+    "component_only": true,
+    "inference_success_claimed": false,
+    "public_cleanup_evidence": "prefill-diagnostic-public-complete-aot-r1187-r1190.json"
+  }
+}

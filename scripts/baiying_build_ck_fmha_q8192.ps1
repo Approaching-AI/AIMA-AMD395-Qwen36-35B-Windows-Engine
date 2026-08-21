@@ -101,6 +101,9 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $directSmokeOutput = ""
+$directSmokeDynamicLogicalCaseCount = 0
+$directSmokeDynamicLogicalResetIncluded = $null
+$directSmokeDynamicLogicalTokens = @()
 if ($RunDirectSmoke -ne 0) {
     $directSmokeArguments = @(
         "-std=c++17",
@@ -120,6 +123,46 @@ if ($RunDirectSmoke -ne 0) {
     if ($LASTEXITCODE -ne 0) {
         throw "q8192 CK-Tile direct smoke exited $LASTEXITCODE`: $directSmokeOutput"
     }
+    $dynamicLogicalMatches = [regex]::Matches(
+        $directSmokeOutput,
+        '(?m)^ck_fmha_dynamic_logical_case\s+' +
+        'tokens=(?<tokens>\d+)\b[^\r\n]*' +
+        '\breset_included=0\b[^\r\n]*' +
+        '\bcomponent_only=1\b[^\r\n]*' +
+        '\binference_success_claimed=0\b[^\r\n]*' +
+        '\btiming_finite_positive=1\b[^\r\n]*' +
+        '\btotal_nonfinite=0\b' +
+        '[^\r\n]*\bclose=1\s*$'
+    )
+    $directSmokeDynamicLogicalCaseCount = $dynamicLogicalMatches.Count
+    if ($directSmokeDynamicLogicalCaseCount -ne 32) {
+        throw "q8192 CK-Tile direct smoke reported $directSmokeDynamicLogicalCaseCount/32 passing dynamic-logical cases"
+    }
+    $directSmokeDynamicLogicalTokens = @(
+        $dynamicLogicalMatches | ForEach-Object {
+            [int]$_.Groups['tokens'].Value
+        }
+    )
+    $expectedDynamicLogicalTokens = @(
+        2073, 2156, 2560, 3073, 4609, 6145, 2049, 2175,
+        2176, 2177, 2559, 2561, 3071, 3072, 3583, 3584,
+        3585, 4095, 4096, 4097, 4607, 4608, 6143, 6144,
+        7167, 7168, 7169, 7679, 7680, 7681, 8191, 8192
+    )
+    if (($directSmokeDynamicLogicalTokens -join ',') -ne
+            ($expectedDynamicLogicalTokens -join ',')) {
+        throw "q8192 CK-Tile direct smoke dynamic-logical token sequence is incomplete or reordered"
+    }
+    if ($directSmokeOutput -notmatch (
+        '(?m)^ck_fmha_dynamic_logical_smoke\s+' +
+        'cases=32\s+all_close=1\s+' +
+        'dynamic_logical_reset_included=0\s+' +
+        'terminal_authority=product_gb10\s+' +
+        'component_only=1\s+inference_success_claimed=0\s*$'
+    )) {
+        throw "q8192 CK-Tile direct smoke is missing the passing dynamic-logical summary"
+    }
+    $directSmokeDynamicLogicalResetIncluded = $false
 }
 
 $q16384MetamorphicSmokeOutput = ""
@@ -187,6 +230,14 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         0
     }
     direct_smoke_output = $directSmokeOutput
+    direct_smoke_dynamic_logical_case_count = `
+        $directSmokeDynamicLogicalCaseCount
+    direct_smoke_dynamic_logical_reset_included = `
+        $directSmokeDynamicLogicalResetIncluded
+    direct_smoke_dynamic_logical_tokens = `
+        $directSmokeDynamicLogicalTokens
+    dynamic_logical_component_only = $true
+    inference_success_claimed = $false
     q16384_metamorphic_smoke_ran = ($RunQ16384MetamorphicSmoke -ne 0)
     q16384_metamorphic_smoke_path = if ($RunQ16384MetamorphicSmoke -ne 0) {
         (Resolve-Path -LiteralPath $Q16384MetamorphicSmokePath).Path

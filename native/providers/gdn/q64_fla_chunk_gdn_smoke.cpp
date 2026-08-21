@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -20,7 +21,10 @@
 
 namespace {
 
-constexpr int32_t kTokens = 64;
+#if !defined(QRT_FLA_GDN_SMOKE_TOKENS)
+#define QRT_FLA_GDN_SMOKE_TOKENS 64
+#endif
+constexpr int32_t kTokens = QRT_FLA_GDN_SMOKE_TOKENS;
 constexpr size_t kQkvRows = 8192u;
 constexpr size_t kGateRows = 64u;
 constexpr size_t kValueFeatures = 4096u;
@@ -35,6 +39,15 @@ using LaunchFunction = int (*)(
     int,
     void *
 );
+using DynamicLaunchFunction = int (*)(
+    const float *,
+    const float *,
+    float *,
+    float *,
+    int,
+    void *,
+    int32_t
+);
 using ScratchBytesFunction = uint64_t (*)(int32_t);
 using LastErrorFunction = const char *(*)();
 using ReleaseFunction = void (*)();
@@ -46,6 +59,7 @@ struct ProviderApi {
     PrepareFunction prepare = nullptr;
     LaunchFunction launch = nullptr;
     LaunchFunction launch_async = nullptr;
+    DynamicLaunchFunction launch_async_dynamic = nullptr;
     ScratchBytesFunction scratch_bytes = nullptr;
     LastErrorFunction last_error = nullptr;
     ReleaseFunction release = nullptr;
@@ -105,6 +119,12 @@ bool load_provider(const char *path, ProviderApi *api) {
     api->launch_async = reinterpret_cast<LaunchFunction>(
         GetProcAddress(api->module, "qrt_aiter_fused_gdn_q64_launch_async")
     );
+    api->launch_async_dynamic = reinterpret_cast<DynamicLaunchFunction>(
+        GetProcAddress(
+            api->module,
+            "qrt_aiter_fused_gdn_launch_async_dynamic"
+        )
+    );
     api->scratch_bytes = reinterpret_cast<ScratchBytesFunction>(
         GetProcAddress(api->module, "qrt_fla_chunk_gdn_scratch_bytes")
     );
@@ -117,10 +137,35 @@ bool load_provider(const char *path, ProviderApi *api) {
     return api->prepare != nullptr &&
         api->launch != nullptr &&
         api->launch_async != nullptr &&
+        (kTokens == 64 || api->launch_async_dynamic != nullptr) &&
         api->scratch_bytes != nullptr &&
         api->last_error != nullptr &&
         api->release != nullptr;
 #endif
+}
+
+int launch_fixture(
+    const ProviderApi &api,
+    const float *raw,
+    const float *gate,
+    float *output,
+    float *state,
+    void *stream,
+    bool asynchronous
+) {
+    if (kTokens == 64) {
+        const LaunchFunction launch = asynchronous ? api.launch_async : api.launch;
+        return launch(raw, gate, output, state, 0, stream);
+    }
+    return api.launch_async_dynamic(
+        raw,
+        gate,
+        output,
+        state,
+        0,
+        stream,
+        kTokens
+    );
 }
 
 void unload_provider(ProviderApi *api) {
@@ -148,12 +193,129 @@ bool check_hip(hipError_t status, const char *stage) {
     return false;
 }
 
+bool write_binary_file(
+    const std::string &path,
+    const void *data,
+    size_t bytes
+) {
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        return false;
+    }
+    output.write(static_cast<const char *>(data), bytes);
+    return static_cast<bool>(output);
+}
+
+std::string join_path(const std::string &directory, const char *name) {
+#if defined(_WIN32)
+    constexpr char kSeparator = '\\';
+#else
+    constexpr char kSeparator = '/';
+#endif
+    if (directory.empty() ||
+        directory.back() == '/' || directory.back() == '\\') {
+        return directory + name;
+    }
+    return directory + kSeparator + name;
+}
+
+bool read_binary_file_exact(
+    const std::string &path,
+    void *data,
+    size_t bytes
+) {
+    std::ifstream input(path, std::ios::binary | std::ios::ate);
+    if (!input || input.tellg() != static_cast<std::streamoff>(bytes)) {
+        return false;
+    }
+    input.seekg(0, std::ios::beg);
+    input.read(static_cast<char *>(data), static_cast<std::streamsize>(bytes));
+    return static_cast<bool>(input);
+}
+
+bool load_gb10_capture_fixture(
+    const char *directory,
+    std::vector<float> *raw,
+    std::vector<float> *gate
+) {
+    if (directory == nullptr || directory[0] == '\0' ||
+        raw == nullptr || gate == nullptr) {
+        return false;
+    }
+    const size_t qk_elements =
+        static_cast<size_t>(kTokens) * 16u * 128u;
+    const size_t v_elements =
+        static_cast<size_t>(kTokens) * 32u * 128u;
+    const size_t gate_head_elements =
+        static_cast<size_t>(kTokens) * 32u;
+    std::vector<uint16_t> q(qk_elements);
+    std::vector<uint16_t> k(qk_elements);
+    std::vector<uint16_t> v(v_elements);
+    std::vector<float> g(gate_head_elements);
+    std::vector<uint16_t> beta(gate_head_elements);
+    const std::string root(directory);
+    const bool loaded =
+        read_binary_file_exact(
+            join_path(root, "full-q-bf16.bin"),
+            q.data(),
+            q.size() * sizeof(q[0])
+        ) &&
+        read_binary_file_exact(
+            join_path(root, "full-k-bf16.bin"),
+            k.data(),
+            k.size() * sizeof(k[0])
+        ) &&
+        read_binary_file_exact(
+            join_path(root, "full-v-bf16.bin"),
+            v.data(),
+            v.size() * sizeof(v[0])
+        ) &&
+        read_binary_file_exact(
+            join_path(root, "full-g-f32.bin"),
+            g.data(),
+            g.size() * sizeof(g[0])
+        ) &&
+        read_binary_file_exact(
+            join_path(root, "full-beta-bf16.bin"),
+            beta.data(),
+            beta.size() * sizeof(beta[0])
+        );
+    if (!loaded) {
+        std::cerr << "q64_fla_chunk_gdn_smoke capture_fixture_error="
+                  << root << std::endl;
+        return false;
+    }
+    for (int32_t token = 0; token < kTokens; ++token) {
+        const size_t qk_offset = static_cast<size_t>(token) * 16u * 128u;
+        const size_t v_offset = static_cast<size_t>(token) * 32u * 128u;
+        const size_t raw_offset = static_cast<size_t>(token) * kQkvRows;
+        for (size_t index = 0u; index < 16u * 128u; ++index) {
+            (*raw)[raw_offset + index] = bf16_to_float(q[qk_offset + index]);
+            (*raw)[raw_offset + 2048u + index] =
+                bf16_to_float(k[qk_offset + index]);
+        }
+        for (size_t index = 0u; index < 32u * 128u; ++index) {
+            (*raw)[raw_offset + 4096u + index] =
+                bf16_to_float(v[v_offset + index]);
+        }
+        const size_t gate_offset = static_cast<size_t>(token) * kGateRows;
+        const size_t head_offset = static_cast<size_t>(token) * 32u;
+        for (size_t head = 0u; head < 32u; ++head) {
+            (*gate)[gate_offset + head] = g[head_offset + head];
+            (*gate)[gate_offset + 32u + head] =
+                bf16_to_float(beta[head_offset + head]);
+        }
+    }
+    return true;
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {
-    if (argc != 3) {
+    if (argc != 3 && argc != 5) {
         std::cerr
-            << "usage: q64_fla_chunk_gdn_smoke <kernel_dir> <provider_dll>"
+            << "usage: q64_fla_chunk_gdn_smoke <kernel_dir> <provider_dll> "
+            << "[reference_kernel_dir reference_provider_dll]"
             << std::endl;
         return 2;
     }
@@ -171,6 +333,23 @@ int main(int argc, char **argv) {
         unload_provider(&api);
         return 1;
     }
+    ProviderApi reference_api;
+    const bool compare_reference = argc == 5;
+    if (compare_reference) {
+        if (!load_provider(argv[4], &reference_api)) {
+            std::cerr << "q64_fla_chunk_gdn_smoke reference_symbols=missing"
+                      << std::endl;
+            unload_provider(&api);
+            return 1;
+        }
+        if (reference_api.prepare(argv[3]) == 0) {
+            std::cerr << "q64_fla_chunk_gdn_smoke reference_prepare_error="
+                      << reference_api.last_error() << std::endl;
+            unload_provider(&reference_api);
+            unload_provider(&api);
+            return 1;
+        }
+    }
 
     const size_t raw_elements = static_cast<size_t>(kTokens) * kQkvRows;
     const size_t gate_elements = static_cast<size_t>(kTokens) * kGateRows;
@@ -178,29 +357,48 @@ int main(int argc, char **argv) {
         static_cast<size_t>(kTokens) * kValueFeatures;
     std::vector<float> raw(raw_elements);
     std::vector<float> gate(gate_elements);
-    for (size_t index = 0u; index < raw.size(); ++index) {
-        const size_t feature = index % kQkvRows;
-        const float phase =
-            static_cast<float>((index * 17u + feature * 13u) % 2048u) /
-                2048.0f -
-            0.5f;
-        raw[index] = bf16_round(
-            phase * (feature < 4096u ? 0.25f : 0.125f)
-        );
-    }
-    for (int32_t token = 0; token < kTokens; ++token) {
-        for (size_t head = 0u; head < 32u; ++head) {
-            gate[static_cast<size_t>(token) * kGateRows + head] =
-                -0.004f -
-                0.0001f * static_cast<float>((token + head) % 17u);
-            gate[
-                static_cast<size_t>(token) * kGateRows + 32u + head
-            ] = bf16_round(
-                0.25f +
-                0.5f *
-                    static_cast<float>((token * 7u + head * 11u) % 31u) /
-                    30.0f
+    const char *capture_fixture_directory =
+        std::getenv("QRT_FLA_GDN_SMOKE_INPUT_DIR");
+    const bool use_capture_fixture =
+        capture_fixture_directory != nullptr &&
+        capture_fixture_directory[0] != '\0';
+    if (use_capture_fixture) {
+        if (!load_gb10_capture_fixture(
+                capture_fixture_directory,
+                &raw,
+                &gate
+            )) {
+            unload_provider(&api);
+            if (compare_reference) {
+                unload_provider(&reference_api);
+            }
+            return 1;
+        }
+    } else {
+        for (size_t index = 0u; index < raw.size(); ++index) {
+            const size_t feature = index % kQkvRows;
+            const float phase =
+                static_cast<float>((index * 17u + feature * 13u) % 2048u) /
+                    2048.0f -
+                0.5f;
+            raw[index] = bf16_round(
+                phase * (feature < 4096u ? 0.25f : 0.125f)
             );
+        }
+        for (int32_t token = 0; token < kTokens; ++token) {
+            for (size_t head = 0u; head < 32u; ++head) {
+                gate[static_cast<size_t>(token) * kGateRows + head] =
+                    -0.004f -
+                    0.0001f * static_cast<float>((token + head) % 17u);
+                gate[
+                    static_cast<size_t>(token) * kGateRows + 32u + head
+                ] = bf16_round(
+                    0.25f +
+                    0.5f *
+                        static_cast<float>((token * 7u + head * 11u) % 31u) /
+                        30.0f
+                );
+            }
         }
     }
 
@@ -254,14 +452,17 @@ int main(int argc, char **argv) {
     std::vector<float> sync_state(kStateElements);
     std::vector<float> async_output(output_elements);
     std::vector<float> async_state(kStateElements);
+    std::vector<float> reference_output(output_elements);
+    std::vector<float> reference_state(kStateElements);
     if (ok) {
-        ok = api.launch(
+        ok = launch_fixture(
+                 api,
                  device_raw,
                  device_gate,
                  device_output,
                  device_state,
-                 0,
-                 nullptr
+                 nullptr,
+                 false
              ) != 0;
         if (!ok) {
             std::cerr << "q64_fla_chunk_gdn_smoke sync_error="
@@ -297,14 +498,57 @@ int main(int argc, char **argv) {
                 "hipMemsetAsync(state)"
             );
     }
-    if (ok) {
-        ok = api.launch_async(
+    if (ok && compare_reference) {
+        ok = check_hip(
+            hipStreamSynchronize(stream),
+            "hipStreamSynchronize(before_reference)"
+        );
+    }
+    if (ok && compare_reference) {
+        ok = launch_fixture(
+                 reference_api,
                  device_raw,
                  device_gate,
                  device_output,
                  device_state,
-                 0,
-                 stream
+                 nullptr,
+                 false
+             ) != 0;
+        if (!ok) {
+            std::cerr << "q64_fla_chunk_gdn_smoke reference_launch_error="
+                      << reference_api.last_error() << std::endl;
+        }
+    }
+    if (ok && compare_reference) {
+        ok =
+            check_hip(
+                hipMemcpy(
+                    reference_output.data(),
+                    device_output,
+                    output_bytes,
+                    hipMemcpyDeviceToHost
+                ),
+                "hipMemcpy(reference_output)"
+            ) &&
+            check_hip(
+                hipMemcpy(
+                    reference_state.data(),
+                    device_state,
+                    state_bytes,
+                    hipMemcpyDeviceToHost
+                ),
+                "hipMemcpy(reference_state)"
+            );
+    }
+    if (ok) {
+        ok = launch_fixture(
+                 api,
+                 device_raw,
+                 device_gate,
+                 device_output,
+                 device_state,
+                 stream,
+                 true
              ) != 0;
         if (!ok) {
             std::cerr << "q64_fla_chunk_gdn_smoke async_error="
@@ -337,6 +581,18 @@ int main(int argc, char **argv) {
     size_t output_nonfinite = 0u;
     size_t state_nonfinite = 0u;
     size_t output_nonzero = 0u;
+    double output_square_error = 0.0;
+    double output_reference_square = 0.0;
+    double output_absolute_error = 0.0;
+    double state_square_error = 0.0;
+    double state_reference_square = 0.0;
+    double state_absolute_error = 0.0;
+    float output_max_absolute_error = 0.0f;
+    float state_max_absolute_error = 0.0f;
+    size_t output_max_error_index = 0u;
+    size_t state_max_error_index = 0u;
+    double output_candidate_square = 0.0;
+    double state_candidate_square = 0.0;
     if (ok) {
         for (float value : sync_output) {
             output_nonfinite += !std::isfinite(value) ? 1u : 0u;
@@ -345,12 +601,76 @@ int main(int argc, char **argv) {
         for (float value : sync_state) {
             state_nonfinite += !std::isfinite(value) ? 1u : 0u;
         }
+        if (compare_reference) {
+            for (size_t index = 0u; index < sync_output.size(); ++index) {
+                const double delta = static_cast<double>(sync_output[index]) -
+                    static_cast<double>(reference_output[index]);
+                output_square_error += delta * delta;
+                output_reference_square +=
+                    static_cast<double>(reference_output[index]) *
+                    static_cast<double>(reference_output[index]);
+                output_candidate_square +=
+                    static_cast<double>(sync_output[index]) *
+                    static_cast<double>(sync_output[index]);
+                output_absolute_error += std::abs(delta);
+                if (std::abs(delta) > output_max_absolute_error) {
+                    output_max_absolute_error =
+                        static_cast<float>(std::abs(delta));
+                    output_max_error_index = index;
+                }
+            }
+            for (size_t index = 0u; index < sync_state.size(); ++index) {
+                const double delta = static_cast<double>(sync_state[index]) -
+                    static_cast<double>(reference_state[index]);
+                state_square_error += delta * delta;
+                state_reference_square +=
+                    static_cast<double>(reference_state[index]) *
+                    static_cast<double>(reference_state[index]);
+                state_candidate_square +=
+                    static_cast<double>(sync_state[index]) *
+                    static_cast<double>(sync_state[index]);
+                state_absolute_error += std::abs(delta);
+                if (std::abs(delta) > state_max_absolute_error) {
+                    state_max_absolute_error =
+                        static_cast<float>(std::abs(delta));
+                    state_max_error_index = index;
+                }
+            }
+        }
         ok =
             output_nonfinite == 0u &&
             state_nonfinite == 0u &&
             output_nonzero > output_elements / 2u &&
             sync_output == async_output &&
             sync_state == async_state;
+    }
+
+    const char *dump_prefix = std::getenv("QRT_FLA_GDN_SMOKE_DUMP_PREFIX");
+    if (ok && dump_prefix != nullptr && dump_prefix[0] != '\0') {
+        std::vector<uint16_t> output_bf16(sync_output.size());
+        std::transform(
+            sync_output.begin(),
+            sync_output.end(),
+            output_bf16.begin(),
+            float_to_bf16
+        );
+        const std::string prefix(dump_prefix);
+        const std::string output_path = prefix + "-output-bf16.bin";
+        const std::string state_path = prefix + "-state-f32.bin";
+        ok = write_binary_file(
+                 output_path,
+                 output_bf16.data(),
+                 output_bf16.size() * sizeof(output_bf16[0])
+             ) &&
+            write_binary_file(
+                 state_path,
+                 sync_state.data(),
+                 sync_state.size() * sizeof(sync_state[0])
+             );
+        if (!ok) {
+            std::cerr << "q64_fla_chunk_gdn_smoke dump_error prefix="
+                      << prefix << std::endl;
+        }
     }
 
     std::cout << "q64_fla_chunk_gdn_smoke"
@@ -370,6 +690,46 @@ int main(int argc, char **argv) {
               << fnv1a64(sync_state.data(), state_bytes)
               << std::dec
               << " scratch_bytes=" << api.scratch_bytes(kTokens)
+              << " fixture=" << (use_capture_fixture ? "gb10_capture" : "synthetic")
+              << " reference_compared=" << (compare_reference ? 1 : 0);
+    if (compare_reference) {
+        std::cout
+              << " output_reference_relative_l2="
+              << std::sqrt(output_square_error /
+                   std::max(output_reference_square, 1.0e-30))
+              << " output_reference_mean_abs="
+              << output_absolute_error /
+                   static_cast<double>(sync_output.size())
+              << " output_reference_max_abs="
+              << output_max_absolute_error
+              << " output_candidate_l2="
+              << std::sqrt(output_candidate_square)
+              << " output_reference_l2="
+              << std::sqrt(output_reference_square)
+              << " output_max_error_index=" << output_max_error_index
+              << " output_max_error_candidate="
+              << sync_output[output_max_error_index]
+              << " output_max_error_reference="
+              << reference_output[output_max_error_index]
+              << " state_reference_relative_l2="
+              << std::sqrt(state_square_error /
+                   std::max(state_reference_square, 1.0e-30))
+              << " state_reference_mean_abs="
+              << state_absolute_error /
+                   static_cast<double>(sync_state.size())
+              << " state_reference_max_abs="
+              << state_max_absolute_error
+              << " state_candidate_l2="
+              << std::sqrt(state_candidate_square)
+              << " state_reference_l2="
+              << std::sqrt(state_reference_square)
+              << " state_max_error_index=" << state_max_error_index
+              << " state_max_error_candidate="
+              << sync_state[state_max_error_index]
+              << " state_max_error_reference="
+              << reference_state[state_max_error_index];
+    }
+    std::cout
               << std::endl;
 
     if (stream != nullptr) {
@@ -387,6 +747,7 @@ int main(int argc, char **argv) {
     if (device_raw != nullptr) {
         (void)hipFree(device_raw);
     }
+    unload_provider(&reference_api);
     unload_provider(&api);
     return ok ? 0 : 1;
 }

@@ -114,6 +114,11 @@ hashes, and numerical smoke gates. `build-runtime.ps1` passes the tracked
 script without that option deliberately regenerates AOT for investigation. A
 byte-different rebuild is acceptable for release only after the same real-model
 external correctness boundary passes; self-hashes alone are not authority.
+The q8192 component build runs the ROCm-bundled `llvm-strip --strip-debug` on
+its selected-MoE code objects, rewrites the base AOT metadata hashes and sizes,
+and rejects any packaged HSACO that still contains a private home path. This
+removes compiler debug paths only; the retained objects must still pass the
+dynamic-length smoke and the real GB10 numerical boundary before release.
 The copied base AOT directory is a runtime dependency, not merely build
 provenance: pass it as
 `QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR` as shown in the

@@ -63,7 +63,13 @@ float fmha_fwd_v2([[maybe_unused]] fmha_fwd_traits t, [[maybe_unused]] fmha_fwd_
             if(t.hdim_q <= 256 && t.hdim_v <= 256) {
                 if((t.is_group_mode == false) && (t.is_v_rowmajor == true) && (t.has_logits_soft_cap == false) && (t.mask_type != mask_enum::no_mask) && (t.bias_type == bias_enum::no_bias) && (t.has_lse == false)  && (t.has_dropout == false) && (t.qscale_type == quant_scale_enum::no_scale) && (t.skip_min_seqlen_q == false) &&(t.has_sink == false) &&
                         (true /*a.seqlen_q % 128 != 0*/) && (true/*fall back to largest tile*/) && (true /*a.seqlen_k % 64 != 0*/) && (a.hdim_q % 256 == 0) && (a.hdim_v % 256 == 0) && ((true) && (true))) {
+#if defined(QRT_CK_FMHA_VLLM_N32)
+                    using trait_ = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 32, 32, 256, 32, 256, true, ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, ck_tile::SimplifiedGenericAttentionMask<true>, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#elif defined(QRT_CK_FMHA_VLLM_N128)
+                    using trait_ = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 128, 32, 256, 32, 256, true, ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, ck_tile::SimplifiedGenericAttentionMask<true>, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#else
                     using trait_ = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 64, 32, 256, 32, 256, true, ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, ck_tile::SimplifiedGenericAttentionMask<true>, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#endif
                     return fmha_fwd_<trait_, QRT_CK_ARCH_TYPE>(s, a);
                 }
 

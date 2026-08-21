@@ -1,6 +1,8 @@
 #include <hip/hip_runtime.h>
+#include <hip/hip_fp16.h>
 
 #include <algorithm>
+#include <array>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -14,6 +16,9 @@
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#else
+#include <dlfcn.h>
+#include <unistd.h>
 #endif
 
 #ifndef QRT_TRITON_MOE_BLOCK_M
@@ -64,7 +69,81 @@
 #ifndef QRT_TRITON_MOE_FULL_V3_EVENT_SLOTS
 #define QRT_TRITON_MOE_FULL_V3_EVENT_SLOTS 16
 #endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES 128
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#error "row-palette smoke requires lossless-palette support"
+#endif
 namespace {
+
+#if defined(_WIN32)
+using ProviderModule = HMODULE;
+
+ProviderModule load_provider_module(const char *path) {
+    return LoadLibraryA(path);
+}
+
+void *load_provider_symbol(ProviderModule module, const char *name) {
+    return reinterpret_cast<void *>(GetProcAddress(module, name));
+}
+
+std::string provider_load_error() {
+    return "win32_error=" + std::to_string(GetLastError());
+}
+
+void close_provider_module(ProviderModule module) {
+    (void)FreeLibrary(module);
+}
+#else
+using ProviderModule = void *;
+
+ProviderModule load_provider_module(const char *path) {
+    return dlopen(path, RTLD_NOW | RTLD_LOCAL);
+}
+
+void *load_provider_symbol(ProviderModule module, const char *name) {
+    return dlsym(module, name);
+}
+
+std::string provider_load_error() {
+    const char *message = dlerror();
+    return message != nullptr ? message : "unknown dlopen error";
+}
+
+void close_provider_module(ProviderModule module) {
+    (void)dlclose(module);
+}
+#endif
+
+std::string local_host_name() {
+    std::array<char, 256> name{};
+#if defined(_WIN32)
+    DWORD size = static_cast<DWORD>(name.size());
+    if (GetComputerNameA(name.data(), &size) != 0 && size != 0u) {
+        return std::string(name.data(), size);
+    }
+#else
+    if (gethostname(name.data(), name.size() - 1u) == 0 && name[0] != '\0') {
+        name.back() = '\0';
+        return std::string(name.data());
+    }
+#endif
+    return "unknown";
+}
 
 constexpr uint32_t kTokens = 8192;
 constexpr uint32_t kTopK = 8;
@@ -87,6 +166,16 @@ constexpr uint32_t kGateUpGridN = kGateUpRows / kGateBlockN;
 constexpr uint32_t kDownGridN = kHidden / kDownBlockN;
 constexpr uint32_t kGateSharedBytes = QRT_TRITON_MOE_GATE_SHARED_BYTES;
 constexpr uint32_t kDownSharedBytes = QRT_TRITON_MOE_DOWN_SHARED_BYTES;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+constexpr uint32_t kLosslessRowPaletteBytes = 16u;
+constexpr uint32_t kLosslessOverflowSentinel = UINT32_MAX;
+__host__ __device__ constexpr size_t lossless_row_packed_bytes(
+    uint32_t row_values
+) {
+    return static_cast<size_t>(row_values) + row_values / 2u +
+        kLosslessRowPaletteBytes;
+}
+#endif
 static_assert(kGateUpRows % kGateBlockN == 0u);
 static_assert(kHidden % kDownBlockN == 0u);
 // Submit one call beyond the fixed event ring. This is the smallest chain
@@ -103,6 +192,12 @@ constexpr uint32_t kExpectedProviderBackendMask =
         UINT32_C(8) : UINT32_C(0));
 constexpr uint64_t kExpectedFullProviderHash =
     UINT64_C(0xc8b9f2290b8bbd3);
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+constexpr float kWeightInt8ProviderOutputTolerance = 0.0625f;
+#else
+constexpr float kWeightInt8ProviderOutputTolerance = 0.03125f;
+#endif
 
 struct ModuleKernel {
     hipModule_t module = nullptr;
@@ -194,6 +289,23 @@ __global__ void fill_bf16_matrix_pattern_kernel(
     }
 }
 
+__global__ void fill_router_debug_oracle_kernel(
+    uint16_t *weights,
+    size_t elements
+) {
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index >= elements) {
+        return;
+    }
+    const uint32_t expert = static_cast<uint32_t>(index / kHidden);
+    const bool selected = expert >= 10u && expert <= 87u &&
+        (expert - 10u) % 11u == 0u;
+    weights[index] = device_float_to_bf16(
+        (selected ? 2.0f : 1.0f) / static_cast<float>(kHidden)
+    );
+}
+
 __global__ void convert_input_kernel(
     const float *input,
     uint16_t *output,
@@ -234,6 +346,150 @@ __global__ void fill_down_kernel(uint16_t *weights, size_t elements) {
         static_cast<float>(kIntermediate);
     weights[index] = device_float_to_bf16(value);
 }
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+// The smoke's synthetic routed matrices are constant within each row. Pack
+// those rows on-device so the provider test exercises its compact-weight ABI
+// without adding a second multi-gigabyte host copy to the validation path.
+__global__ void pack_constant_lossless_rows_kernel(
+    const uint16_t *source,
+    uint8_t *packed_rows,
+    uint32_t *overflow_indices,
+    uint32_t row_values,
+    uint32_t row_count
+) {
+    const size_t packed_stride = lossless_row_packed_bytes(row_values);
+    for (uint32_t row = blockIdx.x; row < row_count; row += gridDim.x) {
+        const uint16_t *const source_row =
+            source + static_cast<size_t>(row) * row_values;
+        uint8_t *const packed_row =
+            packed_rows + static_cast<size_t>(row) * packed_stride;
+        for (uint32_t column = threadIdx.x; column < row_values;
+             column += blockDim.x) {
+            packed_row[column] = static_cast<uint8_t>(source_row[column]);
+        }
+        for (uint32_t code = threadIdx.x; code < row_values / 2u;
+             code += blockDim.x) {
+            packed_row[row_values + code] = 0u;
+        }
+        if (threadIdx.x < kLosslessRowPaletteBytes) {
+            packed_row[row_values + row_values / 2u + threadIdx.x] =
+                threadIdx.x == 0u
+                    ? static_cast<uint8_t>(source_row[0] >> 8u)
+                    : 0u;
+        }
+        if (threadIdx.x == 0u) {
+            overflow_indices[row] = kLosslessOverflowSentinel;
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+constexpr uint32_t kWeightInt8GroupValues =
+    QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES;
+constexpr uint32_t kWeightInt8WaveThreads = 32u;
+constexpr uint32_t kWeightInt8BlockThreads = 256u;
+constexpr uint32_t kWeightInt8WavesPerBlock =
+    kWeightInt8BlockThreads / kWeightInt8WaveThreads;
+constexpr uint32_t kWeightInt8ValuesPerLane =
+    kWeightInt8GroupValues / kWeightInt8WaveThreads;
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+using WeightInt8Scale = __half;
+#else
+using WeightInt8Scale = float;
+#endif
+constexpr uint32_t kWeightInt8ScaleBytes = sizeof(WeightInt8Scale);
+static_assert(kWeightInt8ScaleBytes == 2u || kWeightInt8ScaleBytes == 4u);
+static_assert(
+    kWeightInt8GroupValues == 32u ||
+        kWeightInt8GroupValues == 64u ||
+        kWeightInt8GroupValues == 128u,
+    "weight-int8 smoke supports group32, group64, or group128"
+);
+static_assert(kWeightInt8GroupValues % kWeightInt8WaveThreads == 0u);
+
+__device__ __forceinline__ float weight_int8_wave_max(float value) {
+#pragma unroll
+    for (uint32_t offset = kWeightInt8WaveThreads / 2u;
+         offset > 0u;
+         offset >>= 1u) {
+        value = fmaxf(
+            value,
+            __shfl_down(value, offset, kWeightInt8WaveThreads)
+        );
+    }
+    return value;
+}
+
+__device__ __forceinline__ int weight_int8_quantize(
+    float value,
+    float inverse_scale
+) {
+    const float scaled = value * inverse_scale;
+    const int rounded = static_cast<int>(
+        scaled + (scaled >= 0.0f ? 0.5f : -0.5f)
+    );
+    return rounded < -127 ? -127 : (rounded > 127 ? 127 : rounded);
+}
+
+__global__ void quantize_weight_int8_rows_kernel(
+    const uint16_t *source,
+    int8_t *destination,
+    WeightInt8Scale *scales,
+    uint32_t row_size,
+    uint32_t row_count
+) {
+    const uint32_t lane = threadIdx.x & (kWeightInt8WaveThreads - 1u);
+    const uint32_t wave = threadIdx.x / kWeightInt8WaveThreads;
+    const uint32_t group_count = row_size / kWeightInt8GroupValues;
+    for (uint32_t row = blockIdx.x; row < row_count; row += gridDim.x) {
+        const size_t row_base = static_cast<size_t>(row) * row_size;
+        const size_t scale_base = static_cast<size_t>(row) * group_count;
+        for (uint32_t group = wave;
+             group < group_count;
+             group += kWeightInt8WavesPerBlock) {
+            float values[kWeightInt8ValuesPerLane];
+            float local_maximum = 0.0f;
+#pragma unroll
+            for (uint32_t segment = 0u;
+                 segment < kWeightInt8ValuesPerLane;
+                 ++segment) {
+                const uint32_t column = group * kWeightInt8GroupValues +
+                    segment * kWeightInt8WaveThreads + lane;
+                values[segment] = device_bf16_to_float(
+                    source[row_base + column]
+                );
+                local_maximum = fmaxf(local_maximum, fabsf(values[segment]));
+            }
+            const float maximum = __shfl(
+                weight_int8_wave_max(local_maximum),
+                0u,
+                kWeightInt8WaveThreads
+            );
+            const float scale = maximum > 0.0f ? maximum / 127.0f : 1.0f;
+            const float inverse_scale = 1.0f / scale;
+#pragma unroll
+            for (uint32_t segment = 0u;
+                 segment < kWeightInt8ValuesPerLane;
+                 ++segment) {
+                const uint32_t column = group * kWeightInt8GroupValues +
+                    segment * kWeightInt8WaveThreads + lane;
+                destination[row_base + column] = static_cast<int8_t>(
+                    weight_int8_quantize(values[segment], inverse_scale)
+                );
+            }
+            if (lane == 0u) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+                scales[scale_base + group] = __float2half(scale);
+#else
+                scales[scale_base + group] = scale;
+#endif
+            }
+        }
+    }
+}
+#endif
 
 __global__ void combine_route_order_kernel(
     const float *route_outputs,
@@ -307,8 +563,10 @@ hipError_t launch(ModuleKernel &kernel, std::vector<void *> arguments) {
 }  // namespace
 
 int main(int argc, char **argv) {
-    if (argc < 2 || argc > 4) {
-        std::cerr << "usage: q8192_triton_selected_moe_smoke KERNEL_DIR [REPETITIONS] [PROVIDER_DLL]\n";
+    if (argc < 2 || argc > 5) {
+        std::cerr
+            << "usage: q8192_triton_selected_moe_smoke KERNEL_DIR "
+               "[REPETITIONS] [PROVIDER_DLL] [LIGHT_LOGICAL_TOKENS]\n";
         return 2;
     }
     const std::filesystem::path kernel_dir(argv[1]);
@@ -318,6 +576,51 @@ int main(int argc, char **argv) {
     if (repetitions == 0u) {
         std::cerr << "repetitions must be positive\n";
         return 2;
+    }
+    uint32_t light_logical_tokens = 0u;
+    if (argc == 5) {
+        char *end = nullptr;
+        const unsigned long parsed = std::strtoul(argv[4], &end, 10);
+        if (end == argv[4] || end == nullptr || end[0] != '\0' ||
+            parsed == 0u || parsed > kTokens) {
+            std::cerr << "light logical tokens must be in 1..8192\n";
+            return 2;
+        }
+        light_logical_tokens = static_cast<uint32_t>(parsed);
+    }
+    std::vector<uint32_t> light_token_sequence;
+    if (light_logical_tokens != 0u) {
+        const char *sequence_text =
+            std::getenv("QRT_PRODUCT_RADIUS_LIGHT_TOKEN_SEQUENCE");
+        if (sequence_text == nullptr || sequence_text[0] == '\0') {
+            light_token_sequence.push_back(light_logical_tokens);
+        } else {
+            const char *cursor = sequence_text;
+            while (cursor[0] != '\0') {
+                char *end = nullptr;
+                const unsigned long parsed = std::strtoul(cursor, &end, 10);
+                if (end == cursor || parsed == 0u || parsed > kTokens ||
+                    (end[0] != '\0' && end[0] != ',')) {
+                    std::cerr
+                        << "QRT_PRODUCT_RADIUS_LIGHT_TOKEN_SEQUENCE must be "
+                           "a comma-separated list of values in 1..8192\n";
+                    return 2;
+                }
+                light_token_sequence.push_back(
+                    static_cast<uint32_t>(parsed)
+                );
+                if (end[0] == '\0') {
+                    break;
+                }
+                cursor = end + 1;
+                if (cursor[0] == '\0') {
+                    std::cerr
+                        << "QRT_PRODUCT_RADIUS_LIGHT_TOKEN_SEQUENCE must not "
+                           "end with a comma\n";
+                    return 2;
+                }
+            }
+        }
     }
 
     hipError_t status = hipInit(0);
@@ -344,9 +647,28 @@ int main(int argc, char **argv) {
         static_cast<size_t>(kExperts) * kGateUpRows * kHidden;
     const size_t down_elements =
         static_cast<size_t>(kExperts) * kHidden * kIntermediate;
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    const size_t gate_up_int8_scale_elements =
+        gate_up_elements / kWeightInt8GroupValues;
+    const size_t down_int8_scale_elements =
+        down_elements / kWeightInt8GroupValues;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    constexpr uint32_t kGateUpRowCount = kExperts * kGateUpRows;
+    constexpr uint32_t kDownRowCount = kExperts * kHidden;
+    const size_t gate_up_lossless_packed_bytes =
+        static_cast<size_t>(kGateUpRowCount) *
+        lossless_row_packed_bytes(kHidden);
+    const size_t down_lossless_packed_bytes =
+        static_cast<size_t>(kDownRowCount) *
+        lossless_row_packed_bytes(kIntermediate);
+#endif
     const size_t activated_elements = static_cast<size_t>(kRoutes) * kIntermediate;
     const size_t route_output_elements = static_cast<size_t>(kRoutes) * kHidden;
     const size_t output_elements = static_cast<size_t>(kTokens) * kHidden;
+    // Dynamic q8192 writes the complete output, so its no-overwrite sentinel
+    // must live one element beyond the fixed-shape allocation.
+    const size_t guarded_output_elements = output_elements + 1u;
     const size_t count_elements = static_cast<size_t>(kExperts + 1u) * kExperts;
     const size_t router_elements = static_cast<size_t>(kExperts) * kHidden;
     const size_t shared_projection_elements =
@@ -358,6 +680,18 @@ int main(int argc, char **argv) {
     uint16_t *device_input_bf16 = nullptr;
     uint16_t *device_gate_up = nullptr;
     uint16_t *device_down = nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    int8_t *device_gate_up_int8 = nullptr;
+    WeightInt8Scale *device_gate_up_int8_scales = nullptr;
+    int8_t *device_down_int8 = nullptr;
+    WeightInt8Scale *device_down_int8_scales = nullptr;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    uint8_t *device_gate_up_lossless_packed = nullptr;
+    uint32_t *device_gate_up_lossless_overflow_indices = nullptr;
+    uint8_t *device_down_lossless_packed = nullptr;
+    uint32_t *device_down_lossless_overflow_indices = nullptr;
+#endif
     int32_t *device_topk_ids = nullptr;
     float *device_topk_weights = nullptr;
     int32_t *device_counts = nullptr;
@@ -393,6 +727,42 @@ int main(int argc, char **argv) {
     ALLOCATE(device_input_bf16, input_elements * sizeof(uint16_t), "input_bf16");
     ALLOCATE(device_gate_up, gate_up_elements * sizeof(uint16_t), "gate_up");
     ALLOCATE(device_down, down_elements * sizeof(uint16_t), "down");
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    ALLOCATE(device_gate_up_int8, gate_up_elements, "gate_up_int8");
+    ALLOCATE(
+        device_gate_up_int8_scales,
+        gate_up_int8_scale_elements * kWeightInt8ScaleBytes,
+        "gate_up_int8_scales"
+    );
+    ALLOCATE(device_down_int8, down_elements, "down_int8");
+    ALLOCATE(
+        device_down_int8_scales,
+        down_int8_scale_elements * kWeightInt8ScaleBytes,
+        "down_int8_scales"
+    );
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    ALLOCATE(
+        device_gate_up_lossless_packed,
+        gate_up_lossless_packed_bytes,
+        "gate_up_lossless_packed"
+    );
+    ALLOCATE(
+        device_gate_up_lossless_overflow_indices,
+        static_cast<size_t>(kGateUpRowCount) * sizeof(uint32_t),
+        "gate_up_lossless_overflow_indices"
+    );
+    ALLOCATE(
+        device_down_lossless_packed,
+        down_lossless_packed_bytes,
+        "down_lossless_packed"
+    );
+    ALLOCATE(
+        device_down_lossless_overflow_indices,
+        static_cast<size_t>(kDownRowCount) * sizeof(uint32_t),
+        "down_lossless_overflow_indices"
+    );
+#endif
     ALLOCATE(device_topk_ids, static_cast<size_t>(kRoutes) * sizeof(int32_t), "topk_ids");
     ALLOCATE(device_topk_weights, static_cast<size_t>(kRoutes) * sizeof(float), "topk_weights");
     ALLOCATE(device_counts, count_elements * sizeof(int32_t), "counts");
@@ -412,7 +782,11 @@ int main(int argc, char **argv) {
     ALLOCATE(device_async_residual_output, output_elements * sizeof(float), "async_residual_output");
     ALLOCATE(device_v3_residual_output, output_elements * sizeof(float), "v3_residual_output");
     for (float *&output : device_v3_async_residual_outputs) {
-        ALLOCATE(output, output_elements * sizeof(float), "v3_async_residual_output");
+        ALLOCATE(
+            output,
+            guarded_output_elements * sizeof(float),
+            "v3_async_residual_output"
+        );
     }
 #undef ALLOCATE
 
@@ -512,18 +886,91 @@ int main(int argc, char **argv) {
         );
         status = hipGetLastError();
     }
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            quantize_weight_int8_rows_kernel,
+            dim3(4096u),
+            dim3(kWeightInt8BlockThreads),
+            0,
+            0,
+            device_gate_up,
+            device_gate_up_int8,
+            device_gate_up_int8_scales,
+            kHidden,
+            kExperts * kGateUpRows
+        );
+        status = hipGetLastError();
+    }
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            quantize_weight_int8_rows_kernel,
+            dim3(4096u),
+            dim3(kWeightInt8BlockThreads),
+            0,
+            0,
+            device_down,
+            device_down_int8,
+            device_down_int8_scales,
+            kIntermediate,
+            kExperts * kHidden
+        );
+        status = hipGetLastError();
+    }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            pack_constant_lossless_rows_kernel,
+            dim3(4096u),
+            dim3(256u),
+            0,
+            0,
+            device_gate_up,
+            device_gate_up_lossless_packed,
+            device_gate_up_lossless_overflow_indices,
+            kHidden,
+            kGateUpRowCount
+        );
+        status = hipGetLastError();
+    }
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            pack_constant_lossless_rows_kernel,
+            dim3(4096u),
+            dim3(256u),
+            0,
+            0,
+            device_down,
+            device_down_lossless_packed,
+            device_down_lossless_overflow_indices,
+            kIntermediate,
+            kDownRowCount
+        );
+        status = hipGetLastError();
+    }
+#endif
     if (status != hipSuccess) return fail("initialize_full_provider_weights", status);
     hipLaunchKernelGGL(fill_input_kernel, grid_for(output_elements), dim3(256), 0, 0, device_residual_output, output_elements);
     hipLaunchKernelGGL(fill_input_kernel, grid_for(output_elements), dim3(256), 0, 0, device_async_residual_output, output_elements);
     hipLaunchKernelGGL(fill_input_kernel, grid_for(output_elements), dim3(256), 0, 0, device_v3_residual_output, output_elements);
     for (float *output : device_v3_async_residual_outputs) {
-        hipLaunchKernelGGL(fill_input_kernel, grid_for(output_elements), dim3(256), 0, 0, output, output_elements);
+        hipLaunchKernelGGL(
+            fill_input_kernel,
+            grid_for(guarded_output_elements),
+            dim3(256),
+            0,
+            0,
+            output,
+            guarded_output_elements
+        );
     }
     status = hipDeviceSynchronize();
     if (status != hipSuccess) {
         return fail("initialize_weights", status);
     }
 
+    int32_t logical_routes = static_cast<int32_t>(kRoutes);
     auto run_pipeline = [&]() -> hipError_t {
         hipLaunchKernelGGL(
             convert_input_kernel,
@@ -547,13 +994,26 @@ int main(int argc, char **argv) {
             kMaxSortedRoutes
         );
         if (local != hipSuccess) return local;
-        local = launch(count, {&device_topk_ids, &device_counts});
+        local = launch(
+            count,
+            {&device_topk_ids, &device_counts, &logical_routes}
+        );
         if (local != hipSuccess) return local;
         local = launch(prefix, {&device_counts});
         if (local != hipSuccess) return local;
         local = launch(padded_prefix, {&device_total_post_pad, &device_counts, &device_cumsum});
         if (local != hipSuccess) return local;
-        local = launch(scatter, {&device_topk_ids, &device_sorted_routes, &device_block_experts, &device_counts, &device_cumsum});
+        local = launch(
+            scatter,
+            {
+                &device_topk_ids,
+                &device_sorted_routes,
+                &device_block_experts,
+                &device_counts,
+                &device_cumsum,
+                &logical_routes,
+            }
+        );
         if (local != hipSuccess) return local;
         local = launch(gate_up, {&device_input_bf16, &device_gate_up, &device_sorted_routes, &device_block_experts, &device_total_post_pad, &device_activated});
         if (local != hipSuccess) return local;
@@ -615,9 +1075,12 @@ int main(int argc, char **argv) {
             if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
                 continue;
             }
-            if (topk_ids[static_cast<size_t>(route)] != expert || route <= previous_route) {
+            const int32_t route_expert = topk_ids[static_cast<size_t>(route)];
+            if (route_expert != expert || route <= previous_route) {
                 std::cerr << "invalid stable route block=" << block << " lane=" << lane
-                          << " route=" << route << " expert=" << expert << std::endl;
+                          << " route=" << route << " expert=" << expert
+                          << " route_expert=" << route_expert
+                          << " previous_route=" << previous_route << std::endl;
                 return 3;
             }
             previous_route = route;
@@ -653,6 +1116,51 @@ int main(int argc, char **argv) {
             return 3;
         }
     }
+    std::vector<float> provider_expected_samples = expected_samples;
+    const char *sorted_bf16_route_sum = std::getenv(
+        "QRT_QWEN36_Q8192_VLLM_SORTED_BF16_ROUTE_SUM"
+    );
+    if (sorted_bf16_route_sum != nullptr &&
+        sorted_bf16_route_sum[0] != '\0' &&
+        std::strcmp(sorted_bf16_route_sum, "0") != 0) {
+        for (uint32_t token = 0; token < kTokens; ++token) {
+            std::array<uint32_t, kTopK> route_order{};
+            for (uint32_t route = 0; route < kTopK; ++route) {
+                route_order[route] = route;
+            }
+            const size_t route_base = static_cast<size_t>(token) * kTopK;
+            std::sort(
+                route_order.begin(),
+                route_order.end(),
+                [&](uint32_t left, uint32_t right) {
+                    return topk_ids[route_base + left] <
+                        topk_ids[route_base + right];
+                }
+            );
+            float expected = 0.0f;
+            for (const uint32_t route : route_order) {
+                const uint32_t expert = static_cast<uint32_t>(
+                    topk_ids[route_base + route]
+                );
+                const float gate = static_cast<float>(expert % 7u + 1u);
+                const float up =
+                    static_cast<float>(expert % 5u + 1u) * 0.5f;
+                const float activated = bf16_to_float(float_to_bf16(
+                    (gate / (1.0f + std::exp(-gate))) * up
+                ));
+                const float down_bf16 = bf16_to_float(float_to_bf16(
+                    activated * static_cast<float>(expert % 3u + 1u)
+                ));
+                const float contribution_bf16 = bf16_to_float(float_to_bf16(
+                    topk_weights[route_base + route] * down_bf16
+                ));
+                expected = bf16_to_float(float_to_bf16(
+                    expected + contribution_bf16
+                ));
+            }
+            provider_expected_samples[token] = expected;
+        }
+    }
 
     auto measure = [&](auto &&operation) -> float {
         hipEvent_t local_start = nullptr;
@@ -684,13 +1192,26 @@ int main(int argc, char **argv) {
         if (local != hipSuccess) return local;
         local = hipMemset(device_cumsum, 0, static_cast<size_t>(kExperts + 1u) * sizeof(int32_t));
         if (local != hipSuccess) return local;
-        local = launch(count, {&device_topk_ids, &device_counts});
+        local = launch(
+            count,
+            {&device_topk_ids, &device_counts, &logical_routes}
+        );
         if (local != hipSuccess) return local;
         local = launch(prefix, {&device_counts});
         if (local != hipSuccess) return local;
         local = launch(padded_prefix, {&device_total_post_pad, &device_counts, &device_cumsum});
         if (local != hipSuccess) return local;
-        return launch(scatter, {&device_topk_ids, &device_sorted_routes, &device_block_experts, &device_counts, &device_cumsum});
+        return launch(
+            scatter,
+            {
+                &device_topk_ids,
+                &device_sorted_routes,
+                &device_block_experts,
+                &device_counts,
+                &device_cumsum,
+                &logical_routes,
+            }
+        );
     });
     const float input_convert_ms = measure([&]() -> hipError_t {
         hipLaunchKernelGGL(
@@ -769,8 +1290,69 @@ int main(int argc, char **argv) {
     size_t router_debug_id_mismatches = 0u;
     size_t router_debug_weight_mismatches = 0u;
     uint32_t router_debug_first_id = UINT32_MAX;
-    if (argc == 4) {
-#if defined(_WIN32)
+    // Keep the historical probes first because the build record reports their
+    // timings by name.  The remaining cases exercise every kind of cliff that
+    // matters to the product sweep: interval edges, exact 64-token alignment,
+    // both neighbors of an aligned length, the q8192 predecessor, and q8192
+    // itself.  The final case proves that the export used by the random-length
+    // service is bitwise identical to the product-qualified fixed export.
+    constexpr std::array<uint32_t, 32u> kDynamicLogicalTokens{
+        2073u,
+        2156u,
+        2560u,
+        3073u,
+        4609u,
+        6145u,
+        2049u,
+        2175u,
+        2176u,
+        2177u,
+        2559u,
+        2561u,
+        3071u,
+        3072u,
+        3583u,
+        3584u,
+        3585u,
+        4095u,
+        4096u,
+        4097u,
+        4607u,
+        4608u,
+        6143u,
+        6144u,
+        7167u,
+        7168u,
+        7169u,
+        7679u,
+        7680u,
+        7681u,
+        8191u,
+        8192u,
+    };
+    constexpr size_t kDynamicLogicalTimingSamples = 3u;
+    struct DynamicLogicalTimingSample {
+        float total_ms;
+        float submit_ms;
+    };
+    std::array<float, kDynamicLogicalTokens.size()> dynamic_logical_ms{};
+    std::array<float, kDynamicLogicalTokens.size()>
+        dynamic_logical_submit_ms{};
+    std::array<float, kDynamicLogicalTokens.size()>
+        dynamic_logical_device_completion_ms{};
+    std::array<float, kDynamicLogicalTokens.size()>
+        dynamic_logical_first_sample_ms{};
+    std::array<float, kDynamicLogicalTokens.size()>
+        dynamic_logical_min_ms{};
+    std::array<float, kDynamicLogicalTokens.size()>
+        dynamic_logical_max_ms{};
+    size_t dynamic_logical_mismatches = 0u;
+    size_t dynamic_logical_nonfinite = 0u;
+    float dynamic_logical_max_abs_diff = 0.0f;
+    size_t dynamic_logical_q8192_mismatches = 0u;
+    float dynamic_logical_q8192_max_abs_diff = 0.0f;
+    bool dynamic_logical_tail_guard_pass = true;
+    if (argc >= 4) {
         using PrepareFunction = int (*)(const char *);
         using LaunchFunction = int (*)(
             const float *,
@@ -794,8 +1376,38 @@ int main(int argc, char **argv) {
             float *,
             void *
         );
+        using DynamicFullLaunchFunction = int (*)(
+            const float *,
+            const float *,
+            const uint16_t *,
+            const uint16_t *,
+            const uint16_t *,
+            const uint16_t *,
+            const uint16_t *,
+            const uint16_t *,
+            const uint16_t *,
+            float *,
+            uint32_t,
+            void *
+        );
+        using SetWeightInt8Function = int (*)(
+            const int8_t *,
+            const void *,
+            const int8_t *,
+            const void *
+        );
+        using SetLosslessPaletteFunction = int (*)(
+            const uint8_t *,
+            const uint32_t *,
+            const uint16_t *,
+            const uint8_t *,
+            const uint32_t *,
+            const uint16_t *
+        );
         using LastErrorFunction = const char *(*)();
         using BackendMaskFunction = uint32_t (*)();
+        using WeightInt8GroupValuesFunction = uint32_t (*)();
+        using WeightInt8ScaleBytesFunction = uint32_t (*)();
         using RouterLaunchFunction = int (*)(
             const float *,
             const uint16_t *,
@@ -804,56 +1416,107 @@ int main(int argc, char **argv) {
         using CopyTopkFunction = int (*)(uint32_t *, float *);
         using ScratchBytesFunction = uint64_t (*)();
         using ReleaseFunction = void (*)();
-        const HMODULE provider = LoadLibraryA(argv[3]);
+        const ProviderModule provider = load_provider_module(argv[3]);
         if (provider == nullptr) {
-            std::cerr << "LoadLibrary(provider) failed win32_error=" << GetLastError() << std::endl;
+            std::cerr << "provider module load failed error="
+                      << provider_load_error() << std::endl;
             return 4;
         }
         const auto prepare = reinterpret_cast<PrepareFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_prepare"));
+            load_provider_symbol(provider, "qrt_triton_moe_q8192_prepare"));
         const auto provider_launch = reinterpret_cast<LaunchFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_launch"));
+            load_provider_symbol(provider, "qrt_triton_moe_q8192_launch"));
         const auto provider_full_launch = reinterpret_cast<FullLaunchFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_launch_full_v2"));
+            load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_launch_full_v2"
+            ));
         const auto provider_full_launch_async = reinterpret_cast<FullLaunchFunction>(
-            GetProcAddress(
+            load_provider_symbol(
                 provider,
                 "qrt_triton_moe_q8192_launch_full_v2_async"
             ));
         const auto provider_full_launch_v3 = reinterpret_cast<FullLaunchFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_launch_full_v3"));
+            load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_launch_full_v3"
+            ));
         const auto provider_full_launch_v3_async =
-            reinterpret_cast<FullLaunchFunction>(GetProcAddress(
+            reinterpret_cast<FullLaunchFunction>(load_provider_symbol(
                 provider,
                 "qrt_triton_moe_q8192_launch_full_v3_async"
             ));
+        const auto provider_dynamic_full_launch =
+            reinterpret_cast<DynamicFullLaunchFunction>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_launch_full_v4_dynamic_async"
+            ));
+        const auto set_weight_int8 =
+            reinterpret_cast<SetWeightInt8Function>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_set_weight_int8_weights"
+            ));
+        const auto set_lossless_row_palette =
+            reinterpret_cast<SetLosslessPaletteFunction>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_set_lossless_row_palette_weights"
+            ));
         const auto last_error = reinterpret_cast<LastErrorFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_last_error"));
+            load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_last_error"
+            ));
         const auto backend_mask = reinterpret_cast<BackendMaskFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_backend_mask"));
+            load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_backend_mask"
+            ));
+        const auto weight_int8_group_values =
+            reinterpret_cast<WeightInt8GroupValuesFunction>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_weight_int8_group_values"
+            ));
+        const auto weight_int8_scale_bytes =
+            reinterpret_cast<WeightInt8ScaleBytesFunction>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_weight_int8_scale_bytes"
+            ));
         const auto router_launch = reinterpret_cast<RouterLaunchFunction>(
-            GetProcAddress(
+            load_provider_symbol(
                 provider,
                 "qrt_triton_moe_q8192_launch_router_debug"
             ));
         const auto copy_topk = reinterpret_cast<CopyTopkFunction>(
-            GetProcAddress(
+            load_provider_symbol(
                 provider,
                 "qrt_triton_moe_q8192_copy_topk_debug"
             ));
         const auto scratch_bytes = reinterpret_cast<ScratchBytesFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_scratch_bytes"));
+            load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_scratch_bytes"
+            ));
         const auto release = reinterpret_cast<ReleaseFunction>(
-            GetProcAddress(provider, "qrt_triton_moe_q8192_release"));
+            load_provider_symbol(provider, "qrt_triton_moe_q8192_release"));
         if (prepare == nullptr || provider_launch == nullptr ||
             provider_full_launch == nullptr ||
             provider_full_launch_async == nullptr ||
             provider_full_launch_v3 == nullptr ||
             provider_full_launch_v3_async == nullptr ||
+            provider_dynamic_full_launch == nullptr ||
             last_error == nullptr ||
             backend_mask == nullptr ||
             router_launch == nullptr || copy_topk == nullptr ||
-            scratch_bytes == nullptr || release == nullptr) {
+            scratch_bytes == nullptr || release == nullptr
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+            || set_weight_int8 == nullptr ||
+            weight_int8_group_values == nullptr ||
+            weight_int8_scale_bytes == nullptr
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+            || set_lossless_row_palette == nullptr
+#endif
+        ) {
             std::cerr << "provider ABI is incomplete" << std::endl;
             return 4;
         }
@@ -865,17 +1528,240 @@ int main(int argc, char **argv) {
                       << std::endl;
             return 4;
         }
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+        if (weight_int8_group_values() != kWeightInt8GroupValues) {
+            std::cerr << "provider weight-int8 group mismatch actual="
+                      << weight_int8_group_values()
+                      << " expected=" << kWeightInt8GroupValues
+                      << std::endl;
+            return 4;
+        }
+        if (weight_int8_scale_bytes() != kWeightInt8ScaleBytes) {
+            std::cerr << "provider weight-int8 scale bytes mismatch actual="
+                      << weight_int8_scale_bytes()
+                      << " expected=" << kWeightInt8ScaleBytes
+                      << std::endl;
+            return 4;
+        }
+#else
+        (void)weight_int8_group_values;
+        (void)weight_int8_scale_bytes;
+#endif
         const std::string kernel_dir_string = kernel_dir.string();
         if (prepare(kernel_dir_string.c_str()) == 0) {
             std::cerr << "provider prepare failed error=" << last_error() << std::endl;
             return 4;
         }
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+        if (set_weight_int8(
+                device_gate_up_int8,
+                device_gate_up_int8_scales,
+                device_down_int8,
+                device_down_int8_scales
+            ) == 0) {
+            std::cerr << "weight-int8 provider setup failed error="
+                      << last_error() << std::endl;
+            return 4;
+        }
+#else
+        (void)set_weight_int8;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+        if (set_lossless_row_palette(
+                device_gate_up_lossless_packed,
+                device_gate_up_lossless_overflow_indices,
+                nullptr,
+                device_down_lossless_packed,
+                device_down_lossless_overflow_indices,
+                nullptr
+            ) == 0) {
+            std::cerr << "lossless-row-palette provider setup failed error="
+                      << last_error() << std::endl;
+            return 4;
+        }
+#else
+        (void)set_lossless_row_palette;
+#endif
         hipStream_t full_provider_stream = nullptr;
         status = hipStreamCreate(&full_provider_stream);
         if (status != hipSuccess) {
             return fail("hipStreamCreate(full_provider)", status);
         }
         provider_scratch_bytes = scratch_bytes();
+        if (light_logical_tokens != 0u) {
+            constexpr size_t kLightTimingSamples = 3u;
+            hipLaunchKernelGGL(
+                fill_nonuniform_input_kernel,
+                grid_for(input_elements),
+                dim3(256),
+                0,
+                full_provider_stream,
+                device_input,
+                input_elements
+            );
+            status = hipGetLastError();
+            if (status != hipSuccess) {
+                return fail("light_full_provider_input", status);
+            }
+            bool all_light_pass = true;
+            for (size_t light_sequence_index = 0u;
+                 light_sequence_index < light_token_sequence.size();
+                 ++light_sequence_index) {
+                const uint32_t current_light_tokens =
+                    light_token_sequence[light_sequence_index];
+                const size_t light_elements =
+                    static_cast<size_t>(current_light_tokens) * kHidden;
+                std::array<DynamicLogicalTimingSample, kLightTimingSamples>
+                    light_samples{};
+                for (size_t sample_index = 0u;
+                     sample_index <= kLightTimingSamples;
+                     ++sample_index) {
+                    hipLaunchKernelGGL(
+                        fill_input_kernel,
+                        grid_for(guarded_output_elements),
+                        dim3(256),
+                        0,
+                        full_provider_stream,
+                        device_v3_async_residual_outputs[0],
+                        guarded_output_elements
+                    );
+                    status = hipGetLastError();
+                    if (status == hipSuccess) {
+                        status = hipStreamSynchronize(full_provider_stream);
+                    }
+                    if (status != hipSuccess) {
+                        return fail("light_full_provider_reset", status);
+                    }
+                    const auto light_start = std::chrono::steady_clock::now();
+                    double light_submit_ms = 0.0;
+                    for (uint32_t repetition = 0u;
+                         repetition < repetitions;
+                         ++repetition) {
+                        const auto light_submit_start =
+                            std::chrono::steady_clock::now();
+                        if (provider_dynamic_full_launch(
+                                device_input,
+                                device_v3_async_residual_outputs[0],
+                                device_router,
+                                device_gate_up,
+                                device_down,
+                                device_shared_gate,
+                                device_shared_gate_projection,
+                                device_shared_up_projection,
+                                device_shared_down,
+                                device_v3_async_residual_outputs[0],
+                                current_light_tokens,
+                                full_provider_stream
+                            ) == 0) {
+                            std::cerr
+                                << "light dynamic full provider launch failed "
+                                   "tokens="
+                                << current_light_tokens
+                                << " repetition=" << repetition
+                                << " error=" << last_error() << std::endl;
+                            return 4;
+                        }
+                        const auto light_submit_stop =
+                            std::chrono::steady_clock::now();
+                        light_submit_ms +=
+                            std::chrono::duration<double, std::milli>(
+                                light_submit_stop - light_submit_start
+                            ).count();
+                        // Preserve the layer-serial dependency of product prefill.
+                        // Every requested token length shares one loaded
+                        // process and one device state.
+                        status = hipStreamSynchronize(full_provider_stream);
+                        if (status != hipSuccess) {
+                            return fail("light_full_provider_sync", status);
+                        }
+                    }
+                    const auto light_stop = std::chrono::steady_clock::now();
+                    if (sample_index != 0u) {
+                        DynamicLogicalTimingSample &sample =
+                            light_samples[sample_index - 1u];
+                        sample.total_ms = static_cast<float>(
+                            std::chrono::duration<double, std::milli>(
+                                light_stop - light_start
+                            ).count() / static_cast<double>(repetitions)
+                        );
+                        sample.submit_ms = static_cast<float>(
+                            light_submit_ms / static_cast<double>(repetitions)
+                        );
+                    }
+                }
+                std::sort(
+                    light_samples.begin(),
+                    light_samples.end(),
+                    [](const DynamicLogicalTimingSample &left,
+                       const DynamicLogicalTimingSample &right) {
+                        return left.total_ms < right.total_ms;
+                    }
+                );
+                const DynamicLogicalTimingSample &median =
+                    light_samples[light_samples.size() / 2u];
+                std::vector<float> light_output(light_elements);
+                status = hipMemcpy(
+                    light_output.data(),
+                    device_v3_async_residual_outputs[0],
+                    light_elements * sizeof(float),
+                    hipMemcpyDeviceToHost
+                );
+                float tail_guard = 0.0f;
+                if (status == hipSuccess) {
+                    status = hipMemcpy(
+                        &tail_guard,
+                        device_v3_async_residual_outputs[0] + light_elements,
+                        sizeof(float),
+                        hipMemcpyDeviceToHost
+                    );
+                }
+                if (status != hipSuccess) {
+                    return fail("light_full_provider_output", status);
+                }
+                size_t nonfinite = 0u;
+                for (const float value : light_output) {
+                    nonfinite += std::isfinite(value) ? 0u : 1u;
+                }
+                const uint64_t light_hash = fnv1a64_f32(light_output);
+                const bool light_pass =
+                    nonfinite == 0u && tail_guard == 1.0f;
+                all_light_pass = all_light_pass && light_pass;
+                std::cout
+                    << "moe_product_radius_light status="
+                    << (light_pass ? "pass" : "fail")
+                    << " host=" << local_host_name()
+                    << " tokens=" << current_light_tokens
+                    << " sequence_index=" << light_sequence_index
+                    << " sequence_count=" << light_token_sequence.size()
+                    << " total_ms=" << median.total_ms
+                    << " submit_ms=" << median.submit_ms
+                    << " device_completion_ms="
+                    << (std::max)(0.0f, median.total_ms - median.submit_ms)
+                    << " timing_samples=" << kLightTimingSamples
+                    << " launches_per_sample=" << repetitions
+                    << " timing_stat=median"
+                    << " min_ms=" << light_samples.front().total_ms
+                    << " max_ms=" << light_samples.back().total_ms
+                    << " output_f32_fnv1a64=" << std::hex << light_hash
+                    << std::dec
+                    << " nonfinite=" << nonfinite
+                    << " tail_guard_pass=" << (tail_guard == 1.0f ? 1 : 0)
+                    << " provider_backend_mask=" << provider_backend_mask
+                    << " provider_scratch_bytes=" << provider_scratch_bytes
+                    << " reset_included=0"
+                    << " component_only=1"
+                    << " inference_success_claimed=0"
+                    << std::endl;
+            }
+            release();
+            status = hipStreamDestroy(full_provider_stream);
+            if (status != hipSuccess) {
+                close_provider_module(provider);
+                return fail("hipStreamDestroy(light_full_provider)", status);
+            }
+            close_provider_module(provider);
+            return all_light_pass ? 0 : 4;
+        }
         auto run_provider = [&]() -> hipError_t {
             if (provider_launch(
                     device_input,
@@ -903,10 +1789,13 @@ int main(int argc, char **argv) {
                 hipMemcpyDeviceToHost
             );
             if (status != hipSuccess) return fail("hipMemcpy(provider_output_sample)", status);
-            if (!std::isfinite(actual) || std::abs(actual - expected_samples[token]) > 0.03125f) {
+            if (!std::isfinite(actual) ||
+                std::abs(actual - provider_expected_samples[token]) >
+                    kWeightInt8ProviderOutputTolerance) {
                 std::cerr << "provider output mismatch token=" << token
                           << " actual=" << actual
-                          << " expected=" << expected_samples[token] << std::endl;
+                          << " expected=" << provider_expected_samples[token]
+                          << std::endl;
                 return 4;
             }
         }
@@ -1309,6 +2198,215 @@ int main(int argc, char **argv) {
                       << std::dec << std::endl;
             return 4;
         }
+        for (size_t case_index = 0u;
+             case_index < kDynamicLogicalTokens.size();
+             ++case_index) {
+            const uint32_t logical_tokens =
+                kDynamicLogicalTokens[case_index];
+            const size_t logical_elements =
+                static_cast<size_t>(logical_tokens) * kHidden;
+            std::array<
+                DynamicLogicalTimingSample,
+                kDynamicLogicalTimingSamples
+            > timing_samples{};
+            for (size_t sample_index = 0u;
+                 sample_index < timing_samples.size();
+                 ++sample_index) {
+                hipLaunchKernelGGL(
+                    fill_input_kernel,
+                    grid_for(guarded_output_elements),
+                    dim3(256),
+                    0,
+                    full_provider_stream,
+                    device_v3_async_residual_outputs[0],
+                    guarded_output_elements
+                );
+                status = hipGetLastError();
+                if (status != hipSuccess) {
+                    return fail("dynamic_full_provider_reset", status);
+                }
+                // The reset is correctness setup, not provider work. Complete
+                // it before each sample so every logical length is measured
+                // against the same warm-engine component boundary.
+                status = hipStreamSynchronize(full_provider_stream);
+                if (status != hipSuccess) {
+                    return fail("dynamic_full_provider_reset_sync", status);
+                }
+                const auto dynamic_start =
+                    std::chrono::steady_clock::now();
+                if (provider_dynamic_full_launch(
+                        device_input,
+                        device_v3_async_residual_outputs[0],
+                        device_router,
+                        device_gate_up,
+                        device_down,
+                        device_shared_gate,
+                        device_shared_gate_projection,
+                        device_shared_up_projection,
+                        device_shared_down,
+                        device_v3_async_residual_outputs[0],
+                        logical_tokens,
+                        full_provider_stream
+                    ) == 0) {
+                    std::cerr
+                        << "dynamic full provider launch failed tokens="
+                        << logical_tokens << " sample=" << sample_index
+                        << " error=" << last_error() << std::endl;
+                    return 4;
+                }
+                const auto dynamic_submit_stop =
+                    std::chrono::steady_clock::now();
+                status = hipStreamSynchronize(full_provider_stream);
+                if (status != hipSuccess) {
+                    return fail("dynamic_full_provider_sync", status);
+                }
+                const auto dynamic_stop =
+                    std::chrono::steady_clock::now();
+                timing_samples[sample_index].total_ms = static_cast<float>(
+                    std::chrono::duration<double, std::milli>(
+                        dynamic_stop - dynamic_start
+                    ).count()
+                );
+                timing_samples[sample_index].submit_ms = static_cast<float>(
+                    std::chrono::duration<double, std::milli>(
+                        dynamic_submit_stop - dynamic_start
+                    ).count()
+                );
+            }
+            dynamic_logical_first_sample_ms[case_index] =
+                timing_samples.front().total_ms;
+            std::sort(
+                timing_samples.begin(),
+                timing_samples.end(),
+                [](const DynamicLogicalTimingSample &left,
+                   const DynamicLogicalTimingSample &right) {
+                    return left.total_ms < right.total_ms;
+                }
+            );
+            const DynamicLogicalTimingSample &median_sample =
+                timing_samples[timing_samples.size() / 2u];
+            dynamic_logical_ms[case_index] = median_sample.total_ms;
+            dynamic_logical_submit_ms[case_index] = median_sample.submit_ms;
+            dynamic_logical_min_ms[case_index] =
+                timing_samples.front().total_ms;
+            dynamic_logical_max_ms[case_index] =
+                timing_samples.back().total_ms;
+            dynamic_logical_device_completion_ms[case_index] = (std::max)(
+                0.0f,
+                dynamic_logical_ms[case_index] -
+                    dynamic_logical_submit_ms[case_index]
+            );
+            std::cout
+                << "dynamic_logical_case index=" << case_index
+                << " tokens=" << logical_tokens
+                << " total_ms=" << dynamic_logical_ms[case_index]
+                << " submit_ms=" << dynamic_logical_submit_ms[case_index]
+                << " device_completion_ms="
+                << dynamic_logical_device_completion_ms[case_index]
+                << " timing_samples=" << kDynamicLogicalTimingSamples
+                << " timing_stat=median"
+                << " first_sample_ms="
+                << dynamic_logical_first_sample_ms[case_index]
+                << " min_ms=" << dynamic_logical_min_ms[case_index]
+                << " max_ms=" << dynamic_logical_max_ms[case_index]
+                << " reset_included=0"
+                << " component_only=1"
+                << " inference_success_claimed=0"
+                << std::endl;
+            std::vector<float> dynamic_output(logical_elements);
+            status = hipMemcpy(
+                dynamic_output.data(),
+                device_v3_async_residual_outputs[0],
+                logical_elements * sizeof(float),
+                hipMemcpyDeviceToHost
+            );
+            if (status != hipSuccess) {
+                return fail("hipMemcpy(dynamic_full_provider)", status);
+            }
+            for (size_t index = 0u; index < logical_elements; ++index) {
+                const float candidate = dynamic_output[index];
+                const float reference = full_sync_output[index];
+                if (!std::isfinite(candidate) || !std::isfinite(reference)) {
+                    ++dynamic_logical_nonfinite;
+                } else {
+                    const float difference = std::abs(candidate - reference);
+                    dynamic_logical_max_abs_diff = (std::max)(
+                        dynamic_logical_max_abs_diff,
+                        difference
+                    );
+                    if (logical_tokens == kTokens) {
+                        dynamic_logical_q8192_max_abs_diff = (std::max)(
+                            dynamic_logical_q8192_max_abs_diff,
+                            difference
+                        );
+                    }
+                }
+                if (std::memcmp(
+                        &candidate,
+                        &reference,
+                        sizeof(float)
+                    ) != 0) {
+                    ++dynamic_logical_mismatches;
+                    if (logical_tokens == kTokens) {
+                        ++dynamic_logical_q8192_mismatches;
+                    }
+                }
+            }
+            float tail_guard = 0.0f;
+            status = hipMemcpy(
+                &tail_guard,
+                device_v3_async_residual_outputs[0] + logical_elements,
+                sizeof(float),
+                hipMemcpyDeviceToHost
+            );
+            if (status != hipSuccess) {
+                return fail("hipMemcpy(dynamic_tail_guard)", status);
+            }
+            dynamic_logical_tail_guard_pass =
+                dynamic_logical_tail_guard_pass && tail_guard == 1.0f;
+        }
+        if (!dynamic_logical_tail_guard_pass ||
+            dynamic_logical_nonfinite != 0u ||
+            !std::isfinite(dynamic_logical_max_abs_diff) ||
+            dynamic_logical_max_abs_diff > 0.03125f ||
+            dynamic_logical_q8192_mismatches != 0u ||
+            dynamic_logical_q8192_max_abs_diff != 0.0f) {
+            std::cerr
+                << "dynamic full provider parity failed mismatches="
+                << dynamic_logical_mismatches
+                << " nonfinite=" << dynamic_logical_nonfinite
+                << " max_abs_diff=" << dynamic_logical_max_abs_diff
+                << " q8192_mismatches="
+                << dynamic_logical_q8192_mismatches
+                << " q8192_max_abs_diff="
+                << dynamic_logical_q8192_max_abs_diff
+                << " tail_guard="
+                << (dynamic_logical_tail_guard_pass ? 1 : 0)
+                << std::endl;
+            return 4;
+        }
+        hipLaunchKernelGGL(
+            fill_input_kernel,
+            grid_for(output_elements),
+            dim3(256),
+            0,
+            full_provider_stream,
+            device_input,
+            output_elements
+        );
+        hipLaunchKernelGGL(
+            fill_router_debug_oracle_kernel,
+            grid_for(router_elements),
+            dim3(256),
+            0,
+            full_provider_stream,
+            device_router,
+            router_elements
+        );
+        status = hipGetLastError();
+        if (status != hipSuccess) {
+            return fail("fill_router_debug_oracle", status);
+        }
         if (router_launch(
                 device_input,
                 device_router,
@@ -1386,15 +2484,11 @@ int main(int argc, char **argv) {
             return fail("hipStreamDestroy(full_provider)", status);
         }
         release();
-        FreeLibrary(provider);
-#else
-        std::cerr << "provider DLL smoke is only supported on Windows" << std::endl;
-        return 4;
-#endif
+        close_provider_module(provider);
     }
 
     std::cout << "q8192_triton_selected_moe_smoke status=pass"
-              << " host=baiying"
+              << " host=" << local_host_name()
               << " tokens=" << kTokens
               << " routes=" << kRoutes
               << " total_post_pad=" << total_post_pad
@@ -1433,6 +2527,40 @@ int main(int argc, char **argv) {
               << full_provider_v3_mismatches
               << " full_provider_v3_async_mismatches="
               << full_provider_v3_async_mismatches
+              << " dynamic_logical_q2073_ms="
+              << dynamic_logical_ms[0]
+              << " dynamic_logical_q2156_ms="
+              << dynamic_logical_ms[1]
+              << " dynamic_logical_q2560_ms="
+              << dynamic_logical_ms[2]
+              << " dynamic_logical_q3073_ms="
+              << dynamic_logical_ms[3]
+              << " dynamic_logical_q4609_ms="
+              << dynamic_logical_ms[4]
+              << " dynamic_logical_q6145_ms="
+              << dynamic_logical_ms[5]
+              << " dynamic_logical_case_count="
+              << kDynamicLogicalTokens.size()
+              << " dynamic_logical_timing_samples="
+              << kDynamicLogicalTimingSamples
+              << " dynamic_logical_timing_stat=median"
+              << " dynamic_logical_min_tokens=2049"
+              << " dynamic_logical_max_tokens=8192"
+              << " dynamic_logical_mismatches="
+              << dynamic_logical_mismatches
+              << " dynamic_logical_nonfinite="
+              << dynamic_logical_nonfinite
+              << " dynamic_logical_max_abs_diff="
+              << dynamic_logical_max_abs_diff
+              << " dynamic_logical_q8192_mismatches="
+              << dynamic_logical_q8192_mismatches
+              << " dynamic_logical_q8192_max_abs_diff="
+              << dynamic_logical_q8192_max_abs_diff
+              << " dynamic_logical_tail_guard_pass="
+              << (dynamic_logical_tail_guard_pass ? 1 : 0)
+              << " dynamic_logical_reset_included=0"
+              << " dynamic_logical_component_only=1"
+              << " inference_success_claimed=0"
               << " full_provider_sync_hash=" << std::hex
               << full_provider_sync_hash
               << " full_provider_async_hash=" << full_provider_async_hash
@@ -1460,6 +2588,7 @@ int main(int argc, char **argv) {
               << " router_debug_weight_mismatches="
               << router_debug_weight_mismatches
               << " router_debug_first_id=" << router_debug_first_id
+              << " router_debug_oracle=ranked_equal_top8_bf16"
               << " provider_scratch_bytes=" << provider_scratch_bytes
               << " full_input_pattern=nonuniform"
               << " full_weight_pattern=nonzero"

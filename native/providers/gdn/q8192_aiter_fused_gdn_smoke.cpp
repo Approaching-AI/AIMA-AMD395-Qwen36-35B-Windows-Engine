@@ -111,9 +111,8 @@ bool parse_tokens(const char *text, unsigned int *value) {
     if (text == nullptr || value == nullptr) return false;
     char *end = nullptr;
     const unsigned long parsed = std::strtoul(text, &end, 10);
-    if (end == text || *end != '\0' ||
-        (parsed != kQ8191Tokens && parsed != kQ8192Tokens &&
-         parsed != kQ8193Tokens && parsed != kQ16384Tokens)) {
+    if (end == text || *end != '\0' || parsed == 0u ||
+        parsed > kQ16384Tokens) {
         return false;
     }
     *value = static_cast<unsigned int>(parsed);
@@ -496,7 +495,7 @@ int main(int argc, char **argv) {
         (argc == 5 && !parse_tokens(argv[4], &tokens))) {
         std::cerr << "usage: q8192_aiter_fused_gdn_smoke KERNEL_DIR "
                      "PROVIDER_DLL REPETITIONS>=3 "
-                     "[8191|8192|8193|16384]\n";
+                     "[TOKENS=1..16384]\n";
         return 2;
     }
 
@@ -521,7 +520,7 @@ int main(int argc, char **argv) {
         ? api.q16384_launch_async
         : api.launch_async;
     const bool use_dynamic_launch =
-        tokens == kQ8191Tokens || tokens == kQ8193Tokens;
+        tokens != kQ8192Tokens && tokens != kQ16384Tokens;
     hipStream_t provider_stream = nullptr;
     status = hipStreamCreate(&provider_stream);
     if (status != hipSuccess) return fail("hipStreamCreate(provider)", status);
@@ -817,11 +816,15 @@ int main(int argc, char **argv) {
                   << " reference_ms=" << reference_ms
                   << " provider_ms=" << provider_ms
                   << " provider_async_one_sync_ms=" << provider_async_ms
+                  << " unmeasured_warmup=1"
+                  << " external_reset_included=0"
                   << " provider_le_40ms="
                   << (provider_within_bound ? 1 : 0)
                   << " output_tolerance=" << output_tolerance
                   << " state_tolerance=" << state_tolerance
                   << " async_exact=" << (async_exact ? 1 : 0)
+                  << " component_only=1"
+                  << " inference_success_claimed=0"
                   << " close=" << (close ? 1 : 0)
                   << std::endl;
     }
@@ -848,6 +851,8 @@ int main(int argc, char **argv) {
               << " target_device=AMD395"
               << " scratch_bytes=0"
               << " state_layout=value_head_value_key"
+              << " component_only=1"
+              << " inference_success_claimed=0"
               << std::endl;
     return all_modes_close ? 0 : 3;
 }

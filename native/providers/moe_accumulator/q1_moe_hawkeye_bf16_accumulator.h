@@ -26,9 +26,9 @@
  * parameter sets, and uses a wide signed host sum whose reachable magnitude
  * is still within the upstream int32_t range.
  *
- * These published Ampere/Lovelace and Hopper characterizations are diagnostic
- * candidates for GB10's legacy mma.sync instruction.  They are not a claim
- * about Blackwell arithmetic.
+ * The 26-bit/group-16 path also describes Blackwell BF16-to-FP32 MMA.  It was
+ * checked bit-for-bit against 7,864,320 K16 accumulator boundaries captured
+ * from GB10 sm_121 before being used by the attention provider.
  */
 
 namespace qrt_q1_moe_hawkeye {
@@ -339,6 +339,14 @@ QRT_HAWKEYE_HOST_DEVICE inline float dot_bf16_hopper(
     return dot_bf16_impl<26, 16, -133>(left, right, elements);
 }
 
+QRT_HAWKEYE_HOST_DEVICE inline float dot_bf16_hopper_blackwell(
+    const uint16_t *left,
+    const uint16_t *right,
+    size_t elements
+) {
+    return dot_bf16_hopper(left, right, elements);
+}
+
 QRT_HAWKEYE_HOST_DEVICE inline float accumulate_bf16_ampere_lovelace(
     float initial_accumulator,
     const uint16_t *left,
@@ -360,6 +368,20 @@ QRT_HAWKEYE_HOST_DEVICE inline float accumulate_bf16_hopper(
     size_t elements
 ) {
     return accumulate_bf16_impl<26, 16, -133>(
+        initial_accumulator,
+        left,
+        right,
+        elements
+    );
+}
+
+QRT_HAWKEYE_HOST_DEVICE inline float accumulate_bf16_hopper_blackwell(
+    float initial_accumulator,
+    const uint16_t *left,
+    const uint16_t *right,
+    size_t elements
+) {
+    return accumulate_bf16_hopper(
         initial_accumulator,
         left,
         right,

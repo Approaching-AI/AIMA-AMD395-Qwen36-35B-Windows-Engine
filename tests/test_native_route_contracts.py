@@ -654,11 +654,19 @@ class NativeRouteContractTests(unittest.TestCase):
         end = self.q8192_provider.index("__global__ void shared_gate_scale_kernel(", start)
         kernel = self.q8192_provider[start:end]
         self.assertIn("bool bf16_logit_endpoint", kernel)
+        self.assertIn("bool raw_logit_tie_break", kernel)
+        self.assertIn("shared_raw_logits", kernel)
+        self.assertIn("raw_better", kernel)
+        self.assertIn("final_id_tie", kernel)
         self.assertGreaterEqual(kernel.count("float_to_bf16("), 2)
         self.assertIn("bf16_to_float(float_to_bf16(logit))", kernel)
         self.assertIn("bf16_to_float(float_to_bf16(accumulator))", kernel)
         self.assertIn(
             '"QRT_QWEN36_Q8192_ROUTER_BF16_LOGIT_ENDPOINT"',
+            self.q8192_provider,
+        )
+        self.assertIn(
+            '"QRT_QWEN36_Q8192_ROUTER_BF16_RAW_LOGIT_TIE_BREAK"',
             self.q8192_provider,
         )
         self.assertIn(
@@ -669,7 +677,7 @@ class NativeRouteContractTests(unittest.TestCase):
             '"QRT_QWEN36_Q8192_ROUTER_HIPBLASLT_BF16"',
             "hipblasLtMatmul(router_logits_bf16)",
             "router_bf16_logits_topk_kernel",
-            "ensure_matrix_plan(&g_state.router_plan, kExperts, kHidden)",
+            "ensure_optional_hipblaslt_router_plan",
         ):
             self.assertIn(fragment, self.q8192_provider)
         self.assertIn(
@@ -927,7 +935,7 @@ class NativeRouteContractTests(unittest.TestCase):
             self.provider[launch:grouped_marker],
         )
 
-    def test_grouped_arbitration_is_shape_scoped_above_q8192(self) -> None:
+    def test_grouped_arbitration_covers_exact_arbitrary_shapes(self) -> None:
         start = self.provider.index(
             "const unsigned int exact_arbitrary_lm_head_grouped_arbitration_mode ="
         )
@@ -937,12 +945,14 @@ class NativeRouteContractTests(unittest.TestCase):
         )
         route = self.provider[start:end]
         for fragment in (
-            "prefill_tokens >= kRetainedPrefillTokens",
             "qwen36_exact_arbitrary_product_path_enabled(prefill_tokens)",
             "!q8193_bf16_one_ulp_low_id_shape",
             "!resident_continuous_long_context_provider_requested(prefill_tokens)",
+            "exact_arbitrary_sub_q8192_grouped_arbitration_authority",
+            "prefill_tokens < kRetainedPrefillTokens",
         ):
             self.assertIn(fragment, route)
+        self.assertNotIn("prefill_tokens >= kRetainedPrefillTokens", route)
         self.assertNotIn("input_tokens", route)
         self.assertNotIn("expected_output", route)
         self.assertIn(
@@ -951,6 +961,10 @@ class NativeRouteContractTests(unittest.TestCase):
         )
         self.assertIn(
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ADAPTIVE_BF16_MINIMUM_LOGIT_EIGHTHS=128",
+            self.runtime_env,
+        )
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_SUB_Q8192_GROUPED_ONE_ULP_LOW_ID=1",
             self.runtime_env,
         )
         self.assertIn("adaptive_hopper_bf16_f32", self.provider)

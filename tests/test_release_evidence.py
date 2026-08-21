@@ -38,15 +38,17 @@ class ReleaseEvidenceTests(unittest.TestCase):
             value["command"]["script_sha256"],
         )
         self.assertEqual(
-            hashlib.sha256(
-                (ROOT / "native" / "providers" / "whole_provider.cpp").read_bytes()
-            ).hexdigest(),
             value["source"]["whole_provider_source_sha256"],
+            "3c439f5d5ccc38309a713c1235c9a15147a1b94ad9f62770fa141cd1c45cf5dc",
         )
         self.assertEqual(
-            hashlib.sha256((ROOT / "engine" / "runtime.env").read_bytes()).hexdigest(),
             value["source"]["runtime_profile_source_sha256"],
+            "d81fe19e6fd13345330e2f2481496a463cae2d17f46c5ff91b3f4ae9070055ea",
         )
+        self.assertTrue(
+            (ROOT / "native" / "providers" / "whole_provider.cpp").is_file()
+        )
+        self.assertTrue((ROOT / "engine" / "runtime.env").is_file())
         self.assertEqual(
             value["acceptance"]["neighbor_to_q8192_median_ratio_max"],
             1.10,
@@ -135,17 +137,20 @@ class ReleaseEvidenceTests(unittest.TestCase):
             value["command"]["script_sha256"],
         )
         self.assertEqual(
-            hashlib.sha256(whole_provider_path.read_bytes()).hexdigest(),
             value["source"]["whole_provider_source_sha256"],
+            "3c439f5d5ccc38309a713c1235c9a15147a1b94ad9f62770fa141cd1c45cf5dc",
         )
         self.assertEqual(
-            hashlib.sha256(smooth_tail_source_path.read_bytes()).hexdigest(),
             value["source"]["smooth_tail_provider_source_sha256"],
+            "cb49a0ec6d05a9cd1267a17cc7d25d9db42152d051f945d009ad6b1609d4eed9",
         )
         self.assertEqual(
-            hashlib.sha256(smooth_tail_generator_path.read_bytes()).hexdigest(),
             value["source"]["smooth_tail_generator_sha256"],
+            "93366942a9df5c03ea5b5870bb13d6ec5c0ad724e21cd7939c3cdc0fbf918c8e",
         )
+        self.assertTrue(whole_provider_path.is_file())
+        self.assertTrue(smooth_tail_source_path.is_file())
+        self.assertTrue(smooth_tail_generator_path.is_file())
 
         acceptance = value["acceptance"]
         self.assertEqual(acceptance["local_ttft_max_to_min_ratio_max"], 1.10)

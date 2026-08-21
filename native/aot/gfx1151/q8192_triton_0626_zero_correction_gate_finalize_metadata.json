@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "arithmetic": "BF16 gate/up endpoints followed by SiLU multiplication; no K2048 correction scan",
+  "shape": {
+    "max_tokens": 8192,
+    "top_k": 8,
+    "intermediate": 512,
+    "max_elements": 33554432,
+    "block_size": 1024
+  },
+  "launch_options": {
+    "num_warps": 8,
+    "num_stages": 1,
+    "waves_per_eu": 0
+  },
+  "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+  "symbol": "_zero_correction_gate_finalize_kernel",
+  "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
+  "bytes": 6696,
+  "max_grid": [
+    32768,
+    1,
+    1
+  ],
+  "threads": 256,
+  "dynamic_shared_bytes": 0,
+  "compiled_hash": "b5a0a4f74ed66aa3ec509476d26e9ebe31795b29a6f36107c2336b556225c835",
+  "postprocess": {
+    "debug_sections_stripped": true,
+    "tool": "llvm-strip, compatible with GNU strip",
+    "arguments": ["--strip-debug"],
+    "private_home_path_count": 0
+  },
+  "qualification": {
+    "host": "quings",
+    "evidence": "prefill-diagnostic-public-complete-aot-r1187-r1190.json",
+    "logical_tokens": [2049, 8192],
+    "q8192_exact_output_hash_match": true,
+    "gb10_layer3_tolerance_pass": true,
+    "component_only": true,
+    "inference_success_claimed": false
+  }
+}

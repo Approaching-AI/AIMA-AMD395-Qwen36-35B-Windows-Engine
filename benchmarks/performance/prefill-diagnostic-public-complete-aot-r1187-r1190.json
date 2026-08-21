@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "record_type": "qrt_public_complete_q8192_moe_aot_and_gb10_diagnostic",
+  "completed_at_utc": "2026-08-21T22:24:41Z",
+  "execution": {
+    "host_alias": "amd395",
+    "hostname": "quings",
+    "device": "AMD gfx1151",
+    "repo_commit": "6cdce444177f54e8985a2d6148da863369bece32",
+    "source_tree_dirty": true,
+    "neutral_build_root": "<amd395-var-tmp>/qrt-public-aot-r1187",
+    "qualification_root": "<amd395-workspace>/qrt-dynamic-aot-r1171-publicall-r1188"
+  },
+  "public_complete_aot_build": {
+    "run_label": "r1187",
+    "command_file": "scripts/.candidate_generate_amd_public_aux_aot_r1184.sh",
+    "command_file_sha256": "24e5a35b29d7a8dd8dd981e3b9615568a824f1469d89964bd9cd218ab8052233",
+    "target": "gfx1151",
+    "compiler": "Triton 3.6.0 HIP backend",
+    "postprocess_tool": "llvm-strip, compatible with GNU strip",
+    "postprocess_arguments": [
+      "--strip-debug"
+    ],
+    "source_root_class": "neutral_var_tmp",
+    "selected_kernel_count": 9,
+    "private_home_path_count": 0,
+    "base_metadata_sha256": "41e77d3afdecba63ee15c63e5f585f44ae29a6220e296e2752dcc18cfd24dc14",
+    "provenance_sha256": "dc8bd6ca11f25334f97b4bca85557948eb48525c69e77bd404c2ef8071c56885",
+    "sources": [
+      {
+        "path": "native/generators/compile_q8192_triton_selected_moe.py",
+        "sha256": "d5497e32c0bf5514a2cc136be95d2a02b66538906b21e42224b4362826add6a4"
+      },
+      {
+        "path": "native/generators/compile_q8192_row_major_sorted_conditional_gate.py",
+        "sha256": "6d5ae64a61b05f86689f5237566d531b135b763796016192b2c908aa3cd16a37"
+      },
+      {
+        "path": "native/generators/compile_q8192_sorted_conditional_gate.py",
+        "sha256": "4882f55ba0b4a8ebb8e446891446cdd7a4552e05ed0cbde41c477714a2179ca2"
+      },
+      {
+        "path": "native/generators/compile_q8192_zero_correction_gate_finalize.py",
+        "sha256": "f1c100a3e3c916000d5e993414e60f245c513fd8066039bd7a5ff71c82511b0f"
+      },
+      {
+        "path": "native/generators/compile_q8192_conditional_exact_down.py",
+        "sha256": "5edafd02560c5937347233fe2f40ee3eb111a530bd10effeb28c18f6e0a431af"
+      }
+    ],
+    "artifacts": [
+      {
+        "file": "q8192_selected_moe_route_count.hsaco",
+        "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39",
+        "bytes": 4816,
+        "compiled_hash": "cb35f4b22da2b1b9a08893516bbeaf8a8bcc4c5f4fb2cf7792d0eb148741d99a",
+        "previous_unstripped_sha256": "e92482b56c6e9fdfa0c4422e5c856ae09001553886ff490b73b2172c4773b33a",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+        "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d",
+        "bytes": 4960,
+        "compiled_hash": "50de3138d3650b2606732d41630c7b17b835272829978d1dcc3436b5659d8dd8",
+        "previous_unstripped_sha256": "49632c4728eba691f4d6aabd0a6837cabd7ed473b4813784bb82541d6e0629fe",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+        "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914",
+        "bytes": 5040,
+        "compiled_hash": "ed933b6e6bd947d7fa8b04884435e672ed99cb40a51eb512be155b552f561759",
+        "previous_unstripped_sha256": "e121895094efaeb0487bd1095778c42679284e065f849a9feb0c2a78d4f21e35",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_selected_moe_route_scatter.hsaco",
+        "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f",
+        "bytes": 5608,
+        "compiled_hash": "6da9b75820174803c3ec1059021b0a3f8113d3946b7e37f9bb032a9a50c845b2",
+        "previous_unstripped_sha256": "53b7a2cd0c028d5a730ef76b39393d70197fb049666c6cd0d5c83618f16ebf8c",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_selected_moe_gate_up_silu.hsaco",
+        "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe",
+        "bytes": 17752,
+        "compiled_hash": "0e8d7945eccc2b67e6f01896bb4ebaaa22f4b8209c00f6fe018261baa5c66503",
+        "previous_unstripped_sha256": "7f37a2ee63a36f41d899cc4b2841b2f74178faae2aaf6e0eb8b273e0da0fa4cf",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_selected_moe_down.hsaco",
+        "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a",
+        "bytes": 11384,
+        "compiled_hash": "174c003ad610880e70f8546faa543b3259054976e77cfa57e7f8d166e2a02412",
+        "previous_unstripped_sha256": "e0fe6bfa77dc366520513e6cbda7553b028e5935a5a8c28b68578d58742256c6",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+        "sha256": "b0b0230c3f8165dd5de97c02707b35bdac2c497377c17c09bc5f768c4822eae6",
+        "bytes": 7736,
+        "previous_unstripped_sha256": "e6504e2da5345509304155153323b60c0d084527c55ed1db6918699294e21a6c",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+        "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
+        "bytes": 6696,
+        "previous_unstripped_sha256": "032b60f88cce479b19e94854813ea55d1c1790082a533c826ef326c4a0eb51ba",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      },
+      {
+        "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+        "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4",
+        "bytes": 7504,
+        "previous_unstripped_sha256": "60252375edfffc86f16a17da85e8fcdd321129b2f49c81d898eaf8404d9a7289",
+        "debug_sections_stripped": true,
+        "private_home_path_count": 0,
+        "byte_identical_to_previous_after_debug_strip": true
+      }
+    ],
+    "equivalence_method": "all nine previously accepted objects were copied, stripped with the same debug-only operation, and compared byte-for-byte with the neutral rebuild",
+    "all_artifacts_byte_identical_to_previous_after_debug_strip": true,
+    "independent_neutral_regeneration_count": 2,
+    "independent_regeneration_artifact_and_metadata_hashes_match": true,
+    "status": "pass"
+  },
+  "full_smoke": {
+    "run_label": "r1188-public-all",
+    "command_file": "scripts/.candidate_run_amd_fresh_base_dynamic_smoke_r1172.sh",
+    "command_file_sha256": "8a570dd21a775e482069bfe760132bc486e09637509ce316630315ab6eea75b4",
+    "provider_sha256": "5170bbf386a40837cfbb142ece292fa88217849b5bb771fbe68406e688ca2e84",
+    "smoke_sha256": "a98ea57776a1e3b6041774d67c6840d73ccd79dab4e7dad67f4ff000fbe3e369",
+    "stdout_sha256": "0ef6a6be31b0f43eb4b9c6c362f3c6e0123663fdb2d2fe2b9f87442c066461b8",
+    "summary_sha256": "1372f550750e3269a2368321d09ed2a6f54f97e55063f360c22b31f64a8ee18b",
+    "provenance_sha256": "6ca151226888fad4a17fc460eb3a823fad22504c6aec6d5ee451bf2affdfdb41",
+    "base_aot_metadata_sha256": "41e77d3afdecba63ee15c63e5f585f44ae29a6220e296e2752dcc18cfd24dc14",
+    "dynamic_logical_case_count": 32,
+    "dynamic_logical_min_tokens": 2049,
+    "dynamic_logical_max_tokens": 8192,
+    "minimum_total_ms": 13.37,
+    "maximum_total_ms": 60.96,
+    "q8192_total_ms": 59.22,
+    "dynamic_logical_nonfinite": 0,
+    "dynamic_logical_q8192_mismatches": 0,
+    "dynamic_logical_q8192_max_abs_diff": 0.0,
+    "dynamic_logical_tail_guard_pass": true,
+    "full_provider_sync_hash": "61b5150f51410383",
+    "full_provider_async_hash": "61b5150f51410383",
+    "full_provider_v3_hash": "61b5150f51410383",
+    "full_provider_v3_async_hash": "61b5150f51410383",
+    "full_provider_async_mismatches": 0,
+    "full_provider_v3_mismatches": 0,
+    "full_provider_v3_async_mismatches": 0,
+    "router_debug_id_mismatches": 0,
+    "router_debug_weight_mismatches": 0,
+    "provider_backend_mask": 15,
+    "status": "pass"
+  },
+  "random_length_stability_transfer": {
+    "evidence_file": "benchmarks/performance/prefill-diagnostic-current-provider-random-length-r1181-r1183.json",
+    "provider_sha256": "5170bbf386a40837cfbb142ece292fa88217849b5bb771fbe68406e688ca2e84",
+    "all_78_random_pairs_exercised": true,
+    "all_11_flagged_candidates_repeated_15_times": true,
+    "candidate_ratio_median_minimum": 0.9846181054599344,
+    "candidate_ratio_median_maximum": 1.0207535265294336,
+    "clock_normalized_anchor_drift_median": 1.0012285012285012,
+    "reproducible_integer_length_performance_spike_detected": false,
+    "selected_code_objects_byte_identical_after_debug_strip": true,
+    "component_random_length_stability_transfers_to_clean_aot": true
+  },
+  "gb10_boundary": {
+    "authority_host": "gb10-4t",
+    "model_reference": "Qwen3.6-35B-A3B BF16 service",
+    "prompt_tokens": 8192,
+    "prompt_u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+    "first_token_id": 144,
+    "first_token_raw_logit_bf16": 10.375,
+    "layer": 3,
+    "moe_input_sha256": "356bacc6f40b177676d5146854a716bf37e15e1ff7db488da6e4689c2c4b2f28",
+    "moe_output_sha256": "557d9176e1ddbe969e3651b546dda03ca568b96e99c85059b69b20cf640ba11d"
+  },
+  "real_layer3": {
+    "run_label": "r1189-public-all",
+    "command_file": "scripts/.candidate_run_amd_fresh_base_aot_r1171.sh",
+    "command_file_sha256": "3d62c8f4e42df713313b6848446f28b6729b99531df227c178833ad9fb2d7602",
+    "replay_record_sha256": "bbcb7eee80a261fe6e0e5f584cc678891b133afc788d30e814e082b295bfb6f9",
+    "provenance_sha256": "ecfeaee447e457848f52b12ab1e31f8c11d346a266489e73dc033d280fe66723",
+    "kernel_inventory_sha256": "3e94b60632d3f71d135aa4c11f428797e54ca64998e0b95fdadba13f326dbbfa",
+    "elapsed_ms": 56.935943604,
+    "output_bf16_fnv1a64": "e1ade524d263ae24",
+    "output_sha256": "56040f641370a77904a7ce5b33cca91b3c5f7a5654b8b6513be1c858ee13b663",
+    "matches_r1160_r1171_r1180_and_r1186_output_sha256": true,
+    "nonfinite_count": 0,
+    "max_abs_difference_to_gb10_bf16": 0.015625,
+    "abs_difference_over_0_125_count": 0,
+    "gb10_component_tolerance_pass": true,
+    "legacy_exact_bf16_diagnostic_pass": false
+  },
+  "windows_transport_verification": {
+    "run_label": "r1191",
+    "host_alias": "test-win",
+    "hostname": "LIGHT-SALT",
+    "execution": "windows_powershell_5_1_cpu_only",
+    "command_file": "scripts/.candidate_verify_public_aot_windows_r1191.ps1",
+    "command_file_sha256": "e3a35294f0b361471a9f52919cf4d2cc618a43518e3fde8fcb33b83aed86f003",
+    "verification_record_sha256": "42dedbde53057df5833b362f9e90453ea2ed02b1484a20c5b2c753f2ac4701f7",
+    "metadata_sha256": "41e77d3afdecba63ee15c63e5f585f44ae29a6220e296e2752dcc18cfd24dc14",
+    "artifact_count": 9,
+    "metadata_hash_size_match": true,
+    "private_home_path_count": 0,
+    "powershell_parse_pass": true,
+    "gpu_execution": false,
+    "component_only": true,
+    "inference_success_claimed": false,
+    "status": "pass"
+  },
+  "decision": {
+    "selected_q8192_moe_aot_private_path_blocker_cleared": true,
+    "machine_code_or_loaded_metadata_changed_by_cleanup": false,
+    "clean_complete_aot_set_ready_for_windows_requalification": true,
+    "public_release_promotion_deferred_until_baiying_product_gate": true,
+    "windows_product_requalification_required": true
+  },
+  "scope": {
+    "component_only": true,
+    "gb10_component_boundary_attached": true,
+    "windows_full_model_product_gate_attached": false,
+    "inference_success_claimed": false
+  }
+}

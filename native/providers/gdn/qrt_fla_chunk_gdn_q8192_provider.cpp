@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <limits>
@@ -21,8 +22,7 @@ constexpr uint32_t kKeyDim = 128u;
 constexpr uint32_t kValueDim = 128u;
 constexpr uint32_t kChunk = 64u;
 constexpr uint32_t kQkPrepRows = 32u;
-constexpr uint32_t kStateValueTiles = 8u;
-constexpr uint32_t kOutputValueTiles = 4u;
+constexpr uint32_t kStateValueTiles = 2u;
 constexpr uint32_t kGateRows = 64u;
 constexpr uint32_t kQkvRows = 8192u;
 constexpr uint32_t kValueFeatures = kValueHeads * kValueDim;
@@ -37,16 +37,27 @@ constexpr int32_t kQ32768Tokens = 32768;
 constexpr int32_t kQ65536Tokens = 65536;
 
 constexpr uint64_t kCompactQkvBytesPerToken = 16384u;
-constexpr uint64_t kGateAndBetaBytesPerToken = 192u;
+constexpr uint64_t kGateAndBetaBytesPerToken = 256u;
 constexpr uint64_t kAOrWBytesPerToken = 8192u;
 constexpr uint64_t kAiOrVNewBytesPerToken = 8192u;
 constexpr uint64_t kChunkStateBytesPerToken = 16384u;
-constexpr uint64_t kScratchBytesPerToken =
+constexpr uint64_t kPaddedPostconvBytesPerToken =
+    static_cast<uint64_t>(kQkvRows) * sizeof(float);
+constexpr uint64_t kPaddedGateBytesPerToken =
+    static_cast<uint64_t>(kGateRows) * sizeof(float);
+constexpr uint64_t kPaddedOutputBytesPerToken =
+    static_cast<uint64_t>(kValueFeatures) * sizeof(float);
+constexpr uint64_t kMainScratchBytesPerToken =
     kCompactQkvBytesPerToken +
     kGateAndBetaBytesPerToken +
     kAOrWBytesPerToken +
     kAiOrVNewBytesPerToken +
     kChunkStateBytesPerToken;
+constexpr uint64_t kTailPaddingBytes =
+    static_cast<uint64_t>(kChunk) *
+    (kPaddedPostconvBytesPerToken +
+     kPaddedGateBytesPerToken +
+     kPaddedOutputBytesPerToken);
 
 enum class KernelIndex : size_t {
     kQkL2Norm = 0u,
@@ -97,7 +108,7 @@ constexpr std::array<KernelSpec, static_cast<size_t>(KernelIndex::kCount)>
             "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
             "_fla_solve_tril_64_kernel",
             256u,
-            4096u,
+            512u,
         },
         {
             "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
@@ -108,8 +119,8 @@ constexpr std::array<KernelSpec, static_cast<size_t>(KernelIndex::kCount)>
         {
             "q8192_fla_chunk_gdn_chunk_state.hsaco",
             "_fla_chunk_state_kernel",
-            128u,
-            8192u,
+            256u,
+            32768u,
         },
         {
             "q8192_fla_chunk_gdn_chunk_output.hsaco",
@@ -128,6 +139,9 @@ struct ProviderState {
     void *a_or_w = nullptr;
     void *ai_or_v_new = nullptr;
     uint16_t *chunk_state = nullptr;
+    float *padded_postconv = nullptr;
+    float *padded_gate = nullptr;
+    float *padded_output = nullptr;
     int32_t scratch_tokens = 0;
     bool prepared = false;
     char kernel_dir[1024]{};
@@ -161,6 +175,15 @@ void set_error(const char *stage, hipError_t status) {
 }
 
 void release_scratch() {
+    if (g_state.padded_output != nullptr) {
+        (void)hipFree(g_state.padded_output);
+    }
+    if (g_state.padded_gate != nullptr) {
+        (void)hipFree(g_state.padded_gate);
+    }
+    if (g_state.padded_postconv != nullptr) {
+        (void)hipFree(g_state.padded_postconv);
+    }
     if (g_state.chunk_state != nullptr) {
         (void)hipFree(g_state.chunk_state);
     }
@@ -181,6 +204,9 @@ void release_scratch() {
     g_state.a_or_w = nullptr;
     g_state.ai_or_v_new = nullptr;
     g_state.chunk_state = nullptr;
+    g_state.padded_postconv = nullptr;
+    g_state.padded_gate = nullptr;
+    g_state.padded_output = nullptr;
     g_state.scratch_tokens = 0;
 }
 
@@ -208,12 +234,15 @@ bool checked_bytes(int32_t tokens, uint64_t bytes_per_token, size_t *bytes) {
 }
 
 bool ensure_scratch(int32_t tokens) {
-    if (g_state.scratch_tokens == tokens &&
+    if (g_state.scratch_tokens >= tokens &&
         g_state.compact_qkv != nullptr &&
         g_state.gate_and_beta != nullptr &&
         g_state.a_or_w != nullptr &&
         g_state.ai_or_v_new != nullptr &&
-        g_state.chunk_state != nullptr) {
+        g_state.chunk_state != nullptr &&
+        g_state.padded_postconv != nullptr &&
+        g_state.padded_gate != nullptr &&
+        g_state.padded_output != nullptr) {
         return true;
     }
     size_t compact_qkv_bytes = 0u;
@@ -221,6 +250,9 @@ bool ensure_scratch(int32_t tokens) {
     size_t a_or_w_bytes = 0u;
     size_t ai_or_v_new_bytes = 0u;
     size_t chunk_state_bytes = 0u;
+    size_t padded_postconv_bytes = 0u;
+    size_t padded_gate_bytes = 0u;
+    size_t padded_output_bytes = 0u;
     if (!checked_bytes(
             tokens,
             kCompactQkvBytesPerToken,
@@ -237,6 +269,21 @@ bool ensure_scratch(int32_t tokens) {
             tokens,
             kChunkStateBytesPerToken,
             &chunk_state_bytes
+        ) ||
+        !checked_bytes(
+            static_cast<int32_t>(kChunk),
+            kPaddedPostconvBytesPerToken,
+            &padded_postconv_bytes
+        ) ||
+        !checked_bytes(
+            static_cast<int32_t>(kChunk),
+            kPaddedGateBytesPerToken,
+            &padded_gate_bytes
+        ) ||
+        !checked_bytes(
+            static_cast<int32_t>(kChunk),
+            kPaddedOutputBytesPerToken,
+            &padded_output_bytes
         )) {
         set_error_text("FLA chunk-GDN scratch size overflow");
         return false;
@@ -279,6 +326,33 @@ bool ensure_scratch(int32_t tokens) {
     );
     if (status != hipSuccess) {
         set_error("hipMalloc(chunk_state)", status);
+        release_scratch();
+        return false;
+    }
+    status = hipMalloc(
+        reinterpret_cast<void **>(&g_state.padded_postconv),
+        padded_postconv_bytes
+    );
+    if (status != hipSuccess) {
+        set_error("hipMalloc(padded_postconv)", status);
+        release_scratch();
+        return false;
+    }
+    status = hipMalloc(
+        reinterpret_cast<void **>(&g_state.padded_gate),
+        padded_gate_bytes
+    );
+    if (status != hipSuccess) {
+        set_error("hipMalloc(padded_gate)", status);
+        release_scratch();
+        return false;
+    }
+    status = hipMalloc(
+        reinterpret_cast<void **>(&g_state.padded_output),
+        padded_output_bytes
+    );
+    if (status != hipSuccess) {
+        set_error("hipMalloc(padded_output)", status);
         release_scratch();
         return false;
     }
@@ -343,6 +417,15 @@ bool launch(
 ) {
     const size_t slot = kernel_slot(index);
     const KernelSpec &spec = kKernelSpecs[slot];
+    const char *sync_each_stage = std::getenv(
+        "QRT_FLA_GDN_SYNC_EACH_STAGE"
+    );
+    const bool diagnose = sync_each_stage != nullptr &&
+        sync_each_stage[0] != '\0' && sync_each_stage[0] != '0';
+    if (diagnose) {
+        std::fprintf(stderr, "FLA_STAGE begin=%s\n", spec.symbol);
+        std::fflush(stderr);
+    }
     const hipError_t status = hipModuleLaunchKernel(
         g_state.functions[slot],
         grid_x,
@@ -367,16 +450,34 @@ bool launch(
         set_error(stage, status);
         return false;
     }
+    if (diagnose) {
+        const hipError_t sync_status = hipStreamSynchronize(stream);
+        if (sync_status != hipSuccess) {
+            char stage[256];
+            std::snprintf(
+                stage,
+                sizeof(stage),
+                "hipStreamSynchronize(%s)",
+                spec.symbol
+            );
+            set_error(stage, sync_status);
+            return false;
+        }
+        std::fprintf(stderr, "FLA_STAGE end=%s\n", spec.symbol);
+        std::fflush(stderr);
+    }
     return true;
 }
 
 bool supported_tokens(int32_t tokens) {
-    return tokens == kSmokeTokens ||
-        tokens == kQ8192Tokens ||
-        tokens == kQ16384Tokens ||
-        tokens == kQ17408Tokens ||
-        tokens == kQ32768Tokens ||
-        tokens == kQ65536Tokens;
+    return tokens > 0 && tokens <= kQ65536Tokens;
+}
+
+int32_t padded_tokens(int32_t tokens) {
+    return static_cast<int32_t>(
+        (static_cast<uint32_t>(tokens) + kChunk - 1u) /
+            kChunk * kChunk
+    );
 }
 
 int launch_segment_async(
@@ -411,17 +512,11 @@ int launch_segment_async(
     uint16_t *v_bf16 =
         k_bf16 + static_cast<size_t>(tokens) * kQkHeads * kKeyDim;
     float *g_cumsum = g_state.gate_and_beta;
-    uint16_t *beta_bf16 = reinterpret_cast<uint16_t *>(
-        g_state.gate_and_beta +
-        static_cast<size_t>(tokens) * kValueHeads
-    );
+    float *beta_f32 = g_state.gate_and_beta +
+        static_cast<size_t>(tokens) * kValueHeads;
     float *a_f32 = static_cast<float *>(g_state.a_or_w);
     uint16_t *a_inverse_bf16 =
         static_cast<uint16_t *>(g_state.ai_or_v_new);
-    uint16_t *w_bf16 = static_cast<uint16_t *>(g_state.a_or_w);
-    uint16_t *v_new_bf16 =
-        static_cast<uint16_t *>(g_state.ai_or_v_new);
-    uint16_t *u_bf16 = v_bf16;
     int32_t launch_tokens = tokens;
     void *global_scratch = nullptr;
     void *profile_scratch = nullptr;
@@ -454,7 +549,7 @@ int launch_segment_async(
 
     const float *gate_pointer = gate_f32;
     uint16_t *v_pointer = v_bf16;
-    uint16_t *beta_pointer = beta_bf16;
+    float *beta_pointer = beta_f32;
     void *v_beta_arguments[] = {
         &raw_pointer,
         &gate_pointer,
@@ -537,6 +632,7 @@ int launch_segment_async(
     uint16_t *inverse_pointer = a_inverse_bf16;
     void *solve_arguments[] = {
         &a_pointer,
+        &beta_pointer,
         &inverse_pointer,
         &launch_tokens,
         &global_scratch,
@@ -553,43 +649,21 @@ int launch_segment_async(
         return 0;
     }
 
-    uint16_t *w_pointer = w_bf16;
-    uint16_t *u_pointer = u_bf16;
-    void *recompute_arguments[] = {
-        &k_pointer,
-        &v_pointer,
-        &beta_pointer,
-        &w_pointer,
-        &u_pointer,
-        &inverse_pointer,
-        &g_pointer,
-        &launch_tokens,
-        &global_scratch,
-        &profile_scratch,
-    };
-    if (!launch(
-            KernelIndex::kRecomputeWU,
-            chunks,
-            kValueHeads,
-            1u,
-            stream,
-            recompute_arguments
-        )) {
-        return 0;
-    }
-
-    uint16_t *v_new_pointer = v_new_bf16;
-    uint16_t *chunk_state_pointer = g_state.chunk_state;
+    // The fused FlashInfer-order state owner consumes the compact Q/K/V and
+    // inverse@beta boundary directly.  It publishes the BF16-rounded core
+    // output while advancing the F32 recurrent state, replacing both the
+    // legacy W/U recomputation and the separate chunk-output pass.
     const float *initial_state_pointer = final_state_f32;
     float *final_state_pointer = final_state_f32;
+    float *output_pointer = output_f32;
     void *state_arguments[] = {
+        &q_pointer,
         &k_pointer,
-        &u_pointer,
-        &w_pointer,
-        &v_new_pointer,
+        &v_pointer,
+        &inverse_pointer,
         &g_pointer,
         &initial_state_pointer,
-        &chunk_state_pointer,
+        &output_pointer,
         &final_state_pointer,
         &launch_tokens,
         &global_scratch,
@@ -602,29 +676,6 @@ int launch_segment_async(
             1u,
             stream,
             state_arguments
-        )) {
-        return 0;
-    }
-
-    float *output_pointer = output_f32;
-    void *output_arguments[] = {
-        &q_pointer,
-        &k_pointer,
-        &v_new_pointer,
-        &chunk_state_pointer,
-        &g_pointer,
-        &output_pointer,
-        &launch_tokens,
-        &global_scratch,
-        &profile_scratch,
-    };
-    if (!launch(
-            KernelIndex::kChunkOutput,
-            kOutputValueTiles,
-            chunks,
-            kValueHeads,
-            stream,
-            output_arguments
         )) {
         return 0;
     }
@@ -645,13 +696,124 @@ int launch_pipeline_async(
     if (!g_state.prepared || postconv_raw_f32 == nullptr ||
         gate_f32 == nullptr || output_f32 == nullptr ||
         final_state_f32 == nullptr || !supported_tokens(tokens) ||
-        tokens % static_cast<int32_t>(kChunk) != 0 ||
         gate_values_are_decay != 0) {
         set_error_text(
-            "FLA chunk-GDN launch requires a supported multiple-of-64 shape, "
-            "raw log gates, and non-null surfaces"
+            "FLA chunk-GDN launch requires 1..65536 tokens, raw log gates, "
+            "and non-null surfaces"
         );
         return 0;
+    }
+
+    if (tokens % static_cast<int32_t>(kChunk) != 0) {
+        const int32_t prefix_tokens =
+            tokens / static_cast<int32_t>(kChunk) *
+            static_cast<int32_t>(kChunk);
+        const int32_t tail_tokens = tokens - prefix_tokens;
+        // Keep the rounded-up main scratch extent that the compiled kernels
+        // historically received.  Some vectorized kernel paths touch the
+        // neutral tail allocation even when this call launches only the
+        // aligned prefix; the optimization here is to avoid staging the full
+        // prompt, not to tighten that kernel-visible allocation contract.
+        const int32_t scratch_tokens = padded_tokens(tokens);
+        if (!ensure_scratch(scratch_tokens)) {
+            return 0;
+        }
+        hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
+        if (prefix_tokens > 0 && launch_segment_async(
+                postconv_raw_f32,
+                gate_f32,
+                output_f32,
+                final_state_f32,
+                stream_pointer,
+                prefix_tokens,
+                true
+            ) == 0) {
+            return 0;
+        }
+        const size_t padded_postconv_bytes =
+            static_cast<size_t>(kChunk) *
+            static_cast<size_t>(kQkvRows) * sizeof(float);
+        const size_t padded_gate_bytes =
+            static_cast<size_t>(kChunk) *
+            static_cast<size_t>(kGateRows) * sizeof(float);
+        const size_t tail_postconv_bytes =
+            static_cast<size_t>(tail_tokens) *
+            static_cast<size_t>(kQkvRows) * sizeof(float);
+        const size_t tail_gate_bytes =
+            static_cast<size_t>(tail_tokens) *
+            static_cast<size_t>(kGateRows) * sizeof(float);
+        const size_t tail_output_bytes =
+            static_cast<size_t>(tail_tokens) *
+            static_cast<size_t>(kValueFeatures) * sizeof(float);
+        hipError_t status = hipMemsetAsync(
+            g_state.padded_postconv,
+            0,
+            padded_postconv_bytes,
+            stream
+        );
+        if (status != hipSuccess) {
+            set_error("hipMemsetAsync(padded_postconv)", status);
+            return 0;
+        }
+        status = hipMemsetAsync(
+            g_state.padded_gate,
+            0,
+            padded_gate_bytes,
+            stream
+        );
+        if (status != hipSuccess) {
+            set_error("hipMemsetAsync(padded_gate)", status);
+            return 0;
+        }
+        status = hipMemcpyAsync(
+            g_state.padded_postconv,
+            postconv_raw_f32 +
+                static_cast<size_t>(prefix_tokens) * kQkvRows,
+            tail_postconv_bytes,
+            hipMemcpyDeviceToDevice,
+            stream
+        );
+        if (status != hipSuccess) {
+            set_error("hipMemcpyAsync(padded_postconv)", status);
+            return 0;
+        }
+        status = hipMemcpyAsync(
+            g_state.padded_gate,
+            gate_f32 +
+                static_cast<size_t>(prefix_tokens) * kGateRows,
+            tail_gate_bytes,
+            hipMemcpyDeviceToDevice,
+            stream
+        );
+        if (status != hipSuccess) {
+            set_error("hipMemcpyAsync(padded_gate)", status);
+            return 0;
+        }
+        if (launch_segment_async(
+                g_state.padded_postconv,
+                g_state.padded_gate,
+                g_state.padded_output,
+                final_state_f32,
+                stream_pointer,
+                static_cast<int32_t>(kChunk),
+                prefix_tokens == 0
+            ) == 0) {
+            return 0;
+        }
+        status = hipMemcpyAsync(
+            output_f32 +
+                static_cast<size_t>(prefix_tokens) * kValueFeatures,
+            g_state.padded_output,
+            tail_output_bytes,
+            hipMemcpyDeviceToDevice,
+            stream
+        );
+        if (status != hipSuccess) {
+            set_error("hipMemcpyAsync(unpadded_output)", status);
+            return 0;
+        }
+        g_state.error[0] = '\0';
+        return 1;
     }
 
     const int32_t segment_tokens =
@@ -787,13 +949,37 @@ QRT_DEFINE_FLA_GDN_LAUNCH(q65536, kQ65536Tokens)
 
 #undef QRT_DEFINE_FLA_GDN_LAUNCH
 
+QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_launch_async_dynamic(
+    const float *postconv_raw_f32,
+    const float *gate_f32,
+    float *output_f32,
+    float *final_state_f32,
+    int gate_values_are_decay,
+    void *stream_pointer,
+    int32_t tokens
+) {
+    return launch_pipeline_async(
+        postconv_raw_f32,
+        gate_f32,
+        output_f32,
+        final_state_f32,
+        gate_values_are_decay,
+        stream_pointer,
+        tokens
+    );
+}
+
 QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
     int32_t tokens
 ) {
     const int32_t scratch_tokens =
-        tokens == kQ65536Tokens ? kQ65536SegmentTokens : tokens;
+        tokens == kQ65536Tokens
+            ? kQ65536SegmentTokens
+            : (supported_tokens(tokens) ? padded_tokens(tokens) : 0);
     return scratch_tokens > 0
-        ? static_cast<uint64_t>(scratch_tokens) * kScratchBytesPerToken
+        ? static_cast<uint64_t>(scratch_tokens) *
+              kMainScratchBytesPerToken +
+              kTailPaddingBytes
         : 0u;
 }
 

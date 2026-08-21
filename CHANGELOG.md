@@ -13,7 +13,8 @@
   fused-GDN settings into the shipped runtime profile.
 - Added a deterministic 18-case q8191/q8192/q8193 continuation gate. Every
   one- and two-token output matched the GB10 BF16 oracle across three cold
-  repetitions per shape; the worst neighbor ratio was 1.423x.
+  repetitions per shape; the worst neighbor ratio was 1.036619x and the worst
+  positive residual was 142.288 ms.
 - Kept the causal padded verifier as an opt-in diagnostic; production inference
   uses the corrected native path directly.
 

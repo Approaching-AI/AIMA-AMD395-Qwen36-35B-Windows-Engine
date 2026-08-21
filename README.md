@@ -117,8 +117,8 @@ The retained q8192 real-model result on the qualified Windows platform was:
 The v1.0.1 boundary repair was additionally qualified at q8191, q8192, and
 q8193 with one- and two-token continuations, three cold-prefix repetitions per
 shape. All 18 outputs matched the GB10 BF16 oracle exactly. q8192 TTFT was
-3,872.773–3,928.488 ms; the worst neighbor ratio was 1.423x and the worst
-positive residual was 1,642.653 ms.
+3,858.763–3,903.565 ms; the worst neighbor ratio was 1.036619x and the worst
+positive residual was 142.288 ms.
 
 The repository publishes all 12 retained performance rows, GB10-anchored token
 correctness, maximum-context and prefix-continuation digests, OpenAI surface

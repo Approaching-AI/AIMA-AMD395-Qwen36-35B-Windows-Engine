@@ -16,14 +16,29 @@
 
 using fmha_dtype = FmhaFwdBf16;
 
+#if defined(QRT_CK_FMHA_VLLM_N32)
+using fmha_block_tile = ck_tile::sequence<64, 32, 32, 256, 32, 256>;
+#elif defined(QRT_CK_FMHA_VLLM_N128)
+using fmha_block_tile = ck_tile::sequence<64, 128, 32, 256, 32, 256>;
+#else
 using fmha_block_tile = ck_tile::sequence<64, 64, 32, 256, 32, 256>;
+#endif
 
+#if defined(QRT_CK_FMHA_VLLM_N32) || defined(QRT_CK_FMHA_VLLM_N128)
 using fmha_shape = ck_tile::TileFmhaShape<fmha_block_tile,
                                           ck_tile::sequence<4, 1, 1>,
                                           ck_tile::sequence<16, 16, 16>,
                                           ck_tile::sequence<4, 1, 1>,
                                           ck_tile::sequence<16, 16, 16>,
                                           true>;
+#else
+using fmha_shape = ck_tile::TileFmhaShape<fmha_block_tile,
+                                          ck_tile::sequence<4, 1, 1>,
+                                          ck_tile::sequence<16, 16, 16>,
+                                          ck_tile::sequence<4, 1, 1>,
+                                          ck_tile::sequence<16, 16, 16>,
+                                          true>;
+#endif
 
 using fmha_traits = ck_tile::TileFmhaTraits<true,
                                             true,
@@ -73,8 +88,16 @@ using fmha_epilogue =
 using fmha_kernel = ck_tile::FmhaFwdKernel<fmha_pipeline, fmha_epilogue>;
 
 
+#if defined(QRT_CK_FMHA_VLLM_N32)
+using trait = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 32, 32, 256, 32, 256, true,
+                        ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, fmha_mask, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#elif defined(QRT_CK_FMHA_VLLM_N128)
+using trait = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 128, 32, 256, 32, 256, true,
+                        ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, fmha_mask, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#else
 using trait = fmha_fwd_traits_<256, FmhaFwdBf16, false, 64, 64, 32, 256, 32, 256, true,
                         ck_tile::BlockFmhaPipelineEnum::QRKSVS, false, fmha_mask, ck_tile::BlockAttentionBiasEnum::NO_BIAS, false, false, ck_tile::BlockAttentionQuantScaleEnum::NO_SCALE, true, true, false, false, false, false, false>;
+#endif
 
 template<>
 float fmha_fwd_<trait, QRT_CK_ARCH_TYPE>(const ck_tile::stream_config& s, fmha_fwd_args a)

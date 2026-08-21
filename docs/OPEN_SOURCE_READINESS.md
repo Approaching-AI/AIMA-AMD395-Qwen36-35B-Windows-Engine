@@ -1,15 +1,26 @@
 # Open-source readiness audit
 
-Audit date: 2026-08-15
+Audit date: 2026-08-22
 
 ## Decision
 
-Version 1.0.1 is suitable for public source publication for its declared,
+Version 1.0.1 remains suitable for public source publication for its declared,
 model-specific Windows target. The runtime source, AOT inventory, build entry
 points, lifecycle/API tests, licenses, and redacted real-model evidence are
 present in this repository. Model weights and vendor runtimes remain external.
 
-## Release gates
+The current unreleased candidate is source-publication clean but is not yet
+eligible for promotion to `main` or a release. Its nine q8192 selected-MoE AOT
+objects reproduce byte-for-byte from neutral build roots after deterministic
+debug stripping; its 32-shape component smoke, real layer-3 GB10 comparison,
+Windows artifact transport check, and local C/Rust/Python/hygiene gates pass.
+A fresh native Windows build and correctness-attached real-model product run on
+`baiying`, from the exact candidate commit, remains mandatory. Component and
+transport evidence do not substitute for that product gate. The candidate
+record is
+`benchmarks/performance/prefill-diagnostic-public-complete-aot-r1187-r1190.json`.
+
+## Version 1.0.1 release gates
 
 | Area | Result | Published basis |
 |---|---|---|
@@ -22,7 +33,7 @@ present in this repository. Model weights and vendor runtimes remain external.
 | Context behavior | Pass | continuous inputs, maximum boundary, explicit overflow rejection |
 | Prefix cache | Pass | seed, COW hit, resident hit, A-B-A isolation |
 | q8192 product target | Pass | 3,852.909 ms and 2,126.186 tok/s |
-| q8192 neighbor continuity | Pass | 18/18 GB10 matches; worst ratio 1.423x |
+| q8192 neighbor continuity | Pass | 18/18 GB10 matches; worst ratio 1.036619x |
 | Load bound | Pass | 19,940.245 ms, below 30 seconds |
 | Correctness | Pass | external BF16 first-token/logit and long continuation |
 | MMLU-Pro | Pass | both 7,486 / 12,032; zero projection mismatch |

@@ -115,6 +115,90 @@ $smokeOutputQ8193 = & $smokeExe $BuildDir $providerDll $Repetitions 8193
 $smokeExitCodeQ8193 = $LASTEXITCODE
 $smokeOutputQ16384 = & $smokeExe $BuildDir $providerDll $Repetitions 16384
 $smokeExitCodeQ16384 = $LASTEXITCODE
+$dynamicLogicalTokens = @(
+    2073, 2156, 2560, 3073, 4609, 6145, 2049, 2175,
+    2176, 2177, 2559, 2561, 3071, 3072, 3583, 3584,
+    3585, 4095, 4096, 4097, 4607, 4608, 6143, 6144,
+    7167, 7168, 7169, 7679, 7680, 7681, 8191, 8192
+)
+$dynamicLogicalRuns = @()
+$dynamicLogicalExitPass = $true
+foreach ($logicalTokens in $dynamicLogicalTokens) {
+    $caseOutput = @(
+        & $smokeExe `
+            $BuildDir `
+            $providerDll `
+            $Repetitions `
+            $logicalTokens 2>&1 |
+            ForEach-Object { $_.ToString() }
+    )
+    $caseExitCode = $LASTEXITCODE
+    if ($caseExitCode -ne 0) {
+        $dynamicLogicalExitPass = $false
+    }
+    $dynamicLogicalRuns += [ordered]@{
+        tokens = $logicalTokens
+        exit_code = $caseExitCode
+        output = ($caseOutput -join "`n")
+    }
+}
+$dynamicLogicalSmokeText = @(
+    $dynamicLogicalRuns | ForEach-Object { $_.output }
+) -join "`n"
+$dynamicLogicalModePattern = (
+    '(?m)^q(?<q>[0-9]+)_aiter_fused_gdn_mode\b' +
+    '[^\r\n]*\btokens=(?<tokens>[0-9]+)\b' +
+    '[^\r\n]*\bprovider_surface=(?<surface>dynamic|fixed)\b' +
+    '[^\r\n]*\bprovider_async_one_sync_ms=' +
+    '(?<ms>[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?)\b' +
+    '[^\r\n]*\basync_exact=1\b[^\r\n]*\bclose=1\s*$'
+)
+$dynamicLogicalModeMatches = [regex]::Matches(
+    $dynamicLogicalSmokeText,
+    $dynamicLogicalModePattern
+)
+$dynamicLogicalModePass = (
+    $dynamicLogicalExitPass -and
+    $dynamicLogicalModeMatches.Count -eq 2 * $dynamicLogicalTokens.Count
+)
+if ($dynamicLogicalModePass) {
+    foreach ($logicalTokens in $dynamicLogicalTokens) {
+        $tokenMatches = @(
+            $dynamicLogicalModeMatches | Where-Object {
+                [int]$_.Groups['q'].Value -eq $logicalTokens -and
+                [int]$_.Groups['tokens'].Value -eq $logicalTokens
+            }
+        )
+        $expectedSurface = if ($logicalTokens -eq 8192) {
+            'fixed'
+        } else {
+            'dynamic'
+        }
+        if ($tokenMatches.Count -ne 2) {
+            $dynamicLogicalModePass = $false
+            break
+        }
+        foreach ($match in $tokenMatches) {
+            $milliseconds = [double]::Parse(
+                $match.Groups['ms'].Value,
+                [Globalization.CultureInfo]::InvariantCulture
+            )
+            if ([string]$match.Groups['surface'].Value -ne `
+                    $expectedSurface -or
+                [double]::IsNaN($milliseconds) -or
+                [double]::IsInfinity($milliseconds) -or
+                $milliseconds -le 0.0) {
+                $dynamicLogicalModePass = $false
+                break
+            }
+        }
+        if (-not $dynamicLogicalModePass) { break }
+    }
+}
+if (-not $dynamicLogicalModePass) {
+    $dynamicLogicalRuns | ConvertTo-Json -Depth 4 -Compress | Write-Output
+    throw "AITER fused-GDN dynamic-logical grid failed correctness, async parity, route, or timing validation"
+}
 $seededSuffixSmokeOutput = & $seededSuffixSmokeExe `
     $BuildDir `
     $providerDll `
@@ -127,6 +211,7 @@ $smokeExitCode = if (
     $smokeExitCodeQ8192 -eq 0 -and
     $smokeExitCodeQ8193 -eq 0 -and
     $smokeExitCodeQ16384 -eq 0 -and
+    $dynamicLogicalModePass -and
     $seededSuffixSmokeExitCode -eq 0 -and
     $chunkedBf16SmokeExitCode -eq 0
 ) { 0 } else { 1 }
@@ -196,6 +281,13 @@ $artifacts = foreach ($name in $artifactNames) {
     q8192_smoke_exit_code = $smokeExitCodeQ8192
     q8193_smoke_exit_code = $smokeExitCodeQ8193
     q16384_smoke_exit_code = $smokeExitCodeQ16384
+    dynamic_logical_tokens = $dynamicLogicalTokens
+    dynamic_logical_case_count = $dynamicLogicalTokens.Count
+    dynamic_logical_mode_count = $dynamicLogicalModeMatches.Count
+    dynamic_logical_reset_included = $false
+    dynamic_logical_smoke = $dynamicLogicalRuns
+    dynamic_logical_component_only = $true
+    inference_success_claimed = $false
     seeded_suffix_smoke_exit_code = $seededSuffixSmokeExitCode
     chunked_bf16_smoke_exit_code = $chunkedBf16SmokeExitCode
     async_parity_mode_count = $asyncParityModeCount

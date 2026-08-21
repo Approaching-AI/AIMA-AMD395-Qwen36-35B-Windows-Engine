@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "native/generators/compile_q8192_row_major_sorted_conditional_gate.py",
+  "source_sha256": "6d5ae64a61b05f86689f5237566d531b135b763796016192b2c908aa3cd16a37",
+  "arithmetic": "native WMMA gate/up with conditional retained K2048 FP32 reductions in row-major expert-sorted route order",
+  "shape": {
+    "tokens": 8192,
+    "top_k": 8,
+    "hidden": 2048,
+    "intermediate": 512,
+    "block_m": 64,
+    "rows_per_program": 256
+  },
+  "kernel": {
+    "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+    "symbol": "_row_major_sorted_conditional_gate_up_silu_kernel",
+    "sha256": "b0b0230c3f8165dd5de97c02707b35bdac2c497377c17c09bc5f768c4822eae6",
+    "bytes": 7736,
+    "max_grid": [163328, 1, 1],
+    "threads": 256,
+    "dynamic_shared_bytes": 32,
+    "compiled_hash": "21d26d7e14d0c6e3a9fa5510e60a25aed03ef43c6be8b3d6feb6d49f0608b6f9"
+  },
+  "postprocess": {
+    "debug_sections_stripped": true,
+    "tool": "llvm-strip, compatible with GNU strip",
+    "arguments": ["--strip-debug"],
+    "private_home_path_count": 0
+  },
+  "qualification": {
+    "host": "quings",
+    "evidence": "row-major-sorted-gate-matrix-r1137",
+    "logical_tokens": [2560, 8192],
+    "exact_output_hash_match": true,
+    "q2560_baseline_ms": 91.26,
+    "q2560_selected_ms": 88.55,
+    "q8192_baseline_ms": 299.43,
+    "q8192_selected_ms": 288.61,
+    "component_only": true,
+    "inference_success_claimed": false,
+    "public_cleanup_evidence": "prefill-diagnostic-public-complete-aot-r1187-r1190.json"
+  }
+}

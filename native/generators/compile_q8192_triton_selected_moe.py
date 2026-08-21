@@ -127,14 +127,18 @@ def configure_shape(
 
 
 @triton.jit
-def _route_count_kernel(topk_ids, token_counts):
+def _route_count_kernel(topk_ids, token_counts, logical_routes):
     pid = tl.program_id(0)
     source = pid * ROUTES_PER_SORT_PROGRAM
+    if source >= logical_routes:
+        return
     count_base = (pid + 1) * EXPERTS
     for offset in range(ROUTES_PER_SORT_PROGRAM):
-        expert = tl.load(topk_ids + source + offset)
-        count = tl.load(token_counts + count_base + expert)
-        tl.store(token_counts + count_base + expert, count + 1)
+        route = source + offset
+        if route < logical_routes:
+            expert = tl.load(topk_ids + route)
+            count = tl.load(token_counts + count_base + expert)
+            tl.store(token_counts + count_base + expert, count + 1)
 
 
 @triton.jit
@@ -165,6 +169,7 @@ def _route_scatter_kernel(
     block_expert_ids,
     token_counts,
     cumsum,
+    logical_routes,
 ):
     pid = tl.program_id(0)
     if pid < EXPERTS:
@@ -173,18 +178,19 @@ def _route_scatter_kernel(
         for offset in range(padded_begin, padded_end, BLOCK_M):
             tl.store(block_expert_ids + offset // BLOCK_M, pid)
 
-    if pid >= ROUTE_PROGRAMS:
+    source = pid * ROUTES_PER_SORT_PROGRAM
+    if pid >= ROUTE_PROGRAMS or source >= logical_routes:
         return
 
-    source = pid * ROUTES_PER_SORT_PROGRAM
     local_count_base = pid * EXPERTS
     for offset in range(ROUTES_PER_SORT_PROGRAM):
         route = source + offset
-        expert = tl.load(topk_ids + route)
-        rank = tl.load(token_counts + local_count_base + expert)
-        destination = rank + tl.load(cumsum + expert)
-        tl.store(sorted_route_ids + destination, route)
-        tl.store(token_counts + local_count_base + expert, rank + 1)
+        if route < logical_routes:
+            expert = tl.load(topk_ids + route)
+            rank = tl.load(token_counts + local_count_base + expert)
+            destination = rank + tl.load(cumsum + expert)
+            tl.store(sorted_route_ids + destination, route)
+            tl.store(token_counts + local_count_base + expert, rank + 1)
 
 
 @triton.jit
@@ -332,7 +338,11 @@ def kernel_specs():
         (
             "route_count",
             _route_count_kernel,
-            {"topk_ids": "*i32", "token_counts": "*i32"},
+            {
+                "topk_ids": "*i32",
+                "token_counts": "*i32",
+                "logical_routes": "i32",
+            },
             [ROUTE_PROGRAMS_VALUE, 1, 1],
         ),
         (
@@ -360,6 +370,7 @@ def kernel_specs():
                 "block_expert_ids": "*i32",
                 "token_counts": "*i32",
                 "cumsum": "*i32",
+                "logical_routes": "i32",
             },
             [max(ROUTE_PROGRAMS_VALUE, 256), 1, 1],
         ),

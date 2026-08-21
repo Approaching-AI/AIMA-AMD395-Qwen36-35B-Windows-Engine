@@ -4,6 +4,12 @@ param(
         [ValidateRange(1, 600)]
         [int]$CompileTimeoutSeconds = 300,
     [Parameter(Mandatory = $false)]
+        [ValidateSet(32, 64, 128)]
+        [int]$W8A8GroupSize = 128,
+    [Parameter(Mandatory = $false)]
+        [ValidateRange(0, 1)]
+        [int]$W8A8ScaleFp16 = 0,
+    [Parameter(Mandatory = $false)]
         [string]$RocmRoot = "C:\Program Files\AMD\ROCm\7.1",
     [Parameter(Mandatory = $false)]
         [ValidatePattern('^gfx[0-9a-f]+$')]
@@ -137,6 +143,8 @@ if (-not $hostRun.completed -or $hostRun.exit_code -ne 0) {
 }
 
 $providerArguments = @(
+    ("-DQRT_QWEN36_W8A8_GROUP_SIZE=" + $W8A8GroupSize),
+    ("-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=" + $W8A8ScaleFp16),
     "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
     "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
     "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
@@ -186,6 +194,8 @@ $record = [ordered]@{
     dirty_tree = @(& git -C $repo status --porcelain).Count -ne 0
     command_file = $PSCommandPath
     offload_arch = $OffloadArch
+    w8a8_group_size = $W8A8GroupSize
+    q8192_weight_int8_scale_fp16 = ($W8A8ScaleFp16 -ne 0)
     compile_timeout_seconds = $CompileTimeoutSeconds
     source_path = $source
     source_sha256 = (Get-FileHash -Algorithm SHA256 `

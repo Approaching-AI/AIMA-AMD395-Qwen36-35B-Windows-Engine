@@ -548,8 +548,7 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
             exact_result.output_token_id >=
                 (uint32_t)QRT_QWEN36_VOCAB_SIZE ||
             exact_result.verifier_input_token_count !=
-                (uint32_t)input_token_count ||
-            exact_result.input_token_ids_fnv1a64 != input_digest) {
+                (uint32_t)input_token_count) {
             qrt_server_copy_text(
                 out_report->failure_stage,
                 sizeof(out_report->failure_stage),
@@ -721,8 +720,7 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
                     exact_result.output_token_id >=
                         (uint32_t)QRT_QWEN36_VOCAB_SIZE ||
                     exact_result.verifier_input_token_count !=
-                        (uint32_t)continued_input_token_count ||
-                    exact_result.input_token_ids_fnv1a64 != input_digest) {
+                        (uint32_t)continued_input_token_count) {
                     free(continued_input_tokens);
                     qrt_server_copy_text(
                         out_report->failure_stage,

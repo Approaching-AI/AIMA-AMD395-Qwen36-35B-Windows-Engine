@@ -1,4 +1,5 @@
 #include <hip/hip_runtime.h>
+#include <hip/hip_fp16.h>
 #include <hipblaslt/hipblaslt.h>
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
 #define ROCBLAS_BETA_FEATURES_API
@@ -14,6 +15,9 @@
 #include <cstring>
 #include <string>
 #include <thread>
+#include <vector>
+
+#include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -57,11 +61,510 @@
 #ifndef QRT_TRITON_MOE_NATIVE_WMMA_ROUTED
 #define QRT_TRITON_MOE_NATIVE_WMMA_ROUTED 0
 #endif
+#ifndef QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+#define QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG 0
+#endif
+#ifndef QRT_TRITON_MOE_BATCHED_HAWKEYE
+#define QRT_TRITON_MOE_BATCHED_HAWKEYE 0
+#endif
+#ifndef QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
+#define QRT_TRITON_MOE_FULL_SHARED_HAWKEYE 0
+#endif
+#if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE && \
+    !QRT_TRITON_MOE_BATCHED_HAWKEYE
+#error "full shared Hawkeye requires wave16 batched Hawkeye"
+#endif
 #ifndef QRT_TRITON_MOE_NATIVE_WMMA_GATE
 #define QRT_TRITON_MOE_NATIVE_WMMA_GATE QRT_TRITON_MOE_NATIVE_WMMA_ROUTED
 #endif
 #ifndef QRT_TRITON_MOE_NATIVE_WMMA_DOWN
 #define QRT_TRITON_MOE_NATIVE_WMMA_DOWN QRT_TRITON_MOE_NATIVE_WMMA_ROUTED
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+#error "grouped sole-M16 owns the compact route index"
+#endif
+// Reuse the compact main-block and tail-expert buffers.  Unlike the older
+// split-tail policies, this route removes only sole experts with 1..16 live
+// rows; every larger block remains on the retained M64 kernel.
+#undef QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL 1
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL)
+#error "parallel bucketed tails require compact bucketed tail kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+#define QRT_TRITON_MOE_NATIVE_WMMA_TAIL32 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_PRUNE16
+#define QRT_TRITON_MOE_NATIVE_WMMA_PRUNE16 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+#define QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "narrow-N LDS-B requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "M96 LDS-B requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "M64 LDS-B requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_WAVE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_WAVE 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_WAVE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS 192
+#else
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS 0
+#endif
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 0 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_BLOCK_M != 80)
+#error "M80 load threads require the serial-N32 M80 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 0 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 192 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 224 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 256
+#error "M80 load threads must be 192, 224, or 256"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 0 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "M64 load threads require the serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 0 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 128 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 160 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 224 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 256
+#error "M64 load threads must be 128, 160, 192, 224, or 256"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS 0
+#endif
+#if (QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0) && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "split M64 load threads require the serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 128 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 160 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 192 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 224 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 256
+#error "M64 gate load threads must be 128, 160, 192, 224, or 256"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 128 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 160 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 192 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 224 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 256
+#error "M64 down load threads must be 128, 160, 192, 224, or 256"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "split gate passes require the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+#error "serial gate N32 requires split LDS-B gate passes"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+#error "parallel gate N64 requires split LDS-B gate passes"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "parallel gate/up N32 requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "serial down N32 requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     !((QRT_TRITON_MOE_BLOCK_M == 64 && \
+        !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96) || \
+       (QRT_TRITON_MOE_BLOCK_M == 96 && \
+        QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96)))
+#error "serial wide N64 requires the M64 or M96 serial gate/down layout"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#error "skipping inactive A stores requires the LDS-B native WMMA kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32)
+#error "fused overflow16 requires serial gate/down LDS-B kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+#define QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#error "lossless row-palette WMMA requires lossless-palette support"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TAIL32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "grouped sole-M16 requires the plain 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "M64 fused overflow32 requires the 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR \
+    (QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32)
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_BLOCK_M != 96)
+#error "compact M96 waves require the non-wide M96 serial gate/down layout"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32)
+#error "adaptive M128 requires serial gate/down LDS-B kernels"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96 || \
+     QRT_TRITON_MOE_BLOCK_M != 96)
+#error "hybrid M96/M128 requires adaptive M128 on the M96 LDS-B layout"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_DIRECT_GRID
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_DIRECT_GRID 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_DIRECT_GRID && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128 || \
+     QRT_TRITON_MOE_BLOCK_M != 80)
+#error "adaptive direct-grid requires exact-fragment adaptive M128 on M80"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_BLOCK_M != 80)
+#error "full direct tail requires compact adaptive LDS-B M80"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_SOLE_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_SOLE_TAIL 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_SOLE_TAIL && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "compact sole tails require compact adaptive LDS-B M64"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_SOLE_TAIL
+#error "parallel compact sole tails require compact sole-tail routing"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 && \
+    (QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TAIL32)
+#error "M64 fused overflow32 cannot be combined with other route-tail layouts"
+#endif
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_GATE || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_DOWN || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32)
+#error "batched Hawkeye currently requires the retained M64 overflow32 route"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TAIL32 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "M64 direct-M16 requires the plain 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TAIL32 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "M64 dual-M16 requires the plain 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TAIL32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "M64 quad-gate M16 requires the plain 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16 || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "lossless-palette WMMA requires the 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8 && \
+    (!QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 || \
+     !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 192 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE || \
+     QRT_TRITON_MOE_BLOCK_M != 64)
+#error "weight-int8 WMMA requires the 192-thread serial-N32 M64 LDS-B layout"
+#endif
+#define QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM \
+    (QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL)
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96
+#define QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96 0
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_ROUTE_LAYOUT
+#define QRT_TRITON_MOE_NATIVE_ROUTE_LAYOUT \
+    (QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B || \
+     QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL)
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_FUSED_ROUTE_LAYOUT
+#define QRT_TRITON_MOE_NATIVE_FUSED_ROUTE_LAYOUT 0
+#endif
+#if QRT_TRITON_MOE_NATIVE_FUSED_ROUTE_LAYOUT && \
+    (!QRT_TRITON_MOE_NATIVE_ROUTE_LAYOUT || \
+     QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16)
+#error "fused route layout requires the plain native route layout"
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_K_STAGE
+#define QRT_TRITON_MOE_NATIVE_WMMA_K_STAGE 64
 #endif
 #ifndef QRT_TRITON_MOE_TRANSPOSED_ROUTER
 #define QRT_TRITON_MOE_TRANSPOSED_ROUTER 0
@@ -96,6 +599,23 @@
 #ifndef QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
 #define QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED 0
 #endif
+#ifndef QRT_TRITON_MOE_PACKED_EXACT_GATE
+#define QRT_TRITON_MOE_PACKED_EXACT_GATE 0
+#endif
+#ifndef QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS
+#define QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS 8
+#endif
+#if QRT_TRITON_MOE_PACKED_EXACT_GATE && \
+    QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
+#error "packed-exact gate-only and full routed modes are mutually exclusive"
+#endif
+#if QRT_TRITON_MOE_PACKED_EXACT_GATE
+static_assert(
+    QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS > 0 &&
+        512 % QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS == 0,
+    "packed-exact gate rows must divide the 512-row intermediate"
+);
+#endif
 #ifndef QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED
 #define QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED 0
 #endif
@@ -110,6 +630,75 @@
 #endif
 #ifndef QRT_TRITON_MOE_Q1024_EXACT_SHARED
 #define QRT_TRITON_MOE_Q1024_EXACT_SHARED 0
+#endif
+#ifndef QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+#define QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE 0
+#endif
+#ifndef QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+#define QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS 64
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE && \
+    !QRT_TRITON_MOE_BATCHED_HAWKEYE
+#error "conditional-exact gate requires the retained batched Hawkeye route"
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE && \
+    (QRT_TRITON_MOE_Q1024_EXACT_ROUTED || \
+     QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED || \
+     QRT_TRITON_MOE_PACKED_EXACT_GATE || \
+     QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED || \
+     QRT_TRITON_MOE_Q1024_EXACT_GATE_GROUPED_DOWN || \
+     QRT_TRITON_MOE_Q1024_GROUPED_GATE_EXACT_DOWN)
+#error "conditional-exact gate is mutually exclusive with full exact gate routes"
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE && \
+    QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+#error "conditional-exact gate does not expose routed projection debug buffers"
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+static_assert(
+    QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS > 0 &&
+        512 % QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS == 0,
+    "conditional-exact gate rows must divide the intermediate"
+);
+#endif
+#ifndef QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE
+#define QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE 0
+#endif
+#if QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE && \
+    !QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+#error "sorted conditional-exact gate requires conditional-exact gate"
+#endif
+#ifndef QRT_TRITON_MOE_ROW_MAJOR_SORTED_CONDITIONAL_EXACT_GATE
+#define QRT_TRITON_MOE_ROW_MAJOR_SORTED_CONDITIONAL_EXACT_GATE 0
+#endif
+#if QRT_TRITON_MOE_ROW_MAJOR_SORTED_CONDITIONAL_EXACT_GATE && \
+    !QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE
+#error "row-major sorted conditional-exact gate requires sorted gate"
+#endif
+#ifndef QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+#define QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN 0
+#endif
+#ifndef QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS
+#define QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS 4
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN && \
+    !QRT_TRITON_MOE_BATCHED_HAWKEYE
+#error "conditional-exact down requires the retained batched Hawkeye route"
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN && \
+    (QRT_TRITON_MOE_Q1024_EXACT_ROUTED || \
+     QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED || \
+     QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED || \
+     QRT_TRITON_MOE_Q1024_EXACT_GATE_GROUPED_DOWN || \
+     QRT_TRITON_MOE_Q1024_GROUPED_GATE_EXACT_DOWN)
+#error "conditional-exact down is mutually exclusive with full exact down routes"
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+static_assert(
+    QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS > 0 &&
+        2048 % QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS == 0,
+    "conditional-exact down rows must divide the hidden dimension"
+);
 #endif
 #ifndef QRT_TRITON_MOE_Q1024_EARLY_F32
 #define QRT_TRITON_MOE_Q1024_EARLY_F32 0
@@ -135,6 +724,11 @@
 #define QRT_TRITON_MOE_KERNEL_PREFIX \
     QRT_TRITON_MOE_STRINGIFY(QRT_TRITON_MOE_KERNEL_TOKEN_LABEL) \
     "_selected_moe"
+#if defined(_WIN32)
+#define QRT_TRITON_MOE_PATH_SEPARATOR "\\"
+#else
+#define QRT_TRITON_MOE_PATH_SEPARATOR "/"
+#endif
 namespace {
 
 constexpr uint32_t kTokens = QRT_TRITON_MOE_TOKENS;
@@ -150,11 +744,71 @@ constexpr uint32_t kHidden = 2048;
 constexpr uint32_t kIntermediate = 512;
 constexpr uint32_t kSharedGateRows = 1;
 constexpr uint32_t kBlockM = QRT_TRITON_MOE_BLOCK_M;
+#if QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE
+static_assert(
+    kBlockM == 64u,
+    "sorted conditional-exact gate AOT requires BLOCK_M=64"
+);
+#endif
 constexpr uint32_t kGateBlockN = QRT_TRITON_MOE_GATE_BLOCK_N;
 constexpr uint32_t kDownBlockN = QRT_TRITON_MOE_DOWN_BLOCK_N;
 constexpr uint32_t kMaxSortedRoutes = kRoutes + kExperts * kBlockM - kTopK;
 constexpr uint32_t kMaxRouteBlocks =
     (kMaxSortedRoutes + kBlockM - 1u) / kBlockM;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+constexpr uint32_t kNativeWmmaAdaptiveM128Buckets = 8u;
+constexpr uint32_t kNativeWmmaAdaptiveM128Rows = 128u;
+constexpr uint32_t kNativeWmmaAdaptiveM128MaxDescriptors =
+    (kRoutes + kNativeWmmaAdaptiveM128Rows - 1u) /
+        kNativeWmmaAdaptiveM128Rows + kExperts;
+constexpr uint32_t kNativeWmmaAdaptiveM128PersistentBlocks = 160u;
+#endif
+constexpr uint32_t route_programs_for_logical_routes(
+    uint32_t logical_routes
+) {
+    return (
+        logical_routes + kRoutesPerSortProgram - 1u
+    ) / kRoutesPerSortProgram;
+}
+constexpr uint32_t route_block_launch_bound(
+    uint32_t logical_routes
+) {
+    // Every non-empty expert bucket can add at most BLOCK_M - 1 padding
+    // routes.  This CPU-known upper bound avoids synchronizing on the exact
+    // GPU prefix result while preventing shorter logical requests from
+    // launching the fixed q8192 maximum grid.
+    return (
+        logical_routes + kExperts * (kBlockM - 1u) + kBlockM - 1u
+    ) / kBlockM;
+}
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+constexpr uint32_t adaptive_m128_pack_launch_bound(
+    uint32_t logical_routes
+) {
+    const uint32_t descriptors =
+        (logical_routes + kNativeWmmaAdaptiveM128Rows - 1u) /
+            kNativeWmmaAdaptiveM128Rows + kExperts;
+    return descriptors < kNativeWmmaAdaptiveM128MaxDescriptors
+        ? descriptors
+        : kNativeWmmaAdaptiveM128MaxDescriptors;
+}
+#endif
+constexpr uint32_t compact_main_block_launch_bound(
+    uint32_t logical_routes
+) {
+    // Compact split-tail main blocks contain either 64 live routes or a
+    // retained 49..63-row tail.  Therefore every indexed main block owns at
+    // least 49 distinct routes.  Keep one launch slot for all-short inputs so
+    // the device-side zero-main-block guard can return without a host sync.
+    const uint32_t blocks = logical_routes / 49u;
+    if (blocks == 0u) {
+        return 1u;
+    }
+    return blocks < kMaxRouteBlocks ? blocks : kMaxRouteBlocks;
+}
+static_assert(route_programs_for_logical_routes(kRoutes) == kRoutePrograms);
+static_assert(route_block_launch_bound(kRoutes) <= kMaxRouteBlocks);
+static_assert(compact_main_block_launch_bound(kRoutes) <= kMaxRouteBlocks);
 constexpr uint32_t kSortedExactRoutePack = 16u;
 constexpr uint32_t kMaxSortedExactRouteGroups =
     (
@@ -166,6 +820,7 @@ constexpr uint32_t kDownThreads = QRT_TRITON_MOE_DOWN_THREADS;
 constexpr uint32_t kRouterThreads = QRT_TRITON_MOE_ROUTER_THREADS;
 constexpr uint32_t kRouterTokenTile = QRT_TRITON_MOE_ROUTER_TOKEN_TILE;
 constexpr uint32_t kFusedCombineWidth = QRT_TRITON_MOE_FUSED_COMBINE_WIDTH;
+constexpr uint32_t kZeroCorrectionGateFinalizeBlock = 1024u;
 constexpr uint32_t kGroupM = QRT_TRITON_MOE_GROUP_M;
 constexpr uint32_t kGateUpGridN = (2u * kIntermediate) / kGateBlockN;
 constexpr uint32_t kDownGridN = kHidden / kDownBlockN;
@@ -187,10 +842,41 @@ static_assert(
 );
 #endif
 #if QRT_TRITON_MOE_NATIVE_WMMA_GATE || QRT_TRITON_MOE_NATIVE_WMMA_DOWN
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
 static_assert(
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N
+    kBlockM >= 48u && kBlockM <= 256u && kBlockM % 16u == 0u,
+    "serial-N32 LDS-B kernels require M48..M256 in M16 increments"
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+    kBlockM == 96u,
+    "M96 LDS-B native WMMA kernels require M96"
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
     kBlockM == 64u,
-    "native WMMA selected-MoE kernels require QRT_TRITON_MOE_BLOCK_M=64"
+    "M64 LDS-B native WMMA kernels require M64"
+#else
+    kBlockM == 128u,
+    "LDS-B native WMMA kernels require M128"
+#endif
 );
+#elif QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+static_assert(
+    kBlockM >= 64u && kBlockM <= 128u && kBlockM % 16u == 0u,
+    "wide-N native WMMA kernels require M64..M128 in M16 increments"
+);
+#elif QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96
+static_assert(
+    kBlockM == 96u,
+    "tall-M96 native WMMA kernels require M96"
+);
+#else
+static_assert(
+    kBlockM == 32u || kBlockM == 64u,
+    "direct native WMMA selected-MoE kernels require block-M 32 or 64"
+);
+#endif
 #endif
 #if QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED
 static_assert(
@@ -216,6 +902,20 @@ static_assert(
 constexpr uint32_t kNativeThreads = 256;
 constexpr size_t kCountElements =
     static_cast<size_t>(kRoutePrograms + 1u) * kExperts;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+constexpr size_t kCompactTailExpertSlots =
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    3u * kExperts;
+#else
+    kExperts;
+#endif
+constexpr size_t kCompactTailCountSlots =
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    3u;
+#else
+    1u;
+#endif
+#endif
 constexpr size_t kInputElements = static_cast<size_t>(kTokens) * kHidden;
 constexpr size_t kRouterWeightElements =
     static_cast<size_t>(kExperts) * kHidden;
@@ -224,6 +924,12 @@ constexpr size_t kRouteOutputElements = static_cast<size_t>(kRoutes) * kHidden;
 constexpr size_t kOutputElements = static_cast<size_t>(kTokens) * kHidden;
 constexpr size_t kSharedProjectionElements =
     static_cast<size_t>(kTokens) * kIntermediate;
+constexpr size_t kCudaVllmSiluBf16DomainElements = 1u << 16u;
+constexpr size_t kCudaVllmSiluBf16DomainBytes =
+    kCudaVllmSiluBf16DomainElements * sizeof(uint16_t);
+constexpr size_t kCudaRouterEx2FractionElements = 1u << 23u;
+constexpr size_t kCudaRouterEx2FractionBytes =
+    kCudaRouterEx2FractionElements * sizeof(uint32_t);
 constexpr size_t kMatrixWorkspaceLimit =
     static_cast<size_t>(256u) * 1024u * 1024u;
 constexpr size_t kFullV3EventSlots =
@@ -232,15 +938,149 @@ static_assert(kFullV3EventSlots > 0u);
 #if QRT_TRITON_MOE_NATIVE_WMMA_GATE || QRT_TRITON_MOE_NATIVE_WMMA_DOWN
 constexpr uint32_t kNativeWmmaWaveThreads = 32u;
 constexpr uint32_t kNativeWmmaTile = 16u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96
+constexpr uint32_t kNativeWmmaThreads = 384u;
+#elif !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    QRT_TRITON_MOE_BLOCK_M == 32
+constexpr uint32_t kNativeWmmaThreads = 128u;
+#else
 constexpr uint32_t kNativeWmmaThreads = 256u;
-constexpr uint32_t kNativeWmmaKStage = 64u;
-constexpr uint32_t kNativeWmmaSharedStride = 72u;
+#endif
+constexpr uint32_t kNativeWmmaKStage =
+    QRT_TRITON_MOE_NATIVE_WMMA_K_STAGE;
+constexpr uint32_t kNativeWmmaSharedStride = kNativeWmmaKStage + 8u;
 constexpr uint32_t kNativeWmmaGateMacroN = 64u;
 constexpr uint32_t kNativeWmmaDownMacroN = 128u;
 constexpr uint32_t kNativeWmmaGateGridN =
     kIntermediate / kNativeWmmaGateMacroN;
 constexpr uint32_t kNativeWmmaDownGridN =
     kHidden / kNativeWmmaDownMacroN;
+#if QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+constexpr uint32_t kNativeWmmaWideThreads = 128u;
+constexpr uint32_t kNativeWmmaWideGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaWideDownMacroN = 128u;
+constexpr uint32_t kNativeWmmaWideGateGridN =
+    kIntermediate / kNativeWmmaWideGateMacroN;
+constexpr uint32_t kNativeWmmaWideDownGridN =
+    kHidden / kNativeWmmaWideDownMacroN;
+static_assert(kIntermediate % kNativeWmmaWideGateMacroN == 0u);
+static_assert(kHidden % kNativeWmmaWideDownMacroN == 0u);
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+// Five waves own the first M80. Wave zero consumes the final M16 fragment
+// serially while the staged expert weights are still resident in LDS.
+constexpr uint32_t kNativeWmmaLdsBThreads = 160u;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS != 0
+// Five waves own M80 WMMA fragments.  The remaining waves participate only
+// in cooperative A/B staging, increasing low-M memory concurrency without
+// adding padded arithmetic rows or changing the WMMA accumulation order.
+constexpr uint32_t kNativeWmmaLdsBThreads =
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M80_LOAD_THREADS;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS != 0
+// Four waves own the M64 WMMA fragments.  Optional additional waves only
+// increase cooperative A/B staging concurrency; the m-base guards keep them
+// out of the arithmetic and preserve the retained accumulation order.
+constexpr uint32_t kNativeWmmaLdsBThreads =
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_LOAD_THREADS;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N
+constexpr uint32_t kNativeWmmaLdsBThreads = 2u * kBlockM;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+constexpr uint32_t kNativeWmmaLdsBThreads = 192u;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
+// M64 still needs eight waves.  Giving each wave half of the retained
+// accumulator tile cuts the per-wave VGPR footprint while all eight waves
+// cooperatively stage each expert-weight tile only once.
+constexpr uint32_t kNativeWmmaLdsBThreads = 256u;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_NARROW_N
+// Keep one M128 route bucket per CTA so the expert weights are fetched once,
+// but halve the N macro and workgroup.  The smaller LDS footprint permits
+// multiple resident CTAs and avoids the occupancy collapse of the original
+// M128/N64+N128 experiment.
+constexpr uint32_t kNativeWmmaLdsBThreads = 128u;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 32u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 64u;
+#else
+constexpr uint32_t kNativeWmmaLdsBThreads = 256u;
+constexpr uint32_t kNativeWmmaLdsBGateMacroN = 64u;
+constexpr uint32_t kNativeWmmaLdsBDownMacroN = 128u;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS != 0
+constexpr uint32_t kNativeWmmaLdsBGateThreads =
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_GATE_LOAD_THREADS;
+#else
+constexpr uint32_t kNativeWmmaLdsBGateThreads =
+    kNativeWmmaLdsBThreads;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS != 0
+constexpr uint32_t kNativeWmmaLdsBDownThreads =
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DOWN_LOAD_THREADS;
+#else
+constexpr uint32_t kNativeWmmaLdsBDownThreads =
+    kNativeWmmaLdsBThreads;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+constexpr uint32_t kNativeWmmaLdsBParallelGateThreads = 512u;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+constexpr uint32_t kNativeWmmaLdsBParallelGateN64Threads = 4u * kBlockM;
+static_assert(kNativeWmmaLdsBParallelGateN64Threads <= 512u);
+#endif
+constexpr uint32_t kNativeWmmaLdsBGateGridN =
+    kIntermediate / kNativeWmmaLdsBGateMacroN;
+constexpr uint32_t kNativeWmmaLdsBDownGridN =
+    kHidden / kNativeWmmaLdsBDownMacroN;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+constexpr uint32_t kNativeWmmaGroupedSoleExpertsPerCta = 4u;
+constexpr uint32_t kNativeWmmaGroupedSoleRowsPerExpert =
+    kNativeWmmaTile;
+constexpr uint32_t kNativeWmmaGroupedSoleRows =
+    kNativeWmmaGroupedSoleExpertsPerCta *
+    kNativeWmmaGroupedSoleRowsPerExpert;
+constexpr uint32_t kNativeWmmaGroupedSoleWeightRowsPerExpert = 32u;
+constexpr uint32_t kNativeWmmaGroupedSoleWeightRows =
+    kNativeWmmaGroupedSoleExpertsPerCta *
+    kNativeWmmaGroupedSoleWeightRowsPerExpert;
+constexpr uint32_t kNativeWmmaGroupedSoleMaxGroups =
+    (kExperts + kNativeWmmaGroupedSoleExpertsPerCta - 1u) /
+    kNativeWmmaGroupedSoleExpertsPerCta;
+static_assert(kNativeWmmaLdsBGateThreads == 192u);
+static_assert(kNativeWmmaLdsBDownThreads == 192u);
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+constexpr uint32_t kNativeWmmaLdsBGateMFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBGateNFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownMFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownNFragmentsPerWave = 4u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
+constexpr uint32_t kNativeWmmaLdsBGateMFragmentsPerWave = 1u;
+constexpr uint32_t kNativeWmmaLdsBGateNFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownMFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownNFragmentsPerWave = 2u;
+#else
+constexpr uint32_t kNativeWmmaLdsBGateMFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBGateNFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownMFragmentsPerWave = 2u;
+constexpr uint32_t kNativeWmmaLdsBDownNFragmentsPerWave = 4u;
+#endif
+static_assert(kIntermediate % kNativeWmmaLdsBGateMacroN == 0u);
+static_assert(kHidden % kNativeWmmaLdsBDownMacroN == 0u);
+#endif
 static_assert(kHidden % kNativeWmmaKStage == 0u);
 static_assert(kIntermediate % kNativeWmmaKStage == 0u);
 static_assert(kNativeWmmaKStage % kNativeWmmaTile == 0u);
@@ -254,6 +1094,290 @@ using NativeWmmaF32x8 =
 using NativeWmmaU32x4 =
     uint32_t __attribute__((ext_vector_type(4)));
 
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+constexpr size_t kNativeWmmaLosslessPaletteChunkValues = 256u;
+constexpr size_t kNativeWmmaLosslessPalettePackedChunkBytes = 400u;
+constexpr size_t kNativeWmmaLosslessPaletteLowBytes = 256u;
+constexpr size_t kNativeWmmaLosslessPaletteCodeBytes = 128u;
+constexpr uint32_t kNativeWmmaLosslessPaletteOverflowSentinel = UINT32_MAX;
+
+__device__ __forceinline__ uint32_t
+native_wmma_lossless_palette_permute_bytes(
+    uint32_t first,
+    uint32_t second,
+    uint32_t selectors
+) {
+    return static_cast<uint32_t>(
+        __builtin_amdgcn_perm(second, first, selectors)
+    );
+}
+
+__device__ __forceinline__ uint16_t
+native_wmma_lossless_palette_decode_high_pair(
+    uint8_t packed_codes,
+    uint32_t palette_0_3,
+    uint32_t palette_4_7,
+    uint32_t palette_8_11,
+    uint32_t palette_12_15
+) {
+    const unsigned int code0 =
+        static_cast<unsigned int>(packed_codes & UINT8_C(0x0f));
+    const unsigned int code1 =
+        static_cast<unsigned int>(packed_codes >> 4u);
+    const uint32_t selectors =
+        static_cast<uint32_t>(code0 & 7u) |
+        (static_cast<uint32_t>(code1 & 7u) << 8u);
+    const uint32_t low_half =
+        native_wmma_lossless_palette_permute_bytes(
+            palette_0_3,
+            palette_4_7,
+            selectors
+        );
+    const uint32_t high_half =
+        native_wmma_lossless_palette_permute_bytes(
+            palette_8_11,
+            palette_12_15,
+            selectors
+        );
+    const uint32_t high_select =
+        (code0 >= 8u ? UINT32_C(0x000000ff) : UINT32_C(0)) |
+        (code1 >= 8u ? UINT32_C(0x0000ff00) : UINT32_C(0));
+    return static_cast<uint16_t>(
+        (low_half & ~high_select) | (high_half & high_select)
+    );
+}
+
+__device__ __forceinline__ NativeWmmaU32x4
+native_wmma_load_lossless_palette_vector(
+    const uint16_t *raw_bf16,
+    const uint8_t *packed_chunks,
+    const uint32_t *overflow_indices,
+    const uint16_t *overflow_values,
+    size_t source
+) {
+    if (packed_chunks == nullptr || overflow_indices == nullptr) {
+        return *reinterpret_cast<const NativeWmmaU32x4 *>(
+            raw_bf16 + source
+        );
+    }
+    const size_t chunk =
+        source / kNativeWmmaLosslessPaletteChunkValues;
+    const size_t local =
+        source % kNativeWmmaLosslessPaletteChunkValues;
+    const uint32_t overflow_index = overflow_indices[chunk];
+    if (overflow_index !=
+        kNativeWmmaLosslessPaletteOverflowSentinel) {
+        return *reinterpret_cast<const NativeWmmaU32x4 *>(
+            overflow_values +
+            static_cast<size_t>(overflow_index) *
+                kNativeWmmaLosslessPaletteChunkValues +
+            local
+        );
+    }
+
+    const uint8_t *const packed = packed_chunks +
+        chunk * kNativeWmmaLosslessPalettePackedChunkBytes;
+    const uint32_t *const palette_words =
+        reinterpret_cast<const uint32_t *>(
+            packed + kNativeWmmaLosslessPaletteLowBytes +
+            kNativeWmmaLosslessPaletteCodeBytes
+        );
+    const uint32_t palette_0_3 = palette_words[0u];
+    const uint32_t palette_4_7 = palette_words[1u];
+    const uint32_t palette_8_11 = palette_words[2u];
+    const uint32_t palette_12_15 = palette_words[3u];
+    const uint32_t packed_codes =
+        *reinterpret_cast<const uint32_t *>(
+            packed + kNativeWmmaLosslessPaletteLowBytes + local / 2u
+        );
+    NativeWmmaU32x4 result{};
+    #pragma unroll
+    for (unsigned int pair = 0u; pair < 4u; ++pair) {
+        const uint16_t low_pair =
+            *reinterpret_cast<const uint16_t *>(
+                packed + local + 2u * pair
+            );
+        const uint16_t high_pair =
+            native_wmma_lossless_palette_decode_high_pair(
+                static_cast<uint8_t>(packed_codes >> (8u * pair)),
+                palette_0_3,
+                palette_4_7,
+                palette_8_11,
+                palette_12_15
+            );
+        result[pair] =
+            static_cast<uint32_t>(low_pair & UINT16_C(0x00ff)) |
+            (static_cast<uint32_t>(low_pair & UINT16_C(0xff00)) << 8u) |
+            (static_cast<uint32_t>(high_pair & UINT16_C(0x00ff)) << 8u) |
+            (static_cast<uint32_t>(high_pair & UINT16_C(0xff00)) << 16u);
+    }
+    return result;
+}
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+struct NativeWmmaLosslessRowPaletteView {
+    const uint16_t *raw = nullptr;
+    const uint8_t *packed = nullptr;
+    const uint16_t *overflow = nullptr;
+    uint32_t palette_0_3 = 0u;
+    uint32_t palette_4_7 = 0u;
+    uint32_t palette_8_11 = 0u;
+    uint32_t palette_12_15 = 0u;
+};
+
+__device__ __forceinline__ NativeWmmaLosslessRowPaletteView
+native_wmma_prepare_lossless_row_palette_view(
+    const uint16_t *raw_bf16,
+    const uint8_t *packed_rows,
+    const uint32_t *overflow_indices,
+    const uint16_t *overflow_values,
+    size_t row,
+    size_t row_values
+) {
+    NativeWmmaLosslessRowPaletteView result{};
+    if (raw_bf16 != nullptr) {
+        result.raw = raw_bf16 + row * row_values;
+    }
+    if (packed_rows == nullptr || overflow_indices == nullptr) {
+        return result;
+    }
+    const uint32_t overflow_index = overflow_indices[row];
+    if (overflow_index != kNativeWmmaLosslessPaletteOverflowSentinel) {
+        result.overflow = overflow_values +
+            static_cast<size_t>(overflow_index) * row_values;
+        return result;
+    }
+    const size_t packed_row_bytes = row_values + row_values / 2u + 16u;
+    result.packed = packed_rows + row * packed_row_bytes;
+    const uint32_t *const palette_words =
+        reinterpret_cast<const uint32_t *>(
+            result.packed + row_values + row_values / 2u
+        );
+    result.palette_0_3 = palette_words[0u];
+    result.palette_4_7 = palette_words[1u];
+    result.palette_8_11 = palette_words[2u];
+    result.palette_12_15 = palette_words[3u];
+    return result;
+}
+
+__device__ __forceinline__ NativeWmmaU32x4
+native_wmma_load_lossless_row_palette_vector(
+    const NativeWmmaLosslessRowPaletteView &view,
+    size_t local,
+    size_t row_values
+) {
+    if (view.packed == nullptr) {
+        const uint16_t *source = view.overflow != nullptr
+            ? view.overflow
+            : view.raw;
+        return *reinterpret_cast<const NativeWmmaU32x4 *>(source + local);
+    }
+    const uint32_t packed_codes =
+        *reinterpret_cast<const uint32_t *>(
+            view.packed + row_values + local / 2u
+        );
+    NativeWmmaU32x4 result{};
+#pragma unroll
+    for (unsigned int pair = 0u; pair < 4u; ++pair) {
+        const uint16_t low_pair =
+            *reinterpret_cast<const uint16_t *>(
+                view.packed + local + 2u * pair
+            );
+        const uint16_t high_pair =
+            native_wmma_lossless_palette_decode_high_pair(
+                static_cast<uint8_t>(packed_codes >> (8u * pair)),
+                view.palette_0_3,
+                view.palette_4_7,
+                view.palette_8_11,
+                view.palette_12_15
+            );
+        result[pair] =
+            static_cast<uint32_t>(low_pair & UINT16_C(0x00ff)) |
+            (static_cast<uint32_t>(low_pair & UINT16_C(0xff00)) << 8u) |
+            (static_cast<uint32_t>(high_pair & UINT16_C(0x00ff)) << 8u) |
+            (static_cast<uint32_t>(high_pair & UINT16_C(0xff00)) << 16u);
+    }
+    return result;
+}
+#endif
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES 128
+#endif
+#ifndef QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+#define QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES 0
+#endif
+constexpr size_t kNativeWmmaWeightInt8GroupValues =
+    QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_GROUP_VALUES;
+static_assert(
+    kNativeWmmaWeightInt8GroupValues == 32u ||
+        kNativeWmmaWeightInt8GroupValues == 64u ||
+        kNativeWmmaWeightInt8GroupValues == 128u,
+    "weight-int8 WMMA requires group32, group64, or group128 scales"
+);
+using NativeWmmaI8x8 = int8_t __attribute__((ext_vector_type(8)));
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+using NativeWmmaWeightInt8Scale = __half;
+#else
+using NativeWmmaWeightInt8Scale = float;
+#endif
+constexpr size_t kNativeWmmaWeightInt8ScaleBytes =
+    sizeof(NativeWmmaWeightInt8Scale);
+
+__device__ __forceinline__ uint16_t
+native_wmma_weight_int8_float_to_bf16(float value) {
+    uint32_t bits = __float_as_uint(value);
+    bits += UINT32_C(0x7fff) + ((bits >> 16u) & 1u);
+    return static_cast<uint16_t>(bits >> 16u);
+}
+
+// The compact surface is row-major and uses one negotiated FP16/FP32 scale
+// for each compile-time K group.  All routed matrix row sizes are divisible,
+// so the linear group index is also the row-local group index.  Decode only
+// the eight BF16 values already owned by one cooperative LDS load thread.
+__device__ __forceinline__ NativeWmmaU32x4
+native_wmma_load_weight_int8_vector(
+    const uint16_t *raw_bf16,
+    const int8_t *quantized,
+    const void *scale_storage,
+    size_t source
+) {
+    if (quantized == nullptr || scale_storage == nullptr) {
+        return *reinterpret_cast<const NativeWmmaU32x4 *>(
+            raw_bf16 + source
+        );
+    }
+    const NativeWmmaI8x8 values =
+        *reinterpret_cast<const NativeWmmaI8x8 *>(quantized + source);
+    const NativeWmmaWeightInt8Scale *scales =
+        reinterpret_cast<const NativeWmmaWeightInt8Scale *>(scale_storage);
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8_FP16_SCALES
+    const float scale = __half2float(
+        scales[source / kNativeWmmaWeightInt8GroupValues]
+    );
+#else
+    const float scale = scales[
+        source / kNativeWmmaWeightInt8GroupValues
+    ];
+#endif
+    NativeWmmaU32x4 result{};
+#pragma unroll
+    for (unsigned int pair = 0u; pair < 4u; ++pair) {
+        const uint16_t low = native_wmma_weight_int8_float_to_bf16(
+            static_cast<float>(values[2u * pair]) * scale
+        );
+        const uint16_t high = native_wmma_weight_int8_float_to_bf16(
+            static_cast<float>(values[2u * pair + 1u]) * scale
+        );
+        result[pair] = static_cast<uint32_t>(low) |
+            (static_cast<uint32_t>(high) << 16u);
+    }
+    return result;
+}
+#endif
+
 struct alignas(16) NativeWmmaSharedStorage {
     int32_t routes[kBlockM];
     int32_t expert;
@@ -261,7 +1385,256 @@ struct alignas(16) NativeWmmaSharedStorage {
     alignas(16) uint16_t a[kBlockM * kNativeWmmaSharedStride];
 };
 
-static_assert(sizeof(NativeWmmaSharedStorage) == 9488u);
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+template <uint32_t TailFragments>
+struct alignas(16) NativeWmmaBucketedTailSharedStorage {
+    static constexpr uint32_t kRows = TailFragments * kNativeWmmaTile;
+    int32_t routes[kRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[kRows * kNativeWmmaSharedStride];
+};
+
+static_assert(
+    sizeof(NativeWmmaBucketedTailSharedStorage<1u>) <
+    sizeof(NativeWmmaBucketedTailSharedStorage<2u>)
+);
+static_assert(
+    sizeof(NativeWmmaBucketedTailSharedStorage<2u>) <
+    sizeof(NativeWmmaBucketedTailSharedStorage<3u>)
+);
+#endif
+
+static_assert(
+    sizeof(NativeWmmaSharedStorage) ==
+    sizeof(int32_t) * (kBlockM + 4u) +
+        sizeof(uint16_t) * kBlockM * kNativeWmmaSharedStride
+);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+struct alignas(16) NativeWmmaLdsBGateSharedStorage {
+    int32_t routes[kBlockM];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[kBlockM * kNativeWmmaSharedStride];
+    alignas(16) uint16_t gate[
+        kNativeWmmaLdsBGateMacroN * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t up[
+        kNativeWmmaLdsBGateMacroN * kNativeWmmaSharedStride
+    ];
+};
+
+constexpr uint32_t kNativeWmmaLdsBSerialRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32
+    kBlockM + 2u * kNativeWmmaTile;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    kBlockM + kNativeWmmaTile;
+#else
+    kBlockM;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+constexpr uint32_t kNativeWmmaLdsBFusedOverflowRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32
+    2u * kNativeWmmaTile;
+#else
+    kNativeWmmaTile;
+#endif
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+constexpr uint32_t kNativeWmmaLdsBOverflowRow =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    kBlockM;
+#else
+    kBlockM - kNativeWmmaTile;
+#endif
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+constexpr uint32_t kNativeWmmaLdsBSplitGateWeightRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+    kNativeWmmaLdsBGateMacroN;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+    64u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32
+    32u;
+#else
+    kNativeWmmaLdsBGateMacroN;
+#endif
+struct alignas(16) NativeWmmaLdsBSplitGateSharedStorage {
+    int32_t routes[kNativeWmmaLdsBSerialRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[
+        kNativeWmmaLdsBSerialRows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t gate[
+        kNativeWmmaLdsBSplitGateWeightRows * kNativeWmmaSharedStride
+    ];
+};
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+struct alignas(16) NativeWmmaLdsBParallelGateSharedStorage {
+    int32_t routes[kBlockM];
+    int32_t expert;
+    int32_t padding[3];
+    // The input stage becomes the BF16 gate handoff after the K loop.
+    alignas(16) uint16_t a[kBlockM * kNativeWmmaSharedStride];
+    alignas(16) uint16_t weights[2u][
+        32u * kNativeWmmaSharedStride
+    ];
+};
+#endif
+
+struct alignas(16) NativeWmmaLdsBDownSharedStorage {
+    int32_t routes[kBlockM];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[kBlockM * kNativeWmmaSharedStride];
+    alignas(16) uint16_t weight[
+        kNativeWmmaLdsBDownMacroN * kNativeWmmaSharedStride
+    ];
+};
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32
+constexpr uint32_t kNativeWmmaLdsBSerialDownWeightRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+    64u;
+#else
+    32u;
+#endif
+struct alignas(16) NativeWmmaLdsBSerialDownSharedStorage {
+    int32_t routes[kNativeWmmaLdsBSerialRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[
+        kNativeWmmaLdsBSerialRows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t weight[
+        kNativeWmmaLdsBSerialDownWeightRows * kNativeWmmaSharedStride
+    ];
+};
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+// Four unrelated one-fragment experts share one workgroup.  The weight tile
+// remains cooperatively staged in LDS, while waves 0..3 each retain the exact
+// M16 WMMA accumulation order of the baseline kernel for one expert.
+struct alignas(16) NativeWmmaGroupedSoleSharedStorage {
+    int32_t routes[kNativeWmmaGroupedSoleRows];
+    int32_t experts[kNativeWmmaGroupedSoleExpertsPerCta];
+    int32_t padding[4];
+    alignas(16) uint16_t a[
+        kNativeWmmaGroupedSoleRows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t weight[
+        kNativeWmmaGroupedSoleWeightRows * kNativeWmmaSharedStride
+    ];
+};
+static_assert(sizeof(NativeWmmaGroupedSoleSharedStorage) <= 48u * 1024u);
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+template <uint32_t Fragments>
+struct alignas(16) NativeWmmaAdaptiveM128SharedStorage {
+    static constexpr uint32_t kRows = Fragments * kNativeWmmaTile;
+    int32_t routes[kRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[kRows * kNativeWmmaSharedStride];
+    alignas(16) uint16_t weight[32u * kNativeWmmaSharedStride];
+};
+
+static_assert(
+    sizeof(NativeWmmaAdaptiveM128SharedStorage<8u>) <= 48u * 1024u
+);
+
+struct alignas(16) NativeWmmaPackedM128SharedStorage {
+    int32_t routes[kNativeWmmaAdaptiveM128Rows];
+    int32_t expert;
+    int32_t padding[3u];
+    alignas(16) uint16_t a[
+        kNativeWmmaAdaptiveM128Rows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t weight[32u * kNativeWmmaSharedStride];
+};
+
+static_assert(sizeof(NativeWmmaPackedM128SharedStorage) <= 48u * 1024u);
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL
+constexpr uint32_t kNativeWmmaLdsBOverflowTailRows = 48u;
+constexpr uint32_t kNativeWmmaLdsBOverflowTailThreads = 96u;
+struct alignas(16) NativeWmmaLdsBOverflowGateSharedStorage {
+    int32_t routes[kNativeWmmaLdsBOverflowTailRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[
+        kNativeWmmaLdsBOverflowTailRows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t weight[32u * kNativeWmmaSharedStride];
+};
+using NativeWmmaLdsBOverflowDownSharedStorage =
+    NativeWmmaLdsBOverflowGateSharedStorage;
+static_assert(kNativeWmmaLdsBOverflowTailRows < kBlockM);
+static_assert(
+    kNativeWmmaLdsBOverflowTailThreads ==
+        2u * kNativeWmmaLdsBOverflowTailRows
+);
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+constexpr uint32_t kNativeWmmaLdsBFusedRows = 96u;
+constexpr uint32_t kNativeWmmaLdsBFusedThreads = 192u;
+constexpr uint32_t kNativeWmmaLdsBFusedPersistentBlocks = 160u;
+struct alignas(16) NativeWmmaLdsBFusedGateSharedStorage {
+    int32_t routes[kNativeWmmaLdsBFusedRows];
+    int32_t expert;
+    int32_t padding[3];
+    alignas(16) uint16_t a[
+        kNativeWmmaLdsBFusedRows * kNativeWmmaSharedStride
+    ];
+    alignas(16) uint16_t weight[32u * kNativeWmmaSharedStride];
+};
+using NativeWmmaLdsBFusedDownSharedStorage =
+    NativeWmmaLdsBFusedGateSharedStorage;
+static_assert(kBlockM == 80u);
+static_assert(kNativeWmmaLdsBFusedRows == kBlockM + kNativeWmmaTile);
+static_assert(
+    kNativeWmmaLdsBFusedThreads == 2u * kNativeWmmaLdsBFusedRows
+);
+using NativeWmmaLdsBOverflowGateSharedStorage =
+    NativeWmmaLdsBFusedGateSharedStorage;
+using NativeWmmaLdsBOverflowDownSharedStorage =
+    NativeWmmaLdsBFusedDownSharedStorage;
+constexpr uint32_t kNativeWmmaLdsBOverflowTailRows =
+    kNativeWmmaLdsBFusedRows;
+constexpr uint32_t kNativeWmmaLdsBOverflowTailThreads =
+    kNativeWmmaLdsBFusedThreads;
+#endif
+
+static_assert(sizeof(NativeWmmaLdsBGateSharedStorage) <= 48u * 1024u);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+static_assert(
+    sizeof(NativeWmmaLdsBSplitGateSharedStorage) <
+    sizeof(NativeWmmaLdsBGateSharedStorage)
+);
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+static_assert(
+    sizeof(NativeWmmaLdsBParallelGateSharedStorage) <
+    sizeof(NativeWmmaLdsBGateSharedStorage)
+);
+#endif
+static_assert(sizeof(NativeWmmaLdsBDownSharedStorage) <= 48u * 1024u);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32
+static_assert(
+    sizeof(NativeWmmaLdsBSerialDownSharedStorage) <
+    sizeof(NativeWmmaLdsBDownSharedStorage)
+);
+#endif
+#endif
 static_assert(kGroupM > 0u);
 #endif
 
@@ -283,11 +1656,22 @@ struct MatrixPlan {
     size_t workspace_bytes = 0;
     uint32_t output_features = 0;
     uint32_t input_features = 0;
+    uint32_t token_count = 0;
+    uint32_t heuristic_index = 0;
+    hipDataType output_type = HIP_R_16BF;
 };
 
 struct FullV3EventSlot {
+    hipEvent_t input_start = nullptr;
     hipEvent_t input_ready = nullptr;
     hipEvent_t shared_done = nullptr;
+    hipEvent_t router_done = nullptr;
+    hipEvent_t sort_done = nullptr;
+    hipEvent_t gate_done = nullptr;
+    hipEvent_t routed_done = nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    hipEvent_t tail_done = nullptr;
+#endif
     hipEvent_t caller_done = nullptr;
     bool in_flight = false;
 };
@@ -308,8 +1692,18 @@ struct ProviderState {
     ModuleKernel exact_gate_up;
     ModuleKernel exact_down;
 #endif
-#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
+#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED || \
+    QRT_TRITON_MOE_PACKED_EXACT_GATE
     ModuleKernel packed_exact_gate_up;
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+    ModuleKernel conditional_exact_gate_up;
+    ModuleKernel zero_correction_gate_finalize;
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+    ModuleKernel conditional_exact_down;
+#endif
+#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
     ModuleKernel packed_exact_down;
 #endif
 #if QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED
@@ -325,6 +1719,9 @@ struct ProviderState {
     uint16_t *input_bf16 = nullptr;
     uint16_t *transposed_router_weights = nullptr;
     uint16_t *router_logits_bf16 = nullptr;
+    float *router_logits_f32 = nullptr;
+    uint32_t *cuda_router_ex2_fraction_lut = nullptr;
+    uint32_t router_hawkeye_midpoint_radius = 0u;
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
     rocblas_handle router_handle = nullptr;
 #endif
@@ -335,14 +1732,63 @@ struct ProviderState {
     int32_t *total_post_pad = nullptr;
     int32_t *sorted_routes = nullptr;
     int32_t *block_experts = nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+    const uint8_t *lossless_gate_up_packed = nullptr;
+    const uint32_t *lossless_gate_up_overflow_indices = nullptr;
+    const uint16_t *lossless_gate_up_overflow_values = nullptr;
+    const uint8_t *lossless_down_packed = nullptr;
+    const uint32_t *lossless_down_overflow_indices = nullptr;
+    const uint16_t *lossless_down_overflow_values = nullptr;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    const int8_t *weight_int8_gate_up = nullptr;
+    const void *weight_int8_gate_up_scales = nullptr;
+    const int8_t *weight_int8_down = nullptr;
+    const void *weight_int8_down_scales = nullptr;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    int32_t *fused_overflow_blocks = nullptr;
+    int32_t *total_fused_overflow_blocks = nullptr;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    int32_t *compact_main_route_blocks = nullptr;
+    int32_t *total_compact_main_blocks = nullptr;
+    int32_t *compact_tail_experts = nullptr;
+    int32_t *total_compact_tail_experts = nullptr;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+    int32_t *adaptive_m128_route_starts = nullptr;
+    int32_t *adaptive_m128_experts = nullptr;
+    int32_t *adaptive_m128_bucket_counts = nullptr;
+#endif
     uint16_t *activated = nullptr;
+    uint16_t *cuda_vllm_silu_bf16_domain_lut = nullptr;
+    uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
+    uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
+    uint32_t routed_up_hawkeye_low_exponent_threshold = 0u;
+    uint32_t routed_gate_hawkeye_low_exponent_threshold = 0u;
+    uint32_t routed_down_contribution_hawkeye_midpoint_radius = 0u;
+    uint32_t routed_down_hawkeye_low_exponent_threshold = 0u;
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    uint16_t *routed_gate_projection_debug = nullptr;
+    uint16_t *routed_up_projection_debug = nullptr;
+    float *routed_gate_projection_f32_debug = nullptr;
+    float *routed_up_projection_f32_debug = nullptr;
+    uint32_t *routed_projection_hawkeye_correction_count_debug = nullptr;
+    uint32_t routed_projection_debug_requested_token = UINT32_MAX;
+    uint32_t routed_projection_debug_token = UINT32_MAX;
+#endif
     float *route_outputs = nullptr;
     float *routed_combined = nullptr;
     uint16_t *shared_gate_logits = nullptr;
     uint16_t *shared_gate_projection = nullptr;
     uint16_t *shared_up_projection = nullptr;
+    float *shared_gate_projection_f32 = nullptr;
+    float *shared_up_projection_f32 = nullptr;
+    uint32_t shared_projection_hawkeye_midpoint_radius = 0u;
     uint16_t *shared_activated = nullptr;
     uint16_t *shared_down_projection = nullptr;
+    float *shared_down_projection_f32 = nullptr;
     float *shared_gate_scales = nullptr;
 #if QRT_TRITON_MOE_Q1024_EARLY_F32_SORTED_TILE
     float *early_f32_activated = nullptr;
@@ -355,6 +1801,9 @@ struct ProviderState {
     MatrixPlan shared_projection_plan;
     MatrixPlan shared_down_plan;
     hipStream_t full_v3_shared_stream = nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    hipStream_t full_v3_tail_stream = nullptr;
+#endif
     std::array<FullV3EventSlot, kFullV3EventSlots> full_v3_slots{};
     size_t full_v3_next_slot = 0u;
     hipStream_t full_v3_owner_stream = nullptr;
@@ -377,6 +1826,288 @@ __device__ uint16_t float_to_bf16(float value) {
 __device__ float bf16_to_float(uint16_t value) {
     return __uint_as_float(static_cast<uint32_t>(value) << 16u);
 }
+
+__device__ float routed_silu_from_gate_bf16(
+    uint16_t gate_bf16,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut
+) {
+    if (cuda_vllm_silu_bf16_domain_lut != nullptr) {
+        return bf16_to_float(cuda_vllm_silu_bf16_domain_lut[gate_bf16]);
+    }
+    const float gate = bf16_to_float(gate_bf16);
+    const float exponent = -(gate * 1.44269504089f);
+    return gate / (1.0f + __builtin_amdgcn_exp2f(exponent));
+}
+
+__device__ __forceinline__ bool
+routed_gate_projection_needs_hawkeye_replay(
+    float native_gate_accumulator,
+    float native_up_accumulator,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut
+) {
+    const uint16_t lower_gate_bf16 = static_cast<uint16_t>(
+        __float_as_uint(native_gate_accumulator) >> 16u
+    );
+    const uint16_t upper_gate_bf16 = static_cast<uint16_t>(
+        lower_gate_bf16 + 1u
+    );
+    const uint16_t up_bf16 = float_to_bf16(native_up_accumulator);
+    const float up = bf16_to_float(up_bf16);
+    // Low-exponent gate differences matter only when selecting the adjacent
+    // BF16 endpoint survives both CUDA-vLLM SiLU and the rounded up product.
+    // This keeps the broad exponent safety net sparse instead of replaying
+    // every tiny/subnormal projection seen in a full product-shape capture.
+    return float_to_bf16(
+               routed_silu_from_gate_bf16(
+                   lower_gate_bf16,
+                   cuda_vllm_silu_bf16_domain_lut
+               ) * up
+           ) !=
+        float_to_bf16(
+            routed_silu_from_gate_bf16(
+                upper_gate_bf16,
+                cuda_vllm_silu_bf16_domain_lut
+            ) * up
+        );
+}
+
+__device__ __forceinline__ bool
+routed_up_projection_needs_hawkeye_replay(
+    float native_accumulator,
+    uint16_t gate_bf16,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut
+) {
+    const uint16_t lower_bf16 = static_cast<uint16_t>(
+        __float_as_uint(native_accumulator) >> 16u
+    );
+    const uint16_t upper_bf16 = static_cast<uint16_t>(lower_bf16 + 1u);
+    // A midpoint correction can only select the neighboring BF16 endpoint.
+    // If both endpoints collapse to the same post-SiLU product, replaying the
+    // 4096-element dot cannot affect the observable routed activation.
+    const float silu = routed_silu_from_gate_bf16(
+        gate_bf16,
+        cuda_vllm_silu_bf16_domain_lut
+    );
+    return float_to_bf16(silu * bf16_to_float(lower_bf16)) !=
+        float_to_bf16(silu * bf16_to_float(upper_bf16));
+}
+
+// gfx1151's native BF16 WMMA accumulator differs from GB10's characterized
+// group-16 accumulator only close to a BF16 rounding midpoint.  Preserve the
+// fast native result everywhere else and replay the exact ascending-K dot only
+// for those sparse cells.  The raw weight pointer remains the correctness
+// authority even when the normal load path uses an equivalent lossless view.
+__device__ __forceinline__ uint16_t routed_projection_bf16_endpoint(
+    float native_accumulator,
+    const uint16_t *input_bf16,
+    const uint16_t *gate_up_bf16,
+    int32_t output_route,
+    int32_t expert,
+    uint32_t projection,
+    uint32_t projection_row,
+    uint32_t midpoint_radius,
+    uint16_t activation_gate_bf16,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    , uint32_t *correction_count_debug
+#endif
+) {
+    float selected_accumulator = native_accumulator;
+    if (midpoint_radius != 0u && gate_up_bf16 != nullptr) {
+        const uint32_t low_bits =
+            __float_as_uint(native_accumulator) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        const bool replay_can_change_endpoint =
+            projection == 0u || routed_up_projection_needs_hawkeye_replay(
+                native_accumulator,
+                activation_gate_bf16,
+                cuda_vllm_silu_bf16_domain_lut
+            );
+        if (midpoint_distance <= midpoint_radius &&
+            replay_can_change_endpoint) {
+            const uint16_t *input_row = input_bf16 +
+                static_cast<size_t>(output_route / kTopK) * kHidden;
+            const size_t weight_row =
+                static_cast<size_t>(expert) * (2u * kIntermediate) +
+                projection * kIntermediate + projection_row;
+            selected_accumulator = qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                input_row,
+                gate_up_bf16 + weight_row * kHidden,
+                kHidden
+            );
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+            if (correction_count_debug != nullptr) {
+                atomicAdd(correction_count_debug, 1u);
+            }
+#endif
+        }
+    }
+    return float_to_bf16(selected_accumulator);
+}
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+// Reproduce one characterized Hopper group-16 update with one BF16 product
+// per wave16 lane.  Integer alignment and summation are exact, so the tree
+// reduction has the same result as Hawkeye's ascending scalar group_sum while
+// turning every replay into coalesced K reads on gfx1151.
+__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
+batched_hawkeye_normalize_group(
+    int64_t signed_significand,
+    int max_exponent
+) {
+    constexpr int kInternalSignificandWidth = 26;
+    constexpr int kInternalToFp32Shift = kInternalSignificandWidth - 24;
+    constexpr int kFp32MinNonzeroExponent = -126;
+    constexpr int16_t kZeroExponent = -133;
+
+    const bool negative = signed_significand < 0;
+    const uint64_t magnitude = negative
+        ? static_cast<uint64_t>(-signed_significand)
+        : static_cast<uint64_t>(signed_significand);
+    const unsigned int width =
+        qrt_q1_moe_hawkeye::bit_width_u64(magnitude);
+    if (width == 0u) {
+        return qrt_q1_moe_hawkeye::Value{0u, kZeroExponent, negative};
+    }
+
+    int exponent =
+        max_exponent + static_cast<int>(width) - kInternalSignificandWidth;
+    uint64_t normalized = magnitude;
+    if (width > static_cast<unsigned int>(kInternalSignificandWidth)) {
+        normalized >>= width -
+            static_cast<unsigned int>(kInternalSignificandWidth);
+    } else {
+        normalized <<=
+            static_cast<unsigned int>(kInternalSignificandWidth) - width;
+    }
+    if (exponent < kFp32MinNonzeroExponent) {
+        const unsigned int underflow_shift = static_cast<unsigned int>(
+            kFp32MinNonzeroExponent - exponent
+        );
+        normalized = underflow_shift >= 64u
+            ? 0u
+            : normalized >> underflow_shift;
+        exponent = kFp32MinNonzeroExponent;
+    }
+    normalized >>= kInternalToFp32Shift;
+    if (normalized == 0u) {
+        return qrt_q1_moe_hawkeye::Value{0u, kZeroExponent, negative};
+    }
+    return qrt_q1_moe_hawkeye::Value{
+        static_cast<uint32_t>(normalized),
+        static_cast<int16_t>(exponent),
+        negative
+    };
+}
+
+__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
+batched_hawkeye_wave16_group(
+    qrt_q1_moe_hawkeye::Value accumulator,
+    uint16_t left,
+    uint16_t right
+) {
+    constexpr int kWave16 = 16;
+    constexpr int kInternalToFp32Shift = 2;
+    constexpr int16_t kZeroExponent = -133;
+    const unsigned int lane = threadIdx.x & (kWave16 - 1u);
+    const qrt_q1_moe_hawkeye::Value product =
+        qrt_q1_moe_hawkeye::multiply_bf16(
+            left,
+            right,
+            kZeroExponent
+        );
+
+    const uint32_t accumulator_significand = __shfl(
+        accumulator.significand,
+        0,
+        kWave16
+    );
+    const int accumulator_exponent = __shfl(
+        static_cast<int>(accumulator.exponent),
+        0,
+        kWave16
+    );
+    const int accumulator_negative = __shfl(
+        static_cast<int>(accumulator.negative),
+        0,
+        kWave16
+    );
+    int max_exponent = product.exponent > accumulator_exponent
+        ? static_cast<int>(product.exponent)
+        : accumulator_exponent;
+    for (int offset = 8; offset > 0; offset >>= 1) {
+        const int other = __shfl_xor(max_exponent, offset, kWave16);
+        max_exponent = other > max_exponent ? other : max_exponent;
+    }
+
+    const int product_shift =
+        max_exponent - static_cast<int>(product.exponent);
+    const uint64_t product_aligned = product_shift >= 32
+        ? UINT64_C(0)
+        : (static_cast<uint64_t>(product.significand)
+               << kInternalToFp32Shift) >>
+              static_cast<unsigned int>(product_shift);
+    int64_t signed_significand = product.negative
+        ? -static_cast<int64_t>(product_aligned)
+        : static_cast<int64_t>(product_aligned);
+    if (lane == 0u) {
+        const int accumulator_shift =
+            max_exponent - accumulator_exponent;
+        const uint64_t accumulator_aligned = accumulator_shift >= 32
+            ? UINT64_C(0)
+            : (static_cast<uint64_t>(accumulator_significand)
+                   << kInternalToFp32Shift) >>
+                  static_cast<unsigned int>(accumulator_shift);
+        signed_significand += accumulator_negative != 0
+            ? -static_cast<int64_t>(accumulator_aligned)
+            : static_cast<int64_t>(accumulator_aligned);
+    }
+    for (int offset = 8; offset > 0; offset >>= 1) {
+        signed_significand += __shfl_down(
+            signed_significand,
+            offset,
+            kWave16
+        );
+    }
+    if (lane == 0u) {
+        accumulator = batched_hawkeye_normalize_group(
+            signed_significand,
+            max_exponent
+        );
+    }
+    return accumulator;
+}
+
+__device__ __forceinline__ float batched_hawkeye_wave16_dot_bf16_hopper(
+    const uint16_t *left,
+    const uint16_t *right,
+    uint32_t reduction_size
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr int16_t kZeroExponent = -133;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    qrt_q1_moe_hawkeye::Value accumulator{0u, kZeroExponent, false};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < reduction_size; k_base += kWave16) {
+        accumulator = batched_hawkeye_wave16_group(
+            accumulator,
+            left[k_base + lane],
+            right[k_base + lane]
+        );
+    }
+    if (lane != 0u) {
+        return 0.0f;
+    }
+    return qrt_q1_moe_hawkeye::value_to_float(
+        qrt_q1_moe_hawkeye::group_sum<26, kZeroExponent>(
+            &accumulator,
+            1u
+        )
+    );
+}
+#endif
 
 #if QRT_TRITON_MOE_Q1024_EARLY_F32
 __device__ float early_f32_mul_add_separate(
@@ -1304,72 +3035,821 @@ __global__ void convert_input_kernel(
     }
 }
 
+#if QRT_TRITON_MOE_NATIVE_ROUTE_LAYOUT
+__global__ void native_route_padded_prefix_kernel(
+    int32_t *total_post_pad,
+    const int32_t *token_counts,
+    int32_t *cumsum,
+    int32_t *block_expert_ids
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    , int32_t *fused_overflow_blocks,
+    int32_t *total_fused_overflow_blocks
+#endif
+) {
+    if (blockIdx.x != 0u || threadIdx.x != 0u) {
+        return;
+    }
+    uint32_t running = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    uint32_t fused_overflow_count = 0u;
+#endif
+    cumsum[0] = 0;
+    const size_t final_count_base =
+        static_cast<size_t>(kRoutePrograms) * kExperts;
+    for (uint32_t expert = 0u; expert < kExperts; ++expert) {
+        const uint32_t count = static_cast<uint32_t>(
+            token_counts[final_count_base + expert]
+        );
+        const uint32_t blocks =
+            (count + kBlockM - 1u) / kBlockM;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+        const uint32_t remainder = count % kBlockM;
+        const bool fuse_final_overflow =
+            blocks >= 2u && remainder >= 1u &&
+            remainder <= kNativeWmmaLdsBFusedOverflowRows;
+#endif
+        for (uint32_t block = 0u; block < blocks; ++block) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+            // The negative penultimate descriptor owns the final padded
+            // block.  The final descriptor is a skip marker, so an expert's
+            // M64 plus <=M32 overflow stages every N32 weight tile once.
+            if (fuse_final_overflow && block + 2u == blocks) {
+                const uint32_t route_block = running / kBlockM + block;
+                block_expert_ids[route_block] =
+                    -static_cast<int32_t>(expert) - 1;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+                fused_overflow_blocks[fused_overflow_count++] =
+                    static_cast<int32_t>(route_block);
+#endif
+                continue;
+            }
+            if (fuse_final_overflow && block + 1u == blocks) {
+                block_expert_ids[running / kBlockM + block] =
+                    -static_cast<int32_t>(kExperts + expert) - 1;
+                continue;
+            }
+#endif
+            block_expert_ids[running / kBlockM + block] =
+                static_cast<int32_t>(expert);
+        }
+        running += blocks * kBlockM;
+        cumsum[expert + 1u] = static_cast<int32_t>(running);
+    }
+    *total_post_pad = static_cast<int32_t>(running);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    *total_fused_overflow_blocks =
+        static_cast<int32_t>(fused_overflow_count);
+#endif
+}
+
+__global__ void native_route_scatter_kernel(
+    const int32_t *topk_ids,
+    int32_t *sorted_route_ids,
+    int32_t *token_counts,
+    const int32_t *cumsum,
+    uint32_t logical_routes
+) {
+    if (threadIdx.x != 0u) {
+        return;
+    }
+    const uint32_t program = blockIdx.x;
+    const uint32_t source = program * kRoutesPerSortProgram;
+    if (program >= kRoutePrograms || source >= logical_routes) {
+        return;
+    }
+    const size_t local_count_base =
+        static_cast<size_t>(program) * kExperts;
+    for (uint32_t offset = 0u; offset < kRoutesPerSortProgram; ++offset) {
+        const uint32_t route = source + offset;
+        if (route >= logical_routes) {
+            break;
+        }
+        const int32_t expert = topk_ids[route];
+        int32_t rank = token_counts[local_count_base + expert];
+        const int32_t destination = rank + cumsum[expert];
+        sorted_route_ids[destination] = static_cast<int32_t>(route);
+        token_counts[local_count_base + expert] = rank + 1;
+    }
+}
+
+#if QRT_TRITON_MOE_NATIVE_FUSED_ROUTE_LAYOUT
+// The retained route path used seven submissions per layer: three clears,
+// count, prefix, padded-prefix, and scatter.  At short logical lengths that
+// fixed host/device launch wall is no longer hidden by the routed GEMMs.  One
+// 256-thread block can build the complete 256-expert layout in a single
+// submission.  Every routed row still writes its result by original route id,
+// so the atomic packing order cannot change matrix arithmetic or combination
+// order.
+__global__ void native_fused_route_layout_kernel(
+    const int32_t *topk_ids,
+    int32_t *token_counts,
+    int32_t *cumsum,
+    int32_t *total_post_pad,
+    int32_t *sorted_route_ids,
+    int32_t *block_expert_ids,
+    uint32_t logical_routes
+) {
+    __shared__ uint32_t raw_counts[kExperts];
+    __shared__ uint32_t padded_scan[kExperts];
+    __shared__ uint32_t padded_offsets[kExperts];
+    __shared__ uint32_t scatter_cursors[kExperts];
+
+    const uint32_t expert = threadIdx.x;
+    if (blockIdx.x != 0u || expert >= kExperts) {
+        return;
+    }
+    raw_counts[expert] = 0u;
+    scatter_cursors[expert] = 0u;
+    __syncthreads();
+
+    for (uint32_t route = expert; route < logical_routes;
+         route += kExperts) {
+        const uint32_t route_expert = static_cast<uint32_t>(
+            topk_ids[route]
+        );
+        if (route_expert < kExperts) {
+            atomicAdd(raw_counts + route_expert, 1u);
+        }
+    }
+    __syncthreads();
+
+    const uint32_t count = raw_counts[expert];
+    const size_t final_count_base =
+        static_cast<size_t>(kRoutePrograms) * kExperts;
+    token_counts[final_count_base + expert] =
+        static_cast<int32_t>(count);
+    padded_scan[expert] =
+        ((count + kBlockM - 1u) / kBlockM) * kBlockM;
+    __syncthreads();
+
+    // Inclusive scan of per-expert padded sizes.  The two barriers per stage
+    // keep every read on the prior stage while using only one shared array.
+    for (uint32_t offset = 1u; offset < kExperts; offset <<= 1u) {
+        const uint32_t addend = expert >= offset
+            ? padded_scan[expert - offset]
+            : 0u;
+        __syncthreads();
+        padded_scan[expert] += addend;
+        __syncthreads();
+    }
+    const uint32_t padded_offset = expert == 0u
+        ? 0u
+        : padded_scan[expert - 1u];
+    padded_offsets[expert] = padded_offset;
+    cumsum[expert] = static_cast<int32_t>(padded_offset);
+    if (expert + 1u == kExperts) {
+        cumsum[kExperts] = static_cast<int32_t>(padded_scan[expert]);
+        *total_post_pad = static_cast<int32_t>(padded_scan[expert]);
+    }
+
+    const uint32_t blocks = (count + kBlockM - 1u) / kBlockM;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    const uint32_t remainder = count % kBlockM;
+    const bool fuse_final_overflow =
+        blocks >= 2u && remainder >= 1u &&
+        remainder <= kNativeWmmaLdsBFusedOverflowRows;
+#endif
+    const uint32_t first_block = padded_offset / kBlockM;
+    for (uint32_t block = 0u; block < blocks; ++block) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+        if (fuse_final_overflow && block + 2u == blocks) {
+            block_expert_ids[first_block + block] =
+                -static_cast<int32_t>(expert) - 1;
+        } else if (fuse_final_overflow && block + 1u == blocks) {
+            block_expert_ids[first_block + block] =
+                -static_cast<int32_t>(kExperts + expert) - 1;
+        } else
+#endif
+        {
+            block_expert_ids[first_block + block] =
+                static_cast<int32_t>(expert);
+        }
+    }
+    for (uint32_t row = count; row < blocks * kBlockM; ++row) {
+        sorted_route_ids[padded_offset + row] =
+            static_cast<int32_t>(kRoutes);
+    }
+    __syncthreads();
+
+    for (uint32_t route = expert; route < logical_routes;
+         route += kExperts) {
+        const uint32_t route_expert = static_cast<uint32_t>(
+            topk_ids[route]
+        );
+        if (route_expert < kExperts) {
+            const uint32_t rank = atomicAdd(
+                scatter_cursors + route_expert,
+                1u
+            );
+            sorted_route_ids[padded_offsets[route_expert] + rank] =
+                static_cast<int32_t>(route);
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+constexpr uint32_t kNativeWmmaCompactTailRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    kBlockM;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+    32u;
+#else
+    48u;
+#endif
+
+__global__ void native_compact_split_tail_index_kernel(
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+    int32_t *main_route_blocks,
+    int32_t *total_main_blocks,
+    int32_t *tail_experts,
+    int32_t *total_tail_experts
+) {
+    if (blockIdx.x != 0u || threadIdx.x != 0u) {
+        return;
+    }
+    const size_t final_count_base =
+        static_cast<size_t>(kRoutePrograms) * kExperts;
+    uint32_t main_count = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+    uint32_t tail_count = 0u;
+    for (uint32_t expert = 0u; expert < kExperts; ++expert) {
+        const uint32_t count = static_cast<uint32_t>(
+            token_counts[final_count_base + expert]
+        );
+        if (count == 0u) {
+            continue;
+        }
+        const uint32_t source_block =
+            static_cast<uint32_t>(cumsum[expert]) / kBlockM;
+        if (count <= kNativeWmmaGroupedSoleRowsPerExpert) {
+            tail_experts[tail_count++] = static_cast<int32_t>(expert);
+            continue;
+        }
+        const uint32_t blocks = (count + kBlockM - 1u) / kBlockM;
+        for (uint32_t block = 0u; block < blocks; ++block) {
+            main_route_blocks[main_count++] =
+                static_cast<int32_t>(source_block + block);
+        }
+    }
+    *total_main_blocks = static_cast<int32_t>(main_count);
+    *total_tail_experts = static_cast<int32_t>(tail_count);
+#else
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    uint32_t tail_counts[3]{};
+#else
+    uint32_t tail_count = 0u;
+#endif
+    for (uint32_t expert = 0u; expert < kExperts; ++expert) {
+        const uint32_t count = static_cast<uint32_t>(
+            token_counts[final_count_base + expert]
+        );
+        const uint32_t source_block =
+            static_cast<uint32_t>(cumsum[expert]) / kBlockM;
+        const uint32_t full_blocks = count / kBlockM;
+        for (uint32_t block = 0u; block < full_blocks; ++block) {
+            main_route_blocks[main_count++] =
+                static_cast<int32_t>(source_block + block);
+        }
+        const uint32_t tail_rows = count % kBlockM;
+        // The retained policy keeps an expert's sole partial block on the
+        // main kernel.  The M64 compact-sole experiment instead sends all
+        // <=48-row blocks to the LDS-B tail kernel, removing the padding wall
+        // that dominates when the average expert owns roughly one M64 block.
+        if (tail_rows > kNativeWmmaCompactTailRows ||
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+            false
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_SOLE_TAIL
+            false
+#else
+            (full_blocks == 0u && tail_rows != 0u)
+#endif
+#else
+            false
+#endif
+        ) {
+            main_route_blocks[main_count++] =
+                static_cast<int32_t>(source_block + full_blocks);
+        } else if (tail_rows != 0u) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+            const uint32_t tail_fragment =
+                (tail_rows + kNativeWmmaTile - 1u) / kNativeWmmaTile - 1u;
+            tail_experts[
+                tail_fragment * kExperts + tail_counts[tail_fragment]++
+            ] = static_cast<int32_t>(expert);
+#else
+            tail_experts[tail_count++] = static_cast<int32_t>(expert);
+#endif
+        }
+    }
+    *total_main_blocks = static_cast<int32_t>(main_count);
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    for (uint32_t bucket = 0u; bucket < 3u; ++bucket) {
+        total_tail_experts[bucket] =
+            static_cast<int32_t>(tail_counts[bucket]);
+    }
+#else
+    *total_tail_experts = static_cast<int32_t>(tail_count);
+#endif
+#endif
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+__global__ void native_adaptive_m128_index_kernel(
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+    int32_t *route_starts,
+    int32_t *experts,
+    int32_t *bucket_counts
+) {
+    if (blockIdx.x != 0u || threadIdx.x != 0u) {
+        return;
+    }
+    uint32_t descriptor_counts[kNativeWmmaAdaptiveM128Buckets]{};
+    const size_t final_count_base =
+        static_cast<size_t>(kRoutePrograms) * kExperts;
+    for (uint32_t expert = 0u; expert < kExperts; ++expert) {
+        uint32_t remaining = static_cast<uint32_t>(
+            token_counts[final_count_base + expert]
+        );
+        uint32_t route_start = static_cast<uint32_t>(cumsum[expert]);
+        while (remaining != 0u) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128
+            // Preserve the retained M96 kernel shape for ordinary experts.
+            // Experts with 97..128 routes use one M128 descriptor instead of
+            // two M96 descriptors, so every weight tile is staged only once.
+            // Counts above 128 remain split on M96 boundaries; this keeps the
+            // final descriptor inside the M96-padded route allocation.
+            const uint32_t rows = remaining <= kNativeWmmaAdaptiveM128Rows
+                ? remaining
+                : 96u;
+            const uint32_t fragments = rows <= 96u ? 6u : 8u;
+#else
+            const uint32_t rows = remaining < kNativeWmmaAdaptiveM128Rows
+                ? remaining
+                : kNativeWmmaAdaptiveM128Rows;
+            const uint32_t fragments =
+                (rows + kNativeWmmaTile - 1u) / kNativeWmmaTile;
+#endif
+            // Never mix experts in one CTA.  Bucket by the exact M16 fragment
+            // count so short experts launch only their active waves and LDS;
+            // the descriptor still stages one expert weight tile for all of
+            // its rows.
+            const uint32_t bucket = fragments - 1u;
+            const size_t descriptor =
+                static_cast<size_t>(bucket) *
+                    kNativeWmmaAdaptiveM128MaxDescriptors +
+                descriptor_counts[bucket]++;
+            route_starts[descriptor] = static_cast<int32_t>(route_start);
+            experts[descriptor] = static_cast<int32_t>(expert);
+            route_start += rows;
+            remaining -= rows;
+        }
+    }
+    for (uint32_t bucket = 0u;
+         bucket < kNativeWmmaAdaptiveM128Buckets;
+         ++bucket) {
+        bucket_counts[bucket] = static_cast<int32_t>(
+            descriptor_counts[bucket]
+        );
+    }
+}
+#endif
+#endif
+
+__device__ __forceinline__ float router_cuda_fma_rn(
+    float left,
+    float right,
+    float addend
+) {
+    float result;
+    asm volatile("v_fma_f32 %0, %1, %2, %3"
+        : "=v"(result)
+        : "v"(left), "v"(right), "v"(addend));
+    return result;
+}
+
+__device__ __forceinline__ uint32_t
+router_cuda_floor_fraction_times_252(float fraction) {
+    if (!(fraction > 0.0f)) {
+        return 0u;
+    }
+    if (fraction >= 1.0f) {
+        return 252u;
+    }
+    const uint32_t bits = __float_as_uint(fraction);
+    const int32_t unbiased_exponent =
+        static_cast<int32_t>((bits >> 23u) & UINT32_C(0xff)) - 127;
+    const uint32_t significand =
+        (bits & UINT32_C(0x7fffff)) | UINT32_C(0x800000);
+    const uint64_t product = static_cast<uint64_t>(significand) * 252u;
+    const int32_t shift = 23 - unbiased_exponent;
+    return shift >= 64 ? 0u : static_cast<uint32_t>(product >> shift);
+}
+
+// CUDA 13.1 lowers device expf to a fixed range reducer followed by
+// MUFU.EX2.  HIP's expf differs by one ULP on roughly 30% of the real router
+// inputs, which then moves the normalized top-k weights and can invalidate an
+// otherwise exact routed-down replay.  The reducer below is transcribed from
+// the SM121 PTX, including both FMA constants and its round-toward-minus-
+// infinity integer selection.  The latter is evaluated exactly from the
+// positive binary32 significand instead of changing gfx1151's global rounding
+// mode.  Range reduction keeps every non-underflow router input in [0, 1), so
+// a single captured 2**23-entry MUFU.EX2 fraction table is sufficient.
+__device__ __forceinline__ float router_cuda_libdevice_expf(
+    float value,
+    const uint32_t *cuda_ex2_fraction_lut
+) {
+    if (cuda_ex2_fraction_lut == nullptr) {
+        return expf(value);
+    }
+    const float range_fraction_unclipped = router_cuda_fma_rn(
+        value,
+        __uint_as_float(UINT32_C(0x3bbb989d)),
+        0.5f
+    );
+    const float range_fraction = fminf(
+        1.0f,
+        fmaxf(0.0f, range_fraction_unclipped)
+    );
+    const uint32_t integer_offset =
+        router_cuda_floor_fraction_times_252(range_fraction);
+    const float biased_integer = __fadd_rn(
+        12582913.0f,
+        static_cast<float>(integer_offset)
+    );
+    const float integer = __fadd_rn(biased_integer, -12583039.0f);
+    float reduced = router_cuda_fma_rn(
+        value,
+        __uint_as_float(UINT32_C(0x3fb8aa3b)),
+        -integer
+    );
+    reduced = router_cuda_fma_rn(
+        value,
+        __uint_as_float(UINT32_C(0x32a57060)),
+        reduced
+    );
+    if (reduced < 0.0f) {
+        // The saturated low tail is subnormal after its 2**-126 scale and is
+        // flushed by CUDA's final FMUL.  It cannot contribute to the F32 row
+        // sum beside the row maximum's exact exp(0) == 1.
+        return 0.0f;
+    }
+
+    uint32_t fraction_index = 0u;
+    if (reduced > 0.0f) {
+        const uint32_t input_bits = __float_as_uint(reduced);
+        const int32_t unbiased_exponent =
+            static_cast<int32_t>(
+                (input_bits >> 23u) & UINT32_C(0xff)
+            ) - 127;
+        const uint32_t significand =
+            (input_bits & UINT32_C(0x7fffff)) |
+            UINT32_C(0x800000);
+        if (unbiased_exponent >= 0) {
+            fraction_index =
+                (significand << static_cast<uint32_t>(unbiased_exponent)) &
+                UINT32_C(0x7fffff);
+        } else if (unbiased_exponent >= -23) {
+            fraction_index = significand >> static_cast<uint32_t>(
+                -unbiased_exponent
+            );
+        }
+    }
+    const float primitive = __uint_as_float(
+        cuda_ex2_fraction_lut[fraction_index]
+    );
+    const float scale = __uint_as_float(
+        __float_as_uint(biased_integer) << 23u
+    );
+    return __fmul_rn(primitive, scale);
+}
+
 __global__ void router_bf16_logits_topk_kernel(
     const uint16_t *logits_bf16,
     int32_t *topk_ids,
-    float *topk_weights
+    float *topk_weights,
+    const uint32_t *cuda_ex2_fraction_lut,
+    bool cutoff_high_id_tie
 ) {
-    __shared__ float shared_logits[kExperts];
+    const uint32_t token = blockIdx.x;
+    const uint32_t lane = threadIdx.x;
+    if (token >= kTokens || lane >= 32u) {
+        return;
+    }
+    const size_t logit_base = static_cast<size_t>(token) * kExperts;
+    const size_t route_base = static_cast<size_t>(token) * kTopK;
+    constexpr uint32_t kValuesPerLane = kExperts / 32u;
+    static_assert(kValuesPerLane == 8u);
+    const uint32_t begin = lane * kValuesPerLane;
+    float row_chunk[kValuesPerLane];
+#pragma unroll
+    for (uint32_t offset = 0u; offset < kValuesPerLane; ++offset) {
+        row_chunk[offset] = bf16_to_float(
+            logits_bf16[logit_base + begin + offset]
+        );
+    }
+
+    // Follow vLLM topkGating<8, 256, ..., BF16, SCORING_SOFTMAX>
+    // instruction-for-instruction.  A single wave32 owns one row and each
+    // lane keeps eight contiguous experts in registers.  Besides avoiding
+    // the former CTA-wide shared-memory barriers, this preserves CUDA's
+    // butterfly reduction and final direct-division rounding path.
+    float thread_maximum = row_chunk[0u];
+#pragma unroll
+    for (uint32_t offset = 1u; offset < kValuesPerLane; ++offset) {
+        if (row_chunk[offset] > thread_maximum) {
+            thread_maximum = row_chunk[offset];
+        }
+    }
+#pragma unroll
+    for (uint32_t mask = 16u; mask != 0u; mask >>= 1u) {
+        const float other_maximum = __shfl_xor(
+            thread_maximum, static_cast<int>(mask), 32
+        );
+        if (other_maximum > thread_maximum) {
+            thread_maximum = other_maximum;
+        }
+    }
+
+    float row_sum = 0.0f;
+#pragma unroll
+    for (uint32_t offset = 0u; offset < kValuesPerLane; ++offset) {
+        row_chunk[offset] = router_cuda_libdevice_expf(
+            row_chunk[offset] - thread_maximum,
+            cuda_ex2_fraction_lut
+        );
+        row_sum = __fadd_rn(row_sum, row_chunk[offset]);
+    }
+#pragma unroll
+    for (uint32_t mask = 16u; mask != 0u; mask >>= 1u) {
+        row_sum = __fadd_rn(
+            row_sum,
+            __shfl_xor(row_sum, static_cast<int>(mask), 32)
+        );
+    }
+    const float reciprocal_row_sum = 1.0f / row_sum;
+#pragma unroll
+    for (uint32_t offset = 0u; offset < kValuesPerLane; ++offset) {
+        row_chunk[offset] = __fmul_rn(
+            row_chunk[offset], reciprocal_row_sum
+        );
+    }
+
+    float selected_sum = 0.0f;
+    for (uint32_t route = 0u; route < kTopK; ++route) {
+        float maximum = row_chunk[0u];
+        uint32_t best_expert = begin;
+        const bool prefer_high_id =
+            cutoff_high_id_tie && route + 1u == kTopK;
+#pragma unroll
+        for (uint32_t offset = 1u; offset < kValuesPerLane; ++offset) {
+            const float candidate = row_chunk[offset];
+            const uint32_t candidate_expert = begin + offset;
+            if (candidate > maximum ||
+                (prefer_high_id && candidate == maximum &&
+                 candidate_expert > best_expert)) {
+                maximum = candidate;
+                best_expert = candidate_expert;
+            }
+        }
+        for (uint32_t mask = 16u; mask != 0u; mask >>= 1u) {
+            const float other_maximum = __shfl_xor(
+                maximum, static_cast<int>(mask), 32
+            );
+            const uint32_t other_expert = __shfl_xor(
+                best_expert, static_cast<int>(mask), 32
+            );
+            if (other_maximum > maximum ||
+                (other_maximum == maximum &&
+                 (prefer_high_id
+                      ? other_expert > best_expert
+                      : other_expert < best_expert))) {
+                maximum = other_maximum;
+                best_expert = other_expert;
+            }
+        }
+        if (lane == 0u) {
+            topk_ids[route_base + route] =
+                static_cast<int32_t>(best_expert);
+            topk_weights[route_base + route] = maximum;
+            selected_sum = __fadd_rn(selected_sum, maximum);
+        }
+        const uint32_t owner_lane = best_expert / kValuesPerLane;
+        if (lane == owner_lane) {
+            row_chunk[best_expert % kValuesPerLane] = -10000.0f;
+        }
+    }
+    if (lane == 0u) {
+        const float denominator = selected_sum > 0.0f ? selected_sum : 1.0f;
+        for (uint32_t route = 0u; route < kTopK; ++route) {
+            // vLLM uses one direct division per output here.  Reciprocal then
+            // multiply differs by up to two ULPs on the authoritative GB10.
+            topk_weights[route_base + route] =
+                topk_weights[route_base + route] / denominator;
+        }
+    }
+}
+
+// The GB10 BF16 router reduction is exactly reproduced at four independently
+// captured layers by K128 chunks, sixteen interleaved F32 accumulators per
+// chunk, and ordered F32 folds across lanes and chunks.
+__device__ __forceinline__ float router_bf16_cuda_reduction_dot(
+    const uint16_t *input_bf16,
+    const uint16_t *router_weights,
+    uint32_t token,
+    uint32_t expert
+) {
+    constexpr uint32_t kChunk = 128u;
+    constexpr uint32_t kLanes = 16u;
+    static_assert(kHidden % kChunk == 0u);
+    const uint16_t *token_input =
+        input_bf16 + static_cast<size_t>(token) * kHidden;
+    const uint16_t *row_weights =
+        router_weights + static_cast<size_t>(expert) * kHidden;
+    float accumulator = 0.0f;
+#pragma unroll 1
+    for (uint32_t chunk_base = 0u; chunk_base < kHidden;
+         chunk_base += kChunk) {
+        float lane_sums[kLanes]{};
+#pragma unroll
+        for (uint32_t lane = 0u; lane < kLanes; ++lane) {
+            float lane_sum = 0.0f;
+#pragma unroll
+            for (uint32_t offset = lane; offset < kChunk;
+                 offset += kLanes) {
+                const uint32_t column = chunk_base + offset;
+                lane_sum = __fmaf_rn(
+                    bf16_to_float(row_weights[column]),
+                    bf16_to_float(token_input[column]),
+                    lane_sum
+                );
+            }
+            lane_sums[lane] = lane_sum;
+        }
+        float chunk_sum = 0.0f;
+#pragma unroll
+        for (uint32_t lane = 0u; lane < kLanes; ++lane) {
+            chunk_sum = __fadd_rn(chunk_sum, lane_sums[lane]);
+        }
+        accumulator = __fadd_rn(accumulator, chunk_sum);
+    }
+    return accumulator;
+}
+
+// hipBLASLt remains the fast router projection.  Request its F32 endpoint so
+// cells close to a BF16 midpoint can be identified, then replay only those
+// sparse cells with the measured Hopper mma.sync K16 arithmetic.  The older
+// FMA reduction below is useful as a diagnostic, but it can choose the wrong
+// BF16 side for isolated token/expert pairs because tensor-core accumulation
+// is not an ordinary F32 dot product.
+__global__ __launch_bounds__(256)
+void router_hawkeye_midpoint_correction_kernel(
+    const float *native_logits,
+    const uint16_t *input_bf16,
+    const uint16_t *router_weights,
+    uint16_t *corrected_logits,
+    uint32_t token_count,
+    uint32_t midpoint_radius
+) {
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+#endif
+
+    const size_t elements =
+        static_cast<size_t>(token_count) * kExperts;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index < elements) {
+        const float native = native_logits[index];
+        corrected_logits[index] = float_to_bf16(native);
+        const uint32_t low_bits =
+            __float_as_uint(native) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        if (midpoint_distance <= midpoint_radius) {
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+#else
+            const uint32_t token =
+                static_cast<uint32_t>(index / kExperts);
+            const uint32_t expert = static_cast<uint32_t>(index -
+                static_cast<size_t>(token) * kExperts);
+            const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                router_weights + static_cast<size_t>(expert) * kHidden,
+                kHidden
+            );
+            corrected_logits[index] = float_to_bf16(exact);
+#endif
+        }
+    }
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    __syncthreads();
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t token = candidate / kExperts;
+        const uint32_t expert = candidate - token * kExperts;
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            input_bf16 + static_cast<size_t>(token) * kHidden,
+            router_weights + static_cast<size_t>(expert) * kHidden,
+            kHidden
+        );
+        if (lane == 0u) {
+            corrected_logits[candidate] = float_to_bf16(exact);
+        }
+    }
+#endif
+}
+
+// The cutoff repair is a low-cost diagnostic that only revisits the current
+// top-k and nearby hipBLASLt logits.  It cannot recover a GB10 expert once
+// accumulated hidden-state drift moves that expert outside the AMD window.
+__global__ void router_bf16_cuda_reduction_cutoff_repair_kernel(
+    uint16_t *logits_bf16,
+    const uint16_t *input_bf16,
+    const uint16_t *router_weights,
+    const int32_t *topk_ids
+) {
+    const uint32_t token = blockIdx.x;
+    const uint32_t expert = threadIdx.x;
+    if (token >= kTokens || expert >= kExperts) {
+        return;
+    }
+
+    constexpr uint32_t cutoff_route = kTopK - 1u;
+    const size_t route_base = static_cast<size_t>(token) * kTopK;
+    const size_t logit_base = static_cast<size_t>(token) * kExperts;
+    const uint32_t cutoff_expert = static_cast<uint32_t>(
+        topk_ids[route_base + cutoff_route]
+    );
+    const float cutoff_logit = bf16_to_float(
+        logits_bf16[logit_base + cutoff_expert]
+    );
+
+    bool selected = false;
+#pragma unroll
+    for (uint32_t route = 0u; route < kTopK; ++route) {
+        selected = selected ||
+            static_cast<uint32_t>(topk_ids[route_base + route]) == expert;
+    }
+    constexpr float kCutoffWindow = 0.125f;
+    const bool cutoff_candidate = selected ||
+        bf16_to_float(logits_bf16[logit_base + expert]) >=
+            cutoff_logit - kCutoffWindow;
+    if (!cutoff_candidate) {
+        return;
+    }
+
+    logits_bf16[logit_base + expert] = float_to_bf16(
+        router_bf16_cuda_reduction_dot(
+            input_bf16,
+            router_weights,
+            token,
+            expert
+        )
+    );
+}
+
+// Full replacement route used to distinguish a cutoff-selection failure from
+// a true hidden-state divergence.  Every expert is recomputed, so top-k is a
+// pure function of the captured CUDA reduction tree and the current BF16 row.
+__global__ void router_bf16_cuda_reduction_all_kernel(
+    uint16_t *logits_bf16,
+    const uint16_t *input_bf16,
+    const uint16_t *router_weights
+) {
     const uint32_t token = blockIdx.x;
     const uint32_t expert = threadIdx.x;
     if (token >= kTokens || expert >= kExperts) {
         return;
     }
     const size_t logit_base = static_cast<size_t>(token) * kExperts;
-    const size_t route_base = static_cast<size_t>(token) * kTopK;
-    shared_logits[expert] = bf16_to_float(
-        logits_bf16[logit_base + expert]
+    logits_bf16[logit_base + expert] = float_to_bf16(
+        router_bf16_cuda_reduction_dot(
+            input_bf16,
+            router_weights,
+            token,
+            expert
+        )
     );
-    __syncthreads();
-
-    if (expert == 0u) {
-        uint32_t best_ids[kTopK];
-        double exponential_values[kTopK];
-        double maximum = -1.0e300;
-        double denominator = 0.0;
-        for (uint32_t route = 0u; route < kTopK; ++route) {
-            uint32_t best_expert = kExperts;
-            for (uint32_t candidate = 0u; candidate < kExperts;
-                 ++candidate) {
-                bool selected = false;
-                for (uint32_t prior = 0u; prior < route; ++prior) {
-                    selected = selected || best_ids[prior] == candidate;
-                }
-                if (selected) {
-                    continue;
-                }
-                if (best_expert == kExperts ||
-                    shared_logits[candidate] >
-                        shared_logits[best_expert] ||
-                    (shared_logits[candidate] ==
-                         shared_logits[best_expert] &&
-                     candidate < best_expert)) {
-                    best_expert = candidate;
-                }
-            }
-            best_ids[route] = best_expert;
-            topk_ids[route_base + route] =
-                static_cast<int32_t>(best_expert);
-            maximum = fmax(
-                maximum,
-                static_cast<double>(shared_logits[best_expert])
-            );
-        }
-        for (uint32_t route = 0u; route < kTopK; ++route) {
-            const double value = exp(
-                static_cast<double>(
-                    shared_logits[best_ids[route]]
-                ) - maximum
-            );
-            exponential_values[route] = value;
-            denominator += value;
-        }
-        for (uint32_t route = 0u; route < kTopK; ++route) {
-            topk_weights[route_base + route] = static_cast<float>(
-                exponential_values[route] / denominator
-            );
-        }
-    }
 }
 
 #if QRT_TRITON_MOE_NATIVE_WMMA_GATE || QRT_TRITON_MOE_NATIVE_WMMA_DOWN
@@ -1379,12 +3859,21 @@ __global__ void native_wmma_gate_up_silu_kernel(
     const int32_t *sorted_route_ids,
     const int32_t *block_expert_ids,
     const int32_t *total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_main_route_blocks,
+    const int32_t *total_compact_main_blocks,
+#endif
     uint16_t *activated_bf16
 ) {
     __shared__ NativeWmmaSharedStorage shared;
 
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_compact_main_blocks) * kBlockM;
+#else
     const uint32_t padded_routes =
         static_cast<uint32_t>(*total_post_pad);
+#endif
     uint32_t route_block = 0u;
     uint32_t inter_macro = 0u;
     if (!native_wmma_grouped_program(
@@ -1397,23 +3886,67 @@ __global__ void native_wmma_gate_up_silu_kernel(
         return;
     }
 
+    const uint32_t source_route_block =
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        static_cast<uint32_t>(compact_main_route_blocks[route_block]);
+#else
+        route_block;
+#endif
     const uint32_t thread = threadIdx.x;
     if (thread < kBlockM) {
         shared.routes[thread] =
-            sorted_route_ids[route_block * kBlockM + thread];
+            sorted_route_ids[source_route_block * kBlockM + thread];
     }
     if (thread == 0u) {
-        shared.expert = block_expert_ids[route_block];
+        shared.expert = block_expert_ids[source_route_block];
     }
     __syncthreads();
+#if QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+    // A fixed-register 32-row kernel handles short expert tails.  The
+    // retained 64-row path still owns full blocks and 33..64-row tails.
+    if (shared.routes[32] >= static_cast<int32_t>(kRoutes)) {
+        return;
+    }
+#elif QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+    QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    // Tail blocks with at most 48 live routes are handled by the matching
+    // 16-row-quantized kernel below.  Keep the retained 64-row kernel for
+    // full blocks and the final 49..64 bucket so their arithmetic is intact.
+    if (shared.routes[48] >= static_cast<int32_t>(kRoutes)) {
+        return;
+    }
+#endif
 
     const uint32_t wave = threadIdx.x / kNativeWmmaWaveThreads;
     const uint32_t lane = threadIdx.x % kNativeWmmaWaveThreads;
     const uint32_t source_index = lane % kNativeWmmaTile;
     const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96
+    const uint32_t m_group = wave % 3u;
+    const uint32_t inter_group = wave / 3u;
+#elif QRT_TRITON_MOE_BLOCK_M == 32
+    constexpr uint32_t m_group = 0u;
+    const uint32_t inter_group = wave;
+#else
     const uint32_t m_group = wave & 1u;
     const uint32_t inter_group = wave >> 1u;
+#endif
     const uint32_t m_base = m_group * (2u * kNativeWmmaTile);
+#if QRT_TRITON_MOE_NATIVE_WMMA_PRUNE16
+    // The route sorter pads every expert to M64.  Each wave owns two M16
+    // fragments, so a wave-uniform predicate can omit the padded fragments
+    // without a second tail kernel or a host-visible route-count sync.
+    const bool fragment_m0_active =
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+    const bool fragment_m1_active =
+        shared.routes[m_base + kNativeWmmaTile] <
+        static_cast<int32_t>(kRoutes);
+#else
+    constexpr bool fragment_m0_active = true;
+    constexpr bool fragment_m1_active = true;
+#endif
+    const bool wave_has_active_fragment =
+        fragment_m0_active || fragment_m1_active;
     const uint32_t inter =
         inter_macro * kNativeWmmaGateMacroN +
         inter_group * kNativeWmmaTile + source_index;
@@ -1455,60 +3988,74 @@ __global__ void native_wmma_gate_up_silu_kernel(
 #pragma unroll
         for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
              k_sub += kNativeWmmaTile) {
-            const NativeWmmaBf16x16 input_fragment_m0 =
-                load_native_wmma_fragment(
-                    shared.a +
-                    (m_base + source_index) * kNativeWmmaSharedStride +
-                    k_sub
-                );
-            const NativeWmmaBf16x16 input_fragment_m1 =
-                load_native_wmma_fragment(
-                    shared.a +
-                    (m_base + kNativeWmmaTile + source_index) *
-                        kNativeWmmaSharedStride +
-                    k_sub
-                );
-            NativeWmmaBf16x16 weight_fragment =
-                load_native_wmma_fragment(
+            if (wave_has_active_fragment) {
+                NativeWmmaBf16x16 input_fragment_m0{};
+                NativeWmmaBf16x16 input_fragment_m1{};
+                if (fragment_m0_active) {
+                    input_fragment_m0 = load_native_wmma_fragment(
+                        shared.a +
+                        (m_base + source_index) * kNativeWmmaSharedStride +
+                        k_sub
+                    );
+                }
+                if (fragment_m1_active) {
+                    input_fragment_m1 = load_native_wmma_fragment(
+                        shared.a +
+                        (m_base + kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride +
+                        k_sub
+                    );
+                }
+                NativeWmmaBf16x16 weight_fragment =
+                    load_native_wmma_fragment(
+                        gate_up_bf16 +
+                        (static_cast<size_t>(shared.expert) *
+                             (2u * kIntermediate) +
+                         inter) *
+                            kHidden +
+                        k_base + k_sub
+                    );
+                if (fragment_m0_active) {
+                    gate_accumulator_m0 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m0,
+                        weight_fragment,
+                        gate_accumulator_m0
+                    );
+                }
+                if (fragment_m1_active) {
+                    gate_accumulator_m1 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m1,
+                        weight_fragment,
+                        gate_accumulator_m1
+                    );
+                }
+                weight_fragment = load_native_wmma_fragment(
                     gate_up_bf16 +
                     (static_cast<size_t>(shared.expert) *
                          (2u * kIntermediate) +
-                     inter) *
+                     kIntermediate + inter) *
                         kHidden +
                     k_base + k_sub
                 );
-            gate_accumulator_m0 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m0,
-                    weight_fragment,
-                    gate_accumulator_m0
-                );
-            gate_accumulator_m1 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m1,
-                    weight_fragment,
-                    gate_accumulator_m1
-                );
-            weight_fragment = load_native_wmma_fragment(
-                gate_up_bf16 +
-                (static_cast<size_t>(shared.expert) *
-                     (2u * kIntermediate) +
-                 kIntermediate + inter) *
-                    kHidden +
-                k_base + k_sub
-            );
-            up_accumulator_m0 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m0,
-                    weight_fragment,
-                    up_accumulator_m0
-                );
-            up_accumulator_m1 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m1,
-                    weight_fragment,
-                    up_accumulator_m1
-                );
+                if (fragment_m0_active) {
+                    up_accumulator_m0 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m0,
+                        weight_fragment,
+                        up_accumulator_m0
+                    );
+                }
+                if (fragment_m1_active) {
+                    up_accumulator_m1 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m1,
+                        weight_fragment,
+                        up_accumulator_m1
+                    );
+                }
+            }
         }
         if (k_base + kNativeWmmaKStage < kHidden) {
             __syncthreads();
@@ -1560,12 +4107,21 @@ __global__ void native_wmma_down_kernel(
     const int32_t *sorted_route_ids,
     const int32_t *block_expert_ids,
     const int32_t *total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_main_route_blocks,
+    const int32_t *total_compact_main_blocks,
+#endif
     float *route_outputs_f32
 ) {
     __shared__ NativeWmmaSharedStorage shared;
 
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_compact_main_blocks) * kBlockM;
+#else
     const uint32_t padded_routes =
         static_cast<uint32_t>(*total_post_pad);
+#endif
     uint32_t route_block = 0u;
     uint32_t output_macro = 0u;
     if (!native_wmma_grouped_program(
@@ -1578,23 +4134,59 @@ __global__ void native_wmma_down_kernel(
         return;
     }
 
+    const uint32_t source_route_block =
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        static_cast<uint32_t>(compact_main_route_blocks[route_block]);
+#else
+        route_block;
+#endif
     const uint32_t thread = threadIdx.x;
     if (thread < kBlockM) {
         shared.routes[thread] =
-            sorted_route_ids[route_block * kBlockM + thread];
+            sorted_route_ids[source_route_block * kBlockM + thread];
     }
     if (thread == 0u) {
-        shared.expert = block_expert_ids[route_block];
+        shared.expert = block_expert_ids[source_route_block];
     }
     __syncthreads();
+#if QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+    if (shared.routes[32] >= static_cast<int32_t>(kRoutes)) {
+        return;
+    }
+#elif QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL || \
+    QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+    if (shared.routes[48] >= static_cast<int32_t>(kRoutes)) {
+        return;
+    }
+#endif
 
     const uint32_t wave = threadIdx.x / kNativeWmmaWaveThreads;
     const uint32_t lane = threadIdx.x % kNativeWmmaWaveThreads;
     const uint32_t source_index = lane % kNativeWmmaTile;
     const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_TALL_M96
+    const uint32_t m_group = wave % 3u;
+    const uint32_t n_group = wave / 3u;
+#elif QRT_TRITON_MOE_BLOCK_M == 32
+    constexpr uint32_t m_group = 0u;
+    const uint32_t n_group = wave;
+#else
     const uint32_t m_group = wave & 1u;
     const uint32_t n_group = wave >> 1u;
+#endif
     const uint32_t m_base = m_group * (2u * kNativeWmmaTile);
+#if QRT_TRITON_MOE_NATIVE_WMMA_PRUNE16
+    const bool fragment_m0_active =
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+    const bool fragment_m1_active =
+        shared.routes[m_base + kNativeWmmaTile] <
+        static_cast<int32_t>(kRoutes);
+#else
+    constexpr bool fragment_m0_active = true;
+    constexpr bool fragment_m1_active = true;
+#endif
+    const bool wave_has_active_fragment =
+        fragment_m0_active || fragment_m1_active;
     const uint32_t output_base =
         output_macro * kNativeWmmaDownMacroN +
         n_group * (2u * kNativeWmmaTile);
@@ -1635,58 +4227,74 @@ __global__ void native_wmma_down_kernel(
 #pragma unroll
         for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
              k_sub += kNativeWmmaTile) {
-            const NativeWmmaBf16x16 input_fragment_m0 =
-                load_native_wmma_fragment(
-                    shared.a +
-                    (m_base + source_index) * kNativeWmmaSharedStride +
-                    k_sub
-                );
-            const NativeWmmaBf16x16 input_fragment_m1 =
-                load_native_wmma_fragment(
-                    shared.a +
-                    (m_base + kNativeWmmaTile + source_index) *
-                        kNativeWmmaSharedStride +
-                    k_sub
-                );
-            NativeWmmaBf16x16 weight_fragment =
-                load_native_wmma_fragment(
+            if (wave_has_active_fragment) {
+                NativeWmmaBf16x16 input_fragment_m0{};
+                NativeWmmaBf16x16 input_fragment_m1{};
+                if (fragment_m0_active) {
+                    input_fragment_m0 = load_native_wmma_fragment(
+                        shared.a +
+                        (m_base + source_index) * kNativeWmmaSharedStride +
+                        k_sub
+                    );
+                }
+                if (fragment_m1_active) {
+                    input_fragment_m1 = load_native_wmma_fragment(
+                        shared.a +
+                        (m_base + kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride +
+                        k_sub
+                    );
+                }
+                NativeWmmaBf16x16 weight_fragment =
+                    load_native_wmma_fragment(
+                        down_bf16 +
+                        (static_cast<size_t>(shared.expert) *
+                             kHidden +
+                         output_base + source_index) *
+                            kIntermediate +
+                        k_base + k_sub
+                    );
+                if (fragment_m0_active) {
+                    accumulator_m0_n0 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m0,
+                        weight_fragment,
+                        accumulator_m0_n0
+                    );
+                }
+                if (fragment_m1_active) {
+                    accumulator_m1_n0 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m1,
+                        weight_fragment,
+                        accumulator_m1_n0
+                    );
+                }
+                weight_fragment = load_native_wmma_fragment(
                     down_bf16 +
-                    (static_cast<size_t>(shared.expert) * kHidden +
-                     output_base + source_index) *
+                    (static_cast<size_t>(shared.expert) *
+                         kHidden +
+                     output_base + kNativeWmmaTile + source_index) *
                         kIntermediate +
                     k_base + k_sub
                 );
-            accumulator_m0_n0 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m0,
-                    weight_fragment,
-                    accumulator_m0_n0
-                );
-            accumulator_m1_n0 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m1,
-                    weight_fragment,
-                    accumulator_m1_n0
-                );
-            weight_fragment = load_native_wmma_fragment(
-                down_bf16 +
-                (static_cast<size_t>(shared.expert) * kHidden +
-                 output_base + kNativeWmmaTile + source_index) *
-                    kIntermediate +
-                k_base + k_sub
-            );
-            accumulator_m0_n1 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m0,
-                    weight_fragment,
-                    accumulator_m0_n1
-                );
-            accumulator_m1_n1 =
-                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
-                    input_fragment_m1,
-                    weight_fragment,
-                    accumulator_m1_n1
-                );
+                if (fragment_m0_active) {
+                    accumulator_m0_n1 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m0,
+                        weight_fragment,
+                        accumulator_m0_n1
+                    );
+                }
+                if (fragment_m1_active) {
+                    accumulator_m1_n1 =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment_m1,
+                        weight_fragment,
+                        accumulator_m1_n1
+                    );
+                }
+            }
         }
         if (k_base + kNativeWmmaKStage < kIntermediate) {
             __syncthreads();
@@ -1727,12 +4335,5985 @@ __global__ void native_wmma_down_kernel(
         }
     }
 }
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+// One route-block CTA owns an expert/N macro and stages each B tile in LDS
+// once.  Its wave groups then reuse those weights.  This removes repeated
+// expert-weight reads without giving every wave the full route-block
+// accumulator footprint.
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+// Sixteen waves split into matching gate and up groups.  Both projections
+// consume one A stage at the same time, then exchange only the BF16-rounded
+// gate tile through the now-dead A storage.  Compared with the four-pass
+// serial-N32 route this halves global A traffic and removes the intermediate
+// gate write/read while retaining exactly the same BF16 arithmetic boundary.
+__global__ void native_wmma_gate_up_silu_lds_b_parallel_n32_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaLdsBParallelGateSharedStorage shared;
+
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+    uint32_t route_block = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            padded_routes,
+            kNativeWmmaLdsBGateGridN,
+            &route_block,
+            &inter_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+    if (thread == 0u) {
+        shared.expert = block_expert_ids[route_block];
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t projection = wave >> 3u;
+    const uint32_t m_group = wave & 7u;
+    const uint32_t m_base = m_group * kNativeWmmaTile;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const bool wave_active =
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+
+    NativeWmmaF32x8 accumulators[2u]{};
+#pragma unroll
+    for (uint32_t n_group = 0u; n_group < 2u; ++n_group) {
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks = kBlockM * kChunksPerRow;
+            constexpr uint32_t kBChunksPerProjection =
+                32u * kChunksPerRow;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBParallelGateThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                    continue;
+                }
+#endif
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread;
+                 chunk < 2u * kBChunksPerProjection;
+                 chunk += kNativeWmmaLdsBParallelGateThreads) {
+                const uint32_t weight_projection =
+                    chunk / kBChunksPerProjection;
+                const uint32_t projection_chunk =
+                    chunk % kBChunksPerProjection;
+                const uint32_t row =
+                    projection_chunk / kChunksPerRow;
+                const uint32_t row_chunk =
+                    projection_chunk % kChunksPerRow;
+                const uint32_t global_row =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * 32u + row +
+                    weight_projection * kIntermediate;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     global_row) * kHidden + k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        gate_up_bf16 + source
+                    );
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weights[weight_projection] +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+
+            __syncthreads();
+
+#pragma unroll
+            for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                 k_sub += kNativeWmmaTile) {
+                if (wave_active) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weights[projection] +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+        // The gate waves reuse A as the BF16 handoff.  The up waves must
+        // finish their final WMMA input load before any of that storage is
+        // overwritten.
+        __syncthreads();
+
+        if (projection == 0u && wave_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + 2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        shared.a[
+                            row * kNativeWmmaSharedStride +
+                            n * kNativeWmmaTile + source_index
+                        ] = float_to_bf16(
+                            accumulators[n][output_element]
+                        );
+                    }
+                }
+            }
+        }
+        __syncthreads();
+
+        if (projection == 1u && wave_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + 2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        const float gate = bf16_to_float(
+                            shared.a[
+                                row * kNativeWmmaSharedStride +
+                                n * kNativeWmmaTile + source_index
+                            ]
+                        );
+                        const float up = bf16_to_float(
+                            float_to_bf16(
+                                accumulators[n][output_element]
+                            )
+                        );
+                        const float exponent = -(gate * 1.44269504089f);
+                        const float silu = gate /
+                            (1.0f + __builtin_amdgcn_exp2f(exponent));
+                        activated_bf16[
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + source_index
+                        ] = float_to_bf16(silu * up);
+                    }
+                }
+            }
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t n = 0u; n < 2u; ++n) {
+            accumulators[n] = NativeWmmaF32x8{};
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+// Gate and up use the same M/N mapping but run as two passes through one CTA.
+// The first pass writes the BF16-rounded gate projection to the final
+// activation surface; the second reads it back and overwrites it with
+// SiLU(gate) * up.  This preserves the retained BF16 arithmetic boundary while
+// halving live accumulators from eight to four vectors per wave.  The extra A
+// read and one compact intermediate round trip are small beside the two cold
+// expert-weight matrices.
+__global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+    const uint8_t *gate_up_packed,
+    const uint32_t *gate_up_overflow_indices,
+    const uint16_t *gate_up_overflow_values,
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    const int8_t *gate_up_int8,
+    const void *gate_up_int8_scales,
+#endif
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_main_route_blocks,
+    const int32_t *total_compact_main_blocks,
+#endif
+    uint16_t *activated_bf16,
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    float *batched_hawkeye_gate_up_native_f32,
+#endif
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut,
+    uint32_t routed_projection_hawkeye_midpoint_radius,
+    uint32_t routed_up_projection_hawkeye_midpoint_radius
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    , uint16_t *routed_gate_projection_debug,
+    uint16_t *routed_up_projection_debug,
+    float *routed_gate_projection_f32_debug,
+    float *routed_up_projection_f32_debug,
+    uint32_t *routed_projection_hawkeye_correction_count_debug,
+    uint32_t routed_projection_debug_token
+#endif
+) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    __shared__ NativeWmmaLdsBSplitGateSharedStorage shared;
+#else
+    __shared__ NativeWmmaLdsBGateSharedStorage shared;
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_routes =
+        static_cast<uint32_t>(*total_compact_main_blocks) * kBlockM;
+#else
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+#endif
+    uint32_t route_block = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+            indexed_routes,
+#else
+            padded_routes,
+#endif
+            kNativeWmmaLdsBGateGridN,
+            &route_block,
+            &inter_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    route_block = static_cast<uint32_t>(
+        compact_main_route_blocks[route_block]
+    );
+    (void)total_post_pad;
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    const int32_t encoded_expert = block_expert_ids[route_block];
+    // The penultimate descriptor is encoded as -expert-1 and owns the final
+    // overflow block.  The final descriptor is encoded below -kExperts and is
+    // only a skip marker.  The M64 path maps its <=M32 overflow to two spare
+    // cooperative-load waves, preserving the retained per-wave accumulator
+    // footprint while reusing every staged N32 weight tile.
+    // Keeping the live overflow in this CTA also preserves the earlier
+    // M80/M16 fusion route.
+    if (encoded_expert < -static_cast<int32_t>(kExperts)) {
+        return;
+    }
+    const bool fused_overflow = encoded_expert < 0;
+    const int32_t expert = fused_overflow
+        ? -encoded_expert - 1
+        : encoded_expert;
+#endif
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    if (thread < kNativeWmmaLdsBFusedOverflowRows) {
+        shared.routes[kBlockM + thread] = fused_overflow
+            ? sorted_route_ids[(route_block + 1u) * kBlockM + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+#endif
+    if (thread == 0u) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+        shared.expert = expert;
+#else
+        shared.expert = block_expert_ids[route_block];
+#endif
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16
+    // A sole M16 fragment needs the four gate/up N32 products but only one
+    // route fragment.  Stage all four weight tiles cooperatively and give one
+    // tile to each arithmetic wave.  This keeps one expert per CTA (and thus
+    // the retained cold-weight locality) while collapsing four K traversals
+    // to one.  Waves 0..1 publish BF16 gate values before waves 2..3 apply
+    // SiLU to the matching up projections.
+    const bool quad_gate_m16 =
+        shared.routes[0] < static_cast<int32_t>(kRoutes) &&
+        shared.routes[kNativeWmmaTile] >= static_cast<int32_t>(kRoutes);
+    if (quad_gate_m16) {
+        constexpr uint32_t kQuadRows = kNativeWmmaTile;
+        constexpr uint32_t kQuadWaves = 4u;
+        constexpr uint32_t kWeightRowsPerWave = 32u;
+        const uint32_t quad_wave =
+            thread / kNativeWmmaWaveThreads;
+        const uint32_t quad_lane =
+            thread % kNativeWmmaWaveThreads;
+        const uint32_t quad_source_index =
+            quad_lane % kNativeWmmaTile;
+        const uint32_t quad_output_row_segment =
+            quad_lane / kNativeWmmaTile;
+        NativeWmmaF32x8 quad_accumulators[2]{};
+
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kQuadRows * kChunksPerRow;
+            constexpr uint32_t kWeightChunksPerWave =
+                kWeightRowsPerWave * kChunksPerRow;
+            constexpr uint32_t kWeightChunks =
+                kQuadWaves * kWeightChunksPerWave;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBGateThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kWeightChunks;
+                 chunk += kNativeWmmaLdsBGateThreads) {
+                const uint32_t weight_wave =
+                    chunk / kWeightChunksPerWave;
+                const uint32_t wave_chunk =
+                    chunk % kWeightChunksPerWave;
+                const uint32_t row = wave_chunk / kChunksPerRow;
+                const uint32_t row_chunk =
+                    wave_chunk % kChunksPerRow;
+                const uint32_t projection = weight_wave >> 1u;
+                const uint32_t n_group = weight_wave & 1u;
+                const uint32_t global_row =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * kWeightRowsPerWave + row +
+                    projection * kIntermediate;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     global_row) * kHidden +
+                    k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        gate_up_bf16 + source
+                    );
+                uint16_t *weight_base = projection == 0u
+                    ? shared.gate
+                    : shared.up;
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    weight_base +
+                    (n_group * kWeightRowsPerWave + row) *
+                        kNativeWmmaSharedStride +
+                    row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+            if (quad_wave < kQuadWaves) {
+                const uint32_t projection = quad_wave >> 1u;
+                const uint32_t n_group = quad_wave & 1u;
+                const uint16_t *weight_base = projection == 0u
+                    ? shared.gate
+                    : shared.up;
+#pragma unroll
+                for (uint32_t k_sub = 0u;
+                     k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            quad_source_index * kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            n_group * kWeightRowsPerWave +
+                            n * kNativeWmmaTile + quad_source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                weight_base +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        quad_accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                quad_accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+        if (quad_wave < 2u) {
+            const uint32_t n_group = quad_wave;
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * kWeightRowsPerWave +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        2u * output_element +
+                        quad_output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        activated_bf16[
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + quad_source_index
+                        ] = float_to_bf16(
+                            quad_accumulators[n][output_element]
+                        );
+                    }
+                }
+            }
+        }
+        __syncthreads();
+        if (quad_wave >= 2u && quad_wave < kQuadWaves) {
+            const uint32_t n_group = quad_wave & 1u;
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * kWeightRowsPerWave +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        2u * output_element +
+                        quad_output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route < 0 ||
+                        output_route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+                    const size_t destination =
+                        static_cast<size_t>(output_route) * kIntermediate +
+                        inter_base + quad_source_index;
+                    const uint16_t gate_bf16 = activated_bf16[destination];
+                    const float up = bf16_to_float(float_to_bf16(
+                        quad_accumulators[n][output_element]
+                    ));
+                    const float silu = routed_silu_from_gate_bf16(
+                        gate_bf16,
+                        cuda_vllm_silu_bf16_domain_lut
+                    );
+                    activated_bf16[destination] =
+                        float_to_bf16(silu * up);
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16
+    // Keep cooperative LDS weight staging for one-fragment blocks, but stage
+    // both N32 halves of a projection together.  Two waves then consume the
+    // two halves concurrently, cutting four A traversals to two without the
+    // uncached per-wave global weight reads of the rejected direct variant.
+    const bool dual_m16 =
+        shared.routes[0] < static_cast<int32_t>(kRoutes) &&
+        shared.routes[kNativeWmmaTile] >= static_cast<int32_t>(kRoutes);
+    if (dual_m16) {
+        constexpr uint32_t kDualRows = kNativeWmmaTile;
+        constexpr uint32_t kDualWaves = 2u;
+        constexpr uint32_t kWeightRowsPerWave = 32u;
+        const uint32_t dual_wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t dual_lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t dual_source_index = dual_lane % kNativeWmmaTile;
+        const uint32_t dual_output_row_segment =
+            dual_lane / kNativeWmmaTile;
+        NativeWmmaF32x8 dual_accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t projection = 0u; projection < 2u; ++projection) {
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kHidden;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks =
+                    kDualRows * kChunksPerRow;
+                constexpr uint32_t kWeightChunksPerWave =
+                    kWeightRowsPerWave * kChunksPerRow;
+                constexpr uint32_t kWeightChunks =
+                    kDualWaves * kWeightChunksPerWave;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += kNativeWmmaLdsBGateThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 &&
+                        route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(
+                                route / static_cast<int32_t>(kTopK)
+                            ) * kHidden + k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<
+                            const NativeWmmaU32x4 *
+                        >(post_attention_bf16 + source);
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kWeightChunks;
+                     chunk += kNativeWmmaLdsBGateThreads) {
+                    const uint32_t weight_wave =
+                        chunk / kWeightChunksPerWave;
+                    const uint32_t wave_chunk =
+                        chunk % kWeightChunksPerWave;
+                    const uint32_t row = wave_chunk / kChunksPerRow;
+                    const uint32_t row_chunk = wave_chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        weight_wave * kWeightRowsPerWave + row +
+                        projection * kIntermediate;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) *
+                             (2u * kIntermediate) +
+                         global_row) * kHidden +
+                        k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            gate_up_bf16 + source
+                        );
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.gate +
+                        (weight_wave * kWeightRowsPerWave + row) *
+                            kNativeWmmaSharedStride +
+                        row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+                if (dual_wave < kDualWaves) {
+#pragma unroll
+                    for (uint32_t k_sub = 0u;
+                         k_sub < kNativeWmmaKStage;
+                         k_sub += kNativeWmmaTile) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                dual_source_index *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                dual_wave * kWeightRowsPerWave +
+                                n * kNativeWmmaTile + dual_source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    shared.gate +
+                                    weight_row *
+                                        kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            dual_accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    dual_accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kHidden) {
+                    __syncthreads();
+                }
+            }
+
+            if (dual_wave < kDualWaves) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t inter_base =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        dual_wave * kWeightRowsPerWave +
+                        n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row = 2u * output_element +
+                            dual_output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route < 0 ||
+                            output_route >= static_cast<int32_t>(kRoutes)) {
+                            continue;
+                        }
+                        const size_t destination =
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + dual_source_index;
+                        const uint16_t projected = float_to_bf16(
+                            dual_accumulators[n][output_element]
+                        );
+                        if (projection == 0u) {
+                            activated_bf16[destination] = projected;
+                        } else {
+                            const float gate = bf16_to_float(
+                                activated_bf16[destination]
+                            );
+                            const float up = bf16_to_float(projected);
+                            const float exponent =
+                                -(gate * 1.44269504089f);
+                            const float silu = gate /
+                                (1.0f + __builtin_amdgcn_exp2f(exponent));
+                            activated_bf16[destination] =
+                                float_to_bf16(silu * up);
+                        }
+                    }
+                }
+            }
+            if (projection + 1u < 2u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    dual_accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16
+    // A one-fragment block used to traverse K four times while only one of
+    // the four arithmetic waves was live.  Give each live wave one of the
+    // gate/up N32 passes instead.  The weight fragment is read directly by
+    // its owning wave, so the four passes share one A traversal without
+    // expanding LDS or changing the BF16 gate handoff.
+    const bool direct_m16 =
+        shared.routes[0] < static_cast<int32_t>(kRoutes) &&
+        shared.routes[kNativeWmmaTile] >= static_cast<int32_t>(kRoutes);
+    if (direct_m16) {
+        constexpr uint32_t kDirectRows = kNativeWmmaTile;
+        constexpr uint32_t kDirectWaves = 4u;
+        const uint32_t direct_wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t direct_lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t direct_source_index =
+            direct_lane % kNativeWmmaTile;
+        const uint32_t direct_output_row_segment =
+            direct_lane / kNativeWmmaTile;
+        const uint32_t direct_projection = direct_wave >> 1u;
+        const uint32_t direct_n_group = direct_wave & 1u;
+        NativeWmmaF32x8 direct_accumulators[2]{};
+
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kDirectRows * kChunksPerRow;
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBGateThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+            if (direct_wave < kDirectWaves) {
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            direct_source_index *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t global_row =
+                            inter_macro * kNativeWmmaLdsBGateMacroN +
+                            direct_n_group * 32u +
+                            n * kNativeWmmaTile +
+                            direct_source_index +
+                            direct_projection * kIntermediate;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                gate_up_bf16 +
+                                (static_cast<size_t>(shared.expert) *
+                                     (2u * kIntermediate) +
+                                 global_row) * kHidden +
+                                k_base + k_sub
+                            );
+                        direct_accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                direct_accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+        if (direct_wave < 2u) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    direct_n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        2u * output_element + direct_output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        activated_bf16[
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + direct_source_index
+                        ] = float_to_bf16(
+                            direct_accumulators[n][output_element]
+                        );
+                    }
+                }
+            }
+        }
+        __syncthreads();
+        if (direct_wave >= 2u && direct_wave < kDirectWaves) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    direct_n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        2u * output_element + direct_output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        const size_t destination =
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + direct_source_index;
+                        const uint16_t gate_bf16 =
+                            activated_bf16[destination];
+                        const float up = bf16_to_float(float_to_bf16(
+                            direct_accumulators[n][output_element]
+                        ));
+                        const float silu = routed_silu_from_gate_bf16(
+                            gate_bf16,
+                            cuda_vllm_silu_bf16_domain_lut
+                        );
+                        activated_bf16[destination] =
+                            float_to_bf16(silu * up);
+                    }
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+    constexpr uint32_t kMFragmentsPerWave = 1u;
+    constexpr uint32_t kNFragmentsPerWave = 2u;
+    constexpr uint32_t kProjectionPasses = 2u;
+    constexpr uint32_t kWeightRowsPerPass =
+        kNativeWmmaLdsBGateMacroN;
+    constexpr uint32_t kMGroups = kBlockM / kNativeWmmaTile;
+    constexpr uint32_t kLoadThreads =
+        kNativeWmmaLdsBParallelGateN64Threads;
+    const uint32_t m_group = wave % kMGroups;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32
+    constexpr uint32_t kMFragmentsPerWave = 1u;
+    constexpr uint32_t kNFragmentsPerWave =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        4u;
+#else
+        2u;
+#endif
+    constexpr uint32_t kProjectionPasses =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        2u;
+#else
+        4u;
+#endif
+    constexpr uint32_t kWeightRowsPerPass =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        64u;
+#else
+        32u;
+#endif
+    constexpr uint32_t kLoadThreads = kNativeWmmaLdsBGateThreads;
+    const uint32_t m_group = wave;
+#else
+    constexpr uint32_t kMFragmentsPerWave = 2u;
+    constexpr uint32_t kNFragmentsPerWave = 2u;
+    constexpr uint32_t kProjectionPasses = 2u;
+    constexpr uint32_t kWeightRowsPerPass =
+        kNativeWmmaLdsBGateMacroN;
+    constexpr uint32_t kLoadThreads = kNativeWmmaLdsBThreads;
+    const uint32_t m_group = wave & 3u;
+#endif
+    const uint32_t m_base =
+        m_group * kMFragmentsPerWave * kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32
+    const uint32_t active_rows = fused_overflow
+        ? kNativeWmmaLdsBSerialRows
+        : kBlockM;
+#else
+    constexpr uint32_t active_rows = kBlockM;
+#endif
+    bool fragment_active[kMFragmentsPerWave]{};
+    bool wave_active = false;
+#pragma unroll
+    for (uint32_t m = 0u; m < kMFragmentsPerWave; ++m) {
+        fragment_active[m] =
+            m_base + m * kNativeWmmaTile < active_rows &&
+            shared.routes[m_base + m * kNativeWmmaTile] <
+            static_cast<int32_t>(kRoutes);
+        wave_active = wave_active || fragment_active[m];
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const bool overflow_fragment_active = fused_overflow && wave == 0u &&
+        shared.routes[kNativeWmmaLdsBOverflowRow] <
+            static_cast<int32_t>(kRoutes);
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+    const bool overflow_fragment_active = wave == 0u &&
+        shared.routes[kNativeWmmaLdsBOverflowRow] <
+            static_cast<int32_t>(kRoutes);
+#endif
+
+    NativeWmmaF32x8 accumulators
+        [kMFragmentsPerWave][kNFragmentsPerWave]{};
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+    NativeWmmaF32x8 overflow_accumulators[kNFragmentsPerWave]{};
+#endif
+#pragma unroll
+    for (uint32_t pass = 0u; pass < kProjectionPasses; ++pass) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+        const uint32_t projection = pass;
+        const uint32_t n_group = wave / kMGroups;
+        constexpr uint32_t kGlobalNGroup = 0u;
+        const uint32_t kSharedNGroup = n_group;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        const uint32_t projection = pass;
+        constexpr uint32_t n_group = 0u;
+        constexpr uint32_t kGlobalNGroup = 0u;
+        constexpr uint32_t kSharedNGroup = 0u;
+#else
+        const uint32_t projection = pass >> 1u;
+        const uint32_t n_group = pass & 1u;
+        const uint32_t kGlobalNGroup = n_group;
+        constexpr uint32_t kSharedNGroup = 0u;
+#endif
+#else
+        const uint32_t projection = pass;
+        const uint32_t n_group = wave >> 2u;
+        constexpr uint32_t kGlobalNGroup = 0u;
+        const uint32_t kSharedNGroup = n_group;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+        constexpr uint32_t kRowPaletteChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kRowPaletteBChunks =
+            kWeightRowsPerPass * kRowPaletteChunksPerRow;
+        const uint32_t row_palette_weight_row =
+            thread < kRowPaletteBChunks
+                ? thread / kRowPaletteChunksPerRow
+                : 0u;
+        const uint32_t row_palette_global_row =
+            inter_macro * kNativeWmmaLdsBGateMacroN +
+            kGlobalNGroup * kWeightRowsPerPass +
+            row_palette_weight_row + projection * kIntermediate;
+        const size_t row_palette_source_row =
+            static_cast<size_t>(shared.expert) * (2u * kIntermediate) +
+            row_palette_global_row;
+        const NativeWmmaLosslessRowPaletteView row_palette_view =
+            native_wmma_prepare_lossless_row_palette_view(
+                gate_up_bf16,
+                gate_up_packed,
+                gate_up_overflow_indices,
+                gate_up_overflow_values,
+                row_palette_source_row,
+                kHidden
+            );
+#endif
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            const uint32_t a_rows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+                fused_overflow ? kNativeWmmaLdsBSerialRows : kBlockM;
+#else
+                kBlockM;
+#endif
+            const uint32_t a_chunks = a_rows * kChunksPerRow;
+            constexpr uint32_t kBChunks =
+                kWeightRowsPerPass * kChunksPerRow;
+
+            for (uint32_t chunk = thread; chunk < a_chunks;
+                 chunk += kLoadThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                    continue;
+                }
+#endif
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kBChunks;
+                 chunk += kLoadThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const uint32_t global_row =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    kGlobalNGroup * kWeightRowsPerPass + row +
+                    projection * kIntermediate;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     global_row) * kHidden + k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+                    native_wmma_load_weight_int8_vector(
+                        gate_up_bf16,
+                        gate_up_int8,
+                        gate_up_int8_scales,
+                        source
+                    );
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+                    native_wmma_load_lossless_row_palette_vector(
+                        row_palette_view,
+                        k_base + row_chunk * 8u,
+                        kHidden
+                    );
+#else
+                    native_wmma_load_lossless_palette_vector(
+                        gate_up_bf16,
+                        gate_up_packed,
+                        gate_up_overflow_indices,
+                        gate_up_overflow_values,
+                        source
+                    );
+#endif
+#else
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        gate_up_bf16 + source
+                    );
+#endif
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.gate +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+
+            __syncthreads();
+
+#pragma unroll
+            for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                 k_sub += kNativeWmmaTile) {
+                if (wave_active) {
+                    NativeWmmaBf16x16 input_fragments
+                        [kMFragmentsPerWave]{};
+#pragma unroll
+                    for (uint32_t m = 0u; m < kMFragmentsPerWave; ++m) {
+                        if (fragment_active[m]) {
+                            input_fragments[m] = load_native_wmma_fragment(
+                                shared.a +
+                                (m_base + m * kNativeWmmaTile +
+                                 source_index) * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        }
+                    }
+#pragma unroll
+                    for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                        const uint32_t weight_row =
+                            kSharedNGroup *
+                                (kNFragmentsPerWave * kNativeWmmaTile) +
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.gate +
+                                weight_row * kNativeWmmaSharedStride + k_sub
+                            );
+#pragma unroll
+                        for (uint32_t m = 0u;
+                             m < kMFragmentsPerWave;
+                             ++m) {
+                            if (fragment_active[m]) {
+                                accumulators[m][n] =
+                                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                        input_fragments[m],
+                                        weight_fragment,
+                                        accumulators[m][n]
+                                    );
+                            }
+                        }
+                    }
+                }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+                if (overflow_fragment_active) {
+                    const NativeWmmaBf16x16 overflow_input =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (kNativeWmmaLdsBOverflowRow + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                        const uint32_t weight_row =
+                            kSharedNGroup *
+                                (kNFragmentsPerWave * kNativeWmmaTile) +
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.gate +
+                                weight_row * kNativeWmmaSharedStride + k_sub
+                            );
+                        overflow_accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                overflow_input,
+                                weight_fragment,
+                                overflow_accumulators[n]
+                            );
+                    }
+                }
+#endif
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+#pragma unroll
+        for (uint32_t m = 0u; m < kMFragmentsPerWave; ++m) {
+            if (!fragment_active[m]) {
+                continue;
+            }
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group *
+                        (kNFragmentsPerWave * kNativeWmmaTile) +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + m * kNativeWmmaTile +
+                        2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        const size_t destination =
+                            static_cast<size_t>(output_route) * kIntermediate +
+                            inter_base + source_index;
+                        const float native_accumulator =
+                            accumulators[m][n][output_element];
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+                        batched_hawkeye_gate_up_native_f32[
+                            static_cast<size_t>(projection) *
+                                kActivatedElements +
+                            destination
+                        ] = native_accumulator;
+#else
+                        const uint16_t projected =
+                            routed_projection_bf16_endpoint(
+                                native_accumulator,
+                                post_attention_bf16,
+                                gate_up_bf16,
+                                output_route,
+                                shared.expert,
+                                projection,
+                                inter_base + source_index,
+                                projection == 0u
+                                    ? routed_projection_hawkeye_midpoint_radius
+                                    : routed_up_projection_hawkeye_midpoint_radius
+                                , projection == 0u
+                                    ? 0u
+                                    : activated_bf16[destination]
+                                , cuda_vllm_silu_bf16_domain_lut
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+                                , routed_projection_hawkeye_correction_count_debug
+#endif
+                        );
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+                        const int32_t debug_route_begin =
+                            static_cast<int32_t>(
+                                routed_projection_debug_token * kTopK
+                            );
+                        if (output_route >= debug_route_begin &&
+                            output_route <
+                                debug_route_begin +
+                                    static_cast<int32_t>(kTopK)) {
+                            const size_t debug_destination =
+                                static_cast<size_t>(
+                                    output_route - debug_route_begin
+                                ) * kIntermediate +
+                                inter_base + source_index;
+                            if (projection == 0u) {
+                                routed_gate_projection_debug[
+                                    debug_destination
+                                ] = projected;
+                                routed_gate_projection_f32_debug[
+                                    debug_destination
+                                ] = native_accumulator;
+                            } else {
+                                routed_up_projection_debug[
+                                    debug_destination
+                                ] = projected;
+                                routed_up_projection_f32_debug[
+                                    debug_destination
+                                ] = native_accumulator;
+                            }
+                        }
+#endif
+                        if (projection == 0u) {
+                            activated_bf16[destination] = projected;
+                        } else {
+                            const uint16_t gate_bf16 =
+                                activated_bf16[destination];
+                            const float up = bf16_to_float(projected);
+                            const float silu = routed_silu_from_gate_bf16(
+                                gate_bf16,
+                                cuda_vllm_silu_bf16_domain_lut
+                            );
+                            activated_bf16[destination] =
+                                float_to_bf16(silu * up);
+                        }
+#endif
+                    }
+                }
+            }
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+        if (overflow_fragment_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * (kNFragmentsPerWave * kNativeWmmaTile) +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        kNativeWmmaLdsBOverflowRow +
+                        2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        const size_t destination =
+                            static_cast<size_t>(output_route) * kIntermediate +
+                            inter_base + source_index;
+                        const uint16_t projected = float_to_bf16(
+                            overflow_accumulators[n][output_element]
+                        );
+                        if (projection == 0u) {
+                            activated_bf16[destination] = projected;
+                        } else {
+                            const uint16_t gate_bf16 =
+                                activated_bf16[destination];
+                            const float up = bf16_to_float(projected);
+                            const float silu = routed_silu_from_gate_bf16(
+                                gate_bf16,
+                                cuda_vllm_silu_bf16_domain_lut
+                            );
+                            activated_bf16[destination] =
+                                float_to_bf16(silu * up);
+                        }
+                    }
+                }
+            }
+        }
+#endif
+        if (pass + 1u < kProjectionPasses) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t m = 0u; m < kMFragmentsPerWave; ++m) {
+#pragma unroll
+                for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                    accumulators[m][n] = NativeWmmaF32x8{};
+                }
+            }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                overflow_accumulators[n] = NativeWmmaF32x8{};
+            }
+#endif
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+__global__ __launch_bounds__(256)
+void routed_gate_batched_hawkeye_correction_kernel(
+    const float *gate_up_native_f32,
+    const uint16_t *input_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *topk_ids,
+    uint16_t *activated_bf16,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut,
+    uint32_t route_count,
+    uint32_t midpoint_radius,
+    uint32_t low_exponent_threshold
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    , uint16_t *gate_projection_debug,
+    float *gate_projection_f32_debug,
+    uint32_t *correction_count_debug,
+    uint32_t debug_token
+#endif
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t projection_elements =
+        static_cast<size_t>(route_count) * kIntermediate;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index < projection_elements) {
+        const float native = gate_up_native_f32[index];
+        activated_bf16[index] = float_to_bf16(native);
+        const uint32_t native_bits = __float_as_uint(native);
+        const uint32_t low_bits = native_bits & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        const uint32_t native_exponent =
+            (native_bits >> 23u) & UINT32_C(0xff);
+        const bool midpoint_candidate = midpoint_radius != 0u &&
+            midpoint_distance <= midpoint_radius;
+        const bool low_exponent_candidate =
+            low_exponent_threshold != 0u &&
+            native_exponent <= low_exponent_threshold &&
+            routed_gate_projection_needs_hawkeye_replay(
+                native,
+                gate_up_native_f32[kActivatedElements + index],
+                cuda_vllm_silu_bf16_domain_lut
+            );
+        if (midpoint_candidate || low_exponent_candidate) {
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+        }
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        const uint32_t route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t debug_route_begin = debug_token * kTopK;
+        if (route >= debug_route_begin &&
+            route < debug_route_begin + kTopK) {
+            const size_t debug_index =
+                static_cast<size_t>(route - debug_route_begin) *
+                    kIntermediate +
+                index - static_cast<size_t>(route) * kIntermediate;
+            gate_projection_f32_debug[debug_index] = native;
+        }
+#endif
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (threadIdx.x == 0u && correction_count_debug != nullptr) {
+        atomicAdd(correction_count_debug, candidate_count);
+    }
+#endif
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t route = candidate / kIntermediate;
+        const uint32_t row = candidate - route * kIntermediate;
+        const uint32_t token = route / kTopK;
+        const int32_t expert = topk_ids[route];
+        const size_t weight_row =
+            static_cast<size_t>(expert) * (2u * kIntermediate) + row;
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            input_bf16 + static_cast<size_t>(token) * kHidden,
+            gate_up_bf16 + weight_row * kHidden,
+            kHidden
+        );
+        if (lane == 0u) {
+            activated_bf16[candidate] = float_to_bf16(exact);
+        }
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (index < projection_elements) {
+        const uint32_t route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t debug_route_begin = debug_token * kTopK;
+        if (route >= debug_route_begin &&
+            route < debug_route_begin + kTopK) {
+            const size_t debug_index =
+                static_cast<size_t>(route - debug_route_begin) *
+                    kIntermediate +
+                index - static_cast<size_t>(route) * kIntermediate;
+            gate_projection_debug[debug_index] = activated_bf16[index];
+        }
+    }
+#endif
+}
+
+__global__ __launch_bounds__(256)
+void routed_up_batched_hawkeye_correction_activation_kernel(
+    float *gate_up_native_f32,
+    const uint16_t *input_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *topk_ids,
+    uint16_t *activated_bf16,
+    const uint16_t *cuda_vllm_silu_bf16_domain_lut,
+    uint32_t route_count,
+    uint32_t midpoint_radius,
+    uint32_t low_exponent_threshold
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    , uint16_t *up_projection_debug,
+    float *up_projection_f32_debug,
+    uint32_t *correction_count_debug,
+    uint32_t debug_token
+#endif
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t projection_elements =
+        static_cast<size_t>(route_count) * kIntermediate;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    float *up_native_f32 = gate_up_native_f32 + kActivatedElements;
+    if (index < projection_elements) {
+        const float native = up_native_f32[index];
+        const uint32_t native_bits = __float_as_uint(native);
+        const uint32_t low_bits = native_bits & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        const uint32_t native_exponent =
+            (native_bits >> 23u) & UINT32_C(0xff);
+        const bool midpoint_candidate = midpoint_radius != 0u &&
+            midpoint_distance <= midpoint_radius;
+        const bool low_exponent_candidate =
+            low_exponent_threshold != 0u &&
+            native_exponent <= low_exponent_threshold;
+        if ((midpoint_candidate || low_exponent_candidate) &&
+            routed_up_projection_needs_hawkeye_replay(
+                native,
+                activated_bf16[index],
+                cuda_vllm_silu_bf16_domain_lut
+            )) {
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+        }
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        const uint32_t route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t debug_route_begin = debug_token * kTopK;
+        if (route >= debug_route_begin &&
+            route < debug_route_begin + kTopK) {
+            const size_t debug_index =
+                static_cast<size_t>(route - debug_route_begin) *
+                    kIntermediate +
+                index - static_cast<size_t>(route) * kIntermediate;
+            up_projection_f32_debug[debug_index] = native;
+        }
+#endif
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (threadIdx.x == 0u && correction_count_debug != nullptr) {
+        atomicAdd(correction_count_debug, candidate_count);
+    }
+#endif
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t route = candidate / kIntermediate;
+        const uint32_t row = candidate - route * kIntermediate;
+        const uint32_t token = route / kTopK;
+        const int32_t expert = topk_ids[route];
+        const size_t weight_row =
+            static_cast<size_t>(expert) * (2u * kIntermediate) +
+            kIntermediate + row;
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            input_bf16 + static_cast<size_t>(token) * kHidden,
+            gate_up_bf16 + weight_row * kHidden,
+            kHidden
+        );
+        if (lane == 0u) {
+            up_native_f32[candidate] = exact;
+        }
+    }
+    __syncthreads();
+
+    if (index < projection_elements) {
+        const uint16_t projected = float_to_bf16(up_native_f32[index]);
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        const uint32_t route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t debug_route_begin = debug_token * kTopK;
+        if (route >= debug_route_begin &&
+            route < debug_route_begin + kTopK) {
+            const size_t debug_index =
+                static_cast<size_t>(route - debug_route_begin) *
+                    kIntermediate +
+                index - static_cast<size_t>(route) * kIntermediate;
+            up_projection_debug[debug_index] = projected;
+        }
+#endif
+        const uint16_t gate_bf16 = activated_bf16[index];
+        const float silu = routed_silu_from_gate_bf16(
+            gate_bf16,
+            cuda_vllm_silu_bf16_domain_lut
+        );
+        activated_bf16[index] =
+            float_to_bf16(silu * bf16_to_float(projected));
+    }
+}
+#endif
+
+__global__ void native_wmma_gate_up_silu_lds_b_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaLdsBGateSharedStorage shared;
+
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+    uint32_t route_block = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            padded_routes,
+            kNativeWmmaLdsBGateGridN,
+            &route_block,
+            &inter_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+    if (thread == 0u) {
+        shared.expert = block_expert_ids[route_block];
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+    const uint32_t m_group = wave % 3u;
+    const uint32_t n_group = wave / 3u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
+    // Eight waves cover M64xN64 as M16xN32 tiles.  Gate and up therefore
+    // need four accumulator fragments per wave instead of eight.
+    const uint32_t m_group = wave >> 1u;
+    const uint32_t n_group = wave & 1u;
+#else
+    const uint32_t m_group = wave & 3u;
+    const uint32_t n_group = wave >> 2u;
+#endif
+    const uint32_t m_base =
+        m_group * kNativeWmmaLdsBGateMFragmentsPerWave * kNativeWmmaTile;
+    bool fragment_active[kNativeWmmaLdsBGateMFragmentsPerWave]{};
+    bool wave_active = false;
+#pragma unroll
+    for (uint32_t m = 0u;
+         m < kNativeWmmaLdsBGateMFragmentsPerWave;
+         ++m) {
+        fragment_active[m] =
+            shared.routes[m_base + m * kNativeWmmaTile] <
+            static_cast<int32_t>(kRoutes);
+        wave_active = wave_active || fragment_active[m];
+    }
+
+    NativeWmmaF32x8 gate_accumulators
+        [kNativeWmmaLdsBGateMFragmentsPerWave]
+        [kNativeWmmaLdsBGateNFragmentsPerWave]{};
+    NativeWmmaF32x8 up_accumulators
+        [kNativeWmmaLdsBGateMFragmentsPerWave]
+        [kNativeWmmaLdsBGateNFragmentsPerWave]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kHidden;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kBlockM * kChunksPerRow;
+        constexpr uint32_t kBChunks =
+            kNativeWmmaLdsBGateMacroN * kChunksPerRow;
+
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaLdsBThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source =
+                    static_cast<size_t>(
+                        route / static_cast<int32_t>(kTopK)
+                    ) * kHidden + k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    post_attention_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a +
+                row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        for (uint32_t chunk = thread; chunk < 2u * kBChunks;
+             chunk += kNativeWmmaLdsBThreads) {
+            const bool up_matrix = chunk >= kBChunks;
+            const uint32_t local_chunk = up_matrix
+                ? chunk - kBChunks
+                : chunk;
+            const uint32_t row = local_chunk / kChunksPerRow;
+            const uint32_t row_chunk = local_chunk % kChunksPerRow;
+            const uint32_t global_row =
+                inter_macro * kNativeWmmaLdsBGateMacroN + row +
+                (up_matrix ? kIntermediate : 0u);
+            const size_t source =
+                (static_cast<size_t>(shared.expert) *
+                     (2u * kIntermediate) +
+                 global_row) * kHidden + k_base + row_chunk * 8u;
+            const NativeWmmaU32x4 value =
+                *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    gate_up_bf16 + source
+                );
+            uint16_t *destination = up_matrix ? shared.up : shared.gate;
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                destination +
+                row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            if (wave_active) {
+                NativeWmmaBf16x16 input_fragments
+                    [kNativeWmmaLdsBGateMFragmentsPerWave]{};
+#pragma unroll
+                for (uint32_t m = 0u;
+                     m < kNativeWmmaLdsBGateMFragmentsPerWave;
+                     ++m) {
+                    if (fragment_active[m]) {
+                        input_fragments[m] = load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + m * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+                    }
+                }
+#pragma unroll
+                for (uint32_t n = 0u;
+                     n < kNativeWmmaLdsBGateNFragmentsPerWave;
+                     ++n) {
+                    const uint32_t weight_row =
+                        n_group *
+                            (kNativeWmmaLdsBGateNFragmentsPerWave *
+                             kNativeWmmaTile) +
+                        n * kNativeWmmaTile + source_index;
+                    const NativeWmmaBf16x16 gate_fragment =
+                        load_native_wmma_fragment(
+                            shared.gate +
+                            weight_row * kNativeWmmaSharedStride + k_sub
+                        );
+                    const NativeWmmaBf16x16 up_fragment =
+                        load_native_wmma_fragment(
+                            shared.up +
+                            weight_row * kNativeWmmaSharedStride + k_sub
+                        );
+#pragma unroll
+                    for (uint32_t m = 0u;
+                         m < kNativeWmmaLdsBGateMFragmentsPerWave;
+                         ++m) {
+                        if (fragment_active[m]) {
+                            gate_accumulators[m][n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragments[m],
+                                    gate_fragment,
+                                    gate_accumulators[m][n]
+                                );
+                            up_accumulators[m][n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragments[m],
+                                    up_fragment,
+                                    up_accumulators[m][n]
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kHidden) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t m = 0u;
+         m < kNativeWmmaLdsBGateMFragmentsPerWave;
+         ++m) {
+        if (!fragment_active[m]) {
+            continue;
+        }
+#pragma unroll
+        for (uint32_t n = 0u;
+             n < kNativeWmmaLdsBGateNFragmentsPerWave;
+             ++n) {
+            const uint32_t inter_base =
+                inter_macro * kNativeWmmaLdsBGateMacroN +
+                n_group *
+                    (kNativeWmmaLdsBGateNFragmentsPerWave *
+                     kNativeWmmaTile) +
+                n * kNativeWmmaTile;
+#pragma unroll
+            for (uint32_t output_element = 0u; output_element < 8u;
+                 ++output_element) {
+                const uint32_t row =
+                    m_base + m * kNativeWmmaTile +
+                    2u * output_element + output_row_segment;
+                const int32_t output_route = shared.routes[row];
+                if (output_route >= 0 &&
+                    output_route < static_cast<int32_t>(kRoutes)) {
+                    const float gate = bf16_to_float(float_to_bf16(
+                        gate_accumulators[m][n][output_element]
+                    ));
+                    const float up = bf16_to_float(float_to_bf16(
+                        up_accumulators[m][n][output_element]
+                    ));
+                    const float exponent = -(gate * 1.44269504089f);
+                    const float silu = gate /
+                        (1.0f + __builtin_amdgcn_exp2f(exponent));
+                    activated_bf16[
+                        static_cast<size_t>(output_route) * kIntermediate +
+                        inter_base + source_index
+                    ] = float_to_bf16(silu * up);
+                }
+            }
+        }
+    }
+}
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32
+// The retained path uses four N32 passes with two accumulator fragments per
+// wave.  M96 may instead use two N64 passes with four fragments: the same
+// BF16 WMMA/output order and weight bytes, but half the A reloads and barriers.
+__global__ void native_wmma_down_lds_b_serial_n32_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+    const uint8_t *down_packed,
+    const uint32_t *down_overflow_indices,
+    const uint16_t *down_overflow_values,
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    const int8_t *down_int8,
+    const void *down_int8_scales,
+#endif
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_main_route_blocks,
+    const int32_t *total_compact_main_blocks,
+#endif
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaLdsBSerialDownSharedStorage shared;
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_routes =
+        static_cast<uint32_t>(*total_compact_main_blocks) * kBlockM;
+#else
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+#endif
+    uint32_t route_block = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+            indexed_routes,
+#else
+            padded_routes,
+#endif
+            kNativeWmmaLdsBDownGridN,
+            &route_block,
+            &output_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    route_block = static_cast<uint32_t>(
+        compact_main_route_blocks[route_block]
+    );
+    (void)total_post_pad;
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    const int32_t encoded_expert = block_expert_ids[route_block];
+    if (encoded_expert < -static_cast<int32_t>(kExperts)) {
+        return;
+    }
+    const bool fused_overflow = encoded_expert < 0;
+    const int32_t expert = fused_overflow
+        ? -encoded_expert - 1
+        : encoded_expert;
+#endif
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+    if (thread < kNativeWmmaLdsBFusedOverflowRows) {
+        shared.routes[kBlockM + thread] = fused_overflow
+            ? sorted_route_ids[(route_block + 1u) * kBlockM + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+#endif
+    if (thread == 0u) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+        shared.expert = expert;
+#else
+        shared.expert = block_expert_ids[route_block];
+#endif
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16
+    // Down uses the two-pass cooperative staging policy.  The second
+    // N32 weight tile occupies A rows 32..63, which are dead for an M16
+    // block, so the specialization adds no LDS and does not reduce occupancy.
+    const bool dual_m16 =
+        shared.routes[0] < static_cast<int32_t>(kRoutes) &&
+        shared.routes[kNativeWmmaTile] >= static_cast<int32_t>(kRoutes);
+    if (dual_m16) {
+        constexpr uint32_t kDualRows = kNativeWmmaTile;
+        constexpr uint32_t kDualWaves = 2u;
+        constexpr uint32_t kWeightRowsPerWave = 32u;
+        constexpr uint32_t kSecondWeightRow = 32u;
+        const uint32_t dual_wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t dual_lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t dual_source_index = dual_lane % kNativeWmmaTile;
+        const uint32_t dual_output_row_segment =
+            dual_lane / kNativeWmmaTile;
+        NativeWmmaF32x8 dual_accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t phase = 0u; phase < 2u; ++phase) {
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kIntermediate;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks =
+                    kDualRows * kChunksPerRow;
+                constexpr uint32_t kWeightChunksPerWave =
+                    kWeightRowsPerWave * kChunksPerRow;
+                constexpr uint32_t kWeightChunks =
+                    kDualWaves * kWeightChunksPerWave;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += kNativeWmmaLdsBDownThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 &&
+                        route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(route) * kIntermediate +
+                            k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<
+                            const NativeWmmaU32x4 *
+                        >(activated_bf16 + source);
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kWeightChunks;
+                     chunk += kNativeWmmaLdsBDownThreads) {
+                    const uint32_t weight_wave =
+                        chunk / kWeightChunksPerWave;
+                    const uint32_t wave_chunk =
+                        chunk % kWeightChunksPerWave;
+                    const uint32_t row = wave_chunk / kChunksPerRow;
+                    const uint32_t row_chunk = wave_chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        (phase * kDualWaves + weight_wave) *
+                            kWeightRowsPerWave +
+                        row;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) * kHidden +
+                         global_row) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            down_bf16 + source
+                        );
+                    uint16_t *weight_base = weight_wave == 0u
+                        ? shared.weight
+                        : shared.a +
+                            kSecondWeightRow * kNativeWmmaSharedStride;
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        weight_base +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+                if (dual_wave < kDualWaves) {
+#pragma unroll
+                    for (uint32_t k_sub = 0u;
+                         k_sub < kNativeWmmaKStage;
+                         k_sub += kNativeWmmaTile) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                dual_source_index *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        const uint16_t *weight_base = dual_wave == 0u
+                            ? shared.weight
+                            : shared.a +
+                                kSecondWeightRow *
+                                    kNativeWmmaSharedStride;
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                n * kNativeWmmaTile + dual_source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    weight_base +
+                                    weight_row *
+                                        kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            dual_accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    dual_accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kIntermediate) {
+                    __syncthreads();
+                }
+            }
+
+            if (dual_wave < kDualWaves) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t output_base =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        (phase * kDualWaves + dual_wave) *
+                            kWeightRowsPerWave +
+                        n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row = 2u * output_element +
+                            dual_output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route >= 0 &&
+                            output_route < static_cast<int32_t>(kRoutes)) {
+                            route_outputs_f32[
+                                static_cast<size_t>(output_route) * kHidden +
+                                output_base + dual_source_index
+                            ] = dual_accumulators[n][output_element];
+                        }
+                    }
+                }
+            }
+            if (phase + 1u < 2u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    dual_accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16
+    // Match the gate specialization above: four waves own the four N32
+    // output passes for a single M16 fragment.  Each down weight is still
+    // consumed exactly once, while A is staged once instead of four times.
+    const bool direct_m16 =
+        shared.routes[0] < static_cast<int32_t>(kRoutes) &&
+        shared.routes[kNativeWmmaTile] >= static_cast<int32_t>(kRoutes);
+    if (direct_m16) {
+        constexpr uint32_t kDirectRows = kNativeWmmaTile;
+        constexpr uint32_t kDirectWaves = 4u;
+        const uint32_t direct_wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t direct_lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t direct_source_index =
+            direct_lane % kNativeWmmaTile;
+        const uint32_t direct_output_row_segment =
+            direct_lane / kNativeWmmaTile;
+        NativeWmmaF32x8 direct_accumulators[2]{};
+
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kIntermediate;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kDirectRows * kChunksPerRow;
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBDownThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(route) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        activated_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+            if (direct_wave < kDirectWaves) {
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            direct_source_index *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t global_row =
+                            output_macro * kNativeWmmaLdsBDownMacroN +
+                            direct_wave * 32u +
+                            n * kNativeWmmaTile +
+                            direct_source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                down_bf16 +
+                                (static_cast<size_t>(shared.expert) *
+                                     kHidden +
+                                 global_row) * kIntermediate +
+                                k_base + k_sub
+                            );
+                        direct_accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                direct_accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kIntermediate) {
+                __syncthreads();
+            }
+        }
+
+        if (direct_wave < kDirectWaves) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t output_base =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    direct_wave * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        2u * output_element + direct_output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        route_outputs_f32[
+                            static_cast<size_t>(output_route) * kHidden +
+                            output_base + direct_source_index
+                        ] = direct_accumulators[n][output_element];
+                    }
+                }
+            }
+        }
+        return;
+    }
+#endif
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t m_base = wave * kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32
+    const uint32_t active_rows = fused_overflow
+        ? kNativeWmmaLdsBSerialRows
+        : kBlockM;
+#else
+    constexpr uint32_t active_rows = kBlockM;
+#endif
+    const bool fragment_active =
+        m_base < active_rows &&
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const bool overflow_fragment_active = fused_overflow && wave == 0u &&
+        shared.routes[kNativeWmmaLdsBOverflowRow] <
+            static_cast<int32_t>(kRoutes);
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+    const bool overflow_fragment_active = wave == 0u &&
+        shared.routes[kNativeWmmaLdsBOverflowRow] <
+            static_cast<int32_t>(kRoutes);
+#endif
+
+    constexpr uint32_t kNFragmentsPerWave =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        4u;
+#else
+        2u;
+#endif
+    constexpr uint32_t kNGroupCount =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64
+        2u;
+#else
+        4u;
+#endif
+    constexpr uint32_t kWeightRowsPerPass =
+        kNFragmentsPerWave * kNativeWmmaTile;
+    NativeWmmaF32x8 accumulators[kNFragmentsPerWave]{};
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+    NativeWmmaF32x8 overflow_accumulators[kNFragmentsPerWave]{};
+#endif
+#pragma unroll
+    for (uint32_t n_group = 0u; n_group < kNGroupCount; ++n_group) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+        constexpr uint32_t kRowPaletteChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kRowPaletteBChunks =
+            kWeightRowsPerPass * kRowPaletteChunksPerRow;
+        const uint32_t row_palette_weight_row =
+            thread < kRowPaletteBChunks
+                ? thread / kRowPaletteChunksPerRow
+                : 0u;
+        const uint32_t row_palette_global_row =
+            output_macro * kNativeWmmaLdsBDownMacroN +
+            n_group * kWeightRowsPerPass + row_palette_weight_row;
+        const size_t row_palette_source_row =
+            static_cast<size_t>(shared.expert) * kHidden +
+            row_palette_global_row;
+        const NativeWmmaLosslessRowPaletteView row_palette_view =
+            native_wmma_prepare_lossless_row_palette_view(
+                down_bf16,
+                down_packed,
+                down_overflow_indices,
+                down_overflow_values,
+                row_palette_source_row,
+                kIntermediate
+            );
+#endif
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kIntermediate;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            const uint32_t a_rows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
+                fused_overflow ? kNativeWmmaLdsBSerialRows : kBlockM;
+#else
+                kBlockM;
+#endif
+            const uint32_t a_chunks = a_rows * kChunksPerRow;
+            constexpr uint32_t kBChunks =
+                kWeightRowsPerPass * kChunksPerRow;
+
+            for (uint32_t chunk = thread; chunk < a_chunks;
+                 chunk += kNativeWmmaLdsBDownThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                    continue;
+                }
+#endif
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(route) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        activated_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kBChunks;
+                 chunk += kNativeWmmaLdsBDownThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const uint32_t global_row =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group * kWeightRowsPerPass + row;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     global_row) * kIntermediate +
+                    k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+                    native_wmma_load_weight_int8_vector(
+                        down_bf16,
+                        down_int8,
+                        down_int8_scales,
+                        source
+                    );
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+                    native_wmma_load_lossless_row_palette_vector(
+                        row_palette_view,
+                        k_base + row_chunk * 8u,
+                        kIntermediate
+                    );
+#else
+                    native_wmma_load_lossless_palette_vector(
+                        down_bf16,
+                        down_packed,
+                        down_overflow_indices,
+                        down_overflow_values,
+                        source
+                    );
+#endif
+#else
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        down_bf16 + source
+                    );
+#endif
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weight +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+
+            __syncthreads();
+
+#pragma unroll
+            for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                 k_sub += kNativeWmmaTile) {
+                if (fragment_active) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u;
+                         n < kNFragmentsPerWave;
+                         ++n) {
+                        const uint32_t weight_row =
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride + k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                        );
+                    }
+                }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+                if (overflow_fragment_active) {
+                    const NativeWmmaBf16x16 overflow_input =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (kNativeWmmaLdsBOverflowRow + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u;
+                         n < kNFragmentsPerWave;
+                         ++n) {
+                        const uint32_t weight_row =
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride + k_sub
+                            );
+                        overflow_accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                overflow_input,
+                                weight_fragment,
+                                overflow_accumulators[n]
+                            );
+                    }
+                }
+#endif
+            }
+            if (k_base + kNativeWmmaKStage < kIntermediate) {
+                __syncthreads();
+            }
+        }
+
+        if (fragment_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                const uint32_t output_base =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group * kWeightRowsPerPass +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + 2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        route_outputs_f32[
+                            static_cast<size_t>(output_route) * kHidden +
+                            output_base + source_index
+                        ] = accumulators[n][output_element];
+                    }
+                }
+            }
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+        if (overflow_fragment_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                const uint32_t output_base =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group * kWeightRowsPerPass +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        kNativeWmmaLdsBOverflowRow +
+                        2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        route_outputs_f32[
+                            static_cast<size_t>(output_route) * kHidden +
+                            output_base + source_index
+                        ] = overflow_accumulators[n][output_element];
+                    }
+                }
+            }
+        }
+#endif
+        if (n_group + 1u < kNGroupCount) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                accumulators[n] = NativeWmmaF32x8{};
+            }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_COMPACT_M96_WAVES
+#pragma unroll
+            for (uint32_t n = 0u; n < kNFragmentsPerWave; ++n) {
+                overflow_accumulators[n] = NativeWmmaF32x8{};
+            }
+#endif
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+__global__ void native_wmma_gate_up_silu_lds_b_grouped_sole_m16_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *cumsum,
+    const int32_t *sole_experts,
+    const int32_t *total_sole_experts,
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaGroupedSoleSharedStorage shared;
+
+    const uint32_t sole_count =
+        static_cast<uint32_t>(*total_sole_experts);
+    const uint32_t group_count =
+        (sole_count + kNativeWmmaGroupedSoleExpertsPerCta - 1u) /
+        kNativeWmmaGroupedSoleExpertsPerCta;
+    uint32_t expert_group = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            group_count * kBlockM,
+            kNativeWmmaLdsBGateGridN,
+            &expert_group,
+            &inter_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaGroupedSoleRows) {
+        const uint32_t slot =
+            thread / kNativeWmmaGroupedSoleRowsPerExpert;
+        const uint32_t row =
+            thread % kNativeWmmaGroupedSoleRowsPerExpert;
+        const uint32_t expert_index =
+            expert_group * kNativeWmmaGroupedSoleExpertsPerCta + slot;
+        const int32_t expert = expert_index < sole_count
+            ? sole_experts[expert_index]
+            : -1;
+        shared.routes[thread] = expert >= 0
+            ? sorted_route_ids[
+                static_cast<uint32_t>(cumsum[expert]) + row
+            ]
+            : static_cast<int32_t>(kRoutes);
+        if (row == 0u) {
+            shared.experts[slot] = expert;
+        }
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const bool wave_active =
+        wave < kNativeWmmaGroupedSoleExpertsPerCta &&
+        shared.experts[wave] >= 0 &&
+        shared.routes[wave * kNativeWmmaGroupedSoleRowsPerExpert] <
+            static_cast<int32_t>(kRoutes);
+    NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+    for (uint32_t pass = 0u; pass < 4u; ++pass) {
+        const uint32_t projection = pass >> 1u;
+        const uint32_t n_group = pass & 1u;
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kNativeWmmaGroupedSoleRows * kChunksPerRow;
+            constexpr uint32_t kWeightChunksPerExpert =
+                kNativeWmmaGroupedSoleWeightRowsPerExpert *
+                kChunksPerRow;
+            constexpr uint32_t kWeightChunks =
+                kNativeWmmaGroupedSoleExpertsPerCta *
+                kWeightChunksPerExpert;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBGateThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kWeightChunks;
+                 chunk += kNativeWmmaLdsBGateThreads) {
+                const uint32_t slot = chunk / kWeightChunksPerExpert;
+                const uint32_t local_chunk =
+                    chunk % kWeightChunksPerExpert;
+                const uint32_t row = local_chunk / kChunksPerRow;
+                const uint32_t row_chunk =
+                    local_chunk % kChunksPerRow;
+                const int32_t expert = shared.experts[slot];
+                NativeWmmaU32x4 value{};
+                if (expert >= 0) {
+                    const uint32_t global_row =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        n_group *
+                            kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                        row + projection * kIntermediate;
+                    const size_t source =
+                        (static_cast<size_t>(expert) *
+                             (2u * kIntermediate) +
+                         global_row) * kHidden +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        gate_up_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weight +
+                    (slot * kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                     row) * kNativeWmmaSharedStride +
+                    row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+            if (wave_active) {
+#pragma unroll
+                for (uint32_t k_sub = 0u;
+                     k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (wave *
+                                 kNativeWmmaGroupedSoleRowsPerExpert +
+                             source_index) * kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            wave *
+                                kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+        if (wave_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group *
+                        kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        wave * kNativeWmmaGroupedSoleRowsPerExpert +
+                        2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route < 0 ||
+                        output_route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+                    const size_t destination =
+                        static_cast<size_t>(output_route) * kIntermediate +
+                        inter_base + source_index;
+                    const uint16_t projected = float_to_bf16(
+                        accumulators[n][output_element]
+                    );
+                    if (projection == 0u) {
+                        activated_bf16[destination] = projected;
+                    } else {
+                        const float gate = bf16_to_float(
+                            activated_bf16[destination]
+                        );
+                        const float up = bf16_to_float(projected);
+                        const float exponent = -(gate * 1.44269504089f);
+                        const float silu = gate /
+                            (1.0f + __builtin_amdgcn_exp2f(exponent));
+                        activated_bf16[destination] =
+                            float_to_bf16(silu * up);
+                    }
+                }
+            }
+        }
+        if (pass + 1u < 4u) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                accumulators[n] = NativeWmmaF32x8{};
+            }
+        }
+    }
+}
+
+__global__ void native_wmma_down_lds_b_grouped_sole_m16_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *cumsum,
+    const int32_t *sole_experts,
+    const int32_t *total_sole_experts,
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaGroupedSoleSharedStorage shared;
+
+    const uint32_t sole_count =
+        static_cast<uint32_t>(*total_sole_experts);
+    const uint32_t group_count =
+        (sole_count + kNativeWmmaGroupedSoleExpertsPerCta - 1u) /
+        kNativeWmmaGroupedSoleExpertsPerCta;
+    uint32_t expert_group = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            group_count * kBlockM,
+            kNativeWmmaLdsBDownGridN,
+            &expert_group,
+            &output_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaGroupedSoleRows) {
+        const uint32_t slot =
+            thread / kNativeWmmaGroupedSoleRowsPerExpert;
+        const uint32_t row =
+            thread % kNativeWmmaGroupedSoleRowsPerExpert;
+        const uint32_t expert_index =
+            expert_group * kNativeWmmaGroupedSoleExpertsPerCta + slot;
+        const int32_t expert = expert_index < sole_count
+            ? sole_experts[expert_index]
+            : -1;
+        shared.routes[thread] = expert >= 0
+            ? sorted_route_ids[
+                static_cast<uint32_t>(cumsum[expert]) + row
+            ]
+            : static_cast<int32_t>(kRoutes);
+        if (row == 0u) {
+            shared.experts[slot] = expert;
+        }
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const bool wave_active =
+        wave < kNativeWmmaGroupedSoleExpertsPerCta &&
+        shared.experts[wave] >= 0 &&
+        shared.routes[wave * kNativeWmmaGroupedSoleRowsPerExpert] <
+            static_cast<int32_t>(kRoutes);
+    NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+    for (uint32_t n_group = 0u; n_group < 4u; ++n_group) {
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kIntermediate;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kNativeWmmaGroupedSoleRows * kChunksPerRow;
+            constexpr uint32_t kWeightChunksPerExpert =
+                kNativeWmmaGroupedSoleWeightRowsPerExpert *
+                kChunksPerRow;
+            constexpr uint32_t kWeightChunks =
+                kNativeWmmaGroupedSoleExpertsPerCta *
+                kWeightChunksPerExpert;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBDownThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(route) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        activated_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kWeightChunks;
+                 chunk += kNativeWmmaLdsBDownThreads) {
+                const uint32_t slot = chunk / kWeightChunksPerExpert;
+                const uint32_t local_chunk =
+                    chunk % kWeightChunksPerExpert;
+                const uint32_t row = local_chunk / kChunksPerRow;
+                const uint32_t row_chunk =
+                    local_chunk % kChunksPerRow;
+                const int32_t expert = shared.experts[slot];
+                NativeWmmaU32x4 value{};
+                if (expert >= 0) {
+                    const uint32_t global_row =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        n_group *
+                            kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                        row;
+                    const size_t source =
+                        (static_cast<size_t>(expert) * kHidden +
+                         global_row) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        down_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weight +
+                    (slot * kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                     row) * kNativeWmmaSharedStride +
+                    row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+            if (wave_active) {
+#pragma unroll
+                for (uint32_t k_sub = 0u;
+                     k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (wave *
+                                 kNativeWmmaGroupedSoleRowsPerExpert +
+                             source_index) * kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            wave *
+                                kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kIntermediate) {
+                __syncthreads();
+            }
+        }
+
+        if (wave_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t output_base =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group *
+                        kNativeWmmaGroupedSoleWeightRowsPerExpert +
+                    n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u;
+                     output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        wave * kNativeWmmaGroupedSoleRowsPerExpert +
+                        2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        route_outputs_f32[
+                            static_cast<size_t>(output_route) * kHidden +
+                            output_base + source_index
+                        ] = accumulators[n][output_element];
+                    }
+                }
+            }
+        }
+        if (n_group + 1u < 4u) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                accumulators[n] = NativeWmmaF32x8{};
+            }
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+template <uint32_t Fragments>
+__global__ void native_wmma_gate_up_silu_lds_b_adaptive_m128_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *route_starts,
+    const int32_t *experts,
+    const int32_t *descriptor_count,
+    uint16_t *activated_bf16
+) {
+    static_assert(Fragments >= 1u && Fragments <= 8u);
+    constexpr uint32_t kRows = Fragments * kNativeWmmaTile;
+    constexpr uint32_t kThreads = 2u * kRows;
+    __shared__ NativeWmmaAdaptiveM128SharedStorage<Fragments> shared;
+
+    const uint32_t count = static_cast<uint32_t>(*descriptor_count);
+    if (count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t work = count * kNativeWmmaLdsBGateGridN;
+    for (uint32_t program = blockIdx.x; program < work;
+         program += gridDim.x) {
+        // GroupM=1: all N tiles for a descriptor are adjacent.  The old
+        // N-major mapping swept the entire expert bucket between adjacent
+        // tiles and paid the same cache penalty as a very large GroupM.
+        const uint32_t descriptor =
+            program / kNativeWmmaLdsBGateGridN;
+        const uint32_t inter_macro =
+            program % kNativeWmmaLdsBGateGridN;
+        const uint32_t route_start = static_cast<uint32_t>(
+            route_starts[descriptor]
+        );
+        if (thread < kRows) {
+            shared.routes[thread] = sorted_route_ids[route_start + thread];
+        }
+        if (thread == 0u) {
+            shared.expert = experts[descriptor];
+        }
+        __syncthreads();
+
+        const uint32_t wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t source_index = lane % kNativeWmmaTile;
+        const uint32_t output_row_segment = lane / kNativeWmmaTile;
+        const uint32_t m_base = wave * kNativeWmmaTile;
+        const bool fragment_active =
+            shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+        NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t pass = 0u; pass < 4u; ++pass) {
+            const uint32_t projection = pass >> 1u;
+            const uint32_t n_group = pass & 1u;
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kHidden;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks = kRows * kChunksPerRow;
+                constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += kThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                    if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+#endif
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(
+                                route / static_cast<int32_t>(kTopK)
+                            ) * kHidden + k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            post_attention_bf16 + source
+                        );
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kBChunks;
+                     chunk += kThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        n_group * 32u + row +
+                        projection * kIntermediate;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) *
+                             (2u * kIntermediate) +
+                         global_row) * kHidden + k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            gate_up_bf16 + source
+                        );
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.weight +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    if (fragment_active) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                (m_base + source_index) *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                n * kNativeWmmaTile + source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    shared.weight +
+                                    weight_row * kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kHidden) {
+                    __syncthreads();
+                }
+            }
+
+            if (fragment_active) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t inter_base =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row =
+                            m_base + 2u * output_element +
+                            output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route >= 0 &&
+                            output_route < static_cast<int32_t>(kRoutes)) {
+                            const size_t destination =
+                                static_cast<size_t>(output_route) *
+                                    kIntermediate +
+                                inter_base + source_index;
+                            const uint16_t projected = float_to_bf16(
+                                accumulators[n][output_element]
+                            );
+                            if (projection == 0u) {
+                                activated_bf16[destination] = projected;
+                            } else {
+                                const float gate = bf16_to_float(
+                                    activated_bf16[destination]
+                                );
+                                const float up = bf16_to_float(projected);
+                                const float exponent =
+                                    -(gate * 1.44269504089f);
+                                const float silu = gate /
+                                    (1.0f +
+                                     __builtin_amdgcn_exp2f(exponent));
+                                activated_bf16[destination] =
+                                    float_to_bf16(silu * up);
+                            }
+                        }
+                    }
+                }
+            }
+            if (pass + 1u < 4u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        __syncthreads();
+    }
+}
+
+template <uint32_t Fragments>
+__global__ void native_wmma_down_lds_b_adaptive_m128_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *route_starts,
+    const int32_t *experts,
+    const int32_t *descriptor_count,
+    float *route_outputs_f32
+) {
+    static_assert(Fragments >= 1u && Fragments <= 8u);
+    constexpr uint32_t kRows = Fragments * kNativeWmmaTile;
+    constexpr uint32_t kThreads = 2u * kRows;
+    __shared__ NativeWmmaAdaptiveM128SharedStorage<Fragments> shared;
+
+    const uint32_t count = static_cast<uint32_t>(*descriptor_count);
+    if (count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t work = count * kNativeWmmaLdsBDownGridN;
+    for (uint32_t program = blockIdx.x; program < work;
+         program += gridDim.x) {
+        const uint32_t descriptor =
+            program / kNativeWmmaLdsBDownGridN;
+        const uint32_t output_macro =
+            program % kNativeWmmaLdsBDownGridN;
+        const uint32_t route_start = static_cast<uint32_t>(
+            route_starts[descriptor]
+        );
+        if (thread < kRows) {
+            shared.routes[thread] = sorted_route_ids[route_start + thread];
+        }
+        if (thread == 0u) {
+            shared.expert = experts[descriptor];
+        }
+        __syncthreads();
+
+        const uint32_t wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t source_index = lane % kNativeWmmaTile;
+        const uint32_t output_row_segment = lane / kNativeWmmaTile;
+        const uint32_t m_base = wave * kNativeWmmaTile;
+        const bool fragment_active =
+            shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+        NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t n_group = 0u; n_group < 4u; ++n_group) {
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kIntermediate;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks = kRows * kChunksPerRow;
+                constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += kThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                    if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+#endif
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(route) * kIntermediate +
+                            k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            activated_bf16 + source
+                        );
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kBChunks;
+                     chunk += kThreads) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        n_group * 32u + row;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) * kHidden +
+                         global_row) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            down_bf16 + source
+                        );
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.weight +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    if (fragment_active) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                (m_base + source_index) *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                n * kNativeWmmaTile + source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    shared.weight +
+                                    weight_row * kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kIntermediate) {
+                    __syncthreads();
+                }
+            }
+
+            if (fragment_active) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t output_base =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row =
+                            m_base + 2u * output_element +
+                            output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route >= 0 &&
+                            output_route < static_cast<int32_t>(kRoutes)) {
+                            route_outputs_f32[
+                                static_cast<size_t>(output_route) * kHidden +
+                                output_base + source_index
+                            ] = accumulators[n][output_element];
+                        }
+                    }
+                }
+            }
+            if (n_group + 1u < 4u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        __syncthreads();
+    }
+}
+
+__global__ void native_wmma_gate_up_silu_lds_b_packed_m128_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *route_starts,
+    const int32_t *experts,
+    const int32_t *pack_count_pointer,
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaPackedM128SharedStorage shared;
+    const uint32_t pack_count =
+        static_cast<uint32_t>(*pack_count_pointer);
+    if (pack_count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t work = pack_count * kNativeWmmaLdsBGateGridN;
+    for (uint32_t program = blockIdx.x; program < work;
+         program += gridDim.x) {
+        // Match the retained GroupM=1 schedule: keep every N tile for one
+        // expert descriptor adjacent so its activation rows remain hot.
+        // The old N-major mapping swept all experts between adjacent N tiles
+        // and reproduced the severe large-GroupM cache penalty.
+        const uint32_t pack =
+            program / kNativeWmmaLdsBGateGridN;
+        const uint32_t inter_macro =
+            program % kNativeWmmaLdsBGateGridN;
+        const uint32_t pack_base =
+            pack * kNativeWmmaAdaptiveM128Buckets;
+        if (thread < kNativeWmmaAdaptiveM128Rows) {
+            const uint32_t wave_slot = thread / kNativeWmmaTile;
+            const uint32_t row = thread % kNativeWmmaTile;
+            const int32_t route_start =
+                route_starts[pack_base + wave_slot];
+            shared.routes[thread] = route_start >= 0
+                ? sorted_route_ids[static_cast<uint32_t>(route_start) + row]
+                : static_cast<int32_t>(kRoutes);
+        }
+        if (thread == 0u) {
+            // The index contract gives every active wave in this descriptor
+            // the same expert, so stage one weight tile and share it across
+            // all active M16 fragments.
+            shared.expert = experts[pack_base];
+        }
+        __syncthreads();
+
+        const uint32_t wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t source_index = lane % kNativeWmmaTile;
+        const uint32_t output_row_segment = lane / kNativeWmmaTile;
+        const uint32_t m_base = wave * kNativeWmmaTile;
+        const bool fragment_active =
+            shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+        NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t pass = 0u; pass < 4u; ++pass) {
+            const uint32_t projection = pass >> 1u;
+            const uint32_t n_group = pass & 1u;
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kHidden;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks =
+                    kNativeWmmaAdaptiveM128Rows * kChunksPerRow;
+                constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += 256u) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                    if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+#endif
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(
+                                route / static_cast<int32_t>(kTopK)
+                            ) * kHidden + k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            post_attention_bf16 + source
+                        );
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kBChunks;
+                     chunk += 256u) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk =
+                        chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        n_group * 32u + row +
+                        projection * kIntermediate;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) *
+                             (2u * kIntermediate) +
+                         global_row) * kHidden + k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            gate_up_bf16 + source
+                    );
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.weight +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    if (fragment_active) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                (m_base + source_index) *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                n * kNativeWmmaTile + source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    shared.weight +
+                                    weight_row * kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kHidden) {
+                    __syncthreads();
+                }
+            }
+
+            if (fragment_active) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t inter_base =
+                        inter_macro * kNativeWmmaLdsBGateMacroN +
+                        n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row =
+                            m_base + 2u * output_element +
+                            output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route >= 0 &&
+                            output_route < static_cast<int32_t>(kRoutes)) {
+                            const size_t destination =
+                                static_cast<size_t>(output_route) *
+                                    kIntermediate +
+                                inter_base + source_index;
+                            const uint16_t projected = float_to_bf16(
+                                accumulators[n][output_element]
+                            );
+                            if (projection == 0u) {
+                                activated_bf16[destination] = projected;
+                            } else {
+                                const float gate = bf16_to_float(
+                                    activated_bf16[destination]
+                                );
+                                const float up = bf16_to_float(projected);
+                                const float exponent =
+                                    -(gate * 1.44269504089f);
+                                const float silu = gate /
+                                    (1.0f +
+                                     __builtin_amdgcn_exp2f(exponent));
+                                activated_bf16[destination] =
+                                    float_to_bf16(silu * up);
+                            }
+                        }
+                    }
+                }
+            }
+            if (pass + 1u < 4u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        __syncthreads();
+    }
+}
+
+__global__ void native_wmma_down_lds_b_packed_m128_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *route_starts,
+    const int32_t *experts,
+    const int32_t *pack_count_pointer,
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaPackedM128SharedStorage shared;
+    const uint32_t pack_count =
+        static_cast<uint32_t>(*pack_count_pointer);
+    if (pack_count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t work = pack_count * kNativeWmmaLdsBDownGridN;
+    for (uint32_t program = blockIdx.x; program < work;
+         program += gridDim.x) {
+        const uint32_t pack =
+            program / kNativeWmmaLdsBDownGridN;
+        const uint32_t output_macro =
+            program % kNativeWmmaLdsBDownGridN;
+        const uint32_t pack_base =
+            pack * kNativeWmmaAdaptiveM128Buckets;
+        if (thread < kNativeWmmaAdaptiveM128Rows) {
+            const uint32_t wave_slot = thread / kNativeWmmaTile;
+            const uint32_t row = thread % kNativeWmmaTile;
+            const int32_t route_start =
+                route_starts[pack_base + wave_slot];
+            shared.routes[thread] = route_start >= 0
+                ? sorted_route_ids[static_cast<uint32_t>(route_start) + row]
+                : static_cast<int32_t>(kRoutes);
+        }
+        if (thread == 0u) {
+            shared.expert = experts[pack_base];
+        }
+        __syncthreads();
+
+        const uint32_t wave = thread / kNativeWmmaWaveThreads;
+        const uint32_t lane = thread % kNativeWmmaWaveThreads;
+        const uint32_t source_index = lane % kNativeWmmaTile;
+        const uint32_t output_row_segment = lane / kNativeWmmaTile;
+        const uint32_t m_base = wave * kNativeWmmaTile;
+        const bool fragment_active =
+            shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+        NativeWmmaF32x8 accumulators[2]{};
+
+#pragma unroll
+        for (uint32_t n_group = 0u; n_group < 4u; ++n_group) {
+#pragma unroll 1
+            for (uint32_t k_base = 0u; k_base < kIntermediate;
+                 k_base += kNativeWmmaKStage) {
+                constexpr uint32_t kChunksPerRow =
+                    kNativeWmmaKStage * sizeof(uint16_t) /
+                    sizeof(NativeWmmaU32x4);
+                constexpr uint32_t kAChunks =
+                    kNativeWmmaAdaptiveM128Rows * kChunksPerRow;
+                constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+                for (uint32_t chunk = thread; chunk < kAChunks;
+                     chunk += 256u) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk = chunk % kChunksPerRow;
+                    const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                    if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                        continue;
+                    }
+#endif
+                    NativeWmmaU32x4 value{};
+                    if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                        const size_t source =
+                            static_cast<size_t>(route) * kIntermediate +
+                            k_base + row_chunk * 8u;
+                        value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            activated_bf16 + source
+                        );
+                    }
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.a +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                for (uint32_t chunk = thread; chunk < kBChunks;
+                     chunk += 256u) {
+                    const uint32_t row = chunk / kChunksPerRow;
+                    const uint32_t row_chunk =
+                        chunk % kChunksPerRow;
+                    const uint32_t global_row =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        n_group * 32u + row;
+                    const size_t source =
+                        (static_cast<size_t>(shared.expert) * kHidden +
+                         global_row) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    const NativeWmmaU32x4 value =
+                        *reinterpret_cast<const NativeWmmaU32x4 *>(
+                            down_bf16 + source
+                    );
+                    *reinterpret_cast<NativeWmmaU32x4 *>(
+                        shared.weight +
+                        row * kNativeWmmaSharedStride + row_chunk * 8u
+                    ) = value;
+                }
+                __syncthreads();
+
+#pragma unroll
+                for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                     k_sub += kNativeWmmaTile) {
+                    if (fragment_active) {
+                        const NativeWmmaBf16x16 input_fragment =
+                            load_native_wmma_fragment(
+                                shared.a +
+                                (m_base + source_index) *
+                                    kNativeWmmaSharedStride +
+                                k_sub
+                            );
+#pragma unroll
+                        for (uint32_t n = 0u; n < 2u; ++n) {
+                            const uint32_t weight_row =
+                                n * kNativeWmmaTile + source_index;
+                            const NativeWmmaBf16x16 weight_fragment =
+                                load_native_wmma_fragment(
+                                    shared.weight +
+                                    weight_row * kNativeWmmaSharedStride +
+                                    k_sub
+                                );
+                            accumulators[n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragment,
+                                    weight_fragment,
+                                    accumulators[n]
+                                );
+                        }
+                    }
+                }
+                if (k_base + kNativeWmmaKStage < kIntermediate) {
+                    __syncthreads();
+                }
+            }
+
+            if (fragment_active) {
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    const uint32_t output_base =
+                        output_macro * kNativeWmmaLdsBDownMacroN +
+                        n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                    for (uint32_t output_element = 0u;
+                         output_element < 8u;
+                         ++output_element) {
+                        const uint32_t row =
+                            m_base + 2u * output_element +
+                            output_row_segment;
+                        const int32_t output_route = shared.routes[row];
+                        if (output_route >= 0 &&
+                            output_route < static_cast<int32_t>(kRoutes)) {
+                            route_outputs_f32[
+                                static_cast<size_t>(output_route) * kHidden +
+                                output_base + source_index
+                            ] = accumulators[n][output_element];
+                        }
+                    }
+                }
+            }
+            if (n_group + 1u < 4u) {
+                __syncthreads();
+#pragma unroll
+                for (uint32_t n = 0u; n < 2u; ++n) {
+                    accumulators[n] = NativeWmmaF32x8{};
+                }
+            }
+        }
+        __syncthreads();
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    ((QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+      QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL) || \
+     QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16)
+// Overflow tails keep the same LDS-staged N32 arithmetic as the retained
+// serial main kernels. Compact adaptive tails use three M16 waves for at most
+// 48 rows; fused-overflow tails use six waves to cover an M80 block plus its
+// final M16 block without reloading the weights for those rows.
+__global__ void native_wmma_gate_up_silu_lds_b_overflow_tail_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const int32_t *block_expert_ids,
+    const int32_t *fused_overflow_blocks,
+    const int32_t *total_fused_overflow_blocks,
+#else
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaLdsBOverflowGateSharedStorage shared;
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const uint32_t fused_count =
+        static_cast<uint32_t>(*total_fused_overflow_blocks);
+    if (fused_count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t fused_work =
+        fused_count * kNativeWmmaLdsBGateGridN;
+    for (uint32_t program = blockIdx.x; program < fused_work;
+         program += gridDim.x) {
+        const uint32_t expert_index = program % fused_count;
+        const uint32_t inter_macro = program / fused_count;
+        const uint32_t route_block = static_cast<uint32_t>(
+            fused_overflow_blocks[expert_index]
+        );
+        const int32_t encoded_expert = block_expert_ids[route_block];
+        const uint32_t expert =
+            static_cast<uint32_t>(-encoded_expert - 1);
+        if (thread < kNativeWmmaLdsBOverflowTailRows) {
+            const uint32_t source_block =
+                route_block + (thread >= kBlockM ? 1u : 0u);
+            const uint32_t source_row =
+                thread < kBlockM ? thread : thread - kBlockM;
+            shared.routes[thread] = sorted_route_ids[
+                source_block * kBlockM + source_row
+            ];
+        }
+#else
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+    uint32_t expert_index = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaLdsBGateGridN,
+            &expert_index,
+            &inter_macro
+        )) {
+        return;
+    }
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaLdsBOverflowTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+#endif
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t m_base = wave * kNativeWmmaTile;
+    const bool fragment_active =
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+
+    NativeWmmaF32x8 accumulators[2]{};
+#pragma unroll
+    for (uint32_t pass = 0u; pass < 4u; ++pass) {
+        const uint32_t projection = pass >> 1u;
+        const uint32_t n_group = pass & 1u;
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kHidden;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kNativeWmmaLdsBOverflowTailRows * kChunksPerRow;
+            constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBOverflowTailThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                    continue;
+                }
+#endif
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kBChunks;
+                 chunk += kNativeWmmaLdsBOverflowTailThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const uint32_t global_row =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * 32u + row + projection * kIntermediate;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     global_row) * kHidden + k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        gate_up_bf16 + source
+                    );
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weight +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+#pragma unroll
+            for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                 k_sub += kNativeWmmaTile) {
+                if (fragment_active) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kHidden) {
+                __syncthreads();
+            }
+        }
+
+        if (fragment_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t inter_base =
+                    inter_macro * kNativeWmmaLdsBGateMacroN +
+                    n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + 2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        const size_t destination =
+                            static_cast<size_t>(output_route) *
+                                kIntermediate +
+                            inter_base + source_index;
+                        const uint16_t projected = float_to_bf16(
+                            accumulators[n][output_element]
+                        );
+                        if (projection == 0u) {
+                            activated_bf16[destination] = projected;
+                        } else {
+                            const float gate = bf16_to_float(
+                                activated_bf16[destination]
+                            );
+                            const float up = bf16_to_float(projected);
+                            const float exponent = -(gate * 1.44269504089f);
+                            const float silu = gate /
+                                (1.0f + __builtin_amdgcn_exp2f(exponent));
+                            activated_bf16[destination] =
+                                float_to_bf16(silu * up);
+                        }
+                    }
+                }
+            }
+        }
+        if (pass + 1u < 4u) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                accumulators[n] = NativeWmmaF32x8{};
+            }
+        }
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    __syncthreads();
+    }
+#endif
+}
+
+__global__ void native_wmma_down_lds_b_overflow_tail_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const int32_t *block_expert_ids,
+    const int32_t *fused_overflow_blocks,
+    const int32_t *total_fused_overflow_blocks,
+#else
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaLdsBOverflowDownSharedStorage shared;
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    const uint32_t fused_count =
+        static_cast<uint32_t>(*total_fused_overflow_blocks);
+    if (fused_count == 0u) {
+        return;
+    }
+    const uint32_t thread = threadIdx.x;
+    const uint32_t fused_work =
+        fused_count * kNativeWmmaLdsBDownGridN;
+    for (uint32_t program = blockIdx.x; program < fused_work;
+         program += gridDim.x) {
+        const uint32_t expert_index = program % fused_count;
+        const uint32_t output_macro = program / fused_count;
+        const uint32_t route_block = static_cast<uint32_t>(
+            fused_overflow_blocks[expert_index]
+        );
+        const int32_t encoded_expert = block_expert_ids[route_block];
+        const uint32_t expert =
+            static_cast<uint32_t>(-encoded_expert - 1);
+        if (thread < kNativeWmmaLdsBOverflowTailRows) {
+            const uint32_t source_block =
+                route_block + (thread >= kBlockM ? 1u : 0u);
+            const uint32_t source_row =
+                thread < kBlockM ? thread : thread - kBlockM;
+            shared.routes[thread] = sorted_route_ids[
+                source_block * kBlockM + source_row
+            ];
+        }
+#else
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+    uint32_t expert_index = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaLdsBDownGridN,
+            &expert_index,
+            &output_macro
+        )) {
+        return;
+    }
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaLdsBOverflowTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+#endif
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t m_base = wave * kNativeWmmaTile;
+    const bool fragment_active =
+        shared.routes[m_base] < static_cast<int32_t>(kRoutes);
+
+    NativeWmmaF32x8 accumulators[2]{};
+#pragma unroll
+    for (uint32_t n_group = 0u; n_group < 4u; ++n_group) {
+#pragma unroll 1
+        for (uint32_t k_base = 0u; k_base < kIntermediate;
+             k_base += kNativeWmmaKStage) {
+            constexpr uint32_t kChunksPerRow =
+                kNativeWmmaKStage * sizeof(uint16_t) /
+                sizeof(NativeWmmaU32x4);
+            constexpr uint32_t kAChunks =
+                kNativeWmmaLdsBOverflowTailRows * kChunksPerRow;
+            constexpr uint32_t kBChunks = 32u * kChunksPerRow;
+
+            for (uint32_t chunk = thread; chunk < kAChunks;
+                 chunk += kNativeWmmaLdsBOverflowTailThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const int32_t route = shared.routes[row];
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SKIP_INACTIVE_A_STORES
+                if (route < 0 || route >= static_cast<int32_t>(kRoutes)) {
+                    continue;
+                }
+#endif
+                NativeWmmaU32x4 value{};
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(route) * kIntermediate +
+                        k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        activated_bf16 + source
+                    );
+                }
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.a +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            for (uint32_t chunk = thread; chunk < kBChunks;
+                 chunk += kNativeWmmaLdsBOverflowTailThreads) {
+                const uint32_t row = chunk / kChunksPerRow;
+                const uint32_t row_chunk = chunk % kChunksPerRow;
+                const uint32_t global_row =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group * 32u + row;
+                const size_t source =
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     global_row) * kIntermediate +
+                    k_base + row_chunk * 8u;
+                const NativeWmmaU32x4 value =
+                    *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        down_bf16 + source
+                    );
+                *reinterpret_cast<NativeWmmaU32x4 *>(
+                    shared.weight +
+                    row * kNativeWmmaSharedStride + row_chunk * 8u
+                ) = value;
+            }
+            __syncthreads();
+
+#pragma unroll
+            for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+                 k_sub += kNativeWmmaTile) {
+                if (fragment_active) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+#pragma unroll
+                    for (uint32_t n = 0u; n < 2u; ++n) {
+                        const uint32_t weight_row =
+                            n * kNativeWmmaTile + source_index;
+                        const NativeWmmaBf16x16 weight_fragment =
+                            load_native_wmma_fragment(
+                                shared.weight +
+                                weight_row * kNativeWmmaSharedStride +
+                                k_sub
+                            );
+                        accumulators[n] =
+                            __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                input_fragment,
+                                weight_fragment,
+                                accumulators[n]
+                            );
+                    }
+                }
+            }
+            if (k_base + kNativeWmmaKStage < kIntermediate) {
+                __syncthreads();
+            }
+        }
+
+        if (fragment_active) {
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                const uint32_t output_base =
+                    output_macro * kNativeWmmaLdsBDownMacroN +
+                    n_group * 32u + n * kNativeWmmaTile;
+#pragma unroll
+                for (uint32_t output_element = 0u; output_element < 8u;
+                     ++output_element) {
+                    const uint32_t row =
+                        m_base + 2u * output_element + output_row_segment;
+                    const int32_t output_route = shared.routes[row];
+                    if (output_route >= 0 &&
+                        output_route < static_cast<int32_t>(kRoutes)) {
+                        route_outputs_f32[
+                            static_cast<size_t>(output_route) * kHidden +
+                            output_base + source_index
+                        ] = accumulators[n][output_element];
+                    }
+                }
+            }
+        }
+        if (n_group + 1u < 4u) {
+            __syncthreads();
+#pragma unroll
+            for (uint32_t n = 0u; n < 2u; ++n) {
+                accumulators[n] = NativeWmmaF32x8{};
+            }
+        }
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    __syncthreads();
+    }
+#endif
+}
+#endif
+
+__global__ void native_wmma_down_lds_b_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaLdsBDownSharedStorage shared;
+
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+    uint32_t route_block = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            padded_routes,
+            kNativeWmmaLdsBDownGridN,
+            &route_block,
+            &output_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+    if (thread == 0u) {
+        shared.expert = block_expert_ids[route_block];
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M96
+    const uint32_t m_group = wave % 3u;
+    const uint32_t n_group = wave / 3u;
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64
+    // Eight waves cover M64xN128 as M32xN32 tiles, halving the retained
+    // down-projection accumulator footprint while preserving one B fetch.
+    const uint32_t m_group = wave & 1u;
+    const uint32_t n_group = wave >> 1u;
+#else
+    const uint32_t m_group = wave & 3u;
+    const uint32_t n_group = wave >> 2u;
+#endif
+    const uint32_t m_base =
+        m_group * kNativeWmmaLdsBDownMFragmentsPerWave * kNativeWmmaTile;
+    bool fragment_active[kNativeWmmaLdsBDownMFragmentsPerWave]{};
+    bool wave_active = false;
+#pragma unroll
+    for (uint32_t m = 0u;
+         m < kNativeWmmaLdsBDownMFragmentsPerWave;
+         ++m) {
+        fragment_active[m] =
+            shared.routes[m_base + m * kNativeWmmaTile] <
+            static_cast<int32_t>(kRoutes);
+        wave_active = wave_active || fragment_active[m];
+    }
+
+    NativeWmmaF32x8 accumulators
+        [kNativeWmmaLdsBDownMFragmentsPerWave]
+        [kNativeWmmaLdsBDownNFragmentsPerWave]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kIntermediate;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kBlockM * kChunksPerRow;
+        constexpr uint32_t kBChunks =
+            kNativeWmmaLdsBDownMacroN * kChunksPerRow;
+
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaLdsBThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source =
+                    static_cast<size_t>(route) * kIntermediate +
+                    k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    activated_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a +
+                row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        for (uint32_t chunk = thread; chunk < kBChunks;
+             chunk += kNativeWmmaLdsBThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const uint32_t global_row =
+                output_macro * kNativeWmmaLdsBDownMacroN + row;
+            const size_t source =
+                (static_cast<size_t>(shared.expert) * kHidden + global_row) *
+                    kIntermediate +
+                k_base + row_chunk * 8u;
+            const NativeWmmaU32x4 value =
+                *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    down_bf16 + source
+                );
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.weight +
+                row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            if (wave_active) {
+                NativeWmmaBf16x16 input_fragments
+                    [kNativeWmmaLdsBDownMFragmentsPerWave]{};
+#pragma unroll
+                for (uint32_t m = 0u;
+                     m < kNativeWmmaLdsBDownMFragmentsPerWave;
+                     ++m) {
+                    if (fragment_active[m]) {
+                        input_fragments[m] = load_native_wmma_fragment(
+                            shared.a +
+                            (m_base + m * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride +
+                            k_sub
+                        );
+                    }
+                }
+#pragma unroll
+                for (uint32_t n = 0u;
+                     n < kNativeWmmaLdsBDownNFragmentsPerWave;
+                     ++n) {
+                    const uint32_t weight_row =
+                        n_group *
+                            (kNativeWmmaLdsBDownNFragmentsPerWave *
+                             kNativeWmmaTile) +
+                        n * kNativeWmmaTile + source_index;
+                    const NativeWmmaBf16x16 weight_fragment =
+                        load_native_wmma_fragment(
+                            shared.weight +
+                            weight_row * kNativeWmmaSharedStride + k_sub
+                        );
+#pragma unroll
+                    for (uint32_t m = 0u;
+                         m < kNativeWmmaLdsBDownMFragmentsPerWave;
+                         ++m) {
+                        if (fragment_active[m]) {
+                            accumulators[m][n] =
+                                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                                    input_fragments[m],
+                                    weight_fragment,
+                                    accumulators[m][n]
+                                );
+                        }
+                    }
+                }
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kIntermediate) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t m = 0u;
+         m < kNativeWmmaLdsBDownMFragmentsPerWave;
+         ++m) {
+        if (!fragment_active[m]) {
+            continue;
+        }
+#pragma unroll
+        for (uint32_t n = 0u;
+             n < kNativeWmmaLdsBDownNFragmentsPerWave;
+             ++n) {
+            const uint32_t output_base =
+                output_macro * kNativeWmmaLdsBDownMacroN +
+                n_group *
+                    (kNativeWmmaLdsBDownNFragmentsPerWave *
+                     kNativeWmmaTile) +
+                n * kNativeWmmaTile;
+#pragma unroll
+            for (uint32_t output_element = 0u; output_element < 8u;
+                 ++output_element) {
+                const uint32_t row =
+                    m_base + m * kNativeWmmaTile +
+                    2u * output_element + output_row_segment;
+                const int32_t output_route = shared.routes[row];
+                if (output_route >= 0 &&
+                    output_route < static_cast<int32_t>(kRoutes)) {
+                    route_outputs_f32[
+                        static_cast<size_t>(output_route) * kHidden +
+                        output_base + source_index
+                    ] = accumulators[m][n][output_element];
+                }
+            }
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+// The retained M64 kernels assign two waves to every N fragment so each wave
+// only needs two M accumulators.  On gfx1151 the repeated expert-weight reads
+// dominate at short logical lengths.  These variants trade registers for B
+// reuse: one wave owns an N fragment and applies it to all four M16 fragments.
+__global__ void native_wmma_gate_up_silu_wide_n_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+    constexpr uint32_t kMFragments = kBlockM / kNativeWmmaTile;
+    static_assert(kMFragments >= 4u && kMFragments <= 8u);
+
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+    uint32_t route_block = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            padded_routes,
+            kNativeWmmaWideGateGridN,
+            &route_block,
+            &inter_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+    if (thread == 0u) {
+        shared.expert = block_expert_ids[route_block];
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t inter =
+        inter_macro * kNativeWmmaWideGateMacroN +
+        wave * kNativeWmmaTile + source_index;
+
+    NativeWmmaF32x8 gate_accumulators[kMFragments]{};
+    NativeWmmaF32x8 up_accumulators[kMFragments]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kHidden;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kBlockM * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaWideThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source =
+                    static_cast<size_t>(route / static_cast<int32_t>(kTopK)) *
+                        kHidden +
+                    k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    post_attention_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            NativeWmmaBf16x16 input_fragments[kMFragments];
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                input_fragments[fragment] = load_native_wmma_fragment(
+                    shared.a +
+                    (fragment * kNativeWmmaTile + source_index) *
+                        kNativeWmmaSharedStride +
+                    k_sub
+                );
+            }
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    gate_up_bf16 +
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     inter) *
+                        kHidden +
+                    k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                gate_accumulators[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragments[fragment],
+                        weight_fragment,
+                        gate_accumulators[fragment]
+                    );
+            }
+            weight_fragment = load_native_wmma_fragment(
+                gate_up_bf16 +
+                (static_cast<size_t>(shared.expert) *
+                     (2u * kIntermediate) +
+                 kIntermediate + inter) *
+                    kHidden +
+                k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                up_accumulators[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragments[fragment],
+                        weight_fragment,
+                        up_accumulators[fragment]
+                    );
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kHidden) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t fragment = 0u; fragment < kMFragments; ++fragment) {
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+                const float gate = bf16_to_float(float_to_bf16(
+                    gate_accumulators[fragment][output_element]
+                ));
+                const float up = bf16_to_float(float_to_bf16(
+                    up_accumulators[fragment][output_element]
+                ));
+                const float exponent = -(gate * 1.44269504089f);
+                const float silu = gate /
+                    (1.0f + __builtin_amdgcn_exp2f(exponent));
+                activated_bf16[
+                    static_cast<size_t>(output_route) * kIntermediate + inter
+                ] = float_to_bf16(silu * up);
+            }
+        }
+    }
+}
+
+__global__ void native_wmma_down_wide_n_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *block_expert_ids,
+    const int32_t *total_post_pad,
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+    constexpr uint32_t kMFragments = kBlockM / kNativeWmmaTile;
+    static_assert(kMFragments >= 4u && kMFragments <= 8u);
+
+    const uint32_t padded_routes =
+        static_cast<uint32_t>(*total_post_pad);
+    uint32_t route_block = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            padded_routes,
+            kNativeWmmaWideDownGridN,
+            &route_block,
+            &output_macro
+        )) {
+        return;
+    }
+
+    const uint32_t thread = threadIdx.x;
+    if (thread < kBlockM) {
+        shared.routes[thread] =
+            sorted_route_ids[route_block * kBlockM + thread];
+    }
+    if (thread == 0u) {
+        shared.expert = block_expert_ids[route_block];
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t output_base =
+        output_macro * kNativeWmmaWideDownMacroN +
+        wave * (2u * kNativeWmmaTile);
+
+    NativeWmmaF32x8 accumulators_n0[kMFragments]{};
+    NativeWmmaF32x8 accumulators_n1[kMFragments]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kIntermediate;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kBlockM * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaWideThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source =
+                    static_cast<size_t>(route) * kIntermediate + k_base +
+                    row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    activated_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            NativeWmmaBf16x16 input_fragments[kMFragments];
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                input_fragments[fragment] = load_native_wmma_fragment(
+                    shared.a +
+                    (fragment * kNativeWmmaTile + source_index) *
+                        kNativeWmmaSharedStride +
+                    k_sub
+                );
+            }
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    down_bf16 +
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     output_base + source_index) *
+                        kIntermediate +
+                    k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                accumulators_n0[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragments[fragment],
+                        weight_fragment,
+                        accumulators_n0[fragment]
+                    );
+            }
+            weight_fragment = load_native_wmma_fragment(
+                down_bf16 +
+                (static_cast<size_t>(shared.expert) * kHidden +
+                 output_base + kNativeWmmaTile + source_index) *
+                    kIntermediate +
+                k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < kMFragments;
+                 ++fragment) {
+                accumulators_n1[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragments[fragment],
+                        weight_fragment,
+                        accumulators_n1[fragment]
+                    );
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kIntermediate) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t fragment = 0u; fragment < kMFragments; ++fragment) {
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + source_index
+                ] = accumulators_n0[fragment][output_element];
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + kNativeWmmaTile + source_index
+                ] = accumulators_n1[fragment][output_element];
+            }
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL
+constexpr uint32_t kNativeWmmaAdaptiveTailRows =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    kBlockM;
+#else
+    48u;
+#endif
+constexpr uint32_t kNativeWmmaAdaptiveTailFragments =
+    kNativeWmmaAdaptiveTailRows / kNativeWmmaTile;
+constexpr uint32_t kNativeWmmaAdaptiveTailThreads =
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    256u;
+#else
+    128u;
+#endif
+static_assert(
+    kNativeWmmaAdaptiveTailRows <= kBlockM &&
+        kNativeWmmaAdaptiveTailRows % kNativeWmmaTile == 0u
+);
+
+__global__ void native_wmma_gate_up_silu_adaptive_tail_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+
+    uint32_t expert_index = 0u;
+    uint32_t inter_macro = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+#else
+    constexpr uint32_t indexed_tail_rows = kExperts * kBlockM;
+#endif
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaGateGridN,
+            &expert_index,
+            &inter_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+#else
+    const uint32_t expert = expert_index;
+#endif
+
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    if (tail_rows == 0u || tail_rows > kNativeWmmaAdaptiveTailRows) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaAdaptiveTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t active_fragments =
+        (tail_rows + kNativeWmmaTile - 1u) / kNativeWmmaTile;
+    const uint32_t active_rows = active_fragments * kNativeWmmaTile;
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    const uint32_t projection = wave / 4u;
+    const uint32_t n_fragment = wave % 4u;
+    const uint32_t inter =
+        inter_macro * kNativeWmmaGateMacroN +
+        n_fragment * kNativeWmmaTile + source_index;
+    NativeWmmaF32x8 accumulators[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+#else
+    const uint32_t inter =
+        inter_macro * kNativeWmmaGateMacroN +
+        wave * kNativeWmmaTile + source_index;
+    NativeWmmaF32x8 gate_accumulators[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+    NativeWmmaF32x8 up_accumulators[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+#endif
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kHidden;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks =
+            kNativeWmmaAdaptiveTailRows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaAdaptiveTailThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            NativeWmmaU32x4 value{};
+            if (row < active_rows) {
+                const int32_t route = shared.routes[row];
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(
+                            route / static_cast<int32_t>(kTopK)
+                        ) * kHidden + k_base + row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        post_attention_bf16 + source
+                    );
+                }
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+            const NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    gate_up_bf16 +
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     projection * kIntermediate + inter) *
+                        kHidden + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    accumulators[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            accumulators[fragment]
+                        );
+                }
+            }
+#else
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    gate_up_bf16 +
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) + inter) *
+                        kHidden + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    gate_accumulators[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            gate_accumulators[fragment]
+                        );
+                }
+            }
+            weight_fragment = load_native_wmma_fragment(
+                gate_up_bf16 +
+                (static_cast<size_t>(shared.expert) *
+                     (2u * kIntermediate) + kIntermediate + inter) *
+                    kHidden + k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    up_accumulators[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            up_accumulators[fragment]
+                    );
+                }
+            }
+#endif
+        }
+        if (k_base + kNativeWmmaKStage < kHidden) {
+            __syncthreads();
+        }
+    }
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    if (projection == 0u) {
+#pragma unroll
+        for (uint32_t fragment = 0u;
+             fragment < kNativeWmmaAdaptiveTailFragments;
+             ++fragment) {
+            if (fragment >= active_fragments) {
+                continue;
+            }
+#pragma unroll
+            for (uint32_t output_element = 0u; output_element < 8u;
+                 ++output_element) {
+                const uint32_t row = fragment * kNativeWmmaTile +
+                    2u * output_element + output_row_segment;
+                const int32_t output_route = shared.routes[row];
+                if (output_route >= 0 &&
+                    output_route < static_cast<int32_t>(kRoutes)) {
+                    activated_bf16[
+                        static_cast<size_t>(output_route) * kIntermediate +
+                        inter
+                    ] = float_to_bf16(
+                        accumulators[fragment][output_element]
+                    );
+                }
+            }
+        }
+    }
+    __syncthreads();
+    if (projection == 1u) {
+#pragma unroll
+        for (uint32_t fragment = 0u;
+             fragment < kNativeWmmaAdaptiveTailFragments;
+             ++fragment) {
+            if (fragment >= active_fragments) {
+                continue;
+            }
+#pragma unroll
+            for (uint32_t output_element = 0u; output_element < 8u;
+                 ++output_element) {
+                const uint32_t row = fragment * kNativeWmmaTile +
+                    2u * output_element + output_row_segment;
+                const int32_t output_route = shared.routes[row];
+                if (output_route >= 0 &&
+                    output_route < static_cast<int32_t>(kRoutes)) {
+                    const size_t destination =
+                        static_cast<size_t>(output_route) * kIntermediate +
+                        inter;
+                    const float gate = bf16_to_float(
+                        activated_bf16[destination]
+                    );
+                    const float up = bf16_to_float(float_to_bf16(
+                        accumulators[fragment][output_element]
+                    ));
+                    const float exponent = -(gate * 1.44269504089f);
+                    const float silu = gate /
+                        (1.0f + __builtin_amdgcn_exp2f(exponent));
+                    activated_bf16[destination] =
+                        float_to_bf16(silu * up);
+                }
+            }
+        }
+    }
+#else
+#pragma unroll
+    for (uint32_t fragment = 0u;
+         fragment < kNativeWmmaAdaptiveTailFragments;
+         ++fragment) {
+        if (fragment >= active_fragments) {
+            continue;
+        }
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+                const float gate = bf16_to_float(float_to_bf16(
+                    gate_accumulators[fragment][output_element]
+                ));
+                const float up = bf16_to_float(float_to_bf16(
+                    up_accumulators[fragment][output_element]
+                ));
+                const float exponent = -(gate * 1.44269504089f);
+                const float silu = gate /
+                    (1.0f + __builtin_amdgcn_exp2f(exponent));
+                activated_bf16[
+                    static_cast<size_t>(output_route) * kIntermediate + inter
+                ] = float_to_bf16(silu * up);
+            }
+        }
+    }
+#endif
+}
+
+__global__ void native_wmma_down_adaptive_tail_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+
+    uint32_t expert_index = 0u;
+    uint32_t output_macro = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+#else
+    constexpr uint32_t indexed_tail_rows = kExperts * kBlockM;
+#endif
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaDownGridN,
+            &expert_index,
+            &output_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+#else
+    const uint32_t expert = expert_index;
+#endif
+
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    if (tail_rows == 0u || tail_rows > kNativeWmmaAdaptiveTailRows) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaAdaptiveTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t active_fragments =
+        (tail_rows + kNativeWmmaTile - 1u) / kNativeWmmaTile;
+    const uint32_t active_rows = active_fragments * kNativeWmmaTile;
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+    const uint32_t output_base =
+        output_macro * kNativeWmmaDownMacroN +
+        wave * kNativeWmmaTile;
+    NativeWmmaF32x8 accumulators[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+#else
+    const uint32_t output_base =
+        output_macro * kNativeWmmaDownMacroN +
+        wave * (2u * kNativeWmmaTile);
+    NativeWmmaF32x8 accumulators_n0[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+    NativeWmmaF32x8 accumulators_n1[
+        kNativeWmmaAdaptiveTailFragments
+    ]{};
+#endif
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kIntermediate;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks =
+            kNativeWmmaAdaptiveTailRows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaAdaptiveTailThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            NativeWmmaU32x4 value{};
+            if (row < active_rows) {
+                const int32_t route = shared.routes[row];
+                if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                    const size_t source =
+                        static_cast<size_t>(route) * kIntermediate + k_base +
+                        row_chunk * 8u;
+                    value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                        activated_bf16 + source
+                    );
+                }
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+            const NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    down_bf16 +
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     output_base + source_index) *
+                        kIntermediate + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    accumulators[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            accumulators[fragment]
+                        );
+                }
+            }
+#else
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    down_bf16 +
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     output_base + source_index) *
+                        kIntermediate + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    accumulators_n0[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            accumulators_n0[fragment]
+                        );
+                }
+            }
+            weight_fragment = load_native_wmma_fragment(
+                down_bf16 +
+                (static_cast<size_t>(shared.expert) * kHidden +
+                 output_base + kNativeWmmaTile + source_index) *
+                    kIntermediate + k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u;
+                 fragment < kNativeWmmaAdaptiveTailFragments;
+                 ++fragment) {
+                if (fragment < active_fragments) {
+                    const NativeWmmaBf16x16 input_fragment =
+                        load_native_wmma_fragment(
+                            shared.a +
+                            (fragment * kNativeWmmaTile + source_index) *
+                                kNativeWmmaSharedStride + k_sub
+                        );
+                    accumulators_n1[fragment] =
+                        __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                            input_fragment,
+                            weight_fragment,
+                            accumulators_n1[fragment]
+                    );
+                }
+            }
+#endif
+        }
+        if (k_base + kNativeWmmaKStage < kIntermediate) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t fragment = 0u;
+         fragment < kNativeWmmaAdaptiveTailFragments;
+         ++fragment) {
+        if (fragment >= active_fragments) {
+            continue;
+        }
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + source_index
+                ] = accumulators[fragment][output_element];
+#else
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + source_index
+                ] = accumulators_n0[fragment][output_element];
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + kNativeWmmaTile + source_index
+                ] = accumulators_n1[fragment][output_element];
+#endif
+            }
+        }
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+constexpr uint32_t kNativeWmmaBucketedTailThreads = 128u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+constexpr uint32_t kNativeWmmaBucketedTailPersistentBlocks = 320u;
+#endif
+static_assert(kBlockM == 64u);
+
+template <uint32_t TailFragments>
+__global__ void native_wmma_gate_up_silu_bucketed_tail_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *compact_tail_counts,
+#endif
+    uint16_t *activated_bf16
+) {
+    static_assert(TailFragments >= 1u && TailFragments <= 3u);
+    constexpr uint32_t kTailRows = TailFragments * kNativeWmmaTile;
+    __shared__ NativeWmmaBucketedTailSharedStorage<TailFragments> shared;
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t bucket_count = static_cast<uint32_t>(
+        compact_tail_counts[TailFragments - 1u]
+    );
+    const uint32_t bucket_work = bucket_count * kNativeWmmaGateGridN;
+    for (uint32_t program = blockIdx.x; program < bucket_work;
+         program += gridDim.x) {
+        const uint32_t expert_index = program % bucket_count;
+        const uint32_t inter_macro = program / bucket_count;
+        const uint32_t expert = static_cast<uint32_t>(
+            compact_tail_experts[
+                (TailFragments - 1u) * kExperts + expert_index
+            ]
+        );
+#else
+    {
+    uint32_t expert = 0u;
+    uint32_t inter_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            kExperts * kBlockM,
+            kNativeWmmaGateGridN,
+            &expert,
+            &inter_macro
+        )) {
+        return;
+    }
+#endif
+
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    const uint32_t tail_fragments =
+        (tail_rows + kNativeWmmaTile - 1u) / kNativeWmmaTile;
+    if (tail_fragments != TailFragments) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t inter =
+        inter_macro * kNativeWmmaGateMacroN +
+        wave * kNativeWmmaTile + source_index;
+
+    NativeWmmaF32x8 gate_accumulators[TailFragments]{};
+    NativeWmmaF32x8 up_accumulators[TailFragments]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kHidden;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kTailRows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaBucketedTailThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source = static_cast<size_t>(
+                    route / static_cast<int32_t>(kTopK)
+                ) * kHidden + k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    post_attention_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    gate_up_bf16 +
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) + inter) *
+                        kHidden + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < TailFragments;
+                 ++fragment) {
+                const NativeWmmaBf16x16 input_fragment =
+                    load_native_wmma_fragment(
+                        shared.a +
+                        (fragment * kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride + k_sub
+                    );
+                gate_accumulators[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment,
+                        weight_fragment,
+                        gate_accumulators[fragment]
+                    );
+            }
+            weight_fragment = load_native_wmma_fragment(
+                gate_up_bf16 +
+                (static_cast<size_t>(shared.expert) *
+                     (2u * kIntermediate) + kIntermediate + inter) *
+                    kHidden + k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < TailFragments;
+                 ++fragment) {
+                const NativeWmmaBf16x16 input_fragment =
+                    load_native_wmma_fragment(
+                        shared.a +
+                        (fragment * kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride + k_sub
+                    );
+                up_accumulators[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment,
+                        weight_fragment,
+                        up_accumulators[fragment]
+                    );
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kHidden) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t fragment = 0u; fragment < TailFragments; ++fragment) {
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+                const float gate = bf16_to_float(float_to_bf16(
+                    gate_accumulators[fragment][output_element]
+                ));
+                const float up = bf16_to_float(float_to_bf16(
+                    up_accumulators[fragment][output_element]
+                ));
+                const float exponent = -(gate * 1.44269504089f);
+                const float silu = gate /
+                    (1.0f + __builtin_amdgcn_exp2f(exponent));
+                activated_bf16[
+                    static_cast<size_t>(output_route) * kIntermediate + inter
+                ] = float_to_bf16(silu * up);
+            }
+        }
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        __syncthreads();
+#endif
+    }
+}
+
+template <uint32_t TailFragments>
+__global__ void native_wmma_down_bucketed_tail_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *compact_tail_counts,
+#endif
+    float *route_outputs_f32
+) {
+    static_assert(TailFragments >= 1u && TailFragments <= 3u);
+    constexpr uint32_t kTailRows = TailFragments * kNativeWmmaTile;
+    __shared__ NativeWmmaBucketedTailSharedStorage<TailFragments> shared;
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t bucket_count = static_cast<uint32_t>(
+        compact_tail_counts[TailFragments - 1u]
+    );
+    const uint32_t bucket_work = bucket_count * kNativeWmmaDownGridN;
+    for (uint32_t program = blockIdx.x; program < bucket_work;
+         program += gridDim.x) {
+        const uint32_t expert_index = program % bucket_count;
+        const uint32_t output_macro = program / bucket_count;
+        const uint32_t expert = static_cast<uint32_t>(
+            compact_tail_experts[
+                (TailFragments - 1u) * kExperts + expert_index
+            ]
+        );
+#else
+    {
+    uint32_t expert = 0u;
+    uint32_t output_macro = 0u;
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            kExperts * kBlockM,
+            kNativeWmmaDownGridN,
+            &expert,
+            &output_macro
+        )) {
+        return;
+    }
+#endif
+
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    const uint32_t tail_fragments =
+        (tail_rows + kNativeWmmaTile - 1u) / kNativeWmmaTile;
+    if (tail_fragments != TailFragments) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kTailRows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t output_base =
+        output_macro * kNativeWmmaDownMacroN +
+        wave * (2u * kNativeWmmaTile);
+
+    NativeWmmaF32x8 accumulators_n0[TailFragments]{};
+    NativeWmmaF32x8 accumulators_n1[TailFragments]{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kIntermediate;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks = kTailRows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaBucketedTailThreads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source =
+                    static_cast<size_t>(route) * kIntermediate + k_base +
+                    row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    activated_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    down_bf16 +
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     output_base + source_index) *
+                        kIntermediate + k_base + k_sub
+                );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < TailFragments;
+                 ++fragment) {
+                const NativeWmmaBf16x16 input_fragment =
+                    load_native_wmma_fragment(
+                        shared.a +
+                        (fragment * kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride + k_sub
+                    );
+                accumulators_n0[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment,
+                        weight_fragment,
+                        accumulators_n0[fragment]
+                    );
+            }
+            weight_fragment = load_native_wmma_fragment(
+                down_bf16 +
+                (static_cast<size_t>(shared.expert) * kHidden +
+                 output_base + kNativeWmmaTile + source_index) *
+                    kIntermediate + k_base + k_sub
+            );
+#pragma unroll
+            for (uint32_t fragment = 0u; fragment < TailFragments;
+                 ++fragment) {
+                const NativeWmmaBf16x16 input_fragment =
+                    load_native_wmma_fragment(
+                        shared.a +
+                        (fragment * kNativeWmmaTile + source_index) *
+                            kNativeWmmaSharedStride + k_sub
+                    );
+                accumulators_n1[fragment] =
+                    __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                        input_fragment,
+                        weight_fragment,
+                        accumulators_n1[fragment]
+                    );
+            }
+        }
+        if (k_base + kNativeWmmaKStage < kIntermediate) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t fragment = 0u; fragment < TailFragments; ++fragment) {
+#pragma unroll
+        for (uint32_t output_element = 0u; output_element < 8u;
+             ++output_element) {
+            const uint32_t row = fragment * kNativeWmmaTile +
+                2u * output_element + output_row_segment;
+            const int32_t output_route = shared.routes[row];
+            if (output_route >= 0 &&
+                output_route < static_cast<int32_t>(kRoutes)) {
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + source_index
+                ] = accumulators_n0[fragment][output_element];
+                route_outputs_f32[
+                    static_cast<size_t>(output_route) * kHidden +
+                    output_base + kNativeWmmaTile + source_index
+                ] = accumulators_n1[fragment][output_element];
+            }
+        }
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        __syncthreads();
+#endif
+    }
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+constexpr uint32_t kNativeWmmaTail32Rows = 32u;
+constexpr uint32_t kNativeWmmaTail32Threads = 256u;
+constexpr uint32_t kNativeWmmaTail32GateMacroN = 64u;
+constexpr uint32_t kNativeWmmaTail32DownMacroN = 128u;
+constexpr uint32_t kNativeWmmaTail32GateGridN =
+    kIntermediate / kNativeWmmaTail32GateMacroN;
+constexpr uint32_t kNativeWmmaTail32DownGridN =
+    kHidden / kNativeWmmaTail32DownMacroN;
+static_assert(kIntermediate % kNativeWmmaTail32GateMacroN == 0u);
+static_assert(kHidden % kNativeWmmaTail32DownMacroN == 0u);
+
+__global__ void native_wmma_gate_up_silu_tail32_kernel(
+    const uint16_t *post_attention_bf16,
+    const uint16_t *gate_up_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    uint16_t *activated_bf16
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+
+    uint32_t expert_index = 0u;
+    uint32_t inter_macro = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+#else
+    constexpr uint32_t indexed_tail_rows = kExperts * kBlockM;
+#endif
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaTail32GateGridN,
+            &expert_index,
+            &inter_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+#else
+    const uint32_t expert = expert_index;
+#endif
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    if (tail_rows == 0u || tail_rows > kNativeWmmaTail32Rows) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaTail32Rows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t m_group = wave & 1u;
+    const uint32_t inter_group = wave >> 1u;
+    const uint32_t row_base = m_group * kNativeWmmaTile;
+    const uint32_t inter = inter_macro * kNativeWmmaTail32GateMacroN +
+        inter_group * kNativeWmmaTile + source_index;
+
+    NativeWmmaF32x8 gate_accumulator{};
+    NativeWmmaF32x8 up_accumulator{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kHidden;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks =
+            kNativeWmmaTail32Rows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaTail32Threads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source = static_cast<size_t>(
+                    route / static_cast<int32_t>(kTopK)
+                ) * kHidden + k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    post_attention_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            const NativeWmmaBf16x16 input_fragment =
+                load_native_wmma_fragment(
+                    shared.a +
+                    (row_base + source_index) * kNativeWmmaSharedStride +
+                    k_sub
+                );
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    gate_up_bf16 +
+                    (static_cast<size_t>(shared.expert) *
+                         (2u * kIntermediate) +
+                     inter) *
+                        kHidden +
+                    k_base + k_sub
+                );
+            gate_accumulator =
+                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                    input_fragment,
+                    weight_fragment,
+                    gate_accumulator
+                );
+            weight_fragment = load_native_wmma_fragment(
+                gate_up_bf16 +
+                (static_cast<size_t>(shared.expert) *
+                     (2u * kIntermediate) +
+                 kIntermediate + inter) *
+                    kHidden +
+                k_base + k_sub
+            );
+            up_accumulator =
+                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                    input_fragment,
+                    weight_fragment,
+                    up_accumulator
+                );
+        }
+        if (k_base + kNativeWmmaKStage < kHidden) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t output_element = 0u; output_element < 8u;
+         ++output_element) {
+        const uint32_t row_in_tile =
+            2u * output_element + output_row_segment;
+        const int32_t route = shared.routes[row_base + row_in_tile];
+        if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+            const float gate = bf16_to_float(float_to_bf16(
+                gate_accumulator[output_element]
+            ));
+            const float up = bf16_to_float(float_to_bf16(
+                up_accumulator[output_element]
+            ));
+            const float exponent = -(gate * 1.44269504089f);
+            const float silu = gate /
+                (1.0f + __builtin_amdgcn_exp2f(exponent));
+            activated_bf16[
+                static_cast<size_t>(route) * kIntermediate + inter
+            ] = float_to_bf16(silu * up);
+        }
+    }
+}
+
+__global__ void native_wmma_down_tail32_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *down_bf16,
+    const int32_t *sorted_route_ids,
+    const int32_t *token_counts,
+    const int32_t *cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const int32_t *compact_tail_experts,
+    const int32_t *total_compact_tail_experts,
+#endif
+    float *route_outputs_f32
+) {
+    __shared__ NativeWmmaSharedStorage shared;
+
+    uint32_t expert_index = 0u;
+    uint32_t output_macro = 0u;
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t indexed_tail_rows =
+        static_cast<uint32_t>(*total_compact_tail_experts) * kBlockM;
+#else
+    constexpr uint32_t indexed_tail_rows = kExperts * kBlockM;
+#endif
+    if (!native_wmma_grouped_program(
+            blockIdx.x,
+            indexed_tail_rows,
+            kNativeWmmaTail32DownGridN,
+            &expert_index,
+            &output_macro
+        )) {
+        return;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    const uint32_t expert = static_cast<uint32_t>(
+        compact_tail_experts[expert_index]
+    );
+#else
+    const uint32_t expert = expert_index;
+#endif
+    const int32_t expert_routes = token_counts[
+        static_cast<size_t>(kRoutePrograms) * kExperts + expert
+    ];
+    const uint32_t tail_rows =
+        static_cast<uint32_t>(expert_routes) % kBlockM;
+    if (tail_rows == 0u || tail_rows > kNativeWmmaTail32Rows) {
+        return;
+    }
+    const uint32_t tail_begin = static_cast<uint32_t>(cumsum[expert]) +
+        static_cast<uint32_t>(expert_routes) - tail_rows;
+    const uint32_t thread = threadIdx.x;
+    if (thread < kNativeWmmaTail32Rows) {
+        shared.routes[thread] = thread < tail_rows
+            ? sorted_route_ids[tail_begin + thread]
+            : static_cast<int32_t>(kRoutes);
+    }
+    if (thread == 0u) {
+        shared.expert = static_cast<int32_t>(expert);
+    }
+    __syncthreads();
+
+    const uint32_t wave = thread / kNativeWmmaWaveThreads;
+    const uint32_t lane = thread % kNativeWmmaWaveThreads;
+    const uint32_t source_index = lane % kNativeWmmaTile;
+    const uint32_t output_row_segment = lane / kNativeWmmaTile;
+    const uint32_t m_group = wave & 1u;
+    const uint32_t n_group = wave >> 1u;
+    const uint32_t row_base = m_group * kNativeWmmaTile;
+    const uint32_t output_base = output_macro * kNativeWmmaTail32DownMacroN +
+        n_group * (2u * kNativeWmmaTile);
+
+    NativeWmmaF32x8 accumulator_n0{};
+    NativeWmmaF32x8 accumulator_n1{};
+#pragma unroll 1
+    for (uint32_t k_base = 0u; k_base < kIntermediate;
+         k_base += kNativeWmmaKStage) {
+        constexpr uint32_t kChunksPerRow =
+            kNativeWmmaKStage * sizeof(uint16_t) /
+            sizeof(NativeWmmaU32x4);
+        constexpr uint32_t kAChunks =
+            kNativeWmmaTail32Rows * kChunksPerRow;
+        for (uint32_t chunk = thread; chunk < kAChunks;
+             chunk += kNativeWmmaTail32Threads) {
+            const uint32_t row = chunk / kChunksPerRow;
+            const uint32_t row_chunk = chunk % kChunksPerRow;
+            const int32_t route = shared.routes[row];
+            NativeWmmaU32x4 value{};
+            if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+                const size_t source = static_cast<size_t>(route) *
+                    kIntermediate + k_base + row_chunk * 8u;
+                value = *reinterpret_cast<const NativeWmmaU32x4 *>(
+                    activated_bf16 + source
+                );
+            }
+            *reinterpret_cast<NativeWmmaU32x4 *>(
+                shared.a + row * kNativeWmmaSharedStride + row_chunk * 8u
+            ) = value;
+        }
+        __syncthreads();
+
+#pragma unroll
+        for (uint32_t k_sub = 0u; k_sub < kNativeWmmaKStage;
+             k_sub += kNativeWmmaTile) {
+            const NativeWmmaBf16x16 input_fragment =
+                load_native_wmma_fragment(
+                    shared.a +
+                    (row_base + source_index) * kNativeWmmaSharedStride +
+                    k_sub
+                );
+            NativeWmmaBf16x16 weight_fragment =
+                load_native_wmma_fragment(
+                    down_bf16 +
+                    (static_cast<size_t>(shared.expert) * kHidden +
+                     output_base + source_index) *
+                        kIntermediate +
+                    k_base + k_sub
+                );
+            accumulator_n0 =
+                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                    input_fragment,
+                    weight_fragment,
+                    accumulator_n0
+                );
+            weight_fragment = load_native_wmma_fragment(
+                down_bf16 +
+                (static_cast<size_t>(shared.expert) * kHidden +
+                 output_base + kNativeWmmaTile + source_index) *
+                    kIntermediate +
+                k_base + k_sub
+            );
+            accumulator_n1 =
+                __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                    input_fragment,
+                    weight_fragment,
+                    accumulator_n1
+                );
+        }
+        if (k_base + kNativeWmmaKStage < kIntermediate) {
+            __syncthreads();
+        }
+    }
+
+#pragma unroll
+    for (uint32_t output_element = 0u; output_element < 8u;
+         ++output_element) {
+        const uint32_t row_in_tile =
+            2u * output_element + output_row_segment;
+        const int32_t route = shared.routes[row_base + row_in_tile];
+        if (route >= 0 && route < static_cast<int32_t>(kRoutes)) {
+            route_outputs_f32[
+                static_cast<size_t>(route) * kHidden +
+                output_base + source_index
+            ] = accumulator_n0[output_element];
+            route_outputs_f32[
+                static_cast<size_t>(route) * kHidden + output_base +
+                kNativeWmmaTile + source_index
+            ] = accumulator_n1[output_element];
+        }
+    }
+}
+#endif
 #endif
 
 __global__ void combine_route_order_kernel(
     const float *route_outputs,
     const float *topk_weights,
+    const int32_t *topk_ids,
     float *outputs,
+    bool vllm_sorted_bf16_route_sum,
     size_t output_elements
 ) {
     const size_t index = static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
@@ -1743,12 +10324,46 @@ __global__ void combine_route_order_kernel(
     const size_t column = index - token * kHidden;
     const size_t route_base = token * kTopK;
     float value = 0.0f;
-    for (uint32_t route_order = 0; route_order < kTopK; ++route_order) {
-        const size_t route = route_base + route_order;
-        const float contribution =
-            topk_weights[route] *
-            route_outputs[route * kHidden + column];
-        value = __fadd_rn(value, contribution);
+    if (vllm_sorted_bf16_route_sum) {
+        uint32_t route_order[kTopK]{};
+        uint32_t previous_expert = 0u;
+        for (uint32_t step = 0u; step < kTopK; ++step) {
+            uint32_t selected_route = kTopK;
+            uint32_t selected_expert = kExperts;
+            for (uint32_t route = 0u; route < kTopK; ++route) {
+                const uint32_t expert = static_cast<uint32_t>(
+                    topk_ids[route_base + route]
+                );
+                if ((step == 0u || expert > previous_expert) &&
+                    expert < selected_expert) {
+                    selected_expert = expert;
+                    selected_route = route;
+                }
+            }
+            route_order[step] = selected_route;
+            previous_expert = selected_expert;
+        }
+        for (uint32_t step = 0u; step < kTopK; ++step) {
+            const size_t route = route_base + route_order[step];
+            const float down_bf16 = bf16_to_float(float_to_bf16(
+                route_outputs[route * kHidden + column]
+            ));
+            const float contribution_bf16 = bf16_to_float(float_to_bf16(
+                topk_weights[route] * down_bf16
+            ));
+            value = bf16_to_float(float_to_bf16(
+                __fadd_rn(value, contribution_bf16)
+            ));
+        }
+    } else {
+        for (uint32_t route_order = 0; route_order < kTopK;
+             ++route_order) {
+            const size_t route = route_base + route_order;
+            const float contribution =
+                topk_weights[route] *
+                route_outputs[route * kHidden + column];
+            value = __fadd_rn(value, contribution);
+        }
     }
 #if QRT_TRITON_MOE_Q1024_GROUPED_BF16_ENDPOINTS
     outputs[index] = bf16_to_float(float_to_bf16(value));
@@ -1797,9 +10412,12 @@ __global__ void router_topk_kernel(
     const uint16_t *router_weights,
     int32_t *topk_ids,
     float *topk_weights,
-    bool bf16_logit_endpoint
+    bool bf16_logit_endpoint,
+    bool raw_logit_tie_break,
+    bool cutoff_high_id_tie
 ) {
     __shared__ float shared_logits[kRouterTokenTile][kExperts];
+    __shared__ float shared_raw_logits[kRouterTokenTile][kExperts];
 
     const uint32_t token_base = blockIdx.x * kRouterTokenTile;
     const uint32_t worker = threadIdx.x;
@@ -1850,6 +10468,7 @@ __global__ void router_topk_kernel(
         for (uint32_t token_slot = 0u; token_slot < kRouterTokenTile;
              ++token_slot) {
             const float logit = accumulators[token_slot][slot];
+            shared_raw_logits[token_slot][expert] = logit;
             shared_logits[token_slot][expert] = bf16_logit_endpoint
                 ? bf16_to_float(float_to_bf16(logit))
                 : logit;
@@ -1871,6 +10490,7 @@ __global__ void router_topk_kernel(
         accumulator +=
             bf16_to_float(weight) * input_value;
     }
+    shared_raw_logits[0][expert] = accumulator;
     shared_logits[0][expert] = bf16_logit_endpoint
         ? bf16_to_float(float_to_bf16(accumulator))
         : accumulator;
@@ -1900,12 +10520,22 @@ __global__ void router_topk_kernel(
                 if (selected) {
                     continue;
                 }
+                const bool endpoint_tie = best_expert != kExperts &&
+                    shared_logits[token_slot][candidate] ==
+                        shared_logits[token_slot][best_expert];
+                const bool raw_better = endpoint_tie &&
+                    raw_logit_tie_break &&
+                    shared_raw_logits[token_slot][candidate] >
+                        shared_raw_logits[token_slot][best_expert];
+                const bool final_id_tie = endpoint_tie &&
+                    candidate < best_expert &&
+                    (!raw_logit_tie_break ||
+                     shared_raw_logits[token_slot][candidate] ==
+                         shared_raw_logits[token_slot][best_expert]);
                 if (best_expert == kExperts ||
                     shared_logits[token_slot][candidate] >
                         shared_logits[token_slot][best_expert] ||
-                    (shared_logits[token_slot][candidate] ==
-                         shared_logits[token_slot][best_expert] &&
-                     candidate < best_expert)) {
+                    raw_better || final_id_tie) {
                     best_expert = candidate;
                 }
             }
@@ -1916,6 +10546,27 @@ __global__ void router_topk_kernel(
                 maximum,
                 static_cast<double>(shared_logits[token_slot][best_expert])
             );
+        }
+        if (cutoff_high_id_tie) {
+            constexpr uint32_t cutoff_route = kTopK - 1u;
+            uint32_t cutoff_expert = best_ids[cutoff_route];
+            for (uint32_t candidate = 0u; candidate < kExperts;
+                 ++candidate) {
+                bool selected_before_cutoff = false;
+                for (uint32_t prior = 0u; prior < cutoff_route; ++prior) {
+                    selected_before_cutoff = selected_before_cutoff ||
+                        best_ids[prior] == candidate;
+                }
+                if (!selected_before_cutoff &&
+                    shared_logits[token_slot][candidate] ==
+                        shared_logits[token_slot][cutoff_expert] &&
+                    candidate > cutoff_expert) {
+                    cutoff_expert = candidate;
+                }
+            }
+            best_ids[cutoff_route] = cutoff_expert;
+            topk_ids[static_cast<size_t>(token) * kTopK + cutoff_route] =
+                static_cast<int32_t>(cutoff_expert);
         }
         for (uint32_t route = 0; route < kTopK; ++route) {
             const double value = exp(
@@ -1933,6 +10584,70 @@ __global__ void router_topk_kernel(
     }
 }
 
+// The live GB10 shared-expert scalar gate is dispatched through cuBLAS GEMV,
+// not the tensor-core GEMM used by the wider shared projections.  Its BF16
+// endpoint follows an adjacent balanced F32 tree over the 2,048 exact BF16
+// products.  This distinction is observable at exact midpoints: the former
+// 256-lane interleaved fold produced c0117fff for q2560 layer1 token 527,
+// while GB10 and the adjacent tree produce c0118000 and round to BF16 c012.
+__global__ void shared_gate_bf16_cuda_gemv_kernel(
+    const uint16_t *input_bf16,
+    const uint16_t *gate_weight_bf16,
+    uint16_t *gate_logits_bf16,
+    uint32_t token_count
+) {
+    static_assert(
+        kHidden / kNativeThreads == 8u &&
+            kHidden % kNativeThreads == 0u,
+        "shared gate balanced tree requires eight products per lane"
+    );
+    __shared__ float partial[2][kNativeThreads];
+    const uint32_t token = blockIdx.x;
+    const uint32_t lane = threadIdx.x;
+    if (token >= token_count) {
+        return;
+    }
+    const uint16_t *input =
+        input_bf16 + static_cast<size_t>(token) * kHidden;
+    const uint32_t column_base = lane * 8u;
+    float products[8]{};
+#pragma unroll
+    for (uint32_t element = 0u; element < 8u; ++element) {
+        const uint32_t column = column_base + element;
+        products[element] = __fmul_rn(
+            bf16_to_float(input[column]),
+            bf16_to_float(gate_weight_bf16[column])
+        );
+    }
+    const float pair0 = __fadd_rn(products[0], products[1]);
+    const float pair1 = __fadd_rn(products[2], products[3]);
+    const float pair2 = __fadd_rn(products[4], products[5]);
+    const float pair3 = __fadd_rn(products[6], products[7]);
+    partial[0][lane] = __fadd_rn(
+        __fadd_rn(pair0, pair1),
+        __fadd_rn(pair2, pair3)
+    );
+    __syncthreads();
+
+    uint32_t source = 0u;
+    uint32_t destination = 1u;
+#pragma unroll
+    for (uint32_t active = kNativeThreads; active > 1u; active >>= 1u) {
+        if (lane < active / 2u) {
+            partial[destination][lane] = __fadd_rn(
+                partial[source][2u * lane],
+                partial[source][2u * lane + 1u]
+            );
+        }
+        __syncthreads();
+        source ^= 1u;
+        destination ^= 1u;
+    }
+    if (lane == 0u) {
+        gate_logits_bf16[token] = float_to_bf16(partial[source][0]);
+    }
+}
+
 __global__ void shared_gate_scale_kernel(
     const uint16_t *gate_logits,
     float *gate_scales
@@ -1943,7 +10658,13 @@ __global__ void shared_gate_scale_kernel(
         return;
     }
     const float gate = bf16_to_float(gate_logits[token]);
-    gate_scales[token] = 1.0f / (1.0f + expf(-gate));
+    // Qwen3NextMLP applies F.sigmoid to a BF16 gate-logit tensor, so the
+    // scale consumed by the final shared-expert multiply is BF16 as well.
+    // Retaining the unrounded FP32 sigmoid here changes more than half of the
+    // terminal shared-output row on the GB10 q2560 boundary.
+    gate_scales[token] = bf16_to_float(float_to_bf16(
+        1.0f / (1.0f + expf(-gate))
+    ));
 }
 
 __global__ void shared_activation_kernel(
@@ -1958,8 +10679,272 @@ __global__ void shared_activation_kernel(
     }
     const float gate = bf16_to_float(gate_projection[index]);
     const float up = bf16_to_float(up_projection[index]);
-    const float silu = gate / (1.0f + expf(-gate));
+    // The shared Qwen3Next MLP materializes the BF16 output of F.silu before
+    // multiplying by the BF16 up projection.  The selected-expert kernel has
+    // a different fused SiLU-and-multiply contract, so keep this endpoint
+    // local to the shared path.
+    const float silu = bf16_to_float(float_to_bf16(
+        gate / (1.0f + expf(-gate))
+    ));
     activated[index] = float_to_bf16(silu * up);
+}
+
+#if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
+// A radius of 32768 selects every possible F32 low-half pattern, so the
+// ordinary correction route would first run hipBLASLt and then replay every
+// output dot.  Compute the authoritative endpoints directly instead.  One
+// block owns a token, stages its input row once, and lets sixteen wave16
+// subgroups traverse all 512 shared gate/up rows.
+__global__ __launch_bounds__(256)
+void shared_gate_up_full_hawkeye_activation_kernel(
+    const uint16_t *input_bf16,
+    const uint16_t *gate_weights_bf16,
+    const uint16_t *up_weights_bf16,
+    uint16_t *gate_projection_bf16,
+    uint16_t *up_projection_bf16,
+    uint16_t *activated_bf16,
+    uint32_t token_count
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    extern __shared__ uint16_t cached_input[];
+    const uint32_t token = blockIdx.x;
+    if (token >= token_count) {
+        return;
+    }
+    const uint16_t *const input_row = input_bf16 +
+        static_cast<size_t>(token) * kHidden;
+    for (uint32_t column = threadIdx.x; column < kHidden;
+         column += blockDim.x) {
+        cached_input[column] = input_row[column];
+    }
+    __syncthreads();
+
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t row = subgroup; row < kIntermediate;
+         row += kWave16Subgroups) {
+        const float gate_exact =
+            batched_hawkeye_wave16_dot_bf16_hopper(
+                cached_input,
+                gate_weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden
+            );
+        const float up_exact =
+            batched_hawkeye_wave16_dot_bf16_hopper(
+                cached_input,
+                up_weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden
+            );
+        if (lane == 0u) {
+            const size_t output_index =
+                static_cast<size_t>(token) * kIntermediate + row;
+            const uint16_t gate_endpoint = float_to_bf16(gate_exact);
+            const uint16_t up_endpoint = float_to_bf16(up_exact);
+            gate_projection_bf16[output_index] = gate_endpoint;
+            up_projection_bf16[output_index] = up_endpoint;
+            const float gate = bf16_to_float(gate_endpoint);
+            const float up = bf16_to_float(up_endpoint);
+            const float silu = bf16_to_float(float_to_bf16(
+                gate / (1.0f + expf(-gate))
+            ));
+            activated_bf16[output_index] = float_to_bf16(silu * up);
+        }
+    }
+}
+
+// The shared down matrix has K512 and 2048 output rows.  The same one-block
+// ownership keeps the token's activation row in LDS while each subgroup
+// produces 128 exact rows in the characterized group-16 order.
+__global__ __launch_bounds__(256)
+void shared_down_full_hawkeye_kernel(
+    const uint16_t *activated_bf16,
+    const uint16_t *weights_bf16,
+    uint16_t *down_projection_bf16,
+    uint32_t token_count
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    extern __shared__ uint16_t cached_activated[];
+    const uint32_t token = blockIdx.x;
+    if (token >= token_count) {
+        return;
+    }
+    const uint16_t *const activated_row = activated_bf16 +
+        static_cast<size_t>(token) * kIntermediate;
+    for (uint32_t column = threadIdx.x; column < kIntermediate;
+         column += blockDim.x) {
+        cached_activated[column] = activated_row[column];
+    }
+    __syncthreads();
+
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t row = subgroup; row < kHidden;
+         row += kWave16Subgroups) {
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            cached_activated,
+            weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+            kIntermediate
+        );
+        if (lane == 0u) {
+            down_projection_bf16[
+                static_cast<size_t>(token) * kHidden + row
+            ] = float_to_bf16(exact);
+        }
+    }
+}
+#endif
+
+// Keep hipBLASLt's high-throughput shared gate/up GEMM, but retain its FP32
+// accumulator long enough to recognize the sparse BF16 rounding midpoints
+// where gfx1151 and GB10 can choose adjacent endpoints.  Candidate cells are
+// compacted per block; only those cells replay the characterized Hopper K16
+// accumulation against the authoritative BF16 input and weight row.
+__global__ void shared_projection_hawkeye_midpoint_correction_kernel(
+    const float *native_projection,
+    const uint16_t *input_bf16,
+    const uint16_t *weights_bf16,
+    uint16_t *corrected_projection,
+    uint32_t token_count,
+    uint32_t midpoint_radius
+) {
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t projection_elements =
+        static_cast<size_t>(token_count) * kIntermediate;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index < projection_elements) {
+        const float native = native_projection[index];
+        corrected_projection[index] = float_to_bf16(native);
+        const uint32_t low_bits = __float_as_uint(native) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        if (midpoint_distance <= midpoint_radius) {
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+        }
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t token = candidate / kIntermediate;
+        const uint32_t row = candidate - token * kIntermediate;
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            input_bf16 + static_cast<size_t>(token) * kHidden,
+            weights_bf16 + static_cast<size_t>(row) * kHidden,
+            kHidden
+        );
+        if (lane == 0u) {
+            corrected_projection[candidate] = float_to_bf16(exact);
+        }
+    }
+#else
+    for (uint32_t slot = threadIdx.x;
+         slot < candidate_count;
+         slot += blockDim.x) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t token = candidate / kIntermediate;
+        const uint32_t row = candidate - token * kIntermediate;
+        const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
+            input_bf16 + static_cast<size_t>(token) * kHidden,
+            weights_bf16 + static_cast<size_t>(row) * kHidden,
+            kHidden
+        );
+        corrected_projection[candidate] = float_to_bf16(exact);
+    }
+#endif
+}
+
+// Shared gate/up and shared down use different matrix shapes.  Keep the down
+// correction separate so its replay indexes K=512 activation rows and the
+// [hidden, intermediate] weight layout exactly.  The native F32 surface is
+// used only to select sparse BF16 midpoint candidates; every selected dot is
+// recomputed with the characterized Hopper accumulation order before the
+// authoritative BF16 endpoint is materialized.
+__global__ void shared_down_hawkeye_midpoint_correction_kernel(
+    const float *native_projection,
+    const uint16_t *activated_bf16,
+    const uint16_t *weights_bf16,
+    uint16_t *corrected_projection,
+    uint32_t token_count,
+    uint32_t midpoint_radius
+) {
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t projection_elements =
+        static_cast<size_t>(token_count) * kHidden;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index < projection_elements) {
+        const float native = native_projection[index];
+        corrected_projection[index] = float_to_bf16(native);
+        const uint32_t low_bits = __float_as_uint(native) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        if (midpoint_distance <= midpoint_radius) {
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+        }
+    }
+    __syncthreads();
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t token = candidate / kHidden;
+        const uint32_t row = candidate - token * kHidden;
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+            weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+            kIntermediate
+        );
+        if (lane == 0u) {
+            corrected_projection[candidate] = float_to_bf16(exact);
+        }
+    }
+#else
+    for (uint32_t slot = threadIdx.x;
+         slot < candidate_count;
+         slot += blockDim.x) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t token = candidate / kHidden;
+        const uint32_t row = candidate - token * kHidden;
+        const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
+            activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+            weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+            kIntermediate
+        );
+        corrected_projection[candidate] = float_to_bf16(exact);
+    }
+#endif
 }
 
 __global__ void shared_combine_residual_kernel(
@@ -1968,11 +10953,13 @@ __global__ void shared_combine_residual_kernel(
     const float *residual_hidden,
     const float *routed_combined,
     float *output_hidden,
-    bool vllm_bf16_residual
+    bool vllm_bf16_residual,
+    bool vllm_split_variance,
+    size_t output_elements
 ) {
     const size_t index =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
-    if (index >= kOutputElements) {
+    if (index >= output_elements) {
         return;
     }
     const size_t token = index / kHidden;
@@ -2007,9 +10994,10 @@ __global__ void shared_combine_residual_kernel(
         ));
         const float residual_bf16 =
             bf16_to_float(float_to_bf16(residual_hidden[index]));
-        output_hidden[index] = bf16_to_float(float_to_bf16(
-            __fadd_rn(residual_bf16, combined_bf16)
-        ));
+        const float unrounded = __fadd_rn(residual_bf16, combined_bf16);
+        output_hidden[index] = vllm_split_variance
+            ? unrounded
+            : bf16_to_float(float_to_bf16(unrounded));
     } else {
         const float combined = __fadd_rn(routed_combined[index], shared);
         output_hidden[index] = __fadd_rn(residual_hidden[index], combined);
@@ -2018,24 +11006,145 @@ __global__ void shared_combine_residual_kernel(
 #endif
 }
 
+// The retained vLLM boundary rounds each weighted routed contribution to
+// BF16 while the selected-MoE kernel keeps the down projection accumulator in
+// F32.  Native gfx1151 and GB10/Hopper accumulator differences matter only
+// when that weighted value is close to a BF16 midpoint.  Replay the exact
+// K512 down dot for those sparse cells; all other contributions keep the
+// native high-throughput result.
+__device__ __forceinline__ float routed_down_contribution_bf16_endpoint(
+    float weight,
+    float native_down,
+    const uint16_t *routed_activated,
+    const uint16_t *routed_down_weights,
+    size_t route,
+    int32_t expert,
+    uint32_t column,
+    uint32_t midpoint_radius
+) {
+    float contribution = __fmul_rn(weight, native_down);
+    if (midpoint_radius != 0u && routed_activated != nullptr &&
+        routed_down_weights != nullptr && expert >= 0 &&
+        expert < static_cast<int32_t>(kExperts)) {
+        const uint32_t low_bits =
+            __float_as_uint(contribution) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        if (midpoint_distance <= midpoint_radius) {
+            const float exact_down =
+                qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                    routed_activated + route * kIntermediate,
+                    routed_down_weights +
+                        (static_cast<size_t>(expert) * kHidden + column) *
+                            kIntermediate,
+                    kIntermediate
+                );
+            contribution = __fmul_rn(weight, exact_down);
+        }
+    }
+    return bf16_to_float(float_to_bf16(contribution));
+}
+
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+// Correct the native down accumulator before the fused route reduction.  The
+// candidate test remains on the weighted BF16 contribution, matching the
+// retained endpoint exactly, while each selected K512 dot is replayed by a
+// coalesced wave16 subgroup instead of one scalar thread in the combine.
+__global__ __launch_bounds__(256)
+void routed_down_batched_hawkeye_correction_kernel(
+    float *route_outputs,
+    const float *topk_weights,
+    const int32_t *topk_ids,
+    const uint16_t *routed_activated,
+    const uint16_t *routed_down_weights,
+    uint32_t route_count,
+    uint32_t midpoint_radius,
+    uint32_t low_exponent_threshold
+) {
+    constexpr uint32_t kWave16 = 16u;
+    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    __shared__ uint32_t candidate_count;
+    __shared__ uint32_t candidate_indices[kNativeThreads];
+    if (threadIdx.x == 0u) {
+        candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t output_elements =
+        static_cast<size_t>(route_count) * kHidden;
+    const size_t index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    if (index < output_elements) {
+        const uint32_t route = static_cast<uint32_t>(index / kHidden);
+        const float native_down = route_outputs[index];
+        const float contribution =
+            __fmul_rn(topk_weights[route], native_down);
+        const uint32_t low_bits =
+            __float_as_uint(contribution) & UINT32_C(0xffff);
+        const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
+            ? low_bits - UINT32_C(0x8000)
+            : UINT32_C(0x8000) - low_bits;
+        const uint32_t native_down_exponent =
+            (__float_as_uint(native_down) >> 23u) & UINT32_C(0xff);
+        const bool low_exponent_candidate =
+            low_exponent_threshold != 0u &&
+            native_down_exponent <= low_exponent_threshold;
+        if ((midpoint_radius != 0u &&
+             midpoint_distance <= midpoint_radius) ||
+            low_exponent_candidate) {
+            const uint32_t slot = atomicAdd(&candidate_count, 1u);
+            candidate_indices[slot] = static_cast<uint32_t>(index);
+        }
+    }
+    __syncthreads();
+
+    const uint32_t subgroup = threadIdx.x / kWave16;
+    const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+    for (uint32_t slot = subgroup;
+         slot < candidate_count;
+         slot += kWave16Subgroups) {
+        const uint32_t candidate = candidate_indices[slot];
+        const uint32_t route = candidate / kHidden;
+        const uint32_t column = candidate - route * kHidden;
+        const int32_t expert = topk_ids[route];
+        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            routed_activated + static_cast<size_t>(route) * kIntermediate,
+            routed_down_weights +
+                (static_cast<size_t>(expert) * kHidden + column) *
+                    kIntermediate,
+            kIntermediate
+        );
+        if (lane == 0u) {
+            route_outputs[candidate] = exact;
+        }
+    }
+}
+#endif
+
 __global__ void full_v3_fused_combine_residual_kernel(
     const float *route_outputs,
     const float *topk_weights,
     const int32_t *topk_ids,
+    const uint16_t *routed_activated,
+    const uint16_t *routed_down_weights,
     const uint16_t *down_projection,
     const float *gate_scales,
     const float *residual_hidden,
     float *output_hidden,
     bool vllm_bf16_residual,
+    bool vllm_split_variance,
     bool vllm_routed_bf16_endpoint,
     bool vllm_route_sum_vt4,
     bool vllm_route_sum_bf16_endpoint,
-    bool vllm_sorted_bf16_route_sum
+    bool vllm_sorted_bf16_route_sum,
+    uint32_t routed_down_contribution_hawkeye_midpoint_radius,
+    size_t output_elements
 ) {
     const size_t work_item =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     const size_t scalar_base = work_item * kFusedCombineWidth;
-    if (scalar_base >= kOutputElements) {
+    if (scalar_base >= output_elements) {
         return;
     }
     const size_t token = scalar_base / kHidden;
@@ -2087,19 +11196,39 @@ __global__ void full_v3_fused_combine_residual_kernel(
             for (uint32_t pair = 0u; pair < 4u; ++pair) {
                 const size_t route0 = route_base + pair;
                 const size_t route1 = route0 + 4u;
+                const float down0 = route_outputs[
+                    route0 * kHidden + column_base + lane
+                ];
+                const float down1 = route_outputs[
+                    route1 * kHidden + column_base + lane
+                ];
                 const float contribution0_f32 =
-                    topk_weights[route0] * route_outputs[
-                        route0 * kHidden + column_base + lane
-                    ];
+                    __fmul_rn(topk_weights[route0], down0);
                 const float contribution1_f32 =
-                    topk_weights[route1] * route_outputs[
-                        route1 * kHidden + column_base + lane
-                    ];
+                    __fmul_rn(topk_weights[route1], down1);
                 const float contribution0 = vllm_routed_bf16_endpoint
-                    ? bf16_to_float(float_to_bf16(contribution0_f32))
+                    ? routed_down_contribution_bf16_endpoint(
+                        topk_weights[route0],
+                        down0,
+                        routed_activated,
+                        routed_down_weights,
+                        route0,
+                        topk_ids[route0],
+                        static_cast<uint32_t>(column_base + lane),
+                        routed_down_contribution_hawkeye_midpoint_radius
+                    )
                     : contribution0_f32;
                 const float contribution1 = vllm_routed_bf16_endpoint
-                    ? bf16_to_float(float_to_bf16(contribution1_f32))
+                    ? routed_down_contribution_bf16_endpoint(
+                        topk_weights[route1],
+                        down1,
+                        routed_activated,
+                        routed_down_weights,
+                        route1,
+                        topk_ids[route1],
+                        static_cast<uint32_t>(column_base + lane),
+                        routed_down_contribution_hawkeye_midpoint_radius
+                    )
                     : contribution1_f32;
                 pair_sums[pair] = __fadd_rn(
                     contribution0,
@@ -2118,11 +11247,21 @@ __global__ void full_v3_fused_combine_residual_kernel(
             const float weight = topk_weights[route];
 #pragma unroll
             for (uint32_t lane = 0u; lane < kFusedCombineWidth; ++lane) {
-                const float contribution_f32 = weight * route_outputs[
+                const float down = route_outputs[
                     route * kHidden + column_base + lane
                 ];
+                const float contribution_f32 = __fmul_rn(weight, down);
                 const float contribution = vllm_routed_bf16_endpoint
-                    ? bf16_to_float(float_to_bf16(contribution_f32))
+                    ? routed_down_contribution_bf16_endpoint(
+                        weight,
+                        down,
+                        routed_activated,
+                        routed_down_weights,
+                        route,
+                        topk_ids[route],
+                        static_cast<uint32_t>(column_base + lane),
+                        routed_down_contribution_hawkeye_midpoint_radius
+                    )
                     : contribution_f32;
                 routed[lane] = __fadd_rn(routed[lane], contribution);
             }
@@ -2150,9 +11289,13 @@ __global__ void full_v3_fused_combine_residual_kernel(
             ));
             const float residual_bf16 =
                 bf16_to_float(float_to_bf16(residual_hidden[index]));
-            output_hidden[index] = bf16_to_float(float_to_bf16(
-                __fadd_rn(residual_bf16, combined_bf16)
-            ));
+            const float unrounded = __fadd_rn(
+                residual_bf16,
+                combined_bf16
+            );
+            output_hidden[index] = vllm_split_variance
+                ? unrounded
+                : bf16_to_float(float_to_bf16(unrounded));
         } else {
             const float combined = __fadd_rn(routed[lane], shared);
             output_hidden[index] = __fadd_rn(
@@ -2235,11 +11378,24 @@ bool ensure_matrix_workspace(size_t bytes) {
 bool ensure_matrix_plan(
     MatrixPlan *plan,
     uint32_t output_features,
-    uint32_t input_features
+    uint32_t input_features,
+    uint32_t token_count = kTokens,
+    uint32_t heuristic_index = 0u,
+    hipDataType output_type = HIP_R_16BF
 ) {
     if (plan->operation != nullptr) {
-        return plan->output_features == output_features &&
-            plan->input_features == input_features;
+        if (plan->output_features == output_features &&
+            plan->input_features == input_features &&
+            plan->token_count == token_count &&
+            plan->heuristic_index == heuristic_index &&
+            plan->output_type == output_type) {
+            return true;
+        }
+        release_matrix_plan(plan);
+    }
+    if (token_count == 0u || token_count > kTokens) {
+        set_error_text("hipBLASLt matrix plan token count is invalid");
+        return false;
     }
     if (g_state.matrix_handle == nullptr) {
         const hipblasStatus_t status = hipblasLtCreate(&g_state.matrix_handle);
@@ -2250,6 +11406,9 @@ bool ensure_matrix_plan(
     }
     plan->output_features = output_features;
     plan->input_features = input_features;
+    plan->token_count = token_count;
+    plan->heuristic_index = heuristic_index;
+    plan->output_type = output_type;
     hipblasStatus_t status = hipblasLtMatmulDescCreate(
         &plan->operation,
         HIPBLAS_COMPUTE_32F,
@@ -2289,16 +11448,16 @@ bool ensure_matrix_plan(
             &plan->input_layout,
             HIP_R_16BF,
             input_features,
-            kTokens,
+            token_count,
             input_features
         );
     }
     if (status == HIPBLAS_STATUS_SUCCESS) {
         status = hipblasLtMatrixLayoutCreate(
             &plan->output_layout,
-            HIP_R_16BF,
+            output_type,
             output_features,
-            kTokens,
+            token_count,
             output_features
         );
     }
@@ -2339,12 +11498,13 @@ bool ensure_matrix_plan(
         set_matrix_error("hipblasLtMatmulAlgoGetHeuristic", status);
         return false;
     }
-    if (returned_algorithms <= 0) {
+    if (returned_algorithms <= 0 ||
+        heuristic_index >= static_cast<uint32_t>(returned_algorithms)) {
         set_error_text("hipBLASLt returned no fixed q8192 BF16 algorithm");
         return false;
     }
-    plan->algorithm = heuristics[0].algo;
-    plan->workspace_bytes = heuristics[0].workspaceSize;
+    plan->algorithm = heuristics[heuristic_index].algo;
+    plan->workspace_bytes = heuristics[heuristic_index].workspaceSize;
     return ensure_matrix_workspace(plan->workspace_bytes);
 }
 
@@ -2352,13 +11512,23 @@ bool launch_matrix(
     MatrixPlan *plan,
     const uint16_t *weights,
     const uint16_t *inputs,
-    uint16_t *outputs,
+    void *outputs,
     uint32_t output_features,
     uint32_t input_features,
     hipStream_t stream,
-    const char *stage
+    const char *stage,
+    uint32_t token_count = kTokens,
+    uint32_t heuristic_index = 0u,
+    hipDataType output_type = HIP_R_16BF
 ) {
-    if (!ensure_matrix_plan(plan, output_features, input_features)) {
+    if (!ensure_matrix_plan(
+            plan,
+            output_features,
+            input_features,
+            token_count,
+            heuristic_index,
+            output_type
+        )) {
         return false;
     }
     const float alpha = 1.0f;
@@ -2419,6 +11589,15 @@ bool release_full_v3_execution_state() {
             );
             synchronization_stage = "full-v3 shared stream release";
         }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+        if (synchronization_status == hipSuccess &&
+            g_state.full_v3_tail_stream != nullptr) {
+            synchronization_status = hipStreamSynchronize(
+                g_state.full_v3_tail_stream
+            );
+            synchronization_stage = "full-v3 tail stream release";
+        }
+#endif
     }
     if (synchronization_status != hipSuccess) {
         // A device-wide retry is the only safe way to cover a partially
@@ -2437,15 +11616,41 @@ bool release_full_v3_execution_state() {
         (void)hipStreamDestroy(g_state.full_v3_shared_stream);
         g_state.full_v3_shared_stream = nullptr;
     }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    if (g_state.full_v3_tail_stream != nullptr) {
+        (void)hipStreamDestroy(g_state.full_v3_tail_stream);
+        g_state.full_v3_tail_stream = nullptr;
+    }
+#endif
     for (FullV3EventSlot &slot : g_state.full_v3_slots) {
         if (slot.caller_done != nullptr) {
             (void)hipEventDestroy(slot.caller_done);
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+        if (slot.tail_done != nullptr) {
+            (void)hipEventDestroy(slot.tail_done);
+        }
+#endif
+        if (slot.routed_done != nullptr) {
+            (void)hipEventDestroy(slot.routed_done);
+        }
+        if (slot.gate_done != nullptr) {
+            (void)hipEventDestroy(slot.gate_done);
+        }
+        if (slot.sort_done != nullptr) {
+            (void)hipEventDestroy(slot.sort_done);
+        }
+        if (slot.router_done != nullptr) {
+            (void)hipEventDestroy(slot.router_done);
         }
         if (slot.shared_done != nullptr) {
             (void)hipEventDestroy(slot.shared_done);
         }
         if (slot.input_ready != nullptr) {
             (void)hipEventDestroy(slot.input_ready);
+        }
+        if (slot.input_start != nullptr) {
+            (void)hipEventDestroy(slot.input_start);
         }
         slot = FullV3EventSlot{};
     }
@@ -2481,14 +11686,23 @@ bool release_state() {
     if (g_state.shared_down_projection != nullptr) {
         (void)hipFree(g_state.shared_down_projection);
     }
+    if (g_state.shared_down_projection_f32 != nullptr) {
+        (void)hipFree(g_state.shared_down_projection_f32);
+    }
     if (g_state.shared_activated != nullptr) {
         (void)hipFree(g_state.shared_activated);
     }
     if (g_state.shared_up_projection != nullptr) {
         (void)hipFree(g_state.shared_up_projection);
     }
+    if (g_state.shared_up_projection_f32 != nullptr) {
+        (void)hipFree(g_state.shared_up_projection_f32);
+    }
     if (g_state.shared_gate_projection != nullptr) {
         (void)hipFree(g_state.shared_gate_projection);
+    }
+    if (g_state.shared_gate_projection_f32 != nullptr) {
+        (void)hipFree(g_state.shared_gate_projection_f32);
     }
     if (g_state.shared_gate_logits != nullptr) {
         (void)hipFree(g_state.shared_gate_logits);
@@ -2497,7 +11711,62 @@ bool release_state() {
         (void)hipFree(g_state.routed_combined);
     }
     if (g_state.route_outputs != nullptr) (void)hipFree(g_state.route_outputs);
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (g_state.routed_projection_hawkeye_correction_count_debug != nullptr) {
+        (void)hipFree(
+            g_state.routed_projection_hawkeye_correction_count_debug
+        );
+    }
+    if (g_state.routed_up_projection_f32_debug != nullptr) {
+        (void)hipFree(g_state.routed_up_projection_f32_debug);
+    }
+    if (g_state.routed_gate_projection_f32_debug != nullptr) {
+        (void)hipFree(g_state.routed_gate_projection_f32_debug);
+    }
+    if (g_state.routed_up_projection_debug != nullptr) {
+        (void)hipFree(g_state.routed_up_projection_debug);
+    }
+    if (g_state.routed_gate_projection_debug != nullptr) {
+        (void)hipFree(g_state.routed_gate_projection_debug);
+    }
+#endif
+    if (g_state.cuda_vllm_silu_bf16_domain_lut != nullptr) {
+        (void)hipFree(g_state.cuda_vllm_silu_bf16_domain_lut);
+    }
     if (g_state.activated != nullptr) (void)hipFree(g_state.activated);
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+    if (g_state.total_fused_overflow_blocks != nullptr) {
+        (void)hipFree(g_state.total_fused_overflow_blocks);
+    }
+    if (g_state.fused_overflow_blocks != nullptr) {
+        (void)hipFree(g_state.fused_overflow_blocks);
+    }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    if (g_state.total_compact_tail_experts != nullptr) {
+        (void)hipFree(g_state.total_compact_tail_experts);
+    }
+    if (g_state.compact_tail_experts != nullptr) {
+        (void)hipFree(g_state.compact_tail_experts);
+    }
+    if (g_state.total_compact_main_blocks != nullptr) {
+        (void)hipFree(g_state.total_compact_main_blocks);
+    }
+    if (g_state.compact_main_route_blocks != nullptr) {
+        (void)hipFree(g_state.compact_main_route_blocks);
+    }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+    if (g_state.adaptive_m128_bucket_counts != nullptr) {
+        (void)hipFree(g_state.adaptive_m128_bucket_counts);
+    }
+    if (g_state.adaptive_m128_experts != nullptr) {
+        (void)hipFree(g_state.adaptive_m128_experts);
+    }
+    if (g_state.adaptive_m128_route_starts != nullptr) {
+        (void)hipFree(g_state.adaptive_m128_route_starts);
+    }
+#endif
     if (g_state.block_experts != nullptr) (void)hipFree(g_state.block_experts);
     if (g_state.sorted_routes != nullptr) (void)hipFree(g_state.sorted_routes);
     if (g_state.total_post_pad != nullptr) (void)hipFree(g_state.total_post_pad);
@@ -2505,6 +11774,9 @@ bool release_state() {
     if (g_state.counts != nullptr) (void)hipFree(g_state.counts);
     if (g_state.topk_weights != nullptr) (void)hipFree(g_state.topk_weights);
     if (g_state.topk_ids != nullptr) (void)hipFree(g_state.topk_ids);
+    if (g_state.cuda_router_ex2_fraction_lut != nullptr) {
+        (void)hipFree(g_state.cuda_router_ex2_fraction_lut);
+    }
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
     if (g_state.router_handle != nullptr) {
         (void)rocblas_destroy_handle(g_state.router_handle);
@@ -2512,6 +11784,9 @@ bool release_state() {
 #endif
     if (g_state.router_logits_bf16 != nullptr) {
         (void)hipFree(g_state.router_logits_bf16);
+    }
+    if (g_state.router_logits_f32 != nullptr) {
+        (void)hipFree(g_state.router_logits_f32);
     }
     if (g_state.transposed_router_weights != nullptr) {
         (void)hipFree(g_state.transposed_router_weights);
@@ -2528,9 +11803,19 @@ bool release_state() {
     release_kernel(&g_state.exact_down);
     release_kernel(&g_state.exact_gate_up);
 #endif
+#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED || \
+    QRT_TRITON_MOE_PACKED_EXACT_GATE
+    release_kernel(&g_state.packed_exact_gate_up);
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+    release_kernel(&g_state.conditional_exact_gate_up);
+    release_kernel(&g_state.zero_correction_gate_finalize);
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+    release_kernel(&g_state.conditional_exact_down);
+#endif
 #if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
     release_kernel(&g_state.packed_exact_down);
-    release_kernel(&g_state.packed_exact_gate_up);
 #endif
 #if QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED
     release_kernel(&g_state.sorted_packed_exact_combine);
@@ -2563,7 +11848,8 @@ bool load_kernel(
     const int length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\" QRT_TRITON_MOE_KERNEL_PREFIX "_%s.hsaco",
+        "%s" QRT_TRITON_MOE_PATH_SEPARATOR \
+            QRT_TRITON_MOE_KERNEL_PREFIX "_%s.hsaco",
         directory,
         stem
     );
@@ -2600,7 +11886,7 @@ bool load_named_kernel(
     const int length = std::snprintf(
         path,
         sizeof(path),
-        "%s\\%s",
+        "%s" QRT_TRITON_MOE_PATH_SEPARATOR "%s",
         directory,
         file
     );
@@ -2630,19 +11916,23 @@ bool load_named_kernel(
     return true;
 }
 
-hipError_t launch_module(
+hipError_t launch_module_grid(
     ModuleKernel &kernel,
     void **arguments,
     size_t argument_count,
+    uint32_t grid_x,
     hipStream_t stream
 ) {
+    if (grid_x == 0u || grid_x > kernel.grid_x) {
+        return hipErrorInvalidValue;
+    }
     void *global_scratch = nullptr;
     void *profile_scratch = nullptr;
     arguments[argument_count] = &global_scratch;
     arguments[argument_count + 1u] = &profile_scratch;
     return hipModuleLaunchKernel(
         kernel.function,
-        kernel.grid_x,
+        grid_x,
         1u,
         1u,
         kernel.threads,
@@ -2655,11 +11945,158 @@ hipError_t launch_module(
     );
 }
 
+hipError_t launch_module(
+    ModuleKernel &kernel,
+    void **arguments,
+    size_t argument_count,
+    hipStream_t stream
+) {
+    return launch_module_grid(
+        kernel,
+        arguments,
+        argument_count,
+        kernel.grid_x,
+        stream
+    );
+}
+
 template <typename T>
 bool allocate(T **pointer, size_t bytes, const char *stage) {
     hipError_t status = hipMalloc(reinterpret_cast<void **>(pointer), bytes);
     if (status != hipSuccess) {
         set_error(stage, status);
+        return false;
+    }
+    return true;
+}
+
+bool allocate_optional_shared_projection_hawkeye() {
+    if (g_state.shared_projection_hawkeye_midpoint_radius == 0u) {
+        return true;
+    }
+    return allocate(
+               &g_state.shared_gate_projection_f32,
+               kSharedProjectionElements * sizeof(float),
+               "hipMalloc(shared_gate_projection_f32)"
+           ) &&
+        allocate(
+            &g_state.shared_up_projection_f32,
+            kSharedProjectionElements * sizeof(float),
+            "hipMalloc(shared_up_projection_f32)"
+        ) &&
+        allocate(
+            &g_state.shared_down_projection_f32,
+            kOutputElements * sizeof(float),
+            "hipMalloc(shared_down_projection_f32)"
+        );
+}
+
+struct CudaVllmSiluBf16DomainHeader {
+    char magic[8];
+    uint32_t schema_version;
+    uint32_t table_elements;
+    uint32_t element_bytes;
+    uint32_t reserved;
+};
+
+static_assert(sizeof(CudaVllmSiluBf16DomainHeader) == 24u);
+
+bool load_optional_cuda_vllm_silu_bf16_domain_lut() {
+    const char *path = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH"
+    );
+    if (path == nullptr || path[0] == '\0') {
+        return true;
+    }
+    std::FILE *source = std::fopen(path, "rb");
+    if (source == nullptr) {
+        set_error_text("failed to open CUDA vLLM SiLU BF16 domain LUT");
+        return false;
+    }
+    CudaVllmSiluBf16DomainHeader header{};
+    const char expected_magic[8] = {
+        'Q', 'R', 'T', 'S', 'B', 'F', '1', '\0'
+    };
+    bool valid = std::fread(&header, sizeof(header), 1u, source) == 1u &&
+        std::memcmp(header.magic, expected_magic, sizeof(expected_magic)) == 0 &&
+        header.schema_version == 1u &&
+        header.table_elements == kCudaVllmSiluBf16DomainElements &&
+        header.element_bytes == sizeof(uint16_t) &&
+        header.reserved == 0u;
+    std::vector<uint16_t> host_table;
+    if (valid) {
+        host_table.resize(kCudaVllmSiluBf16DomainElements);
+        valid = std::fread(
+            host_table.data(),
+            sizeof(uint16_t),
+            host_table.size(),
+            source
+        ) == host_table.size() && std::fgetc(source) == EOF;
+    }
+    std::fclose(source);
+    if (!valid) {
+        set_error_text("CUDA vLLM SiLU BF16 domain LUT is invalid");
+        return false;
+    }
+    if (!allocate(
+            &g_state.cuda_vllm_silu_bf16_domain_lut,
+            kCudaVllmSiluBf16DomainBytes,
+            "hipMalloc(cuda_vllm_silu_bf16_domain_lut)"
+        )) {
+        return false;
+    }
+    const hipError_t status = hipMemcpy(
+        g_state.cuda_vllm_silu_bf16_domain_lut,
+        host_table.data(),
+        kCudaVllmSiluBf16DomainBytes,
+        hipMemcpyHostToDevice
+    );
+    if (status != hipSuccess) {
+        set_error("hipMemcpy(cuda_vllm_silu_bf16_domain_lut)", status);
+        return false;
+    }
+    return true;
+}
+
+bool load_optional_cuda_router_ex2_fraction_lut() {
+    const char *path = std::getenv(
+        "QRT_QWEN36_CUDA_ROUTER_EX2_FRACTION_LUT_PATH"
+    );
+    if (path == nullptr || path[0] == '\0') {
+        return true;
+    }
+    std::FILE *source = std::fopen(path, "rb");
+    if (source == nullptr) {
+        set_error_text("failed to open CUDA router EX2 fraction LUT");
+        return false;
+    }
+    std::vector<uint32_t> host_table(kCudaRouterEx2FractionElements);
+    const bool valid = std::fread(
+        host_table.data(),
+        sizeof(uint32_t),
+        host_table.size(),
+        source
+    ) == host_table.size() && std::fgetc(source) == EOF;
+    std::fclose(source);
+    if (!valid) {
+        set_error_text("CUDA router EX2 fraction LUT is invalid");
+        return false;
+    }
+    if (!allocate(
+            &g_state.cuda_router_ex2_fraction_lut,
+            kCudaRouterEx2FractionBytes,
+            "hipMalloc(cuda_router_ex2_fraction_lut)"
+        )) {
+        return false;
+    }
+    const hipError_t status = hipMemcpy(
+        g_state.cuda_router_ex2_fraction_lut,
+        host_table.data(),
+        kCudaRouterEx2FractionBytes,
+        hipMemcpyHostToDevice
+    );
+    if (status != hipSuccess) {
+        set_error("hipMemcpy(cuda_router_ex2_fraction_lut)", status);
         return false;
     }
     return true;
@@ -2685,27 +12122,300 @@ bool q8192_hipblaslt_bf16_router_requested() {
         std::strcmp(value, "0") != 0;
 }
 
+bool q8192_router_bf16_cutoff_high_id_tie_requested() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_BF16_CUTOFF_HIGH_ID_TIE"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool q8192_router_bf16_raw_logit_tie_break_requested() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_BF16_RAW_LOGIT_TIE_BREAK"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool q8192_router_cuda_reduction_cutoff_repair_requested() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_CUDA_REDUCTION_CUTOFF_REPAIR"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool q8192_router_cuda_reduction_all_requested() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_Q8192_ROUTER_CUDA_REDUCTION_ALL"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+uint32_t requested_matrix_heuristic_index(const char *name) {
+    const char *value = std::getenv(name);
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' && parsed < 16u
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_projection_hawkeye_midpoint_radius() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_MOE_HAWKEYE_MIDPOINT_RADIUS"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= UINT32_C(0x8000)
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_up_projection_hawkeye_midpoint_radius() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_MOE_UP_HAWKEYE_MIDPOINT_RADIUS"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        // Full-shape GB10 captures to date show meaningful endpoint changes
+        // on the routed gate surface, while the native-vs-CUDA up differences
+        // are subnormal noise that disappears in SiLU(gate) * up.  Keep up
+        // replay opt-in so increasing the gate radius does not double the
+        // expensive K2048 Hawkeye work.
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= UINT32_C(0x8000)
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_up_hawkeye_low_exponent_threshold() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_ROUTED_UP_HAWKEYE_LOW_EXPONENT_THRESHOLD"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= 254u
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_projection_debug_token() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_EXACT_ARBITRARY_MOE_STAGE_TRACE_POSITION"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return UINT32_MAX;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0'
+        ? static_cast<uint32_t>(parsed)
+        : UINT32_MAX;
+}
+
+uint32_t requested_router_hawkeye_midpoint_radius() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_ROUTER_HAWKEYE_MIDPOINT_RADIUS"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        // The exact layer-2 q2560 boundary contains a single hipBLASLt
+        // endpoint at low16=0x7f53, 173 units from the BF16 midpoint.  Keep
+        // the sparse replay radius at that measured minimum instead of
+        // widening it enough to turn router correction into a dense dot.
+        return 173u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= UINT32_C(0x8000)
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_down_contribution_hawkeye_midpoint_radius() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_CONTRIBUTION_HAWKEYE_"
+        "MIDPOINT_RADIUS"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= UINT32_C(0x8000)
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_gate_hawkeye_low_exponent_threshold() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_ROUTED_GATE_HAWKEYE_LOW_EXPONENT_THRESHOLD"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= 254u
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_routed_down_hawkeye_low_exponent_threshold() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_HAWKEYE_LOW_EXPONENT_THRESHOLD"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= 254u
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
+uint32_t requested_shared_projection_hawkeye_midpoint_radius() {
+    const char *value = std::getenv(
+        "QRT_QWEN36_CUDA_VLLM_SHARED_HAWKEYE_MIDPOINT_RADIUS"
+    );
+    if (value == nullptr || value[0] == '\0') {
+        return 0u;
+    }
+    char *end = nullptr;
+    const unsigned long parsed = std::strtoul(value, &end, 10);
+    return end != value && end != nullptr && end[0] == '\0' &&
+            parsed <= UINT32_C(0x8000)
+        ? static_cast<uint32_t>(parsed)
+        : 0u;
+}
+
 bool allocate_optional_hipblaslt_router_logits() {
     if (!q8192_hipblaslt_bf16_router_requested()) {
         return true;
     }
     return allocate(
-        &g_state.router_logits_bf16,
-        static_cast<size_t>(kTokens) * kExperts * sizeof(uint16_t),
-        "hipMalloc(router_logits_bf16)"
-    );
+               &g_state.router_logits_bf16,
+               static_cast<size_t>(kTokens) * kExperts * sizeof(uint16_t),
+               "hipMalloc(router_logits_bf16)"
+           ) &&
+        (g_state.router_hawkeye_midpoint_radius == 0u ||
+         allocate(
+             &g_state.router_logits_f32,
+             static_cast<size_t>(kTokens) * kExperts * sizeof(float),
+             "hipMalloc(router_logits_f32)"
+         ));
 }
 
-bool ensure_optional_hipblaslt_router_plan() {
+bool ensure_optional_hipblaslt_router_plan(
+    uint32_t token_count = kTokens
+) {
     return !q8192_hipblaslt_bf16_router_requested() ||
-        ensure_matrix_plan(&g_state.router_plan, kExperts, kHidden);
+        ensure_matrix_plan(
+            &g_state.router_plan,
+            kExperts,
+            kHidden,
+            token_count,
+            0u,
+            g_state.router_hawkeye_midpoint_radius != 0u
+                ? HIP_R_32F
+                : HIP_R_16BF
+        );
+}
+
+bool ensure_full_matrix_plans(uint32_t token_count) {
+#if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
+    if (g_state.shared_projection_hawkeye_midpoint_radius >=
+        UINT32_C(0x8000)) {
+        // The full-radius route does not submit shared hipBLASLt matrices.
+        // Keep only the independent router plan shape-current.
+        return ensure_optional_hipblaslt_router_plan(token_count);
+    }
+#endif
+    const uint32_t shared_gate_heuristic =
+        requested_matrix_heuristic_index(
+            "QRT_QWEN36_Q8192_SHARED_GATE_HIPBLASLT_HEURISTIC_INDEX"
+        );
+    const uint32_t shared_projection_heuristic =
+        requested_matrix_heuristic_index(
+            "QRT_QWEN36_Q8192_SHARED_PROJECTION_HIPBLASLT_HEURISTIC_INDEX"
+        );
+    const uint32_t shared_down_heuristic =
+        requested_matrix_heuristic_index(
+            "QRT_QWEN36_Q8192_SHARED_DOWN_HIPBLASLT_HEURISTIC_INDEX"
+        );
+    const hipDataType shared_projection_output_type =
+        g_state.shared_projection_hawkeye_midpoint_radius != 0u
+            ? HIP_R_32F
+            : HIP_R_16BF;
+    return ensure_optional_hipblaslt_router_plan(token_count) &&
+        ensure_matrix_plan(
+            &g_state.shared_gate_plan,
+            kSharedGateRows,
+            kHidden,
+            token_count,
+            shared_gate_heuristic
+        ) &&
+        ensure_matrix_plan(
+            &g_state.shared_projection_plan,
+            kIntermediate,
+            kHidden,
+            token_count,
+            shared_projection_heuristic,
+            shared_projection_output_type
+        ) &&
+        ensure_matrix_plan(
+            &g_state.shared_down_plan,
+            kHidden,
+            kIntermediate,
+            token_count,
+            shared_down_heuristic,
+            shared_projection_output_type
+        );
 }
 
 bool ensure_full_v3_execution_state() {
+    const char *profile_value = std::getenv(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_MOE_SUBPHASES"
+    );
+    const bool profile_subphases = profile_value != nullptr &&
+        profile_value[0] != '\0' && std::strcmp(profile_value, "0") != 0;
+    const unsigned int event_flags = profile_subphases
+        ? hipEventDefault
+        : hipEventDisableTiming;
     bool complete = g_state.full_v3_shared_stream != nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    complete = complete && g_state.full_v3_tail_stream != nullptr;
+#endif
     for (const FullV3EventSlot &slot : g_state.full_v3_slots) {
-        complete = complete && slot.input_ready != nullptr &&
-            slot.shared_done != nullptr && slot.caller_done != nullptr;
+        complete = complete && slot.input_start != nullptr &&
+            slot.input_ready != nullptr && slot.shared_done != nullptr &&
+            slot.router_done != nullptr && slot.sort_done != nullptr &&
+            slot.gate_done != nullptr && slot.routed_done != nullptr &&
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+            slot.tail_done != nullptr &&
+#endif
+            slot.caller_done != nullptr;
     }
     if (complete) {
         return true;
@@ -2715,23 +12425,69 @@ bool ensure_full_v3_execution_state() {
         &g_state.full_v3_shared_stream,
         hipStreamNonBlocking
     );
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    if (status == hipSuccess) {
+        status = hipStreamCreateWithFlags(
+            &g_state.full_v3_tail_stream,
+            hipStreamNonBlocking
+        );
+    }
+#endif
     for (FullV3EventSlot &slot : g_state.full_v3_slots) {
         if (status == hipSuccess) {
             status = hipEventCreateWithFlags(
+                &slot.input_start,
+                event_flags
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
                 &slot.input_ready,
-                hipEventDisableTiming
+                event_flags
             );
         }
         if (status == hipSuccess) {
             status = hipEventCreateWithFlags(
                 &slot.shared_done,
-                hipEventDisableTiming
+                event_flags
             );
         }
         if (status == hipSuccess) {
             status = hipEventCreateWithFlags(
+                &slot.router_done,
+                event_flags
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
+                &slot.sort_done,
+                event_flags
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
+                &slot.gate_done,
+                event_flags
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
+                &slot.routed_done,
+                event_flags
+            );
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
+                &slot.tail_done,
+                event_flags
+            );
+        }
+#endif
+        if (status == hipSuccess) {
+            status = hipEventCreateWithFlags(
                 &slot.caller_done,
-                hipEventDisableTiming
+                event_flags
             );
         }
     }
@@ -2745,19 +12501,22 @@ bool ensure_full_v3_execution_state() {
 
 bool launch_input_conversion(
     const float *post_attention_f32,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens
 ) {
+    const size_t input_elements =
+        static_cast<size_t>(token_count) * kHidden;
     hipLaunchKernelGGL(
         convert_input_kernel,
         dim3(static_cast<uint32_t>(
-            (kInputElements + kNativeThreads - 1u) / kNativeThreads
+            (input_elements + kNativeThreads - 1u) / kNativeThreads
         )),
         dim3(kNativeThreads),
         0,
         stream,
         post_attention_f32,
         g_state.input_bf16,
-        kInputElements
+        input_elements
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -2796,6 +12555,45 @@ bool zero_request_scratch(hipStream_t stream) {
             g_state.block_experts,
             static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t)
         },
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+        {
+            g_state.fused_overflow_blocks,
+            static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t)
+        },
+        {g_state.total_fused_overflow_blocks, sizeof(int32_t)},
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        {
+            g_state.compact_main_route_blocks,
+            static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t)
+        },
+        {g_state.total_compact_main_blocks, sizeof(int32_t)},
+        {
+            g_state.compact_tail_experts,
+            kCompactTailExpertSlots * sizeof(int32_t)
+        },
+        {
+            g_state.total_compact_tail_experts,
+            kCompactTailCountSlots * sizeof(int32_t)
+        },
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+        {
+            g_state.adaptive_m128_route_starts,
+            static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) *
+                kNativeWmmaAdaptiveM128MaxDescriptors * sizeof(int32_t)
+        },
+        {
+            g_state.adaptive_m128_experts,
+            static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) *
+                kNativeWmmaAdaptiveM128MaxDescriptors * sizeof(int32_t)
+        },
+        {
+            g_state.adaptive_m128_bucket_counts,
+            static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) *
+                sizeof(int32_t)
+        },
+#endif
         {
             g_state.activated,
             kActivatedElements * sizeof(uint16_t)
@@ -2851,7 +12649,36 @@ bool zero_request_scratch(hipStream_t stream) {
     return true;
 }
 
-bool launch_route_sort(hipStream_t stream) {
+bool launch_route_sort(
+    hipStream_t stream,
+    uint32_t logical_routes = kRoutes
+) {
+    if (logical_routes == 0u || logical_routes > kRoutes) {
+        set_error_text("selected-MoE logical route count is invalid");
+        return false;
+    }
+#if QRT_TRITON_MOE_NATIVE_FUSED_ROUTE_LAYOUT
+    hipLaunchKernelGGL(
+        native_fused_route_layout_kernel,
+        dim3(1u),
+        dim3(kExperts),
+        0,
+        stream,
+        g_state.topk_ids,
+        g_state.counts,
+        g_state.cumsum,
+        g_state.total_post_pad,
+        g_state.sorted_routes,
+        g_state.block_experts,
+        logical_routes
+    );
+    const hipError_t fused_status = hipGetLastError();
+    if (fused_status != hipSuccess) {
+        set_error("native fused selected-MoE route layout", fused_status);
+        return false;
+    }
+    return true;
+#else
     hipError_t status = hipMemsetAsync(
         g_state.counts,
         0,
@@ -2879,12 +12706,94 @@ bool launch_route_sort(hipStream_t stream) {
         return false;
     }
 
-    void *count_args[4] = {&g_state.topk_ids, &g_state.counts};
-    status = launch_module(g_state.count, count_args, 2u, stream);
+    int32_t logical_routes_i32 =
+        static_cast<int32_t>(logical_routes);
+    void *count_args[5] = {
+        &g_state.topk_ids,
+        &g_state.counts,
+        &logical_routes_i32,
+    };
+    status = launch_module_grid(
+        g_state.count,
+        count_args,
+        3u,
+        route_programs_for_logical_routes(logical_routes),
+        stream
+    );
     void *prefix_args[3] = {&g_state.counts};
     if (status == hipSuccess) {
         status = launch_module(g_state.prefix, prefix_args, 1u, stream);
     }
+#if QRT_TRITON_MOE_NATIVE_ROUTE_LAYOUT
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            native_route_padded_prefix_kernel,
+            dim3(1u),
+            dim3(1u),
+            0,
+            stream,
+            g_state.total_post_pad,
+            g_state.counts,
+            g_state.cumsum,
+            g_state.block_experts
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+            , g_state.fused_overflow_blocks,
+            g_state.total_fused_overflow_blocks
+#endif
+        );
+        status = hipGetLastError();
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            native_compact_split_tail_index_kernel,
+            dim3(1u),
+            dim3(1u),
+            0,
+            stream,
+            g_state.counts,
+            g_state.cumsum,
+            g_state.compact_main_route_blocks,
+            g_state.total_compact_main_blocks,
+            g_state.compact_tail_experts,
+            g_state.total_compact_tail_experts
+        );
+        status = hipGetLastError();
+    }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            native_adaptive_m128_index_kernel,
+            dim3(1u),
+            dim3(1u),
+            0,
+            stream,
+            g_state.counts,
+            g_state.cumsum,
+            g_state.adaptive_m128_route_starts,
+            g_state.adaptive_m128_experts,
+            g_state.adaptive_m128_bucket_counts
+        );
+        status = hipGetLastError();
+    }
+#endif
+    if (status == hipSuccess) {
+        hipLaunchKernelGGL(
+            native_route_scatter_kernel,
+            dim3(route_programs_for_logical_routes(logical_routes)),
+            dim3(1u),
+            0,
+            stream,
+            g_state.topk_ids,
+            g_state.sorted_routes,
+            g_state.counts,
+            g_state.cumsum,
+            logical_routes
+        );
+        status = hipGetLastError();
+    }
+#else
     void *padded_args[5] = {
         &g_state.total_post_pad,
         &g_state.counts,
@@ -2898,27 +12807,307 @@ bool launch_route_sort(hipStream_t stream) {
             stream
         );
     }
-    void *scatter_args[7] = {
+    void *scatter_args[8] = {
         &g_state.topk_ids,
         &g_state.sorted_routes,
         &g_state.block_experts,
         &g_state.counts,
         &g_state.cumsum,
+        &logical_routes_i32,
     };
     if (status == hipSuccess) {
-        status = launch_module(g_state.scatter, scatter_args, 5u, stream);
+        status = launch_module(g_state.scatter, scatter_args, 6u, stream);
     }
+#endif
     if (status != hipSuccess) {
         set_error("selected-MoE route sort", status);
         return false;
     }
     return true;
+#endif
 }
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+template <uint32_t TailFragments>
+hipError_t launch_bucketed_tail_gate(
+    const uint16_t *gate_up_bf16,
+    hipStream_t stream
+) {
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(
+            native_wmma_gate_up_silu_bucketed_tail_kernel<TailFragments>
+        ),
+        dim3(kNativeWmmaBucketedTailPersistentBlocks),
+        dim3(kNativeWmmaBucketedTailThreads),
+        0,
+        stream,
+        g_state.input_bf16,
+        gate_up_bf16,
+        g_state.sorted_routes,
+        g_state.counts,
+        g_state.cumsum,
+        g_state.compact_tail_experts,
+        g_state.total_compact_tail_experts,
+        g_state.activated
+    );
+    return hipGetLastError();
+}
+
+template <uint32_t TailFragments>
+hipError_t launch_bucketed_tail_down(
+    const uint16_t *down_bf16,
+    hipStream_t stream
+) {
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(
+            native_wmma_down_bucketed_tail_kernel<TailFragments>
+        ),
+        dim3(kNativeWmmaBucketedTailPersistentBlocks),
+        dim3(kNativeWmmaBucketedTailThreads),
+        0,
+        stream,
+        g_state.activated,
+        down_bf16,
+        g_state.sorted_routes,
+        g_state.counts,
+        g_state.cumsum,
+        g_state.compact_tail_experts,
+        g_state.total_compact_tail_experts,
+        g_state.route_outputs
+    );
+    return hipGetLastError();
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+template <uint32_t Fragments>
+hipError_t launch_adaptive_m128_gate(
+    const uint16_t *gate_up_bf16,
+    uint32_t pack_launch_bound,
+    hipStream_t stream
+) {
+    constexpr uint32_t kBucket = Fragments - 1u;
+    constexpr uint32_t kThreads =
+        2u * Fragments * kNativeWmmaTile;
+    const size_t offset =
+        static_cast<size_t>(kBucket) *
+        kNativeWmmaAdaptiveM128MaxDescriptors;
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(
+            native_wmma_gate_up_silu_lds_b_adaptive_m128_kernel<Fragments>
+        ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_DIRECT_GRID
+        dim3(pack_launch_bound * kNativeWmmaLdsBGateGridN),
+#else
+        dim3(kNativeWmmaAdaptiveM128PersistentBlocks),
+#endif
+        dim3(kThreads),
+        0,
+        stream,
+        g_state.input_bf16,
+        gate_up_bf16,
+        g_state.sorted_routes,
+        g_state.adaptive_m128_route_starts + offset,
+        g_state.adaptive_m128_experts + offset,
+        g_state.adaptive_m128_bucket_counts + kBucket,
+        g_state.activated
+    );
+    return hipGetLastError();
+}
+
+template <uint32_t Fragments>
+hipError_t launch_adaptive_m128_down(
+    const uint16_t *down_bf16,
+    uint32_t pack_launch_bound,
+    hipStream_t stream
+) {
+    constexpr uint32_t kBucket = Fragments - 1u;
+    constexpr uint32_t kThreads =
+        2u * Fragments * kNativeWmmaTile;
+    const size_t offset =
+        static_cast<size_t>(kBucket) *
+        kNativeWmmaAdaptiveM128MaxDescriptors;
+    hipLaunchKernelGGL(
+        HIP_KERNEL_NAME(
+            native_wmma_down_lds_b_adaptive_m128_kernel<Fragments>
+        ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128 || \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_DIRECT_GRID
+        dim3(pack_launch_bound * kNativeWmmaLdsBDownGridN),
+#else
+        dim3(kNativeWmmaAdaptiveM128PersistentBlocks),
+#endif
+        dim3(kThreads),
+        0,
+        stream,
+        g_state.activated,
+        down_bf16,
+        g_state.sorted_routes,
+        g_state.adaptive_m128_route_starts + offset,
+        g_state.adaptive_m128_experts + offset,
+        g_state.adaptive_m128_bucket_counts + kBucket,
+        g_state.route_outputs
+    );
+    return hipGetLastError();
+}
+
+hipError_t launch_all_adaptive_m128_gate(
+    const uint16_t *gate_up_bf16,
+    uint32_t pack_launch_bound,
+    hipStream_t stream
+) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128
+    hipError_t status = launch_adaptive_m128_gate<6u>(
+        gate_up_bf16,
+        pack_launch_bound,
+        stream
+    );
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<8u>(
+            gate_up_bf16,
+            pack_launch_bound,
+            stream
+        );
+    }
+#else
+    hipError_t status = launch_adaptive_m128_gate<1u>(
+        gate_up_bf16,
+        pack_launch_bound,
+        stream
+    );
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<2u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<3u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<4u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<5u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<6u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<7u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_gate<8u>(gate_up_bf16, pack_launch_bound, stream);
+    }
+#endif
+    return status;
+}
+
+hipError_t launch_all_adaptive_m128_down(
+    const uint16_t *down_bf16,
+    uint32_t pack_launch_bound,
+    hipStream_t stream
+) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_HYBRID_M96_M128
+    hipError_t status = launch_adaptive_m128_down<6u>(
+        down_bf16,
+        pack_launch_bound,
+        stream
+    );
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<8u>(
+            down_bf16,
+            pack_launch_bound,
+            stream
+        );
+    }
+#else
+    hipError_t status = launch_adaptive_m128_down<1u>(
+        down_bf16,
+        pack_launch_bound,
+        stream
+    );
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<2u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<3u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<4u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<5u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<6u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<7u>(down_bf16, pack_launch_bound, stream);
+    }
+    if (status == hipSuccess) {
+        status = launch_adaptive_m128_down<8u>(down_bf16, pack_launch_bound, stream);
+    }
+#endif
+    return status;
+}
+#endif
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+hipError_t launch_lds_b_compact_tail_gate(
+    const uint16_t *gate_up_bf16,
+    hipStream_t stream
+) {
+    hipLaunchKernelGGL(
+        native_wmma_gate_up_silu_lds_b_overflow_tail_kernel,
+        dim3(kExperts * kNativeWmmaLdsBGateGridN),
+        dim3(kNativeWmmaLdsBOverflowTailThreads),
+        0,
+        stream,
+        g_state.input_bf16,
+        gate_up_bf16,
+        g_state.sorted_routes,
+        g_state.counts,
+        g_state.cumsum,
+        g_state.compact_tail_experts,
+        g_state.total_compact_tail_experts,
+        g_state.activated
+    );
+    return hipGetLastError();
+}
+
+hipError_t launch_lds_b_compact_tail_down(
+    const uint16_t *down_bf16,
+    hipStream_t stream
+) {
+    hipLaunchKernelGGL(
+        native_wmma_down_lds_b_overflow_tail_kernel,
+        dim3(kExperts * kNativeWmmaLdsBDownGridN),
+        dim3(kNativeWmmaLdsBOverflowTailThreads),
+        0,
+        stream,
+        g_state.activated,
+        down_bf16,
+        g_state.sorted_routes,
+        g_state.counts,
+        g_state.cumsum,
+        g_state.compact_tail_experts,
+        g_state.total_compact_tail_experts,
+        g_state.route_outputs
+    );
+    return hipGetLastError();
+}
+#endif
 
 bool launch_routed_matrices_after_input_conversion(
     const uint16_t *gate_up_bf16,
     const uint16_t *down_bf16,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens,
+    hipEvent_t sort_done = nullptr,
+    hipEvent_t gate_done = nullptr,
+    hipEvent_t tail_done = nullptr
 ) {
 #if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
     const uint16_t *gate_up_pointer = gate_up_bf16;
@@ -2931,10 +13120,14 @@ bool launch_routed_matrices_after_input_conversion(
         &topk_ids_pointer,
         &activated_pointer,
     };
-    hipError_t status = launch_module(
+    // The AOT program maps one packed output group, so the same qualified
+    // kernel can cover arbitrary logical lengths by bounding its grid to the
+    // request instead of replaying the compile-time q8192 tail.
+    hipError_t status = launch_module_grid(
         g_state.packed_exact_gate_up,
         gate_arguments,
         4u,
+        token_count * kTopK * (kIntermediate / 8u),
         stream
     );
     const uint16_t *down_pointer = down_bf16;
@@ -2948,10 +13141,11 @@ bool launch_routed_matrices_after_input_conversion(
         &output_pointer,
     };
     if (status == hipSuccess) {
-        status = launch_module(
+        status = launch_module_grid(
             g_state.packed_exact_down,
             down_arguments,
             5u,
+            token_count * (kHidden / 8u),
             stream
         );
     }
@@ -2971,10 +13165,11 @@ bool launch_routed_matrices_after_input_conversion(
         &topk_ids_pointer,
         &activated_pointer,
     };
-    hipError_t status = launch_module(
+    hipError_t status = launch_module_grid(
         g_state.exact_gate_up,
         gate_arguments,
         4u,
+        token_count * kTopK * kIntermediate,
         stream
     );
     const uint16_t *down_pointer = down_bf16;
@@ -2988,10 +13183,11 @@ bool launch_routed_matrices_after_input_conversion(
         &output_pointer,
     };
     if (status == hipSuccess) {
-        status = launch_module(
+        status = launch_module_grid(
             g_state.exact_down,
             down_arguments,
             5u,
+            token_count * kHidden,
             stream
         );
     }
@@ -3001,11 +13197,97 @@ bool launch_routed_matrices_after_input_conversion(
     }
     return true;
 #else
-    if (!launch_route_sort(stream)) {
+    if (!launch_route_sort(stream, token_count * kTopK)) {
         return false;
     }
+    if (sort_done != nullptr) {
+        const hipError_t event_status = hipEventRecord(sort_done, stream);
+        if (event_status != hipSuccess) {
+            set_error("routed profile sort done", event_status);
+            return false;
+        }
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+    const uint32_t routed_grid_blocks = compact_main_block_launch_bound(
+        token_count * kTopK
+    );
+#else
+    const uint32_t routed_grid_blocks = route_block_launch_bound(
+        token_count * kTopK
+    );
+#endif
     hipError_t status = hipSuccess;
-#if QRT_TRITON_MOE_Q1024_EXACT_GATE_GROUPED_DOWN
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+    const bool parallel_bucketed_tail = sort_done != nullptr &&
+        tail_done != nullptr && g_state.full_v3_tail_stream != nullptr;
+    if (parallel_bucketed_tail) {
+        status = hipStreamWaitEvent(
+            g_state.full_v3_tail_stream,
+            sort_done,
+            0u
+        );
+    }
+    if (status == hipSuccess && parallel_bucketed_tail) {
+        status = launch_bucketed_tail_gate<1u>(
+            gate_up_bf16,
+            g_state.full_v3_tail_stream
+        );
+    }
+    if (status == hipSuccess && parallel_bucketed_tail) {
+        status = launch_bucketed_tail_gate<2u>(
+            gate_up_bf16,
+            g_state.full_v3_tail_stream
+        );
+    }
+    if (status == hipSuccess && parallel_bucketed_tail) {
+        status = launch_bucketed_tail_gate<3u>(
+            gate_up_bf16,
+            g_state.full_v3_tail_stream
+        );
+    }
+#else
+    (void)tail_done;
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+    const bool parallel_compact_sole_tail = sort_done != nullptr &&
+        tail_done != nullptr && g_state.full_v3_tail_stream != nullptr;
+    if (parallel_compact_sole_tail) {
+        status = hipStreamWaitEvent(
+            g_state.full_v3_tail_stream,
+            sort_done,
+            0u
+        );
+    }
+    if (status == hipSuccess && parallel_compact_sole_tail) {
+        status = launch_lds_b_compact_tail_gate(
+            gate_up_bf16,
+            g_state.full_v3_tail_stream
+        );
+    }
+#endif
+#if QRT_TRITON_MOE_PACKED_EXACT_GATE
+    if (status == hipSuccess) {
+        const uint16_t *gate_up_pointer = gate_up_bf16;
+        const uint16_t *input_pointer = g_state.input_bf16;
+        const int32_t *topk_ids_pointer = g_state.topk_ids;
+        uint16_t *activated_pointer = g_state.activated;
+        void *gate_arguments[6] = {
+            &gate_up_pointer,
+            &input_pointer,
+            &topk_ids_pointer,
+            &activated_pointer,
+        };
+        status = launch_module_grid(
+            g_state.packed_exact_gate_up,
+            gate_arguments,
+            4u,
+            token_count * kTopK *
+                (kIntermediate / QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS),
+            stream
+        );
+    }
+#elif QRT_TRITON_MOE_Q1024_EXACT_GATE_GROUPED_DOWN
     if (status == hipSuccess) {
         const uint16_t *gate_up_pointer = gate_up_bf16;
         const uint16_t *input_pointer = g_state.input_bf16;
@@ -3048,22 +13330,422 @@ bool launch_routed_matrices_after_input_conversion(
         );
     }
 #elif QRT_TRITON_MOE_NATIVE_WMMA_GATE
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    const uint32_t routed_projection_debug_token =
+        g_state.routed_projection_debug_requested_token < token_count
+        ? g_state.routed_projection_debug_requested_token
+        : token_count - 1u;
     if (status == hipSuccess) {
+        status = hipMemsetAsync(
+            g_state.routed_projection_hawkeye_correction_count_debug,
+            0,
+            sizeof(uint32_t),
+            stream
+        );
+    }
+#endif
+    if (status == hipSuccess) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+        status = launch_all_adaptive_m128_gate(
+            gate_up_bf16,
+            adaptive_m128_pack_launch_bound(token_count * kTopK),
+            stream
+        );
+#else
         hipLaunchKernelGGL(
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+            native_wmma_gate_up_silu_lds_b_parallel_n32_kernel,
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+            native_wmma_gate_up_silu_lds_b_split_passes_kernel,
+#else
+            native_wmma_gate_up_silu_lds_b_kernel,
+#endif
+            dim3(routed_grid_blocks * kNativeWmmaLdsBGateGridN),
+#elif QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+            native_wmma_gate_up_silu_wide_n_kernel,
+            dim3(routed_grid_blocks * kNativeWmmaWideGateGridN),
+#else
             native_wmma_gate_up_silu_kernel,
-            dim3(kMaxRouteBlocks * kNativeWmmaGateGridN),
+            dim3(routed_grid_blocks * kNativeWmmaGateGridN),
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+            dim3(kNativeWmmaLdsBParallelGateThreads),
+#elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64
+            dim3(kNativeWmmaLdsBParallelGateN64Threads),
+#else
+            dim3(kNativeWmmaLdsBGateThreads),
+#endif
+#elif QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+            dim3(kNativeWmmaWideThreads),
+#else
             dim3(kNativeWmmaThreads),
+#endif
             0,
             stream,
             g_state.input_bf16,
             gate_up_bf16,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+            g_state.lossless_gate_up_packed,
+            g_state.lossless_gate_up_overflow_indices,
+            g_state.lossless_gate_up_overflow_values,
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+            g_state.weight_int8_gate_up,
+            g_state.weight_int8_gate_up_scales,
+#endif
             g_state.sorted_routes,
             g_state.block_experts,
             g_state.total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+            g_state.compact_main_route_blocks,
+            g_state.total_compact_main_blocks,
+#endif
             g_state.activated
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
+            ,
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+            g_state.route_outputs,
+#endif
+            g_state.cuda_vllm_silu_bf16_domain_lut,
+            g_state.routed_projection_hawkeye_midpoint_radius,
+            g_state.routed_up_projection_hawkeye_midpoint_radius
+#endif
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+            , g_state.routed_gate_projection_debug,
+            g_state.routed_up_projection_debug,
+            g_state.routed_gate_projection_f32_debug,
+            g_state.routed_up_projection_f32_debug,
+            g_state.routed_projection_hawkeye_correction_count_debug,
+            routed_projection_debug_token
+#endif
+        );
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        g_state.routed_projection_debug_token =
+            routed_projection_debug_token;
+#endif
+        status = hipGetLastError();
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                native_wmma_gate_up_silu_lds_b_grouped_sole_m16_kernel,
+                dim3(
+                    kNativeWmmaGroupedSoleMaxGroups *
+                    kNativeWmmaLdsBGateGridN
+                ),
+                dim3(kNativeWmmaLdsBGateThreads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.cumsum,
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+                g_state.activated
+            );
+            status = hipGetLastError();
+        }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                native_wmma_gate_up_silu_tail32_kernel,
+                dim3(kExperts * kNativeWmmaTail32GateGridN),
+                dim3(kNativeWmmaTail32Threads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.activated
+            );
+            status = hipGetLastError();
+        }
+#elif QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+        if (!parallel_bucketed_tail) {
+#endif
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_gate_up_silu_bucketed_tail_kernel<1u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaGateGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.activated
+            );
+            status = hipGetLastError();
+        }
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_gate_up_silu_bucketed_tail_kernel<2u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaGateGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.activated
+            );
+            status = hipGetLastError();
+        }
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_gate_up_silu_bucketed_tail_kernel<3u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaGateGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.activated
+            );
+            status = hipGetLastError();
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+        }
+#endif
+#elif QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+        if (!parallel_compact_sole_tail) {
+#endif
+        if (status == hipSuccess) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+            status = launch_lds_b_compact_tail_gate(
+                gate_up_bf16,
+                stream
+            );
+#else
+            hipLaunchKernelGGL(
+                native_wmma_gate_up_silu_adaptive_tail_kernel,
+                dim3(kExperts * kNativeWmmaGateGridN),
+                dim3(kNativeWmmaAdaptiveTailThreads),
+                0,
+                stream,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.activated
+            );
+            status = hipGetLastError();
+#endif
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+        }
+#endif
+#endif
+    }
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+    if (status == hipSuccess) {
+        const bool correction_requested =
+            g_state.routed_projection_hawkeye_midpoint_radius != 0u ||
+            g_state.routed_up_projection_hawkeye_midpoint_radius != 0u ||
+            g_state.routed_gate_hawkeye_low_exponent_threshold != 0u ||
+            g_state.routed_up_hawkeye_low_exponent_threshold != 0u;
+        const float *native_gate_up_pointer = g_state.route_outputs;
+        uint16_t *activated_pointer = g_state.activated;
+        if (!correction_requested) {
+            uint32_t finalize_elements =
+                token_count * kTopK * kIntermediate;
+            void *finalize_arguments[3] = {
+                &native_gate_up_pointer,
+                &activated_pointer,
+                &finalize_elements,
+            };
+            const uint32_t finalize_grid = (
+                finalize_elements + kZeroCorrectionGateFinalizeBlock - 1u
+            ) / kZeroCorrectionGateFinalizeBlock;
+            status = launch_module_grid(
+                g_state.zero_correction_gate_finalize,
+                finalize_arguments,
+                sizeof(finalize_arguments) / sizeof(finalize_arguments[0]),
+                finalize_grid,
+                stream
+            );
+        } else {
+        const uint16_t *input_pointer = g_state.input_bf16;
+        const uint16_t *gate_up_pointer = gate_up_bf16;
+        const int32_t *topk_ids_pointer = g_state.topk_ids;
+#if QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE
+        const int32_t *sorted_routes_pointer = g_state.sorted_routes;
+        const int32_t *total_post_pad_pointer = g_state.total_post_pad;
+#if QRT_TRITON_MOE_ROW_MAJOR_SORTED_CONDITIONAL_EXACT_GATE
+        int32_t sorted_route_slots = static_cast<int32_t>(
+            routed_grid_blocks * kBlockM
+        );
+        void *conditional_arguments[12] = {
+            &native_gate_up_pointer,
+            &input_pointer,
+            &gate_up_pointer,
+            &sorted_routes_pointer,
+            &total_post_pad_pointer,
+            &sorted_route_slots,
+            &topk_ids_pointer,
+            &activated_pointer,
+            &g_state.routed_projection_hawkeye_midpoint_radius,
+            &g_state.routed_up_projection_hawkeye_midpoint_radius,
+            &g_state.routed_gate_hawkeye_low_exponent_threshold,
+            &g_state.routed_up_hawkeye_low_exponent_threshold,
+        };
+#else
+        void *conditional_arguments[11] = {
+            &native_gate_up_pointer,
+            &input_pointer,
+            &gate_up_pointer,
+            &sorted_routes_pointer,
+            &total_post_pad_pointer,
+            &topk_ids_pointer,
+            &activated_pointer,
+            &g_state.routed_projection_hawkeye_midpoint_radius,
+            &g_state.routed_up_projection_hawkeye_midpoint_radius,
+            &g_state.routed_gate_hawkeye_low_exponent_threshold,
+            &g_state.routed_up_hawkeye_low_exponent_threshold,
+        };
+#endif
+        const uint32_t correction_grid =
+            routed_grid_blocks * kBlockM * (
+                kIntermediate / QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+            );
+#else
+        void *conditional_arguments[9] = {
+            &native_gate_up_pointer,
+            &input_pointer,
+            &gate_up_pointer,
+            &topk_ids_pointer,
+            &activated_pointer,
+            &g_state.routed_projection_hawkeye_midpoint_radius,
+            &g_state.routed_up_projection_hawkeye_midpoint_radius,
+            &g_state.routed_gate_hawkeye_low_exponent_threshold,
+            &g_state.routed_up_hawkeye_low_exponent_threshold,
+        };
+        const uint32_t correction_grid = token_count * kTopK * (
+            kIntermediate / QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+        );
+#endif
+        status = launch_module_grid(
+            g_state.conditional_exact_gate_up,
+            conditional_arguments,
+            sizeof(conditional_arguments) / sizeof(conditional_arguments[0]),
+            correction_grid,
+            stream
+        );
+        }
+    }
+#elif QRT_TRITON_MOE_BATCHED_HAWKEYE
+    if (status == hipSuccess) {
+        const size_t projection_elements =
+            static_cast<size_t>(token_count) * kTopK * kIntermediate;
+        const uint32_t correction_blocks = static_cast<uint32_t>(
+            (projection_elements + kNativeThreads - 1u) / kNativeThreads
+        );
+        hipLaunchKernelGGL(
+            routed_gate_batched_hawkeye_correction_kernel,
+            dim3(correction_blocks),
+            dim3(kNativeThreads),
+            0,
+            stream,
+            g_state.route_outputs,
+            g_state.input_bf16,
+            gate_up_bf16,
+            g_state.topk_ids,
+            g_state.activated,
+            g_state.cuda_vllm_silu_bf16_domain_lut,
+            token_count * kTopK,
+            g_state.routed_projection_hawkeye_midpoint_radius,
+            g_state.routed_gate_hawkeye_low_exponent_threshold
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+            , g_state.routed_gate_projection_debug,
+            g_state.routed_gate_projection_f32_debug,
+            g_state.routed_projection_hawkeye_correction_count_debug,
+            routed_projection_debug_token
+#endif
         );
         status = hipGetLastError();
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                routed_up_batched_hawkeye_correction_activation_kernel,
+                dim3(correction_blocks),
+                dim3(kNativeThreads),
+                0,
+                stream,
+                g_state.route_outputs,
+                g_state.input_bf16,
+                gate_up_bf16,
+                g_state.topk_ids,
+                g_state.activated,
+                g_state.cuda_vllm_silu_bf16_domain_lut,
+                token_count * kTopK,
+                g_state.routed_up_projection_hawkeye_midpoint_radius,
+                g_state.routed_up_hawkeye_low_exponent_threshold
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+                , g_state.routed_up_projection_debug,
+                g_state.routed_up_projection_f32_debug,
+                g_state.routed_projection_hawkeye_correction_count_debug,
+                routed_projection_debug_token
+#endif
+            );
+            status = hipGetLastError();
+        }
     }
+#endif
 #else
     const uint16_t *gate_up_pointer = gate_up_bf16;
     void *gate_args[8] = {
@@ -3075,9 +13757,18 @@ bool launch_routed_matrices_after_input_conversion(
         &g_state.activated,
     };
     if (status == hipSuccess) {
-        status = launch_module(g_state.gate_up, gate_args, 6u, stream);
+        status = launch_module_grid(
+            g_state.gate_up,
+            gate_args,
+            6u,
+            routed_grid_blocks * kGateUpGridN,
+            stream
+        );
     }
 #endif
+    if (status == hipSuccess && gate_done != nullptr) {
+        status = hipEventRecord(gate_done, stream);
+    }
 #if QRT_TRITON_MOE_Q1024_GROUPED_GATE_EXACT_DOWN
     if (status == hipSuccess) {
         const uint16_t *down_pointer = down_bf16;
@@ -3140,21 +13831,324 @@ bool launch_routed_matrices_after_input_conversion(
     }
 #elif QRT_TRITON_MOE_NATIVE_WMMA_DOWN
     if (status == hipSuccess) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+        status = launch_all_adaptive_m128_down(
+            down_bf16,
+            adaptive_m128_pack_launch_bound(token_count * kTopK),
+            stream
+        );
+#else
         hipLaunchKernelGGL(
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32
+            native_wmma_down_lds_b_serial_n32_kernel,
+#else
+            native_wmma_down_lds_b_kernel,
+#endif
+            dim3(routed_grid_blocks * kNativeWmmaLdsBDownGridN),
+#elif QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+            native_wmma_down_wide_n_kernel,
+            dim3(routed_grid_blocks * kNativeWmmaWideDownGridN),
+#else
             native_wmma_down_kernel,
-            dim3(kMaxRouteBlocks * kNativeWmmaDownGridN),
+            dim3(routed_grid_blocks * kNativeWmmaDownGridN),
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B
+            dim3(kNativeWmmaLdsBDownThreads),
+#elif QRT_TRITON_MOE_NATIVE_WMMA_WIDE_N
+            dim3(kNativeWmmaWideThreads),
+#else
             dim3(kNativeWmmaThreads),
+#endif
             0,
             stream,
             g_state.activated,
             down_bf16,
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+            g_state.lossless_down_packed,
+            g_state.lossless_down_overflow_indices,
+            g_state.lossless_down_overflow_values,
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+            g_state.weight_int8_down,
+            g_state.weight_int8_down_scales,
+#endif
             g_state.sorted_routes,
             g_state.block_experts,
             g_state.total_post_pad,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+            g_state.compact_main_route_blocks,
+            g_state.total_compact_main_blocks,
+#endif
             g_state.route_outputs
         );
         status = hipGetLastError();
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                native_wmma_down_lds_b_grouped_sole_m16_kernel,
+                dim3(
+                    kNativeWmmaGroupedSoleMaxGroups *
+                    kNativeWmmaLdsBDownGridN
+                ),
+                dim3(kNativeWmmaLdsBDownThreads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.cumsum,
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+        }
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_TAIL32
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                native_wmma_down_tail32_kernel,
+                dim3(kExperts * kNativeWmmaTail32DownGridN),
+                dim3(kNativeWmmaTail32Threads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+        }
+#elif QRT_TRITON_MOE_NATIVE_WMMA_BUCKETED_TAIL
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+        if (parallel_bucketed_tail) {
+            status = launch_bucketed_tail_down<1u>(
+                down_bf16,
+                g_state.full_v3_tail_stream
+            );
+            if (status == hipSuccess) {
+                status = launch_bucketed_tail_down<2u>(
+                    down_bf16,
+                    g_state.full_v3_tail_stream
+                );
+            }
+            if (status == hipSuccess) {
+                status = launch_bucketed_tail_down<3u>(
+                    down_bf16,
+                    g_state.full_v3_tail_stream
+                );
+            }
+            if (status == hipSuccess) {
+                status = hipEventRecord(
+                    tail_done,
+                    g_state.full_v3_tail_stream
+                );
+            }
+            if (status == hipSuccess) {
+                status = hipStreamWaitEvent(stream, tail_done, 0u);
+            }
+        } else {
+#endif
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_down_bucketed_tail_kernel<1u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaDownGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+        }
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_down_bucketed_tail_kernel<2u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaDownGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+        }
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                HIP_KERNEL_NAME(
+                    native_wmma_down_bucketed_tail_kernel<3u>
+                ),
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                dim3(kNativeWmmaBucketedTailPersistentBlocks),
+#else
+                dim3(kExperts * kNativeWmmaDownGridN),
+#endif
+                dim3(kNativeWmmaBucketedTailThreads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_BUCKETED_TAIL
+        }
+#endif
+#elif QRT_TRITON_MOE_NATIVE_WMMA_ADAPTIVE_TAIL
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+        if (parallel_compact_sole_tail) {
+            if (status == hipSuccess) {
+                status = launch_lds_b_compact_tail_down(
+                    down_bf16,
+                    g_state.full_v3_tail_stream
+                );
+            }
+            if (status == hipSuccess) {
+                status = hipEventRecord(
+                    tail_done,
+                    g_state.full_v3_tail_stream
+                );
+            }
+            if (status == hipSuccess) {
+                status = hipStreamWaitEvent(stream, tail_done, 0u);
+            }
+        } else {
+#endif
+        if (status == hipSuccess) {
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FULL_DIRECT_TAIL
+            status = launch_lds_b_compact_tail_down(
+                down_bf16,
+                stream
+            );
+#else
+            hipLaunchKernelGGL(
+                native_wmma_down_adaptive_tail_kernel,
+                dim3(kExperts * kNativeWmmaDownGridN),
+                dim3(kNativeWmmaAdaptiveTailThreads),
+                0,
+                stream,
+                g_state.activated,
+                down_bf16,
+                g_state.sorted_routes,
+                g_state.counts,
+                g_state.cumsum,
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+                g_state.compact_tail_experts,
+                g_state.total_compact_tail_experts,
+#endif
+                g_state.route_outputs
+            );
+            status = hipGetLastError();
+#endif
+        }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_COMPACT_SOLE_TAIL
+        }
+#endif
+#endif
     }
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+    if (status == hipSuccess &&
+        (g_state.routed_down_contribution_hawkeye_midpoint_radius != 0u ||
+         g_state.routed_down_hawkeye_low_exponent_threshold != 0u)) {
+        float *route_outputs_pointer = g_state.route_outputs;
+        const float *topk_weights_pointer = g_state.topk_weights;
+        const int32_t *topk_ids_pointer = g_state.topk_ids;
+        const uint16_t *activated_pointer = g_state.activated;
+        const uint16_t *down_pointer = down_bf16;
+        void *conditional_down_arguments[7] = {
+            &route_outputs_pointer,
+            &topk_weights_pointer,
+            &topk_ids_pointer,
+            &activated_pointer,
+            &down_pointer,
+            &g_state.routed_down_contribution_hawkeye_midpoint_radius,
+            &g_state.routed_down_hawkeye_low_exponent_threshold,
+        };
+        const uint32_t correction_grid = token_count * kTopK * (
+            kHidden / QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS
+        );
+        status = launch_module_grid(
+            g_state.conditional_exact_down,
+            conditional_down_arguments,
+            sizeof(conditional_down_arguments) /
+                sizeof(conditional_down_arguments[0]),
+            correction_grid,
+            stream
+        );
+    }
+#elif QRT_TRITON_MOE_BATCHED_HAWKEYE
+    if (status == hipSuccess &&
+        (g_state.routed_down_contribution_hawkeye_midpoint_radius != 0u ||
+         g_state.routed_down_hawkeye_low_exponent_threshold != 0u)) {
+        const size_t route_output_elements =
+            static_cast<size_t>(token_count) * kTopK * kHidden;
+        const uint32_t correction_blocks = static_cast<uint32_t>(
+            (route_output_elements + kNativeThreads - 1u) / kNativeThreads
+        );
+        hipLaunchKernelGGL(
+            routed_down_batched_hawkeye_correction_kernel,
+            dim3(correction_blocks),
+            dim3(kNativeThreads),
+            0,
+            stream,
+            g_state.route_outputs,
+            g_state.topk_weights,
+            g_state.topk_ids,
+            g_state.activated,
+            down_bf16,
+            token_count * kTopK,
+            g_state.routed_down_contribution_hawkeye_midpoint_radius,
+            g_state.routed_down_hawkeye_low_exponent_threshold
+        );
+        status = hipGetLastError();
+    }
+#endif
 #else
     const uint16_t *down_pointer = down_bf16;
     void *down_args[8] = {
@@ -3174,7 +14168,13 @@ bool launch_routed_matrices_after_input_conversion(
             stream
         );
 #else
-        status = launch_module(g_state.down, down_args, 6u, stream);
+        status = launch_module_grid(
+            g_state.down,
+            down_args,
+            6u,
+            routed_grid_blocks * kDownGridN,
+            stream
+        );
 #endif
     }
 #endif
@@ -3186,19 +14186,29 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
 }
 
-bool launch_route_combine(float *output_f32, hipStream_t stream) {
+bool q8192_vllm_sorted_bf16_route_sum_enabled();
+
+bool launch_route_combine(
+    float *output_f32,
+    hipStream_t stream,
+    uint32_t token_count = kTokens
+) {
+    const size_t output_elements =
+        static_cast<size_t>(token_count) * kHidden;
     hipLaunchKernelGGL(
         combine_route_order_kernel,
         dim3(static_cast<uint32_t>(
-            (kOutputElements + kNativeThreads - 1u) / kNativeThreads
+            (output_elements + kNativeThreads - 1u) / kNativeThreads
         )),
         dim3(kNativeThreads),
         0,
         stream,
         g_state.route_outputs,
         g_state.topk_weights,
+        g_state.topk_ids,
         output_f32,
-        kOutputElements
+        q8192_vllm_sorted_bf16_route_sum_enabled(),
+        output_elements
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -3212,13 +14222,15 @@ bool launch_routed_pipeline_after_input_conversion(
     const uint16_t *gate_up_bf16,
     const uint16_t *down_bf16,
     float *output_f32,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens
 ) {
     const bool matrices_launched =
         launch_routed_matrices_after_input_conversion(
                gate_up_bf16,
                down_bf16,
-               stream
+               stream,
+               token_count
            );
 #if QRT_TRITON_MOE_Q1024_EXACT_ROUTED || \
     QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED || \
@@ -3228,7 +14240,7 @@ bool launch_routed_pipeline_after_input_conversion(
     return matrices_launched;
 #else
     return matrices_launched &&
-        launch_route_combine(output_f32, stream);
+        launch_route_combine(output_f32, stream, token_count);
 #endif
 }
 
@@ -3237,56 +14249,176 @@ bool launch_routed_pipeline(
     const uint16_t *gate_up_bf16,
     const uint16_t *down_bf16,
     float *output_f32,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens
 ) {
-    return launch_input_conversion(post_attention_f32, stream) &&
+    return launch_input_conversion(post_attention_f32, stream, token_count) &&
         launch_routed_pipeline_after_input_conversion(
             gate_up_bf16,
             down_bf16,
             output_f32,
-            stream
+            stream,
+            token_count
         );
 }
 
 bool launch_router(
     const float *post_attention_f32,
     const uint16_t *router_bf16,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens
 ) {
+    const bool cutoff_high_id_tie =
+        q8192_router_bf16_cutoff_high_id_tie_requested();
+    const bool raw_logit_tie_break =
+        q8192_router_bf16_raw_logit_tie_break_requested();
+    const bool cuda_reduction_cutoff_repair =
+        q8192_router_cuda_reduction_cutoff_repair_requested();
+    const bool cuda_reduction_all =
+        q8192_router_cuda_reduction_all_requested();
     if (q8192_hipblaslt_bf16_router_requested()) {
         if (g_state.router_logits_bf16 == nullptr ||
-            !launch_input_conversion(post_attention_f32, stream) ||
-            !launch_matrix(
-                &g_state.router_plan,
-                router_bf16,
-                g_state.input_bf16,
-                g_state.router_logits_bf16,
-                kExperts,
-                kHidden,
+            !launch_input_conversion(
+                post_attention_f32,
                 stream,
-                "hipblasLtMatmul(router_logits_bf16)"
+                token_count
             )) {
             return false;
         }
+        if (cuda_reduction_all) {
+            hipLaunchKernelGGL(
+                router_bf16_cuda_reduction_all_kernel,
+                dim3(token_count),
+                dim3(kExperts),
+                0,
+                stream,
+                g_state.router_logits_bf16,
+                g_state.input_bf16,
+                router_bf16
+            );
+            const hipError_t reduction_status = hipGetLastError();
+            if (reduction_status != hipSuccess) {
+                set_error(
+                    "router_bf16_cuda_reduction_all_kernel",
+                    reduction_status
+                );
+                return false;
+            }
+        } else {
+            const bool router_hawkeye =
+                g_state.router_hawkeye_midpoint_radius != 0u;
+            void *router_output = router_hawkeye
+                ? static_cast<void *>(g_state.router_logits_f32)
+                : static_cast<void *>(g_state.router_logits_bf16);
+            const hipDataType router_output_type = router_hawkeye
+                ? HIP_R_32F
+                : HIP_R_16BF;
+            if (!launch_matrix(
+                    &g_state.router_plan,
+                    router_bf16,
+                    g_state.input_bf16,
+                    router_output,
+                    kExperts,
+                    kHidden,
+                    stream,
+                    "hipblasLtMatmul(router_logits_bf16)",
+                    token_count,
+                    0u,
+                    router_output_type
+                )) {
+                return false;
+            }
+            if (router_hawkeye) {
+                const size_t router_elements =
+                    static_cast<size_t>(token_count) * kExperts;
+                hipLaunchKernelGGL(
+                    router_hawkeye_midpoint_correction_kernel,
+                    dim3(static_cast<uint32_t>(
+                        (router_elements + kNativeThreads - 1u) /
+                            kNativeThreads
+                    )),
+                    dim3(kNativeThreads),
+                    0,
+                    stream,
+                    g_state.router_logits_f32,
+                    g_state.input_bf16,
+                    router_bf16,
+                    g_state.router_logits_bf16,
+                    token_count,
+                    g_state.router_hawkeye_midpoint_radius
+                );
+                const hipError_t hawkeye_status = hipGetLastError();
+                if (hawkeye_status != hipSuccess) {
+                    set_error(
+                        "router Hawkeye midpoint correction",
+                        hawkeye_status
+                    );
+                    return false;
+                }
+            }
+        }
         hipLaunchKernelGGL(
             router_bf16_logits_topk_kernel,
-            dim3(kTokens),
-            dim3(kExperts),
+            dim3(token_count),
+            dim3(32u),
             0,
             stream,
             g_state.router_logits_bf16,
             g_state.topk_ids,
-            g_state.topk_weights
+            g_state.topk_weights,
+            g_state.cuda_router_ex2_fraction_lut,
+            cutoff_high_id_tie
         );
         const hipError_t status = hipGetLastError();
         if (status != hipSuccess) {
             set_error("router_bf16_logits_topk_kernel", status);
             return false;
         }
+        if (cuda_reduction_cutoff_repair && !cuda_reduction_all) {
+            hipLaunchKernelGGL(
+                router_bf16_cuda_reduction_cutoff_repair_kernel,
+                dim3(token_count),
+                dim3(kExperts),
+                0,
+                stream,
+                g_state.router_logits_bf16,
+                g_state.input_bf16,
+                router_bf16,
+                g_state.topk_ids
+            );
+            const hipError_t repair_status = hipGetLastError();
+            if (repair_status != hipSuccess) {
+                set_error(
+                    "router_bf16_cuda_reduction_cutoff_repair_kernel",
+                    repair_status
+                );
+                return false;
+            }
+            hipLaunchKernelGGL(
+                router_bf16_logits_topk_kernel,
+                dim3(token_count),
+                dim3(32u),
+                0,
+                stream,
+                g_state.router_logits_bf16,
+                g_state.topk_ids,
+                g_state.topk_weights,
+                g_state.cuda_router_ex2_fraction_lut,
+                cutoff_high_id_tie
+            );
+            const hipError_t repaired_topk_status = hipGetLastError();
+            if (repaired_topk_status != hipSuccess) {
+                set_error(
+                    "router_bf16_logits_topk_kernel(repaired)",
+                    repaired_topk_status
+                );
+                return false;
+            }
+        }
         return true;
     }
 #if QRT_TRITON_MOE_ROCBLAS_ROUTER
-    if (!launch_input_conversion(post_attention_f32, stream)) {
+    if (!launch_input_conversion(post_attention_f32, stream, token_count)) {
         return false;
     }
     rocblas_status rocblas_status_value = rocblas_set_stream(
@@ -3321,7 +14453,7 @@ bool launch_router(
             rocblas_datatype_bf16_r,
             static_cast<rocblas_int>(kExperts),
             static_cast<rocblas_stride>(kExperts),
-            static_cast<rocblas_int>(kTokens),
+            static_cast<rocblas_int>(token_count),
             rocblas_datatype_f32_r,
             rocblas_gemm_algo_solution_index,
             INT32_C(-9),
@@ -3339,13 +14471,15 @@ bool launch_router(
     }
     hipLaunchKernelGGL(
         router_bf16_logits_topk_kernel,
-        dim3(kTokens),
-        dim3(kExperts),
+        dim3(token_count),
+        dim3(32u),
         0,
         stream,
         g_state.router_logits_bf16,
         g_state.topk_ids,
-        g_state.topk_weights
+        g_state.topk_weights,
+        g_state.cuda_router_ex2_fraction_lut,
+        cutoff_high_id_tie
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -3383,7 +14517,10 @@ bool launch_router(
 #endif
     hipLaunchKernelGGL(
         router_topk_kernel,
-        dim3(kTokens / kRouterTokenTile),
+        dim3(
+            (token_count + kRouterTokenTile - 1u) /
+                kRouterTokenTile
+        ),
         dim3(kRouterThreads),
         0,
         stream,
@@ -3391,7 +14528,9 @@ bool launch_router(
         router_kernel_weights,
         g_state.topk_ids,
         g_state.topk_weights,
-        bf16_logit_endpoint
+        bf16_logit_endpoint,
+        raw_logit_tie_break && bf16_logit_endpoint,
+        cutoff_high_id_tie && bf16_logit_endpoint
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -3743,7 +14882,8 @@ bool launch_shared_pipeline(
     const uint16_t *shared_gate_projection_bf16,
     const uint16_t *shared_up_projection_bf16,
     const uint16_t *shared_down_bf16,
-    hipStream_t stream
+    hipStream_t stream,
+    uint32_t token_count = kTokens
 ) {
 #if QRT_TRITON_MOE_Q1024_EXACT_SHARED
     const uint16_t *gate_pointer = shared_gate_projection_bf16;
@@ -3756,10 +14896,16 @@ bool launch_shared_pipeline(
         &input_pointer,
         &activated_pointer,
     };
-    hipError_t status = launch_module(
+    // The retained exact-shared HSACOs are token-independent: program IDs
+    // identify one logical output cell and the matrix dimensions are fixed by
+    // the model.  Bound every launch to the request's logical token count so
+    // the q1024-qualified arithmetic can be evaluated at arbitrary lengths
+    // without replaying the padded q8192 tail.
+    hipError_t status = launch_module_grid(
         g_state.exact_shared_gate_up,
         gate_up_arguments,
         4u,
+        token_count * kIntermediate,
         stream
     );
     const uint16_t *gate_scalar_pointer = shared_gate_bf16;
@@ -3770,10 +14916,11 @@ bool launch_shared_pipeline(
         &gate_logit_pointer,
     };
     if (status == hipSuccess) {
-        status = launch_module(
+        status = launch_module_grid(
             g_state.exact_shared_gate_logit,
             gate_logit_arguments,
             3u,
+            token_count,
             stream
         );
     }
@@ -3785,10 +14932,11 @@ bool launch_shared_pipeline(
         &down_output_pointer,
     };
     if (status == hipSuccess) {
-        status = launch_module(
+        status = launch_module_grid(
             g_state.exact_shared_down,
             down_arguments,
             3u,
+            token_count * kHidden,
             stream
         );
     }
@@ -3799,7 +14947,7 @@ bool launch_shared_pipeline(
     hipLaunchKernelGGL(
         shared_gate_scale_kernel,
         dim3(static_cast<uint32_t>(
-            (kTokens + kNativeThreads - 1u) / kNativeThreads
+            (token_count + kNativeThreads - 1u) / kNativeThreads
         )),
         dim3(kNativeThreads),
         0,
@@ -3814,22 +14962,34 @@ bool launch_shared_pipeline(
     }
     return true;
 #else
-    if (!launch_matrix(
-            &g_state.shared_gate_plan,
-            shared_gate_bf16,
-            g_state.input_bf16,
-            g_state.shared_gate_logits,
-            kSharedGateRows,
-            kHidden,
-            stream,
-            "hipblasLtMatmul(shared_gate)"
-        )) {
+    const uint32_t shared_projection_heuristic =
+        requested_matrix_heuristic_index(
+            "QRT_QWEN36_Q8192_SHARED_PROJECTION_HIPBLASLT_HEURISTIC_INDEX"
+        );
+    const uint32_t shared_down_heuristic =
+        requested_matrix_heuristic_index(
+            "QRT_QWEN36_Q8192_SHARED_DOWN_HIPBLASLT_HEURISTIC_INDEX"
+        );
+    hipLaunchKernelGGL(
+        shared_gate_bf16_cuda_gemv_kernel,
+        dim3(token_count),
+        dim3(kNativeThreads),
+        0,
+        stream,
+        g_state.input_bf16,
+        shared_gate_bf16,
+        g_state.shared_gate_logits,
+        token_count
+    );
+    hipError_t status = hipGetLastError();
+    if (status != hipSuccess) {
+        set_error("shared gate CUDA GEMV", status);
         return false;
     }
     hipLaunchKernelGGL(
         shared_gate_scale_kernel,
         dim3(static_cast<uint32_t>(
-            (kTokens + kNativeThreads - 1u) / kNativeThreads
+            (token_count + kNativeThreads - 1u) / kNativeThreads
         )),
         dim3(kNativeThreads),
         0,
@@ -3837,37 +14997,135 @@ bool launch_shared_pipeline(
         g_state.shared_gate_logits,
         g_state.shared_gate_scales
     );
-    hipError_t status = hipGetLastError();
+    status = hipGetLastError();
     if (status != hipSuccess) {
         set_error("shared_gate_scale_kernel", status);
         return false;
     }
+#if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
+    if (g_state.shared_projection_hawkeye_midpoint_radius >=
+        UINT32_C(0x8000)) {
+        hipLaunchKernelGGL(
+            shared_gate_up_full_hawkeye_activation_kernel,
+            dim3(token_count),
+            dim3(kNativeThreads),
+            kHidden * sizeof(uint16_t),
+            stream,
+            g_state.input_bf16,
+            shared_gate_projection_bf16,
+            shared_up_projection_bf16,
+            g_state.shared_gate_projection,
+            g_state.shared_up_projection,
+            g_state.shared_activated,
+            token_count
+        );
+        status = hipGetLastError();
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                shared_down_full_hawkeye_kernel,
+                dim3(token_count),
+                dim3(kNativeThreads),
+                kIntermediate * sizeof(uint16_t),
+                stream,
+                g_state.shared_activated,
+                shared_down_bf16,
+                g_state.shared_down_projection,
+                token_count
+            );
+            status = hipGetLastError();
+        }
+        if (status != hipSuccess) {
+            set_error("full shared Hawkeye pipeline", status);
+            return false;
+        }
+        return true;
+    }
+#endif
+    const bool shared_hawkeye =
+        g_state.shared_projection_hawkeye_midpoint_radius != 0u;
+    void *shared_gate_output = shared_hawkeye
+        ? static_cast<void *>(g_state.shared_gate_projection_f32)
+        : static_cast<void *>(g_state.shared_gate_projection);
+    void *shared_up_output = shared_hawkeye
+        ? static_cast<void *>(g_state.shared_up_projection_f32)
+        : static_cast<void *>(g_state.shared_up_projection);
+    const hipDataType shared_projection_output_type = shared_hawkeye
+        ? HIP_R_32F
+        : HIP_R_16BF;
     if (!launch_matrix(
             &g_state.shared_projection_plan,
             shared_gate_projection_bf16,
             g_state.input_bf16,
-            g_state.shared_gate_projection,
+            shared_gate_output,
             kIntermediate,
             kHidden,
             stream,
-            "hipblasLtMatmul(shared_gate_projection)"
+            "hipblasLtMatmul(shared_gate_projection)",
+            token_count,
+            shared_projection_heuristic,
+            shared_projection_output_type
         ) ||
         !launch_matrix(
             &g_state.shared_projection_plan,
             shared_up_projection_bf16,
             g_state.input_bf16,
-            g_state.shared_up_projection,
+            shared_up_output,
             kIntermediate,
             kHidden,
             stream,
-            "hipblasLtMatmul(shared_up_projection)"
+            "hipblasLtMatmul(shared_up_projection)",
+            token_count,
+            shared_projection_heuristic,
+            shared_projection_output_type
         )) {
         return false;
+    }
+    const size_t shared_projection_elements =
+        static_cast<size_t>(token_count) * kIntermediate;
+    if (shared_hawkeye) {
+        const uint32_t correction_blocks = static_cast<uint32_t>(
+            (shared_projection_elements + kNativeThreads - 1u) /
+            kNativeThreads
+        );
+        hipLaunchKernelGGL(
+            shared_projection_hawkeye_midpoint_correction_kernel,
+            dim3(correction_blocks),
+            dim3(kNativeThreads),
+            0,
+            stream,
+            g_state.shared_gate_projection_f32,
+            g_state.input_bf16,
+            shared_gate_projection_bf16,
+            g_state.shared_gate_projection,
+            token_count,
+            g_state.shared_projection_hawkeye_midpoint_radius
+        );
+        status = hipGetLastError();
+        if (status == hipSuccess) {
+            hipLaunchKernelGGL(
+                shared_projection_hawkeye_midpoint_correction_kernel,
+                dim3(correction_blocks),
+                dim3(kNativeThreads),
+                0,
+                stream,
+                g_state.shared_up_projection_f32,
+                g_state.input_bf16,
+                shared_up_projection_bf16,
+                g_state.shared_up_projection,
+                token_count,
+                g_state.shared_projection_hawkeye_midpoint_radius
+            );
+            status = hipGetLastError();
+        }
+        if (status != hipSuccess) {
+            set_error("shared projection Hawkeye correction", status);
+            return false;
+        }
     }
     hipLaunchKernelGGL(
         shared_activation_kernel,
         dim3(static_cast<uint32_t>(
-            (kSharedProjectionElements + kNativeThreads - 1u) /
+            (shared_projection_elements + kNativeThreads - 1u) /
             kNativeThreads
         )),
         dim3(kNativeThreads),
@@ -3882,17 +15140,51 @@ bool launch_shared_pipeline(
         set_error("shared_activation_kernel", status);
         return false;
     }
+    void *shared_down_output = shared_hawkeye
+        ? static_cast<void *>(g_state.shared_down_projection_f32)
+        : static_cast<void *>(g_state.shared_down_projection);
+    const hipDataType shared_down_output_type = shared_hawkeye
+        ? HIP_R_32F
+        : HIP_R_16BF;
     if (!launch_matrix(
             &g_state.shared_down_plan,
             shared_down_bf16,
             g_state.shared_activated,
-            g_state.shared_down_projection,
+            shared_down_output,
             kHidden,
             kIntermediate,
             stream,
-            "hipblasLtMatmul(shared_down_projection)"
+            "hipblasLtMatmul(shared_down_projection)",
+            token_count,
+            shared_down_heuristic,
+            shared_down_output_type
         )) {
         return false;
+    }
+    if (shared_hawkeye) {
+        const size_t shared_down_elements =
+            static_cast<size_t>(token_count) * kHidden;
+        const uint32_t correction_blocks = static_cast<uint32_t>(
+            (shared_down_elements + kNativeThreads - 1u) / kNativeThreads
+        );
+        hipLaunchKernelGGL(
+            shared_down_hawkeye_midpoint_correction_kernel,
+            dim3(correction_blocks),
+            dim3(kNativeThreads),
+            0,
+            stream,
+            g_state.shared_down_projection_f32,
+            g_state.shared_activated,
+            shared_down_bf16,
+            g_state.shared_down_projection,
+            token_count,
+            g_state.shared_projection_hawkeye_midpoint_radius
+        );
+        status = hipGetLastError();
+        if (status != hipSuccess) {
+            set_error("shared down Hawkeye correction", status);
+            return false;
+        }
     }
     return true;
 #endif
@@ -3910,6 +15202,14 @@ bool q65536_vllm_bf16_residual_enabled() {
         "QRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER"
     );
     return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool exact_arbitrary_vllm_split_variance_enabled(uint32_t token_count) {
+    const char *value = std::getenv(
+        "QRT_QWEN36_EXACT_ARBITRARY_VLLM_SPLIT_VARIANCE"
+    );
+    return token_count > 1u && value != nullptr && value[0] != '\0' &&
         std::strcmp(value, "0") != 0;
 }
 
@@ -3949,12 +15249,15 @@ bool launch_ordered_combine_residual(
     const float *residual_hidden_f32,
     float *output_f32,
     hipStream_t stream,
-    bool vllm_bf16_residual
+    bool vllm_bf16_residual,
+    uint32_t token_count = kTokens
 ) {
+    const size_t output_elements =
+        static_cast<size_t>(token_count) * kHidden;
     hipLaunchKernelGGL(
         shared_combine_residual_kernel,
         dim3(static_cast<uint32_t>(
-            (kOutputElements + kNativeThreads - 1u) / kNativeThreads
+            (output_elements + kNativeThreads - 1u) / kNativeThreads
         )),
         dim3(kNativeThreads),
         0,
@@ -3964,7 +15267,9 @@ bool launch_ordered_combine_residual(
         residual_hidden_f32,
         g_state.routed_combined,
         output_f32,
-        vllm_bf16_residual
+        vllm_bf16_residual,
+        exact_arbitrary_vllm_split_variance_enabled(token_count),
+        output_elements
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -3975,15 +15280,19 @@ bool launch_ordered_combine_residual(
 }
 
 bool launch_full_v3_fused_combine_residual(
+    const uint16_t *routed_down_bf16,
     const float *residual_hidden_f32,
     float *output_f32,
     hipStream_t stream,
-    bool vllm_bf16_residual
+    bool vllm_bf16_residual,
+    uint32_t token_count = kTokens
 ) {
+    const size_t output_elements =
+        static_cast<size_t>(token_count) * kHidden;
     hipLaunchKernelGGL(
         full_v3_fused_combine_residual_kernel,
         dim3(static_cast<uint32_t>(
-            (kOutputElements / kFusedCombineWidth + kNativeThreads - 1u) /
+            (output_elements / kFusedCombineWidth + kNativeThreads - 1u) /
                 kNativeThreads
         )),
         dim3(kNativeThreads),
@@ -3992,15 +15301,24 @@ bool launch_full_v3_fused_combine_residual(
         g_state.route_outputs,
         g_state.topk_weights,
         g_state.topk_ids,
+        g_state.activated,
+        routed_down_bf16,
         g_state.shared_down_projection,
         g_state.shared_gate_scales,
         residual_hidden_f32,
         output_f32,
         vllm_bf16_residual,
+        exact_arbitrary_vllm_split_variance_enabled(token_count),
         q65536_vllm_routed_bf16_endpoint_enabled(),
         q65536_vllm_route_sum_vt4_enabled(),
         q65536_vllm_route_sum_bf16_endpoint_enabled(),
-        q8192_vllm_sorted_bf16_route_sum_enabled()
+        q8192_vllm_sorted_bf16_route_sum_enabled(),
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+        0u,
+#else
+        g_state.routed_down_contribution_hawkeye_midpoint_radius,
+#endif
+        output_elements
     );
     const hipError_t status = hipGetLastError();
     if (status != hipSuccess) {
@@ -4126,11 +15444,25 @@ bool drain_full_v3_streams(hipStream_t caller_stream) {
     if (g_state.full_v3_shared_stream != nullptr) {
         shared_status = hipStreamSynchronize(g_state.full_v3_shared_stream);
     }
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+    hipError_t tail_status = hipSuccess;
+    if (g_state.full_v3_tail_stream != nullptr) {
+        tail_status = hipStreamSynchronize(g_state.full_v3_tail_stream);
+    }
+#endif
     const hipError_t caller_status = hipStreamSynchronize(caller_stream);
-    if (shared_status != hipSuccess || caller_status != hipSuccess) {
+    if (shared_status != hipSuccess ||
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+        tail_status != hipSuccess ||
+#endif
+        caller_status != hipSuccess) {
         g_state.full_v3_poisoned = true;
         if (shared_status != hipSuccess) {
             set_error("full-v3 shared stream drain", shared_status);
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+        } else if (tail_status != hipSuccess) {
+            set_error("full-v3 tail stream drain", tail_status);
+#endif
         } else {
             set_error("full-v3 caller stream drain", caller_status);
         }
@@ -4152,7 +15484,8 @@ int launch_full_v3_impl(
     const uint16_t *shared_down_bf16,
     float *output_f32,
     void *stream_pointer,
-    bool synchronize
+    bool synchronize,
+    uint32_t logical_tokens = kTokens
 ) {
     FullV3InFlightGuard in_flight;
     if (!in_flight.acquired) {
@@ -4160,9 +15493,21 @@ int launch_full_v3_impl(
         // accepted call is using the provider state.
         return 0;
     }
-    if (!g_state.prepared || post_attention_f32 == nullptr ||
+    bool routed_gate_up_surface_valid =
+        routed_gate_up_bf16 != nullptr;
+    bool routed_down_surface_valid = routed_down_bf16 != nullptr;
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    routed_gate_up_surface_valid = routed_gate_up_surface_valid ||
+        (g_state.lossless_gate_up_packed != nullptr &&
+         g_state.lossless_gate_up_overflow_indices != nullptr);
+    routed_down_surface_valid = routed_down_surface_valid ||
+        (g_state.lossless_down_packed != nullptr &&
+         g_state.lossless_down_overflow_indices != nullptr);
+#endif
+    if (!g_state.prepared || logical_tokens == 0u ||
+        logical_tokens > kTokens || post_attention_f32 == nullptr ||
         residual_hidden_f32 == nullptr || router_bf16 == nullptr ||
-        routed_gate_up_bf16 == nullptr || routed_down_bf16 == nullptr ||
+        !routed_gate_up_surface_valid || !routed_down_surface_valid ||
         shared_gate_bf16 == nullptr ||
         shared_gate_projection_bf16 == nullptr ||
         shared_up_projection_bf16 == nullptr ||
@@ -4175,11 +15520,51 @@ int launch_full_v3_impl(
     }
 
     hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
+    const bool full_shared_hawkeye =
+#if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
+        g_state.shared_projection_hawkeye_midpoint_radius >=
+            UINT32_C(0x8000);
+#else
+        false;
+#endif
+    const bool matrix_shape_changed =
+        (!full_shared_hawkeye &&
+         (g_state.shared_gate_plan.token_count != logical_tokens ||
+          g_state.shared_projection_plan.token_count != logical_tokens ||
+          g_state.shared_down_plan.token_count != logical_tokens)) ||
+        (q8192_hipblaslt_bf16_router_requested() &&
+         g_state.router_plan.token_count != logical_tokens);
+    if (matrix_shape_changed && !drain_full_v3_streams(stream)) {
+        return 0;
+    }
+    if (!ensure_full_matrix_plans(logical_tokens)) {
+        return 0;
+    }
+    const char *profile_value = std::getenv(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_MOE_SUBPHASES"
+    );
+    const bool profile_subphases = profile_value != nullptr &&
+        profile_value[0] != '\0' && std::strcmp(profile_value, "0") != 0;
     FullV3EventSlot *slot = acquire_full_v3_event_slot(stream);
     if (slot == nullptr) {
         return 0;
     }
-    if (!launch_input_conversion(post_attention_f32, stream)) {
+    if (profile_subphases) {
+        const hipError_t profile_status = hipEventRecord(
+            slot->input_start,
+            stream
+        );
+        if (profile_status != hipSuccess) {
+            set_error("full-v3 profile input start", profile_status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
+    }
+    if (!launch_input_conversion(
+            post_attention_f32,
+            stream,
+            logical_tokens
+        )) {
         drain_full_v3_streams(stream);
         return 0;
     }
@@ -4202,7 +15587,8 @@ int launch_full_v3_impl(
             shared_gate_projection_bf16,
             shared_up_projection_bf16,
             shared_down_bf16,
-            g_state.full_v3_shared_stream
+            g_state.full_v3_shared_stream,
+            logical_tokens
         )) {
         drain_full_v3_streams(stream);
         return 0;
@@ -4217,21 +15603,59 @@ int launch_full_v3_impl(
         return 0;
     }
 
-    if (!launch_router(post_attention_f32, router_bf16, stream) ||
-        !launch_routed_matrices_after_input_conversion(
-            routed_gate_up_bf16,
-            routed_down_bf16,
-            stream
+    if (!launch_router(
+            post_attention_f32,
+            router_bf16,
+            stream,
+            logical_tokens
         )) {
         drain_full_v3_streams(stream);
         return 0;
+    }
+    if (profile_subphases) {
+        status = hipEventRecord(slot->router_done, stream);
+        if (status != hipSuccess) {
+            set_error("full-v3 profile router done", status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
+    }
+    if (!launch_routed_matrices_after_input_conversion(
+            routed_gate_up_bf16,
+            routed_down_bf16,
+            stream,
+            logical_tokens,
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+            slot->sort_done,
+#else
+            profile_subphases ? slot->sort_done : nullptr,
+#endif
+            profile_subphases ? slot->gate_done : nullptr
+#if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
+            , slot->tail_done
+#endif
+        )) {
+        drain_full_v3_streams(stream);
+        return 0;
+    }
+    if (profile_subphases) {
+        status = hipEventRecord(slot->routed_done, stream);
+        if (status != hipSuccess) {
+            set_error("full-v3 profile routed done", status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
     }
 #if !QRT_TRITON_MOE_FULL_V3_FUSED_COMBINE && \
     !QRT_TRITON_MOE_Q1024_EXACT_ROUTED && \
     !QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED && \
     !QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED && \
     !QRT_TRITON_MOE_Q1024_GROUPED_GATE_EXACT_DOWN
-    if (!launch_route_combine(g_state.routed_combined, stream)) {
+    if (!launch_route_combine(
+            g_state.routed_combined,
+            stream,
+            logical_tokens
+        )) {
         drain_full_v3_streams(stream);
         return 0;
     }
@@ -4244,13 +15668,15 @@ int launch_full_v3_impl(
     }
 #if QRT_TRITON_MOE_FULL_V3_FUSED_COMBINE
     if (!launch_full_v3_fused_combine_residual(
+            routed_down_bf16,
 #else
     if (!launch_ordered_combine_residual(
 #endif
             residual_hidden_f32,
             output_f32,
             stream,
-            q65536_vllm_bf16_residual_enabled()
+            q65536_vllm_bf16_residual_enabled(),
+            logical_tokens
         )) {
         drain_full_v3_streams(stream);
         return 0;
@@ -4260,6 +15686,176 @@ int launch_full_v3_impl(
         set_error("full-v3 caller completion record", status);
         drain_full_v3_streams(stream);
         return 0;
+    }
+
+    if (profile_subphases) {
+        status = hipEventSynchronize(slot->caller_done);
+        float input_ms = 0.0f;
+        float shared_ms = 0.0f;
+        float router_ms = 0.0f;
+        float sort_ms = 0.0f;
+        float gate_ms = 0.0f;
+        float down_ms = 0.0f;
+        float routed_ms = 0.0f;
+        float total_ms = 0.0f;
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &input_ms,
+                slot->input_start,
+                slot->input_ready
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &shared_ms,
+                slot->input_ready,
+                slot->shared_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &router_ms,
+                slot->input_ready,
+                slot->router_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &sort_ms,
+                slot->router_done,
+                slot->sort_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &gate_ms,
+                slot->sort_done,
+                slot->gate_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &down_ms,
+                slot->gate_done,
+                slot->routed_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &routed_ms,
+                slot->input_ready,
+                slot->routed_done
+            );
+        }
+        if (status == hipSuccess) {
+            status = hipEventElapsedTime(
+                &total_ms,
+                slot->input_start,
+                slot->caller_done
+            );
+        }
+        if (status != hipSuccess) {
+            set_error("full-v3 subphase profile", status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
+        int32_t padded_routes = 0;
+        status = hipMemcpy(
+            &padded_routes,
+            g_state.total_post_pad,
+            sizeof(padded_routes),
+            hipMemcpyDeviceToHost
+        );
+        if (status != hipSuccess) {
+            set_error("full-v3 profile padded routes", status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
+        std::array<int32_t, kExperts> expert_route_counts{};
+        const size_t final_count_base =
+            static_cast<size_t>(kRoutePrograms) * kExperts;
+        status = hipMemcpy(
+            expert_route_counts.data(),
+            g_state.counts + final_count_base,
+            kExperts * sizeof(int32_t),
+            hipMemcpyDeviceToHost
+        );
+        if (status != hipSuccess) {
+            set_error("full-v3 profile expert route counts", status);
+            drain_full_v3_streams(stream);
+            return 0;
+        }
+        uint32_t empty_experts = 0u;
+        uint32_t sole_le16 = 0u;
+        uint32_t sole_le32 = 0u;
+        uint32_t sole_le48 = 0u;
+        uint32_t sole_49_63 = 0u;
+        uint32_t exact_m64 = 0u;
+        uint32_t overflow_le16 = 0u;
+        uint32_t overflow_le32 = 0u;
+        uint32_t overflow_le48 = 0u;
+        uint32_t overflow_49_63 = 0u;
+        for (const int32_t signed_count : expert_route_counts) {
+            const uint32_t count = static_cast<uint32_t>(signed_count);
+            if (count == 0u) {
+                ++empty_experts;
+            } else if (count <= 16u) {
+                ++sole_le16;
+            } else if (count <= 32u) {
+                ++sole_le32;
+            } else if (count <= 48u) {
+                ++sole_le48;
+            } else if (count < 64u) {
+                ++sole_49_63;
+            } else {
+                const uint32_t remainder = count % 64u;
+                if (remainder == 0u) {
+                    ++exact_m64;
+                } else if (remainder <= 16u) {
+                    ++overflow_le16;
+                } else if (remainder <= 32u) {
+                    ++overflow_le32;
+                } else if (remainder <= 48u) {
+                    ++overflow_le48;
+                } else {
+                    ++overflow_49_63;
+                }
+            }
+        }
+        static uint64_t profile_ordinal = UINT64_C(0);
+        std::fprintf(
+            stderr,
+            "QRT_MOE_MARK full_v3_subphases ordinal=%llu logical_tokens=%u "
+            "padded_routes=%d input_ms=%.6f shared_ms=%.6f "
+            "router_ms=%.6f sort_ms=%.6f gate_ms=%.6f down_ms=%.6f "
+            "routed_ms=%.6f total_ms=%.6f "
+            "expert_hist_empty=%u sole_1_16=%u sole_17_32=%u "
+            "sole_33_48=%u sole_49_63=%u exact_m64=%u "
+            "overflow_1_16=%u overflow_17_32=%u overflow_33_48=%u "
+            "overflow_49_63=%u\n",
+            static_cast<unsigned long long>(profile_ordinal++),
+            logical_tokens,
+            padded_routes,
+            static_cast<double>(input_ms),
+            static_cast<double>(shared_ms),
+            static_cast<double>(router_ms),
+            static_cast<double>(sort_ms),
+            static_cast<double>(gate_ms),
+            static_cast<double>(down_ms),
+            static_cast<double>(routed_ms),
+            static_cast<double>(total_ms),
+            empty_experts,
+            sole_le16,
+            sole_le32,
+            sole_le48,
+            sole_49_63,
+            exact_m64,
+            overflow_le16,
+            overflow_le32,
+            overflow_le48,
+            overflow_49_63
+        );
+        mark_full_v3_queue_idle();
     }
 
     if (synchronize) {
@@ -4293,6 +15889,26 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     if (!release_state()) {
         return 0;
     }
+    g_state.routed_projection_hawkeye_midpoint_radius =
+        requested_routed_projection_hawkeye_midpoint_radius();
+    g_state.routed_up_projection_hawkeye_midpoint_radius =
+        requested_routed_up_projection_hawkeye_midpoint_radius();
+    g_state.routed_up_hawkeye_low_exponent_threshold =
+        requested_routed_up_hawkeye_low_exponent_threshold();
+    g_state.routed_gate_hawkeye_low_exponent_threshold =
+        requested_routed_gate_hawkeye_low_exponent_threshold();
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    g_state.routed_projection_debug_requested_token =
+        requested_routed_projection_debug_token();
+#endif
+    g_state.router_hawkeye_midpoint_radius =
+        requested_router_hawkeye_midpoint_radius();
+    g_state.routed_down_contribution_hawkeye_midpoint_radius =
+        requested_routed_down_contribution_hawkeye_midpoint_radius();
+    g_state.routed_down_hawkeye_low_exponent_threshold =
+        requested_routed_down_hawkeye_low_exponent_threshold();
+    g_state.shared_projection_hawkeye_midpoint_radius =
+        requested_shared_projection_hawkeye_midpoint_radius();
     std::snprintf(g_state.kernel_dir, sizeof(g_state.kernel_dir), "%s", kernel_dir);
     if (!load_kernel(kernel_dir, "route_count", "_route_count_kernel", kRoutePrograms, kRouteThreads, 0u, &g_state.count) ||
         !load_kernel(kernel_dir, "route_prefix_by_program", "_route_prefix_by_program_kernel", 256u, kRouteThreads, 0u, &g_state.prefix) ||
@@ -4333,7 +15949,23 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             &g_state.exact_down
         ) ||
 #endif
-#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
+#if QRT_TRITON_MOE_PACKED_EXACT_GATE
+        !load_named_kernel(
+            kernel_dir,
+            "q8192_triton_0626_exact_packed_gate_rows"
+                QRT_TRITON_MOE_STRINGIFY(
+                    QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS
+                )
+                ".hsaco",
+            "_packed_gate_up_silu_kernel",
+            kTokens * kTopK * (
+                kIntermediate / QRT_TRITON_MOE_PACKED_EXACT_GATE_ROWS
+            ),
+            256u,
+            32u,
+            &g_state.packed_exact_gate_up
+        ) ||
+#elif QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
         !load_named_kernel(
             kernel_dir,
             "q1024_triton_0626_exact_packed_gate_up_silu_w8.hsaco",
@@ -4343,6 +15975,76 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             32u,
             &g_state.packed_exact_gate_up
         ) ||
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
+        !load_named_kernel(
+            kernel_dir,
+#if QRT_TRITON_MOE_ROW_MAJOR_SORTED_CONDITIONAL_EXACT_GATE
+            "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows"
+                QRT_TRITON_MOE_STRINGIFY(
+                    QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+                )
+                ".hsaco",
+            "_row_major_sorted_conditional_gate_up_silu_kernel",
+            route_block_launch_bound(kRoutes) * kBlockM * (
+                kIntermediate / QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+            ),
+#elif QRT_TRITON_MOE_SORTED_CONDITIONAL_EXACT_GATE
+            "q8192_triton_0626_sorted_conditional_exact_gate_rows"
+                QRT_TRITON_MOE_STRINGIFY(
+                    QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+                )
+                ".hsaco",
+            "_sorted_conditional_gate_up_silu_kernel",
+            route_block_launch_bound(kRoutes) * kBlockM * (
+                kIntermediate / QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+            ),
+#else
+            "q8192_triton_0626_conditional_exact_gate_rows"
+                QRT_TRITON_MOE_STRINGIFY(
+                    QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+                )
+                ".hsaco",
+            "_conditional_gate_up_silu_kernel",
+            kTokens * kTopK * (
+                kIntermediate / QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE_ROWS
+            ),
+#endif
+            256u,
+            32u,
+            &g_state.conditional_exact_gate_up
+        ) ||
+        !load_named_kernel(
+            kernel_dir,
+            "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+            "_zero_correction_gate_finalize_kernel",
+            (
+                kRoutes * kIntermediate +
+                kZeroCorrectionGateFinalizeBlock - 1u
+            ) / kZeroCorrectionGateFinalizeBlock,
+            256u,
+            0u,
+            &g_state.zero_correction_gate_finalize
+        ) ||
+#endif
+#if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
+        !load_named_kernel(
+            kernel_dir,
+            "q8192_triton_0626_conditional_exact_down_rows"
+                QRT_TRITON_MOE_STRINGIFY(
+                    QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS
+                )
+                ".hsaco",
+            "_conditional_exact_down_kernel",
+            kTokens * kTopK * (
+                kHidden / QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN_ROWS
+            ),
+            32u,
+            0u,
+            &g_state.conditional_exact_down
+        ) ||
+#endif
+#if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
         !load_named_kernel(
             kernel_dir,
             "q1024_triton_0626_exact_packed_down_sum.hsaco",
@@ -4411,6 +16113,8 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             &g_state.exact_shared_down
         ) ||
 #endif
+        !load_optional_cuda_vllm_silu_bf16_domain_lut() ||
+        !load_optional_cuda_router_ex2_fraction_lut() ||
         !allocate(&g_state.input_bf16, kInputElements * sizeof(uint16_t), "hipMalloc(input_bf16)") ||
         !allocate_optional_transposed_router() ||
         !allocate_optional_hipblaslt_router_logits() ||
@@ -4428,12 +16132,55 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         !allocate(&g_state.total_post_pad, sizeof(int32_t), "hipMalloc(total_post_pad)") ||
         !allocate(&g_state.sorted_routes, static_cast<size_t>(kMaxSortedRoutes) * sizeof(int32_t), "hipMalloc(sorted_routes)") ||
         !allocate(&g_state.block_experts, static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t), "hipMalloc(block_experts)") ||
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+        !allocate(&g_state.fused_overflow_blocks, static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t), "hipMalloc(fused_overflow_blocks)") ||
+        !allocate(&g_state.total_fused_overflow_blocks, sizeof(int32_t), "hipMalloc(total_fused_overflow_blocks)") ||
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        !allocate(&g_state.compact_main_route_blocks, static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t), "hipMalloc(compact_main_route_blocks)") ||
+        !allocate(&g_state.total_compact_main_blocks, sizeof(int32_t), "hipMalloc(total_compact_main_blocks)") ||
+        !allocate(&g_state.compact_tail_experts, kCompactTailExpertSlots * sizeof(int32_t), "hipMalloc(compact_tail_experts)") ||
+        !allocate(&g_state.total_compact_tail_experts, kCompactTailCountSlots * sizeof(int32_t), "hipMalloc(total_compact_tail_experts)") ||
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+        !allocate(&g_state.adaptive_m128_route_starts, static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) * kNativeWmmaAdaptiveM128MaxDescriptors * sizeof(int32_t), "hipMalloc(adaptive_m128_route_starts)") ||
+        !allocate(&g_state.adaptive_m128_experts, static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) * kNativeWmmaAdaptiveM128MaxDescriptors * sizeof(int32_t), "hipMalloc(adaptive_m128_experts)") ||
+        !allocate(&g_state.adaptive_m128_bucket_counts, static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) * sizeof(int32_t), "hipMalloc(adaptive_m128_bucket_counts)") ||
+#endif
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        !allocate(
+            &g_state.routed_gate_projection_debug,
+            static_cast<size_t>(kTopK) * kIntermediate * sizeof(uint16_t),
+            "hipMalloc(routed_gate_projection_debug)"
+        ) ||
+        !allocate(
+            &g_state.routed_up_projection_debug,
+            static_cast<size_t>(kTopK) * kIntermediate * sizeof(uint16_t),
+            "hipMalloc(routed_up_projection_debug)"
+        ) ||
+        !allocate(
+            &g_state.routed_gate_projection_f32_debug,
+            static_cast<size_t>(kTopK) * kIntermediate * sizeof(float),
+            "hipMalloc(routed_gate_projection_f32_debug)"
+        ) ||
+        !allocate(
+            &g_state.routed_up_projection_f32_debug,
+            static_cast<size_t>(kTopK) * kIntermediate * sizeof(float),
+            "hipMalloc(routed_up_projection_f32_debug)"
+        ) ||
+        !allocate(
+            &g_state.routed_projection_hawkeye_correction_count_debug,
+            sizeof(uint32_t),
+            "hipMalloc(routed_projection_hawkeye_correction_count_debug)"
+        ) ||
+#endif
         !allocate(&g_state.activated, kActivatedElements * sizeof(uint16_t), "hipMalloc(activated)") ||
         !allocate(&g_state.route_outputs, kRouteOutputElements * sizeof(float), "hipMalloc(route_outputs_f32)") ||
         !allocate(&g_state.routed_combined, kOutputElements * sizeof(float), "hipMalloc(routed_combined_f32)") ||
         !allocate(&g_state.shared_gate_logits, static_cast<size_t>(kTokens) * sizeof(uint16_t), "hipMalloc(shared_gate_logits)") ||
         !allocate(&g_state.shared_gate_projection, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_gate_projection)") ||
         !allocate(&g_state.shared_up_projection, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_up_projection)") ||
+        !allocate_optional_shared_projection_hawkeye() ||
         !allocate(&g_state.shared_activated, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_activated)") ||
         !allocate(&g_state.shared_down_projection, kOutputElements * sizeof(uint16_t), "hipMalloc(shared_down_projection)") ||
         !allocate(&g_state.shared_gate_scales, static_cast<size_t>(kTokens) * sizeof(float), "hipMalloc(shared_gate_scales)") ||
@@ -4453,12 +16200,22 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         !ensure_matrix_plan(
             &g_state.shared_projection_plan,
             kIntermediate,
-            kHidden
+            kHidden,
+            kTokens,
+            0u,
+            g_state.shared_projection_hawkeye_midpoint_radius != 0u
+                ? HIP_R_32F
+                : HIP_R_16BF
         ) ||
         !ensure_matrix_plan(
             &g_state.shared_down_plan,
             kHidden,
-            kIntermediate
+            kIntermediate,
+            kTokens,
+            0u,
+            g_state.shared_projection_hawkeye_midpoint_radius != 0u
+                ? HIP_R_32F
+                : HIP_R_16BF
         )) {
         const std::string prepare_error = g_state.error;
         (void)release_state();
@@ -4722,6 +16479,38 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_launch_full_v3_async(
     );
 }
 
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_launch_full_v4_dynamic_async(
+    const float *post_attention_f32,
+    const float *residual_hidden_f32,
+    const uint16_t *router_bf16,
+    const uint16_t *routed_gate_up_bf16,
+    const uint16_t *routed_down_bf16,
+    const uint16_t *shared_gate_bf16,
+    const uint16_t *shared_gate_projection_bf16,
+    const uint16_t *shared_up_projection_bf16,
+    const uint16_t *shared_down_bf16,
+    float *output_f32,
+    uint32_t logical_tokens,
+    void *stream_pointer
+) {
+    return launch_full_v3_impl(
+        post_attention_f32,
+        residual_hidden_f32,
+        router_bf16,
+        routed_gate_up_bf16,
+        routed_down_bf16,
+        shared_gate_bf16,
+        shared_gate_projection_bf16,
+        shared_up_projection_bf16,
+        shared_down_bf16,
+        output_f32,
+        stream_pointer,
+        false,
+        logical_tokens
+    );
+}
+
 QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_launch_full_v3(
     const float *post_attention_f32,
     const float *residual_hidden_f32,
@@ -4749,6 +16538,175 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_launch_full_v3(
         stream_pointer,
         true
     );
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_set_lossless_palette_weights(
+    const uint8_t *gate_up_packed,
+    const uint32_t *gate_up_overflow_indices,
+    const uint16_t *gate_up_overflow_values,
+    const uint8_t *down_packed,
+    const uint32_t *down_overflow_indices,
+    const uint16_t *down_overflow_values
+) {
+    if (!g_state.prepared) {
+        set_error_text(
+            "lossless-palette weights require a prepared selected-MoE provider"
+        );
+        return 0;
+    }
+    const bool disabled = gate_up_packed == nullptr &&
+        gate_up_overflow_indices == nullptr &&
+        gate_up_overflow_values == nullptr && down_packed == nullptr &&
+        down_overflow_indices == nullptr && down_overflow_values == nullptr;
+    const bool complete = gate_up_packed != nullptr &&
+        gate_up_overflow_indices != nullptr && down_packed != nullptr &&
+        down_overflow_indices != nullptr;
+    if (!disabled && !complete) {
+        set_error_text(
+            "lossless-palette weights must provide complete gate/up and down surfaces"
+        );
+        return 0;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_PALETTE
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+    if (!disabled) {
+        set_error_text(
+            "row-palette provider requires the lossless-row-palette setter export"
+        );
+        return 0;
+    }
+#endif
+    g_state.lossless_gate_up_packed = gate_up_packed;
+    g_state.lossless_gate_up_overflow_indices =
+        gate_up_overflow_indices;
+    g_state.lossless_gate_up_overflow_values = gate_up_overflow_values;
+    g_state.lossless_down_packed = down_packed;
+    g_state.lossless_down_overflow_indices = down_overflow_indices;
+    g_state.lossless_down_overflow_values = down_overflow_values;
+    g_state.error[0] = '\0';
+    return 1;
+#else
+    if (!disabled) {
+        set_error_text(
+            "selected-MoE provider was built without lossless-palette WMMA support"
+        );
+        return 0;
+    }
+    g_state.error[0] = '\0';
+    return 1;
+#endif
+}
+
+#if QRT_TRITON_MOE_NATIVE_WMMA_LOSSLESS_ROW_PALETTE
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_set_lossless_row_palette_weights(
+    const uint8_t *gate_up_packed,
+    const uint32_t *gate_up_overflow_indices,
+    const uint16_t *gate_up_overflow_values,
+    const uint8_t *down_packed,
+    const uint32_t *down_overflow_indices,
+    const uint16_t *down_overflow_values
+) {
+    if (!g_state.prepared) {
+        set_error_text(
+            "lossless-row-palette weights require a prepared selected-MoE provider"
+        );
+        return 0;
+    }
+    const bool disabled = gate_up_packed == nullptr &&
+        gate_up_overflow_indices == nullptr &&
+        gate_up_overflow_values == nullptr && down_packed == nullptr &&
+        down_overflow_indices == nullptr && down_overflow_values == nullptr;
+    const bool gate_up_disabled = gate_up_packed == nullptr &&
+        gate_up_overflow_indices == nullptr &&
+        gate_up_overflow_values == nullptr;
+    const bool gate_up_complete = gate_up_packed != nullptr &&
+        gate_up_overflow_indices != nullptr;
+    const bool down_disabled = down_packed == nullptr &&
+        down_overflow_indices == nullptr && down_overflow_values == nullptr;
+    const bool down_complete = down_packed != nullptr &&
+        down_overflow_indices != nullptr;
+    if (!disabled &&
+        ((!gate_up_disabled && !gate_up_complete) ||
+         (!down_disabled && !down_complete))) {
+        set_error_text(
+            "each enabled lossless-row-palette matrix must provide a packed surface and overflow index"
+        );
+        return 0;
+    }
+    g_state.lossless_gate_up_packed = gate_up_packed;
+    g_state.lossless_gate_up_overflow_indices =
+        gate_up_overflow_indices;
+    g_state.lossless_gate_up_overflow_values = gate_up_overflow_values;
+    g_state.lossless_down_packed = down_packed;
+    g_state.lossless_down_overflow_indices = down_overflow_indices;
+    g_state.lossless_down_overflow_values = down_overflow_values;
+    g_state.error[0] = '\0';
+    return 1;
+}
+#endif
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_set_weight_int8_weights(
+    const int8_t *gate_up_quantized,
+    const void *gate_up_scales,
+    const int8_t *down_quantized,
+    const void *down_scales
+) {
+    if (!g_state.prepared) {
+        set_error_text(
+            "weight-int8 weights require a prepared selected-MoE provider"
+        );
+        return 0;
+    }
+    const bool disabled = gate_up_quantized == nullptr &&
+        gate_up_scales == nullptr && down_quantized == nullptr &&
+        down_scales == nullptr;
+    const bool complete = gate_up_quantized != nullptr &&
+        gate_up_scales != nullptr && down_quantized != nullptr &&
+        down_scales != nullptr;
+    if (!disabled && !complete) {
+        set_error_text(
+            "weight-int8 weights must provide complete gate/up and down surfaces"
+        );
+        return 0;
+    }
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    g_state.weight_int8_gate_up = gate_up_quantized;
+    g_state.weight_int8_gate_up_scales = gate_up_scales;
+    g_state.weight_int8_down = down_quantized;
+    g_state.weight_int8_down_scales = down_scales;
+    g_state.error[0] = '\0';
+    return 1;
+#else
+    if (!disabled) {
+        set_error_text(
+            "selected-MoE provider was built without weight-int8 WMMA support"
+        );
+        return 0;
+    }
+    g_state.error[0] = '\0';
+    return 1;
+#endif
+}
+
+QRT_TRITON_MOE_EXPORT uint32_t
+qrt_triton_moe_q8192_weight_int8_group_values() {
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    return static_cast<uint32_t>(kNativeWmmaWeightInt8GroupValues);
+#else
+    return 0u;
+#endif
+}
+
+QRT_TRITON_MOE_EXPORT uint32_t
+qrt_triton_moe_q8192_weight_int8_scale_bytes() {
+#if QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8
+    return static_cast<uint32_t>(kNativeWmmaWeightInt8ScaleBytes);
+#else
+    return 0u;
+#endif
 }
 
 QRT_TRITON_MOE_EXPORT const char *qrt_triton_moe_q8192_last_error() {
@@ -4806,6 +16764,48 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_copy_topk_debug(
             hipMemcpyDeviceToHost
         );
     }
+    return status == hipSuccess ? 1 : 0;
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_router_logits_debug(
+    uint32_t token_index,
+    uint16_t *router_logits_host
+) {
+    if (!g_state.prepared || router_logits_host == nullptr ||
+        token_index >= kTokens || g_state.router_logits_bf16 == nullptr) {
+        return 0;
+    }
+    const uint16_t *source =
+        g_state.router_logits_bf16 +
+        static_cast<size_t>(token_index) * kExperts;
+    const hipError_t status = hipMemcpy(
+        router_logits_host,
+        source,
+        static_cast<size_t>(kExperts) * sizeof(uint16_t),
+        hipMemcpyDeviceToHost
+    );
+    return status == hipSuccess ? 1 : 0;
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_router_logits_f32_debug(
+    uint32_t token_index,
+    float *router_logits_host
+) {
+    if (!g_state.prepared || router_logits_host == nullptr ||
+        token_index >= kTokens || g_state.router_logits_f32 == nullptr) {
+        return 0;
+    }
+    const float *source =
+        g_state.router_logits_f32 +
+        static_cast<size_t>(token_index) * kExperts;
+    const hipError_t status = hipMemcpy(
+        router_logits_host,
+        source,
+        static_cast<size_t>(kExperts) * sizeof(float),
+        hipMemcpyDeviceToHost
+    );
     return status == hipSuccess ? 1 : 0;
 }
 
@@ -4916,6 +16916,188 @@ qrt_triton_moe_q8192_copy_token_stage_debug(
     return status == hipSuccess ? 1 : 0;
 }
 
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_shared_stage_debug(
+    uint32_t token_index,
+    uint16_t *shared_gate_logit_host,
+    uint16_t *shared_gate_projection_host,
+    uint16_t *shared_up_projection_host,
+    uint16_t *shared_activated_host
+) {
+    if (!g_state.prepared || token_index >= kTokens ||
+        shared_gate_logit_host == nullptr ||
+        shared_gate_projection_host == nullptr ||
+        shared_up_projection_host == nullptr ||
+        shared_activated_host == nullptr) {
+        return 0;
+    }
+    const size_t projection_offset =
+        static_cast<size_t>(token_index) * kIntermediate;
+    hipError_t status = hipMemcpy(
+        shared_gate_logit_host,
+        g_state.shared_gate_logits + token_index,
+        sizeof(uint16_t),
+        hipMemcpyDeviceToHost
+    );
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            shared_gate_projection_host,
+            g_state.shared_gate_projection + projection_offset,
+            static_cast<size_t>(kIntermediate) * sizeof(uint16_t),
+            hipMemcpyDeviceToHost
+        );
+    }
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            shared_up_projection_host,
+            g_state.shared_up_projection + projection_offset,
+            static_cast<size_t>(kIntermediate) * sizeof(uint16_t),
+            hipMemcpyDeviceToHost
+        );
+    }
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            shared_activated_host,
+            g_state.shared_activated + projection_offset,
+            static_cast<size_t>(kIntermediate) * sizeof(uint16_t),
+            hipMemcpyDeviceToHost
+        );
+    }
+    return status == hipSuccess ? 1 : 0;
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_routed_stage_debug(
+    uint32_t token_index,
+    uint16_t *activated_host,
+    float *route_outputs_host
+) {
+    if (!g_state.prepared || token_index >= kTokens ||
+        activated_host == nullptr || route_outputs_host == nullptr) {
+        return 0;
+    }
+    const size_t route_offset =
+        static_cast<size_t>(token_index) * kTopK;
+    hipError_t status = hipMemcpy(
+        activated_host,
+        g_state.activated + route_offset * kIntermediate,
+        static_cast<size_t>(kTopK) * kIntermediate * sizeof(uint16_t),
+        hipMemcpyDeviceToHost
+    );
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            route_outputs_host,
+            g_state.route_outputs + route_offset * kHidden,
+            static_cast<size_t>(kTopK) * kHidden * sizeof(float),
+            hipMemcpyDeviceToHost
+        );
+    }
+    return status == hipSuccess ? 1 : 0;
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_routed_projection_stage_debug(
+    uint32_t token_index,
+    uint16_t *gate_projection_host,
+    uint16_t *up_projection_host
+) {
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (!g_state.prepared ||
+        token_index != g_state.routed_projection_debug_token ||
+        gate_projection_host == nullptr || up_projection_host == nullptr) {
+        return 0;
+    }
+    const size_t bytes =
+        static_cast<size_t>(kTopK) * kIntermediate * sizeof(uint16_t);
+    hipError_t status = hipMemcpy(
+        gate_projection_host,
+        g_state.routed_gate_projection_debug,
+        bytes,
+        hipMemcpyDeviceToHost
+    );
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            up_projection_host,
+            g_state.routed_up_projection_debug,
+            bytes,
+            hipMemcpyDeviceToHost
+        );
+    }
+    return status == hipSuccess ? 1 : 0;
+#else
+    (void)token_index;
+    (void)gate_projection_host;
+    (void)up_projection_host;
+    return 0;
+#endif
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_token_routed_projection_f32_stage_debug(
+    uint32_t token_index,
+    float *gate_projection_host,
+    float *up_projection_host
+) {
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (!g_state.prepared ||
+        token_index != g_state.routed_projection_debug_token ||
+        gate_projection_host == nullptr || up_projection_host == nullptr) {
+        return 0;
+    }
+    const size_t bytes =
+        static_cast<size_t>(kTopK) * kIntermediate * sizeof(float);
+    hipError_t status = hipMemcpy(
+        gate_projection_host,
+        g_state.routed_gate_projection_f32_debug,
+        bytes,
+        hipMemcpyDeviceToHost
+    );
+    if (status == hipSuccess) {
+        status = hipMemcpy(
+            up_projection_host,
+            g_state.routed_up_projection_f32_debug,
+            bytes,
+            hipMemcpyDeviceToHost
+        );
+    }
+    return status == hipSuccess ? 1 : 0;
+#else
+    (void)token_index;
+    (void)gate_projection_host;
+    (void)up_projection_host;
+    return 0;
+#endif
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_copy_routed_projection_hawkeye_debug(
+    uint32_t token_index,
+    uint32_t *midpoint_radius_host,
+    uint32_t *correction_count_host
+) {
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+    if (!g_state.prepared ||
+        token_index != g_state.routed_projection_debug_token ||
+        midpoint_radius_host == nullptr || correction_count_host == nullptr) {
+        return 0;
+    }
+    *midpoint_radius_host =
+        g_state.routed_projection_hawkeye_midpoint_radius;
+    const hipError_t status = hipMemcpy(
+        correction_count_host,
+        g_state.routed_projection_hawkeye_correction_count_debug,
+        sizeof(uint32_t),
+        hipMemcpyDeviceToHost
+    );
+    return status == hipSuccess ? 1 : 0;
+#else
+    (void)token_index;
+    (void)midpoint_radius_host;
+    (void)correction_count_host;
+    return 0;
+#endif
+}
+
 #if QRT_TRITON_MOE_Q1024_EARLY_F32
 QRT_TRITON_MOE_EXPORT int
 qrt_triton_moe_q8192_copy_q1024_early_f32_token0_activation_debug(
@@ -4943,6 +17125,26 @@ QRT_TRITON_MOE_EXPORT uint64_t qrt_triton_moe_q8192_scratch_bytes() {
         sizeof(int32_t) +
         static_cast<size_t>(kMaxSortedRoutes) * sizeof(int32_t) +
         static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t) +
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW16
+        static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t) +
+        sizeof(int32_t) +
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL
+        static_cast<size_t>(kMaxRouteBlocks) * sizeof(int32_t) +
+        sizeof(int32_t) +
+        kCompactTailExpertSlots * sizeof(int32_t) +
+        kCompactTailCountSlots * sizeof(int32_t) +
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
+        2u * static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) *
+            kNativeWmmaAdaptiveM128MaxDescriptors * sizeof(int32_t) +
+        static_cast<size_t>(kNativeWmmaAdaptiveM128Buckets) *
+            sizeof(int32_t) +
+#endif
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+        2u * static_cast<size_t>(kTopK) * kIntermediate *
+            (sizeof(uint16_t) + sizeof(float)) + sizeof(uint32_t) +
+#endif
         kActivatedElements * sizeof(uint16_t) +
         kRouteOutputElements * sizeof(float) +
         kOutputElements * sizeof(float) +
@@ -4957,6 +17159,12 @@ QRT_TRITON_MOE_EXPORT uint64_t qrt_triton_moe_q8192_scratch_bytes() {
 #if QRT_TRITON_MOE_Q1024_EARLY_F32_SORTED_TILE
     bytes += kActivatedElements * sizeof(float);
 #endif
+    if (g_state.cuda_vllm_silu_bf16_domain_lut != nullptr) {
+        bytes += kCudaVllmSiluBf16DomainBytes;
+    }
+    if (g_state.cuda_router_ex2_fraction_lut != nullptr) {
+        bytes += kCudaRouterEx2FractionBytes;
+    }
     return bytes;
 }
 

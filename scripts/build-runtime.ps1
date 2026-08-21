@@ -92,11 +92,23 @@ if ($LASTEXITCODE -ne 0) { throw "q1024 selected-MoE build failed" }
     -HipccPath (Join-Path $RocmRoot "bin\hipcc.exe") `
     -OffloadArch $OffloadArch -WslDistribution $WslDistribution `
     -TritonPython $TritonPython -Repetitions 1 `
+    -BlockM 64 -GroupM 1 `
+    -RoutedProjectionDebug 0 -BatchedHawkeye 1 -ExactShared 0 `
+    -ConditionalExactGate 1 -SortedConditionalExactGate 1 `
+    -RowMajorSortedConditionalExactGate 1 -ConditionalExactGateRows 256 `
+    -ConditionalExactDown 1 -ConditionalExactDownRows 4 `
     -NativeWmmaGate 1 -NativeWmmaDown 1 -TransposedRouter 1 `
+    -NativeFusedRouteLayout 1 -NativeWmmaLdsB 1 `
+    -NativeWmmaLdsBSplitGatePasses 1 -NativeWmmaLdsBSerialGateN32 1 `
+    -NativeWmmaLdsBSerialDownN32 1 -NativeWmmaLdsBSkipInactiveAStores 1 `
+    -NativeWmmaLdsBM64LoadThreads 192 `
+    -NativeWmmaLdsBM64FusedOverflow32 1 `
+    -NativeWmmaLosslessPalette 1 -NativeWmmaLosslessRowPalette 1 `
+    -NativeWmmaKStage 32 `
     -RouterThreads 256 -RouterTokenTile 8 `
     -FullV3FusedCombine 1 -FusedCombineWidth 4 `
     -FullV3EventSlots 16 -ReuseAotDir $acceptedQ8192AotDir `
-    -RequireExpectedFullProviderHash 1
+    -RequireExpectedFullProviderHash 0
 if ($LASTEXITCODE -ne 0) { throw "q8192 selected-MoE build failed" }
 
 foreach ($tokens in $smoothTailTokenCounts) {

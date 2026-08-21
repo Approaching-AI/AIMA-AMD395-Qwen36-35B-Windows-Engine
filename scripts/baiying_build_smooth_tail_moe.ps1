@@ -1,6 +1,10 @@
 param(
     [Parameter(Mandatory = $true)]
-        [ValidateSet(32, 64, 128, 256, 512, 1024, 2048, 4096)]
+        [ValidateSet(
+            32, 64, 128, 256, 512, 1024, 2048,
+            2560, 3072, 3328, 3584, 4096, 4608,
+            5120, 5632, 6144, 6656, 7168, 7680
+        )]
         [int]$Tokens,
     [Parameter(Mandatory = $false)][string]$OutDir = "",
     [Parameter(Mandatory = $false)]
@@ -132,10 +136,16 @@ if (-not $generatorRun.completed -or $generatorRun.exit_code -ne 0) {
 $metadataPath = Join-Path $OutDir "metadata.json"
 $metadata = Get-Content -LiteralPath $metadataPath -Raw | ConvertFrom-Json
 $route = $metadata.kernels | Where-Object { $_.name -eq "route_count" }
+$scatter = $metadata.kernels | Where-Object { $_.name -eq "route_scatter" }
 $gate = $metadata.kernels | Where-Object { $_.name -eq "gate_up_silu" }
 $down = $metadata.kernels | Where-Object { $_.name -eq "down" }
-if ($null -eq $route -or $null -eq $gate -or $null -eq $down) {
+if ($null -eq $route -or $null -eq $scatter -or $null -eq $gate -or
+        $null -eq $down) {
     throw "smooth-tail q$Tokens metadata is incomplete"
+}
+if (@($route.abi) -notcontains "logical_routes" -or
+        @($scatter.abi) -notcontains "logical_routes") {
+    throw "smooth-tail q$Tokens route kernels lack the logical-routes ABI"
 }
 
 $hipblasLtLink = Join-Path $OutDir "hipblaslt.lib"

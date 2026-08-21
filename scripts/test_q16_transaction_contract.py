@@ -122,8 +122,8 @@ def verify_transaction(resident, completion, candidates):
     mismatch = next(
         (
             slot
-            for slot, pair in enumerate(zip(expected, candidates, strict=True))
-            if pair[0] != pair[1]
+            for slot in range(Q)
+            if expected[slot] != candidates[slot]
         ),
         None,
     )

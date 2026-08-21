@@ -87,6 +87,50 @@ class PackagingContractTests(unittest.TestCase):
         ):
             self.assertIn(fragment, self.smooth_tail_build)
 
+    def test_q8192_release_build_uses_the_qualified_native_shared_route(
+        self,
+    ) -> None:
+        for fragment in (
+            "-BlockM 64 -GroupM 1",
+            "-RoutedProjectionDebug 0 -BatchedHawkeye 1 -ExactShared 0",
+            "-ConditionalExactGate 1 -SortedConditionalExactGate 1",
+            "-RowMajorSortedConditionalExactGate 1 -ConditionalExactGateRows 256",
+            "-ConditionalExactDown 1 -ConditionalExactDownRows 4",
+            "-NativeFusedRouteLayout 1 -NativeWmmaLdsB 1",
+            "-NativeWmmaLdsBM64LoadThreads 192",
+            "-NativeWmmaLdsBM64FusedOverflow32 1",
+            "-NativeWmmaLosslessPalette 1 -NativeWmmaLosslessRowPalette 1",
+            "-NativeWmmaKStage 32",
+        ):
+            self.assertIn(fragment, self.build)
+        for name, value in (
+            ("QRT_QWEN36_Q8192_ROUTER_HIPBLASLT_BF16", "1"),
+            ("QRT_QWEN36_CUDA_VLLM_ROUTER_HAWKEYE_MIDPOINT_RADIUS", "173"),
+            ("QRT_QWEN36_CUDA_VLLM_SHARED_HAWKEYE_MIDPOINT_RADIUS", "0"),
+            ("QRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER", "1"),
+            ("QRT_QWEN36_EXACT_ARBITRARY_VLLM_SPLIT_VARIANCE", "1"),
+            ("QRT_QWEN36_Q8192_VLLM_SORTED_BF16_ROUTE_SUM", "1"),
+            ("QRT_QWEN36_CUDA_VLLM_MOE_HAWKEYE_MIDPOINT_RADIUS", "0"),
+            ("QRT_QWEN36_CUDA_VLLM_MOE_UP_HAWKEYE_MIDPOINT_RADIUS", "0"),
+            (
+                "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_CONTRIBUTION_HAWKEYE_MIDPOINT_RADIUS",
+                "0",
+            ),
+            (
+                "QRT_QWEN36_CUDA_VLLM_ROUTED_GATE_HAWKEYE_LOW_EXPONENT_THRESHOLD",
+                "0",
+            ),
+            (
+                "QRT_QWEN36_CUDA_VLLM_ROUTED_UP_HAWKEYE_LOW_EXPONENT_THRESHOLD",
+                "0",
+            ),
+            (
+                "QRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_HAWKEYE_LOW_EXPONENT_THRESHOLD",
+                "0",
+            ),
+        ):
+            self.assertIn(f"{name}={value}", self.runtime)
+
 
 if __name__ == "__main__":
     unittest.main()
