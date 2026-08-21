@@ -16,3 +16,19 @@ projection-parity workflow.
 requires every local TTFT triplet to stay within `1.10x` and `500 ms`, and the
 wide median-throughput envelope to stay within `1.30x`; controlled content and
 globally unique first tokens isolate length effects from prefix reuse.
+
+`verify_prefill_random_length_plateaus.py` is the stricter arbitrary-length
+gate. It samples at least six random lengths in every configured interval,
+brackets each sample with two cold measurements at that interval's upper
+anchor, and queries the AMD and GB10 services concurrently with identical real
+token IDs. A sample contributes performance evidence only when all three token
+outputs match GB10 and the two anchor speeds stay within `1.03x`. Every eligible
+random/anchor throughput ratio must remain within `0.97..1.03`; the q8192
+anchor must also retain the declared TTFT and throughput bounds. The verifier
+does not permit command-line options to relax those retained limits.
+
+After the run, pass its JSON and the matching service log to
+`verify_prefill_random_length_route_log.py`. That second gate verifies that
+every measured request used the qualified attention, GDN, selected-MoE, and
+terminal routes without fallback or prefix-cache contamination. Both reports
+must pass before arbitrary-length product performance is accepted.
