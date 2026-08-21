@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+
+- Replaced the selected-MoE combine boundary with the sorted BF16 arithmetic
+  used by the external authority and added exact sync/async v2/v3 parity gates.
+- Published a reproducible, private-path-free nine-object q8192 AOT set with
+  source generators, metadata hashes, real layer-3 GB10 component comparison,
+  and PowerShell 5.1 transport verification.
+- Added a strict cold random-length product verifier: each random length is
+  bracketed by its interval's upper anchor, every response must match GB10,
+  and route-log verification rejects fallbacks or prefix-cache contamination.
+- Restored the FLA GDN generator and arbitrary-tail/Hawkeye numerical contract
+  tests needed to reproduce and review the retained provider source.
+- Promotion remains pending a clean native Windows build and
+  correctness-attached real-model product qualification on `baiying` from the
+  exact candidate commit.
+
 ## 1.0.1 - 2026-08-15
 
 - Removed the q8191/q8193 shape cliff around the retained q8192 route while
