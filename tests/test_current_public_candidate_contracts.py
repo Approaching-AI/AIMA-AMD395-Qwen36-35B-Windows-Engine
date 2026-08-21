@@ -200,6 +200,19 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
         )
         self.assertEqual(missing, [])
 
+    def test_q1024_owner_provider_uses_the_published_abi_header(self) -> None:
+        provider = (
+            ROOT
+            / "native/providers/ck_fmha/"
+            "qrt_qwen36_q16384_q1024_owner_provider.cpp"
+        ).read_text(encoding="utf-8")
+        self.assertIn(
+            '#include "../../src/qrt_qwen36_q1024_owner.h"', provider
+        )
+        self.assertNotIn(
+            '#include "../../src/c/qrt_qwen36_q1024_owner.h"', provider
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

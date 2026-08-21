@@ -2,7 +2,7 @@
 #include "q16384_suffix1024_ordered_forty_layer_owner_smoke.cpp"
 #undef QRT_D232_DISABLE_MAIN
 
-#include "../../src/c/qrt_qwen36_q1024_owner.h"
+#include "../../src/qrt_qwen36_q1024_owner.h"
 
 #include <chrono>
 #include <memory>
