@@ -1,6 +1,7 @@
 import hashlib
 import json
 from pathlib import Path
+import re
 import sys
 import unittest
 
@@ -180,6 +181,24 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
             text = (ROOT / relative).read_text(encoding="utf-8")
             for fragment in fragments:
                 self.assertIn(fragment, text)
+
+    def test_candidate_script_references_are_present(self) -> None:
+        references: set[str] = set()
+        for pattern in (".candidate*.ps1", ".candidate*.sh"):
+            for script in (ROOT / "scripts").glob(pattern):
+                references.update(
+                    match.replace("\\", "/")
+                    for match in re.findall(
+                        r"scripts[\\/][A-Za-z0-9_.-]+",
+                        script.read_text(encoding="utf-8"),
+                    )
+                )
+        missing = sorted(
+            reference
+            for reference in references
+            if not (ROOT / reference).is_file()
+        )
+        self.assertEqual(missing, [])
 
 
 if __name__ == "__main__":
