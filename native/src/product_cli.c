@@ -721,6 +721,8 @@ static int qrt_product_run(const qrt_product_options_t *options) {
     qrt_engine_t *engine = NULL;
     qrt_engine_report_t *report = NULL;
     qrt_qwen36_resident_prefix_cache_result_v1_t *prefix_result = NULL;
+    qrt_qwen36_resident_prefix_cache_fallback_result_v1_t *
+        prefix_seed_result = NULL;
     qrt_product_stream_t stream;
     qrt_product_preload_t preload;
     qrt_status_t status;
@@ -883,31 +885,41 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         1u,
         sizeof(*prefix_result)
     );
+    prefix_seed_result =
+        (qrt_qwen36_resident_prefix_cache_fallback_result_v1_t *)calloc(
+            1u,
+            sizeof(*prefix_seed_result)
+        );
     report = (qrt_engine_report_t *)calloc(1u, sizeof(*report));
-    if (prefix_result == NULL || report == NULL) {
+    if (prefix_result == NULL || prefix_seed_result == NULL || report == NULL) {
         exit_code = 4;
         goto cleanup;
     }
 
     if (options->prefix_token_count != 0u) {
-        uint32_t seed_output = UINT32_MAX;
-        size_t seed_output_count = 0u;
         const uint64_t seed_start_ns = qrt_product_now_ns();
-        status = qrt_engine_request_tokens(
+        status = qrt_engine_request_tokens_prefix_fallback_v1(
             engine,
             input_tokens,
+            input_token_count,
             options->prefix_token_count,
-            &seed_output,
-            1u,
-            &seed_output_count
+            guard_output_tokens,
+            options->output_token_capacity,
+            prefix_seed_result
         );
         seed_wall_ns = qrt_product_elapsed_ns(seed_start_ns);
-        if (status != QRT_STATUS_OK || seed_output_count != 1u) {
+        if (status != QRT_STATUS_OK ||
+            prefix_seed_result->completed == 0u ||
+            prefix_seed_result->fallback_invoked == 0u ||
+            prefix_seed_result->retry_invoked == 0u ||
+            prefix_seed_result->hit_result.output_token_count !=
+                options->output_token_capacity) {
             fprintf(
                 stderr,
-                "resident prefix seed failed: %s count=%zu\n",
+                "resident prefix fallback seed failed: %s stage=%s failure=%s\n",
                 qrt_strerror(status),
-                seed_output_count
+                prefix_seed_result->failure_stage,
+                prefix_seed_result->failure
             );
             exit_code = 5;
             goto cleanup;
@@ -1314,6 +1326,7 @@ cleanup:
     }
     qrt_product_release_preload(&preload);
     free(report);
+    free(prefix_seed_result);
     free(prefix_result);
     free(expected_output_tokens);
     free(input_tokens);

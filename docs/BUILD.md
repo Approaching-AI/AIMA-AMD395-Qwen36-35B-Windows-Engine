@@ -48,8 +48,10 @@ The orchestrator builds:
    selected-MoE providers used to keep non-aligned prompt lengths continuous;
 5. CK FMHA and AITER fused-GDN providers;
 6. the complete tracked q1/base AOT inventory under `aot/gfx1151`;
-7. the Rust resident server/lifecycle CLI; and
-8. `runtime-manifest.json` with commit, dirty state, paths, sizes, and SHA256.
+7. the Rust resident server/lifecycle CLI;
+8. the native `qrt-product.exe` token/logit/prefix acceptance CLI with a
+   256 MiB Windows stack reserve; and
+9. `runtime-manifest.json` with commit, dirty state, paths, sizes, and SHA256.
 
 When `runtime.env` is loaded from a built runtime, `qrt` validates the complete
 `smooth-tail/q32` through `smooth-tail/q4096` inventory and binds all provider
@@ -75,6 +77,7 @@ Each component script accepts explicit output/toolchain paths:
   -CkRoot C:\src\aiter-v0.1.13\3rdparty\composable_kernel
 .\scripts\baiying_build_aiter_fused_gdn_q8192.ps1 -BuildDir build\gdn
 .\scripts\baiying_build_qrt_server.ps1 -OutDir build\engine
+.\scripts\build-product-cli.ps1 -OutDir build\product-cli
 ```
 
 Use each script's `Get-Help`/parameter declaration for optional paths and

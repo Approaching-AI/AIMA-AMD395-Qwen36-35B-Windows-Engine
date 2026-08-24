@@ -155427,6 +155427,10 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         request != nullptr &&
         (request->flags &
          QRT_QWEN36_WHOLE_PROVIDER_FLAG_RESIDENT_DECODE_V1_RESULT) != 0u;
+    const bool prefix_seed_capture_requested =
+        request != nullptr &&
+        (request->flags &
+         QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE) != 0u;
     const bool arbitrary_prefill_requested =
         request != nullptr &&
         request->input_token_count > 0u &&
@@ -155511,7 +155515,8 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
            QRT_QWEN36_WHOLE_PROVIDER_FLAG_COLD_Q32768_PREFILL |
            QRT_QWEN36_WHOLE_PROVIDER_FLAG_COLD_Q65536_PREFILL |
            QRT_QWEN36_WHOLE_PROVIDER_FLAG_COLD_Q131072_PREFILL |
-           QRT_QWEN36_WHOLE_PROVIDER_FLAG_ARBITRARY_PREFILL)) != 0u ||
+           QRT_QWEN36_WHOLE_PROVIDER_FLAG_ARBITRARY_PREFILL |
+           QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE)) != 0u ||
         (static_cast<unsigned int>(cold_q8192_requested) +
              static_cast<unsigned int>(cold_q16384_requested) +
              static_cast<unsigned int>(cold_q32768_requested) +
@@ -155536,6 +155541,9 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
               static_cast<size_t>(
                   QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS
               ))) ||
+        (prefix_seed_capture_requested &&
+         (!resident_decode_v1_result_requested ||
+          request->output_token_capacity != 1u)) ||
         (request->required_surfaces & ~structural_surfaces) != 0u) {
         qrt_qwen36_whole_provider_set_failure(
             out_result,
@@ -155637,7 +155645,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
             << " numerical_correctness_claimed=0"
             << std::endl;
     }
-    // A one-token request has no decode consumer.  Capturing its complete
+    // An ordinary one-token request has no decode consumer. Capturing its complete
     // recurrent/full-attention state used to add a shape-specific wall at
     // q8192 (roughly 233 MiB of allocations and copies) even though the
     // caller returns immediately after the prefill token.  Keep the scoped
@@ -155645,8 +155653,12 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     // older global session before the new prompt runs, so a later request
     // cannot consume stale state.  Requests with a continuation still take
     // the exact resident capture path and must satisfy its full contract.
+    // The prefix-fallback API is the exception: it explicitly negotiates a
+    // one-token seed capture so the immediately following exact-prefix retry
+    // has a live identity and state transaction.
     const bool resident_session_has_decode_consumer =
-        request->output_token_capacity > 1u;
+        request->output_token_capacity > 1u ||
+        prefix_seed_capture_requested;
     const bool resident_session_requested =
         resident_session_has_decode_consumer &&
         !g_qwen36_exact_prefill_verifier_active && env_flag_enabled(

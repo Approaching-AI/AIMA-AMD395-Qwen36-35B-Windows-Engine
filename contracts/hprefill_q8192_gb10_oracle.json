@@ -21,7 +21,7 @@
     "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
     "u32le_fnv1a64": "1584e34d56e5d78b",
     "generator": {
-      "path": "scripts/.candidate_generate_random_prompt.py",
+      "path": "scripts/generate_random_token_prompt.py",
       "sha256": "573604e933f30842d52c085d1ff0943bd47e7742b618fbe63e2ea731e9dc5469",
       "arguments": [
         "--tokens",

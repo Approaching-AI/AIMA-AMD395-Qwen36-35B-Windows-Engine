@@ -4796,6 +4796,12 @@ typedef struct qrt_qwen36_prefill_descriptor_batch_result_t {
  * verbatim and may not apply captured prompt/token/logit oracle checks.
  */
 #define QRT_QWEN36_WHOLE_PROVIDER_FLAG_ARBITRARY_PREFILL 128u
+/*
+ * Internal/public-core negotiation for an exact one-token prefix-cache seed.
+ * The ordinary one-token path intentionally avoids resident-state capture;
+ * the fallback API sets this bit only while rebuilding a missing prefix.
+ */
+#define QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE 256u
 
 #define QRT_QWEN36_WHOLE_PROVIDER_DECODE_ABI_VERSION 1u
 #define QRT_QWEN36_EXACT_FIRST_TOKEN_ABI_VERSION 1u

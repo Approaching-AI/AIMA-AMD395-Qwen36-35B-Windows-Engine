@@ -14,6 +14,11 @@ class NativeRouteContractTests(unittest.TestCase):
         cls.bridge = (ROOT / "native/src/qrt_server_bridge.c").read_text(
             encoding="utf-8"
         )
+        cls.core = (ROOT / "native/src/qrt.c").read_text(encoding="utf-8")
+        cls.header = (ROOT / "native/src/qrt.h").read_text(encoding="utf-8")
+        cls.product_cli = (ROOT / "native/src/product_cli.c").read_text(
+            encoding="utf-8"
+        )
         cls.lifecycle = (ROOT / "engine/qrt-server/src/lifecycle.rs").read_text(
             encoding="utf-8"
         )
@@ -373,9 +378,45 @@ class NativeRouteContractTests(unittest.TestCase):
             self.runtime_env,
         )
         self.assertIn(
-            "QRT_QWEN36_Q1_LM_HEAD_BF16_ONE_ULP_LOW_ID_POSITION=8192",
+            "QRT_QWEN36_Q1_LM_HEAD_BF16_ONE_ULP_LOW_ID_POSITION=4294967295",
             self.runtime_env,
         )
+
+    def test_release_profile_activates_gb10_valid_terminal_route(self) -> None:
+        for entry in (
+            "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_CK_FMHA=1",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_TRITON_0626_ROUTED=1",
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_COMPACT_Q=1",
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_PACKED_MOE=1",
+            "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_DEVICE_CORRIDOR=1",
+        ):
+            self.assertIn(entry, self.runtime_env)
+
+    def test_prefix_fallback_negotiates_single_token_seed_capture(self) -> None:
+        self.assertIn(
+            "QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE 256u",
+            self.header,
+        )
+        for fragment in (
+            "resident_prefix_cache_seed_capture_active = 1",
+            "QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE",
+            "resident_prefix_cache_seed_capture_active = 0",
+        ):
+            self.assertIn(fragment, self.core)
+        self.assertIn("prefix_seed_capture_requested", self.provider)
+        self.assertIn(
+            "qrt_engine_request_tokens_prefix_fallback_v1(",
+            self.product_cli,
+        )
+
+    def test_release_ck_build_includes_terminal_exact_variant(self) -> None:
+        for fragment in (
+            '"-DQRT_CK_FMHA_VLLM_N32=1"',
+            '"-DQRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL=1"',
+            "ck_tile_n = 32",
+            "blackwell_exact_terminal = $true",
+        ):
+            self.assertIn(fragment, self.ck_fmha_build)
 
     def test_exact_arbitrary_can_diagnose_q8192_moe_tile_boundary(self) -> None:
         start = self.provider.index(

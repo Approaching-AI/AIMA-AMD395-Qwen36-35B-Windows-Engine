@@ -5,6 +5,11 @@
 public versions use the current machine name and parameterized toolchain/output
 paths; they are not restricted to a private host.
 
+`build-product-cli.ps1` builds the direct real-token acceptance executable with
+the required 256 MiB Windows stack reserve. The full runtime build and release
+archive include it under `product-cli/` so q8192 GB10 and prefix gates can be
+reproduced from the packaged artifact rather than an ad-hoc binary.
+
 `verify_qrt_openai_server.py` tests the real resident service, including SSE,
 tools, FIFO pressure, arbitrary lengths, context limits, prefix-cache logs, and
 optional external reference files. Capture/audit scripts produce compact

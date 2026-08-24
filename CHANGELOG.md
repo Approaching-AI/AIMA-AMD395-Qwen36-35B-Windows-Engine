@@ -12,6 +12,11 @@
   and route-log verification rejects fallbacks or prefix-cache contamination.
 - Restored the FLA GDN generator and arbitrary-tail/Hawkeye numerical contract
   tests needed to reproduce and review the retained provider source.
+- Aligned the public CK build and runtime profile with the GB10-valid q1
+  terminal route, and removed the stale position-8192 low-ID tie override.
+- Repaired exact prefix fallback seeding after the single-token no-capture
+  optimization, and added a bounded, reproducible 256 MiB-stack product CLI
+  to the runtime package.
 - Promotion remains pending a clean native Windows build and
   correctness-attached real-model product qualification on `baiying` from the
   exact candidate commit.

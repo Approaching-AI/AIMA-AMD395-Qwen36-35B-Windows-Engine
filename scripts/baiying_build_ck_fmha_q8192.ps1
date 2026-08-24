@@ -85,6 +85,8 @@ $arguments = @(
     "-O3",
     "--offload-arch=$OffloadArch",
     "-DCK_TILE_FMHA_FWD_FAST_EXP2=0",
+    "-DQRT_CK_FMHA_VLLM_N32=1",
+    "-DQRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL=1",
     "-DQRT_CK_ARCH_TYPE=$ckArchType",
     "-I", $ckInclude,
     "-I", $ckExample,
@@ -218,6 +220,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     offload_arch = $OffloadArch
     ck_root = (Resolve-Path -LiteralPath $CkRoot).Path
     ck_arch_type = $ckArchType
+    ck_tile_n = 32
+    blackwell_exact_terminal = $true
     direct_smoke_ran = ($RunDirectSmoke -ne 0)
     direct_smoke_path = if ($RunDirectSmoke -ne 0) {
         (Resolve-Path -LiteralPath $DirectSmokePath).Path

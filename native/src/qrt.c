@@ -758,6 +758,7 @@ struct qrt_engine {
     size_t resident_prefix_cache_token_capacity;
     uint64_t resident_prefix_cache_session_generation;
     uint64_t resident_prefix_cache_prompt_token_ids_fnv1a64;
+    int resident_prefix_cache_seed_capture_active;
     int prefix_cache_state_attached;
     int prefix_cache_copy_on_write_fallback_used;
     size_t prefix_cache_state_attach_count;
@@ -27602,7 +27603,10 @@ static qrt_status_t qrt_qwen36_try_whole_provider_prefill_request(
                         : (q16384_cold_probe
                         ? QRT_QWEN36_WHOLE_PROVIDER_FLAG_COLD_Q16384_PREFILL
                         : QRT_QWEN36_WHOLE_PROVIDER_FLAG_COLD_Q8192_PREFILL))))) |
-        QRT_QWEN36_WHOLE_PROVIDER_FLAG_RESIDENT_DECODE_V1_RESULT;
+        QRT_QWEN36_WHOLE_PROVIDER_FLAG_RESIDENT_DECODE_V1_RESULT |
+        (engine->resident_prefix_cache_seed_capture_active
+             ? QRT_QWEN36_WHOLE_PROVIDER_FLAG_PREFIX_SEED_CAPTURE
+             : QRT_QWEN36_WHOLE_PROVIDER_FLAG_NONE);
     endpoint_bf16_boundary =
         fixed_q8192_request &&
         (engine->qwen36_whole_provider_endpoint_bf16_boundary ||
@@ -83747,6 +83751,9 @@ qrt_engine_request_tokens_prefix_fallback_v1_unlocked(
     out_result->full_prefill_token_count =
         (uint32_t)prefix_hit_token_count;
     phase_start_ns = qrt_now_ns();
+    if (engine != NULL) {
+        engine->resident_prefix_cache_seed_capture_active = 1;
+    }
     status = qrt_engine_request_tokens(
         engine,
         input_tokens,
@@ -83755,6 +83762,9 @@ qrt_engine_request_tokens_prefix_fallback_v1_unlocked(
         1u,
         &seed_output_token_count
     );
+    if (engine != NULL) {
+        engine->resident_prefix_cache_seed_capture_active = 0;
+    }
     out_result->seed_elapsed_ns =
         qrt_elapsed_ns(phase_start_ns, qrt_now_ns());
     out_result->seed_status = (int32_t)status;

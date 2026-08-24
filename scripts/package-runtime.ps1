@@ -67,6 +67,7 @@ foreach ($destination in @($stage, $archive, $archiveHash)) {
 
 $requiredFiles = @(
     "engine\qrt.exe",
+    "product-cli\qrt-product.exe",
     "whole-provider\qrt_qwen36_whole_provider.dll",
     "q1024-moe\qrt_triton_moe_q1024_exact_provider_slots64.dll",
     "q8192-moe\qrt_triton_moe_q8192_provider.dll",

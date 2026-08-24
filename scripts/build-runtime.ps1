@@ -53,6 +53,7 @@ $smoothTailTokenCounts = @(32, 64, 128, 256, 512, 1024, 2048, 4096)
 $ckDir = Join-Path $OutDir "ck-fmha"
 $gdnDir = Join-Path $OutDir "aiter-gdn"
 $engineDir = Join-Path $OutDir "engine"
+$productCliDir = Join-Path $OutDir "product-cli"
 $baseAotDir = Join-Path $OutDir ("aot\" + $OffloadArch)
 New-Item -ItemType Directory -Force -Path $ckDir, $smoothTailRoot | Out-Null
 New-Item -ItemType Directory -Force -Path $baseAotDir | Out-Null
@@ -126,7 +127,10 @@ foreach ($tokens in $smoothTailTokenCounts) {
     -CkRoot $CkRoot `
     -OutPath (Join-Path $ckDir "qrt_ck_fmha_continuous_long.dll") `
     -OffloadArch $OffloadArch `
-    -HipccPath (Join-Path $RocmRoot "bin\hipcc.exe")
+    -HipccPath (Join-Path $RocmRoot "bin\hipcc.exe") `
+    -RunDirectSmoke 1 `
+    -DirectSmokePath (Join-Path $ckDir "q8192_ck_fmha_direct_smoke.exe") `
+    -DirectSmokeRepetitions 3
 if ($LASTEXITCODE -ne 0) { throw "CK FMHA provider build failed" }
 
 & (Join-Path $PSScriptRoot "baiying_build_aiter_fused_gdn_q8192.ps1") `
@@ -139,12 +143,17 @@ if ($LASTEXITCODE -ne 0) { throw "AITER GDN provider build failed" }
     -OutDir $engineDir
 if ($LASTEXITCODE -ne 0) { throw "qrt engine build failed" }
 
+& (Join-Path $PSScriptRoot "build-product-cli.ps1") `
+    -OutDir $productCliDir
+if ($LASTEXITCODE -ne 0) { throw "product CLI build failed" }
+
 $runtimeProfile = Join-Path $OutDir "runtime.env"
 Copy-Item -LiteralPath $runtimeProfileSource `
     -Destination $runtimeProfile -Force
 
 $runtimeFiles = @(
     (Join-Path $engineDir "qrt.exe"),
+    (Join-Path $productCliDir "qrt-product.exe"),
     (Join-Path $wholeDir "qrt_qwen36_whole_provider.dll"),
     (Join-Path $moeDir "qrt_triton_moe_q1024_exact_provider_slots64.dll"),
     (Join-Path $q8192MoeDir "qrt_triton_moe_q8192_provider.dll"),
@@ -250,6 +259,7 @@ $record = [ordered]@{
     composable_kernel_tree_sha256 = $ckTreeSha256
     layout = [ordered]@{
         engine = "engine"
+        product_cli = "product-cli"
         whole_provider = "whole-provider"
         arbitrary_moe_provider = "q1024-moe"
         arbitrary_moe_kernel_dir = "q1024-moe/moe-kernels"

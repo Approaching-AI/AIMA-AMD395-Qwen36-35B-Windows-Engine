@@ -17,6 +17,9 @@ class PackagingContractTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         cls.readme = (ROOT / "README.md").read_text(encoding="utf-8")
         cls.runtime = (ROOT / "engine/runtime.env").read_text(encoding="utf-8")
+        cls.product_cli_build = (
+            ROOT / "scripts/build-product-cli.ps1"
+        ).read_text(encoding="utf-8")
 
     def test_base_aot_is_copied_hashed_and_packaged(self) -> None:
         for fragment in (
@@ -130,6 +133,22 @@ class PackagingContractTests(unittest.TestCase):
             ),
         ):
             self.assertIn(f"{name}={value}", self.runtime)
+
+    def test_product_cli_has_a_reproducible_large_stack_build(self) -> None:
+        for fragment in (
+            "build-product-cli.ps1",
+            '(Join-Path $productCliDir "qrt-product.exe")',
+            'product_cli = "product-cli"',
+        ):
+            self.assertIn(fragment, self.build)
+        self.assertIn('"product-cli\\qrt-product.exe"', self.package)
+        for fragment in (
+            "StackReserveBytes = 268435456",
+            '"/STACK:$StackReserveBytes"',
+            "WaitForExit($TimeoutSeconds * 1000)",
+            "stack_reserve_bytes = $StackReserveBytes",
+        ):
+            self.assertIn(fragment, self.product_cli_build)
 
 
 if __name__ == "__main__":
