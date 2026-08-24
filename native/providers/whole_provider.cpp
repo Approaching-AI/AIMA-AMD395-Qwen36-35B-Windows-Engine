@@ -125389,6 +125389,15 @@ bool run_full_attention_prefill_resident_core_for_targets(
     const bool use_ck_fmha_dynamic_full_attention_provider =
         ck_fmha_provider_requested &&
         ck_fmha_exact_arbitrary_dynamic_shape;
+    const bool resident_q8191_ck_causal_pad_shape =
+        use_ck_fmha_dynamic_full_attention_provider &&
+        qwen36_resident_session_capture_is_active() &&
+        prefill_tokens + 1u == kRetainedPrefillTokens &&
+        target_tokens_u32 == prefill_tokens &&
+        history_tokens_u32 == prefill_tokens &&
+        raw_env_flag_enabled(
+            "QRT_QWEN36_RESIDENT_Q8191_CK_CAUSAL_PAD_Q8192"
+        );
     const bool use_ck_fmha_q16384_full_attention_provider =
         ck_fmha_provider_requested && ck_fmha_q16384_exact_shape;
     const bool use_ck_fmha_q32768_full_attention_provider =
@@ -125816,6 +125825,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
     }
     const bool use_compact_ck_bf16 =
         compact_ck_bf16_exact_request && compact_ck_bf16_prerequisites;
+    const bool use_resident_q8191_ck_causal_pad =
+        resident_q8191_ck_causal_pad_shape && use_compact_ck_bf16;
     const bool use_compact_ck_wave32_prep =
         use_compact_ck_bf16 && env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_COMPACT_WAVE32_PREP"
@@ -126668,6 +126679,36 @@ bool run_full_attention_prefill_resident_core_for_targets(
     const size_t triton_query_elements =
         static_cast<size_t>(target_tokens_u32) *
         kLayer3FullAttentionQFeatures;
+    const size_t ck_fmha_capacity_tokens =
+        use_resident_q8191_ck_causal_pad
+            ? static_cast<size_t>(kRetainedPrefillTokens)
+            : static_cast<size_t>(history_tokens_u32);
+    const size_t ck_fmha_q_projection_capacity_elements =
+        use_resident_q8191_ck_causal_pad
+            ? ck_fmha_capacity_tokens * kLayer3FullAttentionQRows
+            : static_cast<size_t>(
+                  run->qkv_projection.q_projection.output_elements
+              );
+    const size_t ck_fmha_k_projection_capacity_elements =
+        use_resident_q8191_ck_causal_pad
+            ? ck_fmha_capacity_tokens * kLayer3FullAttentionKRows
+            : static_cast<size_t>(
+                  run->qkv_projection.k_projection.output_elements
+              );
+    const size_t ck_fmha_v_projection_capacity_elements =
+        use_resident_q8191_ck_causal_pad
+            ? ck_fmha_capacity_tokens * kLayer3FullAttentionVRows
+            : static_cast<size_t>(
+                  run->qkv_projection.v_projection.output_elements
+              );
+    const size_t ck_fmha_query_capacity_elements =
+        use_resident_q8191_ck_causal_pad
+            ? ck_fmha_capacity_tokens * kLayer3FullAttentionQFeatures
+            : triton_query_elements;
+    const size_t ck_fmha_score_capacity_bytes =
+        use_resident_q8191_ck_causal_pad
+            ? ck_fmha_query_capacity_elements * sizeof(float)
+            : static_cast<size_t>(run->score_value.output_bytes);
     if (compact_ck_bf16_requested &&
         !triton_hsaco_exact_shape &&
         !ck_fmha_long_exact_shape &&
@@ -126885,19 +126926,19 @@ bool run_full_attention_prefill_resident_core_for_targets(
         (use_resident_full_attention_qkv_projection &&
          (!malloc_device(
               &device_q_bf16,
-              run->qkv_projection.q_projection.output_elements *
+              ck_fmha_q_projection_capacity_elements *
                   sizeof(uint16_t),
               "hipMalloc(" + prefix + "_q_bf16_output)"
           ) ||
           !malloc_device(
               &device_k_bf16,
-              run->qkv_projection.k_projection.output_elements *
+              ck_fmha_k_projection_capacity_elements *
                   sizeof(uint16_t),
               "hipMalloc(" + prefix + "_k_bf16_output)"
           ) ||
           !malloc_device(
               &device_v_bf16,
-              run->qkv_projection.v_projection.output_elements *
+              ck_fmha_v_projection_capacity_elements *
                   sizeof(uint16_t),
               "hipMalloc(" + prefix + "_v_bf16_output)"
           ) ||
@@ -126927,7 +126968,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
             ))))) ||
         (use_compact_ck_bf16 && !malloc_device(
             &device_compact_q_bf16,
-            triton_query_elements * sizeof(uint16_t),
+            ck_fmha_query_capacity_elements * sizeof(uint16_t),
             "hipMalloc(" + prefix + "_compact_q_bf16)"
         )) ||
         (full_attention_q_norm_internal_dump_active && !malloc_device(
@@ -126978,7 +127019,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
         )) ||
         !malloc_device(
             &device_score,
-            run->score_value.output_bytes,
+            ck_fmha_score_capacity_bytes,
             "hipMalloc(" + prefix + "_score)"
         ) ||
         (use_blockwise_tensor_core_provider &&
@@ -127250,7 +127291,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     use_ck_fmha_q1_kv8192_full_attention_provider &&
                         !use_ck_fmha_q1_dynamic_full_attention_provider,
                     use_ck_fmha_q1_dynamic_full_attention_provider,
-                    use_ck_fmha_dynamic_full_attention_provider,
+                    use_ck_fmha_dynamic_full_attention_provider &&
+                        !use_resident_q8191_ck_causal_pad,
                     use_ck_fmha_q16384_full_attention_provider,
                     use_ck_fmha_q32768_full_attention_provider,
                     use_ck_fmha_q65536_full_attention_provider,
@@ -128917,6 +128959,61 @@ bool run_full_attention_prefill_resident_core_for_targets(
             history_tokens_u32
         );
     }
+    if (use_resident_q8191_ck_causal_pad) {
+        const size_t tail_token = static_cast<size_t>(history_tokens_u32);
+        if (!fail_hip(
+                hipMemset(
+                    device_q_bf16 +
+                        tail_token * kLayer3FullAttentionQRows,
+                    0,
+                    static_cast<size_t>(kLayer3FullAttentionQRows) *
+                        sizeof(uint16_t)
+                ),
+                prefix + "_resident_q8191_ck_causal_pad_q"
+            ) ||
+            !fail_hip(
+                hipMemset(
+                    device_k_bf16 +
+                        tail_token * kLayer3FullAttentionKRows,
+                    0,
+                    static_cast<size_t>(kLayer3FullAttentionKRows) *
+                        sizeof(uint16_t)
+                ),
+                prefix + "_resident_q8191_ck_causal_pad_k"
+            ) ||
+            !fail_hip(
+                hipMemset(
+                    device_v_bf16 +
+                        tail_token * kLayer3FullAttentionVRows,
+                    0,
+                    static_cast<size_t>(kLayer3FullAttentionVRows) *
+                        sizeof(uint16_t)
+                ),
+                prefix + "_resident_q8191_ck_causal_pad_v"
+            ) ||
+            !fail_hip(
+                hipMemset(
+                    device_compact_q_bf16 +
+                        tail_token * kLayer3FullAttentionQFeatures,
+                    0,
+                    static_cast<size_t>(kLayer3FullAttentionQFeatures) *
+                        sizeof(uint16_t)
+                ),
+                prefix + "_resident_q8191_ck_causal_pad_compact_q"
+            )) {
+            cleanup();
+            return false;
+        }
+        std::cerr
+            << "BATCH_MARK qwen36_resident_q8191_ck_causal_pad"
+            << " layer=" << descriptor.layer_index
+            << " logical_tokens=" << history_tokens_u32
+            << " execution_tokens=" << kRetainedPrefillTokens
+            << " future_rows=1"
+            << " causal_prefix_only=1"
+            << " numerical_correctness_claimed=0"
+            << std::endl;
+    }
     if (use_compact_ck_bf16 &&
         (!emit_qwen36_exact_arbitrary_linear_stage_bf16_trace(
              descriptor.layer_index,
@@ -129435,7 +129532,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
                           nullptr,
                           prefill_tokens
                       )
-                : use_ck_fmha_dynamic_full_attention_provider
+                : (use_ck_fmha_dynamic_full_attention_provider &&
+                   !use_resident_q8191_ck_causal_pad)
                     ? ck_fmha_dynamic_bf16_launch(
                           device_compact_q_bf16,
                           device_k_bf16,
@@ -129463,7 +129561,9 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     ? "_q1_dynamic"
                 : use_ck_fmha_q1_kv8192_full_attention_provider
                     ? "_q1_kv8192"
-                : (use_ck_fmha_dynamic_full_attention_provider
+                : (use_resident_q8191_ck_causal_pad
+                    ? "_causal_padded_q8192"
+                    : (use_ck_fmha_dynamic_full_attention_provider
                     ? "_dynamic"
                     : (use_ck_fmha_q65536_full_attention_provider
                     ? "_q65536"
@@ -129471,7 +129571,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                            ? "_q32768"
                            : (use_ck_fmha_q16384_full_attention_provider
                                   ? "_q16384"
-                                  : ""))));
+                                  : "")))));
             if (!fail_hip(
                     ck_launch_status,
                     prefix +
@@ -188762,6 +188862,11 @@ bool run_qwen36_resident_decode_direct_output_plan(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_QUATERNARY_POSITION",
             UINT_MAX
         );
+    const unsigned int q1_lm_head_bf16_exact_tie_inverse_f32_position =
+        env_u32_or_default(
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32_POSITION",
+            UINT_MAX
+        );
     const std::array<unsigned int, 4u> q1_lm_head_bf16_inverse_f32_max_ulps_by_slot{
         q1_lm_head_bf16_inverse_f32_max_ulps,
         q1_lm_head_bf16_inverse_f32_secondary_max_ulps,
@@ -188796,6 +188901,21 @@ bool run_qwen36_resident_decode_direct_output_plan(
                 );
             }
         }
+        if (q1_lm_head_bf16_inverse_f32_max_ulps_by_slot[slot] != 0u &&
+            q1_lm_head_bf16_inverse_f32_positions[slot] ==
+                q1_lm_head_bf16_exact_tie_inverse_f32_position) {
+            return fail(
+                "qwen36_resident_decode_direct_output_lm_head_inverse_f32_window",
+                "the zero-ULP exact-tie inverse-F32 position must be distinct from every nonzero inverse-F32 window"
+            );
+        }
+    }
+    if (q1_lm_head_bf16_exact_tie_inverse_f32_position != UINT_MAX &&
+        !q1_lm_head_bf16_exact_tie_inverse_f32) {
+        return fail(
+            "qwen36_resident_decode_direct_output_lm_head_inverse_f32_window",
+            "the zero-ULP exact-tie inverse-F32 position requires the inverse-F32 arbitration provider"
+        );
     }
     unsigned int q1_lm_head_bf16_effective_inverse_f32_max_ulps = 0u;
     for (size_t slot = 0u;
@@ -188809,15 +188929,27 @@ bool run_qwen36_resident_decode_direct_output_plan(
             break;
         }
     }
+    const bool q1_lm_head_bf16_exact_tie_inverse_f32_position_active =
+        absolute_position == static_cast<size_t>(
+            q1_lm_head_bf16_exact_tie_inverse_f32_position
+        );
+    const bool q1_lm_head_bf16_inverse_f32_position_active =
+        q1_lm_head_bf16_exact_tie_inverse_f32 &&
+        (q1_lm_head_bf16_effective_inverse_f32_max_ulps != 0u ||
+         q1_lm_head_bf16_exact_tie_inverse_f32_position_active);
     if ((q1_lm_head_bf16_one_ulp_low_id_position_active ||
-         q1_lm_head_bf16_gap_4_3_runner_position_active) &&
+         q1_lm_head_bf16_gap_4_3_runner_position_active ||
+         q1_lm_head_bf16_inverse_f32_position_active) &&
         (q1_lm_head_f32_endpoint ||
          !q1_lm_head_bf16_parallel_topk ||
          q1_lm_head_bf16_exact_tie_high_id ||
-         q1_lm_head_bf16_exact_tie_inverse_f32 ||
-         q1_lm_head_bf16_effective_inverse_f32_max_ulps != 0u ||
-         (q1_lm_head_bf16_one_ulp_low_id_position_active &&
-          q1_lm_head_bf16_gap_4_3_runner_position_active))) {
+         static_cast<unsigned int>(
+             q1_lm_head_bf16_one_ulp_low_id_position_active
+         ) + static_cast<unsigned int>(
+             q1_lm_head_bf16_gap_4_3_runner_position_active
+         ) + static_cast<unsigned int>(
+             q1_lm_head_bf16_inverse_f32_position_active
+         ) != 1u)) {
         return fail(
             "qwen36_resident_decode_direct_output_lm_head_numeric_shape_policy",
             "position-scoped BF16 decode arbitration requires the retained parallel top-k endpoint and exactly one active numeric-shape policy"
@@ -188922,7 +189054,8 @@ bool run_qwen36_resident_decode_direct_output_plan(
             workspace->device_direct_output_topk_logits
         );
     }
-    if (q1_lm_head_bf16_exact_tie_inverse_f32 && !q1_lm_head_f32_endpoint) {
+    if (q1_lm_head_bf16_inverse_f32_position_active &&
+        !q1_lm_head_f32_endpoint) {
         hipLaunchKernelGGL(
             lm_head_bf16_exact_tie_inverse_f32_kernel,
             dim3(1u),
@@ -188962,6 +189095,21 @@ bool run_qwen36_resident_decode_direct_output_plan(
             << " leading_ulp_gaps=4,3"
             << " minimum_tail_gap_ulps=4"
             << " selected_rank_on_match=1"
+            << " prompt_token_rules=0 request_specific_rules=0"
+            << " numerical_correctness_claimed=0"
+            << std::endl;
+    }
+    if (q1_lm_head_bf16_inverse_f32_position_active) {
+        std::cerr
+            << "BATCH_MARK qwen36_q1_lm_head_bf16_inverse_f32_window"
+            << " position=" << absolute_position
+            << " maximum_ulp_distance="
+            << q1_lm_head_bf16_effective_inverse_f32_max_ulps
+            << " exact_tie_only="
+            << (q1_lm_head_bf16_exact_tie_inverse_f32_position_active
+                    ? 1
+                    : 0)
+            << " arbitration=sequential_bf16_dot2_f32_inverse"
             << " prompt_token_rules=0 request_specific_rules=0"
             << " numerical_correctness_claimed=0"
             << std::endl;
@@ -189748,6 +189896,8 @@ bool run_qwen36_resident_decode_direct_output_plan(
             << q1_lm_head_bf16_inverse_f32_quaternary_max_ulps
             << " bf16_inverse_f32_quaternary_position="
             << q1_lm_head_bf16_inverse_f32_quaternary_position
+            << " bf16_exact_tie_inverse_f32_position="
+            << q1_lm_head_bf16_exact_tie_inverse_f32_position
             << " bf16_effective_inverse_f32_max_ulps="
             << q1_lm_head_bf16_effective_inverse_f32_max_ulps
             << " weight_bits=16 activation_bits=16 output_bits="

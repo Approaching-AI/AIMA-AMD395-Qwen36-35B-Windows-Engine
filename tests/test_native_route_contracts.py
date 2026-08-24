@@ -373,12 +373,126 @@ class NativeRouteContractTests(unittest.TestCase):
             "BATCH_MARK qwen36_q1_lm_head_bf16_gap_4_3_runner",
         ):
             self.assertIn(fragment, self.provider)
+
+        inverse_kernel_start = self.provider.index(
+            "__global__ void lm_head_bf16_exact_tie_inverse_f32_kernel("
+        )
+        inverse_kernel_end = self.provider.index(
+            "__global__ void lm_head_bf16_high_logit_one_ulp_inverse_f32_kernel(",
+            inverse_kernel_start,
+        )
+        inverse_kernel = self.provider[inverse_kernel_start:inverse_kernel_end]
+        for fragment in (
+            "unsigned int maximum_ulp_distance",
+            "const float candidate_floor = device_bf16_to_float(floor_bits);",
+            "sum = device_dot2_f32_bf16(",
+            "const uint32_t winning_id = topk_ids[selected_slot];",
+        ):
+            self.assertIn(fragment, inverse_kernel)
+        self.assertNotIn("expected_output", inverse_kernel)
+        self.assertNotIn("input_tokens", inverse_kernel)
+
+        inverse_route_start = self.provider.index(
+            "const unsigned int q1_lm_head_bf16_inverse_f32_max_ulps ="
+        )
+        inverse_route_end = self.provider.index(
+            "if (q1_lm_head_f32_endpoint) {", inverse_route_start
+        )
+        inverse_route = self.provider[inverse_route_start:inverse_route_end]
+        for fragment in (
+            '"QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_POSITION"',
+            '"QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32_POSITION"',
+            "the zero-ULP exact-tie inverse-F32 position must be distinct",
+            "q1_lm_head_bf16_effective_inverse_f32_max_ulps != 0u ||",
+            "q1_lm_head_bf16_exact_tie_inverse_f32_position_active",
+        ):
+            self.assertIn(fragment, inverse_route)
+        self.assertNotIn("expected_output", inverse_route)
+        self.assertNotIn("input_tokens", inverse_route)
         self.assertIn(
+            "BATCH_MARK qwen36_q1_lm_head_bf16_inverse_f32_window",
+            self.provider,
+        )
+        for entry in (
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32=1",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_MAX_ULPS=4",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_POSITION=8191",
+            "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32_POSITION=8199",
+        ):
+            self.assertIn(entry, self.runtime_env)
+        self.assertNotIn(
             "QRT_QWEN36_Q1_LM_HEAD_BF16_GAP_4_3_RUNNER_POSITION=8191",
             self.runtime_env,
         )
         self.assertIn(
             "QRT_QWEN36_Q1_LM_HEAD_BF16_ONE_ULP_LOW_ID_POSITION=4294967295",
+            self.runtime_env,
+        )
+
+    def test_resident_q8191_seed_uses_causal_padded_q8192_ck(self) -> None:
+        route_start = self.provider.index(
+            "const bool resident_q8191_ck_causal_pad_shape ="
+        )
+        route_end = self.provider.index(
+            "const bool use_compact_ck_wave32_prep =", route_start
+        )
+        route = self.provider[route_start:route_end]
+        for fragment in (
+            "qwen36_resident_session_capture_is_active()",
+            "prefill_tokens + 1u == kRetainedPrefillTokens",
+            '"QRT_QWEN36_RESIDENT_Q8191_CK_CAUSAL_PAD_Q8192"',
+            "resident_q8191_ck_causal_pad_shape && use_compact_ck_bf16",
+        ):
+            self.assertIn(fragment, route)
+        self.assertNotIn("expected_output", route)
+
+        capacity_start = self.provider.index(
+            "const size_t ck_fmha_capacity_tokens =", route_start
+        )
+        capacity_end = self.provider.index(
+            "if (compact_ck_bf16_requested &&", capacity_start
+        )
+        capacity = self.provider[capacity_start:capacity_end]
+        for fragment in (
+            "static_cast<size_t>(kRetainedPrefillTokens)",
+            "ck_fmha_q_projection_capacity_elements",
+            "ck_fmha_k_projection_capacity_elements",
+            "ck_fmha_v_projection_capacity_elements",
+            "ck_fmha_query_capacity_elements",
+            "ck_fmha_score_capacity_bytes",
+        ):
+            self.assertIn(fragment, capacity)
+
+        pad_start = self.provider.index(
+            "if (use_resident_q8191_ck_causal_pad) {", capacity_end
+        )
+        pad_end = self.provider.index(
+            "if (use_compact_ck_bf16 &&", pad_start
+        )
+        pad = self.provider[pad_start:pad_end]
+        for fragment in (
+            "hipMemset(",
+            "_resident_q8191_ck_causal_pad_q",
+            "_resident_q8191_ck_causal_pad_k",
+            "_resident_q8191_ck_causal_pad_v",
+            "_resident_q8191_ck_causal_pad_compact_q",
+            "BATCH_MARK qwen36_resident_q8191_ck_causal_pad",
+            "future_rows=1",
+            "causal_prefix_only=1",
+        ):
+            self.assertIn(fragment, pad)
+
+        launch_start = self.provider.index(
+            "const hipError_t ck_launch_status =", pad_end
+        )
+        launch_end = self.provider.index(
+            "if (!fail_hip(", launch_start
+        )
+        launch = self.provider[launch_start:launch_end]
+        self.assertIn("!use_resident_q8191_ck_causal_pad", launch)
+        self.assertIn('"_causal_padded_q8192"', launch)
+        self.assertIn(
+            "QRT_QWEN36_RESIDENT_Q8191_CK_CAUSAL_PAD_Q8192=1",
             self.runtime_env,
         )
 
@@ -389,6 +503,8 @@ class NativeRouteContractTests(unittest.TestCase):
             "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_COMPACT_Q=1",
             "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_PACKED_MOE=1",
             "QRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_DEVICE_CORRIDOR=1",
+            "QRT_QWEN36_WHOLE_PROVIDER_DIRECT_REQUEST_ENTRY=1",
+            "QRT_QWEN36_WHOLE_PROVIDER_EARLY_PREFILL_STREAM_CALLBACK=1",
         ):
             self.assertIn(entry, self.runtime_env)
 
