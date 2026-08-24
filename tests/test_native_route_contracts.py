@@ -58,7 +58,37 @@ class NativeRouteContractTests(unittest.TestCase):
             ROOT
             / "native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp"
         ).read_text(encoding="utf-8")
+        cls.q8192_row_major_conditional_gate = (
+            ROOT
+            / "native/generators/compile_q8192_row_major_sorted_conditional_gate.py"
+        ).read_text(encoding="utf-8")
+        cls.q8192_sorted_conditional_gate = (
+            ROOT
+            / "native/generators/compile_q8192_sorted_conditional_gate.py"
+        ).read_text(encoding="utf-8")
+        cls.q8192_zero_correction_gate = (
+            ROOT
+            / "native/generators/compile_q8192_zero_correction_gate_finalize.py"
+        ).read_text(encoding="utf-8")
         cls.runtime_env = (ROOT / "engine/runtime.env").read_text(encoding="utf-8")
+
+    def test_routed_silu_preserves_vllm_bf16_intermediate(self) -> None:
+        for generator in (
+            self.q8192_row_major_conditional_gate,
+            self.q8192_sorted_conditional_gate,
+            self.q8192_zero_correction_gate,
+        ):
+            start = generator.index("silu = (")
+            endpoint = generator.index("silu_bits = silu.to(", start)
+            rne = generator.index("+ 0x7FFF", endpoint)
+            tie = generator.index("((silu_bits >> 16) & 1)", rne)
+            truncate = generator.index("& 0xFFFF0000", tie)
+            store = generator.index("tl.store(", endpoint)
+            self.assertLess(start, endpoint)
+            self.assertLess(endpoint, rne)
+            self.assertLess(rne, tie)
+            self.assertLess(tie, truncate)
+            self.assertLess(truncate, store)
 
     def test_resident_route_can_include_retained_q8192(self) -> None:
         start = self.provider.index("bool qwen36_exact_arbitrary_product_path_enabled(")
@@ -89,6 +119,56 @@ class NativeRouteContractTests(unittest.TestCase):
         self.assertIn(
             "QRT_QWEN36_EXACT_ARBITRARY_CONV_ARITHMETIC_MODE=3",
             self.runtime_env,
+        )
+
+    def test_whole_repeated_routed_expert_elides_unowned_event_timing(self) -> None:
+        start = self.provider.index("bool run_repeated_routed_expert(")
+        end = self.provider.index("bool run_layer1_routed_expert(", start)
+        route = self.provider[start:end]
+
+        reset = route.index("run->elapsed_ms = 0.0f;")
+        timed = route.index('routed_step_mark("timed", "start");')
+        self.assertLess(reset, timed)
+        for fragment in (
+            "run->gate_up_elapsed_ms = 0.0f;",
+            "run->down_elapsed_ms = 0.0f;",
+            "run->timing_fallback_used = false;",
+            "if (whole_repeated_layer_provider) {",
+            "run->timing_fallback_used = true;",
+            "BATCH_MARK qwen36_routed_expert_timing_readout_elided",
+            "reason=non_finite_synchronized_hip_event",
+        ):
+            self.assertIn(fragment, route)
+        self.assertNotIn(
+            "routed expert HIP event timing was negative or non-finite",
+            route,
+        )
+
+    def test_early_qkvz_hawkeye_uses_compact_l2_upper_bounds(self) -> None:
+        start = self.provider.index("auto launch_projection =")
+        end = self.provider.index("auto fail_hip =", start)
+        route = self.provider[start:end]
+
+        self.assertIn("bf16_row_l2_upper_bound_kernel", route)
+        self.assertIn("input_l2_upper_bounds", route)
+        self.assertIn("weight_l2_upper_bounds", route)
+        self.assertIn("effective_hawkeye_midpoint_radius", route)
+        self.assertIn(
+            "exact_arbitrary_early_qkvz_wmma_hawkeye_full_layers",
+            route,
+        )
+        self.assertIn(
+            'hawkeye_absolute_product_upper_bound="',
+            route,
+        )
+        self.assertIn('"l2_cauchy"', route)
+        self.assertNotIn(
+            '"_early_qkvz_wmma_absolute_product_sum"',
+            route,
+        )
+        self.assertNotIn(
+            "absolute_product_sums,\n                            rows,",
+            route,
         )
 
     def test_exact_arbitrary_q8192_disables_specialized_q1_route(self) -> None:

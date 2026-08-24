@@ -53,7 +53,16 @@ def _zero_correction_gate_finalize_kernel(
     )
     gate_rounded = native_gate.to(tl.bfloat16).to(tl.float32)
     up_rounded = native_up.to(tl.bfloat16).to(tl.float32)
-    silu = gate_rounded / (1.0 + tl.exp(-gate_rounded))
+    # F.silu is a model-visible BF16 tensor endpoint in Qwen3NextMLP.  Keep
+    # that rounding boundary even when no projection correction is required.
+    silu = (
+        gate_rounded / (1.0 + tl.exp(-gate_rounded))
+    )
+    silu_bits = silu.to(tl.uint32, bitcast=True)
+    silu_rounded_bits = (
+        silu_bits + 0x7FFF + ((silu_bits >> 16) & 1)
+    ) & 0xFFFF0000
+    silu = silu_rounded_bits.to(tl.float32, bitcast=True)
     tl.store(
         activated_bf16 + offsets_i64,
         (silu * up_rounded).to(tl.bfloat16),

@@ -3,8 +3,10 @@
   "target": "gfx1151",
   "compiler": "Triton 3.6.0 HIP backend",
   "source": "native/generators/compile_q8192_row_major_sorted_conditional_gate.py",
-  "source_sha256": "6d5ae64a61b05f86689f5237566d531b135b763796016192b2c908aa3cd16a37",
-  "arithmetic": "native WMMA gate/up with conditional retained K2048 FP32 reductions in row-major expert-sorted route order",
+  "source_sha256": "d60013df4167a7679eca94a10fe1e3b4df05eef8c4990e217c4ac3c9a94dc258",
+  "imported_source": "native/generators/compile_q8192_sorted_conditional_gate.py",
+  "imported_source_sha256": "f33b78e290fe7ce34fb926b4c2704558dcc79c64558a656f1d6e2b05625f885b",
+  "arithmetic": "native WMMA gate/up with conditional retained K2048 FP32 reductions in row-major expert-sorted route order and a model-visible BF16 SiLU endpoint",
   "shape": {
     "tokens": 8192,
     "top_k": 8,
@@ -16,12 +18,12 @@
   "kernel": {
     "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
     "symbol": "_row_major_sorted_conditional_gate_up_silu_kernel",
-    "sha256": "b0b0230c3f8165dd5de97c02707b35bdac2c497377c17c09bc5f768c4822eae6",
+    "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54",
     "bytes": 7736,
     "max_grid": [163328, 1, 1],
     "threads": 256,
     "dynamic_shared_bytes": 32,
-    "compiled_hash": "21d26d7e14d0c6e3a9fa5510e60a25aed03ef43c6be8b3d6feb6d49f0608b6f9"
+    "compiled_hash": "ce30dbb28e3ab642f138d2120350ecc2f73fd4052aaeb2d121094fd311e3ebe7"
   },
   "postprocess": {
     "debug_sections_stripped": true,
@@ -31,15 +33,12 @@
   },
   "qualification": {
     "host": "quings",
-    "evidence": "row-major-sorted-gate-matrix-r1137",
-    "logical_tokens": [2560, 8192],
-    "exact_output_hash_match": true,
-    "q2560_baseline_ms": 91.26,
-    "q2560_selected_ms": 88.55,
-    "q8192_baseline_ms": 299.43,
-    "q8192_selected_ms": 288.61,
+    "evidence": "pending-public-silu-aot-r1192",
+    "independent_neutral_regeneration_count": 2,
+    "independent_artifact_and_metadata_match": true,
+    "component_requalification_pending": true,
+    "windows_product_requalification_required": true,
     "component_only": true,
-    "inference_success_claimed": false,
-    "public_cleanup_evidence": "prefill-diagnostic-public-complete-aot-r1187-r1190.json"
+    "inference_success_claimed": false
   }
 }

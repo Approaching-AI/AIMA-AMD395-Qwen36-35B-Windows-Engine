@@ -140,8 +140,23 @@ def _row_major_sorted_conditional_gate_up_silu_kernel(
                         up_rounded = up_value.to(
                             tl.bfloat16
                         ).to(tl.float32)
-                        silu = gate_rounded / (
-                            1.0 + tl.exp(-gate_rounded)
+                        # Qwen3NextMLP materializes F.silu's BF16 result
+                        # before multiplying by the BF16 up projection.  A
+                        # fused FP32 SiLU-and-multiply changes hundreds of
+                        # selected-expert endpoints at real arbitrary lengths.
+                        silu = (
+                            gate_rounded / (
+                                1.0 + tl.exp(-gate_rounded)
+                            )
+                        )
+                        silu_bits = silu.to(tl.uint32, bitcast=True)
+                        silu_rounded_bits = (
+                            silu_bits
+                            + 0x7FFF
+                            + ((silu_bits >> 16) & 1)
+                        ) & 0xFFFF0000
+                        silu = silu_rounded_bits.to(
+                            tl.float32, bitcast=True
                         )
                         tl.store(
                             activated_bf16 + output_index,

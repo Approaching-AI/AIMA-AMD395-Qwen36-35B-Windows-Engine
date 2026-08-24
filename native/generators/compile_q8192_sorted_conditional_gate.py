@@ -125,7 +125,20 @@ def _sorted_conditional_gate_up_silu_kernel(
                         up_value = tl.sum(inputs * up, axis=0)
                     gate_rounded = gate_value.to(tl.bfloat16).to(tl.float32)
                     up_rounded = up_value.to(tl.bfloat16).to(tl.float32)
-                    silu = gate_rounded / (1.0 + tl.exp(-gate_rounded))
+                    # Match the BF16 tensor boundary produced by F.silu in
+                    # Qwen3NextMLP before the BF16 up projection multiply.
+                    silu = (
+                        gate_rounded / (1.0 + tl.exp(-gate_rounded))
+                    )
+                    silu_bits = silu.to(tl.uint32, bitcast=True)
+                    silu_rounded_bits = (
+                        silu_bits
+                        + 0x7FFF
+                        + ((silu_bits >> 16) & 1)
+                    ) & 0xFFFF0000
+                    silu = silu_rounded_bits.to(
+                        tl.float32, bitcast=True
+                    )
                     tl.store(
                         activated_bf16 + output_index,
                         (silu * up_rounded).to(tl.bfloat16),

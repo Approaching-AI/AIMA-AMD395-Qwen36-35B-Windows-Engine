@@ -2,7 +2,9 @@
   "schema_version": 1,
   "target": "gfx1151",
   "compiler": "Triton 3.6.0 HIP backend",
-  "arithmetic": "BF16 gate/up endpoints followed by SiLU multiplication; no K2048 correction scan",
+  "source": "native/generators/compile_q8192_zero_correction_gate_finalize.py",
+  "source_sha256": "4882de7577a97bfbc0d91ff224df4e5c45b055f496a080ecf3e852dfd886e6eb",
+  "arithmetic": "BF16 gate/up endpoints followed by a BF16 SiLU endpoint and BF16 multiplication; no K2048 correction scan",
   "shape": {
     "max_tokens": 8192,
     "top_k": 8,
@@ -17,8 +19,8 @@
   },
   "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
   "symbol": "_zero_correction_gate_finalize_kernel",
-  "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
-  "bytes": 6696,
+  "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6",
+  "bytes": 6824,
   "max_grid": [
     32768,
     1,
@@ -26,7 +28,7 @@
   ],
   "threads": 256,
   "dynamic_shared_bytes": 0,
-  "compiled_hash": "b5a0a4f74ed66aa3ec509476d26e9ebe31795b29a6f36107c2336b556225c835",
+  "compiled_hash": "b8ed5ad3e1fd53e63c1283fed8a00d8cfd2875d0a9f101e204c88a41173bb9f2",
   "postprocess": {
     "debug_sections_stripped": true,
     "tool": "llvm-strip, compatible with GNU strip",
@@ -35,10 +37,11 @@
   },
   "qualification": {
     "host": "quings",
-    "evidence": "prefill-diagnostic-public-complete-aot-r1187-r1190.json",
-    "logical_tokens": [2049, 8192],
-    "q8192_exact_output_hash_match": true,
-    "gb10_layer3_tolerance_pass": true,
+    "evidence": "pending-public-silu-aot-r1192",
+    "independent_neutral_regeneration_count": 2,
+    "independent_artifact_and_metadata_match": true,
+    "component_requalification_pending": true,
+    "windows_product_requalification_required": true,
     "component_only": true,
     "inference_success_claimed": false
   }

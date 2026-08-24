@@ -95696,6 +95696,19 @@ bool run_repeated_routed_expert(
     run->stage = run_stage;
     run->weight_hashes_elided = false;
     run->diagnostic_hashes_elided = false;
+    // RoutedExpertRun instances are retained by the resident request path.
+    // A whole-layer provider owns its synchronization and therefore does not
+    // create the HIP events below.  Clear every diagnostic timing field before
+    // selecting that path so a NaN returned by an earlier event-backed call
+    // cannot be mistaken for the current request's execution status.
+    run->elapsed_ms = 0.0f;
+    run->gate_up_elapsed_ms = 0.0f;
+    run->down_elapsed_ms = 0.0f;
+    run->avg_ms = 0.0;
+    run->gate_up_avg_ms = 0.0;
+    run->down_avg_ms = 0.0;
+    run->selected_tokens_per_second = 0.0;
+    run->timing_fallback_used = false;
     const bool suppress_q1_terminal_corridor_step_markers =
         layer_index + 1u == QRT_QWEN36_LAYER_COUNT &&
         qwen36_layer39_dynamic_terminal_device_corridor_enabled(
@@ -99984,10 +99997,26 @@ bool run_repeated_routed_expert(
           !check_hip(hipEventElapsedTime(&run->elapsed_ms, start, stop), "hipEventElapsedTime_" + run_stage, &run->failure_stage, &run->failure)))) {
         goto cleanup;
     }
-    if (!std::isfinite(run->elapsed_ms) || run->elapsed_ms < 0.0f) {
-        run->failure_stage = "timing_" + run_stage;
-        run->failure = human_layer + " routed expert HIP event timing was negative or non-finite";
-        goto cleanup;
+    if (whole_repeated_layer_provider) {
+        // The provider-managed path has no event pair at this level.  Its
+        // product wall clock is recorded by the outer request, so report this
+        // optional subspan as unavailable instead of consulting stale event
+        // telemetry from a retained RoutedExpertRun.
+        run->elapsed_ms = 0.0f;
+        run->timing_fallback_used = true;
+    } else if (!std::isfinite(run->elapsed_ms) || run->elapsed_ms < 0.0f) {
+        // hipEventSynchronize above already established successful execution.
+        // A bad elapsed-time readout is diagnostic-only and must not reject a
+        // numerically valid product request on long-lived Windows HIP services.
+        std::cerr
+            << "BATCH_MARK qwen36_routed_expert_timing_readout_elided"
+            << " stage=" << run_stage
+            << " reason=non_finite_synchronized_hip_event"
+            << " elapsed_ms=" << run->elapsed_ms
+            << " numerical_correctness_claimed=0"
+            << std::endl;
+        run->elapsed_ms = 0.0f;
+        run->timing_fallback_used = true;
     }
     routed_step_mark("timed", "done");
 
@@ -103459,6 +103488,68 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
     marker << " diagnostic_only=1 numerical_correctness_claimed=0";
     std::cerr << marker.str() << std::endl;
     return true;
+}
+
+bool emit_qwen36_exact_arbitrary_output_residual_trace(
+    unsigned int layer_index,
+    unsigned int prefill_tokens,
+    const OutputResidualRun &output_residual,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    if (!raw_env_flag_enabled(
+            "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE"
+        ) ||
+        layer_index != env_u32_or_default(
+            "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
+            UINT_MAX
+        )) {
+        return true;
+    }
+    const size_t expected_elements =
+        static_cast<size_t>(prefill_tokens) *
+        static_cast<size_t>(QRT_QWEN36_HIDDEN_SIZE);
+    const size_t expected_bytes = expected_elements * sizeof(float);
+    const uint64_t token_hash = token_ids_hash_or_compute(
+        output_residual.selected_token_ids_hash,
+        output_residual.selected_token_ids
+    );
+    float *device_output = nullptr;
+    const bool resident_surface =
+        output_residual.correctness_pass &&
+        output_residual.output_elements == expected_elements &&
+        output_residual.output_bytes == expected_bytes &&
+        token_ids_are_zero_based_prefix(
+            output_residual.selected_token_ids,
+            prefill_tokens
+        ) &&
+        borrow_descriptor_resident_layer_stack_surface(
+            DescriptorResidentLayerSurfaceKind::kOutputHidden,
+            layer_index,
+            token_hash,
+            expected_bytes,
+            "exact_arbitrary_output_residual_trace",
+            &device_output
+        );
+    if (!resident_surface || device_output == nullptr) {
+        std::cerr
+            << "BATCH_MARK qwen36_exact_arbitrary_layer_boundary_trace"
+            << " layer=" << layer_index
+            << " surface=output_residual"
+            << " prefill_tokens=" << prefill_tokens
+            << " selected=0 resident_surface=0"
+            << " diagnostic_only=1 numerical_correctness_claimed=0"
+            << std::endl;
+        return true;
+    }
+    return emit_qwen36_exact_arbitrary_layer_boundary_trace(
+        layer_index,
+        prefill_tokens,
+        "output_residual",
+        device_output,
+        failure_stage,
+        failure
+    );
 }
 
 bool emit_qwen36_exact_arbitrary_linear_stage_trace(
@@ -114341,8 +114432,10 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
     uint16_t *device_post_norm_weight = nullptr;
     float *device_qkv = nullptr;
     float *device_z = nullptr;
-    float *device_qkv_absolute_product_sums = nullptr;
-    float *device_z_absolute_product_sums = nullptr;
+    float *device_qkv_input_l2_upper_bounds = nullptr;
+    float *device_z_input_l2_upper_bounds = nullptr;
+    float *device_qkv_weight_l2_upper_bounds = nullptr;
+    float *device_z_weight_l2_upper_bounds = nullptr;
     float *device_a = nullptr;
     float *device_b = nullptr;
     float *device_fused_ba = nullptr;
@@ -114555,6 +114648,17 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 ? env_u32_or_default(
                       "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_FULL_PREFIX_TOKENS",
                       0u
+                  )
+                : 0u;
+    const unsigned int
+        exact_arbitrary_early_qkvz_wmma_hawkeye_full_layers =
+            exact_arbitrary_early_qkvz_wmma_projection
+                ? (std::min)(
+                      env_u32_or_default(
+                          "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_FULL_LAYERS",
+                          0u
+                      ),
+                      exact_arbitrary_early_qkvz_wmma_layers
                   )
                 : 0u;
     const unsigned int
@@ -115258,17 +115362,24 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             if (use_exact_arbitrary_qkvz_wmma) {
                 constexpr unsigned int kWmmaRowsPerBlock = 128u;
                 constexpr unsigned int kWmmaTokensPerBlock = 64u;
+                const unsigned int effective_hawkeye_midpoint_radius =
+                    descriptor.layer_index <
+                            exact_arbitrary_early_qkvz_wmma_hawkeye_full_layers
+                        ? UINT32_C(0x8000)
+                        : exact_arbitrary_early_qkvz_wmma_hawkeye_midpoint_radius;
                 const bool use_hawkeye_midpoint_correction =
                     !exact_arbitrary_early_qkvz_wmma_unrounded &&
-                    (exact_arbitrary_early_qkvz_wmma_hawkeye_midpoint_radius !=
-                         0u ||
+                    (effective_hawkeye_midpoint_radius != 0u ||
                      exact_arbitrary_early_qkvz_wmma_hawkeye_full_prefix_tokens !=
                          0u ||
                      exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb !=
                          0u);
-                float *const absolute_product_sums = surface_bit == 1u
-                    ? device_qkv_absolute_product_sums
-                    : device_z_absolute_product_sums;
+                float *const input_l2_upper_bounds = surface_bit == 1u
+                    ? device_qkv_input_l2_upper_bounds
+                    : device_z_input_l2_upper_bounds;
+                float *const weight_l2_upper_bounds = surface_bit == 1u
+                    ? device_qkv_weight_l2_upper_bounds
+                    : device_z_weight_l2_upper_bounds;
                 hipLaunchKernelGGL(
                     selected_bf16_projection_wmma_k16_m64_kernel,
                     dim3(
@@ -115302,39 +115413,43 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 if (use_hawkeye_midpoint_correction) {
                     if (exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb !=
                             0u &&
-                        absolute_product_sums == nullptr) {
+                        (input_l2_upper_bounds == nullptr ||
+                         weight_l2_upper_bounds == nullptr)) {
                         run->failure_stage =
                             prefix +
-                            "_early_qkvz_wmma_absolute_product_workspace";
+                            "_early_qkvz_wmma_l2_upper_bound_workspace";
                         run->failure =
-                            "Hawkeye absolute-product selector workspace is null";
+                            "Hawkeye L2 upper-bound selector workspace is null";
                         return false;
                     }
                     if (exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb !=
                         0u) {
                         hipLaunchKernelGGL(
-                            selected_bf16_projection_wmma_k16_m64_kernel,
-                            dim3(
-                                (rows + kWmmaRowsPerBlock - 1u) /
-                                    kWmmaRowsPerBlock,
-                                (target_token_count + kWmmaTokensPerBlock - 1u) /
-                                    kWmmaTokensPerBlock
-                            ),
+                            bf16_row_l2_upper_bound_kernel,
+                            dim3(target_token_count),
+                            dim3(256u),
+                            0,
+                            stream,
+                            device_input_rmsnorm_bf16,
+                            input_l2_upper_bounds,
+                            target_token_count,
+                            QRT_QWEN36_HIDDEN_SIZE
+                        );
+                        hipLaunchKernelGGL(
+                            bf16_row_l2_upper_bound_kernel,
+                            dim3(rows),
                             dim3(256u),
                             0,
                             stream,
                             device_weights,
-                            device_input_rmsnorm_bf16,
-                            absolute_product_sums,
+                            weight_l2_upper_bounds,
                             rows,
-                            target_token_count,
-                            0u,
-                            1u
+                            QRT_QWEN36_HIDDEN_SIZE
                         );
                         if (!check_hip(
                                 hipGetLastError(),
                                 prefix +
-                                    "_early_qkvz_wmma_absolute_product_sum",
+                                    "_early_qkvz_wmma_l2_upper_bounds",
                                 &run->failure_stage,
                                 &run->failure
                             )) {
@@ -115357,14 +115472,14 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                         stream,
                         device_weights,
                         device_input_rmsnorm_bf16,
-                        absolute_product_sums,
                         nullptr,
-                        nullptr,
+                        input_l2_upper_bounds,
+                        weight_l2_upper_bounds,
                         device_output,
                         rows,
                         target_token_count,
                         QRT_QWEN36_HIDDEN_SIZE,
-                        exact_arbitrary_early_qkvz_wmma_hawkeye_midpoint_radius,
+                        effective_hawkeye_midpoint_radius,
                         (std::min)(
                             target_token_count,
                             exact_arbitrary_early_qkvz_wmma_hawkeye_full_prefix_tokens
@@ -115399,8 +115514,10 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                                    : "bf16_rne_f32_cells"))
                     << " hawkeye_midpoint_radius="
                     << (use_hawkeye_midpoint_correction
-                            ? exact_arbitrary_early_qkvz_wmma_hawkeye_midpoint_radius
+                            ? effective_hawkeye_midpoint_radius
                             : 0u)
+                    << " hawkeye_full_layers="
+                    << exact_arbitrary_early_qkvz_wmma_hawkeye_full_layers
                     << " hawkeye_full_prefix_tokens="
                     << (use_hawkeye_midpoint_correction
                             ? (std::min)(
@@ -115412,6 +115529,12 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << (use_hawkeye_midpoint_correction
                             ? exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb
                             : 0u)
+                    << " hawkeye_absolute_product_upper_bound="
+                    << (use_hawkeye_midpoint_correction &&
+                                exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb !=
+                                    0u
+                            ? "l2_cauchy"
+                            : "none")
                     << " hawkeye_correction=wave16_block_compact"
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
                     << std::endl;
@@ -117506,16 +117629,28 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         (exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb !=
              0u &&
          (!malloc_device(
-              &device_qkv_absolute_product_sums,
-              run->qkv_projection.output_bytes,
+              &device_qkv_input_l2_upper_bounds,
+              static_cast<size_t>(target_token_count) * sizeof(float),
               "hipMalloc(" + prefix +
-                  "_qkv_absolute_product_sums)"
+                  "_qkv_input_l2_upper_bounds)"
           ) ||
           !malloc_device(
-              &device_z_absolute_product_sums,
-              run->z_projection.output_bytes,
+              &device_z_input_l2_upper_bounds,
+              static_cast<size_t>(target_token_count) * sizeof(float),
               "hipMalloc(" + prefix +
-                  "_z_absolute_product_sums)"
+                  "_z_input_l2_upper_bounds)"
+          ) ||
+          !malloc_device(
+              &device_qkv_weight_l2_upper_bounds,
+              static_cast<size_t>(kQkvRows) * sizeof(float),
+              "hipMalloc(" + prefix +
+                  "_qkv_weight_l2_upper_bounds)"
+          ) ||
+          !malloc_device(
+              &device_z_weight_l2_upper_bounds,
+              static_cast<size_t>(kZRows) * sizeof(float),
+              "hipMalloc(" + prefix +
+                  "_z_weight_l2_upper_bounds)"
           ))) ||
         !malloc_device(
             &device_a,
@@ -121216,8 +121351,10 @@ cleanup:
     free_device(device_fused_ba);
     free_device(device_b);
     free_device(device_a);
-    free_device(device_z_absolute_product_sums);
-    free_device(device_qkv_absolute_product_sums);
+    free_device(device_z_weight_l2_upper_bounds);
+    free_device(device_qkv_weight_l2_upper_bounds);
+    free_device(device_z_input_l2_upper_bounds);
+    free_device(device_qkv_input_l2_upper_bounds);
     free_device(device_z);
     free_device(device_qkv);
     free_device(device_post_norm_weight);
@@ -131462,6 +131599,17 @@ bool run_repeated_prefill_layer_helper_for_targets(
                 run->routed_expert_window.correctness_pass &&
                 run->shared_expert_window.correctness_pass &&
                 run->output_residual_window.correctness_pass;
+            if (run->correctness_pass &&
+                !emit_qwen36_exact_arbitrary_output_residual_trace(
+                    descriptor.layer_index,
+                    prefill_tokens,
+                    run->output_residual_window,
+                    &run->failure_stage,
+                    &run->failure
+                )) {
+                run->correctness_pass = false;
+                return false;
+            }
             if (run->correctness_pass) {
                 record_prefill_repeated_layer_host_materialization(*run);
             }
@@ -136403,6 +136551,16 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
             }
             run->output_boundary =
                 "layer" + std::to_string(layer_index) + "_full_attention_output_residual";
+            if (!emit_qwen36_exact_arbitrary_output_residual_trace(
+                    layer_index,
+                    prefill_tokens,
+                    layer.output_residual,
+                    &run->failure_stage,
+                    &run->failure
+                )) {
+                run->next_unclosed_boundary = run->output_boundary;
+                return false;
+            }
             record_selected_moe_layer_surface_for_batch(
                 run,
                 layer.layer_index,

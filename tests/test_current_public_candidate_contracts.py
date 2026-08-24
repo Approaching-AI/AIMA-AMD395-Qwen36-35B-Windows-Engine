@@ -29,9 +29,9 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
             "q8192_selected_moe_down.hsaco":
                 "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a",
             "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco":
-                "b0b0230c3f8165dd5de97c02707b35bdac2c497377c17c09bc5f768c4822eae6",
+                "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54",
             "q8192_triton_0626_zero_correction_gate_finalize.hsaco":
-                "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
+                "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6",
             "q8192_triton_0626_conditional_exact_down_rows4.hsaco":
                 "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4",
         }
@@ -57,6 +57,40 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
             payload = (aot / kernel["file"]).read_bytes()
             self.assertEqual(len(payload), kernel["bytes"])
             self.assertEqual(hashlib.sha256(payload).hexdigest(), kernel["sha256"])
+
+    def test_current_silu_aot_metadata_binds_sources_and_artifacts(self) -> None:
+        aot = ROOT / "native" / "aot" / "gfx1151"
+        records = (
+            (
+                "q8192_triton_0626_row_major_sorted_conditional_exact_gate_metadata.json",
+                "kernel",
+            ),
+            (
+                "q8192_triton_0626_zero_correction_gate_finalize_metadata.json",
+                None,
+            ),
+        )
+        for metadata_name, kernel_key in records:
+            metadata = json.loads((aot / metadata_name).read_text(encoding="utf-8"))
+            source = ROOT / metadata["source"]
+            self.assertEqual(
+                hashlib.sha256(source.read_bytes()).hexdigest(),
+                metadata["source_sha256"],
+            )
+            if "imported_source" in metadata:
+                imported_source = ROOT / metadata["imported_source"]
+                self.assertEqual(
+                    hashlib.sha256(imported_source.read_bytes()).hexdigest(),
+                    metadata["imported_source_sha256"],
+                )
+            kernel = metadata[kernel_key] if kernel_key is not None else metadata
+            payload = (aot / kernel["file"]).read_bytes()
+            self.assertEqual(len(payload), kernel["bytes"])
+            self.assertEqual(hashlib.sha256(payload).hexdigest(), kernel["sha256"])
+            self.assertTrue(metadata["postprocess"]["debug_sections_stripped"])
+            self.assertEqual(metadata["postprocess"]["private_home_path_count"], 0)
+            self.assertTrue(metadata["qualification"]["component_only"])
+            self.assertFalse(metadata["qualification"]["inference_success_claimed"])
 
     def test_v2_sorted_bf16_policy_is_implemented(self) -> None:
         provider = (
