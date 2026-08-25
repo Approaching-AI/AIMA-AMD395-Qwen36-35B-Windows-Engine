@@ -1145,8 +1145,11 @@ int main(int argc, char **argv) {
                 const float gate = static_cast<float>(expert % 7u + 1u);
                 const float up =
                     static_cast<float>(expert % 5u + 1u) * 0.5f;
+                const float silu_bf16 = bf16_to_float(float_to_bf16(
+                    gate / (1.0f + std::exp(-gate))
+                ));
                 const float activated = bf16_to_float(float_to_bf16(
-                    (gate / (1.0f + std::exp(-gate))) * up
+                    silu_bf16 * up
                 ));
                 const float down_bf16 = bf16_to_float(float_to_bf16(
                     activated * static_cast<float>(expert % 3u + 1u)

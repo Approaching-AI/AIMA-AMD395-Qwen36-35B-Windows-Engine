@@ -89,6 +89,14 @@ class NativeRouteContractTests(unittest.TestCase):
             self.assertLess(rne, tie)
             self.assertLess(tie, truncate)
             self.assertLess(truncate, store)
+        provider_oracle = self.q8192_smoke.index(
+            "const float silu_bf16 = bf16_to_float(float_to_bf16("
+        )
+        provider_expectation = self.q8192_smoke.index(
+            "silu_bf16 * up",
+            provider_oracle,
+        )
+        self.assertLess(provider_oracle, provider_expectation)
 
     def test_resident_route_can_include_retained_q8192(self) -> None:
         start = self.provider.index("bool qwen36_exact_arbitrary_product_path_enabled(")

@@ -13,7 +13,7 @@ run_dir=${stage_root}/qualification-${run_label}
 base=${workspace_root}/AIMA-dynamic-logical-smoke-r1093-t3J3OB
 accepted_root=${workspace_root}/qrt-dynamic-aot-r1171-REFHyB
 provider=${accepted_root}/provider-r1175b/provider-native-shared-v2-sorted-parity.so
-smoke=${accepted_root}/smoke-r1178b/moe-v2-sorted-oracle-smoke
+smoke=${accepted_root}/smoke-r1196b/moe-v2-sorted-oracle-smoke
 replay=${base}/real-q8192-layer3-correction-boundary-r1148/run/q8192_real_moe_replay
 capture_dir=${base}/real-q8192-layer3-correction-boundary-r1148/capture
 weights_dir=${base}/real-q8192-layer3-correction-boundary-r1148/weights
@@ -21,8 +21,8 @@ weights_dir=${base}/real-q8192-layer3-correction-boundary-r1148/weights
 expected_metadata_sha256=41e77d3afdecba63ee15c63e5f585f44ae29a6220e296e2752dcc18cfd24dc14
 expected_provider_source_sha256=894760e70f42d6f92a8a3c322ae3533960f311d6704fb251cd2b8c6bb3894c19
 expected_provider_sha256=5170bbf386a40837cfbb142ece292fa88217849b5bb771fbe68406e688ca2e84
-expected_smoke_source_sha256=dd5a9b4dd9851dc1769c97707af8c722c73c95538422a74f4f97d1a200f3aabd
-expected_smoke_sha256=a98ea57776a1e3b6041774d67c6840d73ccd79dab4e7dad67f4ff000fbe3e369
+expected_smoke_source_sha256=ccdc0fe31be05ff2a808c483a59adeae29bd0f4232b8c2ad169291359808a3ab
+expected_smoke_sha256=ec64172ab8cdb9b037bce169e51307cb8c66abeb8e74e40003fcf0a34c3bfaa9
 expected_replay_sha256=06af52b32427d8c86e9de0e0cfb127bccf1b43156871082dab8f9eebaa795b49
 expected_capture_input_sha256=356bacc6f40b177676d5146854a716bf37e15e1ff7db488da6e4689c2c4b2f28
 expected_capture_output_sha256=557d9176e1ddbe969e3651b546dda03ca568b96e99c85059b69b20cf640ba11d
@@ -152,12 +152,20 @@ set -e
 
 python3 - "${run_dir}/smoke.stdout.log" "${run_dir}/replay.json" \
     "${run_dir}/qualification.json" "${candidate_commit}" \
-    "${replay_rc}" <<'PY'
+    "${replay_rc}" "${run_dir}/output.bf16" <<'PY'
+import hashlib
 import json
 from pathlib import Path
 import sys
 
-smoke_path, replay_path, output_path, candidate_commit, replay_rc = sys.argv[1:]
+(
+    smoke_path,
+    replay_path,
+    output_path,
+    candidate_commit,
+    replay_rc,
+    replay_output_path,
+) = sys.argv[1:]
 text = Path(smoke_path).read_text(encoding="utf-8")
 expected_tokens = [
     2073, 2156, 2560, 3073, 4609, 6145, 2049, 2175,
@@ -241,7 +249,9 @@ record = {
         "replay_exit_code": int(replay_rc),
         "elapsed_ms": replay["elapsed_ms"],
         "output_bf16_fnv1a64": replay["output_bf16_fnv1a64"],
-        "output_sha256": replay["output_sha256"],
+        "output_sha256": hashlib.sha256(
+            Path(replay_output_path).read_bytes()
+        ).hexdigest(),
         "nonfinite_count": replay["nonfinite_count"],
         "max_abs_difference_to_reference_bf16": (
             replay["max_abs_difference_to_reference_bf16"]
