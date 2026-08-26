@@ -17,6 +17,9 @@
 - Repaired exact prefix fallback seeding after the single-token no-capture
   optimization, and added a bounded, reproducible 256 MiB-stack product CLI
   to the runtime package.
+- Bounded product-shape Hawkeye exact-recompute grids into independently
+  synchronized Windows dispatches, with layer and QKV/Z surface isolation for
+  fault-localized numerical qualification without a WDDM-length kernel.
 - Promotion remains pending a clean native Windows build and
   correctness-attached real-model product qualification on `baiying` from the
   exact candidate commit.

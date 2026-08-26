@@ -179,6 +179,44 @@ class NativeRouteContractTests(unittest.TestCase):
             route,
         )
 
+    def test_hawkeye_exact_recompute_is_wddm_bounded_and_isolatable(self) -> None:
+        kernel_start = self.provider.index(
+            "void selected_bf16_projection_hawkeye_midpoint_correction_kernel("
+        )
+        route_start = self.provider.index(
+            "hipError_t "
+            "launch_selected_bf16_projection_hawkeye_midpoint_correction("
+        )
+        route_end = self.provider.index(
+            "void selected_bf16_projection_split3_output_type_tiled_kernel(",
+            route_start,
+        )
+        kernel = self.provider[kernel_start:route_start]
+        route = self.provider[route_start:route_end]
+
+        self.assertIn("size_t element_offset", kernel)
+        self.assertIn("const size_t index = element_offset + local_index;", kernel)
+        self.assertIn("maximum_blocks_per_launch", route)
+        self.assertIn("elements_per_launch", route)
+        self.assertIn("hipStreamSynchronize(stream)", route)
+        self.assertIn(
+            "kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 256u",
+            self.provider,
+        )
+        for env_name in (
+            "QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH",
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_LAYER_MASK",
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_SURFACE_MASK",
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_LAYER_MASK",
+        ):
+            self.assertIn(env_name, self.provider)
+        self.assertEqual(
+            self.provider.count(
+                "launch_selected_bf16_projection_hawkeye_midpoint_correction("
+            ),
+            6,
+        )
+
     def test_exact_arbitrary_q8192_disables_specialized_q1_route(self) -> None:
         helper_start = self.provider.index(
             "bool qwen36_specialized_retained_q8192_path_enabled("

@@ -61,6 +61,16 @@
 namespace {
 
 constexpr int kThreads = 256;
+constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
+// gfx1151 runs under WDDM on the Windows acceptance host.  A single
+// product-shape Hawkeye correction grid can otherwise occupy the GPU for
+// long enough to trip TDR and take the host off the LAN.  Keep each dispatch
+// bounded; the cells are independent, so partitioning does not change the
+// arithmetic or endpoint.
+constexpr unsigned int
+    kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 256u;
+constexpr unsigned int
+    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 65535u;
 constexpr int kWarmupIterations = 0;
 constexpr int kTimedIterations = 1;
 constexpr int kSelectedProjectionTimedIterations = 1;
@@ -36986,22 +36996,24 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     unsigned int reduction_size,
     unsigned int midpoint_radius,
     unsigned int full_prefix_tokens,
-    unsigned int absolute_error_bound_ppb
+    unsigned int absolute_error_bound_ppb,
+    size_t element_offset
 ) {
-    constexpr unsigned int kCorrectionThreads = 256u;
     constexpr unsigned int kWave16 = 16u;
     constexpr unsigned int kWave16Subgroups =
-        kCorrectionThreads / kWave16;
+        kSelectedHawkeyeCorrectionThreads / kWave16;
     __shared__ unsigned int candidate_count;
-    __shared__ unsigned int candidate_offsets[kCorrectionThreads];
+    __shared__ unsigned int
+        candidate_offsets[kSelectedHawkeyeCorrectionThreads];
 
     if (threadIdx.x == 0u) {
         candidate_count = 0u;
     }
     __syncthreads();
 
-    const size_t index =
+    const size_t local_index =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    const size_t index = element_offset + local_index;
     const size_t elements =
         static_cast<size_t>(selected_token_count) * rows;
     union {
@@ -37070,6 +37082,7 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
          candidate_slot < candidate_count;
          candidate_slot += kWave16Subgroups) {
         const size_t candidate_index =
+            element_offset +
             static_cast<size_t>(blockIdx.x) * blockDim.x +
             candidate_offsets[candidate_slot];
         const size_t token = candidate_index / rows;
@@ -37086,6 +37099,82 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
                 device_bf16_round_to_float(corrected);
         }
     }
+}
+
+// Split long exact-recompute grids into independently completed dispatches.
+// The synchronization is intentional: it bounds both the WDDM kernel wall and
+// the amount of queued work, while also surfacing an asynchronous device fault
+// at the exact chunk that caused it.  This path is a numerical diagnostic and
+// never the retained-performance fast path.
+hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
+    const uint16_t *weights,
+    const uint16_t *selected_inputs,
+    const float *absolute_product_sums,
+    const float *selected_input_l2_upper_bounds,
+    const float *weight_l2_upper_bounds,
+    float *outputs,
+    unsigned int rows,
+    unsigned int selected_token_count,
+    unsigned int reduction_size,
+    unsigned int midpoint_radius,
+    unsigned int full_prefix_tokens,
+    unsigned int absolute_error_bound_ppb,
+    unsigned int maximum_blocks_per_launch,
+    hipStream_t stream
+) {
+    const size_t elements =
+        static_cast<size_t>(selected_token_count) * rows;
+    const unsigned int bounded_blocks = (std::max)(
+        1u,
+        (std::min)(
+            maximum_blocks_per_launch,
+            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+        )
+    );
+    const size_t elements_per_launch =
+        static_cast<size_t>(bounded_blocks) *
+        kSelectedHawkeyeCorrectionThreads;
+    for (size_t element_offset = 0u;
+         element_offset < elements;
+         element_offset += elements_per_launch) {
+        const size_t launch_elements = (std::min)(
+            elements - element_offset,
+            elements_per_launch
+        );
+        const unsigned int launch_blocks = static_cast<unsigned int>(
+            (launch_elements + kSelectedHawkeyeCorrectionThreads - 1u) /
+            kSelectedHawkeyeCorrectionThreads
+        );
+        hipLaunchKernelGGL(
+            selected_bf16_projection_hawkeye_midpoint_correction_kernel,
+            dim3(launch_blocks),
+            dim3(kSelectedHawkeyeCorrectionThreads),
+            0,
+            stream,
+            weights,
+            selected_inputs,
+            absolute_product_sums,
+            selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds,
+            outputs,
+            rows,
+            selected_token_count,
+            reduction_size,
+            midpoint_radius,
+            full_prefix_tokens,
+            absolute_error_bound_ppb,
+            element_offset
+        );
+        hipError_t status = hipGetLastError();
+        if (status != hipSuccess) {
+            return status;
+        }
+        status = hipStreamSynchronize(stream);
+        if (status != hipSuccess) {
+            return status;
+        }
+    }
+    return hipSuccess;
 }
 
 // GB10's cuBLASLt BF16 BA projection selects an output-type split-K
@@ -40053,6 +40142,19 @@ unsigned int env_u32_or_default(const char *name, unsigned int fallback) {
     const unsigned int parsed = parse();
     cache.emplace(name, parsed);
     return parsed;
+}
+
+unsigned int selected_hawkeye_correction_maximum_blocks_per_launch() {
+    return (std::max)(
+        1u,
+        (std::min)(
+            env_u32_or_default(
+                "QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH",
+                kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch
+            ),
+            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+        )
+    );
 }
 
 int env_i32_or_default(const char *name, int fallback) {
@@ -114602,6 +114704,16 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             ),
             QRT_QWEN36_LAYER_COUNT
         );
+    const uint64_t exact_arbitrary_early_qkvz_wmma_layer_mask =
+        parse_env_u64_or_default(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_LAYER_MASK",
+            UINT64_C(0)
+        );
+    const unsigned int exact_arbitrary_early_qkvz_wmma_surface_mask =
+        env_u32_or_default(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_SURFACE_MASK",
+            3u
+        ) & 3u;
     const uint64_t exact_arbitrary_early_ab_dot2_layer_mask =
         parse_env_u64_or_default(
             "QRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_DOT2_LAYER_MASK",
@@ -114625,7 +114737,10 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         descriptor.layer_index < exact_arbitrary_early_qkvz_dot2_layers;
     const bool exact_arbitrary_early_qkvz_wmma_projection =
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&
-        descriptor.layer_index < exact_arbitrary_early_qkvz_wmma_layers;
+        (descriptor.layer_index < exact_arbitrary_early_qkvz_wmma_layers ||
+         (descriptor.layer_index < 64u &&
+          (exact_arbitrary_early_qkvz_wmma_layer_mask &
+           (UINT64_C(1) << descriptor.layer_index)) != 0u));
     const bool exact_arbitrary_early_qkvz_wmma_unrounded =
         exact_arbitrary_early_qkvz_wmma_projection &&
         raw_env_flag_enabled(
@@ -114823,10 +114938,18 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             ),
             QRT_QWEN36_LAYER_COUNT
         );
+    const uint64_t exact_arbitrary_early_out_hawkeye_layer_mask =
+        parse_env_u64_or_default(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_LAYER_MASK",
+            UINT64_C(0)
+        );
     const bool use_exact_arbitrary_early_out_hawkeye =
         use_resident_bf16_matrix_provider &&
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&
-        descriptor.layer_index < exact_arbitrary_early_out_hawkeye_layers;
+        (descriptor.layer_index < exact_arbitrary_early_out_hawkeye_layers ||
+         (descriptor.layer_index < 64u &&
+          (exact_arbitrary_early_out_hawkeye_layer_mask &
+           (UINT64_C(1) << descriptor.layer_index)) != 0u));
     const unsigned int
         exact_arbitrary_early_out_hawkeye_midpoint_radius =
             use_exact_arbitrary_early_out_hawkeye
@@ -115354,7 +115477,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             const bool use_exact_arbitrary_qkvz_wmma =
                 exact_arbitrary_early_qkvz_wmma_projection &&
                 (rows == kQkvRows || rows == kZRows) &&
-                (surface_bit & 3u) != 0u;
+                (exact_arbitrary_early_qkvz_wmma_surface_mask &
+                 surface_bit) != 0u;
             const bool use_exact_arbitrary_dot2 =
                 use_exact_arbitrary_ab_dot2 ||
                 use_exact_arbitrary_qkvz_dot2 ||
@@ -115456,38 +115580,26 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                             return false;
                         }
                     }
-                    const size_t elements =
-                        static_cast<size_t>(target_token_count) * rows;
-                    constexpr unsigned int kCorrectionThreads = 256u;
-                    hipLaunchKernelGGL(
-                        selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                        dim3(
-                            static_cast<unsigned int>(
-                                (elements + kCorrectionThreads - 1u) /
-                                kCorrectionThreads
-                            )
-                        ),
-                        dim3(kCorrectionThreads),
-                        0,
-                        stream,
-                        device_weights,
-                        device_input_rmsnorm_bf16,
-                        nullptr,
-                        input_l2_upper_bounds,
-                        weight_l2_upper_bounds,
-                        device_output,
-                        rows,
-                        target_token_count,
-                        QRT_QWEN36_HIDDEN_SIZE,
-                        effective_hawkeye_midpoint_radius,
-                        (std::min)(
-                            target_token_count,
-                            exact_arbitrary_early_qkvz_wmma_hawkeye_full_prefix_tokens
-                        ),
-                        exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb
-                    );
                     if (!check_hip(
-                            hipGetLastError(),
+                            launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                                device_weights,
+                                device_input_rmsnorm_bf16,
+                                nullptr,
+                                input_l2_upper_bounds,
+                                weight_l2_upper_bounds,
+                                device_output,
+                                rows,
+                                target_token_count,
+                                QRT_QWEN36_HIDDEN_SIZE,
+                                effective_hawkeye_midpoint_radius,
+                                (std::min)(
+                                    target_token_count,
+                                    exact_arbitrary_early_qkvz_wmma_hawkeye_full_prefix_tokens
+                                ),
+                                exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb,
+                                selected_hawkeye_correction_maximum_blocks_per_launch(),
+                                stream
+                            ),
                             prefix +
                                 "_early_qkvz_wmma_hawkeye_midpoint_correction",
                             &run->failure_stage,
@@ -115536,6 +115648,14 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                             ? "l2_cauchy"
                             : "none")
                     << " hawkeye_correction=wave16_block_compact"
+                    << " hawkeye_maximum_blocks_per_launch="
+                    << selected_hawkeye_correction_maximum_blocks_per_launch()
+                    << " wmma_surface_mask="
+                    << exact_arbitrary_early_qkvz_wmma_surface_mask
+                    << " wmma_layer_mask=0x"
+                    << std::hex
+                    << exact_arbitrary_early_qkvz_wmma_layer_mask
+                    << std::dec
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
                     << std::endl;
                 return true;
@@ -120015,36 +120135,25 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                         << " diagnostic_only=1";
                     std::cerr << trace_marker.str() << std::endl;
                 }
-                constexpr unsigned int kCorrectionThreads = 256u;
                 if (exact_arbitrary_early_out_hawkeye_midpoint_radius !=
                     0u) {
-                    const size_t elements =
-                        static_cast<size_t>(target_token_count) *
-                        kOutProjectionRows;
-                    hipLaunchKernelGGL(
-                        selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                        dim3(static_cast<unsigned int>(
-                            (elements + kCorrectionThreads - 1u) /
-                            kCorrectionThreads
-                        )),
-                        dim3(kCorrectionThreads),
-                        0,
-                        0,
-                        device_out_weight,
-                        device_gated_bf16,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        device_out,
-                        kOutProjectionRows,
-                        target_token_count,
-                        kValueFeatures,
-                        exact_arbitrary_early_out_hawkeye_midpoint_radius,
-                        0u,
-                        0u
-                    );
                     if (!fail_hip(
-                            hipGetLastError(),
+                            launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                                device_out_weight,
+                                device_gated_bf16,
+                                nullptr,
+                                nullptr,
+                                nullptr,
+                                device_out,
+                                kOutProjectionRows,
+                                target_token_count,
+                                kValueFeatures,
+                                exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                                0u,
+                                0u,
+                                selected_hawkeye_correction_maximum_blocks_per_launch(),
+                                0
+                            ),
                             prefix +
                                 "_early_out_hawkeye_midpoint_correction"
                         )) {
@@ -120054,33 +120163,25 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 if (exact_arbitrary_early_out_hawkeye_terminal_diagnostic) {
                     const size_t terminal_token =
                         static_cast<size_t>(target_token_count - 1u);
-                    hipLaunchKernelGGL(
-                        selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                        dim3(
-                            (kOutProjectionRows +
-                             kCorrectionThreads - 1u) /
-                                kCorrectionThreads
-                        ),
-                        dim3(kCorrectionThreads),
-                        0,
-                        0,
-                        device_out_weight,
-                        device_gated_bf16 +
-                            terminal_token * kValueFeatures,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        device_out +
-                            terminal_token * kOutProjectionRows,
-                        kOutProjectionRows,
-                        1u,
-                        kValueFeatures,
-                        0u,
-                        1u,
-                        0u
-                    );
                     if (!fail_hip(
-                            hipGetLastError(),
+                            launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                                device_out_weight,
+                                device_gated_bf16 +
+                                    terminal_token * kValueFeatures,
+                                nullptr,
+                                nullptr,
+                                nullptr,
+                                device_out +
+                                    terminal_token * kOutProjectionRows,
+                                kOutProjectionRows,
+                                1u,
+                                kValueFeatures,
+                                0u,
+                                1u,
+                                0u,
+                                selected_hawkeye_correction_maximum_blocks_per_launch(),
+                                0
+                            ),
                             prefix +
                                 "_early_out_hawkeye_terminal_correction"
                         )) {
@@ -120118,6 +120219,12 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << (exact_arbitrary_early_out_hawkeye_terminal_diagnostic
                             ? 1
                             : 0)
+                    << " hawkeye_maximum_blocks_per_launch="
+                    << selected_hawkeye_correction_maximum_blocks_per_launch()
+                    << " layer_mask=0x"
+                    << std::hex
+                    << exact_arbitrary_early_out_hawkeye_layer_mask
+                    << std::dec
                     << " accumulator=hopper_group16"
                     << " endpoint=bf16_rne"
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
@@ -127813,7 +127920,6 @@ bool run_full_attention_prefill_resident_core_for_targets(
             if (use_full_attention_qkv_wmma_hawkeye) {
                 constexpr unsigned int kWmmaRowsPerBlock = 128u;
                 constexpr unsigned int kWmmaTokensPerBlock = 64u;
-                constexpr unsigned int kCorrectionThreads = 256u;
                 if (full_attention_qkv_hawkeye_absolute_error_bound_ppb !=
                     0u) {
                     hipLaunchKernelGGL(
@@ -127873,31 +127979,23 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     cleanup();
                     return false;
                 }
-                hipLaunchKernelGGL(
-                    selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                    dim3(static_cast<unsigned int>(
-                        (run->qkv_projection.output_elements +
-                         kCorrectionThreads - 1u) /
-                            kCorrectionThreads
-                    )),
-                    dim3(kCorrectionThreads),
-                    0,
-                    0,
-                    device_fused_qkv_weight,
-                    device_input_rmsnorm_bf16,
-                    nullptr,
-                    device_fused_qkv_input_l2_upper_bounds,
-                    device_fused_qkv_weight_l2_upper_bounds,
-                    device_fused_qkv_f32,
-                    kLayer3FullAttentionQkvRows,
-                    history_tokens_u32,
-                    QRT_QWEN36_HIDDEN_SIZE,
-                    full_attention_qkv_hawkeye_midpoint_radius,
-                    0u,
-                    full_attention_qkv_hawkeye_absolute_error_bound_ppb
-                );
                 if (!fail_hip(
-                        hipGetLastError(),
+                        launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                            device_fused_qkv_weight,
+                            device_input_rmsnorm_bf16,
+                            nullptr,
+                            device_fused_qkv_input_l2_upper_bounds,
+                            device_fused_qkv_weight_l2_upper_bounds,
+                            device_fused_qkv_f32,
+                            kLayer3FullAttentionQkvRows,
+                            history_tokens_u32,
+                            QRT_QWEN36_HIDDEN_SIZE,
+                            full_attention_qkv_hawkeye_midpoint_radius,
+                            0u,
+                            full_attention_qkv_hawkeye_absolute_error_bound_ppb,
+                            selected_hawkeye_correction_maximum_blocks_per_launch(),
+                            0
+                        ),
                         prefix + "_full_attention_qkv_hawkeye"
                     )) {
                     cleanup();
@@ -127932,6 +128030,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     << full_attention_qkv_hawkeye_midpoint_radius
                     << " absolute_error_bound_ppb="
                     << full_attention_qkv_hawkeye_absolute_error_bound_ppb
+                    << " maximum_blocks_per_launch="
+                    << selected_hawkeye_correction_maximum_blocks_per_launch()
                     << " absolute_product_upper_bound=l2_cauchy"
                     << " arbitrary_length_zero_fill=1"
                     << std::endl;
@@ -128753,37 +128853,32 @@ bool run_full_attention_prefill_resident_core_for_targets(
             std::cerr
                 << " diagnostic_only=1 numerical_correctness_claimed=0"
                 << std::endl;
-            constexpr unsigned int kHawkeyeCorrectionThreads = 256u;
-            hipLaunchKernelGGL(
-                selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                dim3(
-                    (sweep_rows + kHawkeyeCorrectionThreads - 1u) /
-                        kHawkeyeCorrectionThreads
-                ),
-                dim3(kHawkeyeCorrectionThreads),
-                0,
-                0,
-                sweep_weight,
-                device_input_rmsnorm_bf16 +
-                    static_cast<size_t>(history_tokens_u32 - 1u) *
+            if (!fail_hip(
+                    launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                        sweep_weight,
+                        device_input_rmsnorm_bf16 +
+                            static_cast<size_t>(history_tokens_u32 - 1u) *
+                                QRT_QWEN36_HIDDEN_SIZE,
+                        nullptr,
+                        nullptr,
+                        nullptr,
+                        device_full_attention_hawkeye_terminal,
+                        sweep_rows,
+                        1u,
                         QRT_QWEN36_HIDDEN_SIZE,
-                nullptr,
-                nullptr,
-                nullptr,
-                device_full_attention_hawkeye_terminal,
-                sweep_rows,
-                1u,
-                QRT_QWEN36_HIDDEN_SIZE,
-                0u,
-                1u,
-                0u
-            );
+                        0u,
+                        1u,
+                        0u,
+                        selected_hawkeye_correction_maximum_blocks_per_launch(),
+                        0
+                    ),
+                    prefix + "_full_attention_hawkeye_terminal_launch"
+                )) {
+                cleanup();
+                return false;
+            }
             std::vector<float> hawkeye_terminal_f32(sweep_rows, 0.0f);
             if (!fail_hip(
-                    hipGetLastError(),
-                    prefix + "_full_attention_hawkeye_terminal_launch"
-                ) ||
-                !fail_hip(
                     hipMemcpy(
                         hawkeye_terminal_f32.data(),
                         device_full_attention_hawkeye_terminal,
