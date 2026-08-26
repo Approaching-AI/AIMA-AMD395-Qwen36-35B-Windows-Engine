@@ -42481,6 +42481,8 @@ using TritonSelectedMoeCopyRoutedProjectionHawkeyeFn = int (*)(
     uint32_t *
 );
 #endif
+using TritonSelectedMoePaddedFullLaunchFn =
+    TritonSelectedMoeDynamicFullLaunchFn;
 
 // Keep the dense-ceil ladder no wider than 512 tokens through the first
 // q8192 tile.  A sparse power-of-two ladder makes a request just above an
@@ -42536,6 +42538,7 @@ struct TritonSelectedMoeProviderState {
     TritonSelectedMoeLaunchFn launch = nullptr;
     TritonSelectedMoeFullLaunchFn full_launch = nullptr;
     TritonSelectedMoeDynamicFullLaunchFn dynamic_full_launch = nullptr;
+    TritonSelectedMoePaddedFullLaunchFn padded_full_launch = nullptr;
     TritonSelectedMoeSetLosslessPaletteFn set_lossless_palette = nullptr;
     TritonSelectedMoeSetLosslessPaletteFn set_lossless_row_palette = nullptr;
     TritonSelectedMoeSetWeightInt8Fn set_weight_int8 = nullptr;
@@ -42769,6 +42772,13 @@ bool load_triton_selected_moe_provider(
                 "qrt_triton_moe_q8192_launch_full_v4_dynamic_async"
             )
         );
+    state.padded_full_launch =
+        reinterpret_cast<TritonSelectedMoePaddedFullLaunchFn>(
+            GetProcAddress(
+                state.module,
+                "qrt_triton_moe_q8192_launch_full_v5_padded_async"
+            )
+        );
     state.set_lossless_palette =
         reinterpret_cast<TritonSelectedMoeSetLosslessPaletteFn>(
             GetProcAddress(
@@ -42876,6 +42886,7 @@ bool load_triton_selected_moe_provider(
         state.launch = nullptr;
         state.full_launch = nullptr;
         state.dynamic_full_launch = nullptr;
+        state.padded_full_launch = nullptr;
         state.set_lossless_palette = nullptr;
         state.set_lossless_row_palette = nullptr;
         state.set_weight_int8 = nullptr;
@@ -42899,6 +42910,7 @@ bool load_triton_selected_moe_provider(
         state.launch = nullptr;
         state.full_launch = nullptr;
         state.dynamic_full_launch = nullptr;
+        state.padded_full_launch = nullptr;
         state.set_lossless_palette = nullptr;
         state.set_lossless_row_palette = nullptr;
         state.set_weight_int8 = nullptr;
@@ -42928,6 +42940,8 @@ bool load_triton_selected_moe_provider(
               << (full_v3_synchronous ? 1 : 0)
               << " full_v4_dynamic_available="
               << (state.dynamic_full_launch != nullptr ? 1 : 0)
+              << " full_v5_padded_available="
+              << (state.padded_full_launch != nullptr ? 1 : 0)
               << " lossless_palette_setter_available="
               << (state.set_lossless_palette != nullptr ? 1 : 0)
               << " lossless_row_palette_setter_available="
@@ -43021,6 +43035,46 @@ bool load_triton_selected_moe_dynamic_full_provider(
         return false;
     }
     *launch = state.dynamic_full_launch;
+    *scratch_bytes = state.scratch_bytes();
+    return true;
+#endif
+}
+
+bool load_triton_selected_moe_padded_full_provider(
+    TritonSelectedMoePaddedFullLaunchFn *launch,
+    uint64_t *scratch_bytes,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    if (launch == nullptr || scratch_bytes == nullptr ||
+        failure_stage == nullptr || failure == nullptr) {
+        return false;
+    }
+    TritonSelectedMoeFullLaunchFn fixed_launch = nullptr;
+    if (!load_triton_selected_moe_full_provider(
+            &fixed_launch,
+            scratch_bytes,
+            failure_stage,
+            failure
+        )) {
+        return false;
+    }
+#ifndef _WIN32
+    *failure_stage = "triton_selected_moe_padded_provider_platform";
+    *failure =
+        "padded q8192 Triton selected-MoE provider is only wired for Windows";
+    return false;
+#else
+    TritonSelectedMoeProviderState &state =
+        triton_selected_moe_provider_state();
+    std::lock_guard<std::mutex> lock(state.mutex);
+    if (state.padded_full_launch == nullptr) {
+        *failure_stage = "triton_selected_moe_padded_provider_symbol";
+        *failure =
+            "q8192 Triton selected-MoE DLL is missing the padded logical-length full-provider export";
+        return false;
+    }
+    *launch = state.padded_full_launch;
     *scratch_bytes = state.scratch_bytes();
     return true;
 #endif
@@ -105512,6 +105566,7 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
 
     TritonSelectedMoeFullLaunchFn provider_launch = nullptr;
     TritonSelectedMoeDynamicFullLaunchFn dynamic_provider_launch = nullptr;
+    TritonSelectedMoePaddedFullLaunchFn padded_provider_launch = nullptr;
     std::array<
         TritonSelectedMoeFullLaunchFn,
         kSmoothTailMoeProviderTokenCounts.size()
@@ -105576,6 +105631,15 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
                 &output_residual_run->failure_stage,
                 &output_residual_run->failure
             );
+            if (providers_loaded) {
+                providers_loaded =
+                    load_triton_selected_moe_padded_full_provider(
+                        &padded_provider_launch,
+                        &provider_scratch_bytes,
+                        &output_residual_run->failure_stage,
+                        &output_residual_run->failure
+                    );
+            }
         }
     }
     for (size_t provider_index = 0u;
@@ -106057,6 +106121,27 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
                         tile_stream
                     );
                 }
+            } else if (!use_small_smooth_tail_provider &&
+                       tile_capacity_tokens == kRetainedPrefillTokens &&
+                       padded_provider_launch != nullptr) {
+                // Fixed-capacity q8192 kernels still execute the padded tile,
+                // but the endpoint selector must see the caller's original
+                // logical length.  Otherwise every q8192-padded arbitrary
+                // tail would be mistaken for the retained q8192 route.
+                provider_launch_result = padded_provider_launch(
+                    tile_post_attention,
+                    tile_residual_output,
+                    router,
+                    routed_weights->device_gate_up,
+                    routed_weights->device_down,
+                    shared_gate,
+                    shared_gate_projection,
+                    shared_up_projection,
+                    shared_down,
+                    tile_output,
+                    static_cast<uint32_t>(tile_logical_tokens),
+                    tile_stream
+                );
             } else if (tile_provider_launch != nullptr) {
                 provider_launch_result = tile_provider_launch(
                     tile_post_attention,
@@ -106247,6 +106332,7 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
     );
     TritonSelectedMoeFullLaunchFn refreshed_launch = nullptr;
     TritonSelectedMoeDynamicFullLaunchFn refreshed_dynamic_launch = nullptr;
+    TritonSelectedMoePaddedFullLaunchFn refreshed_padded_launch = nullptr;
     if (main_provider_required) {
         if (dynamic_logical_moe_provider_requested) {
             (void)load_triton_selected_moe_dynamic_full_provider(
@@ -106265,6 +106351,12 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
         } else {
             (void)load_triton_selected_moe_full_provider(
                 &refreshed_launch,
+                &provider_scratch_bytes,
+                &output_residual_run->failure_stage,
+                &output_residual_run->failure
+            );
+            (void)load_triton_selected_moe_padded_full_provider(
+                &refreshed_padded_launch,
                 &provider_scratch_bytes,
                 &output_residual_run->failure_stage,
                 &output_residual_run->failure
@@ -106549,6 +106641,8 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
               << (exact_arbitrary_force_q1024_moe ? 1 : 0)
               << " dynamic_logical_moe_provider="
               << (dynamic_logical_moe_provider_requested ? 1 : 0)
+              << " padded_logical_moe_provider="
+              << (padded_provider_launch != nullptr ? 1 : 0)
               << " short_lossless_palette_requested="
               << (short_lossless_palette_requested ? 1 : 0)
               << " short_lossless_palette_format="

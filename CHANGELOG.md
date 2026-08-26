@@ -9,7 +9,9 @@
   and PowerShell 5.1 transport verification.
 - Preserved the GB10-retained fused-FP32 SiLU finalizer for logical q8191 and
   q8192 while keeping the model-visible BF16 SiLU endpoint on arbitrary-length
-  routes; the dual-AOT selection is explicit and runtime-marked.
+  routes; the dual-AOT selection is explicit and runtime-marked, and the new
+  padded-launch ABI carries the original logical length separately from the
+  q8192 physical execution capacity.
 - Added a strict cold random-length product verifier: each random length is
   bracketed by its interval's upper anchor, every response must match GB10,
   and route-log verification rejects fallbacks or prefix-cache contamination.

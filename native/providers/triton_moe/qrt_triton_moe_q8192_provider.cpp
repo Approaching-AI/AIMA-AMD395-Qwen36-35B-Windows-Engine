@@ -12160,9 +12160,10 @@ bool q8192_router_cuda_reduction_all_requested() {
 }
 
 bool retained_q8192_fused_f32_silu_compat_requested(
-    uint32_t token_count
+    uint32_t logical_token_count
 ) {
-    if (token_count != kTokens && token_count != kTokens - 1u) {
+    if (logical_token_count != kTokens &&
+        logical_token_count != kTokens - 1u) {
         return false;
     }
     const char *value = std::getenv(
@@ -13123,6 +13124,7 @@ bool launch_routed_matrices_after_input_conversion(
     const uint16_t *down_bf16,
     hipStream_t stream,
     uint32_t token_count = kTokens,
+    uint32_t retained_compat_logical_tokens = 0u,
     hipEvent_t sort_done = nullptr,
     hipEvent_t gate_done = nullptr,
     hipEvent_t tail_done = nullptr
@@ -13621,13 +13623,20 @@ bool launch_routed_matrices_after_input_conversion(
         const float *native_gate_up_pointer = g_state.route_outputs;
         uint16_t *activated_pointer = g_state.activated;
         if (!correction_requested) {
+            const uint32_t compatibility_logical_tokens =
+                retained_compat_logical_tokens != 0u
+                    ? retained_compat_logical_tokens
+                    : token_count;
             const bool retained_fused_f32_silu =
-                retained_q8192_fused_f32_silu_compat_requested(token_count);
+                retained_q8192_fused_f32_silu_compat_requested(
+                    compatibility_logical_tokens
+                );
             ModuleKernel &finalize_kernel = retained_fused_f32_silu
                 ? g_state.retained_fused_f32_silu_zero_correction_gate_finalize
                 : g_state.zero_correction_gate_finalize;
             if (retained_fused_f32_silu) {
-                const uint32_t marker_bit = token_count == kTokens ? 2u : 1u;
+                const uint32_t marker_bit =
+                    compatibility_logical_tokens == kTokens ? 2u : 1u;
                 const uint32_t prior_marker_mask =
                     g_retained_fused_f32_silu_marker_mask.fetch_or(
                         marker_bit,
@@ -13638,9 +13647,11 @@ bool launch_routed_matrices_after_input_conversion(
                         stderr,
                         "BATCH_MARK "
                         "q8192_triton_selected_moe_retained_fused_f32_silu_compat "
-                        "logical_tokens=%u endpoint=fused_f32_silu "
+                        "logical_tokens=%u physical_tokens=%u "
+                        "endpoint=fused_f32_silu "
                         "final_bf16=1 arbitrary_bf16_route_preserved=1 "
                         "numerical_correctness_claimed=0\n",
+                        compatibility_logical_tokens,
                         token_count
                     );
                     std::fflush(stderr);
@@ -15528,7 +15539,8 @@ int launch_full_v3_impl(
     float *output_f32,
     void *stream_pointer,
     bool synchronize,
-    uint32_t logical_tokens = kTokens
+    uint32_t logical_tokens = kTokens,
+    uint32_t retained_compat_logical_tokens = 0u
 ) {
     FullV3InFlightGuard in_flight;
     if (!in_flight.acquired) {
@@ -15549,6 +15561,7 @@ int launch_full_v3_impl(
 #endif
     if (!g_state.prepared || logical_tokens == 0u ||
         logical_tokens > kTokens || post_attention_f32 == nullptr ||
+        retained_compat_logical_tokens > logical_tokens ||
         residual_hidden_f32 == nullptr || router_bf16 == nullptr ||
         !routed_gate_up_surface_valid || !routed_down_surface_valid ||
         shared_gate_bf16 == nullptr ||
@@ -15668,6 +15681,7 @@ int launch_full_v3_impl(
             routed_down_bf16,
             stream,
             logical_tokens,
+            retained_compat_logical_tokens,
 #if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
             slot->sort_done,
 #else
@@ -16563,6 +16577,45 @@ qrt_triton_moe_q8192_launch_full_v4_dynamic_async(
         output_f32,
         stream_pointer,
         false,
+        logical_tokens
+    );
+}
+
+QRT_TRITON_MOE_EXPORT int
+qrt_triton_moe_q8192_launch_full_v5_padded_async(
+    const float *post_attention_f32,
+    const float *residual_hidden_f32,
+    const uint16_t *router_bf16,
+    const uint16_t *routed_gate_up_bf16,
+    const uint16_t *routed_down_bf16,
+    const uint16_t *shared_gate_bf16,
+    const uint16_t *shared_gate_projection_bf16,
+    const uint16_t *shared_up_projection_bf16,
+    const uint16_t *shared_down_bf16,
+    float *output_f32,
+    uint32_t logical_tokens,
+    void *stream_pointer
+) {
+    if (logical_tokens == 0u || logical_tokens > kTokens) {
+        set_error_text(
+            "padded selected-MoE v5 launch received an invalid logical length"
+        );
+        return 0;
+    }
+    return launch_full_v3_impl(
+        post_attention_f32,
+        residual_hidden_f32,
+        router_bf16,
+        routed_gate_up_bf16,
+        routed_down_bf16,
+        shared_gate_bf16,
+        shared_gate_projection_bf16,
+        shared_up_projection_bf16,
+        shared_down_bf16,
+        output_f32,
+        stream_pointer,
+        false,
+        kTokens,
         logical_tokens
     );
 }

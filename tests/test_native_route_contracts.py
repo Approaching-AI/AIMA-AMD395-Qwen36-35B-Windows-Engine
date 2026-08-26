@@ -111,16 +111,46 @@ class NativeRouteContractTests(unittest.TestCase):
         self.assertIn("(silu * up_rounded).to(tl.bfloat16)", generator[store:])
 
         for fragment in (
-            "retained_q8192_fused_f32_silu_compat_requested(token_count)",
-            "token_count != kTokens && token_count != kTokens - 1u",
+            "retained_q8192_fused_f32_silu_compat_requested(\n"
+            "                    compatibility_logical_tokens",
+            "logical_token_count != kTokens &&",
+            "logical_token_count != kTokens - 1u",
+            "retained_compat_logical_tokens",
             '"QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT"',
             "g_state.retained_fused_f32_silu_zero_correction_gate_finalize",
             "q8192_triton_0626_zero_correction_gate_finalize_",
             '"retained_fused_f32_silu.hsaco"',
             "q8192_triton_selected_moe_retained_fused_f32_silu_compat",
+            '"logical_tokens=%u physical_tokens=%u "',
             "arbitrary_bf16_route_preserved=1",
+            "qrt_triton_moe_q8192_launch_full_v5_padded_async(",
         ):
             self.assertIn(fragment, self.q8192_provider)
+        padded_export = self.q8192_provider.index(
+            "qrt_triton_moe_q8192_launch_full_v5_padded_async("
+        )
+        padded_export_end = self.q8192_provider.index(
+            "QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_launch_full_v3(",
+            padded_export,
+        )
+        padded_route = self.q8192_provider[padded_export:padded_export_end]
+        self.assertIn("false,\n        kTokens,\n        logical_tokens", padded_route)
+
+        for fragment in (
+            "using TritonSelectedMoePaddedFullLaunchFn =",
+            '"qrt_triton_moe_q8192_launch_full_v5_padded_async"',
+            "load_triton_selected_moe_padded_full_provider(",
+            "padded_provider_launch(",
+            "static_cast<uint32_t>(tile_logical_tokens)",
+            '<< " padded_logical_moe_provider="',
+        ):
+            self.assertIn(fragment, self.provider)
+        for fragment in (
+            "using PaddedFullLaunchFunction = DynamicFullLaunchFunction;",
+            '"qrt_triton_moe_q8192_launch_full_v5_padded_async"',
+            "provider_padded_full_launch == nullptr",
+        ):
+            self.assertIn(fragment, self.q8192_smoke)
         self.assertIn(
             "QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT=1",
             self.runtime_env,

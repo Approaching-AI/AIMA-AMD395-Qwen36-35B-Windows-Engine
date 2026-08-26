@@ -1393,6 +1393,7 @@ int main(int argc, char **argv) {
             uint32_t,
             void *
         );
+        using PaddedFullLaunchFunction = DynamicFullLaunchFunction;
         using SetWeightInt8Function = int (*)(
             const int8_t *,
             const void *,
@@ -1454,6 +1455,11 @@ int main(int argc, char **argv) {
                 provider,
                 "qrt_triton_moe_q8192_launch_full_v4_dynamic_async"
             ));
+        const auto provider_padded_full_launch =
+            reinterpret_cast<PaddedFullLaunchFunction>(load_provider_symbol(
+                provider,
+                "qrt_triton_moe_q8192_launch_full_v5_padded_async"
+            ));
         const auto set_weight_int8 =
             reinterpret_cast<SetWeightInt8Function>(load_provider_symbol(
                 provider,
@@ -1507,6 +1513,7 @@ int main(int argc, char **argv) {
             provider_full_launch_v3 == nullptr ||
             provider_full_launch_v3_async == nullptr ||
             provider_dynamic_full_launch == nullptr ||
+            provider_padded_full_launch == nullptr ||
             last_error == nullptr ||
             backend_mask == nullptr ||
             router_launch == nullptr || copy_topk == nullptr ||
