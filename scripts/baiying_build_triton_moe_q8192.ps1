@@ -702,6 +702,8 @@ if ($ConditionalExactGate -ne 0) {
     }
     $conditionalExactAotFiles +=
         "q8192_triton_0626_zero_correction_gate_finalize.hsaco"
+    $conditionalExactAotFiles +=
+        "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco"
 }
 if ($ConditionalExactDown -ne 0) {
     $conditionalExactAotFiles +=

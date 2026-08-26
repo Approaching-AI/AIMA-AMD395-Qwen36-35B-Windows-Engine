@@ -4,9 +4,12 @@
 
 - Replaced the selected-MoE combine boundary with the sorted BF16 arithmetic
   used by the external authority and added exact sync/async v2/v3 parity gates.
-- Published a reproducible, private-path-free nine-object q8192 AOT set with
+- Published a reproducible, private-path-free ten-object q8192 AOT set with
   source generators, metadata hashes, real layer-3 GB10 component comparison,
   and PowerShell 5.1 transport verification.
+- Preserved the GB10-retained fused-FP32 SiLU finalizer for logical q8191 and
+  q8192 while keeping the model-visible BF16 SiLU endpoint on arbitrary-length
+  routes; the dual-AOT selection is explicit and runtime-marked.
 - Added a strict cold random-length product verifier: each random length is
   bracketed by its interval's upper anchor, every response must match GB10,
   and route-log verification rejects fallbacks or prefix-cache contamination.

@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "target": "gfx1151",
+  "compiler": "Triton 3.6.0 HIP backend",
+  "source": "native/generators/compile_q8192_retained_zero_correction_gate_finalize.py",
+  "source_sha256": "5ee37895c31af7f783133e41ecbf56404522585fd55eac5948be62bd86fa3227",
+  "arithmetic": "BF16 gate/up endpoints followed by fused-FP32 SiLU/up multiplication and a final BF16 endpoint",
+  "shape": {
+    "logical_tokens": [8191, 8192],
+    "top_k": 8,
+    "intermediate": 512,
+    "max_elements": 33554432,
+    "block_size": 1024
+  },
+  "launch_options": {
+    "num_warps": 8,
+    "num_stages": 1,
+    "waves_per_eu": 0
+  },
+  "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+  "symbol": "_zero_correction_gate_finalize_kernel",
+  "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
+  "bytes": 6696,
+  "max_grid": [
+    32768,
+    1,
+    1
+  ],
+  "threads": 256,
+  "dynamic_shared_bytes": 0,
+  "compiled_hash": "b5a0a4f74ed66aa3ec509476d26e9ebe31795b29a6f36107c2336b556225c835",
+  "postprocess": {
+    "debug_sections_stripped": true,
+    "tool": "llvm-strip, compatible with GNU strip",
+    "arguments": ["--strip-debug"],
+    "private_home_path_count": 0
+  },
+  "provenance": {
+    "source_commit": "b802656",
+    "original_file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+    "single_artifact_causal_diagnostic": "diag-q8192-prefix-legacy-zero-finalizer-2592dd9-r1"
+  },
+  "qualification": {
+    "host": "baiying",
+    "evidence": "diag-q8192-prefix-legacy-zero-finalizer-2592dd9-r1",
+    "q8191_prefix_two_hit_gb10_token_exact": true,
+    "q8192_base_requalification_required": true,
+    "component_only": true,
+    "inference_success_claimed": false
+  }
+}

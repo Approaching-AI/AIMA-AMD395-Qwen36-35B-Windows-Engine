@@ -1699,6 +1699,7 @@ struct ProviderState {
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
     ModuleKernel conditional_exact_gate_up;
     ModuleKernel zero_correction_gate_finalize;
+    ModuleKernel retained_fused_f32_silu_zero_correction_gate_finalize;
 #endif
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
     ModuleKernel conditional_exact_down;
@@ -1816,6 +1817,7 @@ struct ProviderState {
 
 ProviderState g_state;
 std::atomic_flag g_full_v3_in_flight = ATOMIC_FLAG_INIT;
+std::atomic<uint32_t> g_retained_fused_f32_silu_marker_mask{0u};
 
 __device__ uint16_t float_to_bf16(float value) {
     uint32_t bits = __float_as_uint(value);
@@ -11810,6 +11812,9 @@ bool release_state() {
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
     release_kernel(&g_state.conditional_exact_gate_up);
     release_kernel(&g_state.zero_correction_gate_finalize);
+    release_kernel(
+        &g_state.retained_fused_f32_silu_zero_correction_gate_finalize
+    );
 #endif
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
     release_kernel(&g_state.conditional_exact_down);
@@ -12149,6 +12154,19 @@ bool q8192_router_cuda_reduction_cutoff_repair_requested() {
 bool q8192_router_cuda_reduction_all_requested() {
     const char *value = std::getenv(
         "QRT_QWEN36_Q8192_ROUTER_CUDA_REDUCTION_ALL"
+    );
+    return value != nullptr && value[0] != '\0' &&
+        std::strcmp(value, "0") != 0;
+}
+
+bool retained_q8192_fused_f32_silu_compat_requested(
+    uint32_t token_count
+) {
+    if (token_count != kTokens && token_count != kTokens - 1u) {
+        return false;
+    }
+    const char *value = std::getenv(
+        "QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT"
     );
     return value != nullptr && value[0] != '\0' &&
         std::strcmp(value, "0") != 0;
@@ -13603,9 +13621,34 @@ bool launch_routed_matrices_after_input_conversion(
         const float *native_gate_up_pointer = g_state.route_outputs;
         uint16_t *activated_pointer = g_state.activated;
         if (!correction_requested) {
+            const bool retained_fused_f32_silu =
+                retained_q8192_fused_f32_silu_compat_requested(token_count);
+            ModuleKernel &finalize_kernel = retained_fused_f32_silu
+                ? g_state.retained_fused_f32_silu_zero_correction_gate_finalize
+                : g_state.zero_correction_gate_finalize;
+            if (retained_fused_f32_silu) {
+                const uint32_t marker_bit = token_count == kTokens ? 2u : 1u;
+                const uint32_t prior_marker_mask =
+                    g_retained_fused_f32_silu_marker_mask.fetch_or(
+                        marker_bit,
+                        std::memory_order_relaxed
+                    );
+                if ((prior_marker_mask & marker_bit) == 0u) {
+                    std::fprintf(
+                        stderr,
+                        "BATCH_MARK "
+                        "q8192_triton_selected_moe_retained_fused_f32_silu_compat "
+                        "logical_tokens=%u endpoint=fused_f32_silu "
+                        "final_bf16=1 arbitrary_bf16_route_preserved=1 "
+                        "numerical_correctness_claimed=0\n",
+                        token_count
+                    );
+                    std::fflush(stderr);
+                }
+            }
             uint32_t finalize_elements =
                 token_count * kTopK * kIntermediate;
-            void *finalize_arguments[3] = {
+            void *finalize_arguments[5] = {
                 &native_gate_up_pointer,
                 &activated_pointer,
                 &finalize_elements,
@@ -13614,9 +13657,9 @@ bool launch_routed_matrices_after_input_conversion(
                 finalize_elements + kZeroCorrectionGateFinalizeBlock - 1u
             ) / kZeroCorrectionGateFinalizeBlock;
             status = launch_module_grid(
-                g_state.zero_correction_gate_finalize,
+                finalize_kernel,
                 finalize_arguments,
-                sizeof(finalize_arguments) / sizeof(finalize_arguments[0]),
+                3u,
                 finalize_grid,
                 stream
             );
@@ -16025,6 +16068,19 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             256u,
             0u,
             &g_state.zero_correction_gate_finalize
+        ) ||
+        !load_named_kernel(
+            kernel_dir,
+            "q8192_triton_0626_zero_correction_gate_finalize_"
+                "retained_fused_f32_silu.hsaco",
+            "_zero_correction_gate_finalize_kernel",
+            (
+                kRoutes * kIntermediate +
+                kZeroCorrectionGateFinalizeBlock - 1u
+            ) / kZeroCorrectionGateFinalizeBlock,
+            256u,
+            0u,
+            &g_state.retained_fused_f32_silu_zero_correction_gate_finalize
         ) ||
 #endif
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN

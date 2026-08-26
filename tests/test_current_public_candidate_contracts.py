@@ -32,10 +32,12 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
                 "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54",
             "q8192_triton_0626_zero_correction_gate_finalize.hsaco":
                 "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6",
+            "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco":
+                "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0",
             "q8192_triton_0626_conditional_exact_down_rows4.hsaco":
                 "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4",
         }
-        self.assertEqual(len(expected), 9)
+        self.assertEqual(len(expected), 10)
         for name, expected_hash in expected.items():
             path = aot / name
             payload = path.read_bytes()
@@ -67,6 +69,11 @@ class CurrentPublicCandidateContracts(unittest.TestCase):
             ),
             (
                 "q8192_triton_0626_zero_correction_gate_finalize_metadata.json",
+                None,
+            ),
+            (
+                "q8192_triton_0626_zero_correction_gate_finalize_"
+                "retained_fused_f32_silu_metadata.json",
                 None,
             ),
         )

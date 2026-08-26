@@ -70,6 +70,11 @@ class NativeRouteContractTests(unittest.TestCase):
             ROOT
             / "native/generators/compile_q8192_zero_correction_gate_finalize.py"
         ).read_text(encoding="utf-8")
+        cls.q8192_retained_zero_correction_gate = (
+            ROOT
+            / "native/generators/"
+            "compile_q8192_retained_zero_correction_gate_finalize.py"
+        ).read_text(encoding="utf-8")
         cls.runtime_env = (ROOT / "engine/runtime.env").read_text(encoding="utf-8")
 
     def test_routed_silu_preserves_vllm_bf16_intermediate(self) -> None:
@@ -97,6 +102,34 @@ class NativeRouteContractTests(unittest.TestCase):
             provider_oracle,
         )
         self.assertLess(provider_oracle, provider_expectation)
+
+    def test_retained_q8192_fused_f32_silu_is_explicitly_isolated(self) -> None:
+        generator = self.q8192_retained_zero_correction_gate
+        start = generator.index("silu = gate_rounded / (")
+        store = generator.index("tl.store(", start)
+        self.assertNotIn("silu_bits", generator[start:store])
+        self.assertIn("(silu * up_rounded).to(tl.bfloat16)", generator[store:])
+
+        for fragment in (
+            "retained_q8192_fused_f32_silu_compat_requested(token_count)",
+            "token_count != kTokens && token_count != kTokens - 1u",
+            '"QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT"',
+            "g_state.retained_fused_f32_silu_zero_correction_gate_finalize",
+            "q8192_triton_0626_zero_correction_gate_finalize_",
+            '"retained_fused_f32_silu.hsaco"',
+            "q8192_triton_selected_moe_retained_fused_f32_silu_compat",
+            "arbitrary_bf16_route_preserved=1",
+        ):
+            self.assertIn(fragment, self.q8192_provider)
+        self.assertIn(
+            "QRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT=1",
+            self.runtime_env,
+        )
+        self.assertIn(
+            '"q8192_triton_0626_zero_correction_gate_finalize_'
+            'retained_fused_f32_silu.hsaco"',
+            self.q8192_build,
+        )
 
     def test_resident_route_can_include_retained_q8192(self) -> None:
         start = self.provider.index("bool qwen36_exact_arbitrary_product_path_enabled(")
