@@ -307,6 +307,9 @@ class NativeRouteContractTests(unittest.TestCase):
         kernel_start = self.provider.index(
             "void selected_bf16_projection_hawkeye_midpoint_correction_kernel("
         )
+        count_start = self.provider.index(
+            "hipError_t count_selected_bf16_projection_hawkeye_candidates("
+        )
         route_start = self.provider.index(
             "hipError_t "
             "launch_selected_bf16_projection_hawkeye_midpoint_correction("
@@ -316,6 +319,7 @@ class NativeRouteContractTests(unittest.TestCase):
             route_start,
         )
         kernel = self.provider[kernel_start:route_start]
+        count_route = self.provider[count_start:route_start]
         route = self.provider[route_start:route_end]
 
         self.assertIn("size_t element_offset", kernel)
@@ -324,7 +328,35 @@ class NativeRouteContractTests(unittest.TestCase):
         self.assertIn("elements_per_launch", route)
         self.assertIn("hipStreamSynchronize(stream)", route)
         self.assertIn(
-            "kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 256u",
+            "kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit",
+            count_route,
+        )
+        self.assertNotIn(
+            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit",
+            count_route,
+        )
+        self.assertIn(
+            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit",
+            route,
+        )
+        self.assertNotIn(
+            "kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit",
+            route,
+        )
+        self.assertIn(
+            "kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 8u",
+            self.provider,
+        )
+        self.assertIn(
+            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 8u",
+            self.provider,
+        )
+        self.assertIn(
+            "kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch = 256u",
+            self.provider,
+        )
+        self.assertIn(
+            "kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit = 256u",
             self.provider,
         )
         for env_name in (

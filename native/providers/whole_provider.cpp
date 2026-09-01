@@ -64,13 +64,21 @@ constexpr int kThreads = 256;
 constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
 // gfx1151 runs under WDDM on the Windows acceptance host.  A single
 // product-shape Hawkeye correction grid can otherwise occupy the GPU for
-// long enough to trip TDR and take the host off the LAN.  Keep each dispatch
-// bounded; the cells are independent, so partitioning does not change the
-// arithmetic or endpoint.
+// long enough to take the host off the LAN without leaving a watchdog dump.
+// The 2026-09-01 q7169 recovery proved the sparse correction through layer 1
+// with eight blocks per launch after a 64-block run hard-locked the host.
+// Keep the exact-dot dispatch hard-capped at that recovered boundary; the
+// cells are independent, so partitioning does not change the arithmetic or
+// endpoint.  Candidate counting has no exact dot and retains its own wider
+// cap so the safety split cannot be undone through an environment override.
 constexpr unsigned int
-    kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 256u;
+    kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 8u;
 constexpr unsigned int
-    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 65535u;
+    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 8u;
+constexpr unsigned int
+    kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch = 256u;
+constexpr unsigned int
+    kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit = 256u;
 constexpr unsigned int
     kDefaultSelectedHawkeyeCorrectionMaximumCandidates = 131072u;
 constexpr unsigned int
@@ -37214,7 +37222,7 @@ hipError_t count_selected_bf16_projection_hawkeye_candidates(
         1u,
         (std::min)(
             maximum_blocks_per_launch,
-            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+            kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit
         )
     );
     const size_t elements_per_launch =
@@ -40335,9 +40343,9 @@ unsigned int selected_hawkeye_candidate_count_maximum_blocks_per_launch() {
         (std::min)(
             env_u32_or_default(
                 "QRT_QWEN36_HAWKEYE_CANDIDATE_COUNT_MAXIMUM_BLOCKS_PER_LAUNCH",
-                kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch
+                kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch
             ),
-            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+            kSelectedHawkeyeCandidateCountMaximumBlocksPerLaunchLimit
         )
     );
 }
