@@ -242,6 +242,67 @@ class NativeRouteContractTests(unittest.TestCase):
             route,
         )
 
+    def test_early_out_hawkeye_uses_compact_l2_upper_bounds(self) -> None:
+        start = self.provider.index(
+            "            if (use_exact_arbitrary_early_out_hawkeye) {"
+        )
+        end = self.provider.index(
+            "            if (use_bf16_output_projection",
+            start,
+        )
+        route = self.provider[start:end]
+
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB",
+            self.provider,
+        )
+        self.assertIn("bf16_row_l2_upper_bound_kernel", route)
+        self.assertIn("device_out_input_l2_upper_bounds", route)
+        self.assertIn("device_out_weight_l2_upper_bounds", route)
+        self.assertIn(
+            "exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb",
+            route,
+        )
+        self.assertIn(
+            "count_selected_bf16_projection_hawkeye_candidates(",
+            route,
+        )
+        self.assertIn(
+            "selected_hawkeye_candidate_count_maximum_blocks_per_launch()",
+            route,
+        )
+        self.assertIn("hawkeye_candidate_count", route)
+        self.assertIn("hawkeye_max_block_candidate_count", route)
+        self.assertIn("_early_out_hawkeye_candidate_limit", route)
+        self.assertIn("_early_out_hawkeye_block_candidate_limit", route)
+        self.assertIn("_early_out_hawkeye_stop_after_correction", route)
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES",
+            self.provider,
+        )
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_STOP_AFTER_CORRECTION_LAYER",
+            self.provider,
+        )
+        self.assertIn(
+            "QRT_QWEN36_HAWKEYE_CANDIDATE_COUNT_MAXIMUM_BLOCKS_PER_LAUNCH",
+            self.provider,
+        )
+        self.assertIn(
+            "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES_PER_BLOCK",
+            self.provider,
+        )
+        self.assertIn(
+            "kDefaultSelectedHawkeyeCorrectionMaximumCandidates = 131072u",
+            self.provider,
+        )
+        self.assertIn(
+            "kDefaultSelectedHawkeyeCorrectionMaximumCandidatesPerBlock = 64u",
+            self.provider,
+        )
+        self.assertIn('"l2_cauchy"', route)
+        self.assertNotIn("UINT32_C(0x8000)", route)
+
     def test_hawkeye_exact_recompute_is_wddm_bounded_and_isolatable(self) -> None:
         kernel_start = self.provider.index(
             "void selected_bf16_projection_hawkeye_midpoint_correction_kernel("

@@ -71,6 +71,10 @@ constexpr unsigned int
     kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 256u;
 constexpr unsigned int
     kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 65535u;
+constexpr unsigned int
+    kDefaultSelectedHawkeyeCorrectionMaximumCandidates = 131072u;
+constexpr unsigned int
+    kDefaultSelectedHawkeyeCorrectionMaximumCandidatesPerBlock = 64u;
 constexpr int kWarmupIterations = 0;
 constexpr int kTimedIterations = 1;
 constexpr int kSelectedProjectionTimedIterations = 1;
@@ -36976,6 +36980,66 @@ __device__ float selected_hawkeye_wave16_dot_bf16_hopper(
     );
 }
 
+__device__ bool selected_bf16_projection_hawkeye_candidate(
+    float accumulator_value,
+    size_t index,
+    unsigned int rows,
+    unsigned int midpoint_radius,
+    unsigned int full_prefix_tokens,
+    unsigned int absolute_error_bound_ppb,
+    const float *absolute_product_sums,
+    const float *selected_input_l2_upper_bounds,
+    const float *weight_l2_upper_bounds
+) {
+    union {
+        float value;
+        uint32_t bits;
+    } accumulator{};
+    accumulator.value = accumulator_value;
+    const unsigned int low_bits = accumulator.bits & UINT32_C(0xffff);
+    const unsigned int midpoint_distance = low_bits >= UINT32_C(0x8000)
+        ? low_bits - UINT32_C(0x8000)
+        : UINT32_C(0x8000) - low_bits;
+    const bool exact_prefix_cell =
+        index < static_cast<size_t>(full_prefix_tokens) * rows;
+    bool absolute_error_candidate = false;
+    if (absolute_error_bound_ppb != 0u &&
+        (absolute_product_sums != nullptr ||
+         (selected_input_l2_upper_bounds != nullptr &&
+          weight_l2_upper_bounds != nullptr))) {
+        union {
+            uint32_t bits;
+            float value;
+        } midpoint{};
+        midpoint.bits =
+            (accumulator.bits & UINT32_C(0xffff0000)) |
+            UINT32_C(0x8000);
+        const unsigned int exponent =
+            (accumulator.bits >> 23u) & UINT32_C(0xff);
+        const float absolute_midpoint_margin =
+            fabsf(accumulator.value - midpoint.value);
+        const size_t token = index / rows;
+        const size_t row = index - token * rows;
+        const float absolute_product_upper_bound =
+            absolute_product_sums != nullptr
+                ? absolute_product_sums[index]
+                : selected_input_l2_upper_bounds[token] *
+                      weight_l2_upper_bounds[row];
+        const float absolute_error_bound =
+            absolute_product_upper_bound *
+            (static_cast<float>(absolute_error_bound_ppb) * 1.0e-9f);
+        // Very small Q/K endpoints were the only observed cells for which an
+        // exponent-scaled midpoint radius was not conservative.  Keep them
+        // exact while the absolute-product bound handles the normal range.
+        absolute_error_candidate =
+            exponent < 32u ||
+            absolute_midpoint_margin <= absolute_error_bound;
+    }
+    return exact_prefix_cell ||
+        midpoint_distance <= midpoint_radius ||
+        absolute_error_candidate;
+}
+
 // gfx1151's WMMA accumulator agrees with GB10's characterized group-16
 // accumulator for almost every BF16 endpoint.  Recompute only cells close
 // enough to a BF16 midpoint for the small accumulator difference to change
@@ -37016,62 +37080,26 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     const size_t index = element_offset + local_index;
     const size_t elements =
         static_cast<size_t>(selected_token_count) * rows;
-    union {
-        float value;
-        uint32_t bits;
-    } accumulator{};
     bool candidate = false;
     if (index < elements) {
-        accumulator.value = outputs[index];
-        const unsigned int low_bits = accumulator.bits & UINT32_C(0xffff);
-        const unsigned int midpoint_distance = low_bits >= UINT32_C(0x8000)
-            ? low_bits - UINT32_C(0x8000)
-            : UINT32_C(0x8000) - low_bits;
-        const bool exact_prefix_cell =
-            index < static_cast<size_t>(full_prefix_tokens) * rows;
-        bool absolute_error_candidate = false;
-        if (absolute_error_bound_ppb != 0u &&
-            (absolute_product_sums != nullptr ||
-             (selected_input_l2_upper_bounds != nullptr &&
-              weight_l2_upper_bounds != nullptr))) {
-            union {
-                uint32_t bits;
-                float value;
-            } midpoint{};
-            midpoint.bits =
-                (accumulator.bits & UINT32_C(0xffff0000)) |
-                UINT32_C(0x8000);
-            const unsigned int exponent =
-                (accumulator.bits >> 23u) & UINT32_C(0xff);
-            const float absolute_midpoint_margin =
-                fabsf(accumulator.value - midpoint.value);
-            const size_t token = index / rows;
-            const size_t row = index - token * rows;
-            const float absolute_product_upper_bound =
-                absolute_product_sums != nullptr
-                    ? absolute_product_sums[index]
-                    : selected_input_l2_upper_bounds[token] *
-                          weight_l2_upper_bounds[row];
-            const float absolute_error_bound =
-                absolute_product_upper_bound *
-                (static_cast<float>(absolute_error_bound_ppb) * 1.0e-9f);
-            // Very small Q/K endpoints were the only observed cells for
-            // which an exponent-scaled midpoint radius was not conservative.
-            // Keep them exact while the absolute-product bound handles the
-            // normal range without selecting half of every BF16 interval.
-            absolute_error_candidate =
-                exponent < 32u ||
-                absolute_midpoint_margin <= absolute_error_bound;
-        }
-        candidate = exact_prefix_cell ||
-            midpoint_distance <= midpoint_radius ||
-            absolute_error_candidate;
+        const float accumulator = outputs[index];
+        candidate = selected_bf16_projection_hawkeye_candidate(
+            accumulator,
+            index,
+            rows,
+            midpoint_radius,
+            full_prefix_tokens,
+            absolute_error_bound_ppb,
+            absolute_product_sums,
+            selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds
+        );
         if (candidate) {
             const unsigned int candidate_slot =
                 atomicAdd(&candidate_count, 1u);
             candidate_offsets[candidate_slot] = threadIdx.x;
         } else {
-            outputs[index] = device_bf16_round_to_float(accumulator.value);
+            outputs[index] = device_bf16_round_to_float(accumulator);
         }
     }
     __syncthreads();
@@ -37099,6 +37127,150 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
                 device_bf16_round_to_float(corrected);
         }
     }
+}
+
+__global__ __launch_bounds__(256)
+void selected_bf16_projection_hawkeye_candidate_count_kernel(
+    const float *absolute_product_sums,
+    const float *selected_input_l2_upper_bounds,
+    const float *weight_l2_upper_bounds,
+    const float *outputs,
+    unsigned int rows,
+    unsigned int selected_token_count,
+    unsigned int midpoint_radius,
+    unsigned int full_prefix_tokens,
+    unsigned int absolute_error_bound_ppb,
+    unsigned int *global_candidate_counts,
+    size_t element_offset
+) {
+    __shared__ unsigned int block_candidate_count;
+    if (threadIdx.x == 0u) {
+        block_candidate_count = 0u;
+    }
+    __syncthreads();
+
+    const size_t local_index =
+        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+    const size_t index = element_offset + local_index;
+    const size_t elements =
+        static_cast<size_t>(selected_token_count) * rows;
+    if (index < elements &&
+        selected_bf16_projection_hawkeye_candidate(
+            outputs[index],
+            index,
+            rows,
+            midpoint_radius,
+            full_prefix_tokens,
+            absolute_error_bound_ppb,
+            absolute_product_sums,
+            selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds
+        )) {
+        (void)atomicAdd(&block_candidate_count, 1u);
+    }
+    __syncthreads();
+    if (threadIdx.x == 0u && block_candidate_count != 0u) {
+        (void)atomicAdd(global_candidate_counts, block_candidate_count);
+        (void)atomicMax(
+            global_candidate_counts + 1u,
+            block_candidate_count
+        );
+    }
+}
+
+hipError_t count_selected_bf16_projection_hawkeye_candidates(
+    const float *absolute_product_sums,
+    const float *selected_input_l2_upper_bounds,
+    const float *weight_l2_upper_bounds,
+    const float *outputs,
+    unsigned int rows,
+    unsigned int selected_token_count,
+    unsigned int midpoint_radius,
+    unsigned int full_prefix_tokens,
+    unsigned int absolute_error_bound_ppb,
+    unsigned int *device_candidate_counts,
+    unsigned int *host_candidate_count,
+    unsigned int *host_max_block_candidate_count,
+    unsigned int maximum_blocks_per_launch,
+    hipStream_t stream
+) {
+    if (device_candidate_counts == nullptr ||
+        host_candidate_count == nullptr ||
+        host_max_block_candidate_count == nullptr) {
+        return hipErrorInvalidValue;
+    }
+    hipError_t status = hipMemsetAsync(
+        device_candidate_counts,
+        0,
+        2u * sizeof(*device_candidate_counts),
+        stream
+    );
+    if (status != hipSuccess) {
+        return status;
+    }
+    const size_t elements =
+        static_cast<size_t>(selected_token_count) * rows;
+    const unsigned int bounded_blocks = (std::max)(
+        1u,
+        (std::min)(
+            maximum_blocks_per_launch,
+            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+        )
+    );
+    const size_t elements_per_launch =
+        static_cast<size_t>(bounded_blocks) *
+        kSelectedHawkeyeCorrectionThreads;
+    for (size_t element_offset = 0u;
+         element_offset < elements;
+         element_offset += elements_per_launch) {
+        const size_t launch_elements = (std::min)(
+            elements - element_offset,
+            elements_per_launch
+        );
+        const unsigned int launch_blocks = static_cast<unsigned int>(
+            (launch_elements + kSelectedHawkeyeCorrectionThreads - 1u) /
+            kSelectedHawkeyeCorrectionThreads
+        );
+        hipLaunchKernelGGL(
+            selected_bf16_projection_hawkeye_candidate_count_kernel,
+            dim3(launch_blocks),
+            dim3(kSelectedHawkeyeCorrectionThreads),
+            0,
+            stream,
+            absolute_product_sums,
+            selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds,
+            outputs,
+            rows,
+            selected_token_count,
+            midpoint_radius,
+            full_prefix_tokens,
+            absolute_error_bound_ppb,
+            device_candidate_counts,
+            element_offset
+        );
+        status = hipGetLastError();
+        if (status != hipSuccess) {
+            return status;
+        }
+        status = hipStreamSynchronize(stream);
+        if (status != hipSuccess) {
+            return status;
+        }
+    }
+    std::array<unsigned int, 2> host_counts{};
+    status = hipMemcpy(
+        host_counts.data(),
+        device_candidate_counts,
+        sizeof(host_counts),
+        hipMemcpyDeviceToHost
+    );
+    if (status != hipSuccess) {
+        return status;
+    }
+    *host_candidate_count = host_counts[0];
+    *host_max_block_candidate_count = host_counts[1];
+    return hipSuccess;
 }
 
 // Split long exact-recompute grids into independently completed dispatches.
@@ -40150,6 +40322,19 @@ unsigned int selected_hawkeye_correction_maximum_blocks_per_launch() {
         (std::min)(
             env_u32_or_default(
                 "QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH",
+                kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch
+            ),
+            kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
+        )
+    );
+}
+
+unsigned int selected_hawkeye_candidate_count_maximum_blocks_per_launch() {
+    return (std::max)(
+        1u,
+        (std::min)(
+            env_u32_or_default(
+                "QRT_QWEN36_HAWKEYE_CANDIDATE_COUNT_MAXIMUM_BLOCKS_PER_LAUNCH",
                 kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch
             ),
             kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit
@@ -114632,6 +114817,9 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
     float *device_z_input_l2_upper_bounds = nullptr;
     float *device_qkv_weight_l2_upper_bounds = nullptr;
     float *device_z_weight_l2_upper_bounds = nullptr;
+    float *device_out_input_l2_upper_bounds = nullptr;
+    float *device_out_weight_l2_upper_bounds = nullptr;
+    unsigned int *device_out_hawkeye_candidate_count = nullptr;
     float *device_a = nullptr;
     float *device_b = nullptr;
     float *device_fused_ba = nullptr;
@@ -115055,6 +115243,36 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                       UINT32_C(0x8000)
                   )
                 : 0u;
+    const unsigned int
+        exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb =
+            use_exact_arbitrary_early_out_hawkeye
+                ? (std::min)(
+                      env_u32_or_default(
+                          "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB",
+                          0u
+                      ),
+                      UINT32_C(1000000)
+                  )
+                : 0u;
+    const unsigned int
+        exact_arbitrary_early_out_hawkeye_maximum_candidates =
+            use_exact_arbitrary_early_out_hawkeye
+                ? env_u32_or_default(
+                      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES",
+                      kDefaultSelectedHawkeyeCorrectionMaximumCandidates
+                  )
+                : 0u;
+    const unsigned int
+        exact_arbitrary_early_out_hawkeye_maximum_candidates_per_block =
+            use_exact_arbitrary_early_out_hawkeye
+                ? (std::min)(
+                      env_u32_or_default(
+                          "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES_PER_BLOCK",
+                          kDefaultSelectedHawkeyeCorrectionMaximumCandidatesPerBlock
+                      ),
+                      kSelectedHawkeyeCorrectionThreads
+                  )
+                : 0u;
     const bool exact_arbitrary_early_out_hawkeye_terminal_diagnostic =
         use_exact_arbitrary_early_out_hawkeye &&
         raw_env_flag_enabled(
@@ -115065,6 +115283,14 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         raw_env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_TRACE_TERMINAL"
         );
+    const unsigned int
+        exact_arbitrary_early_out_hawkeye_stop_after_correction_layer =
+            use_exact_arbitrary_early_out_hawkeye
+                ? env_u32_or_default(
+                      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_STOP_AFTER_CORRECTION_LAYER",
+                      UINT_MAX
+                  )
+                : UINT_MAX;
     const bool use_bf16_output_projection =
         use_resident_bf16_matrix_provider &&
         (!use_early_f32_matrix_outputs ||
@@ -117866,6 +118092,27 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
               "hipMalloc(" + prefix +
                   "_z_weight_l2_upper_bounds)"
           ))) ||
+        (exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb != 0u &&
+         (!malloc_device(
+              &device_out_input_l2_upper_bounds,
+              static_cast<size_t>(target_token_count) * sizeof(float),
+              "hipMalloc(" + prefix +
+                  "_out_input_l2_upper_bounds)"
+          ) ||
+          !malloc_device(
+              &device_out_weight_l2_upper_bounds,
+              static_cast<size_t>(kOutProjectionRows) * sizeof(float),
+              "hipMalloc(" + prefix +
+                  "_out_weight_l2_upper_bounds)"
+          ))) ||
+        ((exact_arbitrary_early_out_hawkeye_midpoint_radius != 0u ||
+          exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb != 0u) &&
+         !malloc_device(
+             &device_out_hawkeye_candidate_count,
+             2u * sizeof(*device_out_hawkeye_candidate_count),
+             "hipMalloc(" + prefix +
+                 "_out_hawkeye_candidate_count)"
+         )) ||
         !malloc_device(
             &device_a,
             run->a_projection.output_bytes,
@@ -120229,22 +120476,156 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                         << " diagnostic_only=1";
                     std::cerr << trace_marker.str() << std::endl;
                 }
-                if (exact_arbitrary_early_out_hawkeye_midpoint_radius !=
-                    0u) {
+                if (exact_arbitrary_early_out_hawkeye_midpoint_radius != 0u ||
+                    exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb !=
+                        0u) {
+                    if (exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb !=
+                            0u &&
+                        (device_out_input_l2_upper_bounds == nullptr ||
+                         device_out_weight_l2_upper_bounds == nullptr)) {
+                        run->failure_stage =
+                            prefix + "_early_out_hawkeye_l2_upper_bound_workspace";
+                        run->failure =
+                            "Hawkeye early-out L2 upper-bound selector workspace is null";
+                        goto cleanup;
+                    }
+                    if (exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb !=
+                        0u) {
+                        hipLaunchKernelGGL(
+                            bf16_row_l2_upper_bound_kernel,
+                            dim3(target_token_count),
+                            dim3(256u),
+                            0,
+                            0,
+                            device_gated_bf16,
+                            device_out_input_l2_upper_bounds,
+                            target_token_count,
+                            kValueFeatures
+                        );
+                        if (!fail_hip(
+                                hipGetLastError(),
+                                prefix +
+                                    "_early_out_hawkeye_input_l2_upper_bounds"
+                            )) {
+                            goto cleanup;
+                        }
+                        hipLaunchKernelGGL(
+                            bf16_row_l2_upper_bound_kernel,
+                            dim3(kOutProjectionRows),
+                            dim3(256u),
+                            0,
+                            0,
+                            device_out_weight,
+                            device_out_weight_l2_upper_bounds,
+                            kOutProjectionRows,
+                            kValueFeatures
+                        );
+                        if (!fail_hip(
+                                hipGetLastError(),
+                                prefix +
+                                    "_early_out_hawkeye_weight_l2_upper_bounds"
+                            )) {
+                            goto cleanup;
+                        }
+                    }
+                    unsigned int hawkeye_candidate_count = 0u;
+                    unsigned int hawkeye_max_block_candidate_count = 0u;
+                    if (!fail_hip(
+                            count_selected_bf16_projection_hawkeye_candidates(
+                                nullptr,
+                                device_out_input_l2_upper_bounds,
+                                device_out_weight_l2_upper_bounds,
+                                device_out,
+                                kOutProjectionRows,
+                                target_token_count,
+                                exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                                0u,
+                                exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
+                                device_out_hawkeye_candidate_count,
+                                &hawkeye_candidate_count,
+                                &hawkeye_max_block_candidate_count,
+                                selected_hawkeye_candidate_count_maximum_blocks_per_launch(),
+                                0
+                            ),
+                            prefix +
+                                "_early_out_hawkeye_candidate_count"
+                        )) {
+                        goto cleanup;
+                    }
+                    const size_t hawkeye_output_elements =
+                        static_cast<size_t>(target_token_count) *
+                        kOutProjectionRows;
+                    const uint64_t hawkeye_candidate_density_ppm =
+                        hawkeye_output_elements == 0u
+                            ? 0u
+                            : (static_cast<uint64_t>(
+                                   hawkeye_candidate_count
+                               ) * UINT64_C(1000000) +
+                               hawkeye_output_elements - 1u) /
+                                  hawkeye_output_elements;
+                    std::cerr
+                        << "BATCH_MARK qwen36_exact_arbitrary_early_out_hawkeye_candidates"
+                        << " layer=" << descriptor.layer_index
+                        << " tokens=" << target_token_count
+                        << " output_elements=" << hawkeye_output_elements
+                        << " candidates=" << hawkeye_candidate_count
+                        << " density_ppm=" << hawkeye_candidate_density_ppm
+                        << " maximum_block_candidates="
+                        << hawkeye_max_block_candidate_count
+                        << " maximum_candidates="
+                        << exact_arbitrary_early_out_hawkeye_maximum_candidates
+                        << " maximum_candidates_per_block="
+                        << exact_arbitrary_early_out_hawkeye_maximum_candidates_per_block
+                        << " limit_pass="
+                        << (hawkeye_candidate_count <=
+                                    exact_arbitrary_early_out_hawkeye_maximum_candidates &&
+                                hawkeye_max_block_candidate_count <=
+                                    exact_arbitrary_early_out_hawkeye_maximum_candidates_per_block
+                                ? 1
+                                : 0)
+                        << " diagnostic_only=1 numerical_correctness_claimed=0"
+                        << std::endl;
+                    if (hawkeye_candidate_count >
+                        exact_arbitrary_early_out_hawkeye_maximum_candidates) {
+                        run->failure_stage =
+                            prefix + "_early_out_hawkeye_candidate_limit";
+                        run->failure =
+                            "Hawkeye early-out candidate count " +
+                            std::to_string(hawkeye_candidate_count) +
+                            " exceeds the bounded maximum " +
+                            std::to_string(
+                                exact_arbitrary_early_out_hawkeye_maximum_candidates
+                            );
+                        goto cleanup;
+                    }
+                    if (hawkeye_max_block_candidate_count >
+                        exact_arbitrary_early_out_hawkeye_maximum_candidates_per_block) {
+                        run->failure_stage =
+                            prefix +
+                            "_early_out_hawkeye_block_candidate_limit";
+                        run->failure =
+                            "Hawkeye early-out maximum block candidate count " +
+                            std::to_string(hawkeye_max_block_candidate_count) +
+                            " exceeds the bounded maximum " +
+                            std::to_string(
+                                exact_arbitrary_early_out_hawkeye_maximum_candidates_per_block
+                            );
+                        goto cleanup;
+                    }
                     if (!fail_hip(
                             launch_selected_bf16_projection_hawkeye_midpoint_correction(
                                 device_out_weight,
                                 device_gated_bf16,
                                 nullptr,
-                                nullptr,
-                                nullptr,
+                                device_out_input_l2_upper_bounds,
+                                device_out_weight_l2_upper_bounds,
                                 device_out,
                                 kOutProjectionRows,
                                 target_token_count,
                                 kValueFeatures,
                                 exact_arbitrary_early_out_hawkeye_midpoint_radius,
                                 0u,
-                                0u,
+                                exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
                                 selected_hawkeye_correction_maximum_blocks_per_launch(),
                                 0
                             ),
@@ -120309,6 +120690,13 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << " reduction_size=" << kValueFeatures
                     << " midpoint_radius="
                     << exact_arbitrary_early_out_hawkeye_midpoint_radius
+                    << " absolute_error_bound_ppb="
+                    << exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb
+                    << " absolute_product_upper_bound="
+                    << (exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb !=
+                                0u
+                            ? "l2_cauchy"
+                            : "disabled")
                     << " terminal_diagnostic="
                     << (exact_arbitrary_early_out_hawkeye_terminal_diagnostic
                             ? 1
@@ -120323,6 +120711,17 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << " endpoint=bf16_rne"
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
                     << std::endl;
+                if (descriptor.layer_index ==
+                    exact_arbitrary_early_out_hawkeye_stop_after_correction_layer) {
+                    run->failure_stage =
+                        prefix +
+                        "_early_out_hawkeye_stop_after_correction";
+                    run->failure =
+                        "stopped after the requested bounded early-out "
+                        "Hawkeye correction layer " +
+                        std::to_string(descriptor.layer_index);
+                    goto cleanup;
+                }
             }
             if (use_bf16_output_projection &&
                 !use_bf16_pointwise_fusion) {
@@ -121552,6 +121951,9 @@ cleanup:
     free_device(device_fused_ba);
     free_device(device_b);
     free_device(device_a);
+    free_device(device_out_hawkeye_candidate_count);
+    free_device(device_out_weight_l2_upper_bounds);
+    free_device(device_out_input_l2_upper_bounds);
     free_device(device_z_weight_l2_upper_bounds);
     free_device(device_qkv_weight_l2_upper_bounds);
     free_device(device_z_input_l2_upper_bounds);
