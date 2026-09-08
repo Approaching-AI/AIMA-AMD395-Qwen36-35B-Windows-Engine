@@ -200,6 +200,8 @@ $record = [ordered]@{
     source_path = $source
     source_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $source).Hash.ToLowerInvariant()
+    hawkeye_dispatch_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\hawkeye_dispatch_policy.h')).Hash.ToLowerInvariant()
     qrt_header_path = $qrtHeader
     qrt_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()

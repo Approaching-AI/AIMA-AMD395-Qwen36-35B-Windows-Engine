@@ -102,6 +102,30 @@ This runs the C ABI smoke, Rust tests, clippy with warnings denied, Python
 contract/API/evaluation tests, and the public-tree privacy/license hygiene
 scan. It does not claim GPU inference success.
 
+### Guarded Windows experiments
+
+Use `scripts/baiying_guarded_inference.ps1 -SpecPath <spec.json> -OutDir
+<new-directory> -TimeoutSeconds 90` on baiying for a recovered candidate.
+The JSON spec contains `executable`, `working_directory`, and an `arguments`
+array; include `repo_commit` to check source identity. `-PreflightOnly` checks
+the inputs and host without launching the executable. Use absolute paths.
+
+The runner holds a machine-wide experiment mutex, rejects an existing engine
+or compiler, reserves 8 GiB of host memory and 20 GiB of commit headroom,
+limits logs to 64 MiB, and places the process tree in a kill-on-close Windows
+job. Logs are written during execution. Its record distinguishes process exit,
+CLI summary status, and post-run host checks; exit zero with no passing
+summary is not inference success. Attach the external GB10 oracle separately.
+
+Hawkeye correction admission now covers every common-launcher caller,
+including QKV/Z. It counts candidates before exact-dot work and rejects more
+than 131072 candidates or 64 candidates in one block. After each synchronized
+dispatch it stops further work above 100 ms per dispatch or 10 seconds for
+the correction. These diagnostic limits cannot be raised through environment
+overrides. They leave accepted arithmetic unchanged. A supervisor cannot
+interrupt an already hung GPU kernel or recover a hard-locked Windows host;
+candidate admission is required before submitting expensive GPU work.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and

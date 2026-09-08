@@ -21,6 +21,7 @@
 
 #include "qrt.h"
 #include "qrt_qwen36_q1024_owner.h"
+#include "hawkeye_dispatch_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -67,6 +68,9 @@ constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
 // long enough to take the host off the LAN without leaving a watchdog dump.
 // The 2026-09-01 q7169 recovery proved the sparse correction through layer 1
 // with eight blocks per launch after a 64-block run hard-locked the host.
+// The subsequent full run still faulted in layer 2 QKV, so a block cap alone
+// is insufficient. The common launcher also checks candidate density and
+// completed-dispatch time before submitting further exact-dot work.
 // Keep the exact-dot dispatch hard-capped at that recovered boundary; the
 // cells are independent, so partitioning does not change the arithmetic or
 // endpoint.  Candidate counting has no exact dot and retains its own wider
@@ -37302,6 +37306,64 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     unsigned int maximum_blocks_per_launch,
     hipStream_t stream
 ) {
+    if (weights == nullptr || selected_inputs == nullptr || outputs == nullptr ||
+        rows == 0u || selected_token_count == 0u || reduction_size == 0u ||
+        reduction_size % 16u != 0u ||
+        static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
+        return hipErrorInvalidValue;
+    }
+    // All callers, including QKV/Z and terminal diagnostics, cross this
+    // boundary. Previously only early-out checked its candidate workload;
+    // QKV could still launch a dense exact recomputation under the 8-block cap.
+    unsigned int *device_counts = nullptr;
+    hipError_t status = hipMalloc(
+        reinterpret_cast<void **>(&device_counts), 2u * sizeof(unsigned int)
+    );
+    if (status != hipSuccess) {
+        return status;
+    }
+    unsigned int candidates = 0u;
+    unsigned int block_candidates = 0u;
+    status = count_selected_bf16_projection_hawkeye_candidates(
+        absolute_product_sums,
+        selected_input_l2_upper_bounds,
+        weight_l2_upper_bounds,
+        outputs,
+        rows,
+        selected_token_count,
+        midpoint_radius,
+        full_prefix_tokens,
+        absolute_error_bound_ppb,
+        device_counts,
+        &candidates,
+        &block_candidates,
+        32u,
+        stream
+    );
+    const hipError_t free_status = hipFree(device_counts);
+    if (status != hipSuccess) {
+        return status;
+    }
+    if (free_status != hipSuccess) {
+        return free_status;
+    }
+    const bool admitted = qrt_hawkeye_dispatch::admitted(
+        candidates, block_candidates
+    );
+    // Write directly to stderr: admission evidence must survive marker filters.
+    std::fprintf(stderr,
+        "BATCH_MARK hawkeye_dispatch_admission rows=%u tokens=%u k=%u "
+        "candidates=%u maximum_block_candidates=%u limit_pass=%u "
+        "maximum_candidates=%u maximum_candidates_per_block=%u "
+        "diagnostic_only=1 numerical_correctness_claimed=0\n",
+        rows, selected_token_count, reduction_size, candidates, block_candidates,
+        admitted ? 1u : 0u, qrt_hawkeye_dispatch::maximum_candidates,
+        qrt_hawkeye_dispatch::maximum_candidates_per_block);
+    std::fflush(stderr);
+    if (!admitted) {
+        return hipErrorInvalidConfiguration;
+    }
+    const auto correction_start = std::chrono::steady_clock::now();
     const size_t elements =
         static_cast<size_t>(selected_token_count) * rows;
     const unsigned int bounded_blocks = (std::max)(
@@ -37325,6 +37387,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             (launch_elements + kSelectedHawkeyeCorrectionThreads - 1u) /
             kSelectedHawkeyeCorrectionThreads
         );
+        const auto dispatch_start = std::chrono::steady_clock::now();
         hipLaunchKernelGGL(
             selected_bf16_projection_hawkeye_midpoint_correction_kernel,
             dim3(launch_blocks),
@@ -37345,13 +37408,29 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             absolute_error_bound_ppb,
             element_offset
         );
-        hipError_t status = hipGetLastError();
+        status = hipGetLastError();
         if (status != hipSuccess) {
             return status;
         }
         status = hipStreamSynchronize(stream);
         if (status != hipSuccess) {
             return status;
+        }
+        const auto completed_at = std::chrono::steady_clock::now();
+        const double dispatch_ms = std::chrono::duration<double, std::milli>(
+            completed_at - dispatch_start
+        ).count();
+        const double correction_ms = std::chrono::duration<double, std::milli>(
+            completed_at - correction_start
+        ).count();
+        if (!qrt_hawkeye_dispatch::time_remaining(dispatch_ms, correction_ms)) {
+            std::fprintf(stderr,
+                "BATCH_MARK hawkeye_dispatch_budget_exceeded offset=%zu "
+                "dispatch_ms=%.3f correction_ms=%.3f "
+                "diagnostic_only=1 numerical_correctness_claimed=0\n",
+                element_offset, dispatch_ms, correction_ms);
+            std::fflush(stderr);
+            return hipErrorInvalidConfiguration;
         }
     }
     return hipSuccess;
