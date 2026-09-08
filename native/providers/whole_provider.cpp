@@ -37350,17 +37350,22 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const bool admitted = qrt_hawkeye_dispatch::admitted(
         candidates, block_candidates
     );
+    const char *count_only_value =
+        std::getenv("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY");
+    const bool count_only = count_only_value != nullptr &&
+        std::strcmp(count_only_value, "1") == 0;
     // Write directly to stderr: admission evidence must survive marker filters.
     std::fprintf(stderr,
         "BATCH_MARK hawkeye_dispatch_admission rows=%u tokens=%u k=%u "
-        "candidates=%u maximum_block_candidates=%u limit_pass=%u "
+        "candidates=%u maximum_block_candidates=%u limit_pass=%u count_only=%u "
         "maximum_candidates=%u maximum_candidates_per_block=%u "
         "diagnostic_only=1 numerical_correctness_claimed=0\n",
         rows, selected_token_count, reduction_size, candidates, block_candidates,
-        admitted ? 1u : 0u, qrt_hawkeye_dispatch::maximum_candidates,
+        admitted ? 1u : 0u, count_only ? 1u : 0u,
+        qrt_hawkeye_dispatch::maximum_candidates,
         qrt_hawkeye_dispatch::maximum_candidates_per_block);
     std::fflush(stderr);
-    if (!admitted) {
+    if (!admitted || count_only) {
         return hipErrorInvalidConfiguration;
     }
     const auto correction_start = std::chrono::steady_clock::now();

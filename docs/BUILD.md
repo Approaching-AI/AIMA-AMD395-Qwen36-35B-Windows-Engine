@@ -125,6 +125,9 @@ the correction. These diagnostic limits cannot be raised through environment
 overrides. They leave accepted arithmetic unchanged. A supervisor cannot
 interrupt an already hung GPU kernel or recover a hard-locked Windows host;
 candidate admission is required before submitting expensive GPU work.
+Set `QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY=1` to count and stop at the first
+correction without launching any exact dots, including when admission passes.
+This intentional diagnostic failure produces no accepted inference output.
 
 ## Model files
 
