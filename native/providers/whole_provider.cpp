@@ -22,6 +22,7 @@
 #include "qrt.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
+#include "projection_output_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -115895,6 +115896,40 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 use_exact_arbitrary_ab_dot2 ||
                 use_exact_arbitrary_qkvz_dot2 ||
                 use_exact_arbitrary_qkvz_wmma;
+            const bool diagnostic_writes_bf16_consumer =
+                use_exact_arbitrary_dot2 &&
+                use_resident_bf16_matrix_provider &&
+                !use_early_f32_matrix_outputs;
+            // Layer >=2 may fuse convolution and omit ordinary F32 QKV.
+            // Check the producer's buffers before WMMA writes anything: a
+            // check in the subsequent correction launcher is already too late.
+            if (use_exact_arbitrary_dot2 &&
+                (device_weights == nullptr ||
+                 device_input_rmsnorm_bf16 == nullptr ||
+                 !qrt_projection_output::valid_buffers(
+                     device_output, device_output_bf16,
+                     diagnostic_writes_bf16_consumer))) {
+                run->failure_stage = prefix + "_diagnostic_projection_output_contract";
+                run->failure = "F32 diagnostic projection or BF16 consumer buffer is missing";
+                return false;
+            }
+            auto materialize_diagnostic_bf16_output = [&]() -> bool {
+                if (!diagnostic_writes_bf16_consumer) {
+                    return true;
+                }
+                const size_t elements = static_cast<size_t>(target_token_count) * rows;
+                hipLaunchKernelGGL(
+                    f32_to_bf16_kernel,
+                    dim3((elements + kThreads - 1u) / kThreads),
+                    dim3(kThreads), 0, stream,
+                    device_output, device_output_bf16, elements
+                );
+                return check_hip(
+                    hipGetLastError(),
+                    prefix + "_diagnostic_projection_bf16_consumer",
+                    &run->failure_stage, &run->failure
+                );
+            };
             if (use_exact_arbitrary_qkvz_wmma) {
                 constexpr unsigned int kWmmaRowsPerBlock = 128u;
                 constexpr unsigned int kWmmaTokensPerBlock = 64u;
@@ -116070,7 +116105,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << std::dec
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
                     << std::endl;
-                return true;
+                return materialize_diagnostic_bf16_output();
             }
 #ifdef QRT_HAS_ROCBLAS
             const bool use_exact_arbitrary_early_rocblas =
@@ -116873,7 +116908,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 rows,
                 surface_bit,
                 stream
-            );
+            ) && materialize_diagnostic_bf16_output();
         };
     auto fail_hip =
         [&](hipError_t status, const std::string &stage) -> bool {
@@ -118148,12 +118183,20 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 static_cast<size_t>(run->b_projection.weight_bytes),
             "hipMalloc(" + prefix + "_fused_ba_weight)"
         )) ||
-        (!use_bf16_conv_postconv_fusion && !malloc_device(
+        (qrt_projection_output::needs_f32_buffer(
+             !use_bf16_conv_postconv_fusion,
+             exact_arbitrary_early_qkvz_wmma_projection ||
+                 exact_arbitrary_early_qkvz_dot2_projection
+         ) && !malloc_device(
             &device_qkv,
             run->qkv_projection.output_bytes,
             "hipMalloc(" + prefix + "_qkv_output)"
         )) ||
-        (!use_q262144_bf16_z_pointwise_fusion && !malloc_device(
+        (qrt_projection_output::needs_f32_buffer(
+             !use_q262144_bf16_z_pointwise_fusion,
+             exact_arbitrary_early_qkvz_wmma_projection ||
+                 exact_arbitrary_early_qkvz_dot2_projection
+         ) && !malloc_device(
             &device_z,
             run->z_projection.output_bytes,
             "hipMalloc(" + prefix + "_z_output)"

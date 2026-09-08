@@ -129,6 +129,16 @@ Set `QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY=1` to count and stop at the first
 correction without launching any exact dots, including when admission passes.
 This intentional diagnostic failure produces no accepted inference output.
 
+F32 projection overrides must allocate their output even when the selected
+convolution consumer normally fuses a BF16 input. The layer-2 QKV override
+previously wrote through an omitted F32 buffer, before reaching correction
+admission. The current source allocates the producer buffer, validates both
+producer and required consumer pointers before launching WMMA/dot2, and
+materializes the BF16 consumer after projection. This repair has CPU contract
+coverage; native Windows validation is pending recovery from the 2026-09-08
+layer-2 diagnostic host loss. Earlier q8192 validation does not verify this
+later repair or arbitrary-length correctness.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and
