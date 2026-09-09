@@ -7818,6 +7818,22 @@ __global__ void f32_to_bf16_kernel(
     }
 }
 
+hipError_t launch_projection_f32_to_bf16_checked(
+    const float *input, uint16_t *output, size_t count, hipStream_t stream
+) {
+    constexpr unsigned int kThreads = 256u;
+    if (!qrt_projection_output::valid_buffers(input, output, true) ||
+        count == 0u ||
+        (count - 1u) / kThreads >= UINT32_C(2147483647)) {
+        return hipErrorInvalidValue;
+    }
+    hipLaunchKernelGGL(
+        f32_to_bf16_kernel, dim3((count - 1u) / kThreads + 1u),
+        dim3(kThreads), 0, stream, input, output, count
+    );
+    return hipGetLastError();
+}
+
 __global__ void packed_full_attention_kv_f32_to_bf16_kernel(
     const float *packed_rope,
     uint16_t *compact_k,
@@ -36774,6 +36790,26 @@ void selected_bf16_projection_wmma_k16_m64_kernel(
             }
         }
     }
+}
+
+// Validate before submission, not in a following correction kernel. The same
+// entry point is exercised by the model-free Windows safety regression.
+hipError_t launch_selected_bf16_projection_wmma_checked(
+    const uint16_t *weights, const uint16_t *inputs, float *output,
+    unsigned int rows, unsigned int tokens, unsigned int round_endpoint,
+    unsigned int absolute_products, hipStream_t stream
+) {
+    if (weights == nullptr || inputs == nullptr || output == nullptr ||
+        rows == 0u || tokens == 0u || (tokens - 1u) / 64u >= 65535u) {
+        return hipErrorInvalidValue;
+    }
+    hipLaunchKernelGGL(
+        selected_bf16_projection_wmma_k16_m64_kernel,
+        dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
+        dim3(256u), 0, stream, weights, inputs, output, rows, tokens,
+        round_endpoint, absolute_products
+    );
+    return hipGetLastError();
 }
 
 // Cauchy-Schwarz gives
@@ -115918,21 +115954,15 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     return true;
                 }
                 const size_t elements = static_cast<size_t>(target_token_count) * rows;
-                hipLaunchKernelGGL(
-                    f32_to_bf16_kernel,
-                    dim3((elements + kThreads - 1u) / kThreads),
-                    dim3(kThreads), 0, stream,
-                    device_output, device_output_bf16, elements
-                );
                 return check_hip(
-                    hipGetLastError(),
+                    launch_projection_f32_to_bf16_checked(
+                        device_output, device_output_bf16, elements, stream
+                    ),
                     prefix + "_diagnostic_projection_bf16_consumer",
                     &run->failure_stage, &run->failure
                 );
             };
             if (use_exact_arbitrary_qkvz_wmma) {
-                constexpr unsigned int kWmmaRowsPerBlock = 128u;
-                constexpr unsigned int kWmmaTokensPerBlock = 64u;
                 const unsigned int effective_hawkeye_midpoint_radius =
                     descriptor.layer_index <
                             exact_arbitrary_early_qkvz_wmma_hawkeye_full_layers
@@ -115951,30 +115981,14 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 float *const weight_l2_upper_bounds = surface_bit == 1u
                     ? device_qkv_weight_l2_upper_bounds
                     : device_z_weight_l2_upper_bounds;
-                hipLaunchKernelGGL(
-                    selected_bf16_projection_wmma_k16_m64_kernel,
-                    dim3(
-                        (rows + kWmmaRowsPerBlock - 1u) /
-                            kWmmaRowsPerBlock,
-                        (target_token_count + kWmmaTokensPerBlock - 1u) /
-                            kWmmaTokensPerBlock
-                    ),
-                    dim3(256u),
-                    0,
-                    stream,
-                    device_weights,
-                    device_input_rmsnorm_bf16,
-                    device_output,
-                    rows,
-                    target_token_count,
-                    (exact_arbitrary_early_qkvz_wmma_unrounded ||
-                     use_hawkeye_midpoint_correction)
-                        ? 0u
-                        : 1u,
-                    0u
-                );
                 if (!check_hip(
-                        hipGetLastError(),
+                        launch_selected_bf16_projection_wmma_checked(
+                            device_weights, device_input_rmsnorm_bf16,
+                            device_output, rows, target_token_count,
+                            (exact_arbitrary_early_qkvz_wmma_unrounded ||
+                             use_hawkeye_midpoint_correction) ? 0u : 1u,
+                            0u, stream
+                        ),
                         prefix + "_early_qkvz_wmma_projection",
                         &run->failure_stage,
                         &run->failure

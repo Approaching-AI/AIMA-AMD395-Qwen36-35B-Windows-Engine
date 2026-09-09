@@ -13,7 +13,8 @@ param(
         [string]$RocmRoot = "C:\Program Files\AMD\ROCm\7.1",
     [Parameter(Mandatory = $false)]
         [ValidatePattern('^gfx[0-9a-f]+$')]
-        [string]$OffloadArch = "gfx1151"
+        [string]$OffloadArch = "gfx1151",
+    [switch]$ProjectionSafetyTest
 )
 
 $ErrorActionPreference = "Stop"
@@ -102,6 +103,11 @@ $accumulatorHeader = Join-Path $repo (
 $qrtHeader = Join-Path $repo "native\src\qrt.h"
 $hostObject = Join-Path $OutDir "q1_moe_avx512bf16_host_provider.obj"
 $providerDll = Join-Path $OutDir "qrt_qwen36_whole_provider.dll"
+$compileSource = $source
+if ($ProjectionSafetyTest) {
+    $compileSource = Join-Path $repo 'tests\native\projection_safety_selftest.cpp'
+    $providerDll = Join-Path $OutDir 'qrt-projection-safety.exe'
+}
 
 foreach ($required in @(
         $hipcc,
@@ -110,6 +116,7 @@ foreach ($required in @(
         $rocmLib,
         $hipblasltImportSource,
         $source,
+        $compileSource,
         $hostSource,
         $hostHeader,
         $accumulatorHeader,
@@ -164,13 +171,13 @@ $providerArguments = @(
     "-DQRT_STATIC=1",
     "-I", (Join-Path $repo "native\src"),
     "-I", (Join-Path $repo "native\providers"),
-    "-shared",
-    $source,
+    $compileSource,
     "-o", $providerDll,
     "-lrocblas",
     "-lhipblaslt",
     "-Xlinker", $hostObject
 )
+if (-not $ProjectionSafetyTest) { $providerArguments += '-shared' }
 $providerRun = Invoke-BoundedProcess -FilePath $hipcc `
     -Arguments $providerArguments -WorkingDirectory $repo `
     -StdOutPath (Join-Path $OutDir "compile-provider.stdout.txt") `
@@ -200,6 +207,10 @@ $record = [ordered]@{
     source_path = $source
     source_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $source).Hash.ToLowerInvariant()
+    projection_safety_test = [bool]$ProjectionSafetyTest
+    compile_source_path = $compileSource
+    compile_source_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath $compileSource).Hash.ToLowerInvariant()
     hawkeye_dispatch_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\hawkeye_dispatch_policy.h')).Hash.ToLowerInvariant()
     projection_output_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
@@ -231,7 +242,7 @@ $record = [ordered]@{
     provider_compile_arguments = $providerArguments
     artifacts = @(
         [ordered]@{
-            name = "qrt_qwen36_whole_provider.dll"
+            name = [IO.Path]::GetFileName($providerDll)
             bytes = $providerItem.Length
             sha256 = $providerHash
         },

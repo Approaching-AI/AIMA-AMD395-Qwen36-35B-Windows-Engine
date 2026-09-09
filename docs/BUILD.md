@@ -139,6 +139,23 @@ coverage; native Windows validation is pending recovery from the 2026-09-08
 layer-2 diagnostic host loss. Earlier q8192 validation does not verify this
 later repair or arbitrary-length correctness.
 
+The model-free native regression builds the actual provider translation unit:
+
+```powershell
+.\scripts\baiying_build_whole_provider.ps1 -ProjectionSafetyTest -OutDir build\projection-safety
+```
+
+Run the resulting `qrt-projection-safety.exe` through the guarded runner,
+with exactly one of `--host-only`, `--small`, or `--full-shape` as its argument.
+Use separate output directories and inspect each record before increasing the
+shape. `--host-only` checks invalid launch arguments without calling HIP;
+`--small` checks eight WMMA/F32-to-BF16 cases across row/token tile boundaries;
+`--full-shape` checks a synthetic 8192-row, 7169-token projection without model
+loading or Hawkeye exact-dot correction. Output redzones and every conversion
+cell are checked; reference projection checks cover every small-case cell and
+512 full-shape cells. Each producer is synchronized before its consumer.
+These are safety regressions, not GB10 or real-model inference acceptance.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and
