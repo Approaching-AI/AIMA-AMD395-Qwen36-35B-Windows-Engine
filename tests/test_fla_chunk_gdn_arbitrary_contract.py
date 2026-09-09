@@ -21,7 +21,7 @@ class FlaChunkGdnArbitraryContractTests(unittest.TestCase):
         self.assertIn("int32_t padded_tokens(int32_t tokens)", self.source)
         self.assertIn("const int32_t prefix_tokens", self.source)
         self.assertIn("const int32_t tail_tokens", self.source)
-        self.assertIn("const int32_t scratch_tokens = padded_tokens(tokens)", self.source)
+        self.assertIn("tokens > kSegmentTokens ? kSegmentTokens : padded_tokens(tokens)", self.source)
         self.assertIn("g_state.padded_postconv", self.source)
         self.assertIn("g_state.padded_gate", self.source)
         self.assertIn("hipMemsetAsync(padded_postconv)", self.source)
@@ -42,7 +42,7 @@ class FlaChunkGdnArbitraryContractTests(unittest.TestCase):
         self.assertIn("kTailPaddingBytes", self.source)
         self.assertIn("static_cast<int32_t>(kChunk)", self.source)
 
-    def test_flashinfer_order_state_kernel_owns_the_core_output(self) -> None:
+    def test_triton_fla_matches_the_gb10_backend_decomposition(self) -> None:
         for argument in (
             "&q_pointer",
             "&k_pointer",
@@ -54,15 +54,24 @@ class FlaChunkGdnArbitraryContractTests(unittest.TestCase):
             "&final_state_pointer",
         ):
             self.assertIn(argument, self.source)
-        self.assertIn("constexpr uint32_t kStateValueTiles = 2u", self.source)
-        self.assertIn("kGateAndBetaBytesPerToken = 256u", self.source)
-        self.assertIn("float *beta_pointer = beta_f32", self.source)
-        self.assertIn("&a_pointer,\n        &beta_pointer,\n        &inverse_pointer", self.source)
-        self.assertNotIn("KernelIndex::kRecomputeWU,", self.source)
-        self.assertNotIn("KernelIndex::kChunkOutput,", self.source)
-        self.assertIn("old_output = tl.dot", self.generator)
-        self.assertIn("new_value_bf16", self.generator)
+        self.assertIn("constexpr uint32_t kStateValueTiles = 8u", self.source)
+        self.assertIn("kGateAndBetaBytesPerToken = 192u", self.source)
+        self.assertIn("uint16_t *beta_pointer = beta_bf16", self.source)
+        self.assertIn("&a_pointer,\n        &inverse_pointer", self.source)
+        self.assertIn("KernelIndex::kRecomputeWU,", self.source)
+        self.assertIn("KernelIndex::kChunkOutput,", self.source)
+        self.assertIn("cumulative = tl.cumsum(values, axis=0)", self.generator)
+        self.assertNotIn("tl.log2(alpha", self.generator)
+        self.assertIn("b_k_beta.to(b_k.dtype)", self.generator)
+        self.assertIn("current_v += tl.dot(w2", self.generator)
         self.assertIn("output_f32", self.generator)
+
+    def test_wddm_recurrence_and_scratch_are_segment_bounded(self) -> None:
+        self.assertIn("constexpr int32_t kSegmentTokens = 1024", self.source)
+        self.assertIn("for (int32_t offset = 0; offset < prefix_tokens;)", self.source)
+        self.assertIn("offset += count", self.source)
+        self.assertIn("token_offset += segment_tokens", self.source)
+        self.assertIn('include "qrt_fla_gdn_kernel_specs.inc"', self.source)
 
 
 if __name__ == "__main__":

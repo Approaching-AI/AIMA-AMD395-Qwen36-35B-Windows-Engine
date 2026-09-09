@@ -4,8 +4,9 @@
 """AOT-compile the service-shaped chunk-64 GDN pipeline for gfx1151.
 
 The kernels are fixed to the Qwen3.6 linear-attention geometry but retain the
-sequence length as a runtime ABI argument.  All supported product/probe
-lengths are multiples of the service chunk size (64).  The generated HSACOs
+sequence length as a runtime ABI argument.  Kernel segments are multiples of
+64; the native provider stages only a ragged final chunk with neutral values.
+The generated HSACOs
 are loaded by a native Windows HIP provider; Python and Triton are build-time
 dependencies only.
 
@@ -53,7 +54,7 @@ QK_PREP_DIM = tl.constexpr(128)
 KKT_BK = tl.constexpr(64)
 RECOMPUTE_BK = tl.constexpr(64)
 RECOMPUTE_BV = tl.constexpr(64)
-STATE_BV = tl.constexpr(64)
+STATE_BV = tl.constexpr(16)
 OUTPUT_BK = tl.constexpr(64)
 OUTPUT_BV = tl.constexpr(32)
 Q_SCALE = tl.constexpr(0.08838834764831845)
@@ -137,22 +138,18 @@ def _fla_chunk_gate_cumsum_kernel(
     g_cumsum,
     tokens,
 ):
-    """Match FlashInfer's F32 alpha -> log2 -> prefix-sum boundary."""
+    """Compute the service's F32 log-decay cumsum independently per chunk."""
 
     chunk = tl.program_id(0)
     head = tl.program_id(1)
     offsets = chunk * BT + tl.arange(0, BT)
     mask = offsets < tokens
-    log_gate = tl.load(
+    values = tl.load(
         gate + offsets * GATE_STRIDE + head,
         mask=mask,
         other=0.0,
     ).to(tl.float32)
-    # vLLM passes torch.exp(raw_log_gate) to FlashInfer.  Its SM90 loader then
-    # applies log2(alpha + 1e-10) before the warp prefix sum.  The round trip
-    # is observable after the model's BF16 boundaries, so preserve it here.
-    alpha = tl.exp(log_gate)
-    cumulative = tl.cumsum(tl.log2(alpha + 1.0e-10), axis=0)
+    cumulative = tl.cumsum(values, axis=0)
     tl.store(
         g_cumsum + offsets * H + head,
         cumulative,
@@ -165,10 +162,10 @@ def _fla_chunk_scaled_dot_kkt_kernel(
     k,
     beta,
     g_cumsum,
-    a_fp16,
+    a_f32,
     tokens,
 ):
-    """Publish FlashInfer's FP16 beta-scaled causal K K^T matrix."""
+    """Compute the strictly-lower beta K K^T WY matrix in F32."""
 
     chunk = tl.program_id(0)
     head = tl.program_id(1)
@@ -188,15 +185,15 @@ def _fla_chunk_scaled_dot_kkt_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_a += tl.dot(b_k, tl.trans(b_k), allow_tf32=False)
+        b_k_beta = b_k * b_beta[:, None]
+        b_a += tl.dot(b_k_beta.to(b_k.dtype), tl.trans(b_k))
 
     b_g = tl.load(
         g_cumsum + t * H + head,
         mask=valid,
         other=0.0,
     )
-    b_a *= tl.exp2(b_g[:, None] - b_g[None, :])
-    b_a *= b_beta[:, None].to(tl.float32)
+    b_a *= tl.exp(b_g[:, None] - b_g[None, :])
     local = tl.arange(0, BT)
     lower = (
         (local[:, None] > local[None, :])
@@ -205,28 +202,21 @@ def _fla_chunk_scaled_dot_kkt_kernel(
     )
     b_a = tl.where(lower, b_a, 0.0)
     tl.store(
-        a_fp16
+        a_f32
         + (t[:, None] * H + head) * BT
         + local[None, :],
         b_a,
         mask=valid[:, None],
     )
 
+
 @triton.jit(do_not_specialize=["tokens"])
 def _fla_solve_tril_64_kernel(
-    a_fp16,
-    beta,
-    t_bf16,
+    a_f32,
+    a_inverse_bf16,
     tokens,
 ):
-    """Invert FP16 I+KK and publish BF16 inverse@diag(beta).
-
-    FlashInfer stores the beta-scaled K K^T accumulator as FP16 before its
-    triangular inverse.  Its block merges consume FP16 operands, accumulate in
-    F32, and round each merged block back to FP16.  This implementation keeps
-    the existing 16-row base solve but matches those observable merge and
-    post-inverse beta boundaries.
-    """
+    """Compute (I + A)^-1 with the pinned service's 16x16 merge order."""
 
     chunk = tl.program_id(0)
     head = tl.program_id(1)
@@ -238,7 +228,7 @@ def _fla_solve_tril_64_kernel(
     a11 = -tl.where(
         lower16,
         tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + row16[:, None]) * H + head) * BT
             + row16[None, :]
         ).to(tl.float32),
@@ -247,7 +237,7 @@ def _fla_solve_tril_64_kernel(
     a22 = -tl.where(
         lower16,
         tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 16 + row16[:, None]) * H + head) * BT
             + 16
             + row16[None, :]
@@ -257,7 +247,7 @@ def _fla_solve_tril_64_kernel(
     a33 = -tl.where(
         lower16,
         tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
             + 32
             + row16[None, :]
@@ -267,7 +257,7 @@ def _fla_solve_tril_64_kernel(
     a44 = -tl.where(
         lower16,
         tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
             + 48
             + row16[None, :]
@@ -277,182 +267,181 @@ def _fla_solve_tril_64_kernel(
 
     for i in range(2, 16):
         source11 = -tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + i) * H + head) * BT
             + row16
-        ).to(tl.float32)
+        )
         source11 += tl.sum(source11[:, None] * a11, axis=0)
         a11 = tl.where((row16 == i)[:, None], source11, a11)
 
         source22 = -tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 16 + i) * H + head) * BT
             + 16
             + row16
-        ).to(tl.float32)
+        )
         source22 += tl.sum(source22[:, None] * a22, axis=0)
         a22 = tl.where((row16 == i)[:, None], source22, a22)
 
         source33 = -tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 32 + i) * H + head) * BT
             + 32
             + row16
-        ).to(tl.float32)
+        )
         source33 += tl.sum(source33[:, None] * a33, axis=0)
         a33 = tl.where((row16 == i)[:, None], source33, a33)
 
         source44 = -tl.load(
-            a_fp16
+            a_f32
             + ((chunk_row + 48 + i) * H + head) * BT
             + 48
             + row16
-        ).to(tl.float32)
+        )
         source44 += tl.sum(source44[:, None] * a44, axis=0)
         a44 = tl.where((row16 == i)[:, None], source44, a44)
 
-    a11 = (a11 + identity16).to(tl.float16)
-    a22 = (a22 + identity16).to(tl.float16)
-    a33 = (a33 + identity16).to(tl.float16)
-    a44 = (a44 + identity16).to(tl.float16)
+    a11 += identity16
+    a22 += identity16
+    a33 += identity16
+    a44 += identity16
 
     a21 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 16 + row16[:, None]) * H + head) * BT
         + row16[None, :]
-    )
+    ).to(tl.float32)
     a31 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
         + row16[None, :]
-    )
+    ).to(tl.float32)
     a32 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
         + 16
         + row16[None, :]
-    )
+    ).to(tl.float32)
     a41 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + row16[None, :]
-    )
+    ).to(tl.float32)
     a42 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + 16
         + row16[None, :]
-    )
+    ).to(tl.float32)
     a43 = tl.load(
-        a_fp16
+        a_f32
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + 32
         + row16[None, :]
+    ).to(tl.float32)
+
+    ai21 = -tl.dot(
+        tl.dot(a22, a21, input_precision="ieee"),
+        a11,
+        input_precision="ieee",
     )
-
-    dc21 = (-tl.dot(a22, a21, allow_tf32=False)).to(tl.float16)
-    ai21 = tl.dot(dc21, a11, allow_tf32=False).to(tl.float16)
-    dc43 = (-tl.dot(a44, a43, allow_tf32=False)).to(tl.float16)
-    ai43 = tl.dot(dc43, a33, allow_tf32=False).to(tl.float16)
-
-    # Merge the two inverse 32x32 diagonal blocks into one inverse 64x64
-    # block.  Each dot accumulates in F32 and each intermediate is rounded to
-    # FP16 at the same block boundary as FlashInfer's CollectiveInverse.
-    dc31 = (-tl.dot(a33, a31, allow_tf32=False)).to(tl.float16)
-    dc32 = (-tl.dot(a33, a32, allow_tf32=False)).to(tl.float16)
-    dc41 = -(
-        tl.dot(ai43, a31, allow_tf32=False)
-        + tl.dot(a44, a41, allow_tf32=False)
+    ai32 = -tl.dot(
+        tl.dot(a33, a32, input_precision="ieee"),
+        a22,
+        input_precision="ieee",
     )
-    dc41 = dc41.to(tl.float16)
-    dc42 = -(
-        tl.dot(ai43, a32, allow_tf32=False)
-        + tl.dot(a44, a42, allow_tf32=False)
+    ai43 = -tl.dot(
+        tl.dot(a44, a43, input_precision="ieee"),
+        a33,
+        input_precision="ieee",
     )
-    dc42 = dc42.to(tl.float16)
-
-    ai31 = (
-        tl.dot(dc31, a11, allow_tf32=False)
-        + tl.dot(dc32, ai21, allow_tf32=False)
-    ).to(tl.float16)
-    ai32 = tl.dot(dc32, a22, allow_tf32=False).to(tl.float16)
-    ai41 = (
-        tl.dot(dc41, a11, allow_tf32=False)
-        + tl.dot(dc42, ai21, allow_tf32=False)
-    ).to(tl.float16)
-    ai42 = tl.dot(dc42, a22, allow_tf32=False).to(tl.float16)
-
-    beta0 = tl.load(beta + (chunk_row + row16) * H + head)
-    beta1 = tl.load(beta + (chunk_row + 16 + row16) * H + head)
-    beta2 = tl.load(beta + (chunk_row + 32 + row16) * H + head)
-    beta3 = tl.load(beta + (chunk_row + 48 + row16) * H + head)
+    ai31 = -tl.dot(
+        a33,
+        tl.dot(a31, a11, input_precision="ieee")
+        + tl.dot(a32, ai21, input_precision="ieee"),
+        input_precision="ieee",
+    )
+    ai42 = -tl.dot(
+        a44,
+        tl.dot(a42, a22, input_precision="ieee")
+        + tl.dot(a43, ai32, input_precision="ieee"),
+        input_precision="ieee",
+    )
+    ai41 = -tl.dot(
+        a44,
+        tl.dot(a41, a11, input_precision="ieee")
+        + tl.dot(a42, ai21, input_precision="ieee")
+        + tl.dot(a43, ai31, input_precision="ieee"),
+        input_precision="ieee",
+    )
 
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + row16[:, None]) * H + head) * BT
         + row16[None, :],
-        a11 * beta0[None, :],
+        a11,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 16 + row16[:, None]) * H + head) * BT
         + 16
         + row16[None, :],
-        a22 * beta1[None, :],
+        a22,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
         + 32
         + row16[None, :],
-        a33 * beta2[None, :],
+        a33,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + 48
         + row16[None, :],
-        a44 * beta3[None, :],
+        a44,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 16 + row16[:, None]) * H + head) * BT
         + row16[None, :],
-        ai21 * beta0[None, :],
+        ai21,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
         + row16[None, :],
-        ai31 * beta0[None, :],
+        ai31,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 32 + row16[:, None]) * H + head) * BT
         + 16
         + row16[None, :],
-        ai32 * beta1[None, :],
+        ai32,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + row16[None, :],
-        ai41 * beta0[None, :],
+        ai41,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + 16
         + row16[None, :],
-        ai42 * beta1[None, :],
+        ai42,
     )
     tl.store(
-        t_bf16
+        a_inverse_bf16
         + ((chunk_row + 48 + row16[:, None]) * H + head) * BT
         + 32
         + row16[None, :],
-        ai43 * beta2[None, :],
+        ai43,
     )
+
 
 @triton.jit(do_not_specialize=["tokens"])
 def _fla_recompute_w_u_kernel(
@@ -461,11 +450,11 @@ def _fla_recompute_w_u_kernel(
     beta,
     w,
     u,
-    t_bf16,
+    a_inverse_bf16,
     g_cumsum,
     tokens,
 ):
-    """Recompute BF16 W/U from FlashInfer's inverse@diag(beta) matrix."""
+    """Recompute BF16 W/U from the solved WY matrix."""
 
     chunk = tl.program_id(0)
     head = tl.program_id(1)
@@ -473,11 +462,12 @@ def _fla_recompute_w_u_kernel(
     t = chunk * BT + tl.arange(0, BT)
     valid = t < tokens
     local = tl.arange(0, BT)
-    b_g = tl.exp2(
+    b_beta = tl.load(beta + t * H + head, mask=valid, other=0.0)
+    b_g = tl.exp(
         tl.load(g_cumsum + t * H + head, mask=valid, other=0.0)
     )
-    b_t = tl.load(
-        t_bf16
+    b_a = tl.load(
+        a_inverse_bf16
         + (t[:, None] * H + head) * BT
         + local[None, :],
         mask=valid[:, None],
@@ -491,7 +481,8 @@ def _fla_recompute_w_u_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_u = tl.dot(b_t, b_v, allow_tf32=False)
+        b_v_beta = (b_v * b_beta[:, None]).to(b_v.dtype)
+        b_u = tl.dot(b_a, b_v_beta, allow_tf32=False)
         tl.store(
             u + (t[:, None] * H + head) * V + value_dim[None, :],
             b_u,
@@ -508,8 +499,10 @@ def _fla_recompute_w_u_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_k_g = (b_k * b_g[:, None]).to(b_k.dtype)
-        b_w = tl.dot(b_t, b_k_g, allow_tf32=False)
+        b_k_beta_g = (
+            b_k * b_beta[:, None] * b_g[:, None]
+        ).to(b_k.dtype)
+        b_w = tl.dot(b_a, b_k_beta_g)
         tl.store(
             w + (t[:, None] * H + head) * K + key_dim[None, :],
             b_w,
@@ -519,118 +512,102 @@ def _fla_recompute_w_u_kernel(
 
 @triton.jit(do_not_specialize=["tokens"])
 def _fla_chunk_state_kernel(
-    q,
     k,
-    v,
-    t_bf16,
+    u,
+    w,
+    v_new,
     g_cumsum,
     initial_state,
-    output_f32,
+    chunk_state,
     final_state,
     tokens,
 ):
-    """Run FlashInfer's chunk mainloop order with an F32 recurrent state.
-
-    The critical order is state@K -> BF16 residual -> T matmul -> BF16 NewV,
-    followed by QK@NewV and the BF16-decayed state update.  The prior FLA
-    decomposition precomputed W/U and changed those rounding boundaries.
-    """
+    """Advance a seeded F32 state and publish BF16 chunk boundaries."""
 
     value_tile = tl.program_id(0)
     head = tl.program_id(1)
     key_head = head // (H // HG)
     value_dim = value_tile * STATE_BV + tl.arange(0, STATE_BV)
-    key_dim = tl.arange(0, K)
-    local = tl.arange(0, BT)
-    state_offset = (head * V + value_dim[:, None]) * K + key_dim[None, :]
-    state = tl.load(initial_state + state_offset).to(tl.float32)
+    key_dim = tl.arange(0, 64)
+    final_base = (head * V + value_dim[:, None]) * K
+    h1 = tl.load(
+        initial_state + final_base + key_dim[None, :],
+    ).to(tl.float32)
+    h2 = tl.load(
+        initial_state + final_base + 64 + key_dim[None, :],
+    ).to(tl.float32)
     chunks = tokens // BT
 
     for chunk in range(0, chunks):
         chunk_base = chunk * BT
-        token = chunk_base + local
-        q_block = tl.load(
-            q
-            + token[:, None] * (HG * K)
-            + key_head * K
-            + key_dim[None, :]
-        )
-        k_block = tl.load(
-            k
-            + token[:, None] * (HG * K)
-            + key_head * K
-            + key_dim[None, :]
-        )
-        value = tl.load(
-            v
-            + (token[:, None] * H + head) * V
-            + value_dim[None, :]
-        )
+        t = chunk_base + tl.arange(0, BT)
 
-        state_operand = tl.trans(state).to(q_block.dtype)
-        state_k = tl.dot(k_block, state_operand, allow_tf32=False)
-        gate = tl.load(g_cumsum + token * H + head)
-        state_k *= tl.exp2(gate)[:, None]
-        residual = (
-            value.to(tl.float32)
-            - state_k.to(tl.bfloat16).to(tl.float32)
-        ).to(tl.bfloat16)
-
-        matrix_offset = (
-            (token[:, None] * H + head) * BT + local[None, :]
-        )
-        t_matrix = tl.load(t_bf16 + matrix_offset)
-        new_value = tl.dot(t_matrix, residual, allow_tf32=False)
-        new_value_bf16 = new_value.to(tl.bfloat16)
-
-        old_output = tl.dot(q_block, state_operand, allow_tf32=False)
-        old_output *= (tl.exp2(gate) * Q_SCALE)[:, None]
-        qk = tl.zeros([BT, BT], dtype=tl.float32)
-        for key_block in range(0, K, OUTPUT_BK):
-            dot_dim = key_block + tl.arange(0, OUTPUT_BK)
-            q_dot = tl.load(
-                q
-                + token[:, None] * (HG * K)
-                + key_head * K
-                + dot_dim[None, :]
-            )
-            k_dot = tl.load(
-                k
-                + token[None, :] * (HG * K)
-                + key_head * K
-                + dot_dim[:, None]
-            )
-            qk += tl.dot(q_dot, k_dot, allow_tf32=False)
-        qk *= tl.exp2(gate[:, None] - gate[None, :]) * Q_SCALE
-        qk = tl.where(local[:, None] >= local[None, :], qk, 0.0)
-        qk = qk.to(tl.bfloat16)
-        output = old_output + tl.dot(
-            qk,
-            new_value_bf16,
-            allow_tf32=False,
+        state_base = (
+            ((chunk * H + head) * V + value_dim[:, None]) * K
         )
         tl.store(
-            output_f32
-            + (token[:, None] * H + head) * V
-            + value_dim[None, :],
-            output.to(tl.bfloat16).to(tl.float32),
+            chunk_state + state_base + key_dim[None, :],
+            h1,
+        )
+        tl.store(
+            chunk_state + state_base + 64 + key_dim[None, :],
+            h2,
         )
 
+        w1 = tl.load(
+            w
+            + (t[:, None] * H + head) * K
+            + key_dim[None, :]
+        )
+        w2 = tl.load(
+            w
+            + (t[:, None] * H + head) * K
+            + 64
+            + key_dim[None, :]
+        )
+        current_v = tl.dot(w1, tl.trans(h1).to(w1.dtype))
+        current_v += tl.dot(w2, tl.trans(h2).to(w2.dtype))
+        current_v = tl.load(
+            u
+            + (t[:, None] * H + head) * V
+            + value_dim[None, :]
+        ) - current_v
+        tl.store(
+            v_new
+            + (t[:, None] * H + head) * V
+            + value_dim[None, :],
+            current_v,
+        )
+
+        gate = tl.load(g_cumsum + t * H + head)
         gate_last = tl.load(
             g_cumsum + (chunk_base + BT - 1) * H + head
         )
-        state *= tl.exp2(gate_last)
-        new_value_decay = (
-            new_value_bf16.to(tl.float32)
-            * tl.exp2(gate_last - gate)[:, None]
-        ).to(tl.bfloat16)
-        state += tl.dot(
-            tl.trans(new_value_decay),
-            k_block,
-            allow_tf32=False,
-        )
+        current_v *= tl.exp(gate_last - gate)[:, None]
+        state_decay = tl.exp(gate_last)
+        h1 *= state_decay
+        h2 *= state_decay
+        current_v = current_v.to(k.dtype.element_ty)
 
-    tl.store(final_state + state_offset, state)
+        k1 = tl.load(
+            k
+            + t[None, :] * (HG * K)
+            + key_head * K
+            + key_dim[:, None]
+        )
+        k2 = tl.load(
+            k
+            + t[None, :] * (HG * K)
+            + key_head * K
+            + 64
+            + key_dim[:, None]
+        )
+        h1 += tl.trans(tl.dot(k1, current_v))
+        h2 += tl.trans(tl.dot(k2, current_v))
+
+    tl.store(final_state + final_base + key_dim[None, :], h1)
+    tl.store(final_state + final_base + 64 + key_dim[None, :], h2)
+
 
 @triton.jit(do_not_specialize=["tokens"])
 def _fla_chunk_output_kernel(
@@ -677,8 +654,8 @@ def _fla_chunk_output_kernel(
         qk += tl.dot(b_q, b_k)
 
     gate = tl.load(g_cumsum + t * H + head)
-    output *= tl.exp2(gate)[:, None]
-    qk *= tl.exp2(gate[:, None] - gate[None, :])
+    output *= tl.exp(gate)[:, None]
+    qk *= tl.exp(gate[:, None] - gate[None, :])
     causal = local[:, None] >= local[None, :]
     qk = tl.where(causal, qk, 0.0)
     values = tl.load(
@@ -734,7 +711,7 @@ KERNELS: tuple[dict[str, Any], ...] = (
             "postconv_raw": "*fp32",
             "gate": "*fp32",
             "v": "*bf16",
-            "beta": "*fp32",
+            "beta": "*bf16",
             "tokens": "i32",
         },
         "grid": ["tokens*32", 1, 1],
@@ -748,7 +725,7 @@ KERNELS: tuple[dict[str, Any], ...] = (
             "postconv_raw": "*bf16",
             "gate": "*fp32",
             "v": "*bf16",
-            "beta": "*fp32",
+            "beta": "*bf16",
             "tokens": "i32",
         },
         "grid": ["tokens*32", 1, 1],
@@ -772,9 +749,9 @@ KERNELS: tuple[dict[str, Any], ...] = (
         "fn": _fla_chunk_scaled_dot_kkt_kernel,
         "signature": {
             "k": "*bf16",
-            "beta": "*fp32",
+            "beta": "*bf16",
             "g_cumsum": "*fp32",
-            "a_fp16": "*fp16",
+            "a_f32": "*fp32",
             "tokens": "i32",
         },
         "grid": ["tokens/64", 32, 1],
@@ -785,9 +762,8 @@ KERNELS: tuple[dict[str, Any], ...] = (
         "name": "solve_tril_64",
         "fn": _fla_solve_tril_64_kernel,
         "signature": {
-            "a_fp16": "*fp16",
-            "beta": "*fp32",
-            "t_bf16": "*bf16",
+            "a_f32": "*fp32",
+            "a_inverse_bf16": "*bf16",
             "tokens": "i32",
         },
         "grid": ["tokens/64", 32, 1],
@@ -800,10 +776,10 @@ KERNELS: tuple[dict[str, Any], ...] = (
         "signature": {
             "k": "*bf16",
             "v": "*bf16",
-            "beta": "*fp32",
+            "beta": "*bf16",
             "w": "*bf16",
             "u": "*bf16",
-            "t_bf16": "*bf16",
+            "a_inverse_bf16": "*bf16",
             "g_cumsum": "*fp32",
             "tokens": "i32",
         },
@@ -815,18 +791,18 @@ KERNELS: tuple[dict[str, Any], ...] = (
         "name": "chunk_state",
         "fn": _fla_chunk_state_kernel,
         "signature": {
-            "q": "*bf16",
             "k": "*bf16",
-            "v": "*bf16",
-            "t_bf16": "*bf16",
+            "u": "*bf16",
+            "w": "*bf16",
+            "v_new": "*bf16",
             "g_cumsum": "*fp32",
             "initial_state": "*fp32",
-            "output_f32": "*fp32",
+            "chunk_state": "*bf16",
             "final_state": "*fp32",
             "tokens": "i32",
         },
-        "grid": [2, 32, 1],
-        "num_warps": 8,
+        "grid": [8, 32, 1],
+        "num_warps": 4,
         "num_stages": 1,
     },
     {
@@ -909,7 +885,8 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
         "schema_version": 2,
         "target": "gfx1151",
         "compiler": f"Triton {triton.__version__} HIP backend",
-        "source": "tools/compile_q8192_fla_chunk_gdn.py",
+        "source": "native/generators/compile_q8192_fla_chunk_gdn.py",
+        "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "provenance": {
             "algorithm": "vLLM 2a69949bd Triton/FLA chunk gated delta rule",
             "upstream_license": "MIT",
@@ -949,7 +926,7 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
         },
         "scratch_bytes_per_token": {
             "compact_qkv_bf16": 16384,
-            "gate_and_beta": 256,
+            "gate_and_beta": 192,
             "a_or_w": 8192,
             "ai_or_v_new": 8192,
             "chunk_state": 16384,
@@ -957,12 +934,39 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
         },
         "kernels": records,
     }
+    write_provider_kernel_specs(records, output_dir / "qrt_fla_gdn_kernel_specs.inc")
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path.write_text(
         json.dumps(metadata, indent=2) + "\n",
         encoding="utf-8",
     )
     print(json.dumps(metadata, indent=2))
+
+
+def write_provider_kernel_specs(records: list[dict[str, Any]], path: Path) -> None:
+    """Bind the native launch resource sizes to this compilation, not old AOTs."""
+    names = (
+        "qk_l2norm", "v_beta_copy", "gate_cumsum", "scaled_dot_kkt",
+        "solve_tril_64", "recompute_w_u", "chunk_state", "chunk_output",
+    )
+    indexed = {record["name"]: record for record in records}
+    lines = [
+        "// Generated by compile_q8192_fla_chunk_gdn.py; do not edit.",
+        "constexpr std::array<KernelSpec, static_cast<size_t>(KernelIndex::kCount)>",
+        "    kKernelSpecs{{",
+    ]
+    for name in names:
+        record = indexed[name]
+        threads = int(record["threads"])
+        shared = int(record["dynamic_shared_bytes"])
+        if threads <= 0 or threads > 1024 or threads % 32 or not 0 <= shared <= 65536:
+            raise ValueError(f"unsupported gfx1151 launch resources for {name}")
+        lines.append(
+            "        {" + json.dumps(record["file"]) + ", "
+            + json.dumps(record["symbol"]) + f", {threads}u, {shared}u}},"
+        )
+    lines.append("    }};")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> None:

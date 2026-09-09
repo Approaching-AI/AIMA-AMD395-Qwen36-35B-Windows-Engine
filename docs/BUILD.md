@@ -90,6 +90,24 @@ The qualified CK source boundary is AITER commit
 FMHA host/device API or architecture tags; treat them as unqualified until the
 component smoke and native Windows GB10 product gate are rerun.
 
+### Experimental Triton/FLA GDN
+
+`baiying_build_fla_gdn.ps1 -OutDir build\fla-gdn -TimeoutSeconds 240`
+builds only the optional chunk-64 FLA provider and q64/q65/q7169 probes. It
+does not change the packaged AITER route or launch inference. Run each probe
+separately with `baiying_guarded_inference.ps1`, then attach the GB10 numerical
+comparison before any product measurement. Generated `qrt_fla_gdn_kernel_specs.inc`
+binds the native launch sizes to the exact new AOT compiler output; old
+FlashInfer-order binaries have a different ABI and cannot be substituted.
+
+The September 9 reference-service audit found GB10 uses `forward_native`
+Triton/FLA, not the SM90-only FlashInfer backend. The restored optional route
+therefore uses log-gate cumsum, BF16 beta/K and W/U boundaries, and the FLA
+state/output decomposition. Every recurrent dispatch is limited to 1024
+tokens; aligned segments hand off unrounded F32 state, and only a ragged final
+chunk is padded with neutral inputs. This is a route correction under
+qualification, not a claim that the q7169 model gate has passed.
+
 ## CPU-safe validation
 
 On macOS/Linux or Windows with Make, a C11 compiler, Rust, and Python:

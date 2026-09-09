@@ -22,12 +22,15 @@ constexpr uint32_t kKeyDim = 128u;
 constexpr uint32_t kValueDim = 128u;
 constexpr uint32_t kChunk = 64u;
 constexpr uint32_t kQkPrepRows = 32u;
-constexpr uint32_t kStateValueTiles = 2u;
+constexpr uint32_t kStateValueTiles = 8u;
+constexpr uint32_t kOutputValueTiles = 4u;
 constexpr uint32_t kGateRows = 64u;
 constexpr uint32_t kQkvRows = 8192u;
 constexpr uint32_t kValueFeatures = kValueHeads * kValueDim;
 constexpr uint32_t kStateElements = kValueFeatures * kKeyDim;
-constexpr int32_t kQ65536SegmentTokens = 1024;
+// Bound every recurrent dispatch to 16 chunks on WDDM. All segment boundaries
+// are chunk boundaries and carry the unrounded F32 state on the same stream.
+constexpr int32_t kSegmentTokens = 1024;
 
 constexpr int32_t kSmokeTokens = 64;
 constexpr int32_t kQ8192Tokens = 8192;
@@ -37,7 +40,7 @@ constexpr int32_t kQ32768Tokens = 32768;
 constexpr int32_t kQ65536Tokens = 65536;
 
 constexpr uint64_t kCompactQkvBytesPerToken = 16384u;
-constexpr uint64_t kGateAndBetaBytesPerToken = 256u;
+constexpr uint64_t kGateAndBetaBytesPerToken = 192u;
 constexpr uint64_t kAOrWBytesPerToken = 8192u;
 constexpr uint64_t kAiOrVNewBytesPerToken = 8192u;
 constexpr uint64_t kChunkStateBytesPerToken = 16384u;
@@ -78,57 +81,9 @@ struct KernelSpec {
     uint32_t dynamic_shared_bytes;
 };
 
-constexpr std::array<KernelSpec, static_cast<size_t>(KernelIndex::kCount)>
-    kKernelSpecs{{
-        {
-            "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
-            "_fla_qk_l2norm_from_native_f32_kernel",
-            128u,
-            512u,
-        },
-        {
-            "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
-            "_fla_v_beta_copy_from_native_f32_kernel",
-            128u,
-            0u,
-        },
-        {
-            "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
-            "_fla_chunk_gate_cumsum_kernel",
-            64u,
-            8u,
-        },
-        {
-            "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
-            "_fla_chunk_scaled_dot_kkt_kernel",
-            256u,
-            8192u,
-        },
-        {
-            "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
-            "_fla_solve_tril_64_kernel",
-            256u,
-            512u,
-        },
-        {
-            "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
-            "_fla_recompute_w_u_kernel",
-            256u,
-            8192u,
-        },
-        {
-            "q8192_fla_chunk_gdn_chunk_state.hsaco",
-            "_fla_chunk_state_kernel",
-            256u,
-            32768u,
-        },
-        {
-            "q8192_fla_chunk_gdn_chunk_output.hsaco",
-            "_fla_chunk_output_kernel",
-            256u,
-            8192u,
-        },
-    }};
+// Supplied by the exact AOT build. Old FlashInfer-order objects are not ABI
+// compatible with this Triton/FLA pipeline and must not share its directory.
+#include "qrt_fla_gdn_kernel_specs.inc"
 
 struct ProviderState {
     std::array<hipModule_t, static_cast<size_t>(KernelIndex::kCount)> modules{};
@@ -512,8 +467,10 @@ int launch_segment_async(
     uint16_t *v_bf16 =
         k_bf16 + static_cast<size_t>(tokens) * kQkHeads * kKeyDim;
     float *g_cumsum = g_state.gate_and_beta;
-    float *beta_f32 = g_state.gate_and_beta +
-        static_cast<size_t>(tokens) * kValueHeads;
+    uint16_t *beta_bf16 = reinterpret_cast<uint16_t *>(
+        g_state.gate_and_beta +
+        static_cast<size_t>(tokens) * kValueHeads
+    );
     float *a_f32 = static_cast<float *>(g_state.a_or_w);
     uint16_t *a_inverse_bf16 =
         static_cast<uint16_t *>(g_state.ai_or_v_new);
@@ -549,7 +506,7 @@ int launch_segment_async(
 
     const float *gate_pointer = gate_f32;
     uint16_t *v_pointer = v_bf16;
-    float *beta_pointer = beta_f32;
+    uint16_t *beta_pointer = beta_bf16;
     void *v_beta_arguments[] = {
         &raw_pointer,
         &gate_pointer,
@@ -632,7 +589,6 @@ int launch_segment_async(
     uint16_t *inverse_pointer = a_inverse_bf16;
     void *solve_arguments[] = {
         &a_pointer,
-        &beta_pointer,
         &inverse_pointer,
         &launch_tokens,
         &global_scratch,
@@ -649,33 +605,48 @@ int launch_segment_async(
         return 0;
     }
 
-    // The fused FlashInfer-order state owner consumes the compact Q/K/V and
-    // inverse@beta boundary directly.  It publishes the BF16-rounded core
-    // output while advancing the F32 recurrent state, replacing both the
-    // legacy W/U recomputation and the separate chunk-output pass.
-    const float *initial_state_pointer = final_state_f32;
-    float *final_state_pointer = final_state_f32;
-    float *output_pointer = output_f32;
-    void *state_arguments[] = {
-        &q_pointer,
-        &k_pointer,
-        &v_pointer,
-        &inverse_pointer,
-        &g_pointer,
-        &initial_state_pointer,
-        &output_pointer,
-        &final_state_pointer,
-        &launch_tokens,
-        &global_scratch,
-        &profile_scratch,
+    // A is dead after solve; inverse is dead after recompute. Each recompute
+    // CTA owns one complete (chunk, value-head), so its V -> U alias has no
+    // inter-program reader. State/output run only after recompute on this stream.
+    uint16_t *w_pointer = static_cast<uint16_t *>(g_state.a_or_w);
+    uint16_t *u_pointer = v_pointer;
+    void *recompute_arguments[] = {
+        &k_pointer, &v_pointer, &beta_pointer, &w_pointer, &u_pointer,
+        &inverse_pointer, &g_pointer, &launch_tokens,
+        &global_scratch, &profile_scratch,
     };
     if (!launch(
-            KernelIndex::kChunkState,
-            kStateValueTiles,
-            kValueHeads,
-            1u,
-            stream,
-            state_arguments
+            KernelIndex::kRecomputeWU, chunks, kValueHeads, 1u,
+            stream, recompute_arguments
+        )) {
+        return 0;
+    }
+
+    uint16_t *v_new_pointer = static_cast<uint16_t *>(g_state.ai_or_v_new);
+    uint16_t *chunk_state_pointer = g_state.chunk_state;
+    const float *initial_state_pointer = final_state_f32;
+    float *final_state_pointer = final_state_f32;
+    void *state_arguments[] = {
+        &k_pointer, &u_pointer, &w_pointer, &v_new_pointer, &g_pointer,
+        &initial_state_pointer, &chunk_state_pointer, &final_state_pointer,
+        &launch_tokens, &global_scratch, &profile_scratch,
+    };
+    if (!launch(
+            KernelIndex::kChunkState, kStateValueTiles, kValueHeads, 1u,
+            stream, state_arguments
+        )) {
+        return 0;
+    }
+
+    float *output_pointer = output_f32;
+    void *output_arguments[] = {
+        &q_pointer, &k_pointer, &v_new_pointer, &chunk_state_pointer,
+        &g_pointer, &output_pointer, &launch_tokens,
+        &global_scratch, &profile_scratch,
+    };
+    if (!launch(
+            KernelIndex::kChunkOutput, kOutputValueTiles, chunks, kValueHeads,
+            stream, output_arguments
         )) {
         return 0;
     }
@@ -709,26 +680,28 @@ int launch_pipeline_async(
             tokens / static_cast<int32_t>(kChunk) *
             static_cast<int32_t>(kChunk);
         const int32_t tail_tokens = tokens - prefix_tokens;
-        // Keep the rounded-up main scratch extent that the compiled kernels
-        // historically received.  Some vectorized kernel paths touch the
-        // neutral tail allocation even when this call launches only the
-        // aligned prefix; the optimization here is to avoid staging the full
-        // prompt, not to tighten that kernel-visible allocation contract.
-        const int32_t scratch_tokens = padded_tokens(tokens);
+        // Scratch always covers a complete segment/chunk. Kernels only see
+        // aligned extents, including the neutral final chunk; caller buffers
+        // retain their exact logical extent and are never read past the end.
+        const int32_t scratch_tokens =
+            tokens > kSegmentTokens ? kSegmentTokens : padded_tokens(tokens);
         if (!ensure_scratch(scratch_tokens)) {
             return 0;
         }
         hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
-        if (prefix_tokens > 0 && launch_segment_async(
-                postconv_raw_f32,
-                gate_f32,
-                output_f32,
-                final_state_f32,
-                stream_pointer,
-                prefix_tokens,
-                true
-            ) == 0) {
-            return 0;
+        for (int32_t offset = 0; offset < prefix_tokens;) {
+            const int32_t remaining = prefix_tokens - offset;
+            const int32_t count = remaining > kSegmentTokens
+                ? kSegmentTokens : remaining;
+            if (launch_segment_async(
+                    postconv_raw_f32 + static_cast<size_t>(offset) * kQkvRows,
+                    gate_f32 + static_cast<size_t>(offset) * kGateRows,
+                    output_f32 + static_cast<size_t>(offset) * kValueFeatures,
+                    final_state_f32, stream_pointer, count, offset == 0
+                ) == 0) {
+                return 0;
+            }
+            offset += count;
         }
         const size_t padded_postconv_bytes =
             static_cast<size_t>(kChunk) *
@@ -816,10 +789,10 @@ int launch_pipeline_async(
         return 1;
     }
 
-    const int32_t segment_tokens =
-        tokens == kQ65536Tokens ? kQ65536SegmentTokens : tokens;
-    for (int32_t token_offset = 0; token_offset < tokens;
-         token_offset += segment_tokens) {
+    for (int32_t token_offset = 0; token_offset < tokens;) {
+        const int32_t remaining = tokens - token_offset;
+        const int32_t segment_tokens = remaining > kSegmentTokens
+            ? kSegmentTokens : remaining;
         if (launch_segment_async(
                 postconv_raw_f32 +
                     static_cast<size_t>(token_offset) * kQkvRows,
@@ -834,6 +807,7 @@ int launch_pipeline_async(
             ) == 0) {
             return 0;
         }
+        token_offset += segment_tokens;
     }
     g_state.error[0] = '\0';
     return 1;
@@ -972,10 +946,8 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_launch_async_dynamic(
 QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
     int32_t tokens
 ) {
-    const int32_t scratch_tokens =
-        tokens == kQ65536Tokens
-            ? kQ65536SegmentTokens
-            : (supported_tokens(tokens) ? padded_tokens(tokens) : 0);
+    const int32_t scratch_tokens = !supported_tokens(tokens) ? 0
+        : (tokens > kSegmentTokens ? kSegmentTokens : padded_tokens(tokens));
     return scratch_tokens > 0
         ? static_cast<uint64_t>(scratch_tokens) *
               kMainScratchBytesPerToken +
