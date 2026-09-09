@@ -55,6 +55,45 @@ class BoundedHttpTests(unittest.TestCase):
     def test_stream_success(self):
         self.assertEqual(subject.check_stream(self.events(), "hello"), {"ttft_ms": 123})
 
+    def test_first_token_observation_requires_real_prompt_and_logit(self):
+        _, _, oracle = self.fixture()
+        oracle["prompt"]["u32le_fnv1a64"] = "fixture-fnv"
+        oracle["expected"].update(first_token_raw_logit=10.375, first_token_raw_logit_tolerance=0.125)
+        row = {"type": "qrt_server_first_token_observation", "contract_version": 1, "available": True,
+               "prefix_route_used": False, "input_tokens": 8192, "output_tokens": 32,
+               "prompt_token_ids_fnv1a64": "fixture-fnv", "output_token_id": 144,
+               "source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+               "first_token_raw_logit": 10.375}
+        encode = lambda rows: "\n".join(json.dumps(value, separators=(",", ":")) for value in rows)
+        self.assertEqual(len(subject.check_first_token_observations(encode([row, row]), oracle)), 2)
+        for key, value in (("available", False), ("prefix_route_used", True), ("output_token_id", 220),
+                           ("first_token_raw_logit", 10.625), ("first_token_raw_logit", float("nan")),
+                           ("first_token_raw_logit", None), ("prompt_token_ids_fnv1a64", "different")):
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                subject.check_first_token_observations(encode([row, {**row, key: value}]), oracle)
+        with self.assertRaises(ValueError):
+            subject.check_first_token_observations(encode([row]), oracle)
+
+    def test_timing_contract_separates_total_and_mean(self):
+        metrics = {"timing_contract_version": 2, "tpot_samples": 31, "decode_total_ms": 1011.8258,
+                   "tpot_ms": 1011.8258 / 31}
+        subject.check_timing_contract(metrics)
+        for key, value in (("tpot_ms", 1011.8258), ("tpot_samples", 0), ("timing_contract_version", 1),
+                           ("tpot_ms", float("inf")), ("decode_total_ms", 0)):
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                subject.check_timing_contract({**metrics, key: value})
+
+    def test_stream_null_usage_on_regular_chunks_is_not_final_usage(self):
+        events = self.events()
+        for event in events[:2]:
+            chunk = json.loads(event["data"])
+            chunk["usage"] = None
+            event["data"] = json.dumps(chunk)
+        self.assertEqual(subject.check_stream(events, "hello"), {"ttft_ms": 123})
+        events[-2]["data"] = json.dumps({"choices": [], "usage": None})
+        with self.assertRaisesRegex(ValueError, "finish/usage count"):
+            subject.check_stream(events, "hello")
+
     def test_stream_bad_content_or_shape_is_rejected(self):
         events = self.events()
         for broken in (events[:-1], events + [events[-1]],
@@ -98,6 +137,49 @@ class BoundedHttpTests(unittest.TestCase):
             subject.save_json(target, {"original": True})
             with self.assertRaises(FileExistsError):
                 subject.save_json(target, {"original": False})
+
+    def test_saved_replay_requires_original_input_and_healthy_owned_exit(self):
+        prompt, expected, oracle = self.fixture()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = {name: root / f"{name}.json" for name in
+                     ("prompt", "oracle", "result", "completion", "stream", "service", "guard")}
+            subject.save_json(paths["prompt"], prompt)
+            subject.save_json(paths["oracle"], oracle)
+            completion = {"object": "text_completion", "choices": [{"text": "hello", "token_ids": expected,
+                          "finish_reason": "length"}], "usage": {"prompt_tokens": 8192, "completion_tokens": 32,
+                          "total_tokens": 8224}, "qrt_metrics": {"ttft_ms": 123}}
+            subject.save_json(paths["completion"], completion)
+            subject.save_json(paths["stream"], self.events())
+            original = {"status": "failed", "error": "usage before finish", "pid": 123,
+                        "server_commit": "test-commit", "model": "/model", "server_exit_code": 0,
+                        "nonstream_exact_32_tokens": True, "ready_wall_ms": 123,
+                        "health_before": {"load": {}},
+                        "health_during_sse": {"pid": 123, "ready": True,
+                                               "queue": {"started_total": 2, "completed_total": 1,
+                                                         "active_requests": 1}},
+                        "preflight": {"pass": True, "files": {name: {"sha256": subject.fingerprint(paths[name])}
+                                                               for name in ("prompt", "oracle")}}}
+            subject.save_json(paths["result"], original)
+            subject.save_json(paths["service"], {"status": "stopped", "pid": 123, "repo_commit": "test-commit",
+                                               "host": "BAIYING", "model_path": "/model", "provider_dll": "/provider"})
+            guard = {"host": "BAIYING", "spec": {"model": "/model", "repo_commit": "test-commit"},
+                     "reason": "completed", "host_checks_pass": True, "host_checks": {"same_boot": True}}
+            subject.save_json(paths["guard"], guard)
+            result = subject.replay_saved_run(root, paths["guard"], paths["prompt"], paths["oracle"])
+            self.assertEqual(result["status"], "offline_http_result_validation_pass")
+            self.assertEqual(result["original_controller_status"], "failed")
+            self.assertFalse(result["full_product_gate_pass"])
+            self.assertFalse(result["post_request_queue_sample_available"])
+            for field, value in (("reason", "timeout"), ("host_checks_pass", False), ("host", "other-host")):
+                paths["guard"].write_text(json.dumps({**guard, field: value}))
+                with self.subTest(field=field), self.assertRaises(ValueError):
+                    subject.replay_saved_run(root, paths["guard"], paths["prompt"], paths["oracle"])
+            paths["guard"].write_text(json.dumps(guard))
+            prompt[-1] = 33
+            paths["prompt"].write_text(json.dumps(prompt))
+            with self.assertRaises(ValueError):
+                subject.replay_saved_run(root, paths["guard"], paths["prompt"], paths["oracle"])
 
     @unittest.skipIf(os.name == "nt", "non-Windows negative control")
     def test_execution_is_denied_outside_windows(self):

@@ -4,6 +4,8 @@
 
 #include "qrt_server_bridge.h"
 
+#include <inttypes.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,6 +32,57 @@ struct qrt_server_engine {
     HMODULE provider_module;
 #endif
 };
+
+/* Opt-in observation only. Reuse the product CLI's report/output agreement
+ * boundary; prefix seed reports and nonfinite/stale logits are unavailable.
+ * No ABI field, sampling decision or model arithmetic is changed. */
+static void qrt_server_write_first_token_observation(
+    FILE *destination,
+    const qrt_engine_report_t *report,
+    const uint32_t *input_tokens,
+    size_t input_count,
+    const uint32_t *output_tokens,
+    size_t output_count,
+    int prefix_route_used,
+    int request_succeeded
+) {
+    uint64_t prompt_fnv = UINT64_C(14695981039346656037);
+    size_t index;
+    int available = request_succeeded && !prefix_route_used && report != NULL &&
+        report->baseline_output_head_token_emitted != 0 &&
+        output_tokens != NULL && output_count != 0u &&
+        report->baseline_output_head_sampled_token_id == output_tokens[0] &&
+        report->baseline_output_head_topk_token_ids[0] == output_tokens[0] &&
+        isfinite((double)report->baseline_output_head_topk_logits[0]);
+    if (input_tokens == NULL) available = 0;
+    for (index = 0u; input_tokens != NULL && index < input_count; ++index) {
+        unsigned int byte;
+        for (byte = 0u; byte < 4u; ++byte) {
+            prompt_fnv ^= (input_tokens[index] >> (8u * byte)) & UINT32_C(255);
+            prompt_fnv *= UINT64_C(1099511628211);
+        }
+    }
+    fprintf(destination,
+        "{\"type\":\"qrt_server_first_token_observation\",\"contract_version\":1,"
+        "\"input_tokens\":%zu,\"output_tokens\":%zu,"
+        "\"prompt_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"prefix_route_used\":%s,\"available\":%s,\"output_token_id\":",
+        input_count, output_count, prompt_fnv,
+        prefix_route_used ? "true" : "false", available ? "true" : "false");
+    if (output_tokens != NULL && output_count != 0u) {
+        fprintf(destination, "%" PRIu32, output_tokens[0]);
+    } else {
+        fputs("null", destination);
+    }
+    fputs(",\"first_token_raw_logit\":", destination);
+    if (available) {
+        fprintf(destination, "%.9g", (double)report->baseline_output_head_topk_logits[0]);
+    } else {
+        fputs("null", destination);
+    }
+    fputs(",\"source\":\"qrt_engine_report.baseline_output_head_topk_logits[0]\"}\n", destination);
+    fflush(destination);
+}
 
 static int qrt_server_store_tokens(
     uint32_t **destination,
@@ -1014,6 +1067,21 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
             (prefix_route_used ? prefix_seed_elapsed_ns : UINT64_C(0));
         out_report->tpot_ns = engine_report->last_request_tpot_elapsed_ns;
         out_report->tpot_sample_count = engine_report->last_request_tpot_sample_count;
+        if (input_token_count == QRT_SERVER_RETAINED_Q8192_TOKENS) {
+            char observation_env[16];
+            const char *observation = qrt_server_environment_value(
+                "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC",
+                observation_env,
+                sizeof(observation_env)
+            );
+            if (observation != NULL && strcmp(observation, "1") == 0) {
+                qrt_server_write_first_token_observation(
+                    stderr, engine_report, input_tokens, input_token_count,
+                    output_tokens, *out_output_token_count, prefix_route_used,
+                    status == QRT_STATUS_OK
+                );
+            }
+        }
         qrt_server_copy_text(
             out_report->failure_stage,
             sizeof(out_report->failure_stage),

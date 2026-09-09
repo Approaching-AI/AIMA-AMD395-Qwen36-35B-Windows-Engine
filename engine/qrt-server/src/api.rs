@@ -1829,11 +1829,19 @@ fn usage_json(prompt_tokens: usize, completion_tokens: usize) -> Value {
 }
 
 fn request_metrics_json(result: &GenerationResult) -> Value {
+    let decode_total_ms = ns_to_ms(result.metrics.tpot_ns);
+    let tpot_ms = if result.metrics.tpot_samples == 0 {
+        0.0
+    } else {
+        decode_total_ms / result.metrics.tpot_samples as f64
+    };
     json!({
+        "timing_contract_version": 2,
         "queue_wait_ms": ns_to_ms(result.metrics.queue_wait_ns),
         "request_ms": ns_to_ms(result.metrics.wall_ns),
         "ttft_ms": ns_to_ms(result.metrics.ttft_ns),
-        "tpot_ms": ns_to_ms(result.metrics.tpot_ns),
+        "tpot_ms": tpot_ms,
+        "decode_total_ms": decode_total_ms,
         "tpot_samples": result.metrics.tpot_samples,
     })
 }
@@ -2051,6 +2059,23 @@ mod tests {
     use axum::http::Request;
     use http_body_util::BodyExt;
     use tower::ServiceExt;
+
+    #[test]
+    fn tpot_is_per_token_and_preserves_the_native_total() {
+        let mut result = GenerationResult {
+            token_ids: vec![144; 32],
+            metrics: crate::backend::RequestMetrics {
+                tpot_ns: 1_011_825_800,
+                tpot_samples: 31,
+                ..Default::default()
+            },
+        };
+        let value = request_metrics_json(&result);
+        assert_eq!(value["decode_total_ms"], 1011.8258);
+        assert!((value["tpot_ms"].as_f64().unwrap() - 32.63954193548387).abs() < 1e-10);
+        result.metrics.tpot_samples = 0;
+        assert_eq!(request_metrics_json(&result)["tpot_ms"], 0.0);
+    }
 
     async fn chat_test_response(output: &str, request: Value) -> (StatusCode, Vec<u8>) {
         let response = test_app(output)

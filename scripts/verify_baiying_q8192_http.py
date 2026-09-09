@@ -11,6 +11,7 @@ import argparse
 import ctypes
 import hashlib
 import json
+import math
 import os
 import platform
 import socket
@@ -170,7 +171,7 @@ def check_stream(events, expected_text):
             text += choice["text"]
             if choice["finish_reason"] is not None:
                 finishes.append(choice["finish_reason"])
-        if "usage" in chunk:
+        if chunk.get("usage") is not None:
             require(bool(finishes) and chunk["choices"] == [], "usage before finish")
             usage.append(chunk)
     require(text == expected_text, "SSE text differs from oracle detokenization")
@@ -179,10 +180,95 @@ def check_stream(events, expected_text):
     return usage[0]["qrt_metrics"]
 
 
+def check_first_token_observations(log_text, oracle):
+    rows = [json.loads(line) for line in log_text.splitlines()
+            if line.startswith('{"type":"qrt_server_first_token_observation"')]
+    require(len(rows) == 2, "requires two same-run first-token observations")
+    expected = oracle["expected"]
+    for row in rows:
+        require(row["contract_version"] == 1 and row["available"] is True
+                and row["prefix_route_used"] is False, "unavailable or stale first-token report")
+        require(row["source"] == "qrt_engine_report.baseline_output_head_topk_logits[0]",
+                "unexpected raw-logit source")
+        require(row["input_tokens"] == 8192 and row["output_tokens"] == 32, "observation shape differs")
+        require(row["prompt_token_ids_fnv1a64"] == oracle["prompt"]["u32le_fnv1a64"],
+                "observation prompt differs")
+        require(row["output_token_id"] == expected["first_token_id"], "observed first token differs")
+        logit = row["first_token_raw_logit"]
+        require(type(logit) in (float, int) and math.isfinite(logit)
+                and abs(logit - expected["first_token_raw_logit"]) <= expected["first_token_raw_logit_tolerance"],
+                "first-token raw logit fails GB10 tolerance")
+    return rows
+
+
+def check_timing_contract(metrics):
+    require(metrics.get("timing_contract_version") == 2, "requires corrected timing contract")
+    require(metrics["tpot_samples"] == 31, "wrong decode sample count")
+    total, mean = metrics["decode_total_ms"], metrics["tpot_ms"]
+    require(type(total) in (int, float) and type(mean) in (int, float)
+            and math.isfinite(total) and math.isfinite(mean) and total > 0
+            and math.isclose(mean * 31, total, rel_tol=1e-12), "TPOT is not the per-token mean")
+
+
+def replay_saved_run(run_dir, guard_path, prompt_path, oracle_path):
+    """Validate saved transport after a parser repair without more GPU work.
+
+    The original controller status is immutable and stays separate. A replay
+    cannot supply missing raw logits, post-request queue samples or token IDs
+    which the streaming protocol did not expose.
+    """
+    paths = {"result": run_dir / "result.json", "completion": run_dir / "completion.json",
+             "stream": run_dir / "stream.json", "state": run_dir / "service.json",
+             "guard": guard_path, "prompt": prompt_path, "oracle": oracle_path}
+    fingerprints = {name: fingerprint(path) for name, path in paths.items()}
+    original = read_json(paths["result"])
+    completion = read_json(paths["completion"])
+    stream = read_json(paths["stream"])
+    state = read_json(paths["state"])
+    guard = read_json(paths["guard"])
+    expected = validate_fixture(read_json(prompt_path), read_json(oracle_path))
+    require(original["preflight"]["pass"] is True, "original preflight failed")
+    for name in ("prompt", "oracle"):
+        require(fingerprints[name] == original["preflight"]["files"][name]["sha256"],
+                f"saved {name} does not match executed input")
+    require(original.get("nonstream_exact_32_tokens") is True,
+            "original run did not verify reference detokenization")
+    check_completion(completion, expected, completion["choices"][0]["text"])
+    metrics = check_stream(stream, completion["choices"][0]["text"])
+    require(original["server_exit_code"] == 0 and not original.get("forced_owned_process_cleanup"),
+            "original server did not exit gracefully")
+    require(state["status"] == "stopped" and state["pid"] == original["pid"],
+            "stopped service identity differs")
+    require(state["repo_commit"] == original["server_commit"], "service commit differs")
+    require(guard["host"].lower() == state["host"].lower() == "baiying", "guard host differs")
+    require(guard["spec"]["model"] == state["model_path"] == original["model"], "guard model differs")
+    require(guard["spec"]["repo_commit"] == original["server_commit"], "guard source differs")
+    require(guard["reason"] == "completed" and guard["host_checks_pass"] is True,
+            "supervisor timeout or unhealthy cleanup")
+    require(guard["host_checks"] and all(guard["host_checks"].values()), "host check failed")
+    during = original["health_during_sse"]
+    require(during["pid"] == original["pid"] and during["ready"] is True,
+            "live health identity differs")
+    require(during["queue"]["started_total"] == 2 and during["queue"]["completed_total"] == 1
+            and during["queue"]["active_requests"] == 1, "no active-generation health observation")
+    return {"status": "offline_http_result_validation_pass", "gpu_executed": False,
+            "source_fingerprints": fingerprints, "original_controller_status": original["status"],
+            "original_controller_error": original.get("error"), "host": state["host"],
+            "model": state["model_path"], "server_commit": state["repo_commit"],
+            "provider_dll": state["provider_dll"], "nonstream_exact_32_tokens": True,
+            "stream_text_and_usage_match": True, "live_health_during_generation": True,
+            "graceful_shutdown": True, "host_checks_pass": True,
+            "post_request_queue_sample_available": "health_after" in original,
+            "stream_raw_token_ids_exposed": False, "first_token_raw_logit_observed": False,
+            "full_product_gate_pass": False, "retained_performance_claimed": False,
+            "ready_wall_ms": original["ready_wall_ms"], "load": original["health_before"]["load"],
+            "nonstream_metrics": completion["qrt_metrics"], "stream_metrics": metrics}
+
+
 def server_command(config, output):
     path = lambda name: config["files"][name]["path"]
     runtime = Path(path("runtime_manifest")).parent
-    return [path("server"), "serve", "--model", config["model"],
+    command = [path("server"), "serve", "--model", config["model"],
             "--provider", path("provider"), "--env-file", path("env"),
             "--arbitrary-moe-provider", str(runtime / "q1024-moe" / "qrt_triton_moe_q1024_exact_provider_slots64.dll"),
             "--arbitrary-moe-kernel-dir", str(runtime / "q1024-moe" / "moe-kernels"),
@@ -191,6 +277,9 @@ def server_command(config, output):
             "--model-id", config["model_id"], "--host", "127.0.0.1", "--port", str(config["port"]),
             "--max-model-len", "262144", "--max-queue-depth", "1", "--queue-timeout-seconds", "15",
             "--state-file", str(output / "service.json")]
+    if config.get("require_first_token_logit", False):
+        command += ["--set-env", "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1"]
+    return command
 
 
 def execute(config, output, prompt, expected, report):
@@ -327,30 +416,52 @@ def execute(config, output, prompt, expected, report):
         require(state["status"] == "stopped" and state["pid"] == process.pid, "stopped state differs")
         require(state["repo_commit"] == config["server_commit"], "binary source commit differs")
         report["service_state"] = state
+        if config.get("require_first_token_logit", False):
+            oracle = read_json(config["files"]["oracle"]["path"])
+            rows = check_first_token_observations(log_paths[1].read_text(encoding="utf-8"), oracle)
+            check_timing_contract(report["nonstream_metrics"])
+            check_timing_contract(report["stream_metrics"])
+            report["first_token_logit_observations"] = rows
+            report["first_token_raw_logit_observed"] = True
+            report["q8192_nonstream_first_token_logit_and_32_tokens_pass"] = True
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--config", type=Path)
     parser.add_argument("--out", type=Path, required=True)
-    parser.add_argument("--execute", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--execute", action="store_true")
+    mode.add_argument("--replay-run", type=Path)
+    parser.add_argument("--guard-record", type=Path)
+    parser.add_argument("--prompt", type=Path)
+    parser.add_argument("--oracle", type=Path)
     args = parser.parse_args()
+    if args.replay_run:
+        if not all((args.guard_record, args.prompt, args.oracle)) or args.config:
+            parser.error("--replay-run requires --guard-record, --prompt, --oracle and no --config")
+    elif not args.config:
+        parser.error("--config is required for preflight or execution")
     args.out.mkdir(parents=True, exist_ok=False)
     report = {"schema_version": 1, "status": "failed", "gpu_executed": False,
               "command_file": str(Path(__file__).resolve()), "command_file_sha256": fingerprint(__file__),
-              "config_sha256": fingerprint(args.config), "model_process_launched": False,
+              "config_sha256": fingerprint(args.config) if args.config else None,
+              "model_process_launched": False,
               "first_token_raw_logit_observed": False,
               "full_product_gate_pass": False, "retained_performance_claimed": False}
     try:
-        config = read_json(args.config)
-        prompt, expected, report["preflight"] = preflight(config)
-        if args.execute:
-            # Job membership is checked before creating the model process.
-            require_windows_job()
-            execute(config, args.out, prompt, expected, report)
-            report["status"] = "http_token_transport_pass"
+        if args.replay_run:
+            report.update(replay_saved_run(args.replay_run, args.guard_record, args.prompt, args.oracle))
         else:
-            report["status"] = "cpu_preflight_pass"
+            config = read_json(args.config)
+            prompt, expected, report["preflight"] = preflight(config)
+            if args.execute:
+                # Job membership is checked before creating the model process.
+                require_windows_job()
+                execute(config, args.out, prompt, expected, report)
+                report["status"] = "http_token_transport_pass"
+            else:
+                report["status"] = "cpu_preflight_pass"
     except Exception as error:
         report["error"] = f"{type(error).__name__}: {error}"
     finally:

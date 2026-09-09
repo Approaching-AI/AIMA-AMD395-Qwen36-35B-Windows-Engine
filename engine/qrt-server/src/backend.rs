@@ -35,6 +35,7 @@ pub struct RequestMetrics {
     pub queue_wait_ns: u64,
     pub wall_ns: u64,
     pub ttft_ns: u64,
+    /// Aggregate decode duration from the native ABI, not a per-token mean.
     pub tpot_ns: u64,
     pub tpot_samples: usize,
 }

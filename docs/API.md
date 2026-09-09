@@ -125,6 +125,32 @@ The three overload responses include `Retry-After`. Shutdown closes admission,
 releases queued requests with `503`, allows the active request to finish, and
 then releases native resources.
 
+## Timing and qualification observations
+
+The unreleased timing contract is `qrt_metrics.timing_contract_version: 2`.
+`decode_total_ms` is the native aggregate decode duration; `tpot_ms` is that
+total divided by `tpot_samples` (zero when there are no samples). Older
+candidate responses without this version incorrectly exposed the aggregate
+under `tpot_ms`; their saved numbers must not be interpreted as per-token
+latency or silently rewritten. `ttft_ms` is the native report duration, not
+an independently measured client's first-token arrival time.
+
+For explicit q8192 qualification, the diagnostic override
+`QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1` emits a structured stderr
+observation after each ordinary q8192 request. It binds the actual prompt
+token digest, first emitted token and raw logit from the existing engine
+report. A prefix seed, stale/nonmatching report or nonfinite logit is marked
+unavailable. This does not change the v1 native ABI or expose OpenAI logprobs,
+and it does not modify model computation or sample a replacement token.
+It is off by default; normal logging is unchanged.
+
+`scripts/verify_baiying_q8192_http.py` provides bounded two-request
+qualification under the Windows Job guard. Its offline replay mode validates
+saved JSON/SSE and shutdown evidence without loading a model. Regular SSE
+chunks may have `usage: null`; only the final non-null usage object is the
+aggregate. An offline parser repair retains the original failed controller
+record and cannot invent missing logit or queue observations.
+
 ## Authentication and binding
 
 `--api-key VALUE` requires `Authorization: Bearer VALUE` for model and admin
