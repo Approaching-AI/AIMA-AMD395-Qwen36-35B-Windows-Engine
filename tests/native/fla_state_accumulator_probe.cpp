@@ -174,6 +174,8 @@ void trajectory(const std::string& directory, size_t tokens, bool captured_exp_c
     std::cout << ",\"variants\":[";
     for (size_t mode = 0; mode < variants.size(); ++mode) {
         const auto& variant = variants[mode]; Stats states, values, terminal, isolated_values;
+        struct Boundary { size_t head, v, chunk, key; float actual, expected, previous, decay, update; };
+        std::vector<Boundary> first_boundaries;
         if (exponent_control) exponent_control->reset_counts();
         auto exponent = [&](float input, unsigned mask) {
             return exponent_control && (variant.captured_exp_mask & mask) ? exponent_control->evaluate(input) : std::exp2(input);
@@ -189,13 +191,20 @@ void trajectory(const std::string& directory, size_t tokens, bool captured_exp_c
         };
         for (const auto& coordinate : selected) {
             const size_t head = coordinate[0], v = coordinate[1];
-            std::array<float, 128> state{};
+            std::array<float, 128> state{}, previous_state{}, previous_update{};
+            float previous_decay = 0;
+            bool found_first_boundary = false;
             for (size_t chunk = 0; chunk < chunks; ++chunk) {
                 const size_t first = chunk * 64u, valid = std::min(size_t(64), tokens - first);
                 std::array<uint16_t, 128> rounded{};
                 for (size_t d = 0; d < 128; ++d) {
                     rounded[d] = bf16(state[d]); const size_t index = chunk * state_elements + (head * 128u + v) * 128u + d;
                     states.add(value(rounded[d]), value(reference_h[index]), static_cast<int64_t>(index));
+                    if (!found_first_boundary && value(rounded[d]) != value(reference_h[index])) {
+                        first_boundaries.push_back({head, v, chunk, d, state[d], value(reference_h[index]),
+                                                    previous_state[d], previous_decay, previous_update[d]});
+                        found_first_boundary = true;
+                    }
                 }
                 const float gate_last = g[(first + valid - 1u) * 32u + head], decay = exponent(gate_last * log2e, 2);
                 std::array<uint16_t, 64> residual{};
@@ -218,9 +227,11 @@ void trajectory(const std::string& directory, size_t tokens, bool captured_exp_c
                             state[d] * decay, left.data(), residual.data(), 64);
                     } else {
                         const float update = variant.ieee ? ieee_dot(left.data(), residual.data()) : blackwell_dot<64>(left.data(), residual.data());
+                        previous_state[d] = state[d]; previous_update[d] = update;
                         state[d] = variant.fused_update ? std::fma(state[d], decay, update) : state[d] * decay + update;
                     }
                 }
+                previous_decay = decay;
             }
             for (size_t d = 0; d < 128; ++d) {
                 const size_t index = (head * 128u + v) * 128u + d;
@@ -234,6 +245,21 @@ void trajectory(const std::string& directory, size_t tokens, bool captured_exp_c
         isolated_values.print(); std::cout << "},\"reference_derived_exp_mask\":" << variant.captured_exp_mask;
         if (exponent_control) std::cout << ",\"captured_exp_calls\":" << exponent_control->calls << ",\"captured_exp_hits\":" << exponent_control->hits
                                        << ",\"captured_exp_changed_calls\":" << exponent_control->changed_calls;
+        // Raw state comes from this CPU trajectory, not a hidden reference
+        // checkpoint. The seeded-MMA negative control has no separate dot/FMA.
+        if (!variant.seeded_update) {
+            std::cout << ",\"first_state_boundaries\":[";
+            for (size_t i = 0; i < first_boundaries.size(); ++i) {
+                if (i) std::cout << ',';
+                const auto& b = first_boundaries[i];
+                std::cout << "{\"head\":" << b.head << ",\"value\":" << b.v << ",\"chunk\":" << b.chunk << ",\"key\":" << b.key
+                          << ",\"actual_f32\":" << b.actual << ",\"actual_f32_bits\":" << float_bits(b.actual)
+                          << ",\"expected_bf16\":" << b.expected << ",\"previous_f32\":" << b.previous
+                          << ",\"previous_decay_f32\":" << b.decay << ",\"previous_update_f32\":" << b.update
+                          << ",\"reference_raw_state_available\":false}";
+            }
+            std::cout << ']';
+        }
         std::cout << '}';
     }
     std::cout << "]}";

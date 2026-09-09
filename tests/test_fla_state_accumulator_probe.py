@@ -84,6 +84,8 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
             self.assertEqual(variant["final_state_f32"]["elements"], 16 * 128)
             self.assertFalse(variant["same_input_projection"]["feeds_trajectory"])
             self.assertEqual(variant["same_input_projection"]["v_new_bf16"]["mismatch_count"], 0)
+            if "first_state_boundaries" in variant:
+                self.assertEqual(variant["first_state_boundaries"], [])
 
     def test_reference_checkpoint_changes_do_not_feed_the_carried_state(self) -> None:
         self.fixture()
@@ -96,6 +98,16 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         for variant in json.loads(result.stdout)["trajectory"]["variants"]:
             self.assertEqual(variant["chunk_state_bf16"]["mismatch_count"], 16 * 128)
             self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
+            if "first_state_boundaries" in variant:
+                self.assertEqual(len(variant["first_state_boundaries"]), 16)
+                for boundary in variant["first_state_boundaries"]:
+                    self.assertEqual((boundary["chunk"], boundary["key"]), (1, 0))
+                    self.assertEqual(boundary["actual_f32"], 32.0)
+                    self.assertEqual(boundary["expected_bf16"], 48.0)
+                    self.assertEqual(boundary["previous_f32"], 0.0)
+                    self.assertEqual(boundary["previous_decay_f32"], 1.0)
+                    self.assertEqual(boundary["previous_update_f32"], 32.0)
+                    self.assertFalse(boundary["reference_raw_state_available"])
 
     def test_captured_exponent_control_is_explicit_and_has_unique_constraints(self) -> None:
         self.fixture(captured=True)
