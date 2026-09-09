@@ -48,6 +48,14 @@ The subsequent real-model q7169 test safely exits but still produces token
 220 instead of reference token 82, so this repair alone is not a passing
 product route or retained performance result.
 
+An isolated follow-up keeps BF16 input products but accumulates U in IEEE
+F32. It removes all 50 q64 two-term midpoint discrepancies and reduces q64
+output relative L2 to 0.000271804. A fingerprint-verified saved real q7169
+layer-0 input replay has output/state relative L2 0.001072256/0.000771976.
+Both component runs safely exit, but exact parity still fails, and this
+variant has not passed a new real-model gate. The build-generated launcher
+metadata tracks its changed shared-memory requirement (16384 bytes).
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
