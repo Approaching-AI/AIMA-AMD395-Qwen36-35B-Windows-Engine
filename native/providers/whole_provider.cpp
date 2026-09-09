@@ -42826,6 +42826,23 @@ constexpr std::array<size_t, 19u> kSmoothTailMoeProviderTokenCounts{
     7680u
 };
 
+bool smooth_tail_moe_provider_required_for_profile(
+    size_t tile_tokens,
+    bool dense_ceil
+) {
+    // Ordinary/split tails only select powers of two; the extra capacities
+    // belong to the explicitly enabled dense-ceil route. Do not require or
+    // allocate that experimental ladder when loading the retained package.
+    for (const size_t capacity : kSmoothTailMoeProviderTokenCounts) {
+        if (capacity == tile_tokens) {
+            return dense_ceil ||
+                (tile_tokens <= 4096u &&
+                 (tile_tokens & (tile_tokens - 1u)) == 0u);
+        }
+    }
+    return false;
+}
+
 bool smooth_tail_moe_provider_index(
     size_t tile_tokens,
     size_t *provider_index
@@ -77379,6 +77396,7 @@ bool preload_capacity_sensitive_providers_before_model_store(
     uint64_t triton_scratch_bytes = UINT64_C(0);
     uint64_t exact_arbitrary_q1024_moe_scratch_bytes = UINT64_C(0);
     uint64_t smooth_tail_moe_scratch_bytes = UINT64_C(0);
+    size_t smooth_tail_moe_provider_count = 0u;
     size_t resident_bf16_matrix_plan_count = 0u;
     size_t q1_module_function_count = 0u;
     if (triton_full_requested) {
@@ -77416,8 +77434,16 @@ bool preload_capacity_sensitive_providers_before_model_store(
     }
 
     if (smooth_tail_moe_requested) {
+        const bool dense_ceil = raw_env_flag_enabled(
+            "QRT_QWEN36_SMOOTH_TAIL_DENSE_CEIL_PROVIDER"
+        );
         for (const size_t tile_tokens :
              kSmoothTailMoeProviderTokenCounts) {
+            if (!smooth_tail_moe_provider_required_for_profile(
+                    tile_tokens, dense_ceil
+                )) {
+                continue;
+            }
             TritonSelectedMoeFullLaunchFn full_launch = nullptr;
             uint64_t provider_scratch_bytes = UINT64_C(0);
             if (!load_smooth_tail_triton_selected_moe_full_provider(
@@ -77430,6 +77456,7 @@ bool preload_capacity_sensitive_providers_before_model_store(
                 return false;
             }
             smooth_tail_moe_scratch_bytes += provider_scratch_bytes;
+            ++smooth_tail_moe_provider_count;
         }
     }
 
@@ -77633,9 +77660,7 @@ bool preload_capacity_sensitive_providers_before_model_store(
         << " smooth_tail_moe="
         << (smooth_tail_moe_requested ? 1 : 0)
         << " smooth_tail_moe_provider_count="
-        << (smooth_tail_moe_requested
-                ? kSmoothTailMoeProviderTokenCounts.size()
-                : 0u)
+        << smooth_tail_moe_provider_count
         << " smooth_tail_moe_scratch_bytes="
         << smooth_tail_moe_scratch_bytes
         << " aiter=" << (aiter_requested ? 1 : 0)

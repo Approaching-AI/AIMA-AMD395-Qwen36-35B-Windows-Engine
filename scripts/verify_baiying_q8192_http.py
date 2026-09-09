@@ -212,6 +212,9 @@ def execute(config, output, prompt, expected, report):
                                    stdout=stdout, stderr=stderr, stdin=subprocess.DEVNULL)
         report["pid"] = process.pid
         report["model_process_launched"] = True
+        # Startup can load GPU modules before readiness, so failure before
+        # /health is not evidence that no GPU API was touched.
+        report["gpu_executed"] = None
 
         def watchdog():
             while not stop.wait(0.25):
