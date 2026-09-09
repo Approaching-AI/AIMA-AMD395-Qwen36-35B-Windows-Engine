@@ -134,10 +134,19 @@ convolution consumer normally fuses a BF16 input. The layer-2 QKV override
 previously wrote through an omitted F32 buffer, before reaching correction
 admission. The current source allocates the producer buffer, validates both
 producer and required consumer pointers before launching WMMA/dot2, and
-materializes the BF16 consumer after projection. This repair has CPU contract
-coverage; native Windows validation is pending recovery from the 2026-09-08
-layer-2 diagnostic host loss. Earlier q8192 validation does not verify this
-later repair or arbitrary-length correctness.
+materializes the BF16 consumer after projection. On 2026-09-09, source
+`c36e267` passed native Windows synthetic safety checks and three real-model
+layer-2 count-only exits, including two using the exact original asynchronous
+failure profile. All counted 6134883 candidates and rejected the excessive
+work before exact-dot dispatch, with post-run host checks passing. This is a
+verified repair of the known reproduction, not a proof that every possible
+driver or engine failure is prevented. The same provider passed the q8192
+32-token/logit/stream boundary, while ordinary q7169 remains numerically
+incorrect (220 versus GB10 82). No arbitrary-length acceptance follows from
+safe diagnostic exits.
+An additional full-forward run with detailed route logging confirms all six
+QKV/Z WMMA projections across layers 0--2 reach downstream model work and
+normal cleanup. It still returns 220 and is not GB10-correct inference.
 
 The model-free native regression builds the actual provider translation unit:
 
