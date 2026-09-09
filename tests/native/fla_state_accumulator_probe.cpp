@@ -38,12 +38,12 @@ float ieee_dot(const uint16_t* a, const uint16_t* b) {
 struct Stats {
     uint64_t elements = 0, mismatches = 0; double error2 = 0, norm2 = 0, maximum = 0;
     int64_t first = -1; float first_actual = 0, first_expected = 0;
-    void add(float a, float b) {
+    void add(float a, float b, int64_t index = -1) {
         if (!std::isfinite(a) || !std::isfinite(b)) throw std::runtime_error("nonfinite result");
         const double delta = double(a) - b; error2 += delta * delta; norm2 += double(b) * b;
         if (a != b) {
             ++mismatches; maximum = std::max(maximum, std::abs(delta));
-            if (first < 0) { first = static_cast<int64_t>(elements); first_actual = a; first_expected = b; }
+            if (first < 0) { first = index < 0 ? static_cast<int64_t>(elements) : index; first_actual = a; first_expected = b; }
         }
         ++elements;
     }
@@ -54,11 +54,83 @@ struct Stats {
                   << ",\"first_actual\":" << first_actual << ",\"first_expected\":" << first_expected << '}';
     }
 };
+
+// Each selected (head,value) row has an independent 128-element recurrent
+// state. Carry it through every source token without injecting reference state.
+void trajectory(const std::string& directory, size_t tokens) {
+    const size_t chunks = (tokens + 63u) / 64u;
+    auto path = [&](const char* name) { return directory + "/full-" + name + ".bin"; };
+    auto k = slice<uint16_t>(path("k-normalized-bf16"), tokens * 2048u, 0, tokens * 2048u);
+    auto w = slice<uint16_t>(path("w-bf16"), tokens * 4096u, 0, tokens * 4096u);
+    auto u = slice<uint16_t>(path("u-bf16"), tokens * 4096u, 0, tokens * 4096u);
+    auto g = slice<float>(path("g-cumsum-f32"), tokens * 32u, 0, tokens * 32u);
+    auto reference_h = slice<uint16_t>(path("chunk-state-bf16"), chunks * state_elements, 0, chunks * state_elements);
+    auto reference_v = slice<uint16_t>(path("v-new-bf16"), tokens * 4096u, 0, tokens * 4096u);
+    auto reference_final = slice<float>(path("native-final-state-f32"), state_elements, 0, state_elements);
+    const std::array<std::array<size_t, 2>, 16> selected{{
+        {0,0}, {2,88}, {8,64}, {1,17}, {4,34}, {6,51}, {10,68}, {12,85},
+        {14,102}, {16,119}, {18,8}, {20,25}, {22,42}, {24,59}, {28,76}, {31,127}
+    }};
+    struct Variant { const char* name; bool split_projection, fused_update, ieee; };
+    const std::array<Variant, 4> variants{{
+        {"blackwell_k128_k64_fma", false, true, false},
+        {"blackwell_two_k64_k64_fma", true, true, false},
+        {"blackwell_k128_k64_unfused", false, false, false},
+        {"ieee_k128_k64_fma", false, true, true}
+    }};
+    constexpr float log2e = 1.4426950408889634074f;
+    std::cout << ",\"trajectory\":{\"sampled_state_rows\":16,\"reference_state_injected\":false,\"coordinates_head_value\":[";
+    for (size_t i = 0; i < selected.size(); ++i) { if (i) std::cout << ','; std::cout << '[' << selected[i][0] << ',' << selected[i][1] << ']'; }
+    std::cout << "],\"variants\":[";
+    for (size_t mode = 0; mode < variants.size(); ++mode) {
+        const auto& variant = variants[mode]; Stats states, values, terminal;
+        for (const auto& coordinate : selected) {
+            const size_t head = coordinate[0], v = coordinate[1];
+            std::array<float, 128> state{};
+            for (size_t chunk = 0; chunk < chunks; ++chunk) {
+                const size_t first = chunk * 64u, valid = std::min(size_t(64), tokens - first);
+                std::array<uint16_t, 128> rounded{};
+                for (size_t d = 0; d < 128; ++d) {
+                    rounded[d] = bf16(state[d]); const size_t index = chunk * state_elements + (head * 128u + v) * 128u + d;
+                    states.add(value(rounded[d]), value(reference_h[index]), static_cast<int64_t>(index));
+                }
+                const float gate_last = g[(first + valid - 1u) * 32u + head], decay = std::exp2(gate_last * log2e);
+                std::array<uint16_t, 64> residual{};
+                for (size_t t = 0; t < valid; ++t) {
+                    const size_t row = (first + t) * 32u + head; const auto* left = &w[row * 128u];
+                    float projection = 0;
+                    if (variant.ieee) {
+                        for (size_t d = 0; d < 128; ++d) projection = std::fma(value(left[d]), value(rounded[d]), projection);
+                    } else if (variant.split_projection) {
+                        projection = blackwell_dot<64>(left, rounded.data()) + blackwell_dot<64>(left + 64, rounded.data() + 64);
+                    } else projection = qrt_q1_moe_hawkeye::dot_bf16_impl<26,16,-133>(left, rounded.data(), 128);
+                    const float current = value(u[row * 128u + v]) - projection;
+                    values.add(value(bf16(current)), value(reference_v[row * 128u + v]), static_cast<int64_t>(row * 128u + v));
+                    residual[t] = bf16(current * std::exp2((gate_last - g[row]) * log2e));
+                }
+                for (size_t d = 0; d < 128; ++d) {
+                    std::array<uint16_t, 64> left{};
+                    for (size_t t = 0; t < valid; ++t) left[t] = k[((first + t) * 16u + head / 2u) * 128u + d];
+                    const float update = variant.ieee ? ieee_dot(left.data(), residual.data()) : blackwell_dot<64>(left.data(), residual.data());
+                    state[d] = variant.fused_update ? std::fma(state[d], decay, update) : state[d] * decay + update;
+                }
+            }
+            for (size_t d = 0; d < 128; ++d) {
+                const size_t index = (head * 128u + v) * 128u + d;
+                terminal.add(state[d], reference_final[index], static_cast<int64_t>(index));
+            }
+        }
+        if (mode) std::cout << ',';
+        std::cout << "{\"name\":\"" << variant.name << "\",\"chunk_state_bf16\":"; states.print();
+        std::cout << ",\"v_new_bf16\":"; values.print(); std::cout << ",\"final_state_f32\":"; terminal.print(); std::cout << '}';
+    }
+    std::cout << "]}";
+}
 }
 
 int main(int argc, char** argv) try {
-    if (argc != 4) {
-        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|->\n"; return 2;
+    if ((argc != 4 && argc != 5) || (argc == 5 && std::string(argv[4]) != "--trajectory-sample")) {
+        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|-> [--trajectory-sample]\n"; return 2;
     }
     char* end = nullptr; const unsigned long parsed = std::strtoul(argv[2], &end, 10);
     if (!*argv[2] || !end || *end || parsed < 65 || parsed > 8192) return 2;
@@ -105,5 +177,7 @@ int main(int argc, char** argv) try {
         std::cout << "{\"name\":\"" << variants[mode].name << "\",\"reference_bf16\":"; expected.print();
         std::cout << ",\"native_f32\":"; native_f32.print(); std::cout << '}';
     }
-    std::cout << "]}\n"; return 0;
+    std::cout << ']';
+    if (argc == 5) trajectory(argv[1], tokens);
+    std::cout << "}\n"; return 0;
 } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 3; }

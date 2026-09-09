@@ -28,12 +28,15 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         state = 32 * 128 * 128
         (self.root / "full-k-normalized-bf16.bin").write_bytes(struct.pack("<H", 0x3F80) * (128 * 2048))
         (self.root / "full-u-bf16.bin").write_bytes(struct.pack("<H", 0x3F00) * (128 * 4096))
+        (self.root / "full-w-bf16.bin").write_bytes(b"\0" * (128 * 4096 * 2))
+        (self.root / "full-v-new-bf16.bin").write_bytes(struct.pack("<H", 0x3F00) * (128 * 4096))
         (self.root / "full-g-cumsum-f32.bin").write_bytes(b"\0" * (128 * 32 * 4))
         (self.root / "full-initial_state-f32.bin").write_bytes(b"\0" * (state * 4))
         (self.root / "full-chunk-state-bf16.bin").write_bytes(b"\0" * (state * 2) + struct.pack("<H", 0x4200) * state)
+        (self.root / "full-native-final-state-f32.bin").write_bytes(struct.pack("<f", 64.0) * state)
 
-    def run_probe(self, tokens="128"):
-        return subprocess.run([str(self.executable), str(self.root), tokens, "-"],
+    def run_probe(self, tokens="128", trajectory=False):
+        return subprocess.run([str(self.executable), str(self.root), tokens, "-"] + (["--trajectory-sample"] if trajectory else []),
                               capture_output=True, text=True, timeout=20)
 
     def test_known_state_sum_has_parent_and_non_acceptance_labels(self) -> None:
@@ -62,6 +65,20 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         self.fixture()
         (self.root / "full-chunk-state-bf16.bin").write_bytes(b"")
         self.assertEqual(self.run_probe().returncode, 3)
+
+    def test_sampled_trajectory_carries_state_across_both_chunks(self) -> None:
+        self.fixture()
+        result = self.run_probe(trajectory=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)["trajectory"]
+        self.assertFalse(record["reference_state_injected"])
+        self.assertEqual(record["sampled_state_rows"], 16)
+        for variant in record["variants"]:
+            for name in ("chunk_state_bf16", "v_new_bf16", "final_state_f32"):
+                self.assertEqual(variant[name]["mismatch_count"], 0)
+            self.assertEqual(variant["chunk_state_bf16"]["elements"], 16 * 2 * 128)
+            self.assertEqual(variant["v_new_bf16"]["elements"], 16 * 128)
+            self.assertEqual(variant["final_state_f32"]["elements"], 16 * 128)
 
 
 if __name__ == "__main__":
