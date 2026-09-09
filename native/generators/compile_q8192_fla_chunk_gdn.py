@@ -60,6 +60,24 @@ OUTPUT_BV = tl.constexpr(32)
 Q_SCALE = tl.constexpr(0.08838834764831845)
 
 
+@triton.jit
+def _bf16_rne_f32(value):
+    """Publish an explicit BF16 RNE boundary, represented in F32 cells.
+
+    Keep the operands of BF16 elementwise products in F32 before calling this
+    helper. A BF16-typed multiply may already have truncated its result before
+    a same-dtype .to(bfloat16), which cannot recover the discarded bits.
+    This does not imply that all explicit FP32 -> BF16 casts truncate.
+    """
+    bits = tl.cast(value, tl.uint32, bitcast=True)
+    rounded = (bits + 0x7FFF + ((bits >> 16) & 1)) & 0xFFFF0000
+    # Preserve infinities and signed zero; quiet NaNs instead of rounding a
+    # payload into infinity or wrapping it into a finite value.
+    rounded = tl.where((bits & 0x7FFFFFFF) > 0x7F800000,
+                       (bits | 0x00400000) & 0xFFFF0000, rounded)
+    return tl.cast(rounded, tl.float32, bitcast=True)
+
+
 @triton.jit(do_not_specialize=["tokens"])
 def _fla_qk_l2norm_from_native_f32_kernel(
     postconv_raw,
@@ -185,7 +203,9 @@ def _fla_chunk_scaled_dot_kkt_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_k_beta = b_k * b_beta[:, None]
+        b_k_beta = _bf16_rne_f32(
+            b_k.to(tl.float32) * b_beta[:, None].to(tl.float32)
+        )
         b_a += tl.dot(b_k_beta.to(b_k.dtype), tl.trans(b_k))
 
     b_g = tl.load(
@@ -481,7 +501,9 @@ def _fla_recompute_w_u_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_v_beta = (b_v * b_beta[:, None]).to(b_v.dtype)
+        b_v_beta = _bf16_rne_f32(
+            b_v.to(tl.float32) * b_beta[:, None].to(tl.float32)
+        ).to(b_v.dtype)
         b_u = tl.dot(b_a, b_v_beta, allow_tf32=False)
         tl.store(
             u + (t[:, None] * H + head) * V + value_dim[None, :],
@@ -499,9 +521,10 @@ def _fla_recompute_w_u_kernel(
             mask=valid[:, None],
             other=0.0,
         )
-        b_k_beta_g = (
-            b_k * b_beta[:, None] * b_g[:, None]
-        ).to(b_k.dtype)
+        b_k_beta = _bf16_rne_f32(
+            b_k.to(tl.float32) * b_beta[:, None].to(tl.float32)
+        )
+        b_k_beta_g = _bf16_rne_f32(b_k_beta * b_g[:, None]).to(b_k.dtype)
         b_w = tl.dot(b_a, b_k_beta_g)
         tl.store(
             w + (t[:, None] * H + head) * K + key_dim[None, :],

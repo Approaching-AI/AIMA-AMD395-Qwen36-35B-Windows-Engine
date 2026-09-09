@@ -74,19 +74,30 @@ def main() -> None:
     parser.add_argument("--reference-manifest", type=Path, required=True)
     parser.add_argument("--reference-dir", type=Path, required=True)
     parser.add_argument("--candidate-prefix", type=Path, required=True)
+    parser.add_argument("--stage-prefix", type=Path)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
+    if args.output.exists():
+        raise ValueError(f"refusing to overwrite comparison: {args.output}")
     manifest = json.loads(args.reference_manifest.read_text())
     reference = manifest["results"][0]
     if reference["forward_method"] != "forward_native":
         raise ValueError("reference must identify the actual Triton/FLA worker route")
     results = {}
-    for name, dtype in (("output-bf16", "bf16"), ("state-f32", "f32")):
+    surfaces = [("output-bf16", "bf16", args.candidate_prefix),
+                ("state-f32", "f32", args.candidate_prefix)]
+    if args.stage_prefix:
+        names = ("q-normalized-bf16", "k-normalized-bf16", "g-cumsum-f32",
+                 "a-f32", "a-inverse-bf16", "w-bf16", "u-bf16",
+                 "chunk-state-bf16", "v-new-bf16")
+        surfaces += [(name, "bf16" if name.endswith("bf16") else "f32", args.stage_prefix)
+                     for name in names]
+    for name, dtype, prefix in surfaces:
         expected = reference["files"][name]
         source = args.reference_dir / (name + ".bin")
         if source.stat().st_size != expected["bytes"] or fingerprint(source) != expected["sha256"]:
             raise ValueError(f"GB10 fingerprint mismatch: {source}")
-        native = Path(str(args.candidate_prefix) + "-" + name + ".bin")
+        native = Path(str(prefix) + "-" + name + ".bin")
         results[name] = compare(native, source, dtype)
     record = dict(schema_version=1, kind="gdn_component_diagnostic",
                   tokens=reference["tokens"], inference_acceptance=False,

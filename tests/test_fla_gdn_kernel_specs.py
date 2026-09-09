@@ -47,6 +47,15 @@ class FlaGdnKernelSpecsTests(unittest.TestCase):
                     self.write_specs(records, path)
                 self.assertFalse(path.exists())
 
+    def test_bf16_product_is_promoted_before_rounding_not_after(self) -> None:
+        source = (ROOT / "native/generators/compile_q8192_fla_chunk_gdn.py").read_text()
+        self.assertNotIn("b_v * b_beta", source)
+        self.assertNotIn("b_k * b_beta", source)
+        self.assertIn("b_v.to(tl.float32) * b_beta[:, None].to(tl.float32)", source)
+        self.assertEqual(source.count("b_k.to(tl.float32) * b_beta[:, None].to(tl.float32)"), 2)
+        self.assertIn("bits + 0x7FFF + ((bits >> 16) & 1)", source)
+        self.assertIn("(bits | 0x00400000) & 0xFFFF0000", source)
+
 
 if __name__ == "__main__":
     unittest.main()
