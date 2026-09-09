@@ -28,7 +28,7 @@ function Quote-Argument([string]$Value) {
 }
 function Get-EngineProcesses {
     return @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
-        $_.ProcessName -match '^(qrt.*|q\d+-fla-smoke|fla-output-capture-replay|hipcc|clang.*|cl|link|lld-link|rustc|cargo|ollama|llama.*|vllm|sglang)$'
+        $_.ProcessName -match '^(qrt.*|q\d+-fla-smoke|fla-upstream-capture-replay|fla-output-capture-replay|hipcc|clang.*|cl|link|lld-link|rustc|cargo|ollama|llama.*|vllm|sglang)$'
     } | Select-Object Id, ProcessName)
 }
 
