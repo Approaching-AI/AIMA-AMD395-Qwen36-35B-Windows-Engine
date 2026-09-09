@@ -152,8 +152,11 @@ shape. `--host-only` checks invalid launch arguments without calling HIP;
 `--small` checks eight WMMA/F32-to-BF16 cases across row/token tile boundaries;
 `--full-shape` checks a synthetic 8192-row, 7169-token projection without model
 loading or Hawkeye exact-dot correction. Output redzones and every conversion
-cell are checked; reference projection checks cover every small-case cell and
-512 full-shape cells. Each producer is synchronized before its consumer.
+cell are checked; exact BF16 reference projection checks cover every small-case
+cell and 512 full-shape cells. Unrounded WMMA-versus-host F32 differences are
+reported separately, not mistaken for BF16 endpoint failures. The initial
+strict-F32 synthetic probe found such differences and was not accepted as a
+passing test. Each producer is synchronized before its consumer.
 These are safety regressions, not GB10 or real-model inference acceptance.
 
 ## Model files
