@@ -156,6 +156,17 @@ preparer verifies complete parent fingerprints before exporting at most
 remain comparison-only. Latest checks pass 193 Python and 44 Rust tests;
 real-token acceptance and default runtime settings remain unchanged.
 
+The explicit reference sampler now validates source/prefix hashes, every
+input shape/type and finite value before any GPU import. Its original BF16
+control must match all saved surfaces before it may try widened checkpoint
+storage; the pair must also preserve terminal F32 bits. Default mode remains
+CPU-only. Eleven host tests pass under Linux, including deadline reaping and
+worker termination when only its supervisor is killed. Local checks pass
+204 Python tests (one Linux-only skip) and 44 Rust tests. These verify host
+logic, not the unexecuted CUDA path or the original worker's raw registers.
+The reference remains unavailable; real-token, package and release gates are
+unchanged. The default native service gains no Python/JIT dependency.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

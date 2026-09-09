@@ -265,6 +265,7 @@ def gpu_capture(args, manifest: dict, payloads: dict) -> dict:
 
 
 def main() -> None:
+    started = time.monotonic()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--prefix-dir", type=Path, required=True)
     parser.add_argument("--manifest-sha256", required=True)
@@ -292,6 +293,7 @@ def main() -> None:
     if sha256(args.source.read_bytes()) != args.source_sha256:
         raise ValueError("reference kernel source fingerprint mismatch")
     manifest, payloads = validate_prefix(args.prefix_dir, args.manifest_sha256)
+    validation_wall_ms = (time.monotonic() - started) * 1000
     if args.execute and not args.worker:
         if sys.platform != "linux" or not args.expected_host or socket.gethostname().lower() != args.expected_host.lower():
             raise ValueError("execution host mismatch before importing GPU libraries")
@@ -304,12 +306,14 @@ def main() -> None:
                                  ("audit_fla_reference_state_ir.py", "prepare_fla_state_prefix.py")},
                   reference_source=str(args.source), reference_source_sha256=args.source_sha256,
                   prefix_manifest_sha256=args.manifest_sha256, tokens=manifest["tokens"],
+                  validated_files=len(payloads), validated_bytes=manifest["total_bytes"],
+                  validation_wall_ms=validation_wall_ms,
                   model_loaded=False, kernel_executed=False, inference_acceptance=False,
                   reference_service_executed=False,
                   raw_state_semantics="fixed-config isolated replay, not original worker register capture",
                   reference_checkpoints_are_recurrent_inputs=False, timeout_seconds=args.timeout_seconds)
     (args.output_dir / "preflight.json").write_text(json.dumps(record, indent=2) + "\n")
-    started = time.monotonic()
+    execution_started = time.monotonic()
     if args.execute:
         try:
             record.update(gpu_capture(args, manifest, payloads))
@@ -318,6 +322,7 @@ def main() -> None:
                            inference_acceptance=False, wall_ms=(time.monotonic() - started) * 1000)
             (args.output_dir / "failure.json").write_text(json.dumps(failure, indent=2) + "\n")
             raise
+    record["execution_wall_ms"] = (time.monotonic() - execution_started) * 1000
     record["wall_ms"] = (time.monotonic() - started) * 1000
     (args.output_dir / "capture.json").write_text(json.dumps(record, indent=2) + "\n")
     print(json.dumps(record, indent=2))
