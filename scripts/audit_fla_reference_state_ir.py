@@ -26,6 +26,21 @@ def state_signature(checkpoint_dtype: str) -> dict[str, str]:
                 chunk_offsets="*i32", T="i32")
 
 
+def load_state_kernel(source: Path, triton, tl):
+    """Extract only the supplied kernel, without importing vLLM or autotuning."""
+    content = source.read_text()
+    tree = ast.parse(content, filename=str(source))
+    kernel_name = "chunk_gated_delta_rule_fwd_kernel_h_blockdim64"
+    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == kernel_name)
+    function.decorator_list = []
+    module = types.ModuleType("_qrt_fla_reference_state_ir")
+    module.__file__ = str(source)
+    module.__dict__.update(tl=tl, exp=tl.exp)
+    sys.modules[module.__name__] = module
+    exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), "exec"), module.__dict__)
+    return triton.jit(module.__dict__[kernel_name], do_not_specialize=["T"])
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True)
@@ -43,17 +58,7 @@ def main() -> None:
     from triton.compiler import ASTSource
 
     source = args.source.resolve()
-    content = source.read_text()
-    tree = ast.parse(content, filename=str(source))
-    kernel_name = "chunk_gated_delta_rule_fwd_kernel_h_blockdim64"
-    function = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == kernel_name)
-    function.decorator_list = []  # Do not invoke the autotuner or heuristics.
-    module = types.ModuleType("_qrt_fla_reference_state_ir")
-    module.__file__ = str(source)
-    module.__dict__.update(tl=tl, exp=tl.exp)
-    sys.modules[module.__name__] = module
-    exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), "exec"), module.__dict__)
-    kernel = triton.jit(module.__dict__[kernel_name], do_not_specialize=["T"])
+    kernel = load_state_kernel(source, triton, tl)
     signature = state_signature(args.checkpoint_dtype)
     constants = dict(H=32, Hg=16, K=128, V=128, BT=64, BV=args.value_block, USE_G=True, USE_GK=False,
                      USE_INITIAL_STATE=True, STORE_FINAL_STATE=True, SAVE_NEW_VALUE=True, IS_VARLEN=True)
