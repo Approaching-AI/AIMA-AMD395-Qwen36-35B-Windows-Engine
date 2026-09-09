@@ -56,6 +56,26 @@ Both component runs safely exit, but exact parity still fails, and this
 variant has not passed a new real-model gate. The build-generated launcher
 metadata tracks its changed shared-memory requirement (16384 bytes).
 
+An opt-in continuous Blackwell K128 accumulator now matches all 131072
+captured q64 pre-decay KKT cells byte-for-byte. CPU attribution also matches
+28225 sampled cells spanning saved real q7169 layer-0 input. Native dispatch
+is serialized in 64-token chunks with elapsed-time admission before the next
+chunk; no high-cost correction ceiling or runtime default is relaxed.
+Gate scaling and later stages remain different. The real component replay
+has output/state relative L2 0.001061918/0.000791691, not a consistent state
+improvement and not a passing model result. The comparison tool includes the
+pre-decay surface when present, rather than silently omitting this boundary.
+
+The W midpoint repair is subsequently Windows-verified: all 50 known
+two-term discrepancies disappear and the other q64 surfaces stay unchanged.
+On the saved real replay, output relative L2 is 0.001046221 but state relative
+L2 worsens to 0.000912814. It is not promoted as an overall improvement or
+real-model acceptance. A separate CPU-only U probe identifies continuous
+Blackwell K64 as bit-exact for 262144 q64 cells and 114709 sampled real cells;
+this does not bypass upstream inverse errors or authorize unbounded native
+correction. The repaired WSL AOT launcher disables GPU visibility and retains
+compiler/thread/time limits. No system configuration change is required.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
