@@ -127,6 +127,24 @@ injecting reference state. Final local checks pass 184 Python and 44 Rust
 tests, clippy, ABI smoke, transaction tests and hygiene. No model, retained
 performance, package or release acceptance is added by these controls.
 
+An explicit, default-off `QRT_FLA_GDN_STATE_BLACKWELL=1` control now uses
+native compiler-launched K128 projection and K64 update kernels. Separate
+64-token calls, disjoint carried-state buffers, checked tail ownership and
+post-dispatch admission preserve the bounded diagnostic route. The first
+native update matches all 524288 raw F32 cells of its CPU control. On saved
+real input, isolated V-new/H difference counts fall to 2024619/3156778,
+but full-chain state relative L2 worsens to 0.0009255941. These are not
+passing full-length component results.
+
+A new real-model q7169 first-token run covers all 30 eligible linear layers
+with this state control and the optional KKT accumulator. It completes
+normally with healthy cleanup but still emits 220/9.3125 instead of the
+frozen authority's 82/9.25. Load is 20234.0053 ms and TTFT 12972.0762 ms;
+the route is rejected as a product or retained-performance improvement.
+Default runtime arithmetic and correction limits remain unchanged. Local
+checks pass 188 Python and 44 Rust tests, clippy, ABI/transaction tests and
+public hygiene. No continuation, release or issue-closure gate is promoted.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
