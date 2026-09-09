@@ -99,6 +99,9 @@ separately with `baiying_guarded_inference.ps1`, then attach the GB10 numerical
 comparison before any product measurement. Generated `qrt_fla_gdn_kernel_specs.inc`
 binds the native launch sizes to the exact new AOT compiler output; old
 FlashInfer-order binaries have a different ABI and cannot be substituted.
+If WSL is unavailable, pass `-AotDir <directory>` containing the same generator's
+Linux cross-compilation output. The builder checks target, generator hash,
+every kernel hash/size and the generated launch-header hash before using it.
 
 The September 9 reference-service audit found GB10 uses `forward_native`
 Triton/FLA, not the SM90-only FlashInfer backend. The restored optional route

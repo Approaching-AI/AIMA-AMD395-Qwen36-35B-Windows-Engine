@@ -934,7 +934,9 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
         },
         "kernels": records,
     }
-    write_provider_kernel_specs(records, output_dir / "qrt_fla_gdn_kernel_specs.inc")
+    specs_path = output_dir / "qrt_fla_gdn_kernel_specs.inc"
+    write_provider_kernel_specs(records, specs_path)
+    metadata["provider_specs_sha256"] = hashlib.sha256(specs_path.read_bytes()).hexdigest()
     metadata_path.parent.mkdir(parents=True, exist_ok=True)
     metadata_path.write_text(
         json.dumps(metadata, indent=2) + "\n",
