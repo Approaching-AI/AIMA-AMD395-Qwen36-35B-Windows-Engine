@@ -1,0 +1,68 @@
+import json
+from pathlib import Path
+import shutil
+import struct
+import subprocess
+import tempfile
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+@unittest.skipUnless(shutil.which("c++"), "requires the portable C++ compiler")
+class FlaStateAccumulatorProbeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.directory = tempfile.TemporaryDirectory()
+        cls.root = Path(cls.directory.name)
+        cls.executable = cls.root / "probe"
+        subprocess.run(["c++", "-std=c++17", "-O2", "-ffp-contract=off",
+                        str(ROOT / "tests/native/fla_state_accumulator_probe.cpp"), "-o", str(cls.executable)],
+                       check=True, capture_output=True, timeout=30)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.directory.cleanup()
+
+    def fixture(self) -> None:
+        state = 32 * 128 * 128
+        (self.root / "full-k-normalized-bf16.bin").write_bytes(struct.pack("<H", 0x3F80) * (128 * 2048))
+        (self.root / "full-u-bf16.bin").write_bytes(struct.pack("<H", 0x3F00) * (128 * 4096))
+        (self.root / "full-g-cumsum-f32.bin").write_bytes(b"\0" * (128 * 32 * 4))
+        (self.root / "full-initial_state-f32.bin").write_bytes(b"\0" * (state * 4))
+        (self.root / "full-chunk-state-bf16.bin").write_bytes(b"\0" * (state * 2) + struct.pack("<H", 0x4200) * state)
+
+    def run_probe(self, tokens="128"):
+        return subprocess.run([str(self.executable), str(self.root), tokens, "-"],
+                              capture_output=True, text=True, timeout=20)
+
+    def test_known_state_sum_has_parent_and_non_acceptance_labels(self) -> None:
+        self.fixture()
+        result = self.run_probe()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)
+        self.assertEqual((record["source_tokens"], record["replay_tokens"]), (128, 64))
+        self.assertFalse(record["inference_acceptance"])
+        self.assertEqual(record["exponent"], "host_exp2f_not_sm121_sfu")
+        for variant in record["variants"]:
+            self.assertEqual(variant["reference_bf16"]["elements"], 32 * 128 * 128)
+            self.assertEqual(variant["reference_bf16"]["mismatch_count"], 0)
+
+    def test_nonzero_seed_and_bad_shapes_cannot_use_zero_seed_simplification(self) -> None:
+        self.fixture()
+        for tokens in ("0", "64", "8193", "128bad"):
+            self.assertEqual(self.run_probe(tokens).returncode, 2)
+        with (self.root / "full-initial_state-f32.bin").open("r+b") as file:
+            file.write(struct.pack("<f", 1.0))
+        result = self.run_probe()
+        self.assertEqual(result.returncode, 3)
+        self.assertIn("requires captured zero initial state", result.stderr)
+
+    def test_short_reference_is_rejected(self) -> None:
+        self.fixture()
+        (self.root / "full-chunk-state-bf16.bin").write_bytes(b"")
+        self.assertEqual(self.run_probe().returncode, 3)
+
+
+if __name__ == "__main__":
+    unittest.main()

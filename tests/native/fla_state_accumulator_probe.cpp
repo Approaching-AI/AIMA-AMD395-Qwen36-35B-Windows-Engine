@@ -1,0 +1,109 @@
+// CPU-only first-chunk state attribution. Never linked into the runtime.
+#include "../../native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+#include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+namespace {
+constexpr size_t state_elements = 32u * 128u * 128u;
+float value(float x) { return x; }
+float value(uint16_t x) { uint32_t bits = uint32_t(x) << 16; float f; std::memcpy(&f, &bits, 4); return f; }
+uint16_t bf16(float f) { uint32_t bits; std::memcpy(&bits, &f, 4); return uint16_t((bits + 0x7fffu + ((bits >> 16) & 1u)) >> 16); }
+template<class T> std::vector<T> slice(const std::string& path, size_t total, size_t offset, size_t count) {
+    if (offset > total || count > total - offset) throw std::runtime_error("invalid slice");
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file || file.tellg() != static_cast<std::streamoff>(total * sizeof(T))) throw std::runtime_error("capture size mismatch");
+    std::vector<T> result(count); file.seekg(offset * sizeof(T));
+    file.read(reinterpret_cast<char*>(result.data()), count * sizeof(T));
+    if (!file) throw std::runtime_error("capture read failed");
+    for (T x : result) if (!std::isfinite(value(x))) throw std::runtime_error("nonfinite capture");
+    return result;
+}
+template<int Block> float blackwell_dot(const uint16_t* a, const uint16_t* b) {
+    float result = 0;
+    for (int i = 0; i < 64; i += Block) result += qrt_q1_moe_hawkeye::dot_bf16_impl<26, 16, -133>(a + i, b + i, Block);
+    return result;
+}
+float ieee_dot(const uint16_t* a, const uint16_t* b) {
+    float result = 0; for (int i = 0; i < 64; ++i) result = std::fma(value(a[i]), value(b[i]), result); return result;
+}
+struct Stats {
+    uint64_t elements = 0, mismatches = 0; double error2 = 0, norm2 = 0, maximum = 0;
+    int64_t first = -1; float first_actual = 0, first_expected = 0;
+    void add(float a, float b) {
+        if (!std::isfinite(a) || !std::isfinite(b)) throw std::runtime_error("nonfinite result");
+        const double delta = double(a) - b; error2 += delta * delta; norm2 += double(b) * b;
+        if (a != b) {
+            ++mismatches; maximum = std::max(maximum, std::abs(delta));
+            if (first < 0) { first = static_cast<int64_t>(elements); first_actual = a; first_expected = b; }
+        }
+        ++elements;
+    }
+    void print() const {
+        std::cout << "{\"elements\":" << elements << ",\"mismatch_count\":" << mismatches
+                  << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1.0e-300))
+                  << ",\"maximum_absolute_error\":" << maximum << ",\"first_index\":" << first
+                  << ",\"first_actual\":" << first_actual << ",\"first_expected\":" << first_expected << '}';
+    }
+};
+}
+
+int main(int argc, char** argv) try {
+    if (argc != 4) {
+        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|->\n"; return 2;
+    }
+    char* end = nullptr; const unsigned long parsed = std::strtoul(argv[2], &end, 10);
+    if (!*argv[2] || !end || *end || parsed < 65 || parsed > 8192) return 2;
+    const size_t tokens = parsed, chunks = (tokens + 63u) / 64u;
+    auto path = [&](const char* name) { return std::string(argv[1]) + "/full-" + name + ".bin"; };
+    auto k = slice<uint16_t>(path("k-normalized-bf16"), tokens * 2048u, 0, 64u * 2048u);
+    auto u = slice<uint16_t>(path("u-bf16"), tokens * 4096u, 0, 64u * 4096u);
+    auto g = slice<float>(path("g-cumsum-f32"), tokens * 32u, 0, 64u * 32u);
+    auto seed = slice<float>(path("initial_state-f32"), state_elements, 0, state_elements);
+    if (std::any_of(seed.begin(), seed.end(), [](float x) { return x != 0.0f; })) throw std::runtime_error("requires captured zero initial state");
+    auto reference = slice<uint16_t>(path("chunk-state-bf16"), chunks * state_elements, state_elements, state_elements);
+    std::vector<float> native;
+    if (std::string(argv[3]) != "-") native = slice<float>(argv[3], state_elements, 0, state_elements);
+    // Zero seed makes the first-chunk residual exactly U. The gated product is
+    // rounded before the state-update dot, exactly like the reference formula.
+    constexpr float log2e = 1.4426950408889634074f;
+    for (size_t t = 0; t < 64; ++t) for (size_t h = 0; h < 32; ++h) {
+        const float gate = std::exp2((g[63u * 32u + h] - g[t * 32u + h]) * log2e);
+        for (size_t d = 0; d < 128; ++d) u[(t * 32u + h) * 128u + d] = bf16(value(u[(t * 32u + h) * 128u + d]) * gate);
+    }
+    struct Variant { const char* name; float (*dot)(const uint16_t*, const uint16_t*); };
+    const std::array<Variant, 3> variants{{{"blackwell_k64", blackwell_dot<64>},
+        {"blackwell_two_k32", blackwell_dot<32>}, {"ieee_fma_sequential", ieee_dot}}};
+    Stats native_reference;
+    if (!native.empty()) for (size_t i = 0; i < state_elements; ++i) native_reference.add(value(bf16(native[i])), value(reference[i]));
+    std::cout << std::setprecision(17) << "{\"kind\":\"cpu_first_chunk_state_attribution\",\"source_tokens\":" << tokens
+              << ",\"replay_tokens\":64,\"zero_initial_state\":true,\"exponent\":\"host_exp2f_not_sm121_sfu\",\"inference_acceptance\":false,\"native_reference_bf16\":";
+    native_reference.print(); std::cout << ",\"variants\":[";
+    for (size_t mode = 0; mode < variants.size(); ++mode) {
+        Stats expected, native_f32;
+        for (size_t h = 0; h < 32; ++h) for (size_t v = 0; v < 128; ++v) {
+            std::array<uint16_t, 64> right{};
+            for (size_t t = 0; t < 64; ++t) right[t] = u[(t * 32u + h) * 128u + v];
+            for (size_t d = 0; d < 128; ++d) {
+                std::array<uint16_t, 64> left{};
+                for (size_t t = 0; t < 64; ++t) left[t] = k[(t * 16u + h / 2u) * 128u + d];
+                const size_t index = (h * 128u + v) * 128u + d;
+                const float result = variants[mode].dot(left.data(), right.data());
+                expected.add(value(bf16(result)), value(reference[index]));
+                if (!native.empty()) native_f32.add(result, native[index]);
+            }
+        }
+        if (mode) std::cout << ',';
+        std::cout << "{\"name\":\"" << variants[mode].name << "\",\"reference_bf16\":"; expected.print();
+        std::cout << ",\"native_f32\":"; native_f32.print(); std::cout << '}';
+    }
+    std::cout << "]}\n"; return 0;
+} catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 3; }
