@@ -61,6 +61,42 @@ uint32_t float_bits(float value) { uint32_t bits; std::memcpy(&bits, &value, 4);
 float from_bits(uint32_t bits) { float value; std::memcpy(&value, &bits, 4); return value; }
 uint32_t exponent_key(float input) { return input == 0 ? 0u : float_bits(input); }
 
+struct RawStats {
+    Stats numeric;
+    uint64_t bit_mismatches = 0;
+    std::array<uint16_t, 32u * 128u> mismatches_by_row{};
+    int64_t first_bit_index = -1;
+    uint32_t first_actual_bits = 0, first_expected_bits = 0;
+    void add(float actual, float expected, size_t index) {
+        numeric.add(actual, expected, static_cast<int64_t>(index));
+        if (float_bits(actual) != float_bits(expected)) {
+            ++bit_mismatches;
+            ++mismatches_by_row.at(index / 128u);
+            if (first_bit_index < 0) {
+                first_bit_index = static_cast<int64_t>(index);
+                first_actual_bits = float_bits(actual); first_expected_bits = float_bits(expected);
+            }
+        }
+    }
+    void print() const {
+        const size_t differing_rows = static_cast<size_t>(std::count_if(mismatches_by_row.begin(), mismatches_by_row.end(),
+            [](uint16_t count) { return count != 0; }));
+        std::cout << "{\"numeric\":"; numeric.print();
+        std::cout << ",\"bit_mismatch_count\":" << bit_mismatches << ",\"first_bit_index\":" << first_bit_index
+                  << ",\"first_actual_bits\":" << first_actual_bits
+                  << ",\"first_expected_bits\":" << first_expected_bits << ",\"differing_row_count\":" << differing_rows
+                  << ",\"differing_rows_truncated\":" << (differing_rows > 16 ? "true" : "false") << ",\"differing_rows\":[";
+        size_t printed = 0;
+        for (size_t row = 0; row < mismatches_by_row.size(); ++row) if (mismatches_by_row[row]) {
+            if (printed == 16) break;
+            if (printed++) std::cout << ',';
+            std::cout << "{\"head\":" << row / 128u << ",\"value\":" << row % 128u
+                      << ",\"bit_mismatch_count\":" << mismatches_by_row[row] << '}';
+        }
+        std::cout << "]}";
+    }
+};
+
 // Diagnostic reference-derived control ONLY. Infer an exponent's F32 value
 // from captured round_f32(pre_decay_dot * exponent), intersecting constraints
 // for identical exponent inputs. Ambiguous/conflicting values are never chosen.
@@ -71,7 +107,8 @@ struct CapturedExponentControl {
     uint64_t constraints = 0, unusable_products = 0, calls = 0, hits = 0, changed_calls = 0;
     uint64_t resolved = 0, ambiguous = 0, unobserved = 0, inconsistent = 0, host_differences = 0;
 
-    CapturedExponentControl(const std::string& directory, size_t tokens, const std::vector<float>& g) {
+    CapturedExponentControl(const std::string& directory, size_t tokens, const std::vector<float>& g,
+                            const std::string& prefix = "full-") {
         constexpr float log2e = 1.4426950408889634074f;
         required.reserve(tokens * 32u);
         for (size_t first = 0; first < tokens; first += 64) {
@@ -83,8 +120,8 @@ struct CapturedExponentControl {
             }
         }
         const size_t elements = tokens * 32u * 64u;
-        auto before = slice<float>(directory + "/full-a-dot-f32.bin", elements, 0, elements);
-        auto after = slice<float>(directory + "/full-a-f32.bin", elements, 0, elements);
+        auto before = slice<float>(directory + "/" + prefix + "a-dot-f32.bin", elements, 0, elements);
+        auto after = slice<float>(directory + "/" + prefix + "a-f32.bin", elements, 0, elements);
         for (size_t t = 0; t < tokens; ++t) for (size_t h = 0; h < 32; ++h) for (size_t s = 0; s < t % 64u; ++s) {
             const size_t index = (t * 32u + h) * 64u + s;
             const float x = (g[t * 32u + h] - g[(t / 64u * 64u + s) * 32u + h]) * log2e;
@@ -267,39 +304,88 @@ void trajectory(const std::string& directory, size_t tokens, bool captured_exp_c
 }
 
 int main(int argc, char** argv) try {
-    if ((argc < 4 || argc > 6) || (argc >= 5 && std::string(argv[4]) != "--trajectory-sample") ||
-        (argc == 6 && std::string(argv[5]) != "--captured-exp-control")) {
-        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|-> [--trajectory-sample [--captured-exp-control]]\n"; return 2;
+    const bool single_chunk_raw = argc >= 4 && std::string(argv[3]) == "--single-chunk-raw";
+    if ((argc < 4 || argc > 6) ||
+        (single_chunk_raw ? argc > 5 || (argc == 5 && std::string(argv[4]) != "--captured-exp-control")
+                          : (argc >= 5 && std::string(argv[4]) != "--trajectory-sample") ||
+                            (argc == 6 && std::string(argv[5]) != "--captured-exp-control"))) {
+        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|-> [--trajectory-sample [--captured-exp-control]]\n"
+                     "       fla-state-accumulator-probe <single-chunk-capture-dir> 64 --single-chunk-raw [--captured-exp-control]\n"; return 2;
     }
     char* end = nullptr; const unsigned long parsed = std::strtoul(argv[2], &end, 10);
-    if (!*argv[2] || !end || *end || parsed < 65 || parsed > 8192) return 2;
+    if (!*argv[2] || !end || *end || (single_chunk_raw ? parsed != 64 : parsed < 65 || parsed > 8192)) return 2;
     const size_t tokens = parsed, chunks = (tokens + 63u) / 64u;
-    auto path = [&](const char* name) { return std::string(argv[1]) + "/full-" + name + ".bin"; };
+    auto path = [&](const char* name) { return std::string(argv[1]) + (single_chunk_raw ? "/" : "/full-") + name + ".bin"; };
     auto k = slice<uint16_t>(path("k-normalized-bf16"), tokens * 2048u, 0, 64u * 2048u);
     auto u = slice<uint16_t>(path("u-bf16"), tokens * 4096u, 0, 64u * 4096u);
     auto g = slice<float>(path("g-cumsum-f32"), tokens * 32u, 0, 64u * 32u);
-    auto seed = slice<float>(path("initial_state-f32"), state_elements, 0, state_elements);
-    if (std::any_of(seed.begin(), seed.end(), [](float x) { return x != 0.0f; })) throw std::runtime_error("requires captured zero initial state");
-    auto reference = slice<uint16_t>(path("chunk-state-bf16"), chunks * state_elements, state_elements, state_elements);
-    std::vector<float> native;
-    if (std::string(argv[3]) != "-") native = slice<float>(argv[3], state_elements, 0, state_elements);
+    std::vector<uint16_t> reference;
+    std::vector<float> reference_raw, native;
+    if (single_chunk_raw) {
+        // A separately captured, zero-seeded single chunk exposes its raw F32
+        // terminal state. It is NOT the first 64 tokens of a longer capture.
+        auto initial = slice<uint16_t>(path("chunk-state-bf16"), state_elements, 0, state_elements);
+        if (std::any_of(initial.begin(), initial.end(), [](uint16_t x) { return value(x) != 0; }))
+            throw std::runtime_error("requires captured zero initial state");
+        const auto residual = slice<uint16_t>(path("v-new-bf16"), 64u * 4096u, 0, 64u * 4096u);
+        if (residual != u) throw std::runtime_error("zero-seed V-new must equal captured U bit-for-bit");
+        reference_raw = slice<float>(path("state-f32"), state_elements, 0, state_elements);
+        reference.reserve(state_elements);
+        for (float x : reference_raw) reference.push_back(bf16(x));
+    } else {
+        auto seed = slice<float>(path("initial_state-f32"), state_elements, 0, state_elements);
+        if (std::any_of(seed.begin(), seed.end(), [](float x) { return x != 0.0f; })) throw std::runtime_error("requires captured zero initial state");
+        reference = slice<uint16_t>(path("chunk-state-bf16"), chunks * state_elements, state_elements, state_elements);
+        if (std::string(argv[3]) != "-") native = slice<float>(argv[3], state_elements, 0, state_elements);
+    }
     // Zero seed makes the first-chunk residual exactly U. The gated product is
     // rounded before the state-update dot, exactly like the reference formula.
     constexpr float log2e = 1.4426950408889634074f;
+    std::unique_ptr<CapturedExponentControl> single_chunk_exp;
+    if (single_chunk_raw && argc == 5)
+        single_chunk_exp = std::make_unique<CapturedExponentControl>(argv[1], tokens, g, "");
+    std::vector<std::array<uint32_t, 6>> changed_gate_products;
     for (size_t t = 0; t < 64; ++t) for (size_t h = 0; h < 32; ++h) {
-        const float gate = std::exp2((g[63u * 32u + h] - g[t * 32u + h]) * log2e);
-        for (size_t d = 0; d < 128; ++d) u[(t * 32u + h) * 128u + d] = bf16(value(u[(t * 32u + h) * 128u + d]) * gate);
+        const float argument = (g[63u * 32u + h] - g[t * 32u + h]) * log2e;
+        const float host_gate = std::exp2(argument), gate = single_chunk_exp ? single_chunk_exp->evaluate(argument) : host_gate;
+        for (size_t d = 0; d < 128; ++d) {
+            const size_t index = (t * 32u + h) * 128u + d;
+            const uint16_t host_product = bf16(value(u[index]) * host_gate), product = bf16(value(u[index]) * gate);
+            if (host_product != product) changed_gate_products.push_back({static_cast<uint32_t>(t), static_cast<uint32_t>(h),
+                static_cast<uint32_t>(d), u[index], host_product, product});
+            u[index] = product;
+        }
     }
     struct Variant { const char* name; float (*dot)(const uint16_t*, const uint16_t*); };
     const std::array<Variant, 3> variants{{{"blackwell_k64", blackwell_dot<64>},
         {"blackwell_two_k32", blackwell_dot<32>}, {"ieee_fma_sequential", ieee_dot}}};
     Stats native_reference;
     if (!native.empty()) for (size_t i = 0; i < state_elements; ++i) native_reference.add(value(bf16(native[i])), value(reference[i]));
-    std::cout << std::setprecision(17) << "{\"kind\":\"cpu_first_chunk_state_attribution\",\"source_tokens\":" << tokens
+    std::cout << std::setprecision(17) << "{\"kind\":\""
+              << (single_chunk_raw ? "cpu_single_chunk_raw_state_attribution" : "cpu_first_chunk_state_attribution")
+              << "\",\"source_tokens\":" << tokens
               << ",\"replay_tokens\":64,\"zero_initial_state\":true,\"exponent\":\"host_exp2f_not_sm121_sfu\",\"inference_acceptance\":false,\"native_reference_bf16\":";
-    native_reference.print(); std::cout << ",\"variants\":[";
+    native_reference.print();
+    if (single_chunk_raw) {
+        std::cout << ",\"raw_initial_state_available\":false,\"zero_seed_basis\":\"capture_recipe_assumption_with_zero_bf16_H_and_U_equals_V_new_checks\"";
+    }
+    if (single_chunk_exp) {
+        std::cout << ",\"captured_exp_control\":"; single_chunk_exp->print();
+        std::cout << ",\"captured_exp_calls\":" << single_chunk_exp->calls << ",\"captured_exp_hits\":" << single_chunk_exp->hits
+                  << ",\"captured_exp_changed_calls\":" << single_chunk_exp->changed_calls
+                  << ",\"changed_gated_bf16_product_count\":" << changed_gate_products.size() << ",\"first_changed_products\":[";
+        for (size_t i = 0; i < std::min(changed_gate_products.size(), size_t(16)); ++i) {
+            if (i) std::cout << ',';
+            const auto& p = changed_gate_products[i];
+            std::cout << "{\"token\":" << p[0] << ",\"head\":" << p[1] << ",\"value\":" << p[2]
+                      << ",\"input_bf16_bits\":" << p[3] << ",\"host_product_bf16_bits\":" << p[4]
+                      << ",\"captured_product_bf16_bits\":" << p[5] << '}';
+        }
+        std::cout << ']';
+    }
+    std::cout << ",\"variants\":[";
     for (size_t mode = 0; mode < variants.size(); ++mode) {
-        Stats expected, native_f32;
+        Stats expected, native_f32; RawStats raw;
         for (size_t h = 0; h < 32; ++h) for (size_t v = 0; v < 128; ++v) {
             std::array<uint16_t, 64> right{};
             for (size_t t = 0; t < 64; ++t) right[t] = u[(t * 32u + h) * 128u + v];
@@ -310,13 +396,16 @@ int main(int argc, char** argv) try {
                 const float result = variants[mode].dot(left.data(), right.data());
                 expected.add(value(bf16(result)), value(reference[index]));
                 if (!native.empty()) native_f32.add(result, native[index]);
+                if (!reference_raw.empty()) raw.add(result, reference_raw[index], index);
             }
         }
         if (mode) std::cout << ',';
         std::cout << "{\"name\":\"" << variants[mode].name << "\",\"reference_bf16\":"; expected.print();
-        std::cout << ",\"native_f32\":"; native_f32.print(); std::cout << '}';
+        std::cout << ",\"native_f32\":"; native_f32.print();
+        if (!reference_raw.empty()) { std::cout << ",\"reference_raw_f32\":"; raw.print(); }
+        std::cout << '}';
     }
     std::cout << ']';
-    if (argc >= 5) trajectory(argv[1], tokens, argc == 6);
+    if (!single_chunk_raw && argc >= 5) trajectory(argv[1], tokens, argc == 6);
     std::cout << "}\n"; return 0;
 } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 3; }

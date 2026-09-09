@@ -23,6 +23,7 @@ import sys
 import time
 
 from audit_fla_reference_state_ir import load_state_kernel
+from fla_state_exponent_capture import capture_exponents, exponent_arguments
 from prepare_fla_state_prefix import layouts
 
 DEVICE_LIMIT = 256 << 20
@@ -121,7 +122,7 @@ def trace_comparisons(result: dict, baseline: dict) -> dict:
             "terminal_f32": compare(result["final"], baseline["final"], "f32")}
 
 
-def run_pair(launch, inputs: dict) -> tuple[dict, dict | None]:
+def run_pair(launch, inputs: dict, exponent_probe=None) -> tuple[dict, dict | None]:
     baseline = launch("bf16")
     record = dict(baseline=baseline_comparisons(baseline, inputs), state_kernel_launches=1,
                   raw_trace_valid=False)
@@ -130,6 +131,8 @@ def run_pair(launch, inputs: dict) -> tuple[dict, dict | None]:
     raw = launch("f32")
     record.update(trace=trace_comparisons(raw, baseline), state_kernel_launches=2)
     record["raw_trace_valid"] = all(item["exact"] for item in record["trace"].values())
+    if record["raw_trace_valid"] and exponent_probe is not None:
+        record["exponent_capture"] = exponent_probe()
     return record, raw if record["raw_trace_valid"] else None
 
 
@@ -249,14 +252,18 @@ def gpu_capture(args, manifest: dict, payloads: dict) -> dict:
                 if actual != payloads[name]:
                     raise ValueError("an input tensor was modified by the state kernel")
             return result
-        comparisons, raw = run_pair(launch, payloads)
-        files = {}
+        # The separate instruction probe runs only after BOTH controls pass.
+        # It cannot alter the reference state kernel's register lifetime.
+        comparisons, raw = run_pair(launch, payloads, lambda: capture_exponents(
+            tokens=tokens, gates=payloads["g-cumsum-f32"], device_gates=device["g-cumsum-f32"],
+            output_dir=args.output_dir, torch=torch, triton=triton, tl=tl, progress=progress, device_limit=DEVICE_LIMIT))
+        files, exponents = {}, comparisons.pop("exponent_capture", None)
         if raw is not None:
             for key, filename in (("h", "checkpoint-f32.bin"), ("final", "terminal-state-f32.bin")):
                 data = raw[key]
                 (args.output_dir / filename).write_bytes(data)
                 files[key] = dict(file=filename, bytes=len(data), sha256=sha256(data))
-        return dict(comparisons=comparisons, launches=launches, files=files,
+        return dict(comparisons=comparisons, launches=launches, files=files, exponent_capture=exponents,
                     device=torch.cuda.get_device_name(0), torch_version=torch.__version__,
                     triton_version=triton.__version__, peak_device_bytes=torch.cuda.max_memory_allocated(),
                     memory_reserve_bytes=DEVICE_RESERVE, kernel_executed=True,
@@ -293,6 +300,7 @@ def main() -> None:
     if sha256(args.source.read_bytes()) != args.source_sha256:
         raise ValueError("reference kernel source fingerprint mismatch")
     manifest, payloads = validate_prefix(args.prefix_dir, args.manifest_sha256)
+    planned_exponents = exponent_arguments(payloads["g-cumsum-f32"], manifest["tokens"])
     validation_wall_ms = (time.monotonic() - started) * 1000
     if args.execute and not args.worker:
         if sys.platform != "linux" or not args.expected_host or socket.gethostname().lower() != args.expected_host.lower():
@@ -303,7 +311,7 @@ def main() -> None:
     record = dict(kind="gdn_state_prefix_capture", host=socket.gethostname(), command=sys.argv,
                   source_commit=args.source_commit, command_source_sha256=sha256(Path(__file__).read_bytes()),
                   helper_sha256={name: sha256(Path(__file__).with_name(name).read_bytes()) for name in
-                                 ("audit_fla_reference_state_ir.py", "prepare_fla_state_prefix.py")},
+                                 ("audit_fla_reference_state_ir.py", "prepare_fla_state_prefix.py", "fla_state_exponent_capture.py")},
                   reference_source=str(args.source), reference_source_sha256=args.source_sha256,
                   prefix_manifest_sha256=args.manifest_sha256, tokens=manifest["tokens"],
                   validated_files=len(payloads), validated_bytes=manifest["total_bytes"],
@@ -311,6 +319,8 @@ def main() -> None:
                   model_loaded=False, kernel_executed=False, inference_acceptance=False,
                   reference_service_executed=False,
                   raw_state_semantics="fixed-config isolated replay, not original worker register capture",
+                  exponent_probe_plan=dict(elements=len(planned_exponents) // 4, output_bytes=2 * len(planned_exponents),
+                                           host_argument_sha256=sha256(planned_exponents), requires_raw_state_parity=True),
                   reference_checkpoints_are_recurrent_inputs=False, timeout_seconds=args.timeout_seconds)
     (args.output_dir / "preflight.json").write_text(json.dumps(record, indent=2) + "\n")
     execution_started = time.monotonic()

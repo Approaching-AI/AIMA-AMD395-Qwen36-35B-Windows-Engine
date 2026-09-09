@@ -66,7 +66,9 @@ class StateCaptureTests(unittest.TestCase):
             self.assertFalse(record["inference_acceptance"])
             self.assertFalse(record["model_loaded"])
             self.assertEqual(record["tokens"], 64)
-            self.assertEqual(len(record["helper_sha256"]), 2)
+            self.assertEqual(len(record["helper_sha256"]), 3)
+            self.assertEqual(record["exponent_probe_plan"]["elements"], (64 + 1) * 32)
+            self.assertTrue(record["exponent_probe_plan"]["requires_raw_state_parity"])
             self.assertEqual(record["validated_files"], 8)
             self.assertGreater(record["validation_wall_ms"], 0)
             self.assertGreaterEqual(record["wall_ms"], record["validation_wall_ms"])
@@ -140,6 +142,30 @@ class StateCaptureTests(unittest.TestCase):
         record, retained = capture.run_pair(lambda dtype: baseline if dtype == "bf16" else raw, inputs)
         self.assertFalse(record["raw_trace_valid"])
         self.assertIsNone(retained)
+
+    def test_exponent_probe_requires_both_controls_and_does_not_feed_state(self):
+        for failure in (None, "baseline", "trace"):
+            baseline, raw, inputs = self.pair_fixture()
+            if failure == "baseline":
+                baseline["h"] = struct.pack("<H", 0x3F80)
+            elif failure == "trace":
+                raw["final"] = struct.pack("<I", 0x3F800001)
+            calls = []
+            def launch(dtype):
+                calls.append(dtype)
+                return baseline if dtype == "bf16" else raw
+            def exponent_probe():
+                calls.append("exponents")
+                return {"kernel_executed": True}
+            record, retained = capture.run_pair(launch, inputs, exponent_probe)
+            if failure is None:
+                self.assertEqual(calls, ["bf16", "f32", "exponents"])
+                self.assertIs(retained, raw)
+                self.assertTrue(record["exponent_capture"]["kernel_executed"])
+            else:
+                self.assertNotIn("exponents", calls)
+                self.assertNotIn("exponent_capture", record)
+                self.assertIsNone(retained)
 
     def test_bf16_conversion_is_nearest_even_and_rejects_nonfinite(self):
         values = (0x3F808000, 0x3F818000, 0xBF808000, 0xBF818000)

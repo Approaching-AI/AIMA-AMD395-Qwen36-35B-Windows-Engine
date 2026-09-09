@@ -42,6 +42,92 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         return subprocess.run([str(self.executable), str(self.root), tokens, "-"] + (["--trajectory-sample"] if trajectory or captured else []) + (["--captured-exp-control"] if captured else []),
                               capture_output=True, text=True, timeout=20)
 
+    def single_chunk_fixture(self, captured=False) -> None:
+        state = 32 * 128 * 128
+        (self.root / "k-normalized-bf16.bin").write_bytes(struct.pack("<H", 0x3F80) * (64 * 2048))
+        for name in ("u", "v-new"):
+            (self.root / (name + "-bf16.bin")).write_bytes(struct.pack("<H", 0x3F00) * (64 * 4096))
+        (self.root / "g-cumsum-f32.bin").write_bytes(b"\0" * (64 * 32 * 4))
+        (self.root / "chunk-state-bf16.bin").write_bytes(b"\0" * (state * 2))
+        (self.root / "state-f32.bin").write_bytes(struct.pack("<f", 32.0) * state)
+        if captured:
+            for name in ("a-dot", "a"):
+                (self.root / (name + "-f32.bin")).write_bytes(struct.pack("<f", 1.0) * (64 * 32 * 64))
+
+    def run_single_chunk(self, tokens="64", captured=False):
+        return subprocess.run([str(self.executable), str(self.root), tokens, "--single-chunk-raw"] +
+                              (["--captured-exp-control"] if captured else []),
+                              capture_output=True, text=True, timeout=20)
+
+    def test_single_chunk_raw_reference_exposes_bf16_hidden_difference(self) -> None:
+        self.single_chunk_fixture()
+        # One F32 ULP is hidden by the BF16 conversion; both boundaries must be
+        # reported instead of claiming raw-state equality from rounded equality.
+        with (self.root / "state-f32.bin").open("r+b") as file:
+            file.write(struct.pack("<I", 0x42000001))
+        result = self.run_single_chunk()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)
+        self.assertEqual(record["kind"], "cpu_single_chunk_raw_state_attribution")
+        self.assertFalse(record["inference_acceptance"])
+        self.assertFalse(record["raw_initial_state_available"])
+        for variant in record["variants"]:
+            self.assertEqual(variant["reference_bf16"]["mismatch_count"], 0)
+            raw = variant["reference_raw_f32"]
+            self.assertEqual(raw["numeric"]["elements"], 32 * 128 * 128)
+            self.assertEqual(raw["numeric"]["mismatch_count"], 1)
+            self.assertEqual(raw["bit_mismatch_count"], 1)
+            self.assertEqual(raw["first_bit_index"], 0)
+            self.assertEqual(raw["first_actual_bits"], 0x42000000)
+            self.assertEqual(raw["first_expected_bits"], 0x42000001)
+            self.assertEqual(raw["differing_rows"], [{"head": 0, "value": 0, "bit_mismatch_count": 1}])
+
+    def test_single_chunk_captured_control_never_uses_terminal_state_to_infer_exponents(self) -> None:
+        self.single_chunk_fixture(captured=True)
+        with (self.root / "state-f32.bin").open("r+b") as file:
+            file.write(struct.pack("<f", 64.0))
+        result = self.run_single_chunk(captured=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)
+        self.assertTrue(record["captured_exp_control"]["reference_derived"])
+        self.assertFalse(record["captured_exp_control"]["production_implementation"])
+        self.assertEqual(record["captured_exp_calls"], record["captured_exp_hits"])
+        self.assertEqual(record["changed_gated_bf16_product_count"], 0)
+        for variant in record["variants"]:
+            self.assertEqual(variant["reference_raw_f32"]["bit_mismatch_count"], 1)
+
+    def test_single_chunk_raw_stats_distinguish_signed_zero(self) -> None:
+        self.single_chunk_fixture()
+        (self.root / "k-normalized-bf16.bin").write_bytes(b"\0" * (64 * 2048 * 2))
+        (self.root / "state-f32.bin").write_bytes(struct.pack("<I", 0x80000000) + b"\0" * ((32 * 128 * 128 - 1) * 4))
+        result = self.run_single_chunk()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for variant in json.loads(result.stdout)["variants"]:
+            raw = variant["reference_raw_f32"]
+            self.assertEqual(raw["numeric"]["mismatch_count"], 0)
+            self.assertEqual(raw["bit_mismatch_count"], 1)
+            self.assertEqual(raw["first_actual_bits"], 0)
+            self.assertEqual(raw["first_expected_bits"], 0x80000000)
+
+    def test_single_chunk_rejects_wrong_shape_seed_residual_and_nonfinite(self) -> None:
+        self.single_chunk_fixture()
+        for tokens in ("0", "63", "65", "128", "8192", "64bad"):
+            self.assertEqual(self.run_single_chunk(tokens).returncode, 2)
+        for name, data, error in (
+            ("chunk-state-bf16.bin", struct.pack("<H", 0x3F80), "requires captured zero"),
+            ("v-new-bf16.bin", struct.pack("<H", 0x3F80), "V-new must equal"),
+            ("state-f32.bin", struct.pack("<f", float("nan")), "nonfinite capture"),
+        ):
+            self.single_chunk_fixture()
+            with (self.root / name).open("r+b") as file:
+                file.write(data)
+            result = self.run_single_chunk()
+            self.assertEqual(result.returncode, 3)
+            self.assertIn(error, result.stderr)
+        self.single_chunk_fixture()
+        (self.root / "state-f32.bin").write_bytes(b"")
+        self.assertEqual(self.run_single_chunk().returncode, 3)
+
     def test_known_state_sum_has_parent_and_non_acceptance_labels(self) -> None:
         self.fixture()
         result = self.run_probe()
