@@ -22,7 +22,7 @@ class FlaUpstreamIntegrationContractTests(unittest.TestCase):
         self.assertIn("fla-upstream-capture-replay|fla-output-capture-replay", guard)
         self.assertIn("allocation > 512u * 1024u * 1024u", SOURCE.read_text())
 
-    def test_native_state_uses_compiler_owned_launches_and_is_not_linked_into_runtime(self) -> None:
+    def test_native_state_uses_compiler_owned_launches_and_explicit_runtime_opt_in(self) -> None:
         source = (ROOT / "native/providers/gdn/blackwell_state.cpp").read_text()
         self.assertEqual(source.count("hipLaunchKernelGGL("), 2)
         self.assertNotIn("hipModuleLaunchKernel", source)
@@ -31,7 +31,12 @@ class FlaUpstreamIntegrationContractTests(unittest.TestCase):
         self.assertIn("if (token >= count)", source)
         builder = (ROOT / "scripts/baiying_build_fla_gdn.ps1").read_text()
         self.assertIn("$(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState)", builder)
-        self.assertNotIn("blackwell_state", (ROOT / "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp").read_text())
+        runtime = (ROOT / "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp").read_text()
+        self.assertIn('std::getenv("QRT_FLA_GDN_STATE_BLACKWELL")', runtime)
+        self.assertIn('setting && std::strcmp(setting, "1") == 0', runtime)
+        self.assertIn('if (blackwell_state_enabled())', runtime)
+        self.assertIn('if (initial != state)', runtime)
+        self.assertIn('kBlackwellStateScratchBytes', runtime)
 
 
 @unittest.skipUnless(shutil.which("c++"), "requires the portable C++ compiler")

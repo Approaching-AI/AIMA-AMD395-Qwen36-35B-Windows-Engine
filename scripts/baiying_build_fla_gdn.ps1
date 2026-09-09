@@ -40,6 +40,7 @@ $outputReplay = Join-Path $repo 'native\providers\gdn\fla_output_capture_replay.
 $upstreamReplay = Join-Path $repo 'native\providers\gdn\fla_upstream_capture_replay.cpp'
 $blackwellState = Join-Path $repo 'native\providers\gdn\blackwell_state.cpp'
 $blackwellStateHeader = Join-Path $repo 'native\providers\gdn\blackwell_state.h'
+$blackwellWave16 = Join-Path $repo 'native\providers\gdn\blackwell_accumulator.h'
 $blackwellKkt = Join-Path $repo 'native\providers\gdn\blackwell_kkt.h'
 $blackwellAccumulator = Join-Path $repo 'native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h'
 if ($AotDir) {
@@ -86,7 +87,7 @@ if (-not $AotDir) {
 }
 $lines += @(
     "if not exist $(Quote-Arg (Join-Path $OutDir 'qrt_fla_gdn_kernel_specs.inc')) exit /b 26",
-    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) -o $(Quote-Arg $dll)",
+    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) $(Quote-Arg $blackwellState) -o $(Quote-Arg $dll)",
     'if not "%errorlevel%"=="0" exit /b 23'
 )
 foreach ($tokens in @(64, 65, 7169)) {
@@ -142,7 +143,7 @@ $record = [ordered]@{
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     native_blackwell_state=$true
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

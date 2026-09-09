@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class FlaBlackwellKktContractTests(unittest.TestCase):
     def test_k128_is_one_continuous_blackwell_accumulator(self) -> None:
-        source = (ROOT / "native/providers/gdn/blackwell_kkt.h").read_text()
+        source = (ROOT / "native/providers/gdn/blackwell_kkt.h").read_text() + (ROOT / "native/providers/gdn/blackwell_accumulator.h").read_text()
         self.assertIn('q1_moe_hawkeye_bf16_accumulator.h', source)
         self.assertIn("kGroup = 16", source)
         self.assertIn("base < 128; base += kGroup", source)

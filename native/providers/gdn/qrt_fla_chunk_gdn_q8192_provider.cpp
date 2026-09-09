@@ -1,5 +1,6 @@
 #include <hip/hip_runtime.h>
 #include "blackwell_kkt.h"
+#include "blackwell_state.h"
 
 #include <array>
 #include <cstdint>
@@ -31,6 +32,7 @@ constexpr uint32_t kGateRows = 64u;
 constexpr uint32_t kQkvRows = 8192u;
 constexpr uint32_t kValueFeatures = kValueHeads * kValueDim;
 constexpr uint32_t kStateElements = kValueFeatures * kKeyDim;
+constexpr size_t kBlackwellStateScratchBytes = kStateElements * sizeof(float) + kChunk * kValueFeatures * sizeof(uint16_t);
 // Bound every recurrent dispatch to 16 chunks on WDDM. All segment boundaries
 // are chunk boundaries and carry the unrounded F32 state on the same stream.
 constexpr int32_t kSegmentTokens = 1024;
@@ -97,6 +99,8 @@ struct ProviderState {
     void *a_or_w = nullptr;
     void *ai_or_v_new = nullptr;
     uint16_t *chunk_state = nullptr;
+    float *blackwell_temporary_state = nullptr;
+    uint16_t *blackwell_residual = nullptr;
     float *padded_postconv = nullptr;
     float *padded_gate = nullptr;
     float *padded_output = nullptr;
@@ -108,6 +112,11 @@ struct ProviderState {
 };
 
 ProviderState g_state;
+
+bool blackwell_state_enabled() {
+    const char* setting = std::getenv("QRT_FLA_GDN_STATE_BLACKWELL");
+    return setting && std::strcmp(setting, "1") == 0;
+}
 
 size_t kernel_slot(KernelIndex index) {
     return static_cast<size_t>(index);
@@ -206,6 +215,10 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
 }
 
 void release_scratch() {
+    if (g_state.blackwell_temporary_state) (void)hipFree(g_state.blackwell_temporary_state);
+    if (g_state.blackwell_residual) (void)hipFree(g_state.blackwell_residual);
+    g_state.blackwell_temporary_state = nullptr;
+    g_state.blackwell_residual = nullptr;
     if (g_state.padded_output != nullptr) {
         (void)hipFree(g_state.padded_output);
     }
@@ -388,6 +401,69 @@ bool ensure_scratch(int32_t tokens) {
         return false;
     }
     g_state.scratch_tokens = tokens;
+    return true;
+}
+
+bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t* w,
+                            const float* g, uint16_t* h, uint16_t* v_new,
+                            float* state, int32_t tokens, hipStream_t stream) {
+    if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk) {
+        set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
+    }
+    if (!g_state.blackwell_temporary_state || !g_state.blackwell_residual) {
+        size_t available = 0, total = 0;
+        hipError_t status = hipMemGetInfo(&available, &total);
+        if (status != hipSuccess) { set_error("hipMemGetInfo(blackwell_state)", status); return false; }
+        if (available < kBlackwellStateScratchBytes + 512u * 1024u * 1024u) {
+            set_error_text("Blackwell state device memory reserve failed"); return false;
+        }
+        if (!g_state.blackwell_temporary_state)
+            status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_temporary_state), kStateElements * sizeof(float));
+        if (status == hipSuccess && !g_state.blackwell_residual)
+            status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_residual), kChunk * kValueFeatures * sizeof(uint16_t));
+        if (status != hipSuccess) { set_error("hipMalloc(blackwell_state)", status); return false; }
+    }
+    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
+    hipError_t status = hipEventCreate(&begin.handle);
+    if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    if (status != hipSuccess) { set_error("hipEventCreate(blackwell_state)", status); return false; }
+    float maximum_ms = 0;
+    auto timed = [&](const char* name, auto operation) {
+        hipError_t result = hipEventRecord(begin.handle, stream);
+        if (result == hipSuccess) result = operation();
+        if (result == hipSuccess) result = hipEventRecord(end.handle, stream);
+        if (result == hipSuccess) result = hipEventSynchronize(end.handle);
+        float milliseconds = 0;
+        if (result == hipSuccess) result = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
+        if (result != hipSuccess) { set_error(name, result); return false; }
+        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell state dispatch exceeded 100 ms; remaining work not submitted"); return false; }
+        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
+        return true;
+    };
+    float* initial = state; float* final = g_state.blackwell_temporary_state;
+    for (int32_t offset = 0; offset < tokens; offset += kChunk) {
+        const size_t value_offset = static_cast<size_t>(offset) * kValueFeatures;
+        const float* gate = g + static_cast<size_t>(offset) * kValueHeads;
+        if (!timed("blackwell_state_project", [&] {
+                return qrt_fla_blackwell_state::project(w + value_offset, u + value_offset, gate, initial,
+                    h + static_cast<size_t>(offset / kChunk) * kStateElements, v_new + value_offset,
+                    g_state.blackwell_residual, kChunk, stream);
+            })) return false;
+        if (!timed("blackwell_state_update", [&] {
+                return qrt_fla_blackwell_state::update(k + static_cast<size_t>(offset) * kQkHeads * kKeyDim,
+                    g_state.blackwell_residual, gate, initial, final, kChunk, stream);
+            })) return false;
+        float* swap = initial; initial = final; final = swap;
+    }
+    // Odd chunk counts finish in the private buffer. Materialize the public
+    // state before returning, including the single neutral-padded tail chunk.
+    if (initial != state) {
+        status = hipMemcpyAsync(state, initial, kStateElements * sizeof(float), hipMemcpyDeviceToDevice, stream);
+        if (status == hipSuccess) status = hipStreamSynchronize(stream);
+        if (status != hipSuccess) { set_error("hipMemcpyAsync(blackwell_final_state)", status); return false; }
+    }
+    std::fprintf(stderr, "FLA_STATE route=blackwell_group16_width26_k128_k64 tokens=%d chunks=%u maximum_dispatch_ms=%.6f guard_ms=100\n",
+        tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(maximum_ms));
     return true;
 }
 
@@ -725,7 +801,10 @@ int launch_segment_async(
         &initial_state_pointer, &chunk_state_pointer, &final_state_pointer,
         &launch_tokens, &global_scratch, &profile_scratch,
     };
-    if (!launch(
+    if (blackwell_state_enabled()) {
+        if (!launch_blackwell_state(k_pointer, u_pointer, w_pointer, g_pointer, chunk_state_pointer,
+                                    v_new_pointer, final_state_f32, tokens, stream)) return 0;
+    } else if (!launch(
             KernelIndex::kChunkState, kStateValueTiles, kValueHeads, 1u,
             stream, state_arguments
         )) {
@@ -1053,7 +1132,9 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
     return scratch_tokens > 0
         ? static_cast<uint64_t>(scratch_tokens) *
               kMainScratchBytesPerToken +
-              kTailPaddingBytes
+              kTailPaddingBytes +
+              ((blackwell_state_enabled() || g_state.blackwell_temporary_state || g_state.blackwell_residual)
+                  ? kBlackwellStateScratchBytes : 0u)
         : 0u;
 }
 
