@@ -109,6 +109,24 @@ SFU emulation; state-update/raw-F32 and gating attribution remain open. No
 runtime arithmetic, default profile or real-model release gate is changed
 based on these CPU controls.
 
+Offline CUDA state-IR audits at BV32 and BV64 show continuous K128
+projection, a separate zero-seeded K64 update and F32 fused decay/addition.
+They do not verify the live reference worker's autotune choice. An opt-in
+IEEE state build is implemented and safely replayed, but not retained:
+first-update BF16 differences fall from 185 to 14, while full-length V-new
+and chunk-state differences rise to 3235232 and 5139527. Default state math
+is unchanged. All nineteen build artifacts and the eleven-slot launch ABI
+are checked; both native replays exit normally with passing host checks.
+
+CPU-only exponent controls infer unique values from independent captured
+F32 products, rejecting ambiguous, conflicting and underflowed constraints.
+They cover only part of the inputs and still fail the carried trajectory;
+these reference-derived values are never a production SFU implementation.
+Per-row first-boundary traces identify an early sampled cancellation without
+injecting reference state. Final local checks pass 184 Python and 44 Rust
+tests, clippy, ABI smoke, transaction tests and hygiene. No model, retained
+performance, package or release acceptance is added by these controls.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
