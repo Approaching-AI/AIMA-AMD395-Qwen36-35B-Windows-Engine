@@ -76,6 +76,19 @@ this does not bypass upstream inverse errors or authorize unbounded native
 correction. The repaired WSL AOT launcher disables GPU visibility and retains
 compiler/thread/time limits. No system configuration change is required.
 
+The standalone `fla-output-capture-replay` diagnostic now isolates the last
+GDN stage using fingerprinted reference intermediate inputs. Native q64 has
+one mismatch in 262144 cells; the full real q7169 layer-0 surface has 2205
+in 29364224 cells (relative L2 2.3199896e-5), much less than the full-chain
+input replay. This localizes a major upstream contribution; it is not a
+runtime improvement, a zero-error result, or product acceptance. The harness
+is not linked into the model engine and retains bounded allocation/dispatch.
+Its initial missing auxiliary-pointer ABI bug is repaired; both corrected
+runs exit normally with numerical-difference status and healthy cleanup.
+Compiler metadata now distinguishes the source signature from the actual
+launch ABI, including Triton's two trailing scratch pointers and verified
+offsets/size. No driver or system setting was changed for this repair.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
