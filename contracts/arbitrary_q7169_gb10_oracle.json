@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "record_type": "qrt_arbitrary_q7169_gb10_oracle",
+  "capture_status": "pass",
+  "windows_acceptance": false,
+  "correctness_authority": {
+    "host": "gb10-4t", "device": "NVIDIA GB10", "model": "qwen3.6-35b-a3b", "dtype": "bfloat16",
+    "scope": "exact q7169 prompt, first-token raw logit, independent 32-token continuation"
+  },
+  "prompt": {
+    "token_count": 7169, "seed": 50536152, "first_token_id": 30199,
+    "generator": "first token followed by random.Random(seed).randrange(256) plus 32",
+    "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+    "u32le_fnv1a64": "c900c18703532d6a"
+  },
+  "expected": {
+    "first_token_id": 82, "first_token_raw_logit": 9.25, "first_token_raw_logit_tolerance": 0.125,
+    "continuation_comparison": "token_for_token", "continuation_token_count": 32,
+    "output_token_ids": [82,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220],
+    "output_token_ids_u32le_sha256": "d8e5090640963e7f07d78fe43a3d79362db5fd7a053b0e4f96fc279edd71a7f6",
+    "output_token_ids_u32le_fnv1a64": "7e8c505cfcbfcf2d"
+  },
+  "capture": {
+    "source_commit": "acc3ee8993d6f0cbf9d2631cfd0132f7cde52862",
+    "fixture_adapter_was_untracked": true,
+    "started_at_utc": "2026-09-09T08:33:14.994205Z", "completed_at_utc": "2026-09-09T08:33:20.886166Z",
+    "command": "docker exec qwen36-lm-head-capture timeout 100 python3 <capture-tools>/capture-q7169-gb10.py",
+    "fixture_adapter": "scripts/capture_gb10_q7169_oracle.py",
+    "fixture_adapter_sha256": "b414d07d846e347df092c1279f2ade9fb415dab58659c494a27bf5ec60721c8a",
+    "fixture_override_only": true,
+    "raw_capture_source": "scripts/capture_gb10_q8192_oracle.py",
+    "raw_capture_source_sha256": "a5869d6f9bad13475fa863590899e8877c9181546851ec794c606c8c382628c5",
+    "continuation_capture_source": "scripts/capture_gb10_q8192_continuation.py",
+    "continuation_capture_source_sha256": "87d978377f4c6dfbb6e90a0843f7e647171b87c72f6e8c7ab46a21738d2a716c",
+    "http_statuses": [200,200],
+    "raw_request_sha256": "9db5d3dea509ddcbfea44b6c21665cadf7c2500a22c3efb8dade14d0f89b1bae",
+    "raw_response_sha256": "ff01c1d28a6620895e0eeeb2b01b832fc386b06618b99031e0f11a6bb2d9aac1",
+    "continuation_request_sha256": "8ca2c220bdba7c689178a3c69b6c29866d2edf48820df179c083af595fa92a7d",
+    "continuation_response_sha256": "bc6c4badb84e8a8b4e7b33531759d785d8a7c453da9e9a6d7e276622dc1982f4",
+    "raw_logit_method": "captured service BF16 hidden row replayed with exact BF16 lm_head.weight using torch.nn.functional.linear",
+    "hidden_capture_file_sha256": "5692b8aa15da60a9594518ab0aea68d57b1be84360ed74f764fef95fddafaafc",
+    "hidden_bf16_sha256": "be3354ef1cd706c10a5ee58ae4da7492389d1679cff89e02fa5a6e1229355483",
+    "selected_token_f32_dot": 9.248830795288086,
+    "top5_ids": [82,220,64,144,83], "top5_raw_logits": [9.25,9.25,9.125,9.0625,8.9375],
+    "continuation_capture_hook_armed": false,
+    "continuation_request_count": 1
+  },
+  "model_evidence": {
+    "config_sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+    "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "weight_tensor_key": "lm_head.weight", "weight_shape": [248320,2048], "weight_dtype": "torch.bfloat16",
+    "weight_shard": "model-00026-of-00026.safetensors", "weight_shard_bytes": 2231416848,
+    "weight_shard_sha256": "1a97404220077ed3d4182e10385b152004cab608377f50cec9f54a6b8d28b613"
+  },
+  "limitations": ["Not Windows acceptance", "Does not qualify other prompt lengths or content", "No first-token logprob is substituted for a raw logit", "No change to the separate q8192 contract"]
+}

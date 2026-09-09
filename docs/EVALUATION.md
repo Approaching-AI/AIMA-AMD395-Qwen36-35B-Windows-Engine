@@ -7,6 +7,15 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+The unreleased arbitrary-length gate additionally freezes the failing q7169
+fixture in `contracts/arbitrary_q7169_gb10_oracle.json`: prompt hashes, first
+token 82, raw logit 9.25 at the unchanged 0.125 tolerance, and all 32 reference
+tokens. This is captured GB10 authority, **not** Windows acceptance. The default
+q8192 contract and its targets are unchanged. `scripts/capture_gb10_q7169_oracle.py`
+is the byte-identical fixture adapter used for the September 9 capture; stage it
+beside the two existing q8192 capture modules in the opt-in BF16 reference
+container. It changes fixture constants only and does not alter model math.
+
 The published OpenAI acceptance additionally submits deterministic raw-token
 prompts across the continuous-length matrix and requires every returned text
 and finish reason to match a frozen authority response. It separately tests
