@@ -24,7 +24,7 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
     def tearDownClass(cls) -> None:
         cls.directory.cleanup()
 
-    def fixture(self) -> None:
+    def fixture(self, captured=False) -> None:
         state = 32 * 128 * 128
         (self.root / "full-k-normalized-bf16.bin").write_bytes(struct.pack("<H", 0x3F80) * (128 * 2048))
         (self.root / "full-u-bf16.bin").write_bytes(struct.pack("<H", 0x3F00) * (128 * 4096))
@@ -34,9 +34,12 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         (self.root / "full-initial_state-f32.bin").write_bytes(b"\0" * (state * 4))
         (self.root / "full-chunk-state-bf16.bin").write_bytes(b"\0" * (state * 2) + struct.pack("<H", 0x4200) * state)
         (self.root / "full-native-final-state-f32.bin").write_bytes(struct.pack("<f", 64.0) * state)
+        if captured:
+            for name in ("a-dot", "a"):
+                (self.root / ("full-" + name + "-f32.bin")).write_bytes(struct.pack("<f", 1.0) * (128 * 32 * 64))
 
-    def run_probe(self, tokens="128", trajectory=False):
-        return subprocess.run([str(self.executable), str(self.root), tokens, "-"] + (["--trajectory-sample"] if trajectory else []),
+    def run_probe(self, tokens="128", trajectory=False, captured=False):
+        return subprocess.run([str(self.executable), str(self.root), tokens, "-"] + (["--trajectory-sample"] if trajectory or captured else []) + (["--captured-exp-control"] if captured else []),
                               capture_output=True, text=True, timeout=20)
 
     def test_known_state_sum_has_parent_and_non_acceptance_labels(self) -> None:
@@ -92,6 +95,51 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         for variant in json.loads(result.stdout)["trajectory"]["variants"]:
             self.assertEqual(variant["chunk_state_bf16"]["mismatch_count"], 16 * 128)
+            self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
+
+    def test_captured_exponent_control_is_explicit_and_has_unique_constraints(self) -> None:
+        self.fixture(captured=True)
+        result = self.run_probe(captured=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)["trajectory"]
+        control = record["captured_exp_control"]
+        self.assertTrue(control["reference_derived"])
+        self.assertFalse(control["production_implementation"])
+        self.assertEqual(control["resolved_inputs"], 1)
+        self.assertEqual(control["inconsistent_inputs"], 0)
+        self.assertEqual(control["resolved_host_differences"], 0)
+        for variant in record["variants"][-3:]:
+            self.assertGreater(variant["reference_derived_exp_mask"], 0)
+            self.assertEqual(variant["captured_exp_calls"], variant["captured_exp_hits"])
+            self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
+
+    def test_conflicting_exponent_constraints_are_not_chosen_to_fit_state(self) -> None:
+        self.fixture(captured=True)
+        with (self.root / "full-a-f32.bin").open("r+b") as file:
+            file.seek(32 * 64 * 4)
+            file.write(struct.pack("<f", 0.5))
+        result = self.run_probe(captured=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)["trajectory"]
+        self.assertEqual(record["captured_exp_control"]["inconsistent_inputs"], 1)
+        self.assertEqual(record["captured_exp_control"]["resolved_inputs"], 0)
+        for variant in record["variants"][-3:]:
+            self.assertEqual(variant["captured_exp_hits"], 0)
+            self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
+
+    def test_subnormal_products_cannot_claim_a_unique_exponent(self) -> None:
+        self.fixture(captured=True)
+        for name in ("a-dot", "a"):
+            (self.root / ("full-" + name + "-f32.bin")).write_bytes(struct.pack("<I", 1) * (128 * 32 * 64))
+        result = self.run_probe(captured=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)["trajectory"]
+        control = record["captured_exp_control"]
+        self.assertEqual(control["resolved_inputs"], 0)
+        self.assertEqual(control["unobserved_inputs"], 1)
+        self.assertGreater(control["unusable_products"], 0)
+        for variant in record["variants"][-3:]:
+            self.assertEqual(variant["captured_exp_hits"], 0)
             self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
 
 

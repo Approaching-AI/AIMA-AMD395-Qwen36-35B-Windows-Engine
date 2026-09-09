@@ -8,8 +8,10 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace {
@@ -55,9 +57,87 @@ struct Stats {
     }
 };
 
+uint32_t float_bits(float value) { uint32_t bits; std::memcpy(&bits, &value, 4); return bits; }
+float from_bits(uint32_t bits) { float value; std::memcpy(&value, &bits, 4); return value; }
+uint32_t exponent_key(float input) { return input == 0 ? 0u : float_bits(input); }
+
+// Diagnostic reference-derived control ONLY. Infer an exponent's F32 value
+// from captured round_f32(pre_decay_dot * exponent), intersecting constraints
+// for identical exponent inputs. Ambiguous/conflicting values are never chosen.
+// This is not a general SFU implementation and must not enter the runtime.
+struct CapturedExponentControl {
+    struct Bounds { uint32_t low = 0, high = 0; bool seen = false, inconsistent = false; };
+    std::unordered_map<uint32_t, Bounds> required;
+    uint64_t constraints = 0, unusable_products = 0, calls = 0, hits = 0, changed_calls = 0;
+    uint64_t resolved = 0, ambiguous = 0, unobserved = 0, inconsistent = 0, host_differences = 0;
+
+    CapturedExponentControl(const std::string& directory, size_t tokens, const std::vector<float>& g) {
+        constexpr float log2e = 1.4426950408889634074f;
+        required.reserve(tokens * 32u);
+        for (size_t first = 0; first < tokens; first += 64) {
+            const size_t last = std::min(first + 64u, tokens) - 1;
+            for (size_t h = 0; h < 32; ++h) {
+                required.emplace(exponent_key(g[last * 32u + h] * log2e), Bounds{});
+                for (size_t t = first; t <= last; ++t)
+                    required.emplace(exponent_key((g[last * 32u + h] - g[t * 32u + h]) * log2e), Bounds{});
+            }
+        }
+        const size_t elements = tokens * 32u * 64u;
+        auto before = slice<float>(directory + "/full-a-dot-f32.bin", elements, 0, elements);
+        auto after = slice<float>(directory + "/full-a-f32.bin", elements, 0, elements);
+        for (size_t t = 0; t < tokens; ++t) for (size_t h = 0; h < 32; ++h) for (size_t s = 0; s < t % 64u; ++s) {
+            const size_t index = (t * 32u + h) * 64u + s;
+            const float x = (g[t * 32u + h] - g[(t / 64u * 64u + s) * 32u + h]) * log2e;
+            auto found = required.find(exponent_key(x));
+            if (found == required.end()) continue;
+            // Underflowed products can admit an arbitrarily wide exponent
+            // interval; never infer uniqueness from a small local search there.
+            if (!std::isnormal(before[index]) || !std::isnormal(after[index])) { ++unusable_products; continue; }
+            const float ratio = static_cast<float>(double(after[index]) / double(before[index]));
+            if (!(ratio > 0) || !std::isnormal(ratio)) { ++unusable_products; continue; }
+            const uint32_t center = float_bits(ratio), begin = center > 2 ? center - 2 : 0;
+            uint32_t low = UINT32_MAX, high = 0;
+            for (uint32_t candidate = begin; candidate <= center + 2 && candidate < 0x7f800000u; ++candidate) {
+                const float product = before[index] * from_bits(candidate);
+                if (float_bits(product) == float_bits(after[index])) { low = std::min(low, candidate); high = std::max(high, candidate); }
+            }
+            auto& bounds = found->second;
+            if (low == UINT32_MAX) { bounds.inconsistent = true; ++unusable_products; continue; }
+            if (low == begin || high == center + 2) { ++unusable_products; continue; }
+            ++constraints;
+            if (!bounds.seen) { bounds.low = low; bounds.high = high; bounds.seen = true; }
+            else { bounds.low = std::max(bounds.low, low); bounds.high = std::min(bounds.high, high); }
+            if (bounds.low > bounds.high) bounds.inconsistent = true;
+        }
+        for (const auto& entry : required) {
+            const auto& b = entry.second;
+            if (b.inconsistent) ++inconsistent;
+            else if (!b.seen) ++unobserved;
+            else if (b.low != b.high) ++ambiguous;
+            else { ++resolved; host_differences += float_bits(std::exp2(from_bits(entry.first))) != b.low; }
+        }
+    }
+    float evaluate(float input) {
+        ++calls; const float fallback = std::exp2(input);
+        const auto found = required.find(exponent_key(input));
+        if (found == required.end()) return fallback;
+        const auto& b = found->second;
+        if (!b.seen || b.inconsistent || b.low != b.high) return fallback;
+        ++hits; changed_calls += float_bits(fallback) != b.low;
+        return from_bits(b.low);
+    }
+    void reset_counts() { calls = hits = changed_calls = 0; }
+    void print() const {
+        std::cout << "{\"reference_derived\":true,\"production_implementation\":false,\"required_inputs\":" << required.size()
+                  << ",\"resolved_inputs\":" << resolved << ",\"ambiguous_inputs\":" << ambiguous << ",\"unobserved_inputs\":" << unobserved
+                  << ",\"inconsistent_inputs\":" << inconsistent << ",\"resolved_host_differences\":" << host_differences
+                  << ",\"product_constraints\":" << constraints << ",\"unusable_products\":" << unusable_products << '}';
+    }
+};
+
 // Each selected (head,value) row has an independent 128-element recurrent
 // state. Carry it through every source token without injecting reference state.
-void trajectory(const std::string& directory, size_t tokens) {
+void trajectory(const std::string& directory, size_t tokens, bool captured_exp_control = false) {
     const size_t chunks = (tokens + 63u) / 64u;
     auto path = [&](const char* name) { return directory + "/full-" + name + ".bin"; };
     auto k = slice<uint16_t>(path("k-normalized-bf16"), tokens * 2048u, 0, tokens * 2048u);
@@ -71,20 +151,33 @@ void trajectory(const std::string& directory, size_t tokens) {
         {0,0}, {2,88}, {8,64}, {1,17}, {4,34}, {6,51}, {10,68}, {12,85},
         {14,102}, {16,119}, {18,8}, {20,25}, {22,42}, {24,59}, {28,76}, {31,127}
     }};
-    struct Variant { const char* name; bool split_projection, fused_update, ieee; bool seeded_update = false; };
-    const std::array<Variant, 5> variants{{
+    struct Variant { const char* name; bool split_projection, fused_update, ieee; bool seeded_update = false; unsigned captured_exp_mask = 0; };
+    std::vector<Variant> variants{
         {"blackwell_k128_k64_fma", false, true, false},
         {"blackwell_two_k64_k64_fma", true, true, false},
         {"blackwell_k128_k64_unfused", false, false, false},
         {"ieee_k128_k64_fma", false, true, true},
         {"blackwell_k128_seeded_k64", false, false, false, true}
-    }};
+    };
+    std::unique_ptr<CapturedExponentControl> exponent_control;
+    if (captured_exp_control) {
+        exponent_control = std::make_unique<CapturedExponentControl>(directory, tokens, g);
+        variants.push_back({"blackwell_k128_k64_captured_gate", false, true, false, false, 1});
+        variants.push_back({"blackwell_k128_k64_captured_decay", false, true, false, false, 2});
+        variants.push_back({"blackwell_k128_k64_captured_gate_decay", false, true, false, false, 3});
+    }
     constexpr float log2e = 1.4426950408889634074f;
     std::cout << ",\"trajectory\":{\"tokens\":" << tokens << ",\"sampled_state_rows\":16,\"reference_state_injected\":false,\"coordinates_head_value\":[";
     for (size_t i = 0; i < selected.size(); ++i) { if (i) std::cout << ','; std::cout << '[' << selected[i][0] << ',' << selected[i][1] << ']'; }
-    std::cout << "],\"variants\":[";
+    std::cout << ']';
+    if (exponent_control) { std::cout << ",\"captured_exp_control\":"; exponent_control->print(); }
+    std::cout << ",\"variants\":[";
     for (size_t mode = 0; mode < variants.size(); ++mode) {
         const auto& variant = variants[mode]; Stats states, values, terminal, isolated_values;
+        if (exponent_control) exponent_control->reset_counts();
+        auto exponent = [&](float input, unsigned mask) {
+            return exponent_control && (variant.captured_exp_mask & mask) ? exponent_control->evaluate(input) : std::exp2(input);
+        };
         auto project = [&](const uint16_t* left, const uint16_t* right) {
             float sum = 0;
             if (variant.ieee) {
@@ -104,13 +197,13 @@ void trajectory(const std::string& directory, size_t tokens) {
                     rounded[d] = bf16(state[d]); const size_t index = chunk * state_elements + (head * 128u + v) * 128u + d;
                     states.add(value(rounded[d]), value(reference_h[index]), static_cast<int64_t>(index));
                 }
-                const float gate_last = g[(first + valid - 1u) * 32u + head], decay = std::exp2(gate_last * log2e);
+                const float gate_last = g[(first + valid - 1u) * 32u + head], decay = exponent(gate_last * log2e, 2);
                 std::array<uint16_t, 64> residual{};
                 for (size_t t = 0; t < valid; ++t) {
                     const size_t row = (first + t) * 32u + head; const auto* left = &w[row * 128u];
                     const float current = value(u[row * 128u + v]) - project(left, rounded.data());
                     values.add(value(bf16(current)), value(reference_v[row * 128u + v]), static_cast<int64_t>(row * 128u + v));
-                    residual[t] = bf16(current * std::exp2((gate_last - g[row]) * log2e));
+                    residual[t] = bf16(current * exponent((gate_last - g[row]) * log2e, 1));
                     // Parallel input-isolation check only: never feed this value
                     // or reference state into the carried trajectory above.
                     const auto* reference_row = &reference_h[chunk * state_elements + (head * 128u + v) * 128u];
@@ -138,15 +231,19 @@ void trajectory(const std::string& directory, size_t tokens) {
         std::cout << "{\"name\":\"" << variant.name << "\",\"chunk_state_bf16\":"; states.print();
         std::cout << ",\"v_new_bf16\":"; values.print(); std::cout << ",\"final_state_f32\":"; terminal.print();
         std::cout << ",\"same_input_projection\":{\"uses_reference_chunk_state\":true,\"feeds_trajectory\":false,\"v_new_bf16\":";
-        isolated_values.print(); std::cout << "}}";
+        isolated_values.print(); std::cout << "},\"reference_derived_exp_mask\":" << variant.captured_exp_mask;
+        if (exponent_control) std::cout << ",\"captured_exp_calls\":" << exponent_control->calls << ",\"captured_exp_hits\":" << exponent_control->hits
+                                       << ",\"captured_exp_changed_calls\":" << exponent_control->changed_calls;
+        std::cout << '}';
     }
     std::cout << "]}";
 }
 }
 
 int main(int argc, char** argv) try {
-    if ((argc != 4 && argc != 5) || (argc == 5 && std::string(argv[4]) != "--trajectory-sample")) {
-        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|-> [--trajectory-sample]\n"; return 2;
+    if ((argc < 4 || argc > 6) || (argc >= 5 && std::string(argv[4]) != "--trajectory-sample") ||
+        (argc == 6 && std::string(argv[5]) != "--captured-exp-control")) {
+        std::cerr << "usage: fla-state-accumulator-probe <capture-dir> <source-tokens> <native-first-chunk-state-f32|-> [--trajectory-sample [--captured-exp-control]]\n"; return 2;
     }
     char* end = nullptr; const unsigned long parsed = std::strtoul(argv[2], &end, 10);
     if (!*argv[2] || !end || *end || parsed < 65 || parsed > 8192) return 2;
@@ -194,6 +291,6 @@ int main(int argc, char** argv) try {
         std::cout << ",\"native_f32\":"; native_f32.print(); std::cout << '}';
     }
     std::cout << ']';
-    if (argc == 5) trajectory(argv[1], tokens);
+    if (argc >= 5) trajectory(argv[1], tokens, argc == 6);
     std::cout << "}\n"; return 0;
 } catch (const std::exception& error) { std::cerr << error.what() << '\n'; return 3; }
