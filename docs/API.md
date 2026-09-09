@@ -33,6 +33,28 @@ Set `stream: true` on either completion endpoint. Responses use
 Chat tool calls are emitted as OpenAI-shaped `delta.tool_calls` fragments and
 finish with `finish_reason: "tool_calls"`.
 
+## Thinking
+
+The chat and `/tokenize` endpoints accept
+`"thinking": {"type": "enabled", "budget_tokens": 128}` or
+`"thinking": {"type": "disabled"}`. Type is required; the optional budget must
+be a positive integer no greater than the resolved generation limit. The
+budget is validated advisory metadata, not a separate reasoning-token cutoff:
+`max_tokens` / `max_completion_tokens` bounds the entire generation (currently
+at most 512 tokens). Unknown thinking fields and invalid types are rejected.
+
+The older `chat_template_kwargs.enable_thinking` alias remains supported.
+Conflicting explicit aliases are rejected. Omission and an empty kwargs object
+both disable thinking; an empty object no longer accidentally enables it.
+`preserve_thinking` continues to control reasoning in message history.
+
+Enabled reasoning is returned in `message.reasoning_content` or
+`delta.reasoning_content`; the answer is `content`. For text without tools,
+reasoning and answer deltas arrive during generation, with split think markers,
+UTF-8 boundaries and stop sequences held until safe. Structured tool output is
+validated as a complete result before publishing executable calls. No GPU
+correctness or packaged-runtime acceptance is implied by protocol unit tests.
+
 ## Tool calling
 
 The chat endpoint accepts function tools, `tool_choice` values `auto`, `none`,
@@ -43,6 +65,24 @@ generates the assistant continuation with `tool_choice: "none"` if requested.
 
 Tool output is untrusted model text. Applications must validate the function
 name and JSON schema before executing any external action.
+
+Identical function/argument calls within one response are suppressed after
+canonical JSON key ordering (including nested objects); different arguments or
+function names remain distinct. Only declared functions may be returned as
+calls. `tool_choice: "none"` leaves generated markup as text, never executable
+calls. `parallel_tool_calls: false` admits only the first valid unique call.
+
+`qrt_tool_progress` in JSON and the SSE metadata chunk reports duplicate and
+parallel suppression, exhausted-history suppression, and `no_progress`.
+Two explicit failed/empty tool results for the same function/arguments exhaust
+one permitted retry; that call is then suppressed. Tool results are matched by
+call ID and a duplicate result ID is counted once. Classification is deliberately
+conservative: arbitrary useful text mentioning an error is not failure evidence.
+When all generated calls are exhausted, the response ends with `stop` and
+`no_progress: true`, even for `tool_choice: "required"`. A distinct fallback
+call may still be returned. The caller owns semantic retry strategy, idempotency
+across HTTP retries, side-effect authorization, and the final blocked/best-effort
+user response; the engine does not execute tools or infer progress from the world.
 
 ## Sampling and limits
 

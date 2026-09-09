@@ -17,8 +17,9 @@ use tokio::sync::{mpsc, oneshot, OwnedSemaphorePermit, Semaphore, TryAcquireErro
 
 use crate::backend::{BackendError, GenerationResult, InferenceBackend, LoadMetrics};
 use crate::chat::{
-    normalize_input_tool_arguments, parse_assistant_output, render_qwen_chat, select_tools,
-    ChatMessage, ParsedAssistant, SelectedTools, ToolChoiceMode,
+    apply_tool_progress_policy, normalize_input_tool_arguments, parse_assistant_output,
+    parse_assistant_text, render_qwen_chat, select_tools, ChatMessage, ParsedAssistant,
+    ReasoningStream, SelectedTools, ToolChoiceMode,
 };
 use crate::tokenizer::{TokenCodec, TokenizerError};
 
@@ -390,6 +391,8 @@ struct ChatCompletionRequest {
     tool_choice: Option<Value>,
     #[serde(default)]
     parallel_tool_calls: Option<bool>,
+    #[serde(default, deserialize_with = "deserialize_thinking")]
+    thinking: Option<ThinkingRequest>,
     #[serde(default)]
     chat_template_kwargs: ChatTemplateKwargs,
     #[serde(default)]
@@ -413,10 +416,76 @@ struct ChatCompletionRequest {
 
 #[derive(Clone, Debug, Default, Deserialize)]
 struct ChatTemplateKwargs {
-    #[serde(default = "default_true")]
-    enable_thinking: bool,
+    #[serde(default)]
+    enable_thinking: Option<bool>,
     #[serde(default)]
     preserve_thinking: bool,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize)]
+#[serde(rename_all = "lowercase")]
+enum ThinkingMode {
+    Enabled,
+    Disabled,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+struct ThinkingRequest {
+    #[serde(rename = "type")]
+    mode: ThinkingMode,
+    #[serde(default, deserialize_with = "deserialize_thinking_budget")]
+    budget_tokens: Option<std::num::NonZeroUsize>,
+}
+
+fn deserialize_thinking_budget<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<std::num::NonZeroUsize>, D::Error> {
+    std::num::NonZeroUsize::deserialize(deserializer).map(Some)
+}
+
+fn deserialize_thinking<'de, D: serde::Deserializer<'de>>(
+    deserializer: D,
+) -> Result<Option<ThinkingRequest>, D::Error> {
+    ThinkingRequest::deserialize(deserializer).map(Some)
+}
+
+fn resolve_thinking(
+    thinking: Option<&ThinkingRequest>,
+    kwargs: &ChatTemplateKwargs,
+) -> Result<bool, ApiError> {
+    let Some(thinking) = thinking else {
+        return Ok(kwargs.enable_thinking.unwrap_or(false));
+    };
+    let enabled = matches!(thinking.mode, ThinkingMode::Enabled);
+    if kwargs
+        .enable_thinking
+        .is_some_and(|legacy| legacy != enabled)
+    {
+        return Err(ApiError::invalid(
+            "thinking conflicts with chat_template_kwargs.enable_thinking",
+            Some("thinking"),
+            Some("invalid_thinking"),
+        ));
+    }
+    Ok(enabled)
+}
+
+fn validate_thinking_budget(
+    thinking: Option<&ThinkingRequest>,
+    max_output: usize,
+) -> Result<(), ApiError> {
+    if thinking
+        .and_then(|request| request.budget_tokens)
+        .is_some_and(|budget| budget.get() > max_output)
+    {
+        return Err(ApiError::invalid(
+            "thinking.budget_tokens must not exceed the resolved output limit",
+            Some("thinking"),
+            Some("invalid_thinking"),
+        ));
+    }
+    Ok(())
 }
 
 #[derive(Clone, Debug, Default, Deserialize)]
@@ -515,10 +584,15 @@ async fn chat_completions(
             .into_response()
         }
     };
+    let thinking_enabled =
+        match resolve_thinking(request.thinking.as_ref(), &request.chat_template_kwargs) {
+            Ok(enabled) => enabled,
+            Err(error) => return error.into_response(),
+        };
     let prompt = match render_qwen_chat(
         &request.messages,
         &selected_tools.tools,
-        request.chat_template_kwargs.enable_thinking,
+        thinking_enabled,
         request.chat_template_kwargs.preserve_thinking,
     ) {
         Ok(prompt) => prompt,
@@ -544,6 +618,9 @@ async fn chat_completions(
         Ok(tokens) => tokens,
         Err(error) => return error.into_response(),
     };
+    if let Err(error) = validate_thinking_budget(request.thinking.as_ref(), max_output_tokens) {
+        return error.into_response();
+    }
     let stops = match request.stop.take().map(StopInput::into_vec).transpose() {
         Ok(stops) => stops.unwrap_or_default(),
         Err(error) => return error.into_response(),
@@ -562,8 +639,9 @@ async fn chat_completions(
             max_output_tokens,
             stops,
             request.ignore_eos,
-            request.chat_template_kwargs.enable_thinking,
+            thinking_enabled,
             selected_tools,
+            request.messages,
             allow_parallel_tools,
             include_usage,
         )
@@ -590,16 +668,20 @@ async fn chat_completions(
                 Ok(output) => output,
                 Err(error) => return error.into_response(),
             };
-            let parsed = parse_assistant_output(
-                &finalized.text,
-                request.chat_template_kwargs.enable_thinking,
-                &request_id,
-            );
+            let mut parsed = if selected_tools.tools.is_empty() {
+                parse_assistant_text(&finalized.text, thinking_enabled)
+            } else {
+                parse_assistant_output(&finalized.text, thinking_enabled, &request_id)
+            };
+            apply_tool_progress_policy(&mut parsed, &request.messages, allow_parallel_tools);
             if let Err(error) = enforce_tool_choice(&selected_tools, &parsed, allow_parallel_tools)
             {
                 return error.into_response();
             }
-            let finish_reason = if parsed.tool_calls.is_empty() {
+            let finish_reason = if parsed.tool_progress.no_progress && parsed.tool_calls.is_empty()
+            {
+                "stop"
+            } else if parsed.tool_calls.is_empty() {
                 finalized.finish_reason
             } else {
                 "tool_calls"
@@ -621,6 +703,7 @@ async fn chat_completions(
                 }],
                 "usage": usage,
                 "qrt_metrics": metrics,
+                "qrt_tool_progress": parsed.tool_progress,
             });
             response_with_request_metadata(
                 Json(body).into_response(),
@@ -825,6 +908,8 @@ struct TokenizeRequest {
     messages: Option<Vec<ChatMessage>>,
     #[serde(default)]
     tools: Vec<Value>,
+    #[serde(default, deserialize_with = "deserialize_thinking")]
+    thinking: Option<ThinkingRequest>,
     #[serde(default)]
     chat_template_kwargs: ChatTemplateKwargs,
     #[serde(default)]
@@ -848,6 +933,11 @@ async fn tokenize(
     if let Err(error) = validate_model(&state, &request.model) {
         return error.into_response();
     }
+    let thinking_enabled =
+        match resolve_thinking(request.thinking.as_ref(), &request.chat_template_kwargs) {
+            Ok(enabled) => enabled,
+            Err(error) => return error.into_response(),
+        };
     let prompt = match (request.prompt.take(), request.messages.as_mut()) {
         (Some(prompt), None) => prompt,
         (None, Some(messages)) => {
@@ -862,7 +952,7 @@ async fn tokenize(
             match render_qwen_chat(
                 messages,
                 &request.tools,
-                request.chat_template_kwargs.enable_thinking,
+                thinking_enabled,
                 request.chat_template_kwargs.preserve_thinking,
             ) {
                 Ok(prompt) => prompt,
@@ -967,6 +1057,7 @@ async fn chat_stream_response(
     ignore_eos: bool,
     thinking_enabled: bool,
     selected_tools: SelectedTools,
+    messages: Vec<ChatMessage>,
     allow_parallel_tools: bool,
     include_usage: bool,
 ) -> Response {
@@ -991,6 +1082,7 @@ async fn chat_stream_response(
     );
     let stream_id = request_id.clone();
     let direct_content_stream = selected_tools.tools.is_empty() && !thinking_enabled;
+    let live_reasoning_stream = selected_tools.tools.is_empty() && thinking_enabled;
     let output = stream! {
         yield Ok::<Event, Infallible>(sse_json(chat_chunk(
             &stream_id,
@@ -1000,6 +1092,7 @@ async fn chat_stream_response(
         )));
         let mut observed_ids = Vec::new();
         let mut text_stream = TextStreamState::new(stops.clone());
+        let mut reasoning_stream = ReasoningStream::default();
         let mut eos_observed = false;
         while let Some(event) = events_rx.recv().await {
             observed_ids.push(event.token_id);
@@ -1018,6 +1111,17 @@ async fn chat_stream_response(
                         )));
                     }
                 }
+            } else if live_reasoning_stream && !text_stream.stopped && !eos_observed {
+                if let Ok(full) = codec.decode(&observed_ids, true) {
+                    let _ = text_stream.update(&full, false);
+                    let (reasoning, content) = reasoning_stream.update(&text_stream.emitted, false);
+                    if let Some(delta) = reasoning {
+                        yield Ok(sse_json(chat_chunk(&stream_id, &model, json!({"reasoning_content": delta}), Value::Null)));
+                    }
+                    if let Some(delta) = content {
+                        yield Ok(sse_json(chat_chunk(&stream_id, &model, json!({"content": delta}), Value::Null)));
+                    }
+                }
             }
         }
         match handle.await {
@@ -1033,8 +1137,17 @@ async fn chat_stream_response(
                                 Value::Null,
                             )));
                         }
+                    } else if live_reasoning_stream {
+                        let (reasoning, content) = reasoning_stream.update(&finalized.text, true);
+                        if let Some(delta) = reasoning {
+                            yield Ok(sse_json(chat_chunk(&stream_id, &model, json!({"reasoning_content": delta}), Value::Null)));
+                        }
+                        if let Some(delta) = content {
+                            yield Ok(sse_json(chat_chunk(&stream_id, &model, json!({"content": delta}), Value::Null)));
+                        }
                     } else {
-                        let parsed = parse_assistant_output(&finalized.text, thinking_enabled, &stream_id);
+                        let mut parsed = parse_assistant_output(&finalized.text, thinking_enabled, &stream_id);
+                        apply_tool_progress_policy(&mut parsed, &messages, allow_parallel_tools);
                         if let Err(error) = enforce_tool_choice(
                             &selected_tools,
                             &parsed,
@@ -1078,7 +1191,12 @@ async fn chat_stream_response(
                                     Value::Null,
                                 )));
                             }
+                        } else if parsed.tool_progress.no_progress {
+                            finish_reason = "stop";
                         }
+                        let mut metadata = chat_chunk(&stream_id, &model, json!({}), Value::Null);
+                        metadata["qrt_tool_progress"] = json!(parsed.tool_progress);
+                        yield Ok(sse_json(metadata));
                     }
                     yield Ok(sse_json(chat_chunk(
                         &stream_id,
@@ -1492,6 +1610,21 @@ fn enforce_tool_choice(
     parsed: &ParsedAssistant,
     allow_parallel_tools: bool,
 ) -> Result<(), ApiError> {
+    if parsed.tool_calls.iter().any(|call| {
+        !selected_tools
+            .tools
+            .iter()
+            .any(|tool| tool["function"]["name"].as_str() == Some(call.function.name.as_str()))
+    }) {
+        return Err(ApiError::internal(
+            "the model produced an undeclared function call",
+        ));
+    }
+    if parsed.tool_progress.no_progress && parsed.tool_calls.is_empty() {
+        // Explicit retry exhaustion is a successful protocol result, not a
+        // fabricated tool call or an internal failure hidden from the caller.
+        return Ok(());
+    }
     if !allow_parallel_tools && parsed.tool_calls.len() > 1 {
         return Err(ApiError::internal(
             "the model produced multiple calls while parallel_tool_calls=false",
@@ -1747,10 +1880,6 @@ fn duration_ns(duration: Duration) -> u64 {
     u64::try_from(duration.as_nanos()).unwrap_or(u64::MAX)
 }
 
-fn default_true() -> bool {
-    true
-}
-
 fn epoch_seconds() -> u64 {
     SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -1922,6 +2051,328 @@ mod tests {
     use axum::http::Request;
     use http_body_util::BodyExt;
     use tower::ServiceExt;
+
+    async fn chat_test_response(output: &str, request: Value) -> (StatusCode, Vec<u8>) {
+        let response = test_app(output)
+            .oneshot(
+                Request::post("/v1/chat/completions")
+                    .header("content-type", "application/json")
+                    .body(Body::from(request.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let status = response.status();
+        (
+            status,
+            response
+                .into_body()
+                .collect()
+                .await
+                .unwrap()
+                .to_bytes()
+                .to_vec(),
+        )
+    }
+
+    fn sse_values(body: &[u8]) -> Vec<Value> {
+        std::str::from_utf8(body)
+            .unwrap()
+            .lines()
+            .filter_map(|line| {
+                let payload = line.strip_prefix("data: ")?;
+                (payload != "[DONE]").then(|| serde_json::from_str(payload).unwrap())
+            })
+            .collect()
+    }
+
+    #[tokio::test]
+    async fn thinking_tokens_and_health_arrive_before_generation_finishes() {
+        struct GatedBackend {
+            release: Mutex<std::sync::mpsc::Receiver<()>>,
+            finished: AtomicBool,
+        }
+        impl InferenceBackend for GatedBackend {
+            fn generate(
+                &self,
+                _: &[u32],
+                _: usize,
+                events: Option<mpsc::UnboundedSender<crate::backend::BackendToken>>,
+            ) -> Result<GenerationResult, BackendError> {
+                let prefix = "live reasoning";
+                let output = "live reasoning</think>answer";
+                if let Some(sender) = events {
+                    for (index, token) in output.bytes().enumerate() {
+                        if index == prefix.len() {
+                            let _ = self
+                                .release
+                                .lock()
+                                .unwrap()
+                                .recv_timeout(Duration::from_secs(3));
+                        }
+                        let _ = sender.send(crate::backend::BackendToken {
+                            index,
+                            token_id: u32::from(token),
+                            phase: u32::from(index != 0),
+                            token_step_ns: 1,
+                            request_elapsed_ns: 1,
+                        });
+                    }
+                }
+                self.finished.store(true, Ordering::Release);
+                Ok(GenerationResult {
+                    token_ids: output.bytes().map(u32::from).collect(),
+                    metrics: Default::default(),
+                })
+            }
+            fn max_output_tokens(&self) -> usize {
+                512
+            }
+        }
+        let (release, wait) = std::sync::mpsc::channel();
+        let backend = Arc::new(GatedBackend {
+            release: Mutex::new(wait),
+            finished: AtomicBool::new(false),
+        });
+        let (shutdown, shutdown_received) = oneshot::channel();
+        let state = ServerState::new(
+            backend.clone(),
+            Arc::new(ByteCodec),
+            "test-model".to_owned(),
+            4096,
+            None,
+            LoadMetrics::default(),
+            shutdown,
+        );
+        let app = router(state);
+        let request = json!({"model":"test-model","messages":[{"role":"user","content":"x"}],"max_tokens":64,"stream":true,"thinking":{"type":"enabled"}});
+        let response = app
+            .clone()
+            .oneshot(
+                Request::post("/v1/chat/completions")
+                    .header("content-type", "application/json")
+                    .body(Body::from(request.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        let mut body = response.into_body();
+        tokio::time::timeout(Duration::from_secs(1), async {
+            loop {
+                let frame = body.frame().await.unwrap().unwrap();
+                if let Ok(data) = frame.into_data() {
+                    if String::from_utf8_lossy(&data).contains("reasoning_content") {
+                        break;
+                    }
+                }
+            }
+        })
+        .await
+        .expect("thinking stream waited for the completion");
+        assert!(!backend.finished.load(Ordering::Acquire));
+        let health = tokio::time::timeout(
+            Duration::from_secs(1),
+            app.clone()
+                .oneshot(Request::get("/health").body(Body::empty()).unwrap()),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(health.status(), StatusCode::OK);
+        let health: Value =
+            serde_json::from_slice(&health.into_body().collect().await.unwrap().to_bytes())
+                .unwrap();
+        assert_eq!(health["queue"]["active_requests"], 1);
+        let stop = tokio::time::timeout(
+            Duration::from_secs(1),
+            app.oneshot(
+                Request::post("/admin/shutdown")
+                    .body(Body::empty())
+                    .unwrap(),
+            ),
+        )
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(stop.status(), StatusCode::OK);
+        assert!(shutdown_received.await.is_ok());
+        release.send(()).unwrap();
+        let _ = body.collect().await.unwrap();
+        assert!(backend.finished.load(Ordering::Acquire));
+    }
+
+    #[tokio::test]
+    async fn tools_none_cannot_turn_literal_markup_into_an_executable_call() {
+        let output = "<tool_call>{\"name\":\"write\",\"arguments\":{}}</tool_call>";
+        let request = json!({"model":"test-model","messages":[{"role":"user","content":"x"}],"max_tokens":output.len(),"tool_choice":"none"});
+        let (status, body) = chat_test_response(output, request).await;
+        assert_eq!(status, StatusCode::OK);
+        let value: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(value["choices"][0]["message"]["content"], output);
+        assert!(value["choices"][0]["message"]["tool_calls"].is_null());
+    }
+
+    #[test]
+    fn thinking_defaults_aliases_conflicts_and_budget_are_explicit() {
+        for kwargs in [json!({}), json!({"preserve_thinking":true})] {
+            let kwargs: ChatTemplateKwargs = serde_json::from_value(kwargs).unwrap();
+            assert!(!resolve_thinking(None, &kwargs).unwrap());
+        }
+        let enabled: ThinkingRequest =
+            serde_json::from_value(json!({"type":"enabled","budget_tokens":32})).unwrap();
+        let disabled_kwargs: ChatTemplateKwargs =
+            serde_json::from_value(json!({"enable_thinking":false})).unwrap();
+        assert!(resolve_thinking(Some(&enabled), &disabled_kwargs).is_err());
+        assert!(resolve_thinking(Some(&enabled), &ChatTemplateKwargs::default()).unwrap());
+        assert!(validate_thinking_budget(Some(&enabled), 31).is_err());
+        assert!(validate_thinking_budget(Some(&enabled), 32).is_ok());
+    }
+
+    #[tokio::test]
+    async fn top_level_thinking_stream_nonstream_and_tokenizer_agree() {
+        let output = "<think>reasoning 中文</think>\nanswer 中文";
+        let mut request = json!({"model":"test-model","messages":[{"role":"user","content":"hello"}],"thinking":{"type":"enabled","budget_tokens":16},"max_tokens":output.len()});
+        let (status, body) = chat_test_response(output, request.clone()).await;
+        assert_eq!(status, StatusCode::OK);
+        let full: Value = serde_json::from_slice(&body).unwrap();
+        assert_eq!(
+            full["choices"][0]["message"]["reasoning_content"],
+            "reasoning 中文"
+        );
+        assert_eq!(full["choices"][0]["message"]["content"], "answer 中文");
+        request["stream"] = json!(true);
+        let (status, body) = chat_test_response(output, request.clone()).await;
+        assert_eq!(status, StatusCode::OK);
+        let chunks = sse_values(&body);
+        let reasoning: String = chunks
+            .iter()
+            .filter_map(|c| c["choices"][0]["delta"]["reasoning_content"].as_str())
+            .collect();
+        let content: String = chunks
+            .iter()
+            .filter_map(|c| c["choices"][0]["delta"]["content"].as_str())
+            .collect();
+        assert_eq!(reasoning, "reasoning 中文");
+        assert_eq!(content, "answer 中文");
+        assert!(
+            chunks
+                .iter()
+                .filter(|c| c["choices"][0]["delta"]["reasoning_content"].is_string())
+                .count()
+                > 1
+        );
+        let response = test_app("")
+            .oneshot(
+                Request::post("/tokenize")
+                    .header("content-type", "application/json")
+                    .body(Body::from(request.to_string()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        let tokens: Value =
+            serde_json::from_slice(&response.into_body().collect().await.unwrap().to_bytes())
+                .unwrap();
+        assert_eq!(tokens["count"], full["usage"]["prompt_tokens"]);
+    }
+
+    #[tokio::test]
+    async fn invalid_thinking_is_rejected_before_inference() {
+        for thinking in [
+            json!(null),
+            json!({}),
+            json!({"type":"automatic"}),
+            json!({"type":"enabled","budget_tokens":0}),
+            json!({"type":"enabled","budget_tokens":null}),
+            json!({"type":"enabled","budget_tokens":1.5}),
+            json!({"type":"enabled","budget_tokens":-1}),
+            json!({"type":"enabled","budget_tokens":true}),
+            json!({"type":"enabled","extra":1}),
+            json!({"type":"enabled","budget_tokens":17}),
+        ] {
+            let request = json!({"model":"test-model","messages":[{"role":"user","content":"x"}],"max_tokens":16,"thinking":thinking});
+            let (status, body) = chat_test_response("unused", request).await;
+            assert_eq!(
+                status,
+                StatusCode::BAD_REQUEST,
+                "{}",
+                String::from_utf8_lossy(&body)
+            );
+        }
+        let request = json!({"model":"test-model","messages":[{"role":"user","content":"x"}],"max_tokens":16,"thinking":{"type":"enabled"},"chat_template_kwargs":{"enable_thinking":false}});
+        assert_eq!(
+            chat_test_response("unused", request).await.0,
+            StatusCode::BAD_REQUEST
+        );
+    }
+
+    #[tokio::test]
+    async fn duplicate_mutating_tools_are_suppressed_in_json_and_sse() {
+        let output =
+            "<tool_call>{\"name\":\"write\",\"arguments\":{\"v\":1}}</tool_call>".repeat(2);
+        for stream in [false, true] {
+            let request = json!({"model":"test-model","messages":[{"role":"user","content":"x"}],"max_tokens":output.len(),"stream":stream,"tools":[{"type":"function","function":{"name":"write","parameters":{"type":"object"}}}],"parallel_tool_calls":false});
+            let (status, body) = chat_test_response(&output, request).await;
+            assert_eq!(status, StatusCode::OK);
+            if stream {
+                let chunks = sse_values(&body);
+                assert_eq!(
+                    chunks
+                        .iter()
+                        .filter(|c| c["choices"][0]["delta"]["tool_calls"].is_array())
+                        .count(),
+                    1
+                );
+                assert!(chunks
+                    .iter()
+                    .any(|c| c["qrt_tool_progress"]["duplicate_calls_suppressed"] == 1));
+            } else {
+                let full: Value = serde_json::from_slice(&body).unwrap();
+                assert_eq!(
+                    full["choices"][0]["message"]["tool_calls"]
+                        .as_array()
+                        .unwrap()
+                        .len(),
+                    1
+                );
+                assert_eq!(full["qrt_tool_progress"]["duplicate_calls_suppressed"], 1);
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn exhausted_tools_return_explicit_stop_even_if_tool_required() {
+        let output = "<tool_call>{\"name\":\"exec\",\"arguments\":{\"cmd\":\"same\"}}</tool_call>";
+        for stream in [false, true] {
+            let request = json!({"model":"test-model","messages":[
+                {"role":"user","content":"x"},
+                {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":"{\"cmd\":\"same\"}"}}]},
+                {"role":"tool","tool_call_id":"a","content":"Error: network"},
+                {"role":"assistant","tool_calls":[{"id":"b","type":"function","function":{"name":"exec","arguments":{"cmd":"same"}}}]},
+                {"role":"tool","tool_call_id":"b","content":""}
+            ],"max_tokens":output.len(),"stream":stream,"tools":[{"type":"function","function":{"name":"exec"}}],"tool_choice":"required"});
+            let (status, body) = chat_test_response(output, request).await;
+            assert_eq!(status, StatusCode::OK, "{}", String::from_utf8_lossy(&body));
+            if stream {
+                let chunks = sse_values(&body);
+                assert!(chunks
+                    .iter()
+                    .any(|c| c["qrt_tool_progress"]["no_progress"] == true));
+                assert!(chunks
+                    .iter()
+                    .any(|c| c["choices"][0]["finish_reason"] == "stop"));
+                assert!(!chunks
+                    .iter()
+                    .any(|c| c["choices"][0]["delta"]["tool_calls"].is_array()));
+            } else {
+                let full: Value = serde_json::from_slice(&body).unwrap();
+                assert_eq!(full["qrt_tool_progress"]["no_progress"], true);
+                assert_eq!(full["choices"][0]["finish_reason"], "stop");
+                assert!(full["choices"][0]["message"]["tool_calls"].is_null());
+            }
+        }
+    }
 
     fn test_app_with_options(
         output: &str,

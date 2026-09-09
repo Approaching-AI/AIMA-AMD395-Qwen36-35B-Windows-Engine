@@ -1,3 +1,5 @@
+use std::collections::{BTreeMap, HashMap, HashSet};
+
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
 use thiserror::Error;
@@ -52,6 +54,168 @@ pub struct ParsedAssistant {
     pub content: Option<String>,
     pub tool_calls: Vec<OutputToolCall>,
     pub malformed_tool_markup: bool,
+    pub tool_progress: ToolProgress,
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Serialize)]
+pub struct ToolProgress {
+    pub parsed_tool_calls: usize,
+    pub duplicate_calls_suppressed: usize,
+    pub exhausted_history_calls_suppressed: usize,
+    pub parallel_calls_suppressed: usize,
+    pub no_progress: bool,
+}
+
+fn canonical_json(value: &Value) -> String {
+    match value {
+        Value::Object(map) => {
+            let sorted: BTreeMap<_, _> = map.iter().collect();
+            let entries: Vec<_> = sorted
+                .into_iter()
+                .map(|(key, value)| {
+                    format!(
+                        "{}:{}",
+                        serde_json::to_string(key).unwrap(),
+                        canonical_json(value)
+                    )
+                })
+                .collect();
+            format!("{{{}}}", entries.join(","))
+        }
+        Value::Array(values) => format!(
+            "[{}]",
+            values
+                .iter()
+                .map(canonical_json)
+                .collect::<Vec<_>>()
+                .join(",")
+        ),
+        _ => value.to_string(),
+    }
+}
+
+fn tool_signature(name: &str, arguments: &Value) -> (String, String) {
+    (name.to_owned(), canonical_json(arguments))
+}
+
+/// Conservative machine-readable failures only. Useful text that mentions
+/// errors is not classified as a failed tool result.
+fn tool_result_no_progress(value: &Value) -> bool {
+    match value {
+        Value::Null => true,
+        Value::String(text) => {
+            let trimmed = text.trim();
+            if trimmed.is_empty() {
+                return true;
+            }
+            if let Ok(decoded) = serde_json::from_str::<Value>(trimmed) {
+                // Do not recursively decode quoted strings indefinitely.
+                if !decoded.is_string() {
+                    return tool_result_no_progress(&decoded);
+                }
+            }
+            let lower = trimmed.to_ascii_lowercase();
+            matches!(
+                lower.as_str(),
+                "no output" | "<no output>" | "exit code: 0" | "process exited with code 0"
+            ) || [
+                "error:",
+                "failed:",
+                "failure:",
+                "tool execution failed",
+                "proxyerror",
+                "proxy error",
+                "curl: (",
+            ]
+            .iter()
+            .any(|prefix| lower.starts_with(prefix))
+        }
+        Value::Array(values) => values.is_empty(),
+        Value::Object(map) => {
+            if map.is_empty() {
+                return true;
+            }
+            if ["error", "exception"]
+                .iter()
+                .any(|key| map.get(*key).is_some_and(|v| !v.is_null() && v != ""))
+                || ["ok", "success"]
+                    .iter()
+                    .any(|key| map.get(*key) == Some(&Value::Bool(false)))
+                || ["exit_code", "returncode"].iter().any(|key| {
+                    map.get(*key)
+                        .and_then(Value::as_i64)
+                        .is_some_and(|code| code != 0)
+                })
+            {
+                return true;
+            }
+            let payload: Vec<_> = ["output", "stdout", "result", "data"]
+                .iter()
+                .filter_map(|key| map.get(*key))
+                .collect();
+            !payload.is_empty() && payload.iter().all(|v| tool_result_no_progress(v))
+        }
+        _ => false,
+    }
+}
+
+/// The caller still owns semantic retry/fallback decisions and idempotency.
+/// A first failure permits one retry; two failed/empty results suppress the
+/// same normalized call. Duplicate result IDs never consume two retries.
+pub fn apply_tool_progress_policy(
+    parsed: &mut ParsedAssistant,
+    messages: &[ChatMessage],
+    allow_parallel: bool,
+) {
+    let mut calls = HashMap::new();
+    let mut failures = HashMap::new();
+    let mut results_seen = HashSet::new();
+    for message in messages {
+        if message.role == "assistant" {
+            for call in message.tool_calls.iter().flatten() {
+                if call.kind != "function" {
+                    continue;
+                }
+                if let Some(id) = &call.id {
+                    let arguments = arguments_object(&call.function.arguments);
+                    if let Ok(arguments) = arguments {
+                        // Duplicate IDs are ambiguous and must not be counted
+                        // as independent evidence of repeated failures.
+                        calls.entry(id.clone()).or_insert_with(|| {
+                            tool_signature(&call.function.name, &Value::Object(arguments.clone()))
+                        });
+                    }
+                }
+            }
+        } else if message.role == "tool" {
+            if let Some(id) = &message.tool_call_id {
+                if results_seen.insert(id.clone()) && tool_result_no_progress(&message.content) {
+                    if let Some(signature) = calls.get(id) {
+                        *failures.entry(signature.clone()).or_insert(0usize) += 1;
+                    }
+                }
+            }
+        }
+    }
+    parsed.tool_calls.retain(|call| {
+        let Ok(arguments) = serde_json::from_str(&call.function.arguments) else {
+            return false;
+        };
+        let exhausted = failures
+            .get(&tool_signature(&call.function.name, &arguments))
+            .copied()
+            .unwrap_or(0)
+            >= 2;
+        if exhausted {
+            parsed.tool_progress.exhausted_history_calls_suppressed += 1;
+            parsed.tool_progress.no_progress = true;
+        }
+        !exhausted
+    });
+    if !allow_parallel && parsed.tool_calls.len() > 1 {
+        parsed.tool_progress.parallel_calls_suppressed += parsed.tool_calls.len() - 1;
+        parsed.tool_calls.truncate(1);
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -471,6 +635,7 @@ pub fn parse_assistant_output(
     let prefix = visible[..first_tool].trim_end();
     parsed.content = nonempty(prefix.to_owned());
     let mut cursor = first_tool;
+    let mut signatures = HashSet::new();
     while let Some(relative_start) = visible[cursor..].find("<tool_call>") {
         let start = cursor + relative_start;
         let body_start = start + "<tool_call>".len();
@@ -486,7 +651,16 @@ pub fn parse_assistant_output(
             request_id,
             parsed.tool_calls.len(),
         ) {
-            Some(call) => parsed.tool_calls.push(call),
+            Some(call) => {
+                parsed.tool_progress.parsed_tool_calls += 1;
+                let arguments: Value =
+                    serde_json::from_str(&call.function.arguments).expect("parser produced JSON");
+                if signatures.insert(tool_signature(&call.function.name, &arguments)) {
+                    parsed.tool_calls.push(call);
+                } else {
+                    parsed.tool_progress.duplicate_calls_suppressed += 1;
+                }
+            }
             None => {
                 parsed.malformed_tool_markup = true;
                 parsed.tool_calls.clear();
@@ -507,10 +681,20 @@ pub fn parse_assistant_output(
     parsed
 }
 
+pub fn parse_assistant_text(raw: &str, thinking_enabled: bool) -> ParsedAssistant {
+    let (reasoning_content, visible) = split_reasoning(raw, thinking_enabled);
+    ParsedAssistant {
+        reasoning_content,
+        content: nonempty(visible.trim().to_owned()),
+        ..ParsedAssistant::default()
+    }
+}
+
 fn split_reasoning(raw: &str, thinking_enabled: bool) -> (Option<String>, &str) {
     if !thinking_enabled {
         return (None, raw);
     }
+    let raw = raw.strip_prefix("<think>").unwrap_or(raw);
     if let Some(close) = raw.find("</think>") {
         let prefix = &raw[..close];
         let reasoning = prefix.strip_prefix("<think>").unwrap_or(prefix).trim();
@@ -518,6 +702,45 @@ fn split_reasoning(raw: &str, thinking_enabled: bool) -> (Option<String>, &str) 
         return (nonempty(reasoning.to_owned()), visible);
     }
     (nonempty(raw.trim().to_owned()), "")
+}
+
+/// Emits only stable text; partial delimiters and trailing whitespace are
+/// held until their role is known. The decoder/stop filter owns UTF-8 safety.
+#[derive(Default)]
+pub struct ReasoningStream {
+    reasoning: String,
+    content: String,
+}
+
+impl ReasoningStream {
+    pub fn update(&mut self, full: &str, final_chunk: bool) -> (Option<String>, Option<String>) {
+        if !final_chunk && "<think>".starts_with(full) {
+            return (None, None);
+        }
+        let mut stable = full;
+        if !final_chunk && !full.contains("</think>") {
+            for count in (1.."</think>".len()).rev() {
+                if full.ends_with(&"</think>"[..count]) {
+                    stable = &full[..full.len() - count];
+                    break;
+                }
+            }
+        }
+        let (reasoning, content) = split_reasoning(stable, true);
+        let delta = |emitted: &mut String, current: &str| {
+            let suffix = current.strip_prefix(emitted.as_str())?;
+            if suffix.is_empty() {
+                return None;
+            }
+            let result = suffix.to_owned();
+            emitted.push_str(suffix);
+            Some(result)
+        };
+        (
+            delta(&mut self.reasoning, reasoning.as_deref().unwrap_or("")),
+            delta(&mut self.content, content.trim()),
+        )
+    }
 }
 
 fn parse_tool_call(body: &str, request_id: &str, index: usize) -> Option<OutputToolCall> {
@@ -599,6 +822,130 @@ fn function_type() -> String {
 mod tests {
     use super::*;
     use serde_json::json;
+
+    fn generated_call(name: &str, arguments: Value) -> String {
+        format!(
+            "<tool_call>{}</tool_call>",
+            json!({"name": name, "arguments": arguments})
+        )
+    }
+
+    #[test]
+    fn duplicate_tool_calls_are_canonical_and_keep_distinct_actions() {
+        let text = concat!(
+            "<tool_call>{\"name\":\"write\",\"arguments\":{\"b\":{\"z\":2,\"a\":1},\"a\":0}}</tool_call>",
+            "<tool_call>{\"arguments\":{\"a\":0,\"b\":{\"a\":1,\"z\":2}},\"name\":\"write\"}</tool_call>",
+            "<tool_call>{\"name\":\"write\",\"arguments\":{\"a\":1}}</tool_call>",
+            "<tool_call>{\"name\":\"read\",\"arguments\":{\"a\":1}}</tool_call>"
+        );
+        let parsed = parse_assistant_output(text, false, "dedup");
+        assert_eq!(parsed.tool_calls.len(), 3);
+        assert_eq!(parsed.tool_progress.parsed_tool_calls, 4);
+        assert_eq!(parsed.tool_progress.duplicate_calls_suppressed, 1);
+        assert_eq!(parsed.tool_calls[1].id, "call_dedup_1");
+        assert_eq!(parsed.tool_calls[2].function.name, "read");
+        // Do not conflate string/number arguments or distinct array orders.
+        assert_ne!(
+            tool_signature("f", &json!({"v": "1"})),
+            tool_signature("f", &json!({"v": 1}))
+        );
+        assert_ne!(
+            tool_signature("f", &json!([1, 2])),
+            tool_signature("f", &json!([2, 1]))
+        );
+    }
+
+    #[test]
+    fn no_progress_policy_allows_one_retry_then_exposes_exhaustion() {
+        let history: Vec<ChatMessage> = serde_json::from_value(json!([
+            {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":{"command":"same"}}}]},
+            {"role":"tool","tool_call_id":"a","content":"Exit code: 0"},
+            {"role":"assistant","tool_calls":[{"id":"b","type":"function","function":{"name":"exec","arguments":{"command":"same"}}}]},
+            {"role":"tool","tool_call_id":"b","content":{"error":"proxy unavailable"}}
+        ])).unwrap();
+        let same = generated_call("exec", json!({"command":"same"}));
+        let different = generated_call("exec", json!({"command":"different"}));
+        let mut retry = parse_assistant_output(&same, false, "retry");
+        apply_tool_progress_policy(&mut retry, &history[..2], true);
+        assert_eq!(retry.tool_calls.len(), 1);
+        assert!(!retry.tool_progress.no_progress);
+        let mut exhausted =
+            parse_assistant_output(&(same.clone() + &different), false, "exhausted");
+        apply_tool_progress_policy(&mut exhausted, &history, true);
+        assert_eq!(exhausted.tool_calls.len(), 1);
+        assert!(exhausted.tool_calls[0]
+            .function
+            .arguments
+            .contains("different"));
+        assert!(exhausted.tool_progress.no_progress);
+        assert_eq!(
+            exhausted.tool_progress.exhausted_history_calls_suppressed,
+            1
+        );
+        let mut duplicate_results = history[..2].to_vec();
+        duplicate_results.push(history[1].clone());
+        let mut retry = parse_assistant_output(&same, false, "retry");
+        apply_tool_progress_policy(&mut retry, &duplicate_results, true);
+        assert_eq!(retry.tool_calls.len(), 1);
+    }
+
+    #[test]
+    fn useful_tool_results_and_parallel_policy_remain_distinct() {
+        for useful in [
+            json!("Found a useful result mentioning an error"),
+            json!({"stdout":"file list", "exit_code":0}),
+            json!(42),
+        ] {
+            assert!(!tool_result_no_progress(&useful));
+        }
+        for empty in [
+            json!(null),
+            json!(""),
+            json!({"ok":false}),
+            json!({"stdout":"", "exit_code":0}),
+        ] {
+            assert!(tool_result_no_progress(&empty));
+        }
+        let text =
+            generated_call("write", json!({"v":1})) + &generated_call("write", json!({"v":2}));
+        let mut parsed = parse_assistant_output(&text, false, "one");
+        apply_tool_progress_policy(&mut parsed, &[], false);
+        assert_eq!(parsed.tool_calls.len(), 1);
+        assert_eq!(parsed.tool_progress.parallel_calls_suppressed, 1);
+    }
+
+    #[test]
+    fn reasoning_stream_preserves_all_delimiter_splits_and_final_parity() {
+        for raw in [
+            "<think>\n  reasoning 中文 \n</think>\n answer 中文  ",
+            "reasoning\n</think>\nanswer",
+            "<think>unfinished reasoning",
+        ] {
+            let expected = parse_assistant_output(raw, true, "reasoning");
+            let mut stream = ReasoningStream::default();
+            let mut reasoning = String::new();
+            let mut content = String::new();
+            for end in (0..=raw.len()).filter(|&end| raw.is_char_boundary(end)) {
+                let (r, c) = stream.update(&raw[..end], false);
+                reasoning.push_str(r.as_deref().unwrap_or(""));
+                content.push_str(c.as_deref().unwrap_or(""));
+            }
+            let (r, c) = stream.update(raw, true);
+            reasoning.push_str(r.as_deref().unwrap_or(""));
+            content.push_str(c.as_deref().unwrap_or(""));
+            assert_eq!(
+                Some(reasoning.as_str()),
+                expected.reasoning_content.as_deref()
+            );
+            assert_eq!(content, expected.content.unwrap_or_default());
+            assert!(!reasoning.contains("<think>") && !reasoning.contains("</think>"));
+        }
+        let mut stream = ReasoningStream::default();
+        assert_eq!(
+            stream.update("live reasoning", false).0.as_deref(),
+            Some("live reasoning")
+        );
+    }
 
     #[test]
     fn basic_non_thinking_prompt_matches_qwen_template() {
