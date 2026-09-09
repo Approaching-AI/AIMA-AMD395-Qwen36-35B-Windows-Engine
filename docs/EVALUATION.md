@@ -145,6 +145,17 @@ Default runtime arithmetic and correction limits remain unchanged. Local
 checks pass 188 Python and 44 Rust tests, clippy, ABI/transaction tests and
 public hygiene. No continuation, release or issue-closure gate is promoted.
 
+The next diagnostic is prepared without GPU execution. The offline CUDA
+auditor can widen only the existing checkpoint output pointer to F32 while
+keeping the supplied kernel body and all input/V-new types unchanged.
+BV32/BV64 compilation succeeds with matching arithmetic opcode inventories;
+this is not a live raw-state capture or a proof of runtime parity. A future
+trace must first match the saved BF16 comparison surfaces. The CPU prefix
+preparer verifies complete parent fingerprints before exporting at most
+1024 tokens; the six-chunk fixture is about 19.55 MiB. Reference checkpoints
+remain comparison-only. Latest checks pass 193 Python and 44 Rust tests;
+real-token acceptance and default runtime settings remain unchanged.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
