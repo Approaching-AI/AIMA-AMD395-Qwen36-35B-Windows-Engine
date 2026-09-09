@@ -71,12 +71,13 @@ void trajectory(const std::string& directory, size_t tokens) {
         {0,0}, {2,88}, {8,64}, {1,17}, {4,34}, {6,51}, {10,68}, {12,85},
         {14,102}, {16,119}, {18,8}, {20,25}, {22,42}, {24,59}, {28,76}, {31,127}
     }};
-    struct Variant { const char* name; bool split_projection, fused_update, ieee; };
-    const std::array<Variant, 4> variants{{
+    struct Variant { const char* name; bool split_projection, fused_update, ieee; bool seeded_update = false; };
+    const std::array<Variant, 5> variants{{
         {"blackwell_k128_k64_fma", false, true, false},
         {"blackwell_two_k64_k64_fma", true, true, false},
         {"blackwell_k128_k64_unfused", false, false, false},
-        {"ieee_k128_k64_fma", false, true, true}
+        {"ieee_k128_k64_fma", false, true, true},
+        {"blackwell_k128_seeded_k64", false, false, false, true}
     }};
     constexpr float log2e = 1.4426950408889634074f;
     std::cout << ",\"trajectory\":{\"tokens\":" << tokens << ",\"sampled_state_rows\":16,\"reference_state_injected\":false,\"coordinates_head_value\":[";
@@ -119,8 +120,13 @@ void trajectory(const std::string& directory, size_t tokens) {
                 for (size_t d = 0; d < 128; ++d) {
                     std::array<uint16_t, 64> left{};
                     for (size_t t = 0; t < valid; ++t) left[t] = k[((first + t) * 16u + head / 2u) * 128u + d];
-                    const float update = variant.ieee ? ieee_dot(left.data(), residual.data()) : blackwell_dot<64>(left.data(), residual.data());
-                    state[d] = variant.fused_update ? std::fma(state[d], decay, update) : state[d] * decay + update;
+                    if (variant.seeded_update) {
+                        state[d] = qrt_q1_moe_hawkeye::accumulate_bf16_impl<26,16,-133>(
+                            state[d] * decay, left.data(), residual.data(), 64);
+                    } else {
+                        const float update = variant.ieee ? ieee_dot(left.data(), residual.data()) : blackwell_dot<64>(left.data(), residual.data());
+                        state[d] = variant.fused_update ? std::fma(state[d], decay, update) : state[d] * decay + update;
+                    }
                 }
             }
             for (size_t d = 0; d < 128; ++d) {

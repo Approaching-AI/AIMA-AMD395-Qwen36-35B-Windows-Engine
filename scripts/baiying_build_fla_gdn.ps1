@@ -3,7 +3,8 @@ param(
     [ValidateRange(30, 600)][int]$TimeoutSeconds = 240,
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')][string]$WslDistribution = 'Ubuntu-24.04',
     [string]$TritonPython = '/opt/qwen36-vllm/bin/python',
-    [string]$AotDir = ''
+    [string]$AotDir = '',
+    [ValidateSet('wmma','ieee')][string]$StateDot = 'wmma'
 )
 
 # Build only. Run individual probes separately through the guarded runner.
@@ -46,6 +47,7 @@ if ($AotDir) {
     if ($meta.target -ne 'gfx1151' -or $meta.source_sha256 -ne (Get-FileHash $generator -Algorithm SHA256).Hash.ToLowerInvariant()) {
         throw 'AOT target/source does not match this checkout.'
     }
+    if ($meta.numerics.state_dot -ne $StateDot) { throw 'AOT state arithmetic mode does not match the requested build.' }
     foreach ($kernel in $meta.kernels) {
         if ([IO.Path]::GetFileName($kernel.file) -ne $kernel.file) { throw 'Invalid AOT basename.' }
         $path = Join-Path $AotDir $kernel.file
@@ -76,7 +78,7 @@ if (-not $AotDir) {
     # and kill a compiler that ignores the first timeout signal inside WSL.
     # This host's WSL CLI treats quotes around -d as part of the registry name
     # when invoked from cmd.exe. The validated name needs no shell quoting.
-    $lines += "wsl.exe -d $WslDistribution -- timeout --kill-after=5 $innerTimeout env HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json'))"
+    $lines += "wsl.exe -d $WslDistribution -- timeout --kill-after=5 $innerTimeout env HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json')) --state-dot $StateDot"
     # WSL errors may be negative. 'if errorlevel 1' silently misses those.
     $lines += 'if not "%errorlevel%"=="0" exit /b 22'
 }
@@ -136,7 +138,7 @@ $record = [ordered]@{
     execution='local_windows_build_only'; repo_commit=(& git -C $repo rev-parse HEAD).Trim()
     dirty_tree=@(& git -C $repo status --porcelain).Count -ne 0
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
-    hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir
+    hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })

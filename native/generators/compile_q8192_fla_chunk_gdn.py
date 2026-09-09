@@ -558,6 +558,7 @@ def _fla_chunk_state_kernel(
     chunk_state,
     final_state,
     tokens,
+    IEEE_DOT: tl.constexpr,
 ):
     """Advance a seeded F32 state and publish BF16 chunk boundaries."""
 
@@ -602,8 +603,13 @@ def _fla_chunk_state_kernel(
             + 64
             + key_dim[None, :]
         )
-        current_v = tl.dot(w1, tl.trans(h1).to(w1.dtype))
-        current_v += tl.dot(w2, tl.trans(h2).to(w2.dtype))
+        if IEEE_DOT:
+            # Keep the captured BF16 state boundary before IEEE accumulation.
+            current_v = tl.dot(w1.to(tl.float32), tl.trans(h1).to(w1.dtype).to(tl.float32), input_precision="ieee")
+            current_v += tl.dot(w2.to(tl.float32), tl.trans(h2).to(w2.dtype).to(tl.float32), input_precision="ieee")
+        else:
+            current_v = tl.dot(w1, tl.trans(h1).to(w1.dtype))
+            current_v += tl.dot(w2, tl.trans(h2).to(w2.dtype))
         current_v = tl.load(
             u
             + (t[:, None] * H + head) * V
@@ -639,8 +645,12 @@ def _fla_chunk_state_kernel(
             + 64
             + key_dim[:, None]
         )
-        h1 += tl.trans(tl.dot(k1, current_v))
-        h2 += tl.trans(tl.dot(k2, current_v))
+        if IEEE_DOT:
+            h1 += tl.trans(tl.dot(k1.to(tl.float32), current_v.to(tl.float32), input_precision="ieee"))
+            h2 += tl.trans(tl.dot(k2.to(tl.float32), current_v.to(tl.float32), input_precision="ieee"))
+        else:
+            h1 += tl.trans(tl.dot(k1, current_v))
+            h2 += tl.trans(tl.dot(k2, current_v))
 
     tl.store(final_state + final_base + key_dim[None, :], h1)
     tl.store(final_state + final_base + 64 + key_dim[None, :], h2)
@@ -906,7 +916,9 @@ def compiled_kernel_abi(assembly: str, signature: dict[str, str]) -> dict:
             "kernarg_segment_bytes": int(size_match[1])}
 
 
-def compile_all(output_dir: Path, metadata_path: Path) -> None:
+def compile_all(output_dir: Path, metadata_path: Path, state_dot: str = "wmma") -> None:
+    if state_dot not in ("wmma", "ieee"):
+        raise ValueError("unsupported state dot mode")
     target = GPUTarget("hip", "gfx1151", 32)
     backend = make_backend(target)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -923,6 +935,7 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
             ASTSource(
                 fn=kernel["fn"],
                 signature=kernel["signature"],
+                constexprs={"IEEE_DOT": state_dot == "ieee"} if kernel["name"] == "chunk_state" else {},
             ),
             target=target,
             options=options.__dict__,
@@ -955,6 +968,7 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
         "compiler": f"Triton {triton.__version__} HIP backend",
         "source": "native/generators/compile_q8192_fla_chunk_gdn.py",
         "source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "numerics": {"state_dot": state_dot, "state_bf16_input_boundaries_preserved": True},
         "provenance": {
             "algorithm": "vLLM 2a69949bd Triton/FLA chunk gated delta rule",
             "upstream_license": "MIT",
@@ -1043,8 +1057,9 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--metadata", type=Path, required=True)
+    parser.add_argument("--state-dot", choices=("wmma", "ieee"), default="wmma")
     args = parser.parse_args()
-    compile_all(args.output_dir, args.metadata)
+    compile_all(args.output_dir, args.metadata, args.state_dot)
 
 
 if __name__ == "__main__":
