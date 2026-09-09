@@ -1,4 +1,5 @@
 import ast
+import importlib.util
 import os
 from pathlib import Path
 import subprocess
@@ -10,6 +11,38 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class FlaStateVariantContractTests(unittest.TestCase):
+    def test_raw_checkpoint_audit_changes_only_checkpoint_storage_type(self) -> None:
+        spec = importlib.util.spec_from_file_location("fla_state_ir", ROOT / "scripts/audit_fla_reference_state_ir.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        original = module.state_signature("bf16")
+        widened = module.state_signature("fp32")
+        self.assertEqual(original["h"], "*bf16")
+        self.assertEqual(widened["h"], "*fp32")
+        self.assertEqual({key for key in original if original[key] != widened[key]}, {"h"})
+        self.assertEqual(widened["v_new"], "*bf16")
+        for key in ("h0", "ht"):
+            self.assertEqual(widened[key], "*fp32")
+        for bad in ("fp16", "int32", "*fp32", ""):
+            with self.assertRaises(ValueError):
+                module.state_signature(bad)
+
+    def test_raw_checkpoint_option_remains_cpu_only_and_requires_a_control(self) -> None:
+        script = ROOT / "scripts/audit_fla_reference_state_ir.py"
+        source = script.read_text()
+        self.assertIn('choices=("bf16", "fp32"), default="bf16"', source)
+        self.assertIn('checkpoint_trace_requires_bf16_control_parity=args.checkpoint_dtype == "fp32"', source)
+        self.assertIn("kernel_body_modified=False", source)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "not-created"
+            env = dict(os.environ, HIP_VISIBLE_DEVICES="-1", ROCR_VISIBLE_DEVICES="-1", CUDA_VISIBLE_DEVICES="0")
+            result = subprocess.run([sys.executable, str(script), "--source", "not-read.py",
+                                     "--output-dir", str(output), "--checkpoint-dtype", "fp32"],
+                                    env=env, capture_output=True, text=True, timeout=5)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("CPU-only compiler requires CUDA_VISIBLE_DEVICES=-1", result.stderr)
+            self.assertFalse(output.exists())
+
     def test_state_variant_preserves_bf16_boundaries_and_default(self) -> None:
         path = ROOT / "native/generators/compile_q8192_fla_chunk_gdn.py"
         source = path.read_text()

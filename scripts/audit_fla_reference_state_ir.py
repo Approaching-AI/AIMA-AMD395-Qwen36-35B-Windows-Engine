@@ -18,11 +18,21 @@ import time
 import types
 
 
+def state_signature(checkpoint_dtype: str) -> dict[str, str]:
+    if checkpoint_dtype not in ("bf16", "fp32"):
+        raise ValueError("checkpoint dtype must be bf16 or fp32")
+    return dict(k="*bf16", v="*bf16", w="*bf16", v_new="*bf16", g="*fp32", gk="*fp32",
+                h="*" + checkpoint_dtype, h0="*fp32", ht="*fp32", cu_seqlens="*i64",
+                chunk_offsets="*i32", T="i32")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--value-block", type=int, choices=(32, 64), default=32)
+    parser.add_argument("--checkpoint-dtype", choices=("bf16", "fp32"), default="bf16",
+                        help="Audit wider checkpoint stores without changing the supplied kernel body; not a live trace")
     args = parser.parse_args()
     for key in ("HIP_VISIBLE_DEVICES", "ROCR_VISIBLE_DEVICES", "CUDA_VISIBLE_DEVICES"):
         if os.environ.get(key) != "-1":
@@ -44,8 +54,7 @@ def main() -> None:
     sys.modules[module.__name__] = module
     exec(compile(ast.Module(body=[function], type_ignores=[]), str(source), "exec"), module.__dict__)
     kernel = triton.jit(module.__dict__[kernel_name], do_not_specialize=["T"])
-    signature = dict(k="*bf16", v="*bf16", w="*bf16", v_new="*bf16", g="*fp32", gk="*fp32",
-                     h="*bf16", h0="*fp32", ht="*fp32", cu_seqlens="*i64", chunk_offsets="*i32", T="i32")
+    signature = state_signature(args.checkpoint_dtype)
     constants = dict(H=32, Hg=16, K=128, V=128, BT=64, BV=args.value_block, USE_G=True, USE_GK=False,
                      USE_INITIAL_STATE=True, STORE_FINAL_STATE=True, SAVE_NEW_VALUE=True, IS_VARLEN=True)
     target = GPUTarget("cuda", 121, 32)
@@ -65,6 +74,8 @@ def main() -> None:
                   target=dict(backend="cuda", arch=121, warp_size=32), signature=signature, constants=constants,
                   options=options, wall_ms=(time.monotonic()-started)*1000, artifacts=artifacts,
                   exponent_binding="tl.exp", live_reference_autotune_config_verified=False,
+                  checkpoint_storage_dtype=args.checkpoint_dtype, kernel_body_modified=False,
+                  checkpoint_trace_requires_bf16_control_parity=args.checkpoint_dtype == "fp32",
                   kernel_executed=False, model_loaded=False, inference_acceptance=False)
     (args.output_dir / "audit.json").write_text(json.dumps(record, indent=2) + "\n")
     print(json.dumps(record, indent=2))
