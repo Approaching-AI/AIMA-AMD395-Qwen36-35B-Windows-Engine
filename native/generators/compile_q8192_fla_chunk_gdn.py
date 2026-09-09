@@ -32,6 +32,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 from typing import Any
 
 import triton
@@ -876,6 +877,35 @@ KERNELS: tuple[dict[str, Any], ...] = (
 )
 
 
+def compiled_kernel_abi(assembly: str, signature: dict[str, str]) -> dict:
+    """Validate actual code-object ABI, including Triton's trailing pointers."""
+    try:
+        metadata = assembly.split(".amdgpu_metadata", 1)[1]
+        arguments = metadata.split(".args:", 1)[1].split(".group_segment_fixed_size:", 1)[0]
+    except IndexError as error:
+        raise ValueError("missing compiled AMDGPU argument metadata") from error
+    actual = [(int(offset), int(size), kind) for offset, size, kind in re.findall(
+        r"\.offset:\s*(\d+)\s*\.size:\s*(\d+)\s*\.value_kind:\s*(\w+)", arguments)]
+    names = list(signature) + ["global_scratch", "profile_scratch"]
+    types = list(signature.values()) + ["*i8", "*i8"]
+    expected = []
+    offset = 0
+    for dtype in types:
+        pointer = dtype.startswith("*")
+        if not pointer and dtype != "i32":
+            raise ValueError(f"unsupported ABI scalar: {dtype}")
+        size = 8 if pointer else 4
+        offset = (offset + size - 1) // size * size
+        expected.append((offset, size, "global_buffer" if pointer else "by_value"))
+        offset += size
+    size_match = re.search(r"\.kernarg_segment_size:\s*(\d+)", metadata)
+    if actual != expected or size_match is None or int(size_match[1]) != (offset + 7) // 8 * 8:
+        raise ValueError("compiled ABI does not match source plus two Triton scratch slots")
+    return {"compiled_abi": names, "compiled_argument_offsets": [x[0] for x in actual],
+            "compiled_argument_sizes": [x[1] for x in actual],
+            "kernarg_segment_bytes": int(size_match[1])}
+
+
 def compile_all(output_dir: Path, metadata_path: Path) -> None:
     target = GPUTarget("hip", "gfx1151", 32)
     backend = make_backend(target)
@@ -898,6 +928,7 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
             options=options.__dict__,
         )
         binary = compiled.asm[backend.binary_ext]
+        launch_abi = compiled_kernel_abi(compiled.asm["amdgcn"], kernel["signature"])
         output_path = output_dir / f"q8192_fla_chunk_gdn_{kernel['name']}.hsaco"
         output_path.write_bytes(binary)
         records.append(
@@ -913,6 +944,7 @@ def compile_all(output_dir: Path, metadata_path: Path) -> None:
                 "num_stages": kernel["num_stages"],
                 "dynamic_shared_bytes": compiled.metadata.shared,
                 "abi": list(kernel["signature"]),
+                **launch_abi,
                 "compiled_hash": compiled.hash,
             }
         )

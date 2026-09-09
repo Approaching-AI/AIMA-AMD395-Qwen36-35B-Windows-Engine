@@ -20,6 +20,9 @@ class FlaOutputCaptureContractTests(unittest.TestCase):
             self.assertIn(contract, text)
         self.assertIn('return mismatch || nonfinite ? 3 : 0', text)
         self.assertNotIn("whole_provider", text)
+        self.assertIn("&global_scratch, &profile_scratch", text)
+        self.assertIn("sizeof(arguments) / sizeof(arguments[0]) == 9", text)
+        self.assertIn("phase=dispatch", text)
 
     def test_builder_fingerprints_replay_and_supervisor_detects_its_process(self) -> None:
         builder = (ROOT / "scripts/baiying_build_fla_gdn.ps1").read_text()

@@ -91,6 +91,7 @@ int main(int argc, char** argv) try {
     const size_t allocation_bytes = (q.size() + k.size() + v.size() + h.size()) * 2u
                                   + g.size() * 4u + padded * value_features * 4u;
     if (allocation_bytes > 512u * 1024u * 1024u) throw std::runtime_error("diagnostic allocation ceiling exceeded");
+    std::cerr << "OUTPUT_REPLAY phase=hip_preflight\n" << std::flush;
     check(hipSetDevice(0));
     hipDeviceProp_t properties{};
     check(hipGetDeviceProperties(&properties, 0));
@@ -107,6 +108,7 @@ int main(int argc, char** argv) try {
     Buffer dq, dk, dv, dh, dg, output;
     dq.upload(q); dk.upload(k); dv.upload(v); dh.upload(h); dg.upload(g);
     output.allocate(padded * value_features * 4u);
+    std::cerr << "OUTPUT_REPLAY phase=inputs_uploaded\n" << std::flush;
     float maximum_ms = 0;
     unsigned int segments = 0;
     for (unsigned int offset = 0; offset < padded; offset += 1024u) {
@@ -117,7 +119,14 @@ int main(int argc, char** argv) try {
         auto* ph = dh.at<uint16_t>(offset / 64u * state_elements);
         auto* pg = dg.at<float>(offset * 32u);
         auto* po = output.at<float>(offset * value_features);
-        void* arguments[] = {&pq, &pk, &pv, &ph, &pg, &po, &count};
+        // Triton 3.6 appends two global-buffer ABI slots beyond the source
+        // signature. HIP dereferences every slot, even when its value is null.
+        void* global_scratch = nullptr;
+        void* profile_scratch = nullptr;
+        void* arguments[] = {&pq, &pk, &pv, &ph, &pg, &po, &count,
+                             &global_scratch, &profile_scratch};
+        static_assert(sizeof(arguments) / sizeof(arguments[0]) == 9);
+        std::cerr << "OUTPUT_REPLAY phase=dispatch offset=" << offset << " abi_slots=9\n" << std::flush;
         check(hipEventRecord(begin.handle, stream.handle));
         check(hipModuleLaunchKernel(function, 4u, static_cast<unsigned int>(count) / 64u, 32u,
                                     threads, 1u, 1u, shared, stream.handle, arguments, nullptr));
@@ -130,6 +139,7 @@ int main(int argc, char** argv) try {
     }
     std::vector<float> result(tokens * value_features);
     check(hipMemcpy(result.data(), output.data, result.size() * 4u, hipMemcpyDeviceToHost));
+    std::cerr << "OUTPUT_REPLAY phase=readback_complete\n" << std::flush;
     uint64_t mismatch = 0, nonfinite = 0;
     double error2 = 0, norm2 = 0, maximum_error = 0;
     int64_t first = -1; float first_actual = 0, first_expected = 0;
