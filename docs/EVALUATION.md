@@ -89,6 +89,26 @@ Compiler metadata now distinguishes the source signature from the actual
 launch ABI, including Triton's two trailing scratch pointers and verified
 offsets/size. No driver or system setting was changed for this repair.
 
+Standalone upstream replay now isolates solve, W/U and state recurrence with
+the saved real q7169 input. Six guarded native runs (64-token parent-capture
+views, then full length) exit normally with numerical-difference status,
+passing host checks and at most 2.719 ms per dispatch. With correct inputs,
+inverse/W/U differ on 729/1577/1093 cells, but the state kernel still has
+2917457 V-new and 4636318 chunk-state differences. It is a major independent
+source of drift, not a passing replacement. Complete compiled argument
+layouts, bounded allocations and segmented/tail addresses are checked; a
+CPU fake HIP test double with sanitizers validates caller safety only.
+
+A CPU first-update replay matches all 524288 BF16 state cells with continuous
+Blackwell K64, and continuous K128 projection matches 114704 sampled V-new
+cells when supplied reference chunk state. However, all sampled full-length
+carried-state variants still fail without reference-checkpoint injection.
+The probe explicitly separates this negative trajectory result from the
+input-isolated projection control. Host exponent arithmetic is not an SM121
+SFU emulation; state-update/raw-F32 and gating attribution remain open. No
+runtime arithmetic, default profile or real-model release gate is changed
+based on these CPU controls.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
