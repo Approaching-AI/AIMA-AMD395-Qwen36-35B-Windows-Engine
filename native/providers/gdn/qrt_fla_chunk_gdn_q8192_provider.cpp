@@ -5,8 +5,10 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <fstream>
 #include <limits>
 #include <string>
+#include <vector>
 
 #if defined(_WIN32)
 #define QRT_FLA_GDN_EXPORT extern "C" __declspec(dllexport)
@@ -99,6 +101,7 @@ struct ProviderState {
     float *padded_output = nullptr;
     int32_t scratch_tokens = 0;
     bool prepared = false;
+    bool q64_dumped = false;
     char kernel_dir[1024]{};
     char error[768]{};
 };
@@ -127,6 +130,33 @@ void set_error(const char *stage, hipError_t status) {
         static_cast<int>(status),
         hipGetErrorString(status)
     );
+}
+
+bool dump_q64_stage(bool enabled, const char *name, const void *device, size_t bytes) {
+    if (!enabled) return true;
+    const char *directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    if (directory == nullptr || device == nullptr || bytes == 0 || bytes > 2u * 1024u * 1024u) {
+        set_error_text("q64 stage dump exceeds its bounded diagnostic surface");
+        return false;
+    }
+    const std::string path = std::string(directory) + "\\stage-" + name + ".bin";
+    if (std::ifstream(path, std::ios::binary).good()) {
+        set_error_text("q64 stage dump refuses to overwrite an existing capture");
+        return false;
+    }
+    std::vector<unsigned char> host(bytes);
+    const hipError_t status = hipMemcpy(host.data(), device, bytes, hipMemcpyDeviceToHost);
+    if (status != hipSuccess) {
+        set_error("hipMemcpy(q64_stage_dump)", status);
+        return false;
+    }
+    std::ofstream output(path, std::ios::binary);
+    output.write(reinterpret_cast<const char *>(host.data()), static_cast<std::streamsize>(bytes));
+    if (!output.good()) {
+        set_error_text("q64 stage dump write failed");
+        return false;
+    }
+    return true;
 }
 
 void release_scratch() {
@@ -444,6 +474,9 @@ int launch_segment_async(
     int32_t tokens,
     bool reset_state
 ) {
+    const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    const bool dump = dump_directory != nullptr && dump_directory[0] != '\0' &&
+        !g_state.q64_dumped && reset_state && tokens == kSmokeTokens;
     if (!ensure_scratch(tokens)) {
         return 0;
     }
@@ -503,6 +536,10 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "q-normalized-bf16", q_bf16, 64u * 2048u * 2u) ||
+        !dump_q64_stage(dump, "k-normalized-bf16", k_bf16, 64u * 2048u * 2u) ||
+        !dump_q64_stage(dump, "raw-f32", postconv_raw_f32, 64u * 8192u * 4u) ||
+        !dump_q64_stage(dump, "gate-f32", gate_f32, 64u * 64u * 4u)) return 0;
 
     const float *gate_pointer = gate_f32;
     uint16_t *v_pointer = v_bf16;
@@ -528,6 +565,8 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "v-bf16", v_pointer, 64u * 4096u * 2u) ||
+        !dump_q64_stage(dump, "beta-bf16", beta_pointer, 64u * 32u * 2u)) return 0;
 
     float *g_pointer = g_cumsum;
     void *cumsum_arguments[] = {
@@ -549,6 +588,7 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "g-cumsum-f32", g_pointer, 64u * 32u * 4u)) return 0;
 
     float *a_pointer = a_f32;
     void *kkt_arguments[] = {
@@ -570,6 +610,7 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "a-f32", a_pointer, 64u * 32u * 64u * 4u)) return 0;
 
     const size_t inverse_bytes =
         static_cast<size_t>(tokens) *
@@ -604,6 +645,7 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "a-inverse-bf16", inverse_pointer, 64u * 32u * 64u * 2u)) return 0;
 
     // A is dead after solve; inverse is dead after recompute. Each recompute
     // CTA owns one complete (chunk, value-head), so its V -> U alias has no
@@ -621,6 +663,8 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "w-bf16", w_pointer, 64u * 4096u * 2u) ||
+        !dump_q64_stage(dump, "u-bf16", u_pointer, 64u * 4096u * 2u)) return 0;
 
     uint16_t *v_new_pointer = static_cast<uint16_t *>(g_state.ai_or_v_new);
     uint16_t *chunk_state_pointer = g_state.chunk_state;
@@ -637,6 +681,8 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (!dump_q64_stage(dump, "v-new-bf16", v_new_pointer, 64u * 4096u * 2u) ||
+        !dump_q64_stage(dump, "chunk-state-bf16", chunk_state_pointer, 32u * 128u * 128u * 2u)) return 0;
 
     float *output_pointer = output_f32;
     void *output_arguments[] = {
@@ -650,6 +696,7 @@ int launch_segment_async(
         )) {
         return 0;
     }
+    if (dump) g_state.q64_dumped = true;
 
     g_state.error[0] = '\0';
     return 1;
@@ -664,6 +711,11 @@ int launch_pipeline_async(
     void *stream_pointer,
     int32_t tokens
 ) {
+    const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    if (dump_directory != nullptr && dump_directory[0] != '\0' && tokens != kSmokeTokens) {
+        set_error_text("stage capture is restricted to a single q64 component probe");
+        return 0;
+    }
     if (!g_state.prepared || postconv_raw_f32 == nullptr ||
         gate_f32 == nullptr || output_f32 == nullptr ||
         final_state_f32 == nullptr || !supported_tokens(tokens) ||

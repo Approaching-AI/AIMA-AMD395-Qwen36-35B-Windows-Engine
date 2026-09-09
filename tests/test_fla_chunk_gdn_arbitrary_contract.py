@@ -73,6 +73,12 @@ class FlaChunkGdnArbitraryContractTests(unittest.TestCase):
         self.assertIn("token_offset += segment_tokens", self.source)
         self.assertIn('include "qrt_fla_gdn_kernel_specs.inc"', self.source)
 
+    def test_stage_capture_cannot_expand_into_a_model_shape(self) -> None:
+        self.assertIn('tokens != kSmokeTokens', self.source)
+        self.assertIn('bytes > 2u * 1024u * 1024u', self.source)
+        self.assertIn('!g_state.q64_dumped && reset_state', self.source)
+        self.assertIn('q64 stage dump refuses to overwrite', self.source)
+
 
 if __name__ == "__main__":
     unittest.main()
