@@ -30,6 +30,24 @@ evaluation arbitration explicit prevents a score-calibration tie break from
 changing ordinary OpenAI completions; production HTTP acceptance always runs
 with the global override disabled.
 
+## Unreleased FLA diagnostics
+
+The unreleased FLA replacement is a separate diagnostic route, not a change
+to the published acceptance below. It now follows the reference worker's
+Triton/FLA decomposition and bounds native dispatches to 1024-token segments.
+The q64 stage comparison identified BF16 elementwise products truncating
+before a same-dtype cast. Promoting operands before explicit nearest-even
+rounding removes 1824 first-token product discrepancies and reduces output
+relative L2 from 0.0158573 to 0.000409875. Remaining differences are reported
+as failures of exact component parity, not inference success. Native q64,
+q65 and q7169 synthetic runs exit safely; only q64 has this stage reference.
+`scripts/compare_fla_gdn_capture.py` validates the saved reference manifest
+and distinguishes component diagnostics from real-token product acceptance.
+The q7169 token/continuation contract and release gates remain unchanged.
+The subsequent real-model q7169 test safely exits but still produces token
+220 instead of reference token 82, so this repair alone is not a passing
+product route or retained performance result.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
