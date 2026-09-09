@@ -1,6 +1,7 @@
 import copy
 import json
 import os
+import random
 from pathlib import Path
 import sys
 import tempfile
@@ -41,6 +42,16 @@ class BoundedHttpTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "complete 32"):
             subject.validate_fixture(prompt, oracle)
 
+    def test_frozen_q8192_digest_versions_bind_identical_tokens(self):
+        oracle = subject.read_json(Path(__file__).resolve().parents[1] /
+                                   "contracts/hprefill_q8192_gb10_oracle.json")
+        generator = random.Random(395518)
+        prompt = [84411] + [32 + generator.randrange(256) for _ in range(8191)]
+        subject.validate_fixture(prompt, oracle)
+        self.assertEqual(subject.token_fnv(prompt, 14695981039346656037), "1bfa7bb4a1d00a65")
+        self.assertEqual(subject.token_fnv(prompt, 1469598103934665603),
+                         oracle["prompt"]["u32le_fnv1a64"])
+
     def test_wrong_authority_is_rejected(self):
         prompt, _, oracle = self.fixture()
         oracle["correctness_authority"]["host"] = "engine-self-hash"
@@ -56,23 +67,28 @@ class BoundedHttpTests(unittest.TestCase):
         self.assertEqual(subject.check_stream(self.events(), "hello"), {"ttft_ms": 123})
 
     def test_first_token_observation_requires_real_prompt_and_logit(self):
-        _, _, oracle = self.fixture()
-        oracle["prompt"]["u32le_fnv1a64"] = "fixture-fnv"
+        prompt, _, oracle = self.fixture()
+        oracle["prompt"]["u32le_fnv1a64"] = subject.token_fnv(prompt, 1469598103934665603)
         oracle["expected"].update(first_token_raw_logit=10.375, first_token_raw_logit_tolerance=0.125)
         row = {"type": "qrt_server_first_token_observation", "contract_version": 1, "available": True,
                "prefix_route_used": False, "input_tokens": 8192, "output_tokens": 32,
-               "prompt_token_ids_fnv1a64": "fixture-fnv", "output_token_id": 144,
+               "prompt_token_ids_fnv1a64": subject.token_fnv(prompt, 14695981039346656037),
+               "output_token_id": 144,
                "source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
                "first_token_raw_logit": 10.375}
         encode = lambda rows: "\n".join(json.dumps(value, separators=(",", ":")) for value in rows)
-        self.assertEqual(len(subject.check_first_token_observations(encode([row, row]), oracle)), 2)
+        self.assertNotEqual(row["prompt_token_ids_fnv1a64"], oracle["prompt"]["u32le_fnv1a64"])
+        self.assertEqual(len(subject.check_first_token_observations(encode([row, row]), oracle, prompt)), 2)
         for key, value in (("available", False), ("prefix_route_used", True), ("output_token_id", 220),
                            ("first_token_raw_logit", 10.625), ("first_token_raw_logit", float("nan")),
                            ("first_token_raw_logit", None), ("prompt_token_ids_fnv1a64", "different")):
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
-                subject.check_first_token_observations(encode([row, {**row, key: value}]), oracle)
+                subject.check_first_token_observations(encode([row, {**row, key: value}]), oracle, prompt)
         with self.assertRaises(ValueError):
-            subject.check_first_token_observations(encode([row]), oracle)
+            subject.check_first_token_observations(encode([row]), oracle, prompt)
+        oracle["prompt"]["u32le_fnv1a64"] = row["prompt_token_ids_fnv1a64"]
+        with self.assertRaisesRegex(ValueError, "legacy oracle digest"):
+            subject.check_first_token_observations(encode([row, row]), oracle, prompt)
 
     def test_timing_contract_separates_total_and_mean(self):
         metrics = {"timing_contract_version": 2, "tpot_samples": 31, "decode_total_ms": 1011.8258,

@@ -144,6 +144,12 @@ unavailable. This does not change the v1 native ABI or expose OpenAI logprobs,
 and it does not modify model computation or sample a replacement token.
 It is off by default; normal logging is unchanged.
 
+Observation v1 uses FNV offset `14695981039346656037`. Existing frozen QRT
+oracle/CLI digests use the historical offset `1469598103934665603`. The
+verifier computes both from the same SHA-256-verified little-endian token
+array; it does not compare the differently seeded strings directly, change
+the frozen oracle or treat this metadata difference as a numerical failure.
+
 `scripts/verify_baiying_q8192_http.py` provides bounded two-request
 qualification under the Windows Job guard. Its offline replay mode validates
 saved JSON/SSE and shutdown evidence without loading a model. Regular SSE

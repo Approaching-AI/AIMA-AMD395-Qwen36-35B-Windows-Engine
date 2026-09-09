@@ -51,6 +51,14 @@ def token_digest(tokens):
     return hashlib.sha256(struct.pack(f"<{len(tokens)}I", *tokens)).hexdigest()
 
 
+def token_fnv(tokens, offset_basis):
+    token_digest(tokens)  # Apply the same explicit u32 validation.
+    value = offset_basis
+    for byte in struct.pack(f"<{len(tokens)}I", *tokens):
+        value = ((value ^ byte) * 1099511628211) & (2**64 - 1)
+    return f"{value:016x}"
+
+
 def validate_fixture(prompt, oracle):
     require(oracle["status"] == "pass", "reference contract did not pass")
     require(oracle["correctness_authority"]["host"] == "gb10-4t", "wrong authority")
@@ -180,7 +188,14 @@ def check_stream(events, expected_text):
     return usage[0]["qrt_metrics"]
 
 
-def check_first_token_observations(log_text, oracle):
+def check_first_token_observations(log_text, oracle, prompt):
+    validate_fixture(prompt, oracle)
+    # Observation v1 uses the standard offset; the frozen QRT oracle uses a
+    # historical shorter offset. Bind both to the *same SHA-verified tokens*,
+    # without changing either frozen contract or the native observation.
+    observation_fnv = token_fnv(prompt, 14695981039346656037)
+    require(token_fnv(prompt, 1469598103934665603) == oracle["prompt"]["u32le_fnv1a64"],
+            "legacy oracle digest does not match the SHA-verified tokens")
     rows = [json.loads(line) for line in log_text.splitlines()
             if line.startswith('{"type":"qrt_server_first_token_observation"')]
     require(len(rows) == 2, "requires two same-run first-token observations")
@@ -191,7 +206,7 @@ def check_first_token_observations(log_text, oracle):
         require(row["source"] == "qrt_engine_report.baseline_output_head_topk_logits[0]",
                 "unexpected raw-logit source")
         require(row["input_tokens"] == 8192 and row["output_tokens"] == 32, "observation shape differs")
-        require(row["prompt_token_ids_fnv1a64"] == oracle["prompt"]["u32le_fnv1a64"],
+        require(row["prompt_token_ids_fnv1a64"] == observation_fnv,
                 "observation prompt differs")
         require(row["output_token_id"] == expected["first_token_id"], "observed first token differs")
         logit = row["first_token_raw_logit"]
@@ -226,7 +241,8 @@ def replay_saved_run(run_dir, guard_path, prompt_path, oracle_path):
     stream = read_json(paths["stream"])
     state = read_json(paths["state"])
     guard = read_json(paths["guard"])
-    expected = validate_fixture(read_json(prompt_path), read_json(oracle_path))
+    prompt, oracle = read_json(prompt_path), read_json(oracle_path)
+    expected = validate_fixture(prompt, oracle)
     require(original["preflight"]["pass"] is True, "original preflight failed")
     for name in ("prompt", "oracle"):
         require(fingerprints[name] == original["preflight"]["files"][name]["sha256"],
@@ -251,7 +267,7 @@ def replay_saved_run(run_dir, guard_path, prompt_path, oracle_path):
             "live health identity differs")
     require(during["queue"]["started_total"] == 2 and during["queue"]["completed_total"] == 1
             and during["queue"]["active_requests"] == 1, "no active-generation health observation")
-    return {"status": "offline_http_result_validation_pass", "gpu_executed": False,
+    result = {"status": "offline_http_result_validation_pass", "gpu_executed": False,
             "source_fingerprints": fingerprints, "original_controller_status": original["status"],
             "original_controller_error": original.get("error"), "host": state["host"],
             "model": state["model_path"], "server_commit": state["repo_commit"],
@@ -263,6 +279,21 @@ def replay_saved_run(run_dir, guard_path, prompt_path, oracle_path):
             "full_product_gate_pass": False, "retained_performance_claimed": False,
             "ready_wall_ms": original["ready_wall_ms"], "load": original["health_before"]["load"],
             "nonstream_metrics": completion["qrt_metrics"], "stream_metrics": metrics}
+    stderr_path = run_dir / "server.stderr.log"
+    if stderr_path.is_file():
+        require(stderr_path.stat().st_size <= 32 * 1024 * 1024, "saved stderr size limit")
+        log_text = stderr_path.read_text(encoding="utf-8")
+        result["source_fingerprints"]["stderr"] = fingerprint(stderr_path)
+        if '"type":"qrt_server_first_token_observation"' in log_text:
+            rows = check_first_token_observations(log_text, oracle, prompt)
+            check_timing_contract(completion["qrt_metrics"])
+            check_timing_contract(metrics)
+            result["first_token_logit_observations"] = rows
+            result["first_token_raw_logit_observed"] = True
+            result["q8192_nonstream_first_token_logit_and_32_tokens_pass"] = True
+            result["observation_fnv_offset_basis"] = 14695981039346656037
+            result["oracle_fnv_offset_basis"] = 1469598103934665603
+    return result
 
 
 def server_command(config, output):
@@ -418,7 +449,7 @@ def execute(config, output, prompt, expected, report):
         report["service_state"] = state
         if config.get("require_first_token_logit", False):
             oracle = read_json(config["files"]["oracle"]["path"])
-            rows = check_first_token_observations(log_paths[1].read_text(encoding="utf-8"), oracle)
+            rows = check_first_token_observations(log_paths[1].read_text(encoding="utf-8"), oracle, prompt)
             check_timing_contract(report["nonstream_metrics"])
             check_timing_contract(report["stream_metrics"])
             report["first_token_logit_observations"] = rows
