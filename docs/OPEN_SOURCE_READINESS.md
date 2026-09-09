@@ -1,6 +1,15 @@
 # Open-source readiness audit
 
-Audit date: 2026-08-22
+Historical audit date: 2026-08-22
+
+## Current unreleased candidate, 2026-09-09
+
+The current candidate is **not release-ready**: q7169 is still numerically
+incorrect and retained performance/full-archive qualification remain open.
+The repaired crash reproduction and latest native HTTP token/logit/stability
+evidence are documented in [HTTP_STABILITY.md](HTTP_STABILITY.md). The older
+decision and tables below describe their recorded historical basis; they do
+not approve promotion of the current candidate or imply a new publication.
 
 ## Decision
 
