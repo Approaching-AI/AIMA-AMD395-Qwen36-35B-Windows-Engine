@@ -504,7 +504,14 @@ def _fla_recompute_w_u_kernel(
         b_v_beta = _bf16_rne_f32(
             b_v.to(tl.float32) * b_beta[:, None].to(tl.float32)
         ).to(b_v.dtype)
-        b_u = tl.dot(b_a, b_v_beta, allow_tf32=False)
+        # The captured two-term BF16 midpoint cases distinguish accumulator
+        # arithmetic from the already-correct RNE store. Keep the BF16 input
+        # boundary, but accumulate U with IEEE F32 instructions, not WMMA.
+        b_u = tl.dot(
+            b_a.to(tl.float32),
+            b_v_beta.to(tl.float32),
+            input_precision="ieee",
+        )
         tl.store(
             u + (t[:, None] * H + head) * V + value_dim[None, :],
             b_u,
