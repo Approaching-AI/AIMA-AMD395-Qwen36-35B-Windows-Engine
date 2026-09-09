@@ -79,6 +79,20 @@ class FlaStateAccumulatorProbeTests(unittest.TestCase):
             self.assertEqual(variant["chunk_state_bf16"]["elements"], 16 * 2 * 128)
             self.assertEqual(variant["v_new_bf16"]["elements"], 16 * 128)
             self.assertEqual(variant["final_state_f32"]["elements"], 16 * 128)
+            self.assertFalse(variant["same_input_projection"]["feeds_trajectory"])
+            self.assertEqual(variant["same_input_projection"]["v_new_bf16"]["mismatch_count"], 0)
+
+    def test_reference_checkpoint_changes_do_not_feed_the_carried_state(self) -> None:
+        self.fixture()
+        state = 32 * 128 * 128
+        with (self.root / "full-chunk-state-bf16.bin").open("r+b") as file:
+            file.seek(state * 2)
+            file.write(struct.pack("<H", 0x4240) * state)
+        result = self.run_probe(trajectory=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for variant in json.loads(result.stdout)["trajectory"]["variants"]:
+            self.assertEqual(variant["chunk_state_bf16"]["mismatch_count"], 16 * 128)
+            self.assertEqual(variant["final_state_f32"]["mismatch_count"], 0)
 
 
 if __name__ == "__main__":

@@ -79,11 +79,20 @@ void trajectory(const std::string& directory, size_t tokens) {
         {"ieee_k128_k64_fma", false, true, true}
     }};
     constexpr float log2e = 1.4426950408889634074f;
-    std::cout << ",\"trajectory\":{\"sampled_state_rows\":16,\"reference_state_injected\":false,\"coordinates_head_value\":[";
+    std::cout << ",\"trajectory\":{\"tokens\":" << tokens << ",\"sampled_state_rows\":16,\"reference_state_injected\":false,\"coordinates_head_value\":[";
     for (size_t i = 0; i < selected.size(); ++i) { if (i) std::cout << ','; std::cout << '[' << selected[i][0] << ',' << selected[i][1] << ']'; }
     std::cout << "],\"variants\":[";
     for (size_t mode = 0; mode < variants.size(); ++mode) {
-        const auto& variant = variants[mode]; Stats states, values, terminal;
+        const auto& variant = variants[mode]; Stats states, values, terminal, isolated_values;
+        auto project = [&](const uint16_t* left, const uint16_t* right) {
+            float sum = 0;
+            if (variant.ieee) {
+                for (size_t d = 0; d < 128; ++d) sum = std::fma(value(left[d]), value(right[d]), sum);
+            } else if (variant.split_projection) {
+                sum = blackwell_dot<64>(left, right) + blackwell_dot<64>(left + 64, right + 64);
+            } else sum = qrt_q1_moe_hawkeye::dot_bf16_impl<26,16,-133>(left, right, 128);
+            return sum;
+        };
         for (const auto& coordinate : selected) {
             const size_t head = coordinate[0], v = coordinate[1];
             std::array<float, 128> state{};
@@ -98,15 +107,14 @@ void trajectory(const std::string& directory, size_t tokens) {
                 std::array<uint16_t, 64> residual{};
                 for (size_t t = 0; t < valid; ++t) {
                     const size_t row = (first + t) * 32u + head; const auto* left = &w[row * 128u];
-                    float projection = 0;
-                    if (variant.ieee) {
-                        for (size_t d = 0; d < 128; ++d) projection = std::fma(value(left[d]), value(rounded[d]), projection);
-                    } else if (variant.split_projection) {
-                        projection = blackwell_dot<64>(left, rounded.data()) + blackwell_dot<64>(left + 64, rounded.data() + 64);
-                    } else projection = qrt_q1_moe_hawkeye::dot_bf16_impl<26,16,-133>(left, rounded.data(), 128);
-                    const float current = value(u[row * 128u + v]) - projection;
+                    const float current = value(u[row * 128u + v]) - project(left, rounded.data());
                     values.add(value(bf16(current)), value(reference_v[row * 128u + v]), static_cast<int64_t>(row * 128u + v));
                     residual[t] = bf16(current * std::exp2((gate_last - g[row]) * log2e));
+                    // Parallel input-isolation check only: never feed this value
+                    // or reference state into the carried trajectory above.
+                    const auto* reference_row = &reference_h[chunk * state_elements + (head * 128u + v) * 128u];
+                    const float isolated = value(u[row * 128u + v]) - project(left, reference_row);
+                    isolated_values.add(value(bf16(isolated)), value(reference_v[row * 128u + v]), static_cast<int64_t>(row * 128u + v));
                 }
                 for (size_t d = 0; d < 128; ++d) {
                     std::array<uint16_t, 64> left{};
@@ -122,7 +130,9 @@ void trajectory(const std::string& directory, size_t tokens) {
         }
         if (mode) std::cout << ',';
         std::cout << "{\"name\":\"" << variant.name << "\",\"chunk_state_bf16\":"; states.print();
-        std::cout << ",\"v_new_bf16\":"; values.print(); std::cout << ",\"final_state_f32\":"; terminal.print(); std::cout << '}';
+        std::cout << ",\"v_new_bf16\":"; values.print(); std::cout << ",\"final_state_f32\":"; terminal.print();
+        std::cout << ",\"same_input_projection\":{\"uses_reference_chunk_state\":true,\"feeds_trajectory\":false,\"v_new_bf16\":";
+        isolated_values.print(); std::cout << "}}";
     }
     std::cout << "]}";
 }
