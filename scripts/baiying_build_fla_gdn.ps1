@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$OutDir,
     [ValidateRange(30, 600)][int]$TimeoutSeconds = 240,
-    [string]$WslDistribution = 'Ubuntu-24.04',
+    [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')][string]$WslDistribution = 'Ubuntu-24.04',
     [string]$TritonPython = '/opt/qwen36-vllm/bin/python',
     [string]$AotDir = ''
 )
@@ -72,7 +72,9 @@ $lines = @(
 if (-not $AotDir) {
     # AOT is CPU-only. Do not let import-time driver discovery open a device,
     # and kill a compiler that ignores the first timeout signal inside WSL.
-    $lines += "wsl.exe -d $(Quote-Arg $WslDistribution) -- timeout --kill-after=5 $innerTimeout env HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json'))"
+    # This host's WSL CLI treats quotes around -d as part of the registry name
+    # when invoked from cmd.exe. The validated name needs no shell quoting.
+    $lines += "wsl.exe -d $WslDistribution -- timeout --kill-after=5 $innerTimeout env HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json'))"
     # WSL errors may be negative. 'if errorlevel 1' silently misses those.
     $lines += 'if not "%errorlevel%"=="0" exit /b 22'
 }

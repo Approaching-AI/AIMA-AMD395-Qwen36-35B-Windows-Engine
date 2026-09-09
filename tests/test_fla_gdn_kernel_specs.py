@@ -61,6 +61,9 @@ class FlaGdnKernelSpecsTests(unittest.TestCase):
         self.assertIn("timeout --kill-after=5 $innerTimeout", source)
         self.assertIn("HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1", source)
         self.assertIn("OMP_NUM_THREADS=2 MAX_JOBS=2", source)
+        self.assertIn("[ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]", source)
+        self.assertIn("wsl.exe -d $WslDistribution --", source)
+        self.assertNotIn("wsl.exe -d $(Quote-Arg $WslDistribution)", source)
 
     def test_w_u_use_ieee_f32_after_the_bf16_product_boundaries(self) -> None:
         source = (ROOT / "native/generators/compile_q8192_fla_chunk_gdn.py").read_text()
