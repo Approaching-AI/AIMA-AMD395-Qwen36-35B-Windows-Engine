@@ -9,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native/providers/gdn/fla_upstream_capture_replay.cpp"
-SYMBOLS = {"solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "state": "_fla_chunk_state_kernel"}
+SYMBOLS = {"solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "state": "_fla_chunk_state_kernel", "state-blackwell": "native-blackwell-state"}
 
 
 class FlaUpstreamIntegrationContractTests(unittest.TestCase):
@@ -21,6 +21,17 @@ class FlaUpstreamIntegrationContractTests(unittest.TestCase):
         guard = (ROOT / "scripts/baiying_guarded_inference.ps1").read_text()
         self.assertIn("fla-upstream-capture-replay|fla-output-capture-replay", guard)
         self.assertIn("allocation > 512u * 1024u * 1024u", SOURCE.read_text())
+
+    def test_native_state_uses_compiler_owned_launches_and_is_not_linked_into_runtime(self) -> None:
+        source = (ROOT / "native/providers/gdn/blackwell_state.cpp").read_text()
+        self.assertEqual(source.count("hipLaunchKernelGGL("), 2)
+        self.assertNotIn("hipModuleLaunchKernel", source)
+        self.assertIn("fmaf(initial[index]", source)
+        self.assertIn("if (token == 0) h[state_index] = state", source)
+        self.assertIn("if (token >= count)", source)
+        builder = (ROOT / "scripts/baiying_build_fla_gdn.ps1").read_text()
+        self.assertIn("$(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState)", builder)
+        self.assertNotIn("blackwell_state", (ROOT / "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp").read_text())
 
 
 @unittest.skipUnless(shutil.which("c++"), "requires the portable C++ compiler")
@@ -34,6 +45,7 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
         cls.executable = cls.root / "host-replay-test"
         subprocess.run(["c++", "-std=c++17", "-O1", "-fsanitize=address,undefined",
                         "-I" + str(ROOT / "tests/native/fla_replay_fake_hip"), str(SOURCE),
+                        str(ROOT / "tests/native/fla_state_fake_launch.cpp"),
                         "-o", str(cls.executable)], check=True, capture_output=True, timeout=30)
 
     @classmethod
@@ -57,7 +69,8 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
     def run_probe(self, stage, directory, source_tokens, tokens, **environment):
         env = {k: v for k, v in os.environ.items() if k not in ("QRT_TEST_FAKE_DISPATCH_MS", "QRT_FLA_UPSTREAM_DUMP_Q64_DIR")}
         env.update(environment)
-        return subprocess.run([str(self.executable), stage, "unused.hsaco", SYMBOLS[stage], "128", "0",
+        native = stage == "state-blackwell"
+        return subprocess.run([str(self.executable), stage, "-" if native else "unused.hsaco", SYMBOLS[stage], "256" if native else "128", "0",
                                str(directory), str(source_tokens), str(tokens)], env=env,
                               capture_output=True, text=True, timeout=10)
 
@@ -80,6 +93,32 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
         self.assertEqual((record["source_tokens"], record["tokens"]), (128, 64))
         self.assertIn("next-chunk-state-bf16", record["surfaces"])
         self.assertNotIn("final-state-f32", record["surfaces"])
+
+    def test_native_state_uses_two_compiler_owned_calls_per_chunk_and_logical_tail(self) -> None:
+        result = self.run_probe("state-blackwell", self.fixture(1025), 1025, 1025)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        record = json.loads(result.stdout)
+        self.assertEqual(record["segments"], 34)
+        self.assertLess(record["allocation_bytes"], 512 * 1024 * 1024)
+        self.assertEqual(result.stderr.count("FAKE_HIP blackwell_project tokens=64"), 16)
+        self.assertEqual(result.stderr.count("FAKE_HIP blackwell_update tokens=64"), 16)
+        self.assertIn("FAKE_HIP blackwell_project tokens=1\n", result.stderr)
+        self.assertIn("FAKE_HIP blackwell_update tokens=1\n", result.stderr)
+        self.assertNotIn("FAKE_HIP launch", result.stderr)
+
+    def test_native_invalid_arguments_return_before_any_hip_dispatch(self) -> None:
+        result = subprocess.run([str(self.executable), "--blackwell-host-only"], capture_output=True, text=True, timeout=10)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(json.loads(result.stdout)["cases"], 8)
+        self.assertEqual(json.loads(result.stdout)["gpu_dispatches"], 0)
+        self.assertNotIn("FAKE_HIP", result.stderr)
+
+    def test_native_admission_checks_projection_before_submitting_update(self) -> None:
+        result = self.run_probe("state-blackwell", self.fixture(128), 128, 128, QRT_TEST_FAKE_DISPATCH_MS="101")
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stderr.count("FAKE_HIP blackwell_project"), 1)
+        self.assertNotIn("FAKE_HIP blackwell_update", result.stderr)
+        self.assertIn("100 ms dispatch admission exceeded", result.stderr)
 
     def test_invalid_shape_nonfinite_and_short_input_fail_before_hip(self) -> None:
         directory = self.fixture(128)

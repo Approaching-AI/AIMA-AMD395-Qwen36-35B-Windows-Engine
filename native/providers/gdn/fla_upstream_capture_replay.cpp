@@ -3,6 +3,7 @@
 #define NOMINMAX
 #endif
 #include <hip/hip_runtime.h>
+#include "blackwell_state.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -65,7 +66,7 @@ struct Module { hipModule_t handle = nullptr; ~Module() { if (handle) (void)hipM
 struct Launcher {
     Stream stream; Module module; Event begin, end; hipFunction_t function = nullptr;
     unsigned int threads, shared, segments = 0; float maximum_ms = 0;
-    Launcher(const char* file, const char* symbol, unsigned int block, unsigned int lds, size_t allocation)
+    Launcher(const char* file, const char* symbol, unsigned int block, unsigned int lds, size_t allocation, bool native = false)
         : threads(block), shared(lds) {
         if (allocation > 512u * 1024u * 1024u) throw std::runtime_error("512 MiB allocation ceiling exceeded");
         std::cerr << "UPSTREAM_REPLAY phase=hip_preflight\n" << std::flush;
@@ -74,7 +75,7 @@ struct Launcher {
         size_t free_bytes = 0, total_bytes = 0; check(hipMemGetInfo(&free_bytes, &total_bytes));
         if (free_bytes < allocation + 512u * 1024u * 1024u) throw std::runtime_error("device memory reserve failed");
         check(hipStreamCreate(&stream.handle)); check(hipEventCreate(&begin.handle)); check(hipEventCreate(&end.handle));
-        check(hipModuleLoad(&module.handle, file)); check(hipModuleGetFunction(&function, module.handle, symbol));
+        if (!native) { check(hipModuleLoad(&module.handle, file)); check(hipModuleGetFunction(&function, module.handle, symbol)); }
     }
     template<size_t SourceArguments, class... Arguments>
     void launch(unsigned int x, unsigned int y, unsigned int offset, Arguments... parameters) {
@@ -84,6 +85,14 @@ struct Launcher {
         std::cerr << "UPSTREAM_REPLAY phase=dispatch offset=" << offset << " abi_slots=" << args.size() << '\n' << std::flush;
         check(hipEventRecord(begin.handle, stream.handle));
         check(hipModuleLaunchKernel(function, x, y, 1u, threads, 1u, 1u, shared, stream.handle, args.data(), nullptr));
+        check(hipEventRecord(end.handle, stream.handle)); check(hipEventSynchronize(end.handle));
+        float milliseconds = 0; check(hipEventElapsedTime(&milliseconds, begin.handle, end.handle));
+        if (!(milliseconds <= 100.0f)) throw std::runtime_error("100 ms dispatch admission exceeded; no next segment");
+        maximum_ms = std::max(maximum_ms, milliseconds); ++segments;
+    }
+    template<class Operation> void native_launch(const char* name, unsigned offset, Operation operation) {
+        std::cerr << "UPSTREAM_REPLAY phase=dispatch offset=" << offset << " native_kernel=" << name << '\n' << std::flush;
+        check(hipEventRecord(begin.handle, stream.handle)); check(operation(stream.handle));
         check(hipEventRecord(end.handle, stream.handle)); check(hipEventSynchronize(end.handle));
         float milliseconds = 0; check(hipEventElapsedTime(&milliseconds, begin.handle, end.handle));
         if (!(milliseconds <= 100.0f)) throw std::runtime_error("100 ms dispatch admission exceeded; no next segment");
@@ -128,8 +137,24 @@ template<class T> void dump_q64(const std::string& stage, const std::string& nam
 }  // namespace
 
 int main(int argc, char** argv) try {
+    if (argc == 2 && std::string(argv[1]) == "--blackwell-host-only") {
+        uint16_t words[8]{}; float scalars[8]{}; unsigned cases = 0;
+        using namespace qrt_fla_blackwell_state;
+        auto rejected = [&](hipError_t result) { if (result == hipSuccess) throw std::runtime_error("invalid native state arguments were accepted"); ++cases; };
+        for (unsigned count : {0u, 65u}) {
+            rejected(project(words, words + 1, scalars, scalars + 1, words + 2, words + 3, words + 4, count, nullptr));
+            rejected(update(words, words + 1, scalars, scalars + 1, scalars + 2, count, nullptr));
+        }
+        rejected(project(nullptr, words + 1, scalars, scalars + 1, words + 2, words + 3, words + 4, 1, nullptr));
+        rejected(update(words, words + 1, scalars, nullptr, scalars + 2, 1, nullptr));
+        rejected(project(words, words + 1, scalars, scalars + 1, words + 2, words + 2, words + 4, 1, nullptr));
+        rejected(update(words, words + 1, scalars, scalars + 1, scalars + 1, 1, nullptr));
+        std::cout << "{\"kind\":\"native_blackwell_state_host_safety\",\"cases\":" << cases
+                  << ",\"gpu_dispatches\":0,\"pass\":true,\"inference_acceptance\":false}\n";
+        return 0;
+    }
     if (argc != 9) {
-        std::cerr << "usage: fla-upstream-capture-replay <solve|wu|state> <hsaco> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
+        std::cerr << "usage: fla-upstream-capture-replay <solve|wu|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
         return 2;
     }
     const std::string stage = argv[1], directory = argv[6];
@@ -139,7 +164,10 @@ int main(int argc, char** argv) try {
         throw std::runtime_error("invalid source, view, or workgroup shape");
     const char* dump = std::getenv("QRT_FLA_UPSTREAM_DUMP_Q64_DIR");
     if (dump && *dump && tokens != 64) throw std::runtime_error("binary stage capture is restricted to a q64 view");
-    const std::string symbol = stage == "solve" ? "_fla_solve_tril_64_kernel" :
+    const bool native_blackwell = stage == "state-blackwell";
+    if (native_blackwell && (std::string(argv[2]) != "-" || threads != 256 || shared != 0))
+        throw std::runtime_error("native state has compiler-owned ABI and fixed resources");
+    const std::string symbol = native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
                                stage == "wu" ? "_fla_recompute_w_u_kernel" :
                                stage == "state" ? "_fla_chunk_state_kernel" : "";
     if (symbol.empty() || symbol != argv[3]) throw std::runtime_error("stage and kernel ABI mismatch");
@@ -207,16 +235,26 @@ int main(int argc, char** argv) try {
             else
                 expected_next = read_range<uint16_t>(path("chunk-state-bf16"), source_chunks * state_elements, chunks * state_elements, state_elements, state_elements);
             allocation = (k.size() + w.size() + u.size() + padded * value_features + chunks * state_elements) * 2u + (g.size() + state_elements * 2u) * 4u;
-            Launcher launch(argv[2], argv[3], threads, shared, allocation); Buffer dk, dw, du, dg, dh, dv, state_a, state_b;
+            if (native_blackwell) allocation += 64u * value_features * 2u;
+            Launcher launch(argv[2], argv[3], threads, shared, allocation, native_blackwell); Buffer dk, dw, du, dg, dh, dv, state_a, state_b, residual;
             dk.upload(k); dw.upload(w); du.upload(u); dg.upload(g); state_a.upload(seed); state_b.allocate(state_elements * 4u);
             dh.allocate(chunks * state_elements * 2u); dv.allocate(padded * value_features * 2u);
+            if (native_blackwell) residual.allocate(64u * value_features * 2u);
             float* initial = state_a.at<float>(); float* final = state_b.at<float>();
-            for (unsigned int offset = 0; offset < padded; offset += 1024u) {
+            for (unsigned int offset = 0; offset < padded; offset += native_blackwell ? 64u : 1024u) {
                 int32_t count = static_cast<int32_t>(std::min(1024u, padded - offset));
                 auto* pk = dk.at<uint16_t>(offset * key_features); auto* pw = dw.at<uint16_t>(offset * value_features);
                 auto* pu = du.at<uint16_t>(offset * value_features); auto* pv = dv.at<uint16_t>(offset * value_features);
                 auto* pg = dg.at<float>(offset * 32u); auto* ph = dh.at<uint16_t>(offset / 64u * state_elements);
-                launch.launch<9>(8u, 32u, offset, &pk, &pu, &pw, &pv, &pg, &initial, &ph, &final, &count);
+                if (native_blackwell) {
+                    const unsigned valid = std::min(64u, tokens - offset);
+                    launch.native_launch("blackwell_project", offset, [&](hipStream_t stream) {
+                        return qrt_fla_blackwell_state::project(pw, pu, pg, initial, ph, pv, residual.at<uint16_t>(), valid, stream);
+                    });
+                    launch.native_launch("blackwell_update", offset, [&](hipStream_t stream) {
+                        return qrt_fla_blackwell_state::update(pk, residual.at<uint16_t>(), pg, initial, final, valid, stream);
+                    });
+                } else launch.launch<9>(8u, 32u, offset, &pk, &pu, &pw, &pv, &pg, &initial, &ph, &final, &count);
                 std::swap(initial, final);  // The launch has completed before buffer reuse.
             }
             auto v = download(dv.at<uint16_t>(), tokens * value_features), h = download(dh.at<uint16_t>(), chunks * state_elements);

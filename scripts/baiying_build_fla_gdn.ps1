@@ -38,6 +38,8 @@ $provider = Join-Path $repo 'native\providers\gdn\qrt_fla_chunk_gdn_q8192_provid
 $smoke = Join-Path $repo 'native\providers\gdn\q64_fla_chunk_gdn_smoke.cpp'
 $outputReplay = Join-Path $repo 'native\providers\gdn\fla_output_capture_replay.cpp'
 $upstreamReplay = Join-Path $repo 'native\providers\gdn\fla_upstream_capture_replay.cpp'
+$blackwellState = Join-Path $repo 'native\providers\gdn\blackwell_state.cpp'
+$blackwellStateHeader = Join-Path $repo 'native\providers\gdn\blackwell_state.h'
 $blackwellKkt = Join-Path $repo 'native\providers\gdn\blackwell_kkt.h'
 $blackwellAccumulator = Join-Path $repo 'native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h'
 if ($AotDir) {
@@ -96,7 +98,7 @@ $replayExe = Join-Path $OutDir 'fla-output-capture-replay.exe'
 $lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $outputReplay) -o $(Quote-Arg $replayExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 27'
 $upstreamExe = Join-Path $OutDir 'fla-upstream-capture-replay.exe'
-$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $upstreamReplay) -o $(Quote-Arg $upstreamExe)"
+$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) -o $(Quote-Arg $upstreamExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 28'
 [IO.File]::WriteAllText($batch, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8)
 $stdout = Join-Path $OutDir 'build.stdout.log'
@@ -139,7 +141,8 @@ $record = [ordered]@{
     dirty_tree=@(& git -C $repo status --porcelain).Count -ne 0
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay) | ForEach-Object {
+    native_blackwell_state=$true
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false
