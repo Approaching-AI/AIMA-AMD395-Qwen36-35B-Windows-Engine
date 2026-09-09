@@ -1,8 +1,12 @@
 import importlib.util
+import contextlib
+import io
+import json
 from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -34,6 +38,33 @@ class FlaGdnCompareTests(unittest.TestCase):
             b.write_bytes(b"short")
             with self.assertRaises(ValueError):
                 MODULE.compare(a, b, "f32")
+
+    def test_captured_pre_decay_dot_is_not_silently_omitted(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            names = ("output-bf16", "state-f32", "q-normalized-bf16", "k-normalized-bf16",
+                     "g-cumsum-f32", "a-f32", "a-inverse-bf16", "w-bf16", "u-bf16",
+                     "chunk-state-bf16", "v-new-bf16", "a-dot-f32")
+            files = {}
+            for name in names:
+                source = root / (name + ".bin")
+                payload = struct.pack("<H", 0x3f80) if name.endswith("bf16") else struct.pack("<f", 1.0)
+                source.write_bytes(payload)
+                files[name] = {"bytes": len(payload), "sha256": MODULE.fingerprint(source)}
+                prefix = "native" if name in names[:2] else "stage"
+                (root / (prefix + "-" + name + ".bin")).write_bytes(
+                    struct.pack("<f", 2.0) if name == "a-dot-f32" else payload)
+            manifest = root / "reference.json"
+            manifest.write_text(json.dumps({"results": [{"forward_method": "forward_native", "tokens": 64, "files": files}]}))
+            output = root / "comparison.json"
+            argv = ["compare", "--reference-manifest", str(manifest), "--reference-dir", str(root),
+                    "--candidate-prefix", str(root / "native"), "--stage-prefix", str(root / "stage"), "--output", str(output)]
+            with patch("sys.argv", argv), contextlib.redirect_stdout(io.StringIO()), self.assertRaises(SystemExit) as caught:
+                MODULE.main()
+            self.assertEqual(caught.exception.code, 3)
+            record = json.loads(output.read_text())
+            self.assertEqual(record["surfaces"]["a-dot-f32"]["mismatch_count"], 1)
+            self.assertFalse(record["inference_acceptance"])
 
 
 if __name__ == "__main__":

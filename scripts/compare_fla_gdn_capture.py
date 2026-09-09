@@ -90,6 +90,8 @@ def main() -> None:
         names = ("q-normalized-bf16", "k-normalized-bf16", "g-cumsum-f32",
                  "a-f32", "a-inverse-bf16", "w-bf16", "u-bf16",
                  "chunk-state-bf16", "v-new-bf16")
+        if Path(str(args.stage_prefix) + "-a-dot-f32.bin").is_file():
+            names += ("a-dot-f32",)
         surfaces += [(name, "bf16" if name.endswith("bf16") else "f32", args.stage_prefix)
                      for name in names]
     for name, dtype, prefix in surfaces:

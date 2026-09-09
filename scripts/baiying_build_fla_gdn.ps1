@@ -70,7 +70,9 @@ $lines = @(
     'if not "%errorlevel%"=="0" exit /b 21'
 )
 if (-not $AotDir) {
-    $lines += "wsl.exe -d $(Quote-Arg $WslDistribution) -- timeout $innerTimeout env OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json'))"
+    # AOT is CPU-only. Do not let import-time driver discovery open a device,
+    # and kill a compiler that ignores the first timeout signal inside WSL.
+    $lines += "wsl.exe -d $(Quote-Arg $WslDistribution) -- timeout --kill-after=5 $innerTimeout env HIP_VISIBLE_DEVICES=-1 ROCR_VISIBLE_DEVICES=-1 CUDA_VISIBLE_DEVICES=-1 OMP_NUM_THREADS=2 MAX_JOBS=2 TRITON_CACHE_DIR=$wslOut/triton-cache $(Quote-Arg $TritonPython) $(Quote-Arg $wslGenerator) --output-dir $(Quote-Arg $wslOut) --metadata $(Quote-Arg ($wslOut + '/metadata.json'))"
     # WSL errors may be negative. 'if errorlevel 1' silently misses those.
     $lines += 'if not "%errorlevel%"=="0" exit /b 22'
 }

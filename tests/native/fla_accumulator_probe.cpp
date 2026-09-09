@@ -22,7 +22,7 @@ uint16_t bf16(float v) { uint32_t b; std::memcpy(&b,&v,4); return uint16_t((b+0x
 template<int Width,int Group,int Block> float dot(const uint16_t* a,const uint16_t* b) {
     float result=0;
     for(int base=0;base<128;base+=Block) {
-        result += qrt_q1_moe_hawkeye::dot_bf16_impl<Width,Group,-133>(a+base,b+base,Block);
+        result += qrt_q1_moe_hawkeye::dot_bf16_impl<Width,Group,(Width==26?-133:-132)>(a+base,b+base,Block);
     }
     return result;
 }
@@ -61,7 +61,7 @@ int main(int argc,char** argv) {
             if(actual!=expected) { ++mismatches; max_error=std::max(max_error,std::abs(delta)); if(first<0){first=index;first_actual=actual;first_expected=expected;} }
         }
         if(mode)std::cout<<',';
-        std::cout<<"{\"name\":\""<<variants[mode].name<<"\",\"elements\":"<<compared<<",\"mismatches\":"<<mismatches<<",\"maximum_absolute_error\":"<<max_error<<",\"relative_l2\":"<<std::sqrt(error2/norm2)<<",\"first_index\":"<<first<<",\"first_actual\":"<<first_actual<<",\"first_expected\":"<<first_expected<<'}';
+        std::cout<<"{\"name\":\""<<variants[mode].name<<"\",\"elements\":"<<compared<<",\"mismatches\":"<<mismatches<<",\"maximum_absolute_error\":"<<max_error<<",\"relative_l2\":"<<std::sqrt(error2/std::max(norm2,1.0e-300))<<",\"first_index\":"<<first<<",\"first_actual\":"<<first_actual<<",\"first_expected\":"<<first_expected<<'}';
     }
     std::cout<<"]}\n";
 }

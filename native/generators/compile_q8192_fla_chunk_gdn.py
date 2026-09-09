@@ -532,7 +532,13 @@ def _fla_recompute_w_u_kernel(
             b_k.to(tl.float32) * b_beta[:, None].to(tl.float32)
         )
         b_k_beta_g = _bf16_rne_f32(b_k_beta * b_g[:, None]).to(b_k.dtype)
-        b_w = tl.dot(b_a, b_k_beta_g)
+        # W has the same captured two-term midpoint discrepancy as U. Preserve
+        # both BF16 input boundaries and use IEEE F32 accumulation here too.
+        b_w = tl.dot(
+            b_a.to(tl.float32),
+            b_k_beta_g.to(tl.float32),
+            input_precision="ieee",
+        )
         tl.store(
             w + (t[:, None] * H + head) * K + key_dim[None, :],
             b_w,
