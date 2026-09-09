@@ -115,6 +115,7 @@ void run_case(unsigned int rows, unsigned int tokens, bool consumer, bool full_s
         require(converted[kGuard + i] == (consumer ? bf16(value) : kBf16Guard), "BF16 consumer mismatch");
     }
     const size_t samples = full_shape ? 512u : elements;
+    size_t reference_mismatches = 0u;
     for (size_t sample = 0u; sample < samples; ++sample) {
         const size_t index = full_shape ? sample * (elements - 1u) / (samples - 1u) : sample;
         const unsigned int row = static_cast<unsigned int>(index % rows);
@@ -125,8 +126,20 @@ void run_case(unsigned int rows, unsigned int tokens, bool consumer, bool full_s
         }
         // These power-of-two fractions sum exactly in F32: no loose tolerance
         // can conceal a missing write or a row/token-layout error.
-        require(output[kGuard + index] == reference, "synthetic projection reference mismatch");
+        if (output[kGuard + index] != reference) {
+            if (reference_mismatches < 8u) {
+                std::cerr << "projection_reference_mismatch rows=" << rows
+                          << " tokens=" << tokens << " row=" << row << " token=" << token
+                          << " actual=" << std::setprecision(12) << output[kGuard + index]
+                          << " expected=" << reference << std::endl;
+            }
+            ++reference_mismatches;
+        }
     }
+    if (reference_mismatches != 0u) {
+        std::cerr << "projection_reference_mismatches=" << reference_mismatches << '/' << samples << std::endl;
+    }
+    require(reference_mismatches == 0u, "synthetic projection reference mismatch");
     const auto expected_weights = weights;
     const auto expected_inputs = inputs;
     dw.read(weights);
