@@ -35,6 +35,8 @@ if (-not $vs) { throw 'VsDevCmd.bat was not found.' }
 $generator = Join-Path $repo 'native\generators\compile_q8192_fla_chunk_gdn.py'
 $provider = Join-Path $repo 'native\providers\gdn\qrt_fla_chunk_gdn_q8192_provider.cpp'
 $smoke = Join-Path $repo 'native\providers\gdn\q64_fla_chunk_gdn_smoke.cpp'
+$blackwellKkt = Join-Path $repo 'native\providers\gdn\blackwell_kkt.h'
+$blackwellAccumulator = Join-Path $repo 'native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h'
 if ($AotDir) {
     if (-not [IO.Path]::IsPathRooted($AotDir)) { $AotDir = Join-Path $repo $AotDir }
     $metaPath = Join-Path $AotDir 'metadata.json'
@@ -123,7 +125,7 @@ $record = [ordered]@{
     dirty_tree=@(& git -C $repo status --porcelain).Count -ne 0
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir
-    sources=@(@($generator, $provider, $smoke) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

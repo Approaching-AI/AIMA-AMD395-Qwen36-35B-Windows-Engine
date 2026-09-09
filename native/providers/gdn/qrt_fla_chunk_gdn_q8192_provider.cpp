@@ -1,4 +1,5 @@
 #include <hip/hip_runtime.h>
+#include "blackwell_kkt.h"
 
 #include <array>
 #include <cstdint>
@@ -156,6 +157,51 @@ bool dump_q64_stage(bool enabled, const char *name, const void *device, size_t b
         set_error_text("q64 stage dump write failed");
         return false;
     }
+    return true;
+}
+
+bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
+                          const float* g, float* a, int32_t tokens,
+                          hipStream_t stream, bool dump) {
+    // This slow-exact KKT route never queues multiple chunks. Shape admission
+    // bounds each launch to q64; completed device time also gates continuation.
+    if (!k || !beta || !g || !a || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk) {
+        set_error_text("Blackwell KKT requires checked chunk-aligned segment pointers");
+        return false;
+    }
+    struct Event {
+        hipEvent_t handle = nullptr;
+        ~Event() { if (handle) (void)hipEventDestroy(handle); }
+    } begin, end;
+    hipError_t status = hipEventCreate(&begin.handle);
+    if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    if (status != hipSuccess) { set_error("hipEventCreate(blackwell_kkt)", status); return false; }
+    float maximum_ms = 0.0f;
+    for (unsigned int chunk = 0; chunk < static_cast<unsigned int>(tokens) / kChunk; ++chunk) {
+        status = hipEventRecord(begin.handle, stream);
+        if (status != hipSuccess) { set_error("hipEventRecord(blackwell_kkt_begin)", status); return false; }
+        hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
+            dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup), kValueHeads),
+            dim3(qrt_fla_blackwell::kThreads), 0, stream, k, beta, a, chunk);
+        status = hipGetLastError();
+        if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
+        if (status == hipSuccess) status = hipEventSynchronize(end.handle);
+        float milliseconds = 0.0f;
+        if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
+        if (status != hipSuccess) { set_error("blackwell_kkt_chunk", status); return false; }
+        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell KKT chunk exceeded 100 ms; remaining chunks not submitted"); return false; }
+        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
+    }
+    if (!dump_q64_stage(dump, "a-dot-f32", a, 64u * 32u * 64u * 4u)) return false;
+    const unsigned int elements = static_cast<unsigned int>(tokens) * kValueHeads * kChunk;
+    hipLaunchKernelGGL(qrt_fla_blackwell::gate_kernel,
+        dim3((elements + 255u) / 256u), dim3(256u), 0, stream,
+        a, g, static_cast<unsigned int>(tokens));
+    status = hipGetLastError();
+    if (status == hipSuccess) status = hipStreamSynchronize(stream);
+    if (status != hipSuccess) { set_error("blackwell_kkt_gate", status); return false; }
+    std::fprintf(stderr, "FLA_KKT route=blackwell_group16_width26_k128 tokens=%d chunks=%u maximum_chunk_ms=%.6f guard_ms=100\n",
+        tokens, static_cast<unsigned int>(tokens) / kChunk, static_cast<double>(maximum_ms));
     return true;
 }
 
@@ -600,7 +646,11 @@ int launch_segment_async(
         &global_scratch,
         &profile_scratch,
     };
-    if (!launch(
+    const char* blackwell_kkt = std::getenv("QRT_FLA_GDN_KKT_BLACKWELL");
+    if (blackwell_kkt != nullptr && std::strcmp(blackwell_kkt, "1") == 0) {
+        if (!launch_blackwell_kkt(k_pointer, beta_pointer, g_pointer, a_pointer,
+                                 tokens, stream, dump)) return 0;
+    } else if (!launch(
             KernelIndex::kScaledDotKkt,
             chunks,
             kValueHeads,
