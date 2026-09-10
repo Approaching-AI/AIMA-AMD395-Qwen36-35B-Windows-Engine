@@ -349,6 +349,28 @@ weights on SM121, comparing fused and separate projection geometry followed
 by the fingerprinted original convolution kernel. Frozen outputs are only
 comparison targets. This replay is optional, bounded and model-free.
 
+The SM121 replay at `0c937b6a3aef355b3455b2e692e360870f424863` completes
+both fused QKVZ and separate QKV cases. Their complete 58,728,448-element
+BF16 projections are identical (SHA
+`c15e4bf72433bcf534d82c0d97e34026b01849fa935b68d751dbc0a423a446f4`),
+and both terminal projections match all 8,192 GB10 cells. Original convolution
+still differs from the saved GB10 sequence in 2,962 Q, 2,630 K and 5,356 V
+values. Native Q/K/V differences are 2,994 / 2,691 / 5,450. Thus changing
+projection geometry on the reference device does not remove the main residual.
+The original PTX confirms BF16 products and FP32 convolution accumulation.
+CPU continuous-K26 projection matches all 1,143 sampled SM121 coordinates.
+
+The native mismatch distribution clusters at token 97 and the subsequent
+three convolution positions. The replay can now start from fingerprinted
+actual model embedding rows and the original GemmaRMSNorm implementation,
+comparing eager/compiled normalization and feeding the compiled result into
+projection/convolution. This tests the preceding normalization boundary.
+The first replay's 512 MiB allocation bound stopped before convolution;
+the revised bound includes transient CUDA BLAS workspace, records allocation
+stages and completes at a measured 549,770,752-byte peak under 1 GiB. Both
+owned containers have exited, and the original reference service remains
+stopped. These are component diagnostics, not inference acceptance.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

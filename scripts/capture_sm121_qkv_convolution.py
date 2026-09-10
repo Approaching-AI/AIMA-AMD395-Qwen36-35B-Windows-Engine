@@ -58,6 +58,92 @@ def extracted(source):
     return ast.unparse(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[]))) + "\n"
 
 
+def embedding_manifest(args):
+    if args.embedding_input_dir is None:
+        if args.embedding_manifest_sha256 or args.norm_source or args.norm_source_sha256:
+            raise ValueError("incomplete embedding normalization configuration")
+        return None
+    path = args.embedding_input_dir / "manifest.json"
+    if (path.stat().st_size > 1 << 20 or file_sha(path) != args.embedding_manifest_sha256 or
+            args.norm_source is None or args.norm_source.stat().st_size > 1 << 20 or
+            file_sha(args.norm_source) != args.norm_source_sha256):
+        raise ValueError("embedding manifest or normalization source mismatch")
+    manifest = json.loads(path.read_text())
+    rows = manifest.get("unique_tokens")
+    if type(rows) is not int or not 1 <= rows <= 512 or manifest.get("tokens") != TOKENS:
+        raise ValueError("embedding control shape mismatch")
+    layouts = {"embedding": ("bf16", [rows, 2048]), "token_ids": ("u32", [rows]),
+               "prompt": ("u32", [TOKENS]), "weight": ("bf16", [2048]),
+               "terminal": ("bf16", [2048])}
+    if set(manifest.get("files", {})) != set(layouts):
+        raise ValueError("embedding file set mismatch")
+    for name, (dtype, shape) in layouts.items():
+        meta = manifest["files"][name]
+        path = args.embedding_input_dir / (name + ".bin")
+        count = 1
+        for size in shape:
+            count *= size
+        if (meta.get("file") != path.name or meta.get("dtype") != dtype or meta.get("shape") != shape or
+                path.stat().st_size != count * (4 if dtype == "u32" else 2) or
+                file_sha(path) != meta.get("sha256")):
+            raise ValueError("embedding layout/fingerprint mismatch: " + name)
+    return manifest
+
+
+def normalize_embeddings(args, manifest, native, compare):
+    import numpy as np
+    import torch
+    directory = args.embedding_input_dir
+    data = {name: np.fromfile(directory / meta["file"], dtype=np.uint32 if meta["dtype"] == "u32" else np.uint16).reshape(meta["shape"])
+            for name, meta in manifest["files"].items()}
+    ids = data["token_ids"].tolist()
+    if ids != sorted(set(ids)) or any(int(t) not in ids for t in data["prompt"]):
+        raise ValueError("embedding token IDs are not a complete unique prompt mapping")
+    if any(np.any((data[n] & 0x7f80) == 0x7f80) for n in ("embedding", "weight", "terminal")):
+        raise ValueError("nonfinite embedding normalization control")
+    positions = np.array([ids.index(int(t)) for t in data["prompt"]], dtype=np.int64)
+    values = torch.from_numpy(data["embedding"][positions]).view(torch.bfloat16).cuda()
+    weight = torch.from_numpy(data["weight"]).view(torch.bfloat16).cuda()
+    cls = next(n for n in ast.parse(args.norm_source.read_text()).body if isinstance(n, ast.ClassDef) and n.name == "GemmaRMSNorm")
+    node = next(n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "_forward_static_no_residual")
+    node.decorator_list = []
+    code = ast.unparse(ast.fix_missing_locations(ast.Module(body=[node], type_ignores=[]))) + "\n"
+    path = args.output_dir / "reference-input-rmsnorm-extracted.py"
+    path.write_text(code)
+    module = types.ModuleType("_qrt_reference_input_rmsnorm")
+    module.__file__ = str(path)
+    module.torch = torch
+    sys.modules[module.__name__] = module
+    exec(compile(code, str(path), "exec", dont_inherit=True), module.__dict__)
+    function = module.__dict__[node.name]
+    cases = []
+    selected = None
+    for mode, fn in (("eager", function), ("compiled", torch.compile(function, fullgraph=True))):
+        # The first call includes compilation/module initialization and remains
+        # inside the supervised process deadline. This is not a timing benchmark.
+        output = fn(weight, 1e-6, values)
+        torch.cuda.synchronize()
+        actual = output.view(torch.uint16).cpu().numpy()
+        diff = actual != native
+        rows = np.flatnonzero(np.any(diff, axis=1))
+        record = dict(mode=mode, native_comparison=compare(actual, native),
+                      terminal_comparison=compare(actual[-1], data["terminal"]),
+                      differing_tokens=[dict(position=int(t), token_id=int(data["prompt"][t]),
+                                             cells=int(np.count_nonzero(diff[t]))) for t in rows],
+                      peak_device_bytes=torch.cuda.max_memory_allocated())
+        cases.append(record)
+        with (args.output_dir / "normalization-progress.jsonl").open("a") as stream:
+            stream.write(json.dumps(record) + "\n")
+        if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
+            raise ValueError("normalization device allocation ceiling exceeded")
+        if mode == "compiled":
+            selected = actual.copy()
+            (args.output_dir / "compiled-input-bf16.bin").write_bytes(selected.tobytes())
+    return selected, dict(source_sha256=args.norm_source_sha256,
+                          manifest_sha256=args.embedding_manifest_sha256,
+                          projection_input="compiled_original_GemmaRMSNorm", cases=cases)
+
+
 def execute(args):
     import numpy as np
     import torch
@@ -86,6 +172,10 @@ def execute(args):
                     actual_sha256=hashlib.sha256(actual.tobytes()).hexdigest(),
                     expected_sha256=hashlib.sha256(expected.tobytes()).hexdigest())
 
+    norm_manifest = embedding_manifest(args)
+    normalization = None
+    if norm_manifest is not None:
+        arrays["input"], normalization = normalize_embeddings(args, norm_manifest, arrays["input"], compare)
     extracted_path = args.output_dir / "reference-convolution-extracted.py"
     extracted_path.write_text(extracted(args.source))
     module = types.ModuleType("_qrt_reference_convolution")
@@ -102,6 +192,7 @@ def execute(args):
     result = dict(torch_version=torch.__version__, triton_version=triton.__version__,
                   device=torch.cuda.get_device_name(),
                   allow_bf16_reduced_precision_reduction=torch.backends.cuda.matmul.allow_bf16_reduced_precision_reduction,
+                  normalization=normalization,
                   cases=[])
     for fused in (True, False):
         name = "fused_qkvz" if fused else "separate_qkv"
@@ -188,6 +279,10 @@ def main():
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--expected-host")
     parser.add_argument("--timeout-seconds", type=int, default=90)
+    parser.add_argument("--embedding-input-dir", type=Path)
+    parser.add_argument("--embedding-manifest-sha256")
+    parser.add_argument("--norm-source", type=Path)
+    parser.add_argument("--norm-source-sha256")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
@@ -201,6 +296,7 @@ def main():
     if args.output_dir.exists() or args.source.stat().st_size > 1 << 20 or file_sha(args.source) != args.source_sha256:
         raise ValueError("existing output or convolution source mismatch")
     validate(args.input_dir, args.manifest_sha256)
+    embedding_manifest(args)
     extracted(args.source)
     if args.execute:
         if sys.platform != "linux" or socket.gethostname().lower() != (args.expected_host or "").lower():
