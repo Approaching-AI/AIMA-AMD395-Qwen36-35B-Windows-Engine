@@ -162,14 +162,76 @@ void run_case(unsigned int rows, unsigned int tokens, bool consumer, bool full_s
               << ",\"raw_f32_max_abs_diff\":" << std::setprecision(12) << raw_f32_max_abs_diff
               << ",\"redzones_pass\":true,\"wall_ms\":" << ms << "}" << std::endl;
 }
+// Seed sparse accumulator midpoints to exercise the actual selector, compact
+// index transport and correction launcher. Exact dots vary with both token and
+// row; other cells must still receive BF16 rounding. A product-sized case has
+// more candidates than the former whole-tensor admission quota.
+void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k) {
+    const size_t elements = static_cast<size_t>(rows) * tokens;
+    std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
+    std::vector<uint16_t> inputs(static_cast<size_t>(tokens) * k + 2u * kGuard, kBf16Guard);
+    std::vector<float> output(elements + 2u * kGuard, kF32Guard);
+    std::fill(weights.begin() + kGuard, weights.end() - kGuard, uint16_t{0});
+    std::fill(inputs.begin() + kGuard, inputs.end() - kGuard, uint16_t{0});
+    for (unsigned int row = 0u; row < rows; ++row) {
+        weights[kGuard + static_cast<size_t>(row) * k + k - 1u] =
+            bf16(static_cast<float>(static_cast<int>(row % 13u) - 6) / 8.0f);
+    }
+    for (unsigned int token = 0u; token < tokens; ++token) {
+        inputs[kGuard + static_cast<size_t>(token) * k + k - 1u] =
+            bf16(static_cast<float>(static_cast<int>(token % 17u) - 8) / 16.0f);
+    }
+    for (size_t i = 0u; i < elements; ++i) {
+        output[kGuard + i] = (i % 64u == 0u || i + 1u == elements)
+            ? 1.00390625f : 1.001f;
+    }
+    const auto expected_weights = weights;
+    const auto expected_inputs = inputs;
+    DeviceBuffer<uint16_t> dw(weights), di(inputs);
+    DeviceBuffer<float> df(output);
+    const auto start = std::chrono::steady_clock::now();
+    hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(
+        dw.data(), di.data(), nullptr, nullptr, nullptr, df.data(), rows, tokens,
+        k, 512u, 0u, 0u, 8u, nullptr), "streamed_correction");
+    const double ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - start).count();
+    df.read(output);
+    for (size_t i = 0u; i < kGuard; ++i) {
+        require(output[i] == kF32Guard && output[kGuard + elements + i] == kF32Guard,
+                "streamed correction wrote output redzone");
+    }
+    size_t candidates = 0u;
+    for (size_t i = 0u; i < elements; ++i) {
+        float expected = 1.0f;
+        if (i % 64u == 0u || i + 1u == elements) {
+            ++candidates;
+            const unsigned int row = static_cast<unsigned int>(i % rows);
+            const unsigned int token = static_cast<unsigned int>(i / rows);
+            expected = (static_cast<float>(static_cast<int>(row % 13u) - 6) / 8.0f) *
+                       (static_cast<float>(static_cast<int>(token % 17u) - 8) / 16.0f);
+        }
+        require(bf16(output[kGuard + i]) == bf16(expected), "streamed correction endpoint mismatch");
+        uint32_t bits = 0u;
+        std::memcpy(&bits, &output[kGuard + i], sizeof(bits));
+        require((bits & 0xffffu) == 0u, "streamed correction left unrounded cell");
+    }
+    dw.read(weights); di.read(inputs);
+    require(weights == expected_weights && inputs == expected_inputs,
+            "streamed correction modified read-only input or redzone");
+    std::cout << "{\"type\":\"correction_case\",\"rows\":" << rows
+              << ",\"tokens\":" << tokens << ",\"k\":" << k
+              << ",\"candidates\":" << candidates << ",\"reference_cells\":" << elements
+              << ",\"bf16_reference_mismatches\":0,\"redzones_pass\":true,\"wall_ms\":"
+              << ms << "}" << std::endl;
+}
 } // namespace projection_safety_test
 
 int main(int argc, char **argv) {
     using namespace projection_safety_test;
     try {
-        require(argc == 2, "select --host-only, --small, or --full-shape");
+        require(argc == 2, "select --host-only, --small, --full-shape, or --correction");
         const std::string mode = argv[1];
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -185,6 +247,10 @@ int main(int argc, char **argv) {
                         ++cases;
                     }
                 }
+            } else if (mode == "--correction") {
+                run_correction_case(129u, 1031u, 2048u);
+                run_correction_case(8192u, 7169u, 16u);
+                cases += 2u;
             } else {
                 run_case(8192u, 7169u, true, true);
                 ++cases;

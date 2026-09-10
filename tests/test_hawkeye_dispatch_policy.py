@@ -1,4 +1,4 @@
-"""Exercise admission and timeout boundaries without submitting GPU work."""
+"""Exercise streamed dispatch, admission and faults without submitting GPU work."""
 
 from pathlib import Path
 import os
@@ -65,14 +65,34 @@ int main() {
             )
             subprocess.run([exe], check=True, timeout=5)
 
+    def test_actual_stream_launcher_transports_absolute_indices_and_stops_on_fault(self):
+        provider = (ROOT / "native/providers/whole_provider.cpp").read_text()
+        begin = provider.index("hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(")
+        end = provider.index("// GB10's cuBLASLt BF16 BA projection", begin)
+        source = (ROOT / "tests/native/hawkeye_stream_host_mock.cpp").read_text()
+        source = source.replace("// QRT_ACTUAL_LAUNCHER", provider[begin:end])
+        with tempfile.TemporaryDirectory(prefix="qrt-hawkeye-stream-") as tmp:
+            exe = str(Path(tmp) / "stream-test")
+            subprocess.run(
+                [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
+                 "-Werror", "-I", str(ROOT / "native/providers"), "-x", "c++",
+                 "-", "-o", exe],
+                input=source, text=True, check=True, timeout=30,
+            )
+            subprocess.run([exe], check=True, timeout=5, capture_output=True, text=True)
+
     def test_dense_work_and_exhausted_time_are_rejected(self):
         source = r'''
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
 using namespace qrt_hawkeye_dispatch;
 static_assert(admitted(0, 0), "empty candidate set");
+static_assert(window_elements(0) == 0, "empty projection");
+static_assert(window_elements(65535) == 65535, "partial window");
+static_assert(window_elements(65536) == 65536, "full collection grid");
+static_assert(window_elements(UINT64_MAX) == 65536, "wide remaining count cannot wrap");
 static_assert(admitted(131072, 64), "inclusive admission boundary");
-static_assert(!admitted(131073, 1), "total work cannot exceed the budget");
+static_assert(!admitted(131073, 1), "one window cannot exceed scratch capacity");
 static_assert(!admitted(1, 65), "one dense block must also be rejected");
 static_assert(!admitted(UINT32_MAX, UINT32_MAX), "no integer wraparound");
 static_assert(time_remaining(100.0, 10000.0), "inclusive time boundary");

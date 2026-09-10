@@ -5,12 +5,21 @@
 
 namespace qrt_hawkeye_dispatch {
 
-// These are admission limits for the expensive diagnostic, not numerical
-// approximations. A rejected request must fail before any exact-dot launch.
+// Admission applies to one bounded collection window. Long projections stream
+// windows instead of failing because their aggregate candidate count is large.
+// The completed-dispatch and whole-correction deadlines still bound execution.
 constexpr std::uint32_t maximum_candidates = 131072u;
+// At most 256 lightweight collection blocks, separately from the eight-block
+// exact-dot cap. The scratch capacity also covers a completely dense window.
+constexpr std::uint32_t maximum_window_elements = 65536u;
 constexpr std::uint32_t maximum_candidates_per_block = 64u;
 constexpr double maximum_dispatch_ms = 100.0;
 constexpr double maximum_correction_ms = 10000.0;
+
+constexpr std::uint32_t window_elements(std::uint64_t remaining) {
+    return remaining < maximum_window_elements
+        ? static_cast<std::uint32_t>(remaining) : maximum_window_elements;
+}
 
 constexpr bool admitted(std::uint32_t candidates, std::uint32_t block_candidates) {
     return candidates <= maximum_candidates &&

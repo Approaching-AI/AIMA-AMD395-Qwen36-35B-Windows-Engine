@@ -167,9 +167,10 @@ still **fails** with 220 / 9.3125; token 82's logit is 9.125. Native load is
 20,034.3477 ms and TTFT 21,868.1872 ms, with passing cleanup/host checks.
 Run-record SHA-256 is
 `a3cb14d4d190367bf6469e65de803b92404cc13e32a7b89bbefc33bf0285c2ac`.
-The requested existing layer-zero trace flags did not emit on this optimized
-path, so they do not establish live-input parity. The exact saved-input GDN
-case is retained as component evidence; the model remains unqualified.
+The original layer-zero traces were suppressed by the required-marker and
+deferred/compact log filters. Disabling those filters makes the existing
+traces observable. The exact saved-input GDN case is component evidence; the
+model remains unqualified.
 
 `QRT_FLA_GDN_CAPTURE_FIRST_DIR` captures the first complete native GDN call's
 actual raw inputs, gates, outputs and final state for 1..8192 tokens. It uses
@@ -179,6 +180,56 @@ supplies values to inference. Failed capture stops the call and cannot be
 retried in the same prepared provider. The optional hook avoids reliance on
 whole-provider trace branches. Host fault/tail tests and full local checks
 pass 262 Python tests (two known skips), Rust, clippy, C ABI, q16 and hygiene.
+
+
+The native r20 first-call control matches the existing q64 inputs and outputs.
+The real model on baiying, `D:\models\Qwen3.6-35B-A3B`, at FLA commit
+`831c1699c3c956ace00365bb42c2deb2045a7ea7` and whole-provider commit
+`c36e2674a5ade5544ef49a3756dbe99454b00991` exposes differences before GDN:
+7,014 Q, 8,852 K and 16,121 V BF16 cells differ from the frozen layer-zero
+GB10 inputs. Raw gates differ as well. Command
+`prepare-fla-model-q7169-first-call-r1.ps1` still emits **220 / 9.3125**
+against **82 / 9.25**, with load 20,033.6432 ms and TTFT 22,046.4739 ms.
+Run-record SHA-256 is
+`2f5c27c099f630f0f7c0d20dbb2da54762f5df1143f643cabf0268850d6735fb`.
+
+A BF16 projection-boundary control, using the same safe base profile and
+`prepare-fla-model-q7169-bf16-endpoints-capture-r1.ps1`, reduces G relative
+L2 to 1.20422e-7 (all BF16 endpoints match) and beta mismatches from 19,057
+to 90. Q/K/V remain unchanged; GDN output mismatches fall from 7,223,511 to
+4,308,499. The terminal input RMSNorm, Z, A and B projections match their
+GB10 BF16 endpoints exactly, while QKV differs in 49 / 8,192 cells. The
+model still emits **220 / 9.3125**; load is 20,076.6755 ms and diagnostic
+TTFT 23,104.1936 ms. Run SHA-256 is
+`ff049cd32bd2ec3f42808f3ccdd8d00b40d913dbb8ad52a78d70638a636ba752`.
+
+CPU recomputation uses the verified terminal input and actual model QKV
+weights (SHA-256 `b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f`).
+The production characterized accumulator at width 26 with continuous K2048
+matches all 8,192 reference endpoints; split K1024 retains five differences.
+This is a projection diagnostic, not whole-model acceptance. Its record SHA
+is `274b785da42728dc7ac0f589e3a6fa82e0ff264305cf8a4ec971dca78189d1e3`.
+
+The initial real-model WMMA/correction probe stops before correction because
+915,149 candidates exceed the former whole-projection quota of 131,072,
+although its densest original block has only 12 candidates. It emits no
+model token. Run-record SHA-256 is
+`3e46fa77950447f3438021dd8f258aa35306522f8fca6aaaff5a811a5549a931`.
+All three model commands pass host and cleanup checks. No result qualifies
+continuation, prefix reuse, product performance, or a release.
+
+The correction launcher now streams 65,536-element collection windows into
+constant 512 KiB index scratch, then executes only compacted candidates.
+Indices remain absolute across token/row boundaries. Collection uses at most
+256 blocks; exact-dot dispatches retain eight blocks, completed-stream
+synchronization, the 100 ms dispatch deadline and 10 s aggregate deadline.
+The 131,072 candidate and 64-per-source-block limits apply to each window.
+Count-only mode leaves outputs unchanged. Host tests execute the production
+launcher with mocked HIP to check cross-window tails, no repeated indices,
+admission failure, asynchronous error cleanup and count-only behavior.
+Native `qrt-projection-safety.exe --correction` adds an irregular K2048
+case and a synthetic full q7169 geometry with more candidates than the former
+global quota. Native and real-model evidence for this new launcher is pending.
 
 ## MMLU-Pro full evaluation
 
