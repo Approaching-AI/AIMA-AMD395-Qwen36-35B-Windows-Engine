@@ -18,11 +18,14 @@ using namespace qrt_gate_capture;
 int main(int argc, char **argv) {
     if (argc != 2) return 1;
     std::filesystem::path root(argv[1]);
-    std::vector<float> a(65 * 32), b(65 * 32), parameter(32);
+    std::vector<float> a(65 * 32), b(65 * 32);
+    std::vector<uint16_t> parameter(32);
     for (size_t i = 0; i < a.size(); ++i) { a[i] = float(i) / 8.0f; b[i] = -a[i]; }
-    for (size_t i = 0; i < parameter.size(); ++i) parameter[i] = float(i) / 16.0f;
-    const auto before_a = a, before_b = b, before_p = parameter;
-    Span sa{a.data(), a.size()}, sb{b.data(), b.size()}, sp{parameter.data(), parameter.size()};
+    for (size_t i = 0; i < parameter.size(); ++i) parameter[i] = static_cast<uint16_t>(0x3f80u + i);
+    const auto before_a = a, before_b = b;
+    const auto before_p = parameter;
+    Span sa{a.data(), a.size()}, sb{b.data(), b.size()};
+    Bf16Span sp{parameter.data(), parameter.size()};
     std::string error;
     for (unsigned int tokens : {0u, 8193u, 64u}) {
         if (write((root / "invalid").string().c_str(), 0, tokens, sa, sb, sp, sp, &error)) return 2;
@@ -33,13 +36,14 @@ int main(int argc, char **argv) {
     if (write((root / "missing" / "child").string().c_str(), 0, 65, sa, sb, sp, sp, &error)) return 6;
     const auto dest = root / "capture";
     if (!write(dest.string().c_str(), 0, 65, sa, sb, sp, sp, &error)) return 7;
-    const char *names[] = {"a-f32.bin", "b-f32.bin", "a-log-f32.bin", "dt-bias-f32.bin"};
-    const Span spans[] = {sa, sb, sp, sp};
+    const char *names[] = {"a-f32.bin", "b-f32.bin", "a-log-bf16.bin", "dt-bias-bf16.bin"};
+    struct Payload { const void *data; size_t bytes; };
+    const Payload spans[] = {{sa.data, sa.size * 4u}, {sb.data, sb.size * 4u}, {sp.data, sp.size * 2u}, {sp.data, sp.size * 2u}};
     for (unsigned int i = 0; i < 4; ++i) {
-        if (std::filesystem::file_size(dest / names[i]) != spans[i].size * 4) return 8;
+        if (std::filesystem::file_size(dest / names[i]) != spans[i].bytes) return 8;
         std::ifstream file(dest / names[i], std::ios::binary);
-        std::vector<float> actual(spans[i].size); file.read(reinterpret_cast<char *>(actual.data()), actual.size() * 4);
-        if (std::memcmp(actual.data(), spans[i].data, actual.size() * 4)) return 9;
+        std::vector<unsigned char> actual(spans[i].bytes); file.read(reinterpret_cast<char *>(actual.data()), actual.size());
+        if (std::memcmp(actual.data(), spans[i].data, actual.size())) return 9;
     }
     if (!std::filesystem::exists(dest / "capture.json")) return 10;
     if (write(dest.string().c_str(), 0, 65, sa, sb, sp, sp, &error)) return 11;
