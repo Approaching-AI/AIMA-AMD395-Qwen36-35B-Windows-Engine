@@ -76,3 +76,21 @@ Only layer zero has been constructed in this control. Diagnostic commands
 must pin its fingerprint and parameter provenance because the existing raw
 loader validates size, not model identity. Release use remains contingent on
 model binding, artifact verification, load time and real-model qualification.
+
+## Optional model embedding inverse scales
+
+`scripts/capture_sm121_embedding_scales.py` precomputes one FP32 inverse
+RMSNorm scale for each of the model's 248,320 immutable embedding rows.
+This removes the observed layer-zero reduction/reciprocal-root discrepancy
+without a prompt-specific correction. The proposed file is 993,280 bytes;
+the native loader keeps that host table and uploads four bytes per prompt
+token. It uses the existing optional
+`QRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH` surface.
+
+Construction uses the pinned SM121 Torch/NumPy/Triton environment and reads
+the embedding tensor on CPU in bounded chunks. It first validates the
+complete real-token norm control, then computes all entries solely from model
+parameters and the fixed epsilon. No CUDA, Python or new third-party library
+is added to Windows inference. Release packaging still requires table/model
+fingerprints and real-model qualification; construction/native validation
+remain pending.

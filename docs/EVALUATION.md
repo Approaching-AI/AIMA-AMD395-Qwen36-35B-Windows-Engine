@@ -371,6 +371,27 @@ stages and completes at a measured 549,770,752-byte peak under 1 GiB. Both
 owned containers have exited, and the original reference service remains
 stopped. These are component diagnostics, not inference acceptance.
 
+The original compiled GemmaRMSNorm replay at `6862ee7` changes exactly 54
+native input cells: one feature at each occurrence of token 97 or 99. Using
+that result, both SM121 projection geometries and the original convolution
+match **every** saved Q/K/V BF16 value. Correct full input-RMSNorm SHA is
+`6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161`;
+the complete replay record SHA is
+`5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b`.
+The generated reduction has XBLOCK=2, R0_BLOCK=2048 and 16 warps. Eager
+PyTorch only changes token 97 and is not substituted for the compiled
+authority. The separate native FP32 sequential-reduction route changes 88
+cells and worsens Q/K/V differences to 7,043 / 6,181 / 12,708, so that
+profile is not retained.
+
+The next optional builder observes the original compiled inverse scale,
+requires both its full normalization output and separate inverse application
+to reproduce the complete real-token control, then enumerates every model
+embedding. Its output is a 248,320-entry FP32 table for the existing native
+layer-zero inverse-scale path. Model weights, source, launch geometry and the
+comparison capture are fingerprinted; expected outputs do not generate table
+entries. Native table validation is pending.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
