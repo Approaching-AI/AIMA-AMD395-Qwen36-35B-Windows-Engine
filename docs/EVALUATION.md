@@ -32,6 +32,13 @@ with the global override disabled.
 
 ## Unreleased FLA diagnostics (updated September 10)
 
+The latest live-model layer-zero GDN capture is exact across the complete
+q7169 Q/K/V/G/beta inputs, output and terminal state. The model still emits
+220 / 9.375 against GB10 82 / 9.25, so the route remains unqualified. The
+terminal gated RMSNorm and output projection are exact; the subsequent
+post-attention RMSNorm has 420 BF16 differences.
+The following records preserve how those boundaries were established.
+
 The optional FLA route at `33e0492ee17013aa897eb19aa092c15cf56df2bf` now
 matches the saved real q7169 layer-0 recurrence exactly on native Windows:
 29,364,224 V-new BF16 values, 59,244,544 checkpoint BF16 values, and all
@@ -476,7 +483,58 @@ correction table, malformed layout or mismatched SHA. The default remains off.
 CPU lookup matches every held-out sample and all transition boundaries, and
 rejects malformed schema/directory inputs. The native regression compares
 complete real QKV/weight convolution before and after table application;
-native GPU and whole-model qualification remain pending.
+native Windows validation follows below.
+
+The native `a09b89688ddd7f84dc067cde51be9f75c86b6ac3` convolution control
+matches all 58,728,448 real Q/K/V BF16 cells with the table; the same kernel
+without it retains 28 / 43 / 45 differences. Redzones and immutable inputs
+pass. Command `run-native-silu-table-r2.ps1 -Action test-real-conv` on baiying
+uses captured tensors from `D:\models\Qwen3.6-35B-A3B`; control run SHA:
+`bb28bcceb6c1e40851341ea4ab8303484db4ecbaf1e71d531ff97d0ac37bac93`.
+Whole DLL SHA:
+`f50d039872f672b56ed298f672e0d1862bbf8f1a51de6c6e6481207d80b088cf`.
+The initial build rejected three legacy launch sites missing the newly added
+argument; the completed build passes with their optional table explicitly null.
+Full local checks pass 264 Python tests (two known skips), 45 Rust tests,
+Clippy, C ABI, seven q16 contracts and hygiene; the launch-site fix also passes
+all 32 native-route contract tests.
+
+`prepare-fla-model-q7169-embeddingnorm-sm121silu-capture-r1.ps1` runs the real
+model on baiying with that whole provider, unchanged `831c1699` FLA and
+`f544cbe` CLI. The complete first live GDN call now matches every Q/K/V/G/beta
+cell, all 29,364,224 output BF16 cells and all 524,288 terminal FP32 state
+cells. There are no nonfinite values or raw-bit differences. Native CPU
+comparison run SHA:
+`c922ca663d266411a55e7bba67f370a0745043a9c830816bf35c0ab5c1184297`.
+All terminal QKV/Z/A/B, core and gated-RMSNorm BF16 cells also match. The
+terminal output projection retains five differences at rows 414, 564, 858,
+1682 and 1803.
+
+The first generated token still **fails**: 220 / 9.375 instead of 82 / 9.25.
+Load is 20,031.357800 ms, diagnostic TTFT 28,165.328200 ms and wall
+48,580.559 ms; host and cleanup checks pass. Model run SHA:
+`1c2143295a888155906780956b17b2a20fd0521b32c32027a04249257a976843`.
+This is live upstream correctness evidence, not accepted full-model inference,
+continuation, performance or package qualification. CPU output-projection
+recomputation from the now exact terminal gated input and actual model weights
+matches all 2,048 reference BF16 endpoints using continuous K4096 / width 26;
+split K2048 retains four differences. CPU run SHA:
+`6ac5318e953ab9fd3056faf0ce65f7df47961fb7228d90c09748f13f336554eb`.
+The follow-up `prepare-fla-model-q7169-sm121silu-out-capture-r1.ps1` uses the
+same source and DLL to apply full-sequence output correction. All terminal
+output-projection BF16 cells now match. The layer-zero residual/add BF16
+endpoints also match; post-attention RMSNorm retains 420 differences. The
+first token remains 220 / 9.375, load 19,992.455600 ms, diagnostic TTFT
+30,718.662300 ms and wall 51,099.908 ms. Host and cleanup checks pass.
+Run SHA: `f2266de9becaa2305833749fb3b4ae60a40e9683acb6e056362f35d808605984`.
+The selector processes 12,911,801 of 14,682,112 output cells with compacted
+64-CTA batches; the original source-window cap covers the explicit full shape,
+while fixed scratch and dispatch deadlines still apply. CPU normalization
+replay reproduces all 420 native differences and eliminates them when the
+numerator uses the BF16-rounded residual sum while variance uses the unrounded
+sum. Computing variance from the rounded sum retains 237 differences. This
+supports testing the existing vLLM residual/norm path with the corrected
+upstream; it does not establish a full-sequence or token-loop result.
 
 ## MMLU-Pro full evaluation
 
