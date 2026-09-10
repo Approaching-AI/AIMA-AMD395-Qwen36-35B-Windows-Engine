@@ -189130,6 +189130,8 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
                 absolute_position
             );
     }
+    const bool use_bf16_argmax = env_flag_enabled(
+        "QRT_QWEN36_LM_HEAD_BF16_ARGMAX");
     const bool q1_lm_head_bf16_parallel_topk = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_PARALLEL_TOPK"
     );
@@ -189140,8 +189142,8 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
         "QRT_QWEN36_Q1_DUAL_LM_HEAD_MARGIN_GATED"
     );
     constexpr float kPrimaryUncertaintyMargin = 0.25f;
-    const bool unsupported_lm_head_option =
-        env_flag_enabled("QRT_QWEN36_Q1_LM_HEAD_F32_ENDPOINT") ||
+    const bool unsupported_score_policy = !use_bf16_argmax &&
+        (env_flag_enabled("QRT_QWEN36_Q1_LM_HEAD_F32_ENDPOINT") ||
         env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_ONE_ULP_TIEBREAK"
         ) ||
@@ -189155,7 +189157,8 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
         env_u32_or_default(
             "QRT_QWEN36_Q1_LM_HEAD_BF16_GAP_4_3_RUNNER_POSITION",
             UINT_MAX
-        ) != UINT_MAX ||
+        ) != UINT_MAX);
+    const bool unsupported_lm_head_option = unsupported_score_policy ||
         env_flag_enabled("QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_ALL") ||
         absolute_position == static_cast<size_t>(env_u32_or_default(
             "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION",
@@ -189172,7 +189175,7 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
         !q1_decode_device_token_layer0_overlap_enabled() ||
         !q1_decode_device_token_layer0_same_stream_copy_enabled() ||
         !q1_lm_head_bf16_parallel_topk ||
-        !q1_lm_head_bf16_exact_tie_inverse_f32 ||
+        (!use_bf16_argmax && !q1_lm_head_bf16_exact_tie_inverse_f32) ||
         unsupported_lm_head_option ||
         (margin_gated_alternate_lm_head &&
          (primary_workspace->direct_output_lm_head_function == nullptr ||
@@ -189210,7 +189213,7 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
             nullptr) {
         return fail(
             "qwen36_paired_lm_head_contract",
-            "the batch-two LM-head owner requires the retained BF16 parallel-topk/inverse-tie route and two complete private output workspaces sharing one immutable vocabulary matrix"
+            "the batch-two LM-head owner requires BF16 parallel top-k with its selected argmax policy and two complete private output workspaces sharing one immutable vocabulary matrix"
         );
     }
 
@@ -189398,19 +189401,28 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
             workspace->device_direct_output_topk_ids,
             workspace->device_direct_output_topk_logits
         );
-        hipLaunchKernelGGL(
-            lm_head_bf16_exact_tie_inverse_f32_kernel,
-            dim3(1u),
-            dim3(32u),
-            0,
-            hooks->shared_stream,
-            lm_head_weights,
-            workspace->device_norm_bf16,
-            workspace->device_direct_output_topk_ids,
-            workspace->device_direct_output_topk_logits,
-            0u
-        );
+        if (!use_bf16_argmax) {
+            hipLaunchKernelGGL(
+                lm_head_bf16_exact_tie_inverse_f32_kernel,
+                dim3(1u),
+                dim3(32u),
+                0,
+                hooks->shared_stream,
+                lm_head_weights,
+                workspace->device_norm_bf16,
+                workspace->device_direct_output_topk_ids,
+                workspace->device_direct_output_topk_logits,
+                0u
+            );
+        }
     };
+    if (use_bf16_argmax &&
+        primary_workspace->direct_output_plan_activation_count == UINT64_C(0)) {
+        std::cerr << "BATCH_MARK lm_head_bf16_argmax"
+                  << " path=paired_resident_decode full_vocabulary=1"
+                  << " tie_policy=minimum_token_id unrounded_rescoring=0"
+                  << " numerical_correctness_claimed=0" << std::endl;
+    }
     launch_topk(primary_workspace);
     if (!margin_gated_alternate_lm_head) {
         launch_topk(alternate_workspace);
@@ -190277,7 +190289,21 @@ bool run_qwen36_resident_decode_direct_output_plan(
             << " numerical_correctness_claimed=0"
             << std::endl;
     }
-    const bool q1_lm_head_f32_endpoint = env_flag_enabled(
+    // The same BF16 score ordering applies to cold prefill and every decode
+    // position. Legacy unrounded rescoring and near-tie permutations cannot
+    // change a request that opts into the model's published BF16 argmax.
+    const bool use_bf16_argmax = env_flag_enabled(
+        "QRT_QWEN36_LM_HEAD_BF16_ARGMAX");
+    auto arbitration_flag = [use_bf16_argmax](const char *name) {
+        return !use_bf16_argmax && env_flag_enabled(name);
+    };
+    auto arbitration_u32 = [use_bf16_argmax](
+        const char *name, unsigned int default_value
+    ) {
+        return use_bf16_argmax ? default_value :
+            env_u32_or_default(name, default_value);
+    };
+    const bool q1_lm_head_f32_endpoint = arbitration_flag(
         "QRT_QWEN36_Q1_LM_HEAD_F32_ENDPOINT"
     );
     if (q1_lm_head_f32_endpoint) {
@@ -190299,22 +190325,22 @@ bool run_qwen36_resident_decode_direct_output_plan(
     const bool q1_lm_head_bf16_parallel_topk = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_PARALLEL_TOPK"
     );
-    const bool q1_lm_head_bf16_one_ulp_tiebreak = env_flag_enabled(
+    const bool q1_lm_head_bf16_one_ulp_tiebreak = arbitration_flag(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_ONE_ULP_TIEBREAK"
     );
-    const bool q1_lm_head_bf16_exact_tie_high_id = env_flag_enabled(
+    const bool q1_lm_head_bf16_exact_tie_high_id = arbitration_flag(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_HIGH_ID"
     );
-    const bool q1_lm_head_bf16_exact_tie_inverse_f32 = env_flag_enabled(
+    const bool q1_lm_head_bf16_exact_tie_inverse_f32 = arbitration_flag(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32"
     );
     const unsigned int q1_lm_head_bf16_one_ulp_low_id_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_QWEN36_Q1_LM_HEAD_BF16_ONE_ULP_LOW_ID_POSITION",
             UINT_MAX
         );
     const unsigned int q1_lm_head_bf16_gap_4_3_runner_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_QWEN36_Q1_LM_HEAD_BF16_GAP_4_3_RUNNER_POSITION",
             UINT_MAX
         );
@@ -190327,47 +190353,47 @@ bool run_qwen36_resident_decode_direct_output_plan(
             q1_lm_head_bf16_gap_4_3_runner_position
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_max_ulps =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_MAX_ULPS",
             0u
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_POSITION",
             UINT_MAX
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_secondary_max_ulps =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_SECONDARY_MAX_ULPS",
             0u
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_secondary_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_SECONDARY_POSITION",
             UINT_MAX
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_tertiary_max_ulps =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_TERTIARY_MAX_ULPS",
             0u
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_tertiary_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_TERTIARY_POSITION",
             UINT_MAX
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_quaternary_max_ulps =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_QUATERNARY_MAX_ULPS",
             0u
         );
     const unsigned int q1_lm_head_bf16_inverse_f32_quaternary_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_QUATERNARY_POSITION",
             UINT_MAX
         );
     const unsigned int q1_lm_head_bf16_exact_tie_inverse_f32_position =
-        env_u32_or_default(
+        arbitration_u32(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32_POSITION",
             UINT_MAX
         );
@@ -190458,6 +190484,13 @@ bool run_qwen36_resident_decode_direct_output_plan(
             "qwen36_resident_decode_direct_output_lm_head_numeric_shape_policy",
             "position-scoped BF16 decode arbitration requires the retained parallel top-k endpoint and exactly one active numeric-shape policy"
         );
+    }
+    if (use_bf16_argmax &&
+        workspace->direct_output_plan_activation_count == UINT64_C(0)) {
+        std::cerr << "BATCH_MARK lm_head_bf16_argmax"
+                  << " path=resident_decode full_vocabulary=1"
+                  << " tie_policy=minimum_token_id unrounded_rescoring=0"
+                  << " numerical_correctness_claimed=0" << std::endl;
     }
     if (q1_lm_head_f32_endpoint) {
         hipLaunchKernelGGL(

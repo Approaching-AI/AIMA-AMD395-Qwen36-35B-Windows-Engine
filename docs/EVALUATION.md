@@ -86,7 +86,10 @@ model's decision. The native observer independently shows BF16 policies choose
 82 while FP32 policies choose 220. `QRT_QWEN36_LM_HEAD_BF16_ARGMAX=1` now keeps
 the full-vocabulary BF16 ordering and its minimum-ID exact-tie rule, disabling
 unrounded rescoring and empirical permutations. It passes the native q7169 gate with the final-norm repair and remains opt-in
-until broader context and performance qualification.
+until broader context and performance qualification. The option also applies to
+resident single-token and paired output-head execution: BF16 score ordering
+owns every decode position, with legacy FP32 rescoring and near-tie policies
+inactive. Native continuation qualification of this extension is pending.
 
 The complete-window correction control at source 1ac1ce1 passes all
 58,728,448 captured real layer-zero QKV BF16 outputs against GB10, immutable
