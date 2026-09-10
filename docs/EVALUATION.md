@@ -940,3 +940,51 @@ read-only device data in bounded chunks, caps the aggregate at 768 MiB and
 It requires an explicitly matching prefill shape up to q8192. The default
 route adds no copies. All 268 Python cases (two existing skips), Rust/Clippy,
 C ABI, q16 transaction checks and public hygiene pass before native build.
+
+
+The owned full-model GB10 capture now qualifies against the unchanged q7169
+oracle: all 32 output tokens match, raw argmax is 82 / 9.25, and the final
+normalized row keeps SHA `be3354ef1cd706c10a5ee58ae4da7492389d1679cff89e02fa5a6e1229355483`.
+Source `e286e39bbcc9466777c08004d9dea5495a5912e9`, host `aitopatom-66c4`, real model
+`/mnt/data/models/Qwen3.6-35B-A3B`, command file `run-qrt-gb10-fullattn-20260911-r1.py`,
+pinned original image. Capture SHA
+`087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37` binds 136 tensor
+files / 595,121,152 bytes. All 40 captured terminal residual rows also match
+the older independently captured GB10 rows. The owned container exits 0 after
+329.688 seconds, with minimum available host memory 16,546,750,464 bytes.
+GB10 engine startup is not a Windows load-time measurement.
+
+Native whole `2f20ac284f697976cc6e2746073d6345290f4f72` builds on `baiying` with all
+host checks passing; DLL SHA `7a8676df3a6818e7411bc3e507e26db091b2a0f514a132fa05e3034787b50d5c`.
+Command `prepare-fla-model-q7169-full-stage-r1.ps1`, run
+`cf8fc4d935ff3d820753572ee73c26672bc5ed18dbbaef4904f4dfa503af88db`, real model
+`D:\models\Qwen3.6-35B-A3B`, completes with 220 / 9.375, load 20,273.837400 ms
+and diagnostic TTFT 218,314.385400 ms. The 15 full-stage files total
+528,556,032 bytes; every terminal residual remains identical to the preceding
+rotary-only run. The complete layer-3 normalized input (14,682,112 BF16 values)
+is GB10-exact, ruling out upstream history differences at this materialized
+boundary. Q/K/V projection differences are 53,896 / 4,989 / 5,948; full attention
+context differs in 1,079,247 of 29,364,224 values.
+
+Combining the existing fused QKV correction (radius 512, 10,000 ppb) with the
+original SM121 rotary cache closes the *entire* Q/K/V and normalized/rotated
+Q/K boundaries. Command `prepare-fla-model-q7169-fa-qkv-rope-r1.ps1`, run
+`95ec62e1f74712e79335972a0825aa19b2ccbf5b890f4e9311a9d16fc0030c1a`, same native
+components/model, completes with 220 / 9.3125, load 20,101.129500 ms and diagnostic
+TTFT 237,951.357200 ms, all host checks passing. The terminal attention context
+and gated context are now exact. The full context still differs in 65,059
+values and the full gated context in 58,453. Terminal output projection has
+10 differences; its residual and normalization each have five, and the
+post-MoE terminal residual has 310. This is a component improvement, not
+first-token, continuation or performance acceptance. Full comparison SHA
+`08abb008f1006df34d9ffa3e3b5cbd92cb8c20aeaefc44a6d8886ff28294afe0`.
+
+The next output-projection route reuses the characterized continuous K4096
+correction, with FP32 matrix output, live L2 bounds and bounded 64-CTA windows,
+then materializes BF16 once. A CPU control using the actual layer-3 weights
+matches all 2,048 reference terminal output values with the existing group-16 /
+26-bit accumulator; FP64 accumulation differs in six cells. It also detects
+nine projection-only differences when replaying the rotary-only native input.
+The opt-in wrapper covers normal and tiled full-attention output projections;
+default settings preserve the original matrix route. The remaining full-prefix
+attention differences require independent attention-core work.

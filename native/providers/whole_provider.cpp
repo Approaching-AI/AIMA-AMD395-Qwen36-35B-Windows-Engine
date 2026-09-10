@@ -125496,6 +125496,100 @@ uint16_t host_full_attention_bf16_rne(float value) {
     return static_cast<uint16_t>(rounded >> 16u);
 }
 
+bool full_attention_output_projection_bf16(
+    const uint16_t *weights,
+    const uint16_t *inputs,
+    uint16_t *outputs,
+    unsigned int rows,
+    unsigned int reduction_size,
+    unsigned int tokens,
+    hipStream_t stream,
+    const std::string &stage,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    const unsigned int radius = (std::min)(32768u, env_u32_or_default(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS", 0u));
+    const unsigned int error_ppb = (std::min)(1000000u, env_u32_or_default(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB", 0u));
+    if (radius == 0u && error_ppb == 0u) {
+        return resident_bf16_matrix_matmul(
+            weights, inputs, outputs, rows, reduction_size, tokens, stream,
+            stage, failure_stage, failure);
+    }
+    if (rows != kOutProjectionRows || reduction_size != kLayer3FullAttentionQFeatures ||
+        tokens == 0u || tokens > 8192u || failure_stage == nullptr || failure == nullptr) {
+        if (failure_stage != nullptr) *failure_stage = stage + "_correction_shape";
+        if (failure != nullptr) *failure = "full-attention output correction requires a bounded K4096 prefill tile";
+        return false;
+    }
+    float *raw = nullptr;
+    float *input_norm = nullptr;
+    float *weight_norm = nullptr;
+    const auto release = [&]() {
+        if (weight_norm != nullptr) hipFree(weight_norm);
+        if (input_norm != nullptr) hipFree(input_norm);
+        if (raw != nullptr) hipFree(raw);
+    };
+    const auto checked = [&](hipError_t status, const char *operation) {
+        if (status == hipSuccess) return true;
+        *failure_stage = stage + "_correction_" + operation;
+        *failure = hipGetErrorString(status);
+        return false;
+    };
+    const size_t elements = static_cast<size_t>(tokens) * rows;
+    if (!checked(hipMalloc(reinterpret_cast<void **>(&raw), elements * sizeof(float)), "allocate") ||
+        (error_ppb != 0u &&
+         (!checked(hipMalloc(reinterpret_cast<void **>(&input_norm), tokens * sizeof(float)), "input_norm_allocate") ||
+          !checked(hipMalloc(reinterpret_cast<void **>(&weight_norm), rows * sizeof(float)), "weight_norm_allocate")))) {
+        release();
+        return false;
+    }
+    if (!resident_bf16_matrix_matmul_f32_output(
+            weights, inputs, raw, rows, reduction_size, tokens, stream,
+            stage + "_f32", failure_stage, failure)) {
+        release();
+        return false;
+    }
+    if (error_ppb != 0u) {
+        hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel,
+                          dim3(tokens), dim3(256u), 0, stream,
+                          inputs, input_norm, tokens, reduction_size);
+        hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel,
+                          dim3(rows), dim3(256u), 0, stream,
+                          weights, weight_norm, rows, reduction_size);
+        if (!checked(hipGetLastError(), "norm_bounds")) {
+            release();
+            return false;
+        }
+    }
+    if (!checked(launch_selected_bf16_projection_hawkeye_midpoint_correction(
+            weights, inputs, nullptr, input_norm, weight_norm, raw,
+            rows, tokens, reduction_size, radius, 0u, error_ppb,
+            selected_hawkeye_correction_maximum_blocks_per_launch(), stream), "dispatch")) {
+        release();
+        return false;
+    }
+    hipLaunchKernelGGL(f32_to_bf16_kernel, dim3((elements + 255u) / 256u),
+                      dim3(256u), 0, stream, raw, outputs, elements);
+    const bool ok = checked(hipGetLastError(), "bf16") &&
+                    checked(hipStreamSynchronize(stream), "completion");
+    release();
+    if (ok) {
+        std::cerr << "BATCH_MARK full_attention_output_hawkeye stage=" << stage
+                  << " tokens=" << tokens << " rows=" << rows
+                  << " k=" << reduction_size << " midpoint_radius=" << radius
+                  << " absolute_error_bound_ppb=" << error_ppb
+                  << " maximum_blocks_per_launch="
+                  << selected_hawkeye_correction_maximum_blocks_per_launch()
+                  << " bounded_workspace_bytes="
+                  << elements * sizeof(float) + (tokens + rows) * sizeof(float)
+                  << " diagnostic_only=1 numerical_correctness_claimed=0"
+                  << std::endl;
+    }
+    return ok;
+}
+
 bool emit_full_attention_gb10_full_compare(
     const char *qkv_golden_path,
     const char *golden_leaf,
@@ -127566,7 +127660,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     profile_compact_ck_subphases
                         ? qrt_now_ns()
                         : UINT64_C(0);
-                if (!resident_bf16_matrix_matmul(
+                if (!full_attention_output_projection_bf16(
                         device_output_weight,
                         device_q262144_tile_gated,
                         device_q262144_tile_output,
@@ -131787,7 +131881,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 run->score_value.output_elements
             );
         }
-        if (!resident_bf16_matrix_matmul(
+        if (!full_attention_output_projection_bf16(
                 device_output_weight,
                 device_score_bf16,
                 device_output_projection_bf16,
