@@ -25,6 +25,7 @@ from capture_sm121_exp2_table import file_sha
 TOKENS = 7169
 MAXIMUM_CAPTURE_BYTES = 768 << 20
 ALL_NORM_CAPTURE_BYTES = 3 << 30
+LINEAR_CAPTURE_BYTES = 1536 << 20
 ORACLE_SHA = "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
 
 
@@ -49,11 +50,15 @@ def write_json(path, value):
 class FullAttentionCapture:
     """vLLM worker extension; observes the existing model without replacing ops."""
 
-    def qrt_arm_full_attention(self, directory, attention_layer=3, all_layer_norms=False):
+    def qrt_arm_full_attention(self, directory, attention_layer=3, all_layer_norms=False,
+                              linear_layer=None):
         import torch
 
         if attention_layer not in range(3, 40, 4) or not isinstance(all_layer_norms, bool):
             raise ValueError("invalid full-attention observation scope")
+        if linear_layer is not None and (linear_layer not in range(40) or
+                                         linear_layer % 4 == 3 or all_layer_norms):
+            raise ValueError("select one linear layer without the all-normalization scope")
         if hasattr(self, "_qrt_handles"):
             raise ValueError("worker capture already initialized")
         root = Path(directory)
@@ -61,6 +66,8 @@ class FullAttentionCapture:
         self._qrt_root, self._qrt_files = root, {}
         self._qrt_bytes, self._qrt_started = 0, time.monotonic()
         self._qrt_maximum_bytes = ALL_NORM_CAPTURE_BYTES if all_layer_norms else MAXIMUM_CAPTURE_BYTES
+        if linear_layer is not None:
+            self._qrt_maximum_bytes = LINEAR_CAPTURE_BYTES
         self._qrt_observation_seconds = 180 if all_layer_norms else 90
         self._qrt_norm_labels = set()
         self._qrt_handles = []
@@ -73,23 +80,25 @@ class FullAttentionCapture:
         name, layers = containers[0]
         parent = model.get_submodule(name.rsplit(".", 1)[0])
 
-        def save(label, tensor, terminal=False):
+        def save(label, tensor, terminal=False, allow_f32=False):
             if label in self._qrt_files or tensor.shape[0] != TOKENS:
                 return
-            if (tensor.dtype != torch.bfloat16 or
+            if (tensor.dtype not in ((torch.bfloat16, torch.float32) if allow_f32 else (torch.bfloat16,)) or
                     time.monotonic() - self._qrt_started > self._qrt_observation_seconds):
                 raise ValueError("capture dtype or observation deadline changed")
             value = tensor[-1:] if terminal else tensor
-            size = value.numel() * 2
+            size = value.numel() * value.element_size()
             if self._qrt_bytes + size > self._qrt_maximum_bytes:
                 raise ValueError("full-prefix capture byte ceiling exceeded")
-            payload = value.detach().contiguous().view(torch.uint16).cpu().numpy().tobytes()
-            path = root / (label + "-bf16.bin")
+            payload = value.detach().contiguous().view(torch.uint8).cpu().numpy().tobytes()
+            dtype = "bf16" if tensor.dtype == torch.bfloat16 else "f32"
+            path = root / (label + "-" + dtype + ".bin")
             with path.open("xb") as stream:
                 stream.write(payload)
             self._qrt_bytes += size
             self._qrt_files[label] = dict(file=path.name, shape=list(value.shape),
-                                         bytes=size, sha256=file_sha(path), terminal=terminal)
+                                         bytes=size, sha256=file_sha(path), terminal=terminal,
+                                         dtype=dtype)
 
         def first(value):
             return value[0] if isinstance(value, tuple) else value
@@ -127,11 +136,11 @@ class FullAttentionCapture:
 
         for index, layer in enumerate(layers):
             attach(layer, layer_hook(index))
-            if index <= 3 or all_layer_norms:
+            if index <= 3 or all_layer_norms or index == linear_layer:
                 label = f"layer-{index:02d}-input-rmsnorm"
                 self._qrt_norm_labels.add(label)
                 attach(layer.input_layernorm, output_hook(label))
-            if all_layer_norms:
+            if all_layer_norms or index == linear_layer:
                 label = f"layer-{index:02d}-post-attention-rmsnorm"
                 self._qrt_norm_labels.add(label)
                 attach(layer.post_attention_layernorm, output_hook(label))
@@ -154,10 +163,56 @@ class FullAttentionCapture:
             save("full-attention-residual", output[1])
 
         attach(layers[attention_layer].post_attention_layernorm, postnorm)
+        self._qrt_linear_labels = set()
+        linear_source = None
+        if linear_layer is not None:
+            import inspect
+
+            linear = layers[linear_layer].linear_attn
+            if linear.gqa_interleaved_layout or linear.tp_size != 1:
+                raise ValueError("linear observation requires the original single-device Qwen3.5 layout")
+            source_path = Path(inspect.getsourcefile(type(linear)))
+            linear_source = dict(file=str(source_path), sha256=file_sha(source_path))
+            self._qrt_linear_labels = {
+                "linear-qkvz", "linear-ba", "linear-q-postconv", "linear-k-postconv",
+                "linear-v-postconv", "linear-g", "linear-beta", "linear-core", "linear-z",
+                "linear-gated", "linear-o-projection", "linear-seed", "linear-residual"}
+            attach(linear.in_proj_qkvz, output_hook("linear-qkvz"))
+            attach(linear.in_proj_ba, output_hook("linear-ba"))
+
+            def core_inputs(module, args, kwargs):
+                q = kwargs.get("q")
+                if q is None or tuple(q.shape[:2]) != (1, TOKENS):
+                    return
+                for key, width in (("q", 2048), ("k", 2048), ("v", 4096),
+                                   ("g", 32), ("beta", 32)):
+                    value = kwargs[key]
+                    if value.numel() != TOKENS * width:
+                        raise ValueError("linear input shape changed: " + key)
+                    label = "linear-" + key + ("-postconv" if key in ("q", "k", "v") else "")
+                    save(label, value.reshape(TOKENS, width), allow_f32=key in ("g", "beta"))
+
+            self._qrt_handles.append(linear.chunk_gated_delta_rule.register_forward_pre_hook(
+                core_inputs, with_kwargs=True))
+
+            def gated_inputs(module, args):
+                if args[0].numel() != TOKENS * 4096:
+                    return
+                for label, value in zip(("linear-core", "linear-z"), args[:2]):
+                    save(label, value.reshape(TOKENS, 4096))
+
+            attach(linear.norm, gated_inputs, pre=True)
+            attach(linear.out_proj, input_hook("linear-gated"), pre=True)
+            attach(linear.out_proj, output_hook("linear-o-projection"))
+            attach(layers[linear_layer].input_layernorm,
+                   lambda module, args, output: save("linear-seed", output[1] if isinstance(output, tuple) else args[0]))
+            attach(layers[linear_layer].post_attention_layernorm,
+                   lambda module, args, output: save("linear-residual", output[1]))
         attach(parent.norm, lambda module, args, output: save("final-norm", first(output), terminal=True))
         return dict(model_type=type(model).__name__, layer_container=name,
                     hooks=len(self._qrt_handles), maximum_bytes=self._qrt_maximum_bytes,
                     attention_layer=attention_layer, all_layer_norms=all_layer_norms,
+                    linear_layer=linear_layer, linear_source=linear_source,
                     maximum_observation_seconds=self._qrt_observation_seconds)
 
     def qrt_finish_full_attention(self):
@@ -170,6 +225,7 @@ class FullAttentionCapture:
             "full-attention-o-projection", "full-attention-postnorm",
             "full-attention-residual", "final-norm"}
         required |= self._qrt_norm_labels
+        required |= self._qrt_linear_labels
         record = dict(files=self._qrt_files, bytes=self._qrt_bytes,
                       complete=required <= self._qrt_files.keys(),
                       missing=sorted(required - self._qrt_files.keys()),
@@ -202,7 +258,8 @@ def execute(args, prompt, oracle):
     load_seconds = time.monotonic() - started
     write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds))
     armed = llm.collective_rpc("qrt_arm_full_attention", args=(
-        str(args.output_dir / "tensors"), args.attention_layer, args.all_layer_norms))
+        str(args.output_dir / "tensors"), args.attention_layer, args.all_layer_norms,
+        args.linear_layer))
     requested = time.monotonic()
     outputs = llm.generate([dict(prompt_token_ids=prompt)],
                            SamplingParams(temperature=0, max_tokens=32, ignore_eos=True),
@@ -245,9 +302,13 @@ def main():
     parser.add_argument("--attention-layer", type=int, choices=range(3, 40, 4), default=3)
     parser.add_argument("--all-layer-norms", action="store_true",
                         help="observe all 80 complete normalization boundaries with a three-GiB ceiling")
+    parser.add_argument("--linear-layer", type=int, choices=[i for i in range(40) if i % 4 != 3],
+                        help="also observe one original linear-attention path with a 1.5-GiB total ceiling")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if args.linear_layer is not None and args.all_layer_norms:
+        raise ValueError("linear and all-normalization capture scopes are separately bounded")
     prompt, oracle = prompt_and_oracle(args.oracle)
     if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 480 or
             len(args.source_commit) != 40 or any(c not in "0123456789abcdef" for c in args.source_commit)):
@@ -270,7 +331,9 @@ def main():
                   oracle_sha256=file_sha(args.oracle), completed=False, oracle_qualified=False,
                   native_tensor_inputs=False, windows_acceptance=False,
                   attention_layer=args.attention_layer, all_layer_norms=args.all_layer_norms,
-                  maximum_capture_bytes=ALL_NORM_CAPTURE_BYTES if args.all_layer_norms else MAXIMUM_CAPTURE_BYTES)
+                  linear_layer=args.linear_layer,
+                  maximum_capture_bytes=(LINEAR_CAPTURE_BYTES if args.linear_layer is not None else
+                                         ALL_NORM_CAPTURE_BYTES if args.all_layer_norms else MAXIMUM_CAPTURE_BYTES))
     write_json(args.output_dir / "preflight.json", record)
     if args.execute:
         try:

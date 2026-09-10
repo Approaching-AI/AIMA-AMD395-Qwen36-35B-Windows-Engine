@@ -37,9 +37,9 @@ instead of GB10 82 / 9.25. Load is 20,062.162500 ms and diagnostic TTFT
 319,214.462000 ms. All eleven complete layer-3 attention boundaries now match
 GB10, including normalization after repairing its missing reciprocal-root
 correction argument. Terminal residual layers 0–19 are exact; divergence starts
-at layer 20 in the terminal trace. The expanded GB10 reference is now qualified;
-native observation of each materialized normalization boundary will locate the
-earliest full-prefix cause.
+at layer 20 in the terminal trace. Complete normalization observation now
+locates the first difference after linear attention at layer 20, starting at
+position 6290. All 41 preceding full normalization boundaries are exact.
 
 The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
@@ -1200,3 +1200,28 @@ GB10 reference by SHA256. No output token was produced before the controlled
 stop. The materialized-row guard passes `make check PYTHON=python3.12`:
 268 Python tests (two existing skips), 45 Rust tests, Clippy, C ABI, seven q16
 checks and public hygiene. Native rebuild and full-model observation follow.
+
+The corrected observer completes on `baiying` with source
+`e9a70123494b02a94efaf008556e42b20e0df448`, model
+`D:\models\Qwen3.6-35B-A3B`, command
+`prepare-fla-model-q7169-all-norm-r2.ps1` (SHA
+`51fab79a33bd934f6783f717fb0e4ec626d382f2be043ff0c6169e419cac1871`).
+Run SHA `0126d82befc7eade81db8b242d178d2834e8f94298fb2315d1fbf98ee157f991`.
+The rebuilt whole DLL is `abc3508ec0defb917a06880fdf798411eac6b460c0730fb567038935a56555d9`;
+FLA, MoE and CK remain the qualified component revisions documented above.
+All host checks pass. The 78 requested complete files are present, and the
+last-layer marker reports one materialized row instead of reading history-sized
+storage. All 40 terminal FP32 rows are unchanged from the preceding model run.
+The first token remains 220 / 9.3125, so inference acceptance still fails.
+Load is 20,295.979900 ms, observed TTFT 318,605.831000 ms.
+
+Against GB10 capture `f17592ae9d7d332386eb4b2a3f001f73e497aab94463588b4252e2f23eebdcc0`,
+all normalization boundaries in layers 0–19 and the layer-20 input are exact.
+The first changed surface is layer-20 post-attention normalization: positions
+0–6289 remain exact, while all 879 later rows differ (1,696,051 BF16 elements,
+relative L2 0.021853610). The final 37 normalization files differ downstream.
+This localizes the cause before layer-20 MoE. The next paired observation
+captures the original layer-20 projections, convolution inputs, gates, GDN
+output, gated normalization and output projection. Its GB10 hooks are installed
+after startup, preserve the existing operators, and require the unchanged
+32-token/raw-logit oracle. The separate linear scope has a 1.5-GiB total bound.
