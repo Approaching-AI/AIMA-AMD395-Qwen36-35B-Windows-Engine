@@ -32,33 +32,55 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The frozen q7169 cold request now passes on baiying: first token **82**, raw
-logit **9.25**, and all **32** continuation tokens match GB10. Streaming emits
-32 callbacks before return and matches the final output. All 80 complete layer
-normalizations, all 40 terminal BF16 residuals and the 2,048-element final norm
-also match their independently qualified GB10 captures. Load is 20,110.921800 ms;
-the diagnostic TTFT is 248,647.062200 ms and does not meet the performance gate.
+The resident BF16 argmax extension at whole source
+`41621317a7c3789c4a696d83d6dadf78d06cdb7b` passes both frozen 32-token cold
+requests on baiying with the real `D:\models\Qwen3.6-35B-A3B`. Each run has
+zero first-logit error at tolerance 0.125, all 32 oracle tokens, and 32 matching
+streaming callbacks before return. Exit 0 and all host checks pass.
 
-The [structured run record](../benchmarks/correctness/q7169-output-boundary-20260911.json)
-binds host baiying, model `D:\models\Qwen3.6-35B-A3B`, whole source
-`378b0c33e736f9fcdaf47b0437402ec3ac1de139`, FLA 2f346df, MoE 023e5dc,
-CK b609453 and CLI f544cbe. Command
-`prepare-fla-model-q7169-output-boundary-32-r1.ps1` has SHA
-`91cee56e2bc433fe6ed1e7491aecb15d5daa693feffe8749e74ce39e812e54d9`;
-run SHA is `ee7b6ad60469d2ec6bfe7bfd1148a4e30726ed6705aa729dcd267b9fa46ad97f`.
-Exit 0 and all host checks pass. This mixed-component configuration establishes
-that specific cold correctness boundary; the default profile, retained q8192
-speed, prefix reuse and a unified release package still need qualification.
+| Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
+|---|---|---:|---:|---:|
+| q8192, retained f544cbe components plus whole 4162131 and BF16 argmax | 144 / 10.375 | 20,265.380700 | 4,202.652900 | 33.004635 |
+| q7169, qualified compatibility components, 1000 ppb projection bounds, ordered FLA without per-stage sync | 82 / 9.25 | 20,097.572200 | 172,091.915600 | 34.857184 |
 
-A subsequent combined fast-kernel ablation retains the final-norm and BF16
-argmax repairs but fails the same oracle: 220 / 9.3125, TTFT 8,311.036100 ms,
-and later continuation differences. It is rejected, not a performance result.
-Host/model and whole/MoE sources are unchanged; AITER and fast CK use f544cbe.
-Command `run-output-boundary-fast-32-r1.ps1`, SHA
-`37793769a1599ba0de3b2a787bf475c476a670287611b38699d0967434b600f2`, run SHA
-`7cce107c089be7d3ac6653d6e9ba44003abd66ea4cbbe089f16ac4c007fcc963`.
-All host checks pass. The qualified slow configuration remains the control
-while the expensive arithmetic families are examined independently.
+The [structured records](../benchmarks/correctness/decode-bf16-argmax-20260911.json)
+bind commands, source/artifact identities, profile changes, prompt hashes and
+complete output to each run. q8192 command `run-decode-argmax-q8192-r1.ps1`
+(SHA `08d7100caa62760cf1fcb90dfac492f5774276823d77bc1d6b3244f50ae6c581`)
+has run SHA `ae3141d44980ec823fefe9c139723385e3e1d90dbcdadfe7590a05d63c11c045`.
+Its actual TTFT still exceeds the unchanged 4,187.415605 ms retained target
+by 15.237295 ms. Provider time of 4,183.652600 ms cannot substitute for the
+actual callback measurement. A repeated self-preload consumes 15.7928 ms
+inside the request and is under investigation.
+
+q7169 command `run-decode-argmax-q7169-selective-r1.ps1`
+(SHA `3fb9cb34e0b050928854eeb32145d669054e4bb547d74e913adf3832d84f4ebb`)
+has run SHA `a245863ec254794a991aed79bd6995001f621a6a87ab8a67f7e0f59575f042a4`.
+It retains MoE 023e5dc, FLA 2f346df, CK b609453 and CLI f544cbe. All 80
+complete layer norms still match the independently qualified GB10 capture
+f17592ae. Its four whole-provider projection bounds decrease from 10000 to
+1000 ppb and ordered FLA removes per-stage synchronization. This reduces
+TTFT by 76,555.146600 ms from the
+[preceding 378b0c3 control](../benchmarks/correctness/q7169-output-boundary-20260911.json),
+which also matched all 40 terminal BF16 residuals and the final norm. Those
+additional observers were not repeated in the latest run.
+
+Three faster q7169 ablations fail the frozen token gate. They retain the
+final-norm/BF16-argmax repairs at whole 378b0c3 and MoE 023e5dc; fast CK/AITER
+components are f544cbe. Commands and full identities are in the same structured
+record. All complete with healthy host checks; none qualifies performance.
+
+| Ablation | First token / logit | Actual TTFT ms | Oracle mismatch |
+|---|---|---:|---|
+| Fast matrix, attention and AITER recurrence | 220 / 9.3125 | 8,311.036100 | Token 0 and tokens 26–31 |
+| Restore qualified FLA; retain fast matrix/attention | 220 / 9.375 | 25,531.042500 | Token 0 |
+| FLA plus 100 ppb selective matrix correction; fast CK | 220 / 9.4375 | 64,761.139700 | Token 0 |
+
+The last ablation first differs at layer-zero post-attention normalization:
+only 1 of 80 complete norm files matches. These norms localize the failed
+product boundary; they are not independent acceptance gates. Cold correctness
+at two profiles does not establish a unified release configuration, paired
+decode, prefix reuse or the required context/API matrix.
 
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
@@ -89,7 +111,8 @@ unrounded rescoring and empirical permutations. It passes the native q7169 gate 
 until broader context and performance qualification. The option also applies to
 resident single-token and paired output-head execution: BF16 score ordering
 owns every decode position, with legacy FP32 rescoring and near-tie policies
-inactive. Native continuation qualification of this extension is pending.
+inactive. Both frozen batch-one 32-token continuations now pass with the extension.
+The paired output-head route has not been exercised by those runs.
 
 The complete-window correction control at source 1ac1ce1 passes all
 58,728,448 captured real layer-zero QKV BF16 outputs against GB10, immutable

@@ -156339,13 +156339,40 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
     size_t failure_capacity
 ) {
     const uint64_t full_preload_start_ns = qrt_now_ns();
+    const bool trace_preload_phases = raw_env_flag_enabled(
+        "QRT_QWEN36_PRELOAD_PHASE_TIMING"
+    );
+    std::array<std::pair<const char *, uint64_t>, 12> preload_phases{};
+    size_t preload_phase_count = 0u;
+    uint64_t preload_phase_start_ns = full_preload_start_ns;
+    auto record_preload_phase = [&](const char *name) {
+        if (trace_preload_phases &&
+            preload_phase_count < preload_phases.size()) {
+            const uint64_t now = qrt_now_ns();
+            preload_phases[preload_phase_count++] =
+                {name, qrt_elapsed_ns(preload_phase_start_ns, now)};
+            preload_phase_start_ns = now;
+        }
+    };
     if (out_timing != nullptr) {
         *out_timing = qrt_qwen36_prefill_descriptor_batch_timing_t{};
     }
     auto record_full_preload_elapsed = [&]() {
+        record_preload_phase("finish");
         if (out_timing != nullptr) {
             out_timing->compact_device_layout_full_preload_elapsed_ns =
                 qrt_elapsed_ns(full_preload_start_ns, qrt_now_ns());
+        }
+        if (trace_preload_phases) {
+            std::ostringstream marker;
+            marker << "BATCH_MARK qwen36_preload_phase_timing";
+            for (size_t index = 0u; index < preload_phase_count; ++index) {
+                marker << ' ' << preload_phases[index].first << "_ms="
+                       << static_cast<double>(preload_phases[index].second) /
+                              1000000.0;
+            }
+            marker << '\n';
+            std::cerr << marker.str();
         }
     };
     auto set_failure =
@@ -156416,6 +156443,7 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
         )) {
         return set_failure(store_failure_stage, store_failure);
     }
+    record_preload_phase("capacity_providers");
     if (!ensure_resident_model_shard_store(
             model_dir,
             &store_failure_stage,
@@ -156423,6 +156451,7 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
         )) {
         return set_failure(store_failure_stage, store_failure);
     }
+    record_preload_phase("model_store");
     const uint64_t requested_prefill_tokens = parse_env_u64_or_default(
         "QRT_PREFILL_DESCRIPTOR_BATCH_REQUEST_PREFILL_TOKENS",
         UINT64_C(0)
@@ -156504,6 +156533,7 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
         g_compact_device_layout_full_prepack_model_dir == model_dir &&
         g_compact_device_layout_full_prepack_provider_mask ==
             compact_device_layout_full_prepack_provider_mask()) {
+        record_preload_phase("reuse_key");
         std::string preload_failure_stage;
         std::string preload_failure;
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
@@ -156518,6 +156548,7 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
             );
         }
 #endif
+        record_preload_phase("host_provider");
         if (!preload_whole_repeated_layer_fixed_weights(
                 model_dir,
                 &preload_failure_stage,
@@ -156525,18 +156556,21 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
             )) {
             return set_failure(preload_failure_stage, preload_failure);
         }
+        record_preload_phase("fixed_weights");
         if (!prepare_q8192_lossless_row_palette_replace_raw_at_load_if_requested(
                 &preload_failure_stage,
                 &preload_failure
             )) {
             return set_failure(preload_failure_stage, preload_failure);
         }
+        record_preload_phase("palette");
         if (!preload_q1_terminal_device_corridor_workspace(
                 &preload_failure_stage,
                 &preload_failure
             )) {
             return set_failure(preload_failure_stage, preload_failure);
         }
+        record_preload_phase("corridor_workspace");
 #ifdef QRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED
         if (!ensure_q1_moe_rocblas_model_load_prewarm(
                 &preload_failure_stage,
@@ -156545,6 +156579,7 @@ qrt_prefill_descriptor_batch_hip_preload_compact_device_routed_layout_v1(
             return set_failure(preload_failure_stage, preload_failure);
         }
 #endif
+        record_preload_phase("decode_prewarm");
         if (!preload_dflash_weights()) {
             return 0;
         }

@@ -15,7 +15,7 @@ and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 
 | Area | Windows action and remaining boundary |
 |---|---|
-| Variable cold lengths / serial tails (Linux #1/#5) | Preserve acceleration and logical token counts; validate both sides of every optimized boundary with output 1 and ordinary multi-token requests. The q7169 numerical gate is still failed; latency alone cannot close Windows #1. |
+| Variable cold lengths / serial tails (Linux #1/#5) | Preserve acceleration and logical token counts; validate both sides of every optimized boundary with output 1 and ordinary multi-token requests. The frozen q7169 32-token numerical gate now passes with a slow compatibility profile; neighboring-length performance and the unified configuration remain open. |
 | Logical GEMM/FLA extents | Audit logical sequence lengths separately from padded allocation/launch extents. Linux `3d284a3` and `e402b3a` are useful arithmetic references, not portable Windows binaries or authority to loosen token/logit gates. |
 | Thinking (Linux #6, .5) | Add the validated top-level object, legacy-alias conflict handling, tokenizer parity and live no-tools reasoning streaming. Explicitly preserve the Windows disabled default and repair empty-kwargs inconsistency. |
 | Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and explicit conservative no-progress metadata now have CPU/HTTP regressions. Semantic retry strategy and side-effect authorization remain with the caller. |
