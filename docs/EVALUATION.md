@@ -40,13 +40,14 @@ also exact. The earliest remaining full-prefix difference is attention core:
 65,059 of 29,364,224 BF16 values. No release or performance acceptance follows.
 
 A captured-input native replay reproduces those 65,059 differences exactly.
-The shared Blackwell arithmetic with the general SM121 exponential table
-reduces them to 228, all within four FP32 ULPs of a BF16 midpoint. Its full
-q7169 component takes 6,724.59 ms, with maximum dispatch 15.5646 ms; these are
-component timings. An independent original GB10 attention replay reproduces
-all 29,364,224 saved BF16 endpoints with both BF16 and FP32 output storage.
-The raw FP32 surface now isolates the final normalization division. Whole-model
-continuation, retained speed and release qualification remain open.
+The shared Blackwell arithmetic, original SM121 exponential, original
+1/4/2/16/8 softmax reduction and validated reciprocal coefficients now match
+all 29,364,224 BF16 **and raw FP32** reference values. Its q7169 component takes
+6,736.3 ms, with maximum dispatch 15.7201 ms; this is a component timing.
+The corrected full prefix and terminal route is opt-in through
+`QRT_CK_FMHA_SM121_FULL_PREFIX=1`, with SHA-validated exponential and reciprocal
+tables. Complete-model qualification is still pending for this integration.
+Whole-model continuation, retained speed and release qualification remain open.
 
 The following records preserve how those boundaries were established.
 
@@ -1030,3 +1031,21 @@ pass. This is neither continuation nor performance acceptance. Evidence is
 under `build/recovery-20260910/fla-model-q7169-fa-out-r1/`. Next work isolates
 the full-prefix attention core using the now-exact Q/K/V input capture,
 without loading the whole model for each numerical decision.
+
+
+Full attention component closure uses source
+`73a15846f7aceb47f982a03cc4a6258d7c9ebf19`, command
+`D:\projects\run-native-attention-replay-r3.ps1 -Action replay -Name full-sm121-rcp-r1
+-QueryCount 7169 -Batch 8 -UseTable -UseRcp`, host baiying. The captured Q/K/V
+belongs to the qualified layer-3 real-model q7169 boundary described above.
+Run SHA `6eece9c9c7af25d0e0cb3e2163400197d8492c5057e17abd25fbecef24f33004`.
+Both complete BF16 output SHA
+`f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33` and raw FP32 SHA
+`71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4` equal the qualified
+GB10 outputs. The unnormalized accumulator is unchanged from the preceding
+replay, confirming that the final differences were in the denominator sum
+and reciprocal endpoint. All host checks pass; process wall 7,792.119 ms.
+The provider integration retains the default CK route, caps correction at
+q8192 with eight queries per dispatch and a 20-second aggregate deadline,
+prepares both immutable tables during provider initialization and releases
+them with the provider. It loads no expected output tensor.

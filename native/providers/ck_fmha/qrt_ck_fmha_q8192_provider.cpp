@@ -1,14 +1,31 @@
 // Exact-shape Windows wrapper around the generated CK-Tile FMHA instance.
 // The generated kernel consumes runtime query/key-value lengths; only this
 // wrapper's allocation and exported contracts are shape-specific.
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef _CRT_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
+#endif
 #include <hip/hip_runtime.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <mutex>
 #include <type_traits>
 #include <utility>
+#include <vector>
+#if defined(_WIN32)
+#include <windows.h>
+#include <bcrypt.h>
+#pragma comment(lib, "bcrypt.lib")
+#endif
 
 #include "fmha_fwd.hpp"
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
@@ -165,11 +182,90 @@ __global__ void pack_terminal_q_kv_kernel(
 }
 
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+std::mutex g_sm121_mutex;
+unsigned char* g_sm121_exp2 = nullptr;
+unsigned char* g_sm121_rcp = nullptr;
+
+bool sm121_attention_enabled(unsigned int tokens) {
+    const char* flag = std::getenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
+    return tokens > 0u && tokens <= kQ8192Tokens && flag && std::strcmp(flag, "1") == 0;
+}
+
+template<class Validate>
+hipError_t load_sm121_table(const char* environment, size_t bytes,
+    const unsigned char* expected_sha, Validate validate, unsigned char** device) {
+#if !defined(_WIN32)
+    (void)environment; (void)bytes; (void)expected_sha; (void)validate; (void)device;
+    return hipErrorNotSupported;
+#else
+    const char* path = std::getenv(environment);
+    if (!path || !*path) return hipErrorInvalidValue;
+    std::ifstream file(path, std::ios::binary | std::ios::ate);
+    if (!file || file.tellg() != std::streamoff(bytes)) return hipErrorInvalidValue;
+    std::vector<unsigned char> data;
+    try { data.resize(bytes); } catch (const std::bad_alloc&) { return hipErrorOutOfMemory; }
+    file.seekg(0);
+    if (!file.read(reinterpret_cast<char*>(data.data()), bytes) || !validate(data.data(), bytes))
+        return hipErrorInvalidValue;
+    BCRYPT_ALG_HANDLE algorithm = nullptr; unsigned char digest[32]{};
+    if (BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0) < 0)
+        return hipErrorInvalidValue;
+    const auto hashed = BCryptHash(algorithm, nullptr, 0, data.data(), ULONG(bytes), digest, sizeof(digest));
+    BCryptCloseAlgorithmProvider(algorithm, 0);
+    if (hashed < 0 || std::memcmp(digest, expected_sha, sizeof(digest))) return hipErrorInvalidValue;
+    auto status = hipMalloc(reinterpret_cast<void**>(device), bytes);
+    if (status == hipSuccess) status = hipMemcpy(*device, data.data(), bytes, hipMemcpyHostToDevice);
+    if (status != hipSuccess) { (void)hipFree(*device); *device = nullptr; }
+    return status;
+#endif
+}
+
+int prepare_sm121_attention() {
+    std::lock_guard<std::mutex> lock(g_sm121_mutex);
+    if (g_sm121_exp2 && g_sm121_rcp) return int(hipSuccess);
+    unsigned char* exp2 = nullptr; unsigned char* rcp = nullptr;
+    auto status = load_sm121_table("QRT_CK_FMHA_SM121_EXP2_TABLE", qrt_sm121_exp2::table_bytes,
+        qrt_sm121_exp2::sha256, qrt_sm121_exp2::valid_layout, &exp2);
+    if (status == hipSuccess)
+        status = load_sm121_table("QRT_CK_FMHA_SM121_RCP_TABLE", qrt_sm121_attention_rcp::table_bytes,
+            qrt_sm121_attention_rcp::sha256, qrt_sm121_attention_rcp::valid_layout, &rcp);
+    if (status != hipSuccess) { (void)hipFree(rcp); (void)hipFree(exp2); return int(status); }
+    g_sm121_exp2 = exp2; g_sm121_rcp = rcp;
+    std::fprintf(stderr, "SM121_FULL_ATTENTION_TABLES exp2_bytes=%zu rcp_bytes=%zu model_independent=1\n",
+        size_t(qrt_sm121_exp2::table_bytes), qrt_sm121_attention_rcp::table_bytes);
+    return int(hipSuccess);
+}
+
+int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
+    const uint16_t* v, float* output, hipStream_t stream,
+    unsigned int query_start, unsigned int query_count, unsigned int output_start) {
+    if (!q || !k || !v || !output || query_count == 0u || query_start >= kQ8192Tokens ||
+        query_count > kQ8192Tokens - query_start) return int(hipErrorInvalidValue);
+    int status = prepare_sm121_attention();
+    if (status != int(hipSuccess)) return status;
+    const auto begin = std::chrono::steady_clock::now();
+    for (unsigned int offset = 0; offset < query_count; offset += 8u) {
+        status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
+            query_start + offset, std::min(8u, query_count - offset), output_start + offset,
+            g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp);
+        if (status != int(hipSuccess)) return status;
+        status = int(hipStreamSynchronize(stream));
+        if (status != int(hipSuccess)) return status;
+        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
+            return int(hipErrorLaunchTimeOut);
+    }
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=8 diagnostic_only=1\n",
+        query_start, query_count);
+    return int(hipSuccess);
+}
+
 int launch_blackwell_exact_terminal(
     const uint16_t *q, const uint16_t *k, const uint16_t *v,
     float *output, hipStream_t stream, unsigned int tokens,
     unsigned int output_token) {
     if (tokens == 0u) return static_cast<int>(hipErrorInvalidValue);
+    if (sm121_attention_enabled(tokens))
+        return launch_sm121_attention(q, k, v, output, stream, tokens - 1u, 1u, output_token);
     return qrt_blackwell_attention::launch_queries(
         q, k, v, output, stream, tokens - 1u, 1u, output_token);
 }
@@ -192,6 +288,12 @@ int prepare_locked(unsigned int tokens) {
     if (tokens == 0u || tokens > kQ262144Tokens) {
         return static_cast<int>(hipErrorInvalidValue);
     }
+#if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    if (sm121_attention_enabled(kQ8192Tokens)) {
+        const int status = prepare_sm121_attention();
+        if (status != int(hipSuccess)) return status;
+    }
+#endif
     if (g_state.q != nullptr && g_state.k != nullptr &&
         g_state.v != nullptr && g_state.capacity_tokens >= tokens) {
         return static_cast<int>(hipSuccess);
@@ -238,6 +340,11 @@ int launch_bf16_attention(
          mask_type != mask_enum::mask_bottom_right)) {
         return static_cast<int>(hipErrorInvalidValue);
     }
+
+#if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    if (query_tokens == kv_tokens && sm121_attention_enabled(query_tokens))
+        return launch_sm121_attention(q, k, v, output, stream, 0u, query_tokens, 0u);
+#endif
 
     fmha_fwd_traits traits{};
     traits.hdim_q = kHeadDim;
@@ -925,5 +1032,14 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
     (void)hipFree(g_state.k);
     (void)hipFree(g_state.q);
     g_state = ProviderState{};
+#if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    {
+        std::lock_guard<std::mutex> tables_lock(g_sm121_mutex);
+        (void)hipFree(g_sm121_exp2);
+        (void)hipFree(g_sm121_rcp);
+        g_sm121_exp2 = nullptr;
+        g_sm121_rcp = nullptr;
+    }
+#endif
     return static_cast<int>(hipSuccess);
 }

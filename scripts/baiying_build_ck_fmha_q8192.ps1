@@ -61,6 +61,8 @@ foreach ($required in @(
     (Join-Path $ckExample "fmha_fwd.hpp"),
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
     (Join-Path $sourceDir "blackwell_attention.h"),
+    (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
+    (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
     (Join-Path $sourceDir "fmha_fwd_gfx1151_d256_bf16_f32out.cpp"),
     $directSmokeSource,
@@ -92,6 +94,7 @@ $arguments = @(
     "-I", $ckInclude,
     "-I", $ckExample,
     "-shared",
+    "-lbcrypt",
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
     (Join-Path $sourceDir "fmha_fwd_gfx1151_d256_bf16_f32out.cpp"),
@@ -225,6 +228,10 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     blackwell_exact_terminal = $true
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
+    sm121_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h")).Hash.ToLowerInvariant()
+    sm121_rcp_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h")).Hash.ToLowerInvariant()
     direct_smoke_ran = ($RunDirectSmoke -ne 0)
     direct_smoke_path = if ($RunDirectSmoke -ne 0) {
         (Resolve-Path -LiteralPath $DirectSmokePath).Path
