@@ -601,6 +601,16 @@ pass; this is not inference acceptance. Native run SHA:
 Full/terminal comparison SHA:
 `fe07898caa59d64c1b60bbc5fb9fd84d80e936dcf85cf7220caa23de2b9230eb`.
 
+The gating-table probe can now enumerate all 30 linear-attention layers in one
+supervised run from fingerprinted model parameters. The primary real-token
+control remains mandatory; additional captured layers verify the same original
+kernel and independent table lookup. Every table enumerates all BF16 inputs,
+and the shared sigmoid table must agree across every head and layer. Local
+validation covers the complete parameter set, malformed spans/shapes, duplicate
+layers and a mismatched primary model binding. The 30-layer data would occupy
+240 MiB plus a 128 KiB shared sigmoid table; generation and model qualification
+are still pending and no runtime default is changed.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

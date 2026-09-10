@@ -52,6 +52,50 @@ def extract(source):
     return ast.unparse(ast.fix_missing_locations(ast.Module(body=[function], type_ignores=[]))) + "\n"
 
 
+def validate_model_parameters(directory, expected_sha, primary_layer, primary):
+    """Bind every table to actual model tensors; optional controls only compare."""
+    path = directory / "parameters.json"
+    if path.stat().st_size > 1 << 20 or file_sha(path) != expected_sha:
+        raise ValueError("model gate parameter manifest fingerprint or size mismatch")
+    record = json.loads(path.read_text())
+    layers = record.get("layers", [])
+    expected_layers = [i for i in range(40) if (i + 1) % 4]
+    if [x.get("layer") for x in layers] != expected_layers:
+        raise ValueError("model gate parameters require all 30 linear-attention layers")
+    result = []
+    for layer in layers:
+        payloads = {}
+        for key in ("a_log", "dt_bias"):
+            meta = layer[key]
+            name = f"layer{layer['layer']}-{key}.bin"
+            tensor = directory / name
+            if (meta.get("file") != name or meta.get("dtype") != "BF16" or
+                    meta.get("shape") != [32] or meta.get("bytes") != 64 or
+                    tensor.stat().st_size != 64 or file_sha(tensor) != meta.get("sha256")):
+                raise ValueError("model gate parameter fingerprint or span mismatch")
+            payloads[key] = tensor.read_bytes()
+            if not finite(payloads[key], "bf16"):
+                raise ValueError("nonfinite model gate parameter")
+        control = None
+        if "control_manifest_sha256" in layer:
+            control_manifest, control = validate(
+                directory / f"layer{layer['layer']}-control",
+                layer["control_manifest_sha256"],
+            )
+            if control_manifest["layer"] != layer["layer"] or any(
+                control[k] != payloads[k] for k in payloads
+            ):
+                raise ValueError("model gate control parameter binding mismatch")
+        if layer["layer"] == primary_layer:
+            if any(primary[k] != payloads[k] for k in payloads):
+                raise ValueError("primary gate control is for different model parameters")
+            control = primary
+        result.append((layer["layer"], payloads, control))
+    if primary_layer not in expected_layers:
+        raise ValueError("primary gate control must select a linear-attention layer")
+    return record, result
+
+
 def gpu_capture(args, manifest, payloads):
     import numpy as np
     import torch
@@ -116,50 +160,81 @@ def gpu_capture(args, manifest, payloads):
     # These host arrays contain the entire BF16 domain, including infinities and
     # NaNs. Nonfinite input encodings are legitimate table entries, not control
     # cases; model execution still owns its ordinary input validation.
-    g_table = np.empty((32, 65536), dtype=np.float32)
-    beta_table = np.empty(65536, dtype=np.uint16)
     gs = torch.full((CHUNK * 32 * 4 + 512,), 0x5A, dtype=torch.uint8, device="cuda")
     bs = torch.full((CHUNK * 32 * 2 + 512,), 0x5A, dtype=torch.uint8, device="cuda")
     go = gs[256:-256].view(torch.float32)
     bo = bs[256:-256].view(torch.bfloat16)
-    for offset in range(0, 65536, CHUNK):
-        values = torch.arange(offset, offset + CHUNK, dtype=torch.int32, device="cuda").to(torch.int16)
-        ab = values.view(torch.bfloat16)[:, None].expand(-1, 32).contiguous()
-        arguments = [go, bo, parameters[0], ab, ab, parameters[1], 1, 32, 1.0, 20.0, 8]
-        launch(arguments, CHUNK)
-        gr = gs.cpu().numpy().tobytes()
-        br = bs.cpu().numpy().tobytes()
-        if any(raw[:256] != b"\x5a" * 256 or raw[-256:] != b"\x5a" * 256 for raw in (gr, br)):
-            raise ValueError("gate output redzone changed")
-        g_table[:, offset:offset + CHUNK] = np.frombuffer(gr[256:-256], dtype=np.float32).reshape(CHUNK, 32).T
-        beta_rows = np.frombuffer(br[256:-256], dtype=np.uint16).reshape(CHUNK, 32)
-        if not np.all(beta_rows == beta_rows[:, :1]):
-            raise ValueError("sigmoid depends on head; shared-table contract invalid")
-        beta_table[offset:offset + CHUNK] = beta_rows[:, 0]
-        expected_ab = np.arange(offset, offset + CHUNK, dtype=np.uint16)[:, None].repeat(32, axis=1)
-        if not np.array_equal(ab.view(torch.uint16).cpu().numpy(), expected_ab):
-            raise ValueError("enumerated input changed")
+    layer_specs = args.model_parameters or [
+        (manifest["layer"], {k: payloads[k] for k in ("a_log", "dt_bias")}, payloads)
+    ]
+    files, layer_controls = [], {}
+    shared_beta = None
+    for layer, parameter_bytes, control in layer_specs:
+        parameters = [torch.frombuffer(bytearray(parameter_bytes[k]), dtype=torch.bfloat16).clone().cuda()
+                      for k in ("a_log", "dt_bias")]
+        if control is not None:
+            control_ab = [torch.frombuffer(bytearray(control[k]), dtype=torch.bfloat16).clone().cuda()
+                          for k in ("a", "b")]
+            launch([g, beta, parameters[0], control_ab[0], control_ab[1], parameters[1],
+                    1, 32, 1.0, 20.0, 8], 1)
+            direct = dict(g=compare(g.cpu().numpy().tobytes(), control["g"], "f32"),
+                          beta=compare(beta.view(torch.uint16).cpu().numpy().tobytes(), control["beta"], "bf16"))
+            if not all(v["exact"] for v in direct.values()):
+                raise ValueError(f"original gating control failed for layer {layer}")
+            if any(t.view(torch.uint8).cpu().numpy().tobytes() != control[k]
+                   for k, t in zip(("a", "b"), control_ab)):
+                raise ValueError("additional gating control input changed")
+            layer_controls[str(layer)] = dict(direct=direct)
+        g_table = np.empty((32, 65536), dtype=np.float32)
+        beta_table = np.empty(65536, dtype=np.uint16)
+        for offset in range(0, 65536, CHUNK):
+            values = torch.arange(offset, offset + CHUNK, dtype=torch.int32, device="cuda").to(torch.int16)
+            ab = values.view(torch.bfloat16)[:, None].expand(-1, 32).contiguous()
+            arguments = [go, bo, parameters[0], ab, ab, parameters[1], 1, 32, 1.0, 20.0, 8]
+            launch(arguments, CHUNK)
+            gr = gs.cpu().numpy().tobytes()
+            br = bs.cpu().numpy().tobytes()
+            if any(raw[:256] != b"\x5a" * 256 or raw[-256:] != b"\x5a" * 256 for raw in (gr, br)):
+                raise ValueError("gate output redzone changed")
+            g_table[:, offset:offset + CHUNK] = np.frombuffer(gr[256:-256], dtype=np.float32).reshape(CHUNK, 32).T
+            beta_rows = np.frombuffer(br[256:-256], dtype=np.uint16).reshape(CHUNK, 32)
+            if not np.all(beta_rows == beta_rows[:, :1]):
+                raise ValueError("sigmoid depends on head; shared-table contract invalid")
+            beta_table[offset:offset + CHUNK] = beta_rows[:, 0]
+            expected_ab = np.arange(offset, offset + CHUNK, dtype=np.uint16)[:, None].repeat(32, axis=1)
+            if not np.array_equal(ab.view(torch.uint16).cpu().numpy(), expected_ab):
+                raise ValueError("enumerated input changed")
+        for k, tensor in zip(("a_log", "dt_bias"), parameters):
+            if tensor.view(torch.uint8).cpu().numpy().tobytes() != parameter_bytes[k]:
+                raise ValueError("model gating parameters changed during enumeration")
+        if control is not None:
+            a_bits = np.frombuffer(control["a"], dtype=np.uint16)
+            b_bits = np.frombuffer(control["b"], dtype=np.uint16)
+            checked = dict(g=compare(g_table[np.arange(32), a_bits].tobytes(), control["g"], "f32"),
+                           beta=compare(beta_table[b_bits].tobytes(), control["beta"], "bf16"))
+            if not all(v["exact"] for v in checked.values()):
+                raise ValueError(f"table lookup control failed for layer {layer}")
+            layer_controls[str(layer)]["lookup"] = checked
+        path = args.output_dir / f"layer{layer}-g-f32-head-major.bin"
+        path.write_bytes(g_table.tobytes())
+        files.append(dict(file=path.name, bytes=path.stat().st_size, sha256=file_sha(path)))
+        if shared_beta is None:
+            shared_beta = beta_table.copy()
+        elif not np.array_equal(shared_beta, beta_table):
+            raise ValueError("sigmoid table depends on model layer")
     for name, tensor in inputs.items():
         if tensor.view(torch.uint8).cpu().numpy().tobytes() != payloads[name]:
             raise ValueError("gating parameters/control input changed")
-    files = []
-    for name, array in ((f"layer{manifest['layer']}-g-f32-head-major.bin", g_table),
-                        ("sigmoid-beta-bf16.bin", beta_table)):
-        path = args.output_dir / name
-        path.write_bytes(array.tobytes())
-        files.append(dict(file=name, bytes=path.stat().st_size, sha256=file_sha(path)))
-    # Independent table lookup of the control's original input encodings.
-    a_bits = np.frombuffer(payloads["a"], dtype=np.uint16)
-    b_bits = np.frombuffer(payloads["b"], dtype=np.uint16)
-    table_control = dict(g=compare(g_table[np.arange(32), a_bits].tobytes(), payloads["g"], "f32"),
-                         beta=compare(beta_table[b_bits].tobytes(), payloads["beta"], "bf16"))
-    if not all(value["exact"] for value in table_control.values()):
-        raise ValueError("table layout does not reproduce the independent control")
+    path = args.output_dir / "sigmoid-beta-bf16.bin"
+    path.write_bytes(shared_beta.tobytes())
+    files.append(dict(file=path.name, bytes=path.stat().st_size, sha256=file_sha(path)))
+    table_control = layer_controls[str(manifest["layer"])]["lookup"]
     return dict(kernel_executed=True, device=torch.cuda.get_device_name(0),
                 torch_version=torch.__version__, triton_version=triton.__version__,
                 control=comparisons, table_control=table_control, ptx_sha256=ptx_sha,
                 options=dict(num_warps=1, block_heads=8, beta=1.0, threshold=20.0),
-                input_encodings=65536, entries=32 * 65536, launches=launches,
+                input_encodings=65536, entries=len(layer_specs) * 32 * 65536, launches=launches,
+                layers=[x[0] for x in layer_specs], layer_controls=layer_controls,
                 maximum_dispatch_ms=maximum_ms, peak_device_bytes=torch.cuda.max_memory_allocated(),
                 files=files, original_worker_register_capture=False, reference_service_executed=False)
 
@@ -168,6 +243,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input-dir", type=Path, required=True)
     parser.add_argument("--manifest-sha256", required=True)
+    parser.add_argument("--model-parameter-dir", type=Path)
+    parser.add_argument("--model-parameter-sha256")
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--source-sha256", required=True)
     parser.add_argument("--source-commit", required=True)
@@ -187,6 +264,14 @@ def main():
     if args.output_dir.exists() or args.source.stat().st_size > 1 << 20 or file_sha(args.source) != args.source_sha256:
         raise ValueError("existing output or gating source fingerprint mismatch")
     manifest, payloads = validate(args.input_dir, args.manifest_sha256)
+    args.model_parameters = None
+    parameter_record = None
+    if bool(args.model_parameter_dir) != bool(args.model_parameter_sha256):
+        raise ValueError("model parameter directory and fingerprint must be supplied together")
+    if args.model_parameter_dir:
+        parameter_record, args.model_parameters = validate_model_parameters(
+            args.model_parameter_dir, args.model_parameter_sha256, manifest["layer"], payloads
+        )
     extract(args.source)
     if args.execute:
         if sys.platform != "linux" or not args.expected_host or socket.gethostname().lower() != args.expected_host.lower():
@@ -200,6 +285,9 @@ def main():
                   source_sha256=args.source_sha256, manifest_sha256=args.manifest_sha256,
                   layer=manifest["layer"], model_loaded=False, inference_acceptance=False,
                   kernel_executed=False, timeout_seconds=args.timeout_seconds)
+    if parameter_record is not None:
+        record["model_parameters"] = parameter_record
+        record["model_parameter_manifest_sha256"] = args.model_parameter_sha256
     (args.output_dir / "preflight.json").write_text(json.dumps(record, indent=2) + "\n")
     if args.execute:
         try:
