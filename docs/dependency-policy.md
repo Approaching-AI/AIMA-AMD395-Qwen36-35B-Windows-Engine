@@ -45,4 +45,5 @@ High-precision host reciprocal roots still move 98 BF16 outputs in this
 capture. The packaging cost is one optional 16.50 MiB file, an equal device
 allocation and transient host buffer during SHA verification. The same
 Windows CNG and offline builder dependencies described above apply. The
-normalization route remains opt-in pending Windows and full-model evidence.
+normalization route passes the complete frozen q7169 Windows component
+comparison and remains opt-in pending full-model qualification.

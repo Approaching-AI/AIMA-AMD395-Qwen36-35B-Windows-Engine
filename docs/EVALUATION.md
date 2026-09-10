@@ -124,6 +124,19 @@ Rust tests, clippy, C ABI, q16 contracts and hygiene. Native component and
 model runs completed with passing host health/cleanup checks. No release
 or retained-performance qualification follows from the component correction.
 
+The next inverse implementation is controlled by
+`QRT_FLA_GDN_INVERSE_BLACKWELL=1`. A fresh capture of the original reference
+kernel reproduced the saved real q64 inverse exactly with two warps; four
+and eight warps differed at eight and nine BF16 elements respectively. Its
+emitted PTX identifies the diagonal FMA reduction order and the continued
+FP32 accumulator across off-diagonal matrix products. Replaying the actual
+new arithmetic header on the host matches all 14,682,112 BF16 inverse values
+of the full q7169 capture (SHA-256
+`7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62`).
+The native kernel uses 33 KiB of shared memory per 64-token/head block and
+adds no table or runtime dependency. Host parity is component evidence;
+Windows GPU and real-model qualification remain required.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

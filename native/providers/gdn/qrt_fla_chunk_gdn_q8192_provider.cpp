@@ -3,6 +3,7 @@
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
 #include "blackwell_l2norm.h"
+#include "blackwell_inverse.h"
 
 #include <array>
 #include <cstdint>
@@ -475,18 +476,19 @@ bool blackwell_aux_enabled(const char* name) {
     return setting && std::strcmp(setting, "1") == 0;
 }
 
-bool launch_blackwell_norm(const float* raw, uint16_t* q, uint16_t* k, unsigned tokens, hipStream_t stream) {
+template<class Operation>
+bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation) {
     struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
     hipError_t status = hipEventCreate(&begin.handle);
     if (status == hipSuccess) status = hipEventCreate(&end.handle);
     if (status == hipSuccess) status = hipEventRecord(begin.handle, stream);
-    if (status == hipSuccess) status = qrt_fla_blackwell_norm::normalize(raw, q, k, tokens, stream);
+    if (status == hipSuccess) status = operation();
     if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
     if (status == hipSuccess) status = hipEventSynchronize(end.handle);
     float milliseconds = 0;
     if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
-    if (status != hipSuccess) { set_error("blackwell_norm", status); return false; }
-    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell normalization exceeded 100 ms; no further submission"); return false; }
+    if (status != hipSuccess) { set_error(name, status); return false; }
+    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell math dispatch exceeded 100 ms; no further submission"); return false; }
     return true;
 }
 
@@ -696,7 +698,9 @@ int launch_segment_async(
         &profile_scratch,
     };
     if (blackwell_aux_enabled("QRT_FLA_GDN_NORM_BLACKWELL")) {
-        if (!launch_blackwell_norm(raw_pointer, q_pointer, k_pointer, tokens, stream)) return 0;
+        if (!launch_blackwell_math("blackwell_norm", stream, [&] {
+            return qrt_fla_blackwell_norm::normalize(raw_pointer, q_pointer, k_pointer, tokens, stream);
+        })) return 0;
     } else if (!launch(
             KernelIndex::kQkL2Norm,
             static_cast<uint32_t>(
@@ -814,7 +818,11 @@ int launch_segment_async(
         &global_scratch,
         &profile_scratch,
     };
-    if (!launch(
+    if (blackwell_aux_enabled("QRT_FLA_GDN_INVERSE_BLACKWELL")) {
+        if (!launch_blackwell_math("blackwell_inverse", stream, [&] {
+            return qrt_fla_blackwell_inverse::solve(a_pointer, inverse_pointer, tokens, stream);
+        })) return 0;
+    } else if (!launch(
             KernelIndex::kSolveTril64,
             chunks,
             kValueHeads,

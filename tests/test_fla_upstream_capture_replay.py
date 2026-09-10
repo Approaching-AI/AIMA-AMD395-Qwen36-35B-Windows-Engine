@@ -9,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native/providers/gdn/fla_upstream_capture_replay.cpp"
-SYMBOLS = {"norm-blackwell": "native-blackwell-norm", "solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "wu-blackwell": "native-blackwell-wu", "state": "_fla_chunk_state_kernel", "state-blackwell": "native-blackwell-state"}
+SYMBOLS = {"solve-blackwell": "native-blackwell-solve", "norm-blackwell": "native-blackwell-norm", "solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "wu-blackwell": "native-blackwell-wu", "state": "_fla_chunk_state_kernel", "state-blackwell": "native-blackwell-state"}
 
 
 class FlaUpstreamIntegrationContractTests(unittest.TestCase):
@@ -75,7 +75,7 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
     def run_probe(self, stage, directory, source_tokens, tokens, **environment):
         env = {k: v for k, v in os.environ.items() if k not in ("QRT_TEST_FAKE_DISPATCH_MS", "QRT_FLA_UPSTREAM_DUMP_Q64_DIR")}
         env.update(environment)
-        native = stage in ("state-blackwell", "wu-blackwell", "norm-blackwell")
+        native = stage in ("state-blackwell", "wu-blackwell", "norm-blackwell", "solve-blackwell")
         return subprocess.run([str(self.executable), stage, "-" if native else "unused.hsaco", SYMBOLS[stage], "256" if native else "128", "0",
                                str(directory), str(source_tokens), str(tokens)], env=env,
                               capture_output=True, text=True, timeout=10)
@@ -108,6 +108,16 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
         result = self.run_probe("norm-blackwell", self.fixture(1025), 1025, 1025, QRT_TEST_FAKE_DISPATCH_MS="101")
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stderr.count("FAKE_HIP blackwell_norm"), 1)
+
+    def test_inverse_segments_and_one_token_tail_stop_on_admission_failure(self) -> None:
+        result = self.run_probe("solve-blackwell", self.fixture(1025), 1025, 1025)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("FAKE_HIP blackwell_inverse tokens=1024\n", result.stderr)
+        self.assertIn("FAKE_HIP blackwell_inverse tokens=1\n", result.stderr)
+        self.assertEqual(json.loads(result.stdout)["segments"], 2)
+        result = self.run_probe("solve-blackwell", self.fixture(1025), 1025, 1025, QRT_TEST_FAKE_DISPATCH_MS="101")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stderr.count("FAKE_HIP blackwell_inverse"), 1)
 
     def test_native_wu_stops_before_next_dispatch_on_admission_failure(self) -> None:
         result = self.run_probe("wu-blackwell", self.fixture(128), 128, 128, QRT_TEST_FAKE_DISPATCH_MS="101")

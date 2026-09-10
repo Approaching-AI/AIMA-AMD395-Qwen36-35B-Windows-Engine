@@ -6,6 +6,7 @@
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
 #include "blackwell_l2norm.h"
+#include "blackwell_inverse.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -156,7 +157,7 @@ int main(int argc, char** argv) try {
         return 0;
     }
     if (argc != 9) {
-        std::cerr << "usage: fla-upstream-capture-replay <norm-blackwell|solve|wu|wu-blackwell|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
+        std::cerr << "usage: fla-upstream-capture-replay <norm-blackwell|solve|solve-blackwell|wu|wu-blackwell|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
         return 2;
     }
     const std::string stage = argv[1], directory = argv[6];
@@ -168,10 +169,11 @@ int main(int argc, char** argv) try {
     if (dump && *dump && tokens != 64) throw std::runtime_error("binary stage capture is restricted to a q64 view");
     const bool native_wu = stage == "wu-blackwell";
     const bool native_norm = stage == "norm-blackwell";
-    const bool native_blackwell = stage == "state-blackwell" || native_wu || native_norm;
+    const bool native_inverse = stage == "solve-blackwell";
+    const bool native_blackwell = stage == "state-blackwell" || native_wu || native_norm || native_inverse;
     if (native_blackwell && (std::string(argv[2]) != "-" || threads != 256 || shared != 0))
         throw std::runtime_error("native state has compiler-owned ABI and fixed resources");
-    const std::string symbol = native_norm ? "native-blackwell-norm" : native_wu ? "native-blackwell-wu" : native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
+    const std::string symbol = native_inverse ? "native-blackwell-solve" : native_norm ? "native-blackwell-norm" : native_wu ? "native-blackwell-wu" : native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
                                stage == "wu" ? "_fla_recompute_w_u_kernel" :
                                stage == "state" ? "_fla_chunk_state_kernel" : "";
     if (symbol.empty() || symbol != argv[3]) throw std::runtime_error("stage and kernel ABI mismatch");
@@ -211,11 +213,11 @@ int main(int argc, char** argv) try {
         surfaces.emplace_back("k-normalized-bf16", compare(actual_k, expected_k));
         dump_q64(stage, "q-normalized-bf16", actual_q); dump_q64(stage, "k-normalized-bf16", actual_k);
         segments = launch.segments; maximum_ms = launch.maximum_ms;
-    } else if (stage == "solve") {
+    } else if (stage == "solve" || native_inverse) {
         auto a = read_range<float>(path("a-f32"), source_tokens * matrix_features, 0, tokens * matrix_features, padded * matrix_features);
         auto expected = bf_reference("a-inverse-bf16", matrix_features);
         allocation = padded * matrix_features * 6u;
-        Launcher launch(argv[2], argv[3], threads, shared, allocation); Buffer input, output;
+        Launcher launch(argv[2], argv[3], threads, shared, allocation, native_inverse); Buffer input, output;
         input.upload(a); output.allocate(padded * matrix_features * 2u);
         // solve_tril only writes the lower 16x16 block triangle. Upper blocks
         // must be initialized exactly as in the production provider.
@@ -223,7 +225,10 @@ int main(int argc, char** argv) try {
         for (unsigned int offset = 0; offset < padded; offset += 1024u) {
             int32_t count = static_cast<int32_t>(std::min(1024u, padded - offset));
             auto* pa = input.at<float>(offset * matrix_features); auto* pi = output.at<uint16_t>(offset * matrix_features);
-            launch.launch<3>(static_cast<unsigned int>(count) / 64u, 32u, offset, &pa, &pi, &count);
+            if (native_inverse) launch.native_launch("blackwell_inverse", offset, [&](hipStream_t stream) {
+                return qrt_fla_blackwell_inverse::solve(pa, pi, std::min(1024u, tokens - offset), stream);
+            });
+            else launch.launch<3>(static_cast<unsigned int>(count) / 64u, 32u, offset, &pa, &pi, &count);
         }
         auto actual = download(output.at<uint16_t>(), tokens * matrix_features);
         surfaces.emplace_back("a-inverse-bf16", compare(actual, expected)); dump_q64(stage, "a-inverse-bf16", actual);

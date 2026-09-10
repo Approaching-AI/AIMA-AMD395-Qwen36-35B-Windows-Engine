@@ -82,3 +82,30 @@ int main() {
         binary = self.root / "alias-test"
         subprocess.run(self.flags + [str(source), "-o", str(binary)], check=True, capture_output=True, timeout=30)
         subprocess.run([str(binary)], check=True, capture_output=True, timeout=10)
+
+    def test_inverse_rejects_overlapping_unaligned_and_invalid_spans(self):
+        source = self.root / "inverse-host.cpp"
+        source.write_text('''#include "native/providers/gdn/blackwell_inverse.h"
+#include "native/providers/gdn/blackwell_inverse_math.h"
+#include <vector>
+int main() {
+    using namespace qrt_fla_blackwell_inverse;
+    std::vector<float> a(64*2048);
+    std::vector<uint16_t> inverse(64*2048);
+    if (!valid_solve(a.data(), inverse.data(), 64) || !valid_solve(a.data(), inverse.data(), 1)) return 1;
+    if (valid_solve(a.data(), reinterpret_cast<uint16_t*>(a.data())+1, 64) ||
+        valid_solve(nullptr, inverse.data(), 64) || valid_solve(a.data(), nullptr, 64) ||
+        valid_solve(a.data(), inverse.data(), 0) || valid_solve(a.data(), inverse.data(), 8193)) return 2;
+    if (valid_solve(reinterpret_cast<float*>(reinterpret_cast<char*>(a.data())+1), inverse.data(), 64) ||
+        valid_solve(a.data(), reinterpret_cast<uint16_t*>(reinterpret_cast<char*>(inverse.data())+1), 64)) return 3;
+    // Cancellation distinguishes explicit FMA from a separately rounded product.
+    float left[256]{}, right[256]{};
+    left[0] = 1.0f + 0x1p-23f; right[0] = 1.0f - 0x1p-23f;
+    if (dot16(left, right, 0, 0, -1.0f) != -0x1p-46f) return 4;
+    return 0;
+}
+''')
+        binary = self.root / "inverse-host-test"
+        subprocess.run(self.flags + ["-ffp-contract=off", str(source), "-o", str(binary)],
+                       check=True, capture_output=True, timeout=30)
+        subprocess.run([str(binary)], check=True, capture_output=True, timeout=10)

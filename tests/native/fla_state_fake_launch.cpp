@@ -2,6 +2,14 @@
 #include "../../native/providers/gdn/blackwell_state.h"
 #include "../../native/providers/gdn/blackwell_wu_output.h"
 #include "../../native/providers/gdn/blackwell_l2norm.h"
+#include "../../native/providers/gdn/blackwell_inverse.h"
+namespace qrt_fla_blackwell_inverse {
+hipError_t solve(const float* a, uint16_t* inverse, unsigned tokens, hipStream_t) {
+    if (!valid_solve(a, inverse, tokens) || !fake_range(const_cast<float*>(a), size_t(tokens) * 2048u * 4u) ||
+        !fake_range(inverse, size_t(tokens) * 2048u * 2u)) return 1;
+    std::cerr << "FAKE_HIP blackwell_inverse tokens=" << tokens << '\n'; return 0;
+}
+}
 namespace qrt_fla_blackwell_norm {
 hipError_t prepare_table() { return hipSuccess; }
 void release_table() {}
