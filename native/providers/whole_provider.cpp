@@ -92690,7 +92690,8 @@ bool run_selected_conv_qkv_window(
             0u,
             nullptr,
             nullptr,
-            0u
+            0u,
+            nullptr
         );
     }
     if (!check_warmup_completion(
@@ -92723,7 +92724,8 @@ bool run_selected_conv_qkv_window(
             0u,
             nullptr,
             nullptr,
-            0u
+            0u,
+            nullptr
         );
     }
     if (!check_hip(hipGetLastError(), timed_launch_stage, &run->failure_stage, &run->failure) ||
@@ -92750,7 +92752,8 @@ bool run_selected_conv_qkv_window(
                 0u,
                 nullptr,
                 nullptr,
-                0u
+                0u,
+                nullptr
             );
         }
         if (!check_hip(hipGetLastError(), std::string("fallback_timed_kernel_launch_") + failure_prefix + "_prefill_phase", &run->failure_stage, &run->failure) ||
