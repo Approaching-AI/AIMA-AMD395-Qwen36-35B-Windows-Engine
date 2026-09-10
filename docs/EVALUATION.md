@@ -635,7 +635,22 @@ the already validated post-attention input, using actual GB10 model weights
 fingerprinted against native safetensor spans. It requires 15 independent
 terminal controls before emitting full reference tensors and compares the
 unrounded residual and next input normalization. Local preflight and malformed
-input rejection pass; the full MoE replay is still pending.
+input rejection pass. The full replay at `f87c1b02` passes all 15 controls and
+verifies all seven MoE tensors plus the next normalization weight against the
+actual GB10 model. It finds 115,035 unrounded-residual FP32 differences and
+55,851 next-normalization BF16 differences against the native prefix capture.
+Capture SHA:
+`94ecfdd428aa3e1fadc43000e6530264fea4f087e42909c4b0944379ad56431a`.
+The owned component container exits normally, with peak device allocation
+2,097,953,280 bytes; the original reference service remains stopped.
+
+The opt-in `QRT_QWEN36_FULL_MOE_STAGE_DUMP_PREFIX` diagnostic now copies the
+full native router, shared-expert intermediates, routed activations and raw
+per-route FP32 outputs through the existing debug ABI. It requires the matching
+full top-k layer/token capture and bounds its copy loop to 30 seconds. Reference
+replay also retains full expert stages. These additions preserve runtime math
+and allow the remaining full-prefix error to be separated into routing,
+activation, projection and combination boundaries.
 
 ## MMLU-Pro full evaluation
 

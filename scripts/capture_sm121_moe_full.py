@@ -203,6 +203,7 @@ def execute(args, manifest):
     module = importlib.import_module("vllm.model_executor.layers.fused_moe.fused_moe")
     original_dispatch, original_activation = module.dispatch_fused_moe_kernel, module.apply_moe_activation
     stages = {}
+    full_stages = {}
     dispatch_count = 0
 
     def dispatch(*pos, **kw):
@@ -211,13 +212,15 @@ def execute(args, manifest):
         if dispatch_count >= 2:
             raise ValueError("unexpected extra MoE projection dispatch")
         name = "routed_gate_up" if dispatch_count == 0 else "routed_weighted"
-        stages[name] = pos[2][-1].detach().clone()
+        full_stages[name] = pos[2].detach().clone()
+        stages[name] = full_stages[name][-1]
         dispatch_count += 1
         return result
 
     def activation(kind, out, inp):
         result = original_activation(kind, out, inp)
-        stages["routed_activated"] = out[-8:].detach().clone()
+        full_stages["routed_activated"] = out.detach().clone().reshape(TOKENS, 8, 512)
+        stages["routed_activated"] = full_stages["routed_activated"][-1]
         return result
 
     module.dispatch_fused_moe_kernel, module.apply_moe_activation = dispatch, activation
@@ -257,8 +260,10 @@ def execute(args, manifest):
                        nextnorm=comparison(cpu(nextnorm), arrays["native_nextnorm"]))
     files = []
     for name, t in dict(router=logits, topk_ids=topk_ids, topk_weights=topk_weights,
+                        shared_gate_up=shared_gate_up, shared_activated=shared_activated,
+                        shared_down=shared_down, shared_gate=shared_gate,
                         shared=shared, routed=routed, moe=moe, unrounded=unrounded,
-                        rounded=rounded, nextnorm=nextnorm).items():
+                        rounded=rounded, nextnorm=nextnorm, **full_stages).items():
         a = cpu(t)
         path = args.output_dir / (name + ".bin")
         path.write_bytes(a.tobytes())

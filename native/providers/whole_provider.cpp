@@ -43636,6 +43636,11 @@ bool emit_qwen36_exact_arbitrary_layer1_moe_topk_trace(
     const char *full_topk_weights_dump_path = std::getenv(
         "QRT_QWEN36_FULL_MOE_TOPK_WEIGHTS_DUMP_PATH"
     );
+    const char *full_stage_dump_prefix = std::getenv(
+        "QRT_QWEN36_FULL_MOE_STAGE_DUMP_PREFIX"
+    );
+    const bool full_stage_dump_requested =
+        full_stage_dump_prefix != nullptr && full_stage_dump_prefix[0] != '\0';
     const bool full_topk_dump_requested =
         (full_topk_ids_dump_path != nullptr &&
          full_topk_ids_dump_path[0] != '\0') ||
@@ -43652,10 +43657,11 @@ bool emit_qwen36_exact_arbitrary_layer1_moe_topk_trace(
     const bool stage_trace_requested =
         layer1_trace_requested && layer_index == stage_trace_layer;
     if (!layer1_trace_requested && !all_layer_trace_requested &&
-        !full_topk_dump_requested) {
+        !full_topk_dump_requested && !full_stage_dump_requested) {
         return true;
     }
     if (!all_layer_trace_requested && !full_topk_dump_requested &&
+        !full_stage_dump_requested &&
         layer_index != 1u) {
         return true;
     }
@@ -43681,6 +43687,11 @@ bool emit_qwen36_exact_arbitrary_layer1_moe_topk_trace(
         triton_selected_moe_provider_state();
     std::lock_guard<std::mutex> lock(state.mutex);
     if (state.copy_topk == nullptr ||
+        (full_stage_dump_requested &&
+         (state.copy_token_router_logits == nullptr ||
+          state.copy_token_stage == nullptr ||
+          state.copy_token_shared_stage == nullptr ||
+          state.copy_token_routed_stage == nullptr)) ||
         (stage_trace_requested &&
          (state.copy_token_router_logits == nullptr ||
           state.copy_token_router_logits_f32 == nullptr ||
@@ -43720,6 +43731,13 @@ bool emit_qwen36_exact_arbitrary_layer1_moe_topk_trace(
         "QRT_QWEN36_FULL_MOE_TOPK_DUMP_TOKENS",
         0u
     );
+    if (full_stage_dump_requested &&
+        (full_topk_dump_layer >= QRT_QWEN36_LAYER_COUNT ||
+         full_topk_dump_tokens != prefill_tokens || !full_topk_dump_requested)) {
+        *failure_stage = "exact_arbitrary_full_moe_stage_dump_contract";
+        *failure = "full MoE stages require an explicit active token extent, layer and top-k dump";
+        return false;
+    }
     if (full_topk_dump_requested &&
         layer_index == full_topk_dump_layer &&
         (full_topk_dump_tokens == 0u ||
@@ -43803,6 +43821,92 @@ bool emit_qwen36_exact_arbitrary_layer1_moe_topk_trace(
             )) {
             return false;
         }
+    }
+    if (full_stage_dump_requested && layer_index == full_topk_dump_layer) {
+        // Copy the live provider through its existing read-only debug ABI. In
+        // fused-combine builds copy_token_stage's routed value is a diagnostic
+        // host reduction, so retain the raw per-route outputs for comparison.
+        const std::array<const char *, 10u> suffixes{{
+            ".router-bf16.bin", ".shared-gate-bf16.bin",
+            ".shared-gate-projection-bf16.bin", ".shared-up-projection-bf16.bin",
+            ".shared-activated-bf16.bin", ".shared-down-bf16.bin",
+            ".shared-scale-f32.bin", ".routed-activated-bf16.bin",
+            ".route-outputs-f32.bin", ".topk-ids-u32.bin"
+        }};
+        std::array<std::ofstream, 10u> dumps;
+        for (size_t i = 0u; i < suffixes.size(); ++i) {
+            const std::string path = std::string(full_stage_dump_prefix) + suffixes[i];
+            std::ifstream existing(path, std::ios::binary);
+            if (existing.good()) {
+                *failure_stage = "exact_arbitrary_full_moe_stage_dump_exists";
+                *failure = "refusing to overwrite full MoE stage dump: " + path;
+                return false;
+            }
+            dumps[i].open(path, std::ios::binary | std::ios::out);
+            if (!dumps[i]) {
+                *failure_stage = "exact_arbitrary_full_moe_stage_dump_open";
+                *failure = "could not open full MoE stage dump: " + path;
+                return false;
+            }
+        }
+        constexpr size_t hidden = QRT_QWEN36_HIDDEN_SIZE;
+        constexpr size_t intermediate = QRT_QWEN36_MOE_EXPERT_INTERMEDIATE;
+        constexpr size_t topk = QRT_QWEN36_EXPERTS_PER_TOKEN;
+        std::vector<uint16_t> router(QRT_QWEN36_EXPERT_COUNT);
+        std::vector<uint16_t> gate(intermediate), up(intermediate), activated(intermediate);
+        std::vector<uint16_t> shared_down(hidden), routed_activated(topk * intermediate);
+        std::vector<float> discarded_routed(hidden), route_outputs(topk * hidden);
+        uint16_t shared_logit = 0u;
+        float shared_scale = 0.0f;
+        const auto begin = std::chrono::steady_clock::now();
+        size_t total_bytes = 0u;
+        for (uint32_t token = 0u; token < prefill_tokens; ++token) {
+            if (state.copy_token_router_logits(token, router.data()) == 0 ||
+                state.copy_token_stage(token, discarded_routed.data(), shared_down.data(), &shared_scale) == 0 ||
+                state.copy_token_shared_stage(token, &shared_logit, gate.data(), up.data(), activated.data()) == 0 ||
+                state.copy_token_routed_stage(token, routed_activated.data(), route_outputs.data()) == 0) {
+                *failure_stage = "exact_arbitrary_full_moe_stage_dump_copy";
+                *failure = "provider failed to copy a complete live MoE token";
+                return false;
+            }
+            const std::array<const void *, 10u> data{{
+                router.data(), &shared_logit, gate.data(), up.data(), activated.data(),
+                shared_down.data(), &shared_scale, routed_activated.data(), route_outputs.data(),
+                ids.data() + static_cast<size_t>(token) * topk
+            }};
+            const std::array<size_t, 10u> bytes{{
+                router.size() * 2u, 2u, intermediate * 2u, intermediate * 2u,
+                intermediate * 2u, hidden * 2u, 4u, topk * intermediate * 2u,
+                topk * hidden * 4u, topk * 4u
+            }};
+            for (size_t i = 0u; i < dumps.size(); ++i) {
+                dumps[i].write(static_cast<const char *>(data[i]),
+                               static_cast<std::streamsize>(bytes[i]));
+                total_bytes += bytes[i];
+                if (!dumps[i]) {
+                    *failure_stage = "exact_arbitrary_full_moe_stage_dump_write";
+                    *failure = "failed to write full MoE stage dump";
+                    return false;
+                }
+            }
+            if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 30.0) {
+                *failure_stage = "exact_arbitrary_full_moe_stage_dump_deadline";
+                *failure = "full MoE stage copy exceeded 30 seconds";
+                return false;
+            }
+        }
+        for (auto &dump : dumps) {
+            dump.close();
+            if (!dump) {
+                *failure_stage = "exact_arbitrary_full_moe_stage_dump_close";
+                *failure = "failed to close full MoE stage dump";
+                return false;
+            }
+        }
+        std::cerr << "BATCH_MARK full_moe_stage_dump layer=" << layer_index
+                  << " tokens=" << prefill_tokens << " files=" << dumps.size()
+                  << " bytes=" << total_bytes << " diagnostic_only=1 numerical_correctness_claimed=0"
+                  << std::endl;
     }
     const size_t terminal_base =
         static_cast<size_t>(stage_trace_position) *
