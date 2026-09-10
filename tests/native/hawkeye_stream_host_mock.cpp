@@ -66,7 +66,7 @@ void selected_bf16_projection_hawkeye_compact_kernel(
             counts[1] = (std::max)(counts[1], block_count); block_count = 0u;
         }
     }
-    if (collections == reject_collection) counts[1] = 65u;
+    if (collections == reject_collection) counts[0] = qrt_hawkeye_dispatch::maximum_candidates + 1u;
 }
 void round_f32_outputs_to_bf16_kernel(float *output, unsigned int count) {
     ++rounds;
@@ -142,6 +142,14 @@ int main() {
     if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 3;
     if (invalid_grid || invalid_range || allocations != 1u || frees != 1u ||
         scratch_bytes != (131072u + 2u) * sizeof(unsigned int)) return 4;
+    // Fully dense source blocks remain bounded after compaction. The actual
+    // kernel has only 16 candidate subgroups per CTA, under the unchanged cap.
+    reset(); output.assign(total_elements, 1.00390625f);
+    if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u ||
+        corrected.size() != total_elements || invalid_grid || allocations != frees) return 14;
+    for (size_t i = 0; i < total_elements; ++i) {
+        if (output[i] != static_cast<float>((i / rows) * 2u + i % rows)) return 15;
+    }
     reset(); count_only(true); output = initial;
     if (invoke(output) != hipErrorInvalidConfiguration || collections != 3u ||
         rounds || corrections || output != initial || allocations != frees) return 5;

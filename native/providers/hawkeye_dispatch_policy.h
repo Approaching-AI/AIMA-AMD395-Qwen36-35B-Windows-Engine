@@ -12,6 +12,8 @@ constexpr std::uint32_t maximum_candidates = 131072u;
 // At most 256 lightweight collection blocks, separately from the eight-block
 // exact-dot cap. The scratch capacity also covers a completely dense window.
 constexpr std::uint32_t maximum_window_elements = 65536u;
+// Limit the actual exact-dot CTA, not the density of a pre-compaction source
+// block. The compacted kernel dispatches at most 16 candidate subgroups.
 constexpr std::uint32_t maximum_candidates_per_block = 64u;
 constexpr double maximum_dispatch_ms = 100.0;
 constexpr double maximum_correction_ms = 10000.0;

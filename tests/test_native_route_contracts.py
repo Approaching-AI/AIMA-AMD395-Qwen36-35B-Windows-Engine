@@ -370,7 +370,7 @@ class NativeRouteContractTests(unittest.TestCase):
             self.provider.count(
                 "launch_selected_bf16_projection_hawkeye_midpoint_correction("
             ),
-            6,
+            7,
         )
 
     def test_exact_arbitrary_q8192_disables_specialized_q1_route(self) -> None:

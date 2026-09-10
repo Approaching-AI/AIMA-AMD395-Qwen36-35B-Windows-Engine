@@ -304,6 +304,32 @@ completion record last. It only reads existing host vectors. Tests cover an
 irregular token count, exact float bits, immutable inputs, invalid shapes,
 filesystem failure and no overwrite. Native capture validation is pending.
 
+The mixed-type gate capture passes native Windows compilation at
+`5bbddb4161dd3ec5ec359e88c406caa9d6f19a65`; DLL SHA-256 is
+`7d724b758734c8b664e512dbd9768942e57f5f77dbe268fa0ab75a618cf04836`.
+`prepare-fla-model-q7169-native-gate-input-r1.ps1` still emits 220 / 9.375
+with passing host/cleanup checks; its run SHA is
+`59374d94e7819e0e5afd91d06a37f716bbc2d1569568c2ea1fbaf88654220e95`.
+The actual A/B vectors have 41 / 217 BF16 differences against the complete
+CPU projections. Model parameter bits match the table's source exactly, and
+both lookup results match every actual GDN gate input. The remaining 20 G
+and 90 beta differences therefore arise before the table handoff. A complete
+CPU projection-plus-table control reproduces all 229,408 reference G and
+beta values; its record SHA is
+`71b64b5b179223c15df0ee2478597e62780bd2d4dbf2c0245d7c3ad2546c1ae8`.
+
+`QRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_HAWKEYE_LAYERS` adds an opt-in exact
+A/B route using the characterized continuous-K2048, group-16, 26-bit
+accumulator. Every output is computed from the current inputs and weights;
+it takes precedence over fused A/B projection when configured. The existing
+compacted launcher handles full selection with fixed scratch and eight CTAs
+per exact dispatch. Its 64-candidates-per-CTA bound now applies to the actual
+16-subgroup compacted geometry; source-block density is reported separately.
+The 100 ms dispatch and 10 s aggregate deadlines remain. Host tests cover
+dense windows as well as sparse/tail/error cases, and the native correction
+test adds full `[7169,32]`/K2048 geometry. Native evidence is pending; this
+route is not enabled in a default or release profile.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

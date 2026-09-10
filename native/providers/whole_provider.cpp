@@ -37413,7 +37413,12 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             if (result != hipSuccess) return result;
             total_candidates += counts[0];
             maximum_block_candidates = (std::max)(maximum_block_candidates, counts[1]);
-            if (!qrt_hawkeye_dispatch::admitted(counts[0], counts[1])) {
+            // Source-block density no longer describes exact-dot work after
+            // compaction: every dispatched CTA owns at most 16 candidates.
+            // Apply the work bound to that actual geometry, retaining the
+            // source density only as an observation.
+            if (!qrt_hawkeye_dispatch::admitted(counts[0],
+                    (std::min)(counts[0], subgroups_per_block))) {
                 std::fprintf(stderr,
                     "BATCH_MARK hawkeye_dispatch_admission rows=%u tokens=%u k=%u "
                     "window=%u offset=%zu candidates=%u maximum_block_candidates=%u "
@@ -37458,7 +37463,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         std::chrono::steady_clock::now() - correction_start).count();
     std::fprintf(stderr,
         "BATCH_MARK hawkeye_dispatch_stream rows=%u tokens=%u k=%u "
-        "windows=%u candidates=%llu maximum_block_candidates=%u "
+        "windows=%u candidates=%llu maximum_source_block_candidates=%u "
+        "compacted_candidates_per_block=16 "
         "exact_dispatches=%u maximum_dispatch_ms=%.3f correction_ms=%.3f "
         "count_only=%u completed=%u scratch_bytes=%zu "
         "diagnostic_only=1 numerical_correctness_claimed=0\n",
@@ -115118,6 +115124,11 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             ),
             QRT_QWEN36_LAYER_COUNT
         );
+    const unsigned int exact_arbitrary_early_ab_hawkeye_layers = (std::min)(
+        env_u32_or_default("QRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_HAWKEYE_LAYERS", 0u),
+        QRT_QWEN36_LAYER_COUNT);
+    const bool exact_arbitrary_early_ab_hawkeye_projection =
+        descriptor.layer_index < exact_arbitrary_early_ab_hawkeye_layers;
     const unsigned int exact_arbitrary_early_qkvz_dot2_layers =
         (std::min)(
             env_u32_or_default(
@@ -115932,6 +115943,9 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             unsigned int surface_bit) -> bool {
             const unsigned int projection_ordinal =
                 projection_launch_ordinal++;
+            const bool use_exact_arbitrary_ab_hawkeye =
+                exact_arbitrary_early_ab_hawkeye_projection && rows == kAbRows &&
+                (surface_bit == 4u || surface_bit == 8u);
             const bool use_exact_arbitrary_ab_dot2 =
                 exact_arbitrary_early_ab_dot2_projection &&
                 rows == kAbRows &&
@@ -115948,6 +115962,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 (exact_arbitrary_early_qkvz_wmma_surface_mask &
                  surface_bit) != 0u;
             const bool use_exact_arbitrary_dot2 =
+                use_exact_arbitrary_ab_hawkeye ||
                 use_exact_arbitrary_ab_dot2 ||
                 use_exact_arbitrary_qkvz_dot2 ||
                 use_exact_arbitrary_qkvz_wmma;
@@ -115981,6 +115996,29 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     &run->failure_stage, &run->failure
                 );
             };
+            if (use_exact_arbitrary_ab_hawkeye) {
+                // A full-prefix selection computes every output from the
+                // current weights and inputs. Zeroing only initializes the
+                // selector's carrier; no matrix approximation feeds this path.
+                const size_t elements = static_cast<size_t>(target_token_count) * rows;
+                if (!check_hip(hipMemsetAsync(device_output, 0, elements * sizeof(float), stream),
+                        prefix + "_ab_hawkeye_output_init", &run->failure_stage, &run->failure) ||
+                    !check_hip(launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                        device_weights, device_input_rmsnorm_bf16, nullptr, nullptr, nullptr,
+                        device_output, rows, target_token_count, QRT_QWEN36_HIDDEN_SIZE,
+                        0u, target_token_count, 0u,
+                        selected_hawkeye_correction_maximum_blocks_per_launch(), stream),
+                        prefix + "_ab_hawkeye_projection", &run->failure_stage, &run->failure)) {
+                    return false;
+                }
+                std::cerr << "BATCH_MARK qwen36_exact_arbitrary_early_ab_hawkeye_projection"
+                          << " layer=" << descriptor.layer_index << " surface_bit=" << surface_bit
+                          << " rows=" << rows << " tokens=" << target_token_count
+                          << " accumulation=characterized_group16_width26_continuous_k2048"
+                          << " all_outputs_recomputed=1 endpoint=bf16_rne_f32_cells"
+                          << " diagnostic_only=1 numerical_correctness_claimed=0" << std::endl;
+                return materialize_diagnostic_bf16_output();
+            }
             if (use_exact_arbitrary_qkvz_wmma) {
                 const unsigned int effective_hawkeye_midpoint_radius =
                     descriptor.layer_index <
@@ -117146,7 +117184,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         return true;
     };
     auto launch_ba_projections = [&](hipStream_t stream) -> bool {
-        if (!use_exact_arbitrary_early_fused_ba_projection) {
+        if (!use_exact_arbitrary_early_fused_ba_projection ||
+            exact_arbitrary_early_ab_hawkeye_projection) {
             return launch_projection(
                        device_a_weight,
                        device_a_bf16,

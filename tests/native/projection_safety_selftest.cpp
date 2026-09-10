@@ -166,7 +166,7 @@ void run_case(unsigned int rows, unsigned int tokens, bool consumer, bool full_s
 // index transport and correction launcher. Exact dots vary with both token and
 // row; other cells must still receive BF16 rounding. A product-sized case has
 // more candidates than the former whole-tensor admission quota.
-void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k) {
+void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false) {
     const size_t elements = static_cast<size_t>(rows) * tokens;
     std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
     std::vector<uint16_t> inputs(static_cast<size_t>(tokens) * k + 2u * kGuard, kBf16Guard);
@@ -182,7 +182,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k)
             bf16(static_cast<float>(static_cast<int>(token % 17u) - 8) / 16.0f);
     }
     for (size_t i = 0u; i < elements; ++i) {
-        output[kGuard + i] = (i % 64u == 0u || i + 1u == elements)
+        output[kGuard + i] = (dense || i % 64u == 0u || i + 1u == elements)
             ? 1.00390625f : 1.001f;
     }
     const auto expected_weights = weights;
@@ -192,7 +192,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k)
     const auto start = std::chrono::steady_clock::now();
     hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(
         dw.data(), di.data(), nullptr, nullptr, nullptr, df.data(), rows, tokens,
-        k, 512u, 0u, 0u, 8u, nullptr), "streamed_correction");
+        k, 512u, dense ? tokens : 0u, 0u, 8u, nullptr), "streamed_correction");
     const double ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - start).count();
     df.read(output);
@@ -203,7 +203,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k)
     size_t candidates = 0u;
     for (size_t i = 0u; i < elements; ++i) {
         float expected = 1.0f;
-        if (i % 64u == 0u || i + 1u == elements) {
+        if (dense || i % 64u == 0u || i + 1u == elements) {
             ++candidates;
             const unsigned int row = static_cast<unsigned int>(i % rows);
             const unsigned int token = static_cast<unsigned int>(i / rows);
@@ -259,7 +259,8 @@ int main(int argc, char **argv) {
             } else if (mode == "--correction") {
                 run_correction_case(129u, 1031u, 2048u);
                 run_correction_case(8192u, 7169u, 16u);
-                cases += 2u;
+                run_correction_case(32u, 7169u, 2048u, true);
+                cases += 3u;
             } else {
                 run_case(8192u, 7169u, true, true);
                 ++cases;
