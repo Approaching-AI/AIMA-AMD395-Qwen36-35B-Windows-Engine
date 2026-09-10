@@ -675,6 +675,34 @@ and FP64 controls retain differences. The next bounded model profile will
 exercise the existing sparse projection corrections and CUDA router
 exponent compatibility, with independently captured primitive tables.
 
+
+The MoE primitive capture at `221e1a0c` enumerates all 8,388,608 CUDA
+expf fraction-table entries and all 65,536 BF16 SiLU inputs. All 65,280
+finite non-unit SiLU product controls match. Capture SHA
+`af1c7ad5d3efa69b9adb07e35f07e19d512a1298acddbd13aea08330ced9f2cb`.
+CPU replay with the reference router logits reproduces every one of 57,352
+real top-k weights. Using native logits leaves 35 differences.
+
+The following native run enables these primitives and midpoint radius 512
+for the existing MoE corrections. Top-k weight differences fall from
+19,464 to 30; shared output differences fall from 195,199 to 3,047. Routed
+activation instead worsens from 88,488 to 100,218 and routed output from
+102,007 to 263,798. The conditional routed AOT kernels use `tl.sum` FP32
+trees, unlike the characterized group-16 MMA used by shared correction.
+Overall MoE differences rise to 164,073; this combination is not retained
+as an inference or performance improvement. Native run SHA
+`d940e95549756fa3d65e9322d953cbb0e21895c8128c785ab502adfda23a5fe7`;
+command `prepare-fla-model-q7169-moe-correction-r1.ps1`, whole `db049515`,
+MoE/CLI `f544cbe`, FLA `831c1699`, same real model and q7169 oracle.
+Output remains 220 / 9.375, load 20,069.185300 ms and diagnostic TTFT
+42,160.582800 ms. Host/cleanup checks pass and the full MoE input is unchanged.
+
+The opt-in `QRT_QWEN36_SM121_ROUTED_HAWKEYE` now selects the existing
+wave16, 26-bit/group-16 native gate/up/down correction kernels in builds
+that also contain conditional AOT. It requires native batched gate/down
+support and the BF16 SiLU table. The default remains the existing route;
+this new selection requires full native product-shape qualification.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

@@ -1764,6 +1764,7 @@ struct ProviderState {
 #endif
     uint16_t *activated = nullptr;
     uint16_t *cuda_vllm_silu_bf16_domain_lut = nullptr;
+    bool sm121_routed_hawkeye = false;
     uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_hawkeye_low_exponent_threshold = 0u;
@@ -13614,7 +13615,7 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
     }
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
-    if (status == hipSuccess) {
+    if (status == hipSuccess && !g_state.sm121_routed_hawkeye) {
         const bool correction_requested =
             g_state.routed_projection_hawkeye_midpoint_radius != 0u ||
             g_state.routed_up_projection_hawkeye_midpoint_radius != 0u ||
@@ -13743,8 +13744,13 @@ bool launch_routed_matrices_after_input_conversion(
         );
         }
     }
-#elif QRT_TRITON_MOE_BATCHED_HAWKEYE
-    if (status == hipSuccess) {
+#endif
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    // The retained conditional AOT uses an FP32 reduction tree. The SM121
+    // component boundary instead requires the characterized group-16 MMA
+    // accumulator and a materialized BF16 SiLU value before multiplication.
+    if (status == hipSuccess &&
+        (!QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE || g_state.sm121_routed_hawkeye)) {
         const size_t projection_elements =
             static_cast<size_t>(token_count) * kTopK * kIntermediate;
         const uint32_t correction_blocks = static_cast<uint32_t>(
@@ -14148,6 +14154,7 @@ bool launch_routed_matrices_after_input_conversion(
     }
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
     if (status == hipSuccess &&
+        !g_state.sm121_routed_hawkeye &&
         (g_state.routed_down_contribution_hawkeye_midpoint_radius != 0u ||
          g_state.routed_down_hawkeye_low_exponent_threshold != 0u)) {
         float *route_outputs_pointer = g_state.route_outputs;
@@ -14176,8 +14183,10 @@ bool launch_routed_matrices_after_input_conversion(
             stream
         );
     }
-#elif QRT_TRITON_MOE_BATCHED_HAWKEYE
+#endif
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
     if (status == hipSuccess &&
+        (!QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN || g_state.sm121_routed_hawkeye) &&
         (g_state.routed_down_contribution_hawkeye_midpoint_radius != 0u ||
          g_state.routed_down_hawkeye_low_exponent_threshold != 0u)) {
         const size_t route_output_elements =
@@ -15946,6 +15955,22 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     if (!release_state()) {
         return 0;
     }
+    const char *sm121_routed = std::getenv("QRT_QWEN36_SM121_ROUTED_HAWKEYE");
+    g_state.sm121_routed_hawkeye = sm121_routed != nullptr &&
+        sm121_routed[0] != '\0' && std::strcmp(sm121_routed, "0") != 0;
+    if (g_state.sm121_routed_hawkeye) {
+#if !QRT_TRITON_MOE_BATCHED_HAWKEYE || \
+    !QRT_TRITON_MOE_NATIVE_WMMA_GATE || !QRT_TRITON_MOE_NATIVE_WMMA_DOWN
+        set_error_text("SM121 routed Hawkeye requires batched native gate and down kernels");
+        return 0;
+#else
+        const char *silu_path = std::getenv("QRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH");
+        if (silu_path == nullptr || silu_path[0] == '\0') {
+            set_error_text("SM121 routed Hawkeye requires the CUDA BF16 SiLU domain table");
+            return 0;
+        }
+#endif
+    }
     g_state.routed_projection_hawkeye_midpoint_radius =
         requested_routed_projection_hawkeye_midpoint_radius();
     g_state.routed_up_projection_hawkeye_midpoint_radius =
@@ -16315,6 +16340,13 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     }
 #endif
     g_state.prepared = true;
+    if (g_state.sm121_routed_hawkeye) {
+        std::fprintf(stderr,
+            "BATCH_MARK q8192_triton_selected_moe_sm121_routed_hawkeye "
+            "enabled=1 significand_width=26 products_per_group=16 "
+            "bf16_silu_table=1 numerical_correctness_claimed=0\n");
+        std::fflush(stderr);
+    }
     g_state.error[0] = '\0';
     return 1;
 }
