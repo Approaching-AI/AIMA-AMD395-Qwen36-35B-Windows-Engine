@@ -103993,6 +103993,12 @@ bool emit_qwen36_exact_arbitrary_final_norm_boundary_trace(
     return true;
 }
 
+bool qwen36_all_norm_capture_active(unsigned int tokens) {
+    const char *prefix = std::getenv("QRT_QWEN36_ALL_NORM_DUMP_PREFIX");
+    return prefix != nullptr && prefix[0] != '\0' &&
+        tokens == env_u32_or_default("QRT_QWEN36_ALL_NORM_DUMP_TOKENS", 0u);
+}
+
 bool dump_qwen36_selected_full_stage(
     unsigned int layer,
     unsigned int tokens,
@@ -104003,10 +104009,16 @@ bool dump_qwen36_selected_full_stage(
     std::string *failure_stage,
     std::string *failure
 ) {
-    const char *prefix = std::getenv("QRT_QWEN36_FULL_STAGE_DUMP_PREFIX");
-    if (prefix == nullptr || prefix[0] == '\0' ||
+    const bool all_norm = qwen36_all_norm_capture_active(tokens) &&
+        surface != nullptr &&
+        (std::strcmp(surface, "input_rmsnorm") == 0 ||
+         std::strcmp(surface, "post_attention_rmsnorm") == 0);
+    const char *prefix = std::getenv(all_norm
+        ? "QRT_QWEN36_ALL_NORM_DUMP_PREFIX"
+        : "QRT_QWEN36_FULL_STAGE_DUMP_PREFIX");
+    if (!all_norm && (prefix == nullptr || prefix[0] == '\0' ||
         layer != env_u32_or_default("QRT_QWEN36_FULL_STAGE_DUMP_LAYER", UINT_MAX) ||
-        tokens != env_u32_or_default("QRT_QWEN36_FULL_STAGE_DUMP_TOKENS", 0u)) {
+        tokens != env_u32_or_default("QRT_QWEN36_FULL_STAGE_DUMP_TOKENS", 0u))) {
         return true;
     }
     if (failure_stage == nullptr || failure == nullptr) {
@@ -104018,7 +104030,8 @@ bool dump_qwen36_selected_full_stage(
         return false;
     };
     if (tokens == 0u || tokens > 8192u || row_width == 0u ||
-        row_width > 9216u || surface == nullptr || device_values == nullptr) {
+        row_width > 9216u || surface == nullptr || device_values == nullptr ||
+        (all_norm && (layer >= QRT_QWEN36_LAYER_COUNT || row_width != QRT_QWEN36_HIDDEN_SIZE))) {
         return reject("full stage capture requires a bounded prefill surface");
     }
     const std::string label(surface);
@@ -104028,20 +104041,31 @@ bool dump_qwen36_selected_full_stage(
     }
     const size_t elements = static_cast<size_t>(tokens) * row_width;
     const size_t bytes = elements * sizeof(uint16_t);
-    constexpr size_t kMaximumBytes = size_t{768} << 20;
+    const size_t maximum_bytes = all_norm ? size_t{3} << 30 : size_t{768} << 20;
     // This observer is entered by the serialized native prefill owner. Its
     // accounting covers every selected surface in the process, including
     // duplicate stage/boundary observations, instead of bounding each alone.
-    static size_t captured_bytes = 0u;
-    static unsigned int captured_files = 0u;
-    static auto capture_start = std::chrono::steady_clock::now();
+    struct Accounting {
+        size_t bytes = 0u;
+        unsigned int files = 0u;
+        double copy_seconds = 0.0;
+        std::chrono::steady_clock::time_point start;
+    };
+    static Accounting scopes[2];
+    Accounting &accounting = scopes[all_norm ? 1u : 0u];
+    auto &captured_bytes = accounting.bytes;
+    auto &captured_files = accounting.files;
+    auto &capture_start = accounting.start;
+    const auto copy_start = std::chrono::steady_clock::now();
     if (captured_files == 0u) {
         capture_start = std::chrono::steady_clock::now();
     }
-    if (captured_files >= 24u || bytes > kMaximumBytes - captured_bytes) {
+    if (captured_files >= (all_norm ? 80u : 24u) || bytes > maximum_bytes - captured_bytes) {
         return reject("aggregate full stage capture ceiling exceeded");
     }
-    const std::string path = std::string(prefix) + "-" + label + "-bf16.bin";
+    const std::string path = std::string(prefix) +
+        (all_norm ? "-layer" + std::to_string(layer) : "") +
+        "-" + label + "-bf16.bin";
     std::ifstream existing(path, std::ios::binary);
     if (existing.good()) {
         return reject("refusing to overwrite a full stage capture");
@@ -104054,8 +104078,11 @@ bool dump_qwen36_selected_full_stage(
     std::vector<uint16_t> bf16((std::min)(elements, kChunkElements));
     std::vector<float> f32(source_bf16 ? 0u : bf16.size());
     for (size_t begin = 0u; begin < elements; begin += kChunkElements) {
-        if (std::chrono::duration<double>(
-                std::chrono::steady_clock::now() - capture_start).count() > 30.0) {
+        // All-layer observation spans the bounded model run. Account only
+        // observer work there; inference time between layers is not copy time.
+        const double seconds = std::chrono::duration<double>(
+            std::chrono::steady_clock::now() - (all_norm ? copy_start : capture_start)).count();
+        if ((all_norm ? accounting.copy_seconds + seconds : seconds) > (all_norm ? 60.0 : 30.0)) {
             return reject("aggregate full stage capture deadline exceeded");
         }
         const size_t count = (std::min)(elements - begin, kChunkElements);
@@ -104086,12 +104113,16 @@ bool dump_qwen36_selected_full_stage(
     }
     captured_bytes += bytes;
     ++captured_files;
+    accounting.copy_seconds += std::chrono::duration<double>(
+        std::chrono::steady_clock::now() - copy_start).count();
     std::cerr << "BATCH_MARK selected_full_stage_dump layer=" << layer
               << " surface=" << surface << " tokens=" << tokens
               << " row_width=" << row_width << " bytes=" << bytes
               << " aggregate_bytes=" << captured_bytes
               << " files=" << captured_files
               << " source_bf16=" << (source_bf16 ? 1 : 0)
+              << " all_layer_norms=" << (all_norm ? 1 : 0)
+              << " observer_copy_seconds=" << accounting.copy_seconds
               << " diagnostic_only=1 numerical_correctness_claimed=0"
               << std::endl;
     return true;
@@ -104105,6 +104136,11 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
     std::string *failure_stage,
     std::string *failure
 ) {
+    if (qwen36_all_norm_capture_active(prefill_tokens) &&
+        !dump_qwen36_selected_full_stage(layer_index, prefill_tokens, surface,
+            device_output, false, QRT_QWEN36_HIDDEN_SIZE, failure_stage, failure)) {
+        return false;
+    }
     if (!raw_env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE"
         )) {
@@ -104123,7 +104159,7 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
         }
         return false;
     }
-    if (!dump_qwen36_selected_full_stage(
+    if (!qwen36_all_norm_capture_active(prefill_tokens) && !dump_qwen36_selected_full_stage(
             layer_index, prefill_tokens, surface, device_output, false,
             QRT_QWEN36_HIDDEN_SIZE, failure_stage, failure)) {
         return false;
@@ -121878,8 +121914,9 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
                 1u
             );
-        if (descriptor.layer_index ==
-                exact_arbitrary_layer_boundary_trace_layer &&
+        if ((descriptor.layer_index ==
+                exact_arbitrary_layer_boundary_trace_layer ||
+             qwen36_all_norm_capture_active(prefill_tokens)) &&
             (!emit_qwen36_exact_arbitrary_layer_boundary_trace(
                  descriptor.layer_index,
                  prefill_tokens,
@@ -132209,8 +132246,9 @@ bool run_full_attention_prefill_resident_core_for_targets(
             "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
             UINT_MAX
         );
-    if (descriptor.layer_index ==
-            exact_arbitrary_layer_boundary_trace_layer &&
+    if ((descriptor.layer_index ==
+            exact_arbitrary_layer_boundary_trace_layer ||
+         qwen36_all_norm_capture_active(prefill_tokens)) &&
         (!emit_qwen36_exact_arbitrary_layer_boundary_trace(
              descriptor.layer_index,
              prefill_tokens,

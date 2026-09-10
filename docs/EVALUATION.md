@@ -33,13 +33,12 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
-instead of GB10 82 / 9.25. Load is 20,056.130600 ms and diagnostic TTFT
-318,233.503800 ms. Complete layer-3 input, Q/K/V, attention, gating, output
-projection and BF16 residual now match GB10. Post-attention normalization has
-50 BF16 differences; terminal layer outputs 0–3 remain exact. Native ablation
-now reproduces those 50 differences with the original null pointer and closes
-them by forwarding the already loaded reciprocal-root correction. Complete-model
-qualification of that wiring fix is pending.
+instead of GB10 82 / 9.25. Load is 20,062.162500 ms and diagnostic TTFT
+319,214.462000 ms. All eleven complete layer-3 attention boundaries now match
+GB10, including normalization after repairing its missing reciprocal-root
+correction argument. Terminal residual layers 0–19 are exact; divergence starts
+at layer 20 in the terminal trace. Complete per-layer normalization capture
+will distinguish the earliest full-prefix cause from downstream propagation.
 
 The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
@@ -1136,3 +1135,32 @@ also match. All 7,169 raw sums, variances and both reciprocal-root variants
 match the CPU replay bit-for-bit. The fix adds no table or runtime dependency.
 The complete local check suite passes. This closes a component boundary;
 full-model tokens and continuation still require the corrected provider build.
+
+
+The corrected whole provider is built from `080d517d210280491536402248b9b8ff7ea9e42c`
+on baiying in 78,808.702 ms, all host checks passing. DLL SHA
+`e164182d895c7e19cad0aab586abd74a12b7caa99cf3dcfeb02442397d39c93f`, 11,462,656 bytes.
+Command `D:\projects\prepare-fla-model-q7169-postnorm-wire-r1.ps1`, SHA
+`93983689888996a5a5813adff4a5b20edd0aa330c21e25f7d863ab696f25a0bd`, uses
+`D:\models\Qwen3.6-35B-A3B` with the unchanged FLA, MoE, CK and CLI components
+from the preceding model run. Run SHA
+`725a06551e14bc7c98c717b9f334cdf39c7c223d51423b550071b92f4fb56572`.
+
+All eleven complete layer-3 attention boundaries, including post-attention
+normalization, are now GB10-exact. Only the postnorm and subsequent MoE output
+capture files changed; all earlier full-stage files retain their hashes.
+Terminal residual layers 0–19 are exact, whereas layer 20 has 1,999 differences
+and final layer 39 has 1,839. The final first token still fails at 220 / 9.3125.
+Load is 20,062.162500 ms, diagnostic TTFT 319,214.462000 ms and process wall
+339,693.604 ms. Host and cleanup checks pass. No continuation or performance
+acceptance follows; the prepared 32-token command is not dispatched.
+
+The next observation captures all 80 complete input/post-attention
+normalizations, rather than inferring the earliest full-prefix difference from
+a terminal row alone. GB10 additionally observes full attention at layer 19,
+with the unchanged same-run 32-token and raw-logit qualification. Both observers
+are opt-in, capped at three GiB; native copying uses at most one MiB per read
+and 60 seconds of aggregate observer work, separate from bounded inference
+time. The default single-layer observer keeps its original limits. The broad
+native record will be compared with the preceding model's output and terminal
+rows to check that observation did not change arithmetic.

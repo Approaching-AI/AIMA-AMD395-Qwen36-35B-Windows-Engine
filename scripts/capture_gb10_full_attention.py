@@ -24,6 +24,7 @@ from capture_sm121_exp2_table import file_sha
 
 TOKENS = 7169
 MAXIMUM_CAPTURE_BYTES = 768 << 20
+ALL_NORM_CAPTURE_BYTES = 3 << 30
 ORACLE_SHA = "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
 
 
@@ -48,15 +49,20 @@ def write_json(path, value):
 class FullAttentionCapture:
     """vLLM worker extension; observes the existing model without replacing ops."""
 
-    def qrt_arm_full_attention(self, directory):
+    def qrt_arm_full_attention(self, directory, attention_layer=3, all_layer_norms=False):
         import torch
 
+        if attention_layer not in range(3, 40, 4) or not isinstance(all_layer_norms, bool):
+            raise ValueError("invalid full-attention observation scope")
         if hasattr(self, "_qrt_handles"):
             raise ValueError("worker capture already initialized")
         root = Path(directory)
         root.mkdir(exist_ok=False)
         self._qrt_root, self._qrt_files = root, {}
         self._qrt_bytes, self._qrt_started = 0, time.monotonic()
+        self._qrt_maximum_bytes = ALL_NORM_CAPTURE_BYTES if all_layer_norms else MAXIMUM_CAPTURE_BYTES
+        self._qrt_observation_seconds = 180 if all_layer_norms else 90
+        self._qrt_norm_labels = set()
         self._qrt_handles = []
         model = self.model_runner.model
         containers = [(name, module) for name, module in model.named_modules()
@@ -70,11 +76,12 @@ class FullAttentionCapture:
         def save(label, tensor, terminal=False):
             if label in self._qrt_files or tensor.shape[0] != TOKENS:
                 return
-            if tensor.dtype != torch.bfloat16 or time.monotonic() - self._qrt_started > 90:
+            if (tensor.dtype != torch.bfloat16 or
+                    time.monotonic() - self._qrt_started > self._qrt_observation_seconds):
                 raise ValueError("capture dtype or observation deadline changed")
             value = tensor[-1:] if terminal else tensor
             size = value.numel() * 2
-            if self._qrt_bytes + size > MAXIMUM_CAPTURE_BYTES:
+            if self._qrt_bytes + size > self._qrt_maximum_bytes:
                 raise ValueError("full-prefix capture byte ceiling exceeded")
             payload = value.detach().contiguous().view(torch.uint16).cpu().numpy().tobytes()
             path = root / (label + "-bf16.bin")
@@ -120,9 +127,15 @@ class FullAttentionCapture:
 
         for index, layer in enumerate(layers):
             attach(layer, layer_hook(index))
-            if index <= 3:
-                attach(layer.input_layernorm, output_hook(f"layer-{index:02d}-input-rmsnorm"))
-        attention = layers[3].self_attn
+            if index <= 3 or all_layer_norms:
+                label = f"layer-{index:02d}-input-rmsnorm"
+                self._qrt_norm_labels.add(label)
+                attach(layer.input_layernorm, output_hook(label))
+            if all_layer_norms:
+                label = f"layer-{index:02d}-post-attention-rmsnorm"
+                self._qrt_norm_labels.add(label)
+                attach(layer.post_attention_layernorm, output_hook(label))
+        attention = layers[attention_layer].self_attn
         attach(attention.qkv_proj, output_hook("full-attention-qkv"))
         attach(attention.q_norm, output_hook("full-attention-q-norm"))
         attach(attention.k_norm, output_hook("full-attention-k-norm"))
@@ -140,10 +153,12 @@ class FullAttentionCapture:
             save("full-attention-postnorm", output[0])
             save("full-attention-residual", output[1])
 
-        attach(layers[3].post_attention_layernorm, postnorm)
+        attach(layers[attention_layer].post_attention_layernorm, postnorm)
         attach(parent.norm, lambda module, args, output: save("final-norm", first(output), terminal=True))
         return dict(model_type=type(model).__name__, layer_container=name,
-                    hooks=len(self._qrt_handles), maximum_bytes=MAXIMUM_CAPTURE_BYTES)
+                    hooks=len(self._qrt_handles), maximum_bytes=self._qrt_maximum_bytes,
+                    attention_layer=attention_layer, all_layer_norms=all_layer_norms,
+                    maximum_observation_seconds=self._qrt_observation_seconds)
 
     def qrt_finish_full_attention(self):
         for handle in self._qrt_handles:
@@ -154,6 +169,7 @@ class FullAttentionCapture:
             "full-attention-context", "full-attention-gated-context",
             "full-attention-o-projection", "full-attention-postnorm",
             "full-attention-residual", "final-norm"}
+        required |= self._qrt_norm_labels
         record = dict(files=self._qrt_files, bytes=self._qrt_bytes,
                       complete=required <= self._qrt_files.keys(),
                       missing=sorted(required - self._qrt_files.keys()),
@@ -185,7 +201,8 @@ def execute(args, prompt, oracle):
               worker_extension_cls="capture_gb10_full_attention.FullAttentionCapture")
     load_seconds = time.monotonic() - started
     write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds))
-    armed = llm.collective_rpc("qrt_arm_full_attention", args=(str(args.output_dir / "tensors"),))
+    armed = llm.collective_rpc("qrt_arm_full_attention", args=(
+        str(args.output_dir / "tensors"), args.attention_layer, args.all_layer_norms))
     requested = time.monotonic()
     outputs = llm.generate([dict(prompt_token_ids=prompt)],
                            SamplingParams(temperature=0, max_tokens=32, ignore_eos=True),
@@ -225,6 +242,9 @@ def main():
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--expected-host")
     parser.add_argument("--timeout-seconds", type=int, default=420)
+    parser.add_argument("--attention-layer", type=int, choices=range(3, 40, 4), default=3)
+    parser.add_argument("--all-layer-norms", action="store_true",
+                        help="observe all 80 complete normalization boundaries with a three-GiB ceiling")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
@@ -248,7 +268,9 @@ def main():
                   command=sys.argv, source_commit=args.source_commit,
                   source_sha256=file_sha(Path(__file__)), model=str(args.model_root),
                   oracle_sha256=file_sha(args.oracle), completed=False, oracle_qualified=False,
-                  native_tensor_inputs=False, windows_acceptance=False)
+                  native_tensor_inputs=False, windows_acceptance=False,
+                  attention_layer=args.attention_layer, all_layer_norms=args.all_layer_norms,
+                  maximum_capture_bytes=ALL_NORM_CAPTURE_BYTES if args.all_layer_norms else MAXIMUM_CAPTURE_BYTES)
     write_json(args.output_dir / "preflight.json", record)
     if args.execute:
         try:
