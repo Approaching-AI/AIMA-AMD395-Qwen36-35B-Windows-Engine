@@ -60,6 +60,7 @@ foreach ($required in @(
     (Join-Path $ckInclude "ck_tile\core.hpp"),
     (Join-Path $ckExample "fmha_fwd.hpp"),
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
+    (Join-Path $sourceDir "blackwell_attention.h"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
     (Join-Path $sourceDir "fmha_fwd_gfx1151_d256_bf16_f32out.cpp"),
     $directSmokeSource,
@@ -222,6 +223,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     ck_arch_type = $ckArchType
     ck_tile_n = 32
     blackwell_exact_terminal = $true
+    blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
     direct_smoke_ran = ($RunDirectSmoke -ne 0)
     direct_smoke_path = if ($RunDirectSmoke -ne 0) {
         (Resolve-Path -LiteralPath $DirectSmokePath).Path
