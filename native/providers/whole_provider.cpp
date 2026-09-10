@@ -24,6 +24,7 @@
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
 #include "gate_input_capture.h"
+#include "sm121_silu_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -37923,7 +37924,8 @@ __global__ void selected_conv_qkv_window_kernel(
     unsigned int conv_arithmetic_mode,
     const uint32_t *cuda_silu_correction_keys,
     const uint16_t *cuda_silu_correction_values,
-    unsigned int cuda_silu_correction_maximum_probe
+    unsigned int cuda_silu_correction_maximum_probe,
+    const unsigned char *sm121_silu_table
 ) {
     const unsigned int feature = static_cast<unsigned int>(blockIdx.x) * blockDim.x + threadIdx.x;
     const unsigned int target_index = blockIdx.y;
@@ -37969,7 +37971,9 @@ __global__ void selected_conv_qkv_window_kernel(
         }
     }
     outputs[static_cast<size_t>(target_index) * kQkvRows + feature] =
-        conv_arithmetic_mode == 2u || conv_arithmetic_mode == 3u
+        sm121_silu_table != nullptr
+            ? device_bf16_to_float(qrt_sm121_silu::evaluate(sm121_silu_table, acc))
+        : conv_arithmetic_mode == 2u || conv_arithmetic_mode == 3u
             ? device_cuda_triton_silu_bf16_from_f32_acc(
                   acc,
                   cuda_silu_correction_keys,
@@ -115619,6 +115623,21 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         (conv_arithmetic_mode == 2u || conv_arithmetic_mode == 3u) &&
         cuda_silu_correction_lut_path != nullptr &&
         cuda_silu_correction_lut_path[0] != '\0';
+    const char *sm121_silu_table_path = std::getenv("QRT_QWEN36_SM121_SILU_TABLE");
+    const unsigned char *device_sm121_silu_table = nullptr;
+    if (sm121_silu_table_path != nullptr && sm121_silu_table_path[0] != '\0') {
+        if (!use_vllm_conv_f32_silu || conv_arithmetic_mode != 3u || use_cuda_silu_correction_lut) {
+            run->failure_stage = prefix + "_sm121_silu_table_mode";
+            run->failure = "SM121 SiLU table requires BF16-product/F32-sum convolution mode 3 without a second correction table";
+            return false;
+        }
+        const hipError_t status = qrt_sm121_silu_runtime::prepare(sm121_silu_table_path, &device_sm121_silu_table);
+        if (status != hipSuccess) {
+            run->failure_stage = prefix + "_sm121_silu_table_load";
+            run->failure = hipGetErrorString(status);
+            return false;
+        }
+    }
     if (use_cuda_silu_correction_lut &&
         !load_cuda_triton_silu_correction_lut(
             &device_cuda_silu_correction_keys,
@@ -115660,6 +115679,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
     }
     const bool use_bf16_conv_postconv_fusion =
         use_resident_bf16_matrix_provider &&
+        device_sm121_silu_table == nullptr &&
         !use_early_f32_matrix_outputs &&
         !fla_chunk_gdn_provider_candidate &&
         !materialize_host_diagnostics &&
@@ -119426,7 +119446,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 conv_arithmetic_mode,
                 device_cuda_silu_correction_keys,
                 device_cuda_silu_correction_values,
-                cuda_silu_correction_maximum_probe
+                cuda_silu_correction_maximum_probe,
+                device_sm121_silu_table
             );
             if (conv_arithmetic_mode != 0u) {
                 std::cerr
@@ -119444,6 +119465,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                                    ? "bf16_product_bf16_rne"
                                    : "bf16_operands_f32_product"))
                     << " pre_silu_round=none"
+                    << " sm121_silu_table=" << (device_sm121_silu_table != nullptr ? 1 : 0)
                     << " exponential="
                     << ((conv_arithmetic_mode == 2u ||
                          conv_arithmetic_mode == 3u)

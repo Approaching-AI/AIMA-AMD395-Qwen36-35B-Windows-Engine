@@ -105,5 +105,9 @@ original SM121 Triton expression, after a real convolution control passes.
 It stores every BF16 output transition, including nonmonotonic transitions,
 and a page directory, then rechecks the packed lookup over the full domain.
 This would replace cross-vendor exponential/division differences without
-depending on model weights or prompt values. The artifact size and native
-integration remain pending; CUDA/Python is confined to offline construction.
+depending on model weights or prompt values. The complete table is 648,036
+bytes, with SHA `673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8`.
+The optional Windows loader validates its layout and SHA using the operating
+system's existing BCrypt API, and shares one immutable device copy per provider
+process. CUDA/Python is confined to offline construction. Native qualification
+and release inclusion remain pending.

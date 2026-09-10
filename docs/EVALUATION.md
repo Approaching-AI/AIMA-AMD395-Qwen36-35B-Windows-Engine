@@ -458,6 +458,26 @@ controls to match the original expression before exhaustive finite-FP32
 enumeration. Its compact transition representation is subsequently rechecked
 over the same full domain; native integration is pending.
 
+The `f99f97e` builder passes every one of 4,278,190,080 finite FP32 inputs
+both during enumeration and packed-lookup verification. The 308 held-out
+convolution controls pass before and after construction. There are 64,304
+transitions; the complete table is 648,036 bytes, SHA
+`673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8`.
+The capture SHA is
+`6a90bb3e61d2b6c18ab69c1bd84e46da90fc09cc3e48a12868f5be77030617eb`.
+All 2,040 dispatches complete, maximum 0.262144 ms and peak device allocation
+1,111,040 bytes. The first staging attempt failed on a missing Python helper
+before GPU execution; the corrected bundle validates its import closure in
+isolation. Both owned containers have exited.
+
+`QRT_QWEN36_SM121_SILU_TABLE` opts into this model-independent endpoint for
+mode-3 convolution. The native loader rejects incompatible modes, a second
+correction table, malformed layout or mismatched SHA. The default remains off.
+CPU lookup matches every held-out sample and all transition boundaries, and
+rejects malformed schema/directory inputs. The native regression compares
+complete real QKV/weight convolution before and after table application;
+native GPU and whole-model qualification remain pending.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

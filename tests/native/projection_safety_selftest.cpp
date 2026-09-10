@@ -237,13 +237,15 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 } // namespace projection_safety_test
 
 #include "projection_real_replay.h"
+#include "convolution_real_replay.h"
 
 int main(int argc, char **argv) {
     using namespace projection_safety_test;
     try {
-        require(argc == 2 || (argc == 6 && std::string(argv[1]) == "--real-qkv"), "select a synthetic mode or --real-qkv INPUT WEIGHT REFERENCE PPB");
+        require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv", "unknown safety mode");
+        require(argc == ((mode == "--real-qkv" || mode == "--real-conv") ? 6 : 2), "select a synthetic mode, --real-qkv INPUT WEIGHT REFERENCE PPB, or --real-conv INPUT WEIGHT REFERENCE_DIR TABLE");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -255,6 +257,9 @@ int main(int argc, char **argv) {
                 const auto ppb = std::stoul(argv[5]);
                 require(ppb > 0u && ppb <= 1000000u, "invalid real-QKV selector bound");
                 run_real_qkv(argv[2], argv[3], argv[4], static_cast<unsigned int>(ppb));
+                ++cases;
+            } else if (mode == "--real-conv") {
+                run_real_convolution(argv[2], argv[3], argv[4], argv[5]);
                 ++cases;
             } else if (mode == "--small") {
                 const unsigned int shapes[][2] = {{1u, 1u}, {127u, 63u}, {128u, 64u}, {129u, 65u}};
@@ -278,7 +283,7 @@ int main(int argc, char **argv) {
         std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"" << mode
                   << "\",\"gpu_cases\":" << cases
                   << ",\"inference_success_claimed\":false,\"numerical_scope\":\""
-                  << (mode == "--real-qkv" ? "real_bf16_qkv_projection" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
+                  << (mode == "--real-qkv" ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
         return 0;
     } catch (const std::exception &error) {
         std::cerr << "projection_safety_failure: " << error.what() << std::endl;
