@@ -32,40 +32,46 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The latest real q7169 model run on baiying remains unqualified: 220 / 9.25
-instead of GB10 82 / 9.25. Load is 20,106.041700 ms and diagnostic TTFT
-318,952.135200 ms. With the GDN exponential and shared scalar gate fixes,
-all 78 complete normalization boundaries through layer 38 now match GB10.
-Terminal residuals in layers 0–38 also match; only layer 39 remains different
-(1,164 FP32 carrier values). Full layer-28 GDN, gated norm, output projection
-and post-attention residual are exact. The remaining final layer uses a
-separate one-row attention/MoE path, including its older routed AOT and
-hipBLASLt shared computation.
+The latest complete real q7169 model run on baiying remains unqualified:
+220 / 9.25 instead of GB10 82 / 9.25, load 20,273.663200 ms, diagnostic TTFT
+248,768.954400 ms. All 80 complete layer normalization boundaries and all 40
+terminal BF16 residuals now match GB10. The final unrounded FP32 residual also
+matches exactly. The remaining final normalization differs in 375 of 2,048
+BF16 values; replaying its rounded numerator, original FP32 variance order and
+SM121 reciprocal root eliminates all 375 differences.
 
-The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` now allows the bounded
-2–8192-token route to compute layer 39 with the same full-prefix attention and
-MoE providers, then materialize only the requested final rows for the output
-head. It preserves the existing sparse default and larger-context plan.
-Native source `1ac1ce1e7298d0599be7549cbe13625136b98e5d` passes the
-complete-window correction control: all 58,728,448 captured real layer-zero
-QKV BF16 outputs equal GB10, with immutable inputs and intact redzones. Its
-897 exact dispatches peak at 2.451 ms. Command
-`run-native-final-prefix-r1.ps1 -Action test-real-qkv -ErrorBoundPpb 10000`,
-host baiying, captured `D:\models\Qwen3.6-35B-A3B` tensors, run SHA
-`b6fd8a399b3c28888cd4f0b9afb08a057734e302039417ebcf3673b34ecdd405`.
-This is a component control, not a model timing.
+This run uses whole source `edcbe6f71bc69b9d3e988f5815af30c642b0cde3`,
+FLA 2f346df, MoE 023e5dc, CK b609453 and CLI f544cbe. Host baiying, model
+`D:\models\Qwen3.6-35B-A3B`, command
+`prepare-fla-model-q7169-final-prefix-wire-r1.ps1` (SHA
+`d4b6094fd5f6a412787970fe5d959b1062233fbee46efbc74406a9210fbffafe`), run SHA
+`ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`.
+Exit 6, all host checks pass, 96 observation files / 2,496,508,484 bytes.
+The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` computes layer 39 with the
+same full-prefix attention and MoE providers for 2–8192 tokens and selects
+only requested final rows for the output head. Earlier source 1ac1ce1's
+provider-eligibility rejection is repaired; its partial run remains recorded.
 
-The first full-prefix model attempt preserves all 78 GB10-exact full norms
-through layer 38, then exits before a token because provider eligibility still
-excludes layer 39. Host baiying, model `D:\models\Qwen3.6-35B-A3B`, command
-`prepare-fla-model-q7169-final-prefix-r1.ps1`, same whole source, run SHA
-`1ba049ad83e9867be2bb940dd3ec5b1a54ba811131575e3890608a6a83ec5b30`,
-258,314.401 ms process wall, exit 5, all host checks pass. This duration is not
-TTFT. Provider eligibility and fixed-weight retention now include the explicit
-bounded final-prefix route; the next native run will qualify that wiring.
-The sparse final input-norm observer also now indexes the complete history
-allocation, rather than treating its first row as the selected terminal row.
-The token gate and retained performance target are unchanged.
+The independent full-vocabulary CUDA LM-head replay at source
+`33e74b24d97d3301276fda6486cd53db31dc49f7`, host `aitopatom-66c4`, original
+model `/mnt/data/models/Qwen3.6-35B-A3B`, command
+`run-qrt-gb10-lm-head-20260911-r1.py`, capture SHA
+`f5f92840ad4e473ff5bf1fda0d02a249c930e0cf5c8d2c3f02baf07435458385`,
+confirms both 82 and 220 have BF16 score 9.25 and original argmax chooses 82.
+An unrounded dot gives 220 a larger score and incorrectly changes that BF16
+model's decision. The native observer independently shows BF16 policies choose
+82 while FP32 policies choose 220. `QRT_QWEN36_LM_HEAD_BF16_ARGMAX=1` now keeps
+the full-vocabulary BF16 ordering and its minimum-ID exact-tie rule, disabling
+unrounded rescoring and empirical permutations. It is opt-in pending native
+qualification, alongside the final-norm arithmetic repair.
+
+The complete-window correction control at source 1ac1ce1 passes all
+58,728,448 captured real layer-zero QKV BF16 outputs against GB10, immutable
+inputs and intact redzones. Its 897 exact dispatches peak at 2.451 ms.
+Host baiying, captured real model tensors, command
+`run-native-final-prefix-r1.ps1 -Action test-real-qkv -ErrorBoundPpb 10000`, run
+SHA `b6fd8a399b3c28888cd4f0b9afb08a057734e302039417ebcf3673b34ecdd405`.
+Component timing does not qualify product speed; all mission gates are unchanged.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native

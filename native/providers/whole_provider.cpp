@@ -34510,6 +34510,50 @@ __global__ void layer1_input_rmsnorm_vllm_split_variance_kernel(
     }
 }
 
+// The final MoE publishes an unrounded F32 sum, with no following full-prefix
+// variance handoff. Normalize its rounded BF16 carrier using variance from
+// that original sum, as the reference fused residual/GemmaRMSNorm does.
+__global__ void final_norm_unrounded_vllm_kernel(
+    const float *selected_input,
+    const uint16_t *norm_weights,
+    float *outputs,
+    unsigned int selected_token_count,
+    const uint8_t *gfx1151_sm121_rsqrt_correction
+) {
+    __shared__ float partial[kThreads];
+    __shared__ float inv_shared;
+    constexpr unsigned int kValuesPerLane = QRT_QWEN36_HIDDEN_SIZE / kThreads;
+    const unsigned int token = blockIdx.x;
+    const unsigned int lane = threadIdx.x;
+    if (token >= selected_token_count || selected_input == nullptr ||
+        norm_weights == nullptr || outputs == nullptr) {
+        return;
+    }
+    const size_t base = static_cast<size_t>(token) * QRT_QWEN36_HIDDEN_SIZE;
+    float values[kValuesPerLane];
+    #pragma unroll
+    for (unsigned int item = 0u; item < kValuesPerLane; ++item) {
+        values[item] = selected_input[base + lane * kValuesPerLane + item];
+    }
+    const float sumsq = vllm_triton_reduce_sumsq(
+        vllm_triton_lane8_sumsq(values), partial, lane);
+    if (lane == 0u) {
+        const float variance = __fadd_rn(
+            sumsq / static_cast<float>(QRT_QWEN36_HIDDEN_SIZE),
+            QRT_QWEN36_RMS_NORM_EPSILON);
+        inv_shared = device_sm121_rsqrt_from_gfx1151(
+            variance, gfx1151_sm121_rsqrt_correction);
+    }
+    __syncthreads();
+    #pragma unroll
+    for (unsigned int item = 0u; item < kValuesPerLane; ++item) {
+        const unsigned int col = lane * kValuesPerLane + item;
+        outputs[base + col] = device_bf16_round_to_float(
+            device_bf16_round_to_float(values[item]) * inv_shared *
+            (1.0f + device_bf16_to_float(norm_weights[col])));
+    }
+}
+
 __global__ void layer1_bf16_input_rmsnorm_vllm_kernel(
     const uint16_t *selected_input_bf16,
     const uint16_t *norm_weights,
@@ -39852,7 +39896,7 @@ private:
         if (line.rfind("BATCH_MARK ", 0u) != 0u) {
             return true;
         }
-        static constexpr std::array<const char *, 104> kRequiredMarkers = {{
+        static constexpr std::array<const char *, 106> kRequiredMarkers = {{
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -39875,6 +39919,8 @@ private:
             "BATCH_MARK layer39_q4_kv8192_fallback",
             "BATCH_MARK layer39_q4_kv8192_prepared",
             "BATCH_MARK lm_head_hipblaslt_heuristic_activate",
+            "BATCH_MARK lm_head_bf16_argmax",
+            "BATCH_MARK final_norm_unrounded_vllm",
             "BATCH_MARK continuous_long_context_lm_head_diagnostic",
             "BATCH_MARK qwen36_exact_arbitrary_lm_head_grouped_arbitration",
             "BATCH_MARK qwen36_exact_arbitrary_lm_head_grouped_arbitration_sweep",
@@ -108009,6 +108055,21 @@ bool run_final_norm(
     const bool use_vllm_split_variance =
         use_q65536_vllm_bf16_residual_norm &&
         qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens);
+    const bool use_unrounded_vllm_final_norm =
+        !use_vllm_split_variance &&
+        qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens) &&
+        qwen36_exact_arbitrary_vllm_bf16_residual_norm_active(
+            kDescriptorBatchFinalLayer, prefill_tokens);
+    const uint8_t *device_gfx1151_sm121_rsqrt_correction = nullptr;
+    const char *rsqrt_correction_path = std::getenv(
+        "QRT_QWEN36_GFX1151_SM121_RSQRT_CORRECTION_PATH");
+    if ((use_vllm_split_variance || use_unrounded_vllm_final_norm) &&
+        rsqrt_correction_path != nullptr && rsqrt_correction_path[0] != '\0' &&
+        !load_gfx1151_sm121_rsqrt_correction(
+            &device_gfx1151_sm121_rsqrt_correction, &run->failure)) {
+        run->failure_stage = "final_norm_sm121_rsqrt_correction";
+        return false;
+    }
     run->name = "final_norm";
     run->stage = "selected_final_norm_prefill_phase";
     run->weight_bytes = static_cast<uint64_t>(QRT_QWEN36_HIDDEN_SIZE) * sizeof(uint16_t);
@@ -108127,7 +108188,13 @@ bool run_final_norm(
     const dim3 block(kThreads);
     const dim3 grid(static_cast<unsigned int>(run->selected_token_count));
     auto launch_final_norm = [&]() {
-        if (use_vllm_split_variance) {
+        if (use_unrounded_vllm_final_norm) {
+            hipLaunchKernelGGL(
+                final_norm_unrounded_vllm_kernel,
+                grid, block, 0, 0, device_input, device_weights, device_output,
+                static_cast<unsigned int>(run->selected_token_count),
+                device_gfx1151_sm121_rsqrt_correction);
+        } else if (use_vllm_split_variance) {
             hipLaunchKernelGGL(
                 layer1_input_rmsnorm_vllm_split_variance_kernel,
                 grid,
@@ -108139,7 +108206,7 @@ bool run_final_norm(
                 device_vllm_unrounded_sumsq,
                 device_output,
                 static_cast<unsigned int>(run->selected_token_count),
-                nullptr
+                device_gfx1151_sm121_rsqrt_correction
             );
         } else if (use_q65536_vllm_bf16_residual_norm) {
             hipLaunchKernelGGL(
@@ -108167,6 +108234,15 @@ bool run_final_norm(
             );
         }
     };
+
+    if (use_unrounded_vllm_final_norm) {
+        std::cerr << "BATCH_MARK final_norm_unrounded_vllm"
+                  << " selected_tokens=" << run->selected_token_count
+                  << " numerator=bf16 variance=f32_unrounded_sum"
+                  << " rsqrt_correction="
+                  << (device_gfx1151_sm121_rsqrt_correction != nullptr ? 1 : 0)
+                  << " numerical_correctness_claimed=0" << std::endl;
+    }
 
     bool q1_terminal_device_input_active = false;
     if (q1_terminal_device_input_candidate) {
@@ -108663,6 +108739,13 @@ bool run_lm_head(
     const bool use_hipblaslt_provider = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_LM_HEAD_HIPBLASLT_PROVIDER"
     );
+    // BF16 inference ranks the published BF16 scores. An unrounded rescore
+    // changes that model's argmax even if the promoted score rounds to a tie.
+    const bool use_bf16_argmax = use_hipblaslt_provider && env_flag_enabled(
+        "QRT_QWEN36_LM_HEAD_BF16_ARGMAX");
+    if (use_bf16_argmax) {
+        diagnostic_exact_tie_high_id = false;
+    }
     const unsigned int lm_head_hipblaslt_heuristic_index =
         env_u32_or_default(
             "QRT_PREFILL_DESCRIPTOR_BATCH_LM_HEAD_HIPBLASLT_HEURISTIC_INDEX",
@@ -108709,7 +108792,7 @@ bool run_lm_head(
         ) != 0u;
     const unsigned int
         exact_arbitrary_lm_head_grouped_arbitration_mode_requested =
-        env_u32_or_default(
+        use_bf16_argmax ? 0u : env_u32_or_default(
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ARBITRATION_MODE",
             0u
         );
@@ -108731,7 +108814,7 @@ bool run_lm_head(
     run->grouped_arbitration_sweep_active =
         exact_arbitrary_lm_head_grouped_arbitration_sweep_requested;
     const bool exact_arbitrary_lm_head_inverse_f32_requested =
-        env_flag_enabled(
+        !use_bf16_argmax && env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_INVERSE_F32"
         );
     const unsigned int exact_arbitrary_lm_head_inverse_f32_max_ulps =
@@ -108746,16 +108829,17 @@ bool run_lm_head(
     run->inverse_f32_sweep_active =
         exact_arbitrary_lm_head_inverse_f32_sweep_requested;
     const bool exact_arbitrary_lm_head_bf16_window_high_id_requested =
-        env_flag_enabled(
+        !use_bf16_argmax && env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID"
         );
     const bool exact_arbitrary_lm_head_bf16_window_high_id_global_requested =
         env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_GLOBAL"
         );
-    const bool q8193_bf16_one_ulp_low_id_requested = env_flag_enabled(
-        "QRT_QWEN36_Q8193_BF16_ONE_ULP_LOW_ID"
-    );
+    const bool q8193_bf16_one_ulp_low_id_requested =
+        !use_bf16_argmax && env_flag_enabled(
+            "QRT_QWEN36_Q8193_BF16_ONE_ULP_LOW_ID"
+        );
     const bool q8193_bf16_one_ulp_low_id_shape =
         prefill_tokens == kRetainedPrefillTokens + 1u &&
         q8193_bf16_one_ulp_low_id_requested;
@@ -108808,6 +108892,7 @@ bool run_lm_head(
         run->selected_token_ids.back() == prefill_tokens - 1u &&
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens);
     const bool exact_arbitrary_lm_head_reference_topology_active =
+        !use_bf16_argmax &&
         !g_qwen36_causal_padded_prefill_verifier_active &&
         !q8193_bf16_one_ulp_low_id_shape &&
         !exact_arbitrary_sub_q8192_grouped_arbitration_authority &&
@@ -108815,6 +108900,7 @@ bool run_lm_head(
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens);
     const bool
         exact_arbitrary_lm_head_high_logit_one_ulp_inverse_f32_active =
+            !use_bf16_argmax &&
             env_flag_enabled(
                 "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_HIGH_LOGIT_ONE_ULP_INVERSE_F32"
             ) &&
@@ -108865,6 +108951,7 @@ bool run_lm_head(
                 0u
             );
     const bool exact_arbitrary_lm_head_low_margin_inverse_f32_default =
+        !use_bf16_argmax &&
         (exact_prefill_verifier_active ||
          resident_continuous_long_context_provider_requested(
              prefill_tokens
@@ -108882,6 +108969,7 @@ bool run_lm_head(
     // This route is shape/arithmetic specific and never inspects prompt token
     // IDs, request identity, or an expected output.
     const bool retained_q8192_lm_head_inverse_f32_default =
+        !use_bf16_argmax &&
         !exact_prefill_verifier_active &&
         qwen36_specialized_retained_q8192_path_enabled(prefill_tokens) &&
         run->selected_token_count == 1u &&
@@ -111192,6 +111280,13 @@ bool run_lm_head(
                     << " prompt_token_rules=0 request_specific_rules=0"
                     << " numerical_correctness_claimed=0"
                     << std::endl;
+            }
+            if (use_bf16_argmax) {
+                std::cerr << "BATCH_MARK lm_head_bf16_argmax"
+                          << " selected_tokens=" << run->selected_token_count
+                          << " full_vocabulary=1 tie_policy=minimum_token_id"
+                          << " unrounded_rescoring=0 numerical_correctness_claimed=0"
+                          << std::endl;
             }
             if (!elide_product_logits_hash) {
                 hipLaunchKernelGGL(
