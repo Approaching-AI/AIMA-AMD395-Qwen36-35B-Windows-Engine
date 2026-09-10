@@ -32,25 +32,48 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The latest complete real q7169 model run on baiying remains unqualified:
-220 / 9.25 instead of GB10 82 / 9.25, load 20,273.663200 ms, diagnostic TTFT
-248,768.954400 ms. All 80 complete layer normalization boundaries and all 40
-terminal BF16 residuals now match GB10. The final unrounded FP32 residual also
-matches exactly. The remaining final normalization differs in 375 of 2,048
-BF16 values; replaying its rounded numerator, original FP32 variance order and
-SM121 reciprocal root eliminates all 375 differences.
+The frozen q7169 cold request now passes on baiying: first token **82**, raw
+logit **9.25**, and all **32** continuation tokens match GB10. Streaming emits
+32 callbacks before return and matches the final output. All 80 complete layer
+normalizations, all 40 terminal BF16 residuals and the 2,048-element final norm
+also match their independently qualified GB10 captures. Load is 20,110.921800 ms;
+the diagnostic TTFT is 248,647.062200 ms and does not meet the performance gate.
 
-This run uses whole source `edcbe6f71bc69b9d3e988f5815af30c642b0cde3`,
-FLA 2f346df, MoE 023e5dc, CK b609453 and CLI f544cbe. Host baiying, model
-`D:\models\Qwen3.6-35B-A3B`, command
-`prepare-fla-model-q7169-final-prefix-wire-r1.ps1` (SHA
-`d4b6094fd5f6a412787970fe5d959b1062233fbee46efbc74406a9210fbffafe`), run SHA
-`ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`.
-Exit 6, all host checks pass, 96 observation files / 2,496,508,484 bytes.
-The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` computes layer 39 with the
-same full-prefix attention and MoE providers for 2–8192 tokens and selects
-only requested final rows for the output head. Earlier source 1ac1ce1's
-provider-eligibility rejection is repaired; its partial run remains recorded.
+The [structured run record](../benchmarks/correctness/q7169-output-boundary-20260911.json)
+binds host baiying, model `D:\models\Qwen3.6-35B-A3B`, whole source
+`378b0c33e736f9fcdaf47b0437402ec3ac1de139`, FLA 2f346df, MoE 023e5dc,
+CK b609453 and CLI f544cbe. Command
+`prepare-fla-model-q7169-output-boundary-32-r1.ps1` has SHA
+`91cee56e2bc433fe6ed1e7491aecb15d5daa693feffe8749e74ce39e812e54d9`;
+run SHA is `ee7b6ad60469d2ec6bfe7bfd1148a4e30726ed6705aa729dcd267b9fa46ad97f`.
+Exit 0 and all host checks pass. This mixed-component configuration establishes
+that specific cold correctness boundary; the default profile, retained q8192
+speed, prefix reuse and a unified release package still need qualification.
+
+A subsequent combined fast-kernel ablation retains the final-norm and BF16
+argmax repairs but fails the same oracle: 220 / 9.3125, TTFT 8,311.036100 ms,
+and later continuation differences. It is rejected, not a performance result.
+Host/model and whole/MoE sources are unchanged; AITER and fast CK use f544cbe.
+Command `run-output-boundary-fast-32-r1.ps1`, SHA
+`37793769a1599ba0de3b2a787bf475c476a670287611b38699d0967434b600f2`, run SHA
+`7cce107c089be7d3ac6653d6e9ba44003abd66ea4cbbe089f16ac4c007fcc963`.
+All host checks pass. The qualified slow configuration remains the control
+while the expensive arithmetic families are examined independently.
+
+The preceding edcbe6f run (SHA
+`ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
+already matched all 80 layer norms and all 40 terminal residuals, but emitted
+220 / 9.25. Its final normalization differed in 375 of 2,048 BF16 values.
+The repaired final norm rounds the numerator to BF16 while retaining the
+unrounded FP32 variance and original reduction order. Its native real-input
+control (run SHA
+`c16177c36ce7546a2361751f8a1d9dab9d17853c2be2d25e30620e9c21951760`)
+changes 375 mismatches to zero with immutable inputs and intact redzones.
+The complete model now produces final-norm SHA
+`be3354ef1cd706c10a5ee58ae4da7492389d1679cff89e02fa5a6e1229355483`,
+identical to GB10. The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` computes
+layer 39 with the same full-prefix providers for 2–8192 tokens and selects
+requested rows for the output head.
 
 The independent full-vocabulary CUDA LM-head replay at source
 `33e74b24d97d3301276fda6486cd53db31dc49f7`, host `aitopatom-66c4`, original
@@ -62,8 +85,8 @@ An unrounded dot gives 220 a larger score and incorrectly changes that BF16
 model's decision. The native observer independently shows BF16 policies choose
 82 while FP32 policies choose 220. `QRT_QWEN36_LM_HEAD_BF16_ARGMAX=1` now keeps
 the full-vocabulary BF16 ordering and its minimum-ID exact-tie rule, disabling
-unrounded rescoring and empirical permutations. It is opt-in pending native
-qualification, alongside the final-norm arithmetic repair.
+unrounded rescoring and empirical permutations. It passes the native q7169 gate with the final-norm repair and remains opt-in
+until broader context and performance qualification.
 
 The complete-window correction control at source 1ac1ce1 passes all
 58,728,448 captured real layer-zero QKV BF16 outputs against GB10, immutable
@@ -104,8 +127,8 @@ The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
 and raw FP32 attention values through the actual CK DLL ABI. The full-prefix
 route is opt-in through `QRT_CK_FMHA_SM121_FULL_PREFIX=1` and validates its
-tables by SHA. It remains too slow for product acceptance. Complete-model
-continuation, retained speed and release qualification remain open.
+tables by SHA. It remains too slow for product acceptance. The q7169 continuation passes in the configuration above; retained speed and
+release qualification remain open.
 
 The following records preserve how those boundaries were established.
 
