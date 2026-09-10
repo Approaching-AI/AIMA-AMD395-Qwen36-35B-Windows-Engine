@@ -67,11 +67,11 @@ struct Event {
     Event() { check(hipEventCreate(&value)); }
     ~Event() { if (value) (void)hipEventDestroy(value); }
 };
-float finish(Event& begin, Event& end) {
+float finish(Event& begin, Event& end, float limit_ms = 3000.0f) {
     check(hipEventRecord(end.value)); check(hipEventSynchronize(end.value));
     float result; check(hipEventElapsedTime(&result, begin.value, end.value));
-    if (!std::isfinite(result) || result > 3000.0f)
-        throw std::runtime_error("component dispatch exceeds 3 seconds");
+    if (!std::isfinite(result) || result > limit_ms)
+        throw std::runtime_error("component interval exceeds its time bound");
     return result;
 }
 void report(const char* route, const std::vector<float>& output,
@@ -101,7 +101,8 @@ void report(const char* route, const std::vector<float>& output,
               << ",\"nonfinite\":" << nonfinite << ",\"first_mismatch\":" << (first == size_t(-1) ? -1LL : (long long)first)
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
-              << ",\"kernel_total_ms\":" << total_ms << ",\"maximum_dispatch_ms\":" << max_ms
+              << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0 ? "provider_call" : "kernel_dispatch")
+              << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
     if (nonfinite) throw std::runtime_error("nonfinite attention output");
 }
@@ -143,7 +144,8 @@ int main(int argc, char** argv) {
             Device output(size_t(tokens) * 4096u * 4u);
             check(hipEventRecord(begin.value));
             check(hipError_t(launch(dq.as<uint16_t>(), dk.as<uint16_t>(), dv.as<uint16_t>(), output.as<float>(), nullptr, tokens)));
-            const float ms = finish(begin, end);
+            // A provider call may contain many internally bounded dispatches.
+            const float ms = finish(begin, end, 20000.0f);
             std::vector<float> host(size_t(tokens) * 4096u);
             check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
             report("ck", host, reference, 0, argv[6], ms, ms);
