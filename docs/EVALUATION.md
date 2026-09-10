@@ -776,6 +776,28 @@ linear-attention layers and evaluates 1,000 ppb MoE selection against the
 same full first-layer boundary. The reference token/logit and q8192 retained
 performance target are unchanged.
 
+
+The all-linear q7169 case retains zero differences at every full first-layer
+MoE output/weighted-contribution endpoint and at the next input norm with
+1,000 ppb MoE selection. Routed activation contains 2,313 differences that
+round away at the weighted outputs; these diagnostic differences alone do
+not reject the downstream GB10-valid component. All 30 linear-attention
+layers now use the existing characterized QKV/Z/A/B/output route. Native
+`prepare-fla-model-q7169-alllinear-l2-r1.ps1` uses the same component commits
+and real model as the preceding case. Run SHA
+`458d7c3ebf9ee1b14edd69161067a842546ef23a5a7ee5374cd7a6b6a6bcd28a`;
+output remains 220 / 9.3125, load 20,104.182800 ms and diagnostic TTFT
+221,746.981000 ms. Host/cleanup checks pass within the 300-second bound.
+Full MoE comparison SHA `fa7ee3efe39f7f482de76a199022cf93fce7eba7fd7981bbd201c1bf7fc9afcc`.
+This is not a retained model or performance result.
+
+The existing `QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE` already reads
+each tiled MoE residual and the compact final-layer boundaries. The next
+bounded model run enables this trace to locate the first divergent layer
+against the captured GB10 rows. No runtime change or new build is needed.
+The second-layer terminal QKV/Z/A/B, gated normalization and output
+projection all match in this case.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
