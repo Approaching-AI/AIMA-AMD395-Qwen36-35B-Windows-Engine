@@ -2,6 +2,7 @@
 #define QRT_SM121_GROUP16_MODULO_H
 
 #include <cstdint>
+#include "q1_moe_hawkeye_bf16_accumulator.h"
 
 #if defined(__HIPCC__) || defined(__CUDACC__)
 #define QRT_SM121_GROUP16_INLINE __host__ __device__ __forceinline__
@@ -49,6 +50,16 @@ QRT_SM121_GROUP16_INLINE SignedMagnitude decode_modulo_sum(
         negative ? 0u - modulo_sum : modulo_sum,
         negative
     };
+}
+
+// A final one-value group preserves an already normalized FP32 accumulator,
+// except that its integer zero sum clears a negative zero produced by
+// underflow. Keep that endpoint without repeating exponent normalization.
+QRT_SM121_GROUP16_INLINE qrt_q1_moe_hawkeye::Value finish_accumulator(
+    qrt_q1_moe_hawkeye::Value value
+) {
+    if (value.significand == 0u) value.negative = false;
+    return value;
 }
 
 }  // namespace qrt_sm121_group16

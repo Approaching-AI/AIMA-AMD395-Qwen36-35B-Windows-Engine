@@ -228,6 +228,10 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     blackwell_exact_terminal = $true
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
+    sm121_wave16_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_wave16.h')).Hash.ToLowerInvariant()
+    sm121_group16_modulo_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_group16_modulo.h')).Hash.ToLowerInvariant()
     sm121_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h")).Hash.ToLowerInvariant()
     sm121_rcp_header_sha256 = (Get-FileHash -Algorithm SHA256 `

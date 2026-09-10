@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
-#include "../moe_accumulator/sm121_group16_modulo.h"
+#include "../moe_accumulator/sm121_wave16.h"
 #include "../gdn/sm121_exp2_table.h"
 #include "../gdn/sm121_attention_rcp.h"
 namespace qrt_blackwell_attention {
@@ -39,163 +39,11 @@ __device__ __forceinline__ float blackwell_attention_exp(float value, const unsi
                       : exp2f(argument);
 }
 
-__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-blackwell_normalize_group(
-    uint32_t magnitude,
-    bool negative,
-    int max_exponent
-) {
-    constexpr int kInternalSignificandWidth = 26;
-    constexpr int kInternalToFp32Shift =
-        kInternalSignificandWidth - 24;
-    constexpr int16_t kFp32MinNonzeroExponent = -126;
-
-    const unsigned int width =
-        magnitude == 0u ? 0u : 32u - static_cast<unsigned int>(__clz(magnitude));
-    if (width == 0u) {
-        return qrt_q1_moe_hawkeye::Value{
-            0u,
-            kBlackwellZeroExponent,
-            negative
-        };
-    }
-
-    int exponent = max_exponent + static_cast<int>(width) -
-        kInternalSignificandWidth;
-    uint32_t normalized = magnitude;
-    if (width > static_cast<unsigned int>(kInternalSignificandWidth)) {
-        normalized >>= width -
-            static_cast<unsigned int>(kInternalSignificandWidth);
-    } else {
-        normalized <<= static_cast<unsigned int>(kInternalSignificandWidth) -
-            width;
-    }
-    if (exponent < kFp32MinNonzeroExponent) {
-        const unsigned int underflow_shift = static_cast<unsigned int>(
-            kFp32MinNonzeroExponent - exponent
-        );
-        normalized = underflow_shift >= 32u
-            ? 0u
-            : normalized >> underflow_shift;
-        exponent = kFp32MinNonzeroExponent;
-    }
-    normalized >>= kInternalToFp32Shift;
-    if (normalized == 0u) {
-        return qrt_q1_moe_hawkeye::Value{
-            0u,
-            kBlackwellZeroExponent,
-            negative
-        };
-    }
-    return qrt_q1_moe_hawkeye::Value{
-        static_cast<uint32_t>(normalized),
-        static_cast<int16_t>(exponent),
-        negative
-    };
-}
-
-/*
- * One wave64 owns four independent Blackwell K16 groups.  A 16-lane subgroup
- * computes the same max-exponent alignment and signed integer sum as
- * group_sum<26, -133>, but distributes the 16 BF16 products across its lanes.
- * Unsigned reduction preserves the exact signed sum modulo 2^32. The bounded
- * K16 decoder recovers its sign even where the magnitude exceeds INT32_MAX;
- * no signed overflow or 64-bit wave shuffle is needed.
- */
-__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-blackwell_group16_wave(
-    qrt_q1_moe_hawkeye::Value accumulator,
-    uint16_t left,
-    uint16_t right,
-    unsigned int subgroup_lane
-) {
-    constexpr int kInternalToFp32Shift = 2;
-
-    const qrt_q1_moe_hawkeye::Value product =
-        qrt_q1_moe_hawkeye::multiply_bf16(
-            left,
-            right,
-            kBlackwellZeroExponent
-        );
-    const uint32_t accumulator_packed = __shfl(
-        accumulator.significand |
-            (accumulator.negative ? 0x80000000u : 0u),
-        0,
-        kBlackwellMmaGroup
-    );
-    const int accumulator_exponent = __shfl(
-        static_cast<int>(accumulator.exponent),
-        0,
-        kBlackwellMmaGroup
-    );
-    const uint32_t accumulator_significand = accumulator_packed & 0x00ffffffu;
-    const bool accumulator_negative = (accumulator_packed & 0x80000000u) != 0u;
-    int max_exponent = static_cast<int>(product.exponent) >
-            accumulator_exponent
-        ? static_cast<int>(product.exponent)
-        : accumulator_exponent;
-    for (unsigned int lane_mask = kBlackwellMmaGroup / 2u;
-         lane_mask != 0u;
-         lane_mask >>= 1u) {
-        const int other_exponent = __shfl_xor(
-            max_exponent,
-            lane_mask,
-            kBlackwellMmaGroup
-        );
-        if (other_exponent > max_exponent) {
-            max_exponent = other_exponent;
-        }
-    }
-
-    const int product_shift =
-        max_exponent - static_cast<int>(product.exponent);
-    const uint32_t product_aligned = product_shift >= 32
-        ? 0u
-        : (product.significand << kInternalToFp32Shift) >>
-              static_cast<unsigned int>(product_shift);
-    uint32_t modulo_significand = product.negative
-        ? 0u - product_aligned
-        : product_aligned;
-    if (subgroup_lane == 0u) {
-        const int accumulator_shift =
-            max_exponent - accumulator_exponent;
-        const uint32_t accumulator_aligned = accumulator_shift >= 32
-            ? 0u
-            : (accumulator_significand << kInternalToFp32Shift) >>
-                  static_cast<unsigned int>(accumulator_shift);
-        modulo_significand += accumulator_negative
-            ? 0u - accumulator_aligned
-            : accumulator_aligned;
-    }
-    for (unsigned int lane_mask = kBlackwellMmaGroup / 2u;
-         lane_mask != 0u;
-         lane_mask >>= 1u) {
-        modulo_significand += __shfl_down(
-            modulo_significand,
-            lane_mask,
-            kBlackwellMmaGroup
-        );
-    }
-    if (subgroup_lane == 0u) {
-        const qrt_sm121_group16::SignedMagnitude sum =
-            qrt_sm121_group16::decode_modulo_sum(
-                modulo_significand,
-                product.negative
-            );
-        accumulator = blackwell_normalize_group(
-            sum.magnitude,
-            sum.negative,
-            max_exponent
-        );
-    }
-    return accumulator;
-}
-
 // accumulate_bf16_impl ends with group_sum<26, -133> of the carried value.
-// blackwell_normalize_group has already produced a canonical FP32 value:
-// a 24-bit normal significand, a subnormal at exponent -126, or unsigned zero.
-// A one-value group is an exact identity on that domain, including subnormal
-// alignment. Do not repeat its integer normalization after QK or each PV K16.
+// The shared wave16 normalizer has already produced a canonical FP32 value:
+// a 24-bit normal significand, a subnormal at exponent -126, or zero.
+// Its final one-value group only needs to clear any underflowed negative zero;
+// it does not need to repeat integer normalization after QK or each PV K16.
 
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
@@ -271,13 +119,14 @@ __global__ void blackwell_exact_attention_kernel(
                     query_value = query[query_base + element];
                     key_value = key[key_base + element];
                 }
-                dot = blackwell_group16_wave(
+                dot = qrt_sm121_wave16::accumulate(
                     dot,
                     query_value,
                     key_value,
                     subgroup_lane
                 );
             }
+            dot = qrt_sm121_group16::finish_accumulator(dot);
             if (subgroup_lane == 0u) {
                 score[key_item] = key_valid
                     ? qrt_q1_moe_hawkeye::value_to_float(dot) * kExactScale
@@ -364,12 +213,13 @@ __global__ void blackwell_exact_attention_kernel(
                               kHeadDim +
                           output_dimension]
                     : static_cast<uint16_t>(0u);
-                partial = blackwell_group16_wave(
+                partial = qrt_sm121_wave16::accumulate(
                     partial,
                     probability_bf16[begin + subgroup_lane],
                     value_bf16,
                     subgroup_lane
                 );
+                partial = qrt_sm121_group16::finish_accumulator(partial);
                 partial = qrt_q1_moe_hawkeye::value_from_float(
                     qrt_q1_moe_hawkeye::value_to_float(partial),
                     kBlackwellZeroExponent

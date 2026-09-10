@@ -33,16 +33,16 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests now pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`. q7169 uses whole source
-`41621317a7c3789c4a696d83d6dadf78d06cdb7b`; q8192 additionally buffers preload
-logging at `7c2f170bd40f09b808c89e4b3eac324bbe728e1f`. Each run has
+`D:\models\Qwen3.6-35B-A3B` and whole source
+`7c2f170bd40f09b808c89e4b3eac324bbe728e1f`. q7169 additionally uses optimized
+exact CK attention at `5345630ebdcc4fc982eab3742e04ae14c7e94db6`. Each run has
 zero first-logit error at tolerance 0.125, all 32 oracle tokens, and 32 matching
 streaming callbacks before return. Exit 0 and all host checks pass.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
 | q8192, f544cbe components plus whole 7c2f170 and BF16 argmax | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
-| q7169, qualified compatibility components, 1000 ppb projection bounds, ordered FLA without per-stage sync | 82 / 9.25 | 20,097.572200 | 172,091.915600 | 34.857184 |
+| q7169, optimized exact CK attention with 1000 ppb compatibility profile | 82 / 9.25 | 20,060.197800 | 147,808.401800 | 34.736235 |
 
 The [q8192 preload records](../benchmarks/correctness/q8192-preload-buffer-20260911.json)
 bind actual callback TTFT **4,163.038700 ms**, below the unchanged
@@ -62,7 +62,17 @@ The [resident-decode and ablation records](../benchmarks/correctness/decode-bf16
 bind commands, source/artifact identities, profile changes, prompt hashes and
 complete output to each run.
 
-q7169 command `run-decode-argmax-q7169-selective-r1.ps1`
+The latest [q7169 whole-model record](../benchmarks/correctness/q7169-attention-canonical-20260911.json)
+passes all 32 tokens and all 80 complete layer norms with the optimized CK
+provider. Command `run-q7169-attention-canonical-r1.ps1` has SHA
+`358bcf1cd4da622e9939d133f56c9cf596a2b44681915a3efc8f29022ff71a2b`;
+run SHA `eec6ef02af3cd47fa2d470c20fb9425d60a491227c6c44dbeb2fbd71b9dd7488`.
+Actual TTFT improves by 24,283.513800 ms from the preceding 1000 ppb control,
+while remaining too slow for release. MoE, FLA and CLI identities remain
+023e5dc, 2f346df and f544cbe. All 80 norm-file hashes remain identical to
+qualified GB10 capture f17592ae.
+
+The preceding q7169 command `run-decode-argmax-q7169-selective-r1.ps1`
 (SHA `3fb9cb34e0b050928854eeb32145d669054e4bb547d74e913adf3832d84f4ebb`)
 has run SHA `a245863ec254794a991aed79bd6995001f621a6a87ab8a67f7e0f59575f042a4`.
 It retains MoE 023e5dc, FLA 2f346df, CK b609453 and CLI f544cbe. All 80
@@ -106,8 +116,10 @@ all 29,364,224 BF16 and raw FP32 outputs match the independently qualified
 reference boundary. Original CK takes 6,802.52 ms per provider call; the new
 8-query kernel intervals total 5,585.03 ms with a 12.6929 ms maximum.
 The 32-query control remains bit-exact but gives only a small incremental
-improvement. These are component intervals; full-model qualification of the
-optimized arithmetic is still pending.
+improvement. The subsequent 5345630 component additionally removes redundant one-value
+normalization: kernel intervals total 4,707.43 ms, maximum 10.8648 ms, with
+all BF16 and raw FP32 values unchanged. The full-model result above qualifies
+that change on the frozen q7169 gate. These component intervals are not TTFT.
 
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)

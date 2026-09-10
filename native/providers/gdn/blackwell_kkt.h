@@ -23,7 +23,7 @@ __global__ void dot_kernel(const uint16_t* k, const uint16_t* beta, float* a,
         accumulator = accumulate(accumulator, left, right, lane);
     }
     if (lane == 0) {
-        accumulator = qrt_q1_moe_hawkeye::group_sum<26, kZeroExponent>(&accumulator, 1);
+        accumulator = qrt_sm121_group16::finish_accumulator(accumulator);
         a[index] = qrt_q1_moe_hawkeye::value_to_float(accumulator);
     }
 }

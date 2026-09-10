@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+#include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
 
@@ -1974,132 +1975,14 @@ __device__ __forceinline__ uint16_t routed_projection_bf16_endpoint(
 // per wave16 lane.  Integer alignment and summation are exact, so the tree
 // reduction has the same result as Hawkeye's ascending scalar group_sum while
 // turning every replay into coalesced K reads on gfx1151.
-__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-batched_hawkeye_normalize_group(
-    int64_t signed_significand,
-    int max_exponent
-) {
-    constexpr int kInternalSignificandWidth = 26;
-    constexpr int kInternalToFp32Shift = kInternalSignificandWidth - 24;
-    constexpr int kFp32MinNonzeroExponent = -126;
-    constexpr int16_t kZeroExponent = -133;
-
-    const bool negative = signed_significand < 0;
-    const uint64_t magnitude = negative
-        ? static_cast<uint64_t>(-signed_significand)
-        : static_cast<uint64_t>(signed_significand);
-    const unsigned int width =
-        qrt_q1_moe_hawkeye::bit_width_u64(magnitude);
-    if (width == 0u) {
-        return qrt_q1_moe_hawkeye::Value{0u, kZeroExponent, negative};
-    }
-
-    int exponent =
-        max_exponent + static_cast<int>(width) - kInternalSignificandWidth;
-    uint64_t normalized = magnitude;
-    if (width > static_cast<unsigned int>(kInternalSignificandWidth)) {
-        normalized >>= width -
-            static_cast<unsigned int>(kInternalSignificandWidth);
-    } else {
-        normalized <<=
-            static_cast<unsigned int>(kInternalSignificandWidth) - width;
-    }
-    if (exponent < kFp32MinNonzeroExponent) {
-        const unsigned int underflow_shift = static_cast<unsigned int>(
-            kFp32MinNonzeroExponent - exponent
-        );
-        normalized = underflow_shift >= 64u
-            ? 0u
-            : normalized >> underflow_shift;
-        exponent = kFp32MinNonzeroExponent;
-    }
-    normalized >>= kInternalToFp32Shift;
-    if (normalized == 0u) {
-        return qrt_q1_moe_hawkeye::Value{0u, kZeroExponent, negative};
-    }
-    return qrt_q1_moe_hawkeye::Value{
-        static_cast<uint32_t>(normalized),
-        static_cast<int16_t>(exponent),
-        negative
-    };
-}
-
-__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-batched_hawkeye_wave16_group(
+__device__ __forceinline__ qrt_q1_moe_hawkeye::Value batched_hawkeye_wave16_group(
     qrt_q1_moe_hawkeye::Value accumulator,
     uint16_t left,
     uint16_t right
 ) {
-    constexpr int kWave16 = 16;
-    constexpr int kInternalToFp32Shift = 2;
-    constexpr int16_t kZeroExponent = -133;
-    const unsigned int lane = threadIdx.x & (kWave16 - 1u);
-    const qrt_q1_moe_hawkeye::Value product =
-        qrt_q1_moe_hawkeye::multiply_bf16(
-            left,
-            right,
-            kZeroExponent
-        );
-
-    const uint32_t accumulator_significand = __shfl(
-        accumulator.significand,
-        0,
-        kWave16
+    return qrt_sm121_wave16::accumulate(
+        accumulator, left, right, threadIdx.x & 15u
     );
-    const int accumulator_exponent = __shfl(
-        static_cast<int>(accumulator.exponent),
-        0,
-        kWave16
-    );
-    const int accumulator_negative = __shfl(
-        static_cast<int>(accumulator.negative),
-        0,
-        kWave16
-    );
-    int max_exponent = product.exponent > accumulator_exponent
-        ? static_cast<int>(product.exponent)
-        : accumulator_exponent;
-    for (int offset = 8; offset > 0; offset >>= 1) {
-        const int other = __shfl_xor(max_exponent, offset, kWave16);
-        max_exponent = other > max_exponent ? other : max_exponent;
-    }
-
-    const int product_shift =
-        max_exponent - static_cast<int>(product.exponent);
-    const uint64_t product_aligned = product_shift >= 32
-        ? UINT64_C(0)
-        : (static_cast<uint64_t>(product.significand)
-               << kInternalToFp32Shift) >>
-              static_cast<unsigned int>(product_shift);
-    int64_t signed_significand = product.negative
-        ? -static_cast<int64_t>(product_aligned)
-        : static_cast<int64_t>(product_aligned);
-    if (lane == 0u) {
-        const int accumulator_shift =
-            max_exponent - accumulator_exponent;
-        const uint64_t accumulator_aligned = accumulator_shift >= 32
-            ? UINT64_C(0)
-            : (static_cast<uint64_t>(accumulator_significand)
-                   << kInternalToFp32Shift) >>
-                  static_cast<unsigned int>(accumulator_shift);
-        signed_significand += accumulator_negative != 0
-            ? -static_cast<int64_t>(accumulator_aligned)
-            : static_cast<int64_t>(accumulator_aligned);
-    }
-    for (int offset = 8; offset > 0; offset >>= 1) {
-        signed_significand += __shfl_down(
-            signed_significand,
-            offset,
-            kWave16
-        );
-    }
-    if (lane == 0u) {
-        accumulator = batched_hawkeye_normalize_group(
-            signed_significand,
-            max_exponent
-        );
-    }
-    return accumulator;
 }
 
 __device__ __forceinline__ float batched_hawkeye_wave16_dot_bf16_hopper(
@@ -2123,10 +2006,7 @@ __device__ __forceinline__ float batched_hawkeye_wave16_dot_bf16_hopper(
         return 0.0f;
     }
     return qrt_q1_moe_hawkeye::value_to_float(
-        qrt_q1_moe_hawkeye::group_sum<26, kZeroExponent>(
-            &accumulator,
-            1u
-        )
+        qrt_sm121_group16::finish_accumulator(accumulator)
     );
 }
 #endif
