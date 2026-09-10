@@ -38,6 +38,7 @@ def configuration(path, expected_sha):
 
 def execute(args, config):
     import torch
+    from vllm.config import VllmConfig, set_current_vllm_config
     import vllm.model_executor.layers.rotary_embedding as rotary
     from vllm.model_executor.layers.rotary_embedding.base import RotaryEmbedding
 
@@ -55,7 +56,10 @@ def execute(args, config):
         raise ValueError("device reserve unavailable")
     torch.set_num_threads(2)
     torch.cuda.reset_peak_memory_stats()
-    with torch.device("cuda"):
+    # CustomOp construction reads the active compilation configuration even
+    # though cache generation itself is eager and does not load a model.
+    runtime_config = VllmConfig()
+    with set_current_vllm_config(runtime_config), torch.device("cuda"):
         original = rotary.get_rope(head_size=config["head_dim"], max_position=ROWS,
                                    rope_parameters=config["rope_parameters"], dtype=torch.bfloat16)
     full = original.cos_sin_cache
@@ -67,7 +71,7 @@ def execute(args, config):
         raise ValueError("original cache construction exceeded the device ceiling")
     # This shape changes allocation only; compare the complete payload before
     # writing it, rather than assuming shape-independent pointwise arithmetic.
-    with torch.device("cuda"):
+    with set_current_vllm_config(runtime_config), torch.device("cuda"):
         control = RotaryEmbedding(256, COLUMNS, ROWS, PARAMETERS["rope_theta"],
                                   True, torch.bfloat16)
     expected_prefix = full[:ROWS]
