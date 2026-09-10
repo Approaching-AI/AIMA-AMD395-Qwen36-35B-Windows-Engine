@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "description": "Original 64-bit CK compared with bounded unsigned 32-bit K16 reduction on complete captured real q7169 attention inputs; all BF16 and raw FP32 outputs match.",
+  "build": {
+    "repo_commit": "f9f227ea941ccf66b45b3fc0f0df2af074711653",
+    "source_inputs": [
+      {
+        "sha256": "83e49bac9347dbbfc8664130542d240ba79399d000f1cd1aa2ac77c3bdebfc7e",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+      },
+      {
+        "sha256": "55aa7b473819899d27db890ed3101ad36f887b94e89a4948c62c525f7614637e",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+      },
+      {
+        "sha256": "7e4f7555d23b99bb1b64b10f5c409aebcb3c8c68afec1867695d526cb15d639b",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+      },
+      {
+        "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+      },
+      {
+        "sha256": "48b295d5edbe5c70e14e89b830381f9694c2b0cfacd4dcef2e028e8415b88b5c",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+      },
+      {
+        "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+        "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+      }
+    ],
+    "host": "BAIYING",
+    "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+    "arguments": [
+      "-std=c++17",
+      "-O3",
+      "--offload-arch=gfx1151",
+      "D:\\projects\\AIMA-public-attention-modulo-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+      "-lbcrypt",
+      "-o",
+      "D:\\projects\\AIMA-public-attention-modulo-20260911\\build\\attention-replay\\full-attention-capture-replay.exe"
+    ],
+    "run_record_sha256": "9ba167058a65f79b8d2cabc3c7aa255bd14307d31ba52c54ff1ed95cbb3c7c38",
+    "executable": {
+      "sha256": "cca5d76d19eb3588d171518c7b9438a2e69c37e345e0211b6f7fb0b7dd77902b",
+      "file": "D:\\projects\\AIMA-public-attention-modulo-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+      "bytes": 356864
+    }
+  },
+  "runs": [
+    {
+      "name": "attention-modulo-full-r1",
+      "host": "BAIYING",
+      "source_commit": "f9f227ea941ccf66b45b3fc0f0df2af074711653",
+      "command_file": "D:\\projects\\run-native-attention-modulo-r1.ps1",
+      "command_file_sha256": "d4bb5e203984b54f96ce6bb0c2cc0cff07ae0c7401a14237ab03819b88583248",
+      "arguments": [
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+        "D:\\projects\\full-attention-context-gb10-08734309.bin",
+        "D:\\projects\\AIMA-public-ck-sm121-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "D:\\projects\\AIMA-public-attention-modulo-20260911\\build\\attention-modulo-full-r1\\attention",
+        "7169",
+        "0",
+        "7169",
+        "8",
+        "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+        "1"
+      ],
+      "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+      "model_loaded": false,
+      "run_record_sha256": "9429e6af284a8672811402389464f1987b71d23a3cc603e895e417ad4d5727a9",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+      "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+      "reference_host": "aitopatom-66c4",
+      "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+      "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+      "input_files": [
+        {
+          "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+        },
+        {
+          "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+        },
+        {
+          "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+        },
+        {
+          "sha256": "8b360e44584c7c0c595b2466a8b3324bff1aa645eb0b8f3c655aa862c3a049b0",
+          "file": "D:\\projects\\AIMA-public-ck-sm121-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll"
+        }
+      ],
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "ck",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "provider_call",
+          "interval_total_ms": 6802.52,
+          "maximum_interval_ms": 6802.52,
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "kernel_dispatch",
+          "interval_total_ms": 5585.03,
+          "maximum_interval_ms": 12.6929,
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "raw_f32_files": [
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-ck-f32.bin",
+          "bytes": 117456896
+        }
+      ],
+      "output_manifest_sha256": "e66fbb2f9952344d67f010ab5cc9e497e25b181319bae08f56ab220d086c6f47",
+      "product_performance_qualified": false
+    },
+    {
+      "name": "attention-modulo-full32-r1",
+      "host": "BAIYING",
+      "source_commit": "f9f227ea941ccf66b45b3fc0f0df2af074711653",
+      "command_file": "D:\\projects\\run-native-attention-modulo-r2.ps1",
+      "command_file_sha256": "d6d68a06b4c92078ca74a5055200a8ac10ffccea4ae2bfd2532104c2013621ec",
+      "arguments": [
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+        "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+        "D:\\projects\\full-attention-context-gb10-08734309.bin",
+        "D:\\projects\\AIMA-public-ck-sm121-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "D:\\projects\\AIMA-public-attention-modulo-20260911\\build\\attention-modulo-full32-r1\\attention",
+        "7169",
+        "0",
+        "7169",
+        "32",
+        "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+        "1"
+      ],
+      "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+      "model_loaded": false,
+      "run_record_sha256": "e385f9d085483b475890036da3141456acbabfbe7f7c3d86feba80ffaef065a0",
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+      "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+      "reference_host": "aitopatom-66c4",
+      "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+      "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+      "input_files": [
+        {
+          "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+        },
+        {
+          "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+        },
+        {
+          "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+          "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+        },
+        {
+          "sha256": "8b360e44584c7c0c595b2466a8b3324bff1aa645eb0b8f3c655aa862c3a049b0",
+          "file": "D:\\projects\\AIMA-public-ck-sm121-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll"
+        }
+      ],
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "ck",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "provider_call",
+          "interval_total_ms": 6829.22,
+          "maximum_interval_ms": 6829.22,
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "kernel_dispatch",
+          "interval_total_ms": 5441.51,
+          "maximum_interval_ms": 49.3581,
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "raw_f32_files": [
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-ck-f32.bin",
+          "bytes": 117456896
+        }
+      ],
+      "output_manifest_sha256": "e66fbb2f9952344d67f010ab5cc9e497e25b181319bae08f56ab220d086c6f47",
+      "product_performance_qualified": false
+    }
+  ],
+  "limitations": [
+    "Component replay does not load a model and is not TTFT or token-loop qualification.",
+    "The 8-query control post-run collector initially reused a validated PowerShell parameter name; a separate read-only collector completed the hash check without rerunning inference.",
+    "The 32-query interval has little incremental benefit and is not selected for the provider."
+  ]
+}

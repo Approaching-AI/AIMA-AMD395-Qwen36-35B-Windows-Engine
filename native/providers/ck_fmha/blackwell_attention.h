@@ -191,22 +191,11 @@ blackwell_group16_wave(
     return accumulator;
 }
 
-__device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-blackwell_finish_group_wave(
-    qrt_q1_moe_hawkeye::Value accumulator,
-    unsigned int subgroup_lane
-) {
-    // accumulate_bf16_impl performs one final one-value group_sum.  It is only
-    // one value, so lane zero can preserve that endpoint without another wave
-    // reduction; the next K16 group broadcasts lane zero's accumulator.
-    if (subgroup_lane == 0u) {
-        accumulator = qrt_q1_moe_hawkeye::group_sum<
-            26,
-            kBlackwellZeroExponent
-        >(&accumulator, 1u);
-    }
-    return accumulator;
-}
+// accumulate_bf16_impl ends with group_sum<26, -133> of the carried value.
+// blackwell_normalize_group has already produced a canonical FP32 value:
+// a 24-bit normal significand, a subnormal at exponent -126, or unsigned zero.
+// A one-value group is an exact identity on that domain, including subnormal
+// alignment. Do not repeat its integer normalization after QK or each PV K16.
 
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
@@ -289,7 +278,6 @@ __global__ void blackwell_exact_attention_kernel(
                     subgroup_lane
                 );
             }
-            dot = blackwell_finish_group_wave(dot, subgroup_lane);
             if (subgroup_lane == 0u) {
                 score[key_item] = key_valid
                     ? qrt_q1_moe_hawkeye::value_to_float(dot) * kExactScale
@@ -380,10 +368,6 @@ __global__ void blackwell_exact_attention_kernel(
                     partial,
                     probability_bf16[begin + subgroup_lane],
                     value_bf16,
-                    subgroup_lane
-                );
-                partial = blackwell_finish_group_wave(
-                    partial,
                     subgroup_lane
                 );
                 partial = qrt_q1_moe_hawkeye::value_from_float(

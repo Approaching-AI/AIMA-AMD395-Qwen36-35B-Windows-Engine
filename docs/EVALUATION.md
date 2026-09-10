@@ -98,6 +98,17 @@ product boundary; they are not independent acceptance gates. Cold correctness
 at two profiles does not establish a unified release configuration, paired
 decode, prefix reuse or the required context/API matrix.
 
+The exact-attention optimization at source f9f227e uses bounded unsigned
+32-bit K16 reduction with explicit sign recovery, preserving sums that exceed
+INT32_MAX. One million native CPU controls, signed-overflow edges and UBSan
+pass. In the [complete real-input replay](../benchmarks/correctness/attention-modulo-20260911.json),
+all 29,364,224 BF16 and raw FP32 outputs match the independently qualified
+reference boundary. Original CK takes 6,802.52 ms per provider call; the new
+8-query kernel intervals total 5,585.03 ms with a 12.6929 ms maximum.
+The 32-query control remains bit-exact but gives only a small incremental
+improvement. These are component intervals; full-model qualification of the
+optimized arithmetic is still pending.
+
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
 already matched all 80 layer norms and all 40 terminal residuals, but emitted

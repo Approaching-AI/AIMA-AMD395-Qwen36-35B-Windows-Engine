@@ -1,4 +1,5 @@
 #include "native/providers/moe_accumulator/sm121_group16_modulo.h"
+#include "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 
 #include <array>
 #include <cstdio>
@@ -27,6 +28,16 @@ bool check(const std::array<int64_t, 16>& products, int64_t accumulator) {
     return true;
 }
 
+bool check_final_group_identity(qrt_q1_moe_hawkeye::Value value) {
+    const auto result = qrt_q1_moe_hawkeye::group_sum<26, -133>(&value, 1u);
+    if (result.significand != value.significand ||
+        result.exponent != value.exponent || result.negative != value.negative) {
+        std::fprintf(stderr, "one-value group changed canonical accumulator\n");
+        return false;
+    }
+    return true;
+}
+
 uint32_t next(uint32_t& state) {
     state ^= state << 13;
     state ^= state >> 17;
@@ -39,6 +50,12 @@ int main() {
     using namespace qrt_sm121_group16;
     std::array<int64_t, 16> products{};
     if (!check(products, 0)) return 1;
+    if (!check_final_group_identity({0u, -133, false})) return 6;
+    for (uint32_t significand : {1u, 2u, 0x007fffffu, 0x00800000u, 0x00ffffffu}) {
+        for (bool negative : {false, true}) {
+            if (!check_final_group_identity({significand, -126, negative})) return 6;
+        }
+    }
     // Exercise both signed-overflow directions and every mixed-sign position.
     for (int sign : {-1, 1}) {
         products.fill(sign * static_cast<int64_t>(kMaxAlignedProduct));
@@ -73,6 +90,12 @@ int main() {
         const uint32_t bits = next(state);
         const int64_t magnitude = bits % (kMaxAlignedAccumulator + 1u);
         if (!check(products, bits & 1u ? -magnitude : magnitude)) return 5;
+        const int16_t exponent = static_cast<int16_t>(static_cast<int>(bits % 638u) - 126);
+        const uint32_t fraction = next(state) & 0x007fffffu;
+        const uint32_t significand = exponent == -126 && fraction != 0u
+            ? fraction : fraction | 0x00800000u;
+        if (!check_final_group_identity({significand, exponent, (bits & 1u) != 0u}))
+            return 6;
     }
     std::puts("sm121_group16_modulo=pass groups=1000000 signed_overflow_edges=pass");
     return 0;
