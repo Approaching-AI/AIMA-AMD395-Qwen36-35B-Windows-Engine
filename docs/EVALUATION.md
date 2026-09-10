@@ -33,15 +33,20 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
-instead of GB10 82 / 9.25. Load is 20,079.540200 ms and diagnostic TTFT
-318,378.686600 ms. The tiny-positive exponential fix repairs the complete
+instead of GB10 82 / 9.25. Load is 20,105.987800 ms and diagnostic TTFT
+319,066.176000 ms. The tiny-positive exponential fix repairs the complete
 layer-20 GDN and its downstream normalization. All 54 full normalization
 boundaries through layer-26 post-attention now match GB10. The first remaining
 difference is layer-27 input normalization at position 946: 720 BF16 values
 in that one row, while the other 7,168 rows are exact. Terminal residual layers
-0–27 match the reference; layer 28 is the first terminal difference. Observation
-now targets layer-26 MoE, full attention at layer 27 and linear attention at
-layer 28 in independently bounded native and original GB10 runs.
+0–27 match the reference; layer 28 is the first terminal difference. The paired
+original GB10 capture localizes the first difference to layer-26 shared scalar
+gating: the native adjacent FP32 tree produces -1.40625, whereas the original
+CUDA projection produces -1.4140625 at position 946. Full MoE input and residual,
+selected experts/weights, routed output and the other shared stages are exact.
+Substituting the reference scalar only in an offline diagnostic restores every
+shared and MoE output value at this position. The next component replay covers
+all 40 original q7169 shared gates before revising that reduction.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native
@@ -1303,3 +1308,30 @@ of the original runner confirms the module alias and selector call. The
 observer now supports that unchanged internal call and copies the selector's
 actual output, shared intermediate tensors and expert output tuple, restoring
 the selector afterward. The failed capture is retained as unqualified evidence.
+
+
+The expanded original GB10 request at source
+`11bedbec5b6c89fdf2598aaac83b70fc4a5a10e9` qualifies all 32 tokens and raw
+82 / 9.25. Host `aitopatom-66c4`, model `/mnt/data/models/Qwen3.6-35B-A3B`,
+command `run-qrt-gb10-moe26-20260911-r2.py` (SHA
+`e72ab7c31b5a591426b5caf79ec0e960b36a12078b18b146a12b1cfefaa8eccd`).
+Capture SHA `fb2e1a4c20b852b966c83c4853b0f75b0476fc0fd64650a0841ba2e9b8883c2c`:
+168 files, 1,563,237,250 bytes; all 130 common terminal/normalization boundaries
+match the previous qualified all-norm capture. Load 313.838127 seconds, observed
+request 16.149033 seconds, owned container 361.343875 seconds / exit 0.
+These reference timings do not qualify Windows performance.
+
+Compared with native run `6352bd60fff19a92115fd7fd6a7a9dd9723d760399b90ca928655dd8c5be1d64`,
+all full residual bytes agree (SHA
+`0d247e004598abe4bc8d0140682ff0ea224085cb423f1cb99136697c188ca91b`). At position
+946 all 256 router values, eight expert IDs and FP32 weights, 512 shared gate/up
+and activation values, 2,048 shared-down values and 2,048 routed output values
+are exact. Only the shared scalar gate differs: BF16 bfb4 versus bfb5. Its
+rounded sigmoid is 0.197265625 instead of 0.1953125, changing all 2,048 shared
+and 1,485 combined MoE values. Offline substitution reproduces the original
+shared and total MoE outputs exactly. This does not substitute for a native
+model rerun. The existing adjacent FP32 reduction lands on -1.41015625, exactly
+the BF16 midpoint; the FP64 dot is -1.4101563433468982, beyond it.
+`scripts/capture_sm121_shared_gate.py` now replays all 40 original CUDA gates
+from qualified full-model inputs and requires the full layer-26 output control.
+Its alternative CPU reductions are diagnostics, not correctness authority.
