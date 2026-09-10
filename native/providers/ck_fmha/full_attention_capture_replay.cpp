@@ -174,7 +174,7 @@ int main(int argc, char** argv) {
             check(hipError_t(qrt_blackwell_attention::launch_queries(dq.as<uint16_t>(), dk.as<uint16_t>(),
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
-                accumulator.as<float>(), denominator.as<float>())));
+                accumulator.as<float>(), denominator.as<float>(), true)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
         }
         std::vector<float> host(size_t(count) * 4096u);

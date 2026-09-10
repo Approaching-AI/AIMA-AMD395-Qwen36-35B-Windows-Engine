@@ -214,7 +214,8 @@ __global__ void blackwell_exact_attention_kernel(
     unsigned int output_start,
     const unsigned char* exp2_table,
     float* raw_accumulator,
-    float* raw_denominator) {
+    float* raw_denominator,
+    bool vllm_sum) {
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -313,12 +314,27 @@ __global__ void blackwell_exact_attention_kernel(
         }
         __syncthreads();
 
-        for (unsigned int stride = kExactTileTokens / 2u; stride > 0u;
-             stride >>= 1u) {
-            if (thread < stride) {
-                sum_scratch[thread] += sum_scratch[thread + stride];
+        if (vllm_sum) {
+            // The original SM121 16x32 MMA layout first combines adjacent
+            // columns within a thread, then lanes (4,2) and warps (16,8).
+            // A generic 16,8,4,2,1 sum changes normalization at BF16 midpoints.
+            constexpr unsigned int order[] = {1u, 4u, 2u, 16u, 8u};
+            unsigned int reduced_bits = 0u;
+#pragma unroll
+            for (unsigned int step = 0u; step < 5u; ++step) {
+                const unsigned int stride = order[step];
+                reduced_bits |= stride;
+                if (thread < kExactTileTokens && (thread & reduced_bits) == 0u)
+                    sum_scratch[thread] += sum_scratch[thread + stride];
+                __syncthreads();
             }
-            __syncthreads();
+        } else {
+            for (unsigned int stride = kExactTileTokens / 2u; stride > 0u;
+                 stride >>= 1u) {
+                if (thread < stride)
+                    sum_scratch[thread] += sum_scratch[thread + stride];
+                __syncthreads();
+            }
         }
 
         for (unsigned int output_batch = 0u;
@@ -394,7 +410,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
     unsigned int query_start, unsigned int query_count,
     unsigned int output_start, const unsigned char* exp2_table = nullptr,
-    float* raw_accumulator = nullptr, float* raw_denominator = nullptr) {
+    float* raw_accumulator = nullptr, float* raw_denominator = nullptr,
+    bool vllm_sum = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -402,7 +419,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     hipLaunchKernelGGL(blackwell_exact_attention_kernel,
         dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
         q, k, v, output, query_start, output_start, exp2_table,
-        raw_accumulator, raw_denominator);
+        raw_accumulator, raw_denominator, vllm_sum);
     return int(hipGetLastError());
 }
 } // namespace qrt_blackwell_attention
