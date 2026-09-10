@@ -740,6 +740,42 @@ launches at most 4,096 rows. Both neighboring BF16 rounding boundaries are
 considered, including the asymmetric spacing at exponent changes. The new
 selector requires native product-shape qualification before any acceptance.
 
+
+The optional L2 selector at public `f164f0b0` passes 265 Python tests (two
+known skips), Rust/Clippy, C ABI, q16 and public hygiene. Windows build,
+default async parity and all 32 logical-shape cases pass. Native build run
+SHA `a15734ff6282115048a2286893532fda55eee8af7e8712a1611c0ff891cd4a23`;
+MoE DLL SHA `2249e6e3c7b282d09e08c614d0caf10ef4eba4a5c31a1a5e505ca8446c9f4bdc`.
+The first staging attempt failed before build because its source worktree
+path was incorrect; the corrected command is `run-native-moe-l2-build-r2.ps1`.
+
+Real `prepare-fla-model-q7169-moe-l2-r1.ps1` on `baiying` uses MoE `f164f0b0`,
+whole `db049515`, FLA `831c1699`, CLI `f544cbe` and
+`D:\models\Qwen3.6-35B-A3B`. Run SHA
+`43b115fd56c36bdf29e93daf247e6c30aabc57f13f85f077f43e5069e0879daa`.
+At coefficient 10,000 ppb, every captured first-layer MoE boundary matches
+the same GB10 full replay: router, expert IDs/weights, shared gate/up,
+activation/down/product, routed activation, all 117,456,896 weighted route
+contributions, routed output, total MoE and the next normalization. Native
+unrounded combination is also independently reproduced in full. The next
+normalization SHA is the reference
+`48f9e2ae4c55f3842c81e3294da506416abbbe50958ce7e41dd4b77d5f9474f2`.
+Second-layer terminal QKV/Z/A/B and gated normalization now match; its output
+projection retains one BF16 difference. Full MoE comparison SHA
+`551cc73c73cbcdaaebd8a2c2fca75f5ab783125bf8f1e370fd6886235dfa8eb0`;
+next-norm comparison SHA
+`7e4de04cf6ed375e705e38e3fbd4c2553e300090e11a26ac40d23ea84ec05f11`.
+
+The complete model still emits 220 / 9.375 versus GB10 82 / 9.25. Load is
+20,093.562900 ms, diagnostic TTFT 166,892.948800 ms, and run wall time
+187,385.478 ms. It completes inside its 240-second bound and passes all
+host/cleanup checks. This establishes component correctness, with a large
+cost that prevents performance retention. The next bounded model case
+extends the existing characterized QKV/Z/A/B/output corrections to all 30
+linear-attention layers and evaluates 1,000 ppb MoE selection against the
+same full first-layer boundary. The reference token/logit and q8192 retained
+performance target are unchanged.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
