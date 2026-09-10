@@ -149,12 +149,15 @@ int main() {
     if (invoke(output) != hipErrorInvalidConfiguration || collections != 2u ||
         rounds != 1u || allocations != frees) return 6;
     for (size_t i = 65536u; i < total_elements; ++i) if (output[i] != initial[i]) return 7;
-    reset(); fail_sync = 1u; output = initial;
+    reset(); fail_sync = 2u; output = initial;
     if (invoke(output) != hipErrorUnknown || collections != 1u || rounds ||
         corrections || allocations != frees) return 8;
+    reset(); fail_sync = 1u; output = initial;
+    if (invoke(output) != hipErrorUnknown || collections || rounds ||
+        corrections || allocations || frees || output != initial) return 11;
     reset();
     if (launch_selected_bf16_projection_hawkeye_midpoint_correction(
         &value, &value, nullptr, nullptr, nullptr, output.data(), UINT32_MAX,
-        2u, 2048u, 512u, 0u, 0u, 8u, nullptr) != hipErrorInvalidValue || allocations) return 9;
+        2u, 2048u, 512u, 0u, 0u, 8u, nullptr) != hipErrorInvalidValue || allocations || syncs) return 9;
     return 0;
 }

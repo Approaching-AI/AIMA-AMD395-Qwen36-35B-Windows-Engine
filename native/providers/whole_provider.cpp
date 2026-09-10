@@ -37330,8 +37330,22 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
     }
+    // The producer can still be queued on this stream. Complete it before
+    // timing a collection dispatch, otherwise the first collection inherits
+    // the preceding full projection's wall time and can fail a false deadline.
+    // End-to-end product TTFT continues to include this upstream work.
+    const auto input_wait_start = std::chrono::steady_clock::now();
+    hipError_t status = hipStreamSynchronize(stream);
+    if (status != hipSuccess) return status;
+    const double input_wait_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - input_wait_start).count();
+    std::fprintf(stderr,
+        "BATCH_MARK hawkeye_input_ready rows=%u tokens=%u k=%u wait_ms=%.3f "
+        "included_in_product_ttft=1 diagnostic_only=1\n",
+        rows, selected_token_count, reduction_size, input_wait_ms);
+    std::fflush(stderr);
     unsigned int *scratch = nullptr;
-    hipError_t status = hipMalloc(reinterpret_cast<void **>(&scratch),
+    status = hipMalloc(reinterpret_cast<void **>(&scratch),
         (qrt_hawkeye_dispatch::maximum_candidates + 2u) * sizeof(*scratch));
     if (status != hipSuccess) return status;
     const char *count_only_value =

@@ -47,3 +47,32 @@ allocation and transient host buffer during SHA verification. The same
 Windows CNG and offline builder dependencies described above apply. The
 normalization route passes the complete frozen q7169 Windows component
 comparison and remains opt-in pending full-model qualification.
+
+
+## Optional model-parameter GDN gate table
+
+`scripts/capture_sm121_gating_table.py` extracts the original fused gate
+function from a fingerprinted source file. A real-token terminal control
+must match exactly before enumeration. Table construction then uses every
+BF16 input encoding and the actual model's A_log/dt_bias parameters; prompts
+and expected model outputs do not select table entries.
+
+The initial layer-zero table contains 2,097,152 FP32 values in an 8,388,608-byte
+head-major file, SHA-256
+`fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4`.
+The shared BF16 sigmoid file is 131,072 bytes, SHA-256
+`32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97`.
+The concrete benefit is matching SM121 softplus, exp and sigmoid rounding
+at the projection-to-GDN boundary. These tables and independent direct
+execution both reproduce all 32 G and beta control values bit for bit.
+
+The existing optional `QRT_QWEN36_GB10_GATE_LUT_DIR` diagnostic uses host
+lookups. Its current per-layer cache retains 8 MiB plus a 128 KiB sigmoid
+copy. Extending to all 30 linear-attention layers would add 240 MiB plus a
+shared 128 KiB file on disk; the current loader would also duplicate the
+sigmoid cache per layer. The offline dependencies are the same pinned
+Torch/NumPy/Triton image; no CUDA/Python dependency enters Windows inference.
+Only layer zero has been constructed in this control. Diagnostic commands
+must pin its fingerprint and parameter provenance because the existing raw
+loader validates size, not model identity. Release use remains contingent on
+model binding, artifact verification, load time and real-model qualification.

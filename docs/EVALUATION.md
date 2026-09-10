@@ -239,6 +239,42 @@ expected some zero outputs to retain a negative final-product sign; its
 corrected expectation is independently checked against the production scalar
 accumulator. Full-model validation of this launcher is pending.
 
+The isolated original-source gating capture at public commit
+`3c0bff19659dde390d2a711dcbe5a555f2a91ff1` uses the pinned SM121 reference
+image and actual layer-zero A_log/dt_bias parameters. Its direct real-token
+control and independent full-domain table lookup both match all 32 FP32 G
+and BF16 beta values. It enumerates every BF16 encoding (2,097,152 G entries),
+with 17 GPU calls, maximum 0.094848 ms and 1,323,008 peak allocated bytes.
+Capture SHA-256: `aabe5e05361f9f064e6765c6df06c7f1c9b9ed860a41ec43bdf3992408895e08`.
+The initial attempt included lazy module loading in a 121.550 ms CUDA timing
+interval and stopped before enumeration. Explicit launcher initialization
+now completes before timing, preserving the 100 ms dispatch threshold.
+Both owned containers have exited; the original reference service remains
+stopped. These are arithmetic controls, not model/release acceptance.
+
+The new whole-provider build at `5fc0c7a` has DLL SHA-256
+`07a40b5f9feafd40919b014bf157e593a76081307c803737d2c40ee8f52b4add`.
+The real q7169 command `prepare-fla-model-q7169-streamed-qkv-capture-r1.ps1`
+finishes both early-layer corrections in 858.675 / 873.671 ms. Actual GDN
+input Q/K/V mismatches fall to 2,994 / 2,691 / 5,450; gates are unchanged.
+GDN output differences fall to 3,892,295. The terminal QKV row retains 47
+BF16 differences, 45 near 1e-36 and two cancellation endpoints at rows
+1,887 and 7,835;
+these are diagnostic coordinates, not a separate rejection boundary.
+The model still **fails** with 220 / 9.3125, while token 82 is at 9.1875
+against the authority's 82 / 9.25. Load is 20,083.1322 ms, diagnostic TTFT
+24,725.1796 ms and wall 45,194.445 ms, with passing host/cleanup checks.
+Run SHA-256: `96685eec2bf56137d73e5a6a383fd918a8fb26703aa0d9efc5036e7fa596b309`.
+
+The first combined layer-zero gate-table run stops before gate execution:
+its initial collection timing includes an asynchronously queued upstream
+QKV projection, reporting 124.455 ms despite no exact-dot launch. The launcher
+now completes and separately reports that producer wait before starting its
+collection/correction clock. Product TTFT still includes the entire wait;
+100 ms per-dispatch and 10 s aggregate correction bounds remain unchanged.
+Host tests cover a failed producer synchronization before allocation or any
+new kernel submission. Real-model gate-table integration remains pending.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
