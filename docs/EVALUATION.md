@@ -134,8 +134,30 @@ new arithmetic header on the host matches all 14,682,112 BF16 inverse values
 of the full q7169 capture (SHA-256
 `7c6a9c8445ab3496c7468282aa7cd2d6cc47ed6849aa57762b84d56e57cecc62`).
 The native kernel uses 33 KiB of shared memory per 64-token/head block and
-adds no table or runtime dependency. Host parity is component evidence;
-Windows GPU and real-model qualification remain required.
+adds no table or runtime dependency. Native Windows r18 at
+`fdace5e1dfd7b5e40a78a59b8e2098b8fb4ea091` also matches every inverse element;
+its maximum dispatch is 1.070 ms. The integrated real q64 prefix is exact
+at every recorded stage and terminal state. Full q7169 terminal FP32 state
+is now exact, while output retains precisely the standalone kernel's 177
+differences. All host checks pass; full local checks pass 259 Python tests
+(two known skips), 45 Rust tests, clippy, C ABI, q16 and hygiene.
+
+The corresponding real-model command
+`prepare-fla-model-q7169-blackwell-inverse-r1.ps1` on baiying, using the same
+real model, prompt, oracle, CLI and whole provider, still **fails**:
+220 / 9.3125 instead of 82 / 9.25. Load is 20,133.0916 ms and TTFT
+21,836.5686 ms. Model run-record SHA-256 is
+`f1c5de3a870f0673fc398e1f785e25364b1ee001e78a621e8ffcb1b898c8ef1e`;
+the r18 FLA DLL is
+`5e91a6450cd1a641cd0edcf65aa9ec4b2515711e9e798923e30918ea83080a21`.
+This component correction does not qualify the combined model or performance.
+
+The remaining output correction rounds the scaled prior before fusing the
+local term, following the reference's evaluation order. A CPU attribution
+with the general exponent table covers all 177 residual cells and 3,585
+fixed-stride controls: all 3,762 match with this order. Reversing the FMA
+retains all 177 differences; separate scaling retains 74. Full native and
+real-model validation remain required for the correction.
 
 ## MMLU-Pro full evaluation
 

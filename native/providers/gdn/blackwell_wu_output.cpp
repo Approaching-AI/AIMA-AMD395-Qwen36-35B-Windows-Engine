@@ -86,7 +86,9 @@ __global__ void output_kernel(const uint16_t* q, const uint16_t* v, const uint16
     if (lane == 0) {
         constexpr float scale = 0.08838834764831845f;
         const float prior = finish(old) * exponential(g[token * 32u + head], table);
-        output[(token * 32u + head) * 128u + column] = from_bf16(to_bf16(fmaf(prior, scale, finish(local) * scale)));
+        // The reference rounds prior * scale before fusing the local term.
+        // Reversing these operands changes BF16 cells near cancellation.
+        output[(token * 32u + head) * 128u + column] = from_bf16(to_bf16(fmaf(finish(local), scale, prior * scale)));
     }
 }
 }
