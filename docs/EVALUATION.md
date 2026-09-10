@@ -35,8 +35,8 @@ with the global override disabled.
 The latest live-model layer-zero GDN capture is exact across the complete
 q7169 Q/K/V/G/beta inputs, output and terminal state. The model still emits
 220 / 9.375 against GB10 82 / 9.25, so the route remains unqualified. The
-terminal gated RMSNorm and output projection are exact; the subsequent
-post-attention RMSNorm has 420 BF16 differences.
+terminal gated RMSNorm, output projection and post-attention RMSNorm are
+exact. The terminal MoE top-eight IDs and FP32 weights also match.
 The following records preserve how those boundaries were established.
 
 The optional FLA route at `33e0492ee17013aa897eb19aa092c15cf56df2bf` now
@@ -535,6 +535,31 @@ numerator uses the BF16-rounded residual sum while variance uses the unrounded
 sum. Computing variance from the rounded sum retains 237 differences. This
 supports testing the existing vLLM residual/norm path with the corrected
 upstream; it does not establish a full-sequence or token-loop result.
+
+The existing residual/norm path with the repaired upstream is verified by
+`prepare-fla-model-q7169-sm121silu-out-postnorm-r1.ps1` on baiying using the
+same real model, `a09b896` whole provider, `831c1699` FLA and `f544cbe` CLI.
+All terminal BF16 surfaces through post-attention RMSNorm now match GB10;
+the eight MoE routing IDs and FP32 weights also match. The first token still
+fails at 220 / 9.375, with load 20,008.115900 ms and diagnostic TTFT
+31,746.907800 ms. Host and cleanup checks pass. Run SHA:
+`2108ab0cc5665f7fe3aac2e0eafea7bbad61feecb86864abffe64cab7bcfc0b5`.
+The follow-up MoE trace requires both the all-layer selector and the existing
+layer-one stage switch even when capturing layer zero. Its next-layer terminal
+seed retains 334 BF16 differences; the token remains 220 / 9.375, native load
+20,030.214900 ms and TTFT 31,476.069000 ms, with passing host/cleanup checks.
+Run SHA: `71fe30daf1a3021179f785a341d625c62c4c301cb4f63549f557abcd11f1f4dc`.
+
+`scripts/capture_sm121_post_gdn.py` adds a full q7169 reference replay for Z,
+gated normalization, output projection and residual normalization. It starts
+from fingerprinted real normalized inputs, actual weights and the explicitly
+GB10-validated GDN component output. Original kernel sources and every input
+are pinned. Full fused QKV must reproduce the existing 58,728,448-cell control
+before its Z result proceeds; each new reference surface must pass its frozen
+terminal control before full native comparisons are retained. Additional
+replays hold native predecessors fixed to distinguish propagation from local
+arithmetic. Native captures and expected terminal values only compare results.
+This supervised, opt-in component probe is not an inference or timing gate.
 
 ## MMLU-Pro full evaluation
 
