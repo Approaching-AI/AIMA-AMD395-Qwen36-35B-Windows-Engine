@@ -330,6 +330,25 @@ dense windows as well as sparse/tail/error cases, and the native correction
 test adds full `[7169,32]`/K2048 geometry. Native evidence is pending; this
 route is not enabled in a default or release profile.
 
+The native `4b73ada31e9918632357de16ba2cd261ab811a4a` correction control
+passes all three cases, including all 229,408 dense A/B endpoints at K2048
+in 143.212 ms, with intact redzones and passing host/cleanup checks.
+`prepare-fla-model-q7169-exact-ab-capture-r1.ps1` then captures actual A/B
+with **zero** differences to the complete CPU projections, and actual G/beta
+with **zero** differences to all 229,408 GB10 reference values per surface.
+Both early layers log complete A/B recomputation. This resolves the observed
+layer-zero gate projection/handoff boundary.
+
+The same real-model run still emits 220 / 9.3125 instead of 82 / 9.25.
+Load is 20,032.834999 ms, diagnostic TTFT 25,290.212600 ms, wall 45,706.544 ms;
+host and cleanup checks pass. Run SHA:
+`efa291750a89c4d8f7358965db1169d6dcafba73f824b1dac29dbf129677cec2`.
+No first-token, continuation or performance result is accepted. The next
+component replay uses actual native input-RMSNorm and model QKV/Z/convolution
+weights on SM121, comparing fused and separate projection geometry followed
+by the fingerprinted original convolution kernel. Frozen outputs are only
+comparison targets. This replay is optional, bounded and model-free.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
