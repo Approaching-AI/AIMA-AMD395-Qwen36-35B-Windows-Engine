@@ -32,22 +32,20 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The latest real q7169 model run on baiying remains unqualified: 220 / 9.375
-instead of GB10 82 / 9.25. Load is 20,373.593500 ms and diagnostic TTFT
-253,150.381300 ms. Terminal layer outputs 0–3 are now exact. The complete
-layer-3 normalized input, Q/K/V projections and normalized/rotated Q/K are
-also exact. The earliest remaining full-prefix difference is attention core:
-65,059 of 29,364,224 BF16 values. No release or performance acceptance follows.
+The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
+instead of GB10 82 / 9.25. Load is 20,056.130600 ms and diagnostic TTFT
+318,233.503800 ms. Complete layer-3 input, Q/K/V, attention, gating, output
+projection and BF16 residual now match GB10. Post-attention normalization has
+50 BF16 differences; terminal layer outputs 0–3 remain exact. A CPU replay
+using the same inputs and original arithmetic closes the normalization
+boundary, so native normalization is the next isolated control.
 
-A captured-input native replay reproduces those 65,059 differences exactly.
-The shared Blackwell arithmetic, original SM121 exponential, original
-1/4/2/16/8 softmax reduction and validated reciprocal coefficients now match
-all 29,364,224 BF16 **and raw FP32** reference values. Its q7169 component takes
-6,736.3 ms, with maximum dispatch 15.7201 ms; this is a component timing.
-The corrected full prefix and terminal route is opt-in through
-`QRT_CK_FMHA_SM121_FULL_PREFIX=1`, with SHA-validated exponential and reciprocal
-tables. Complete-model qualification is still pending for this integration.
-Whole-model continuation, retained speed and release qualification remain open.
+The shared Blackwell attention arithmetic, original SM121 exponential,
+1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
+and raw FP32 attention values through the actual CK DLL ABI. The full-prefix
+route is opt-in through `QRT_CK_FMHA_SM121_FULL_PREFIX=1` and validates its
+tables by SHA. It remains too slow for product acceptance. Complete-model
+continuation, retained speed and release qualification remain open.
 
 The following records preserve how those boundaries were established.
 
@@ -1049,3 +1047,63 @@ The provider integration retains the default CK route, caps correction at
 q8192 with eight queries per dispatch and a 20-second aggregate deadline,
 prepares both immutable tables during provider initialization and releases
 them with the provider. It loads no expected output tensor.
+
+
+CK provider integration is independently qualified on baiying. Source
+`b6094534d6eb440f4817404acc28c0ed351715ae` builds the 427,520-byte DLL SHA
+`8b360e44584c7c0c595b2466a8b3324bff1aa645eb0b8f3c655aa862c3a049b0` in 33,759.702 ms,
+all host checks passing. The external CK source manifest binds 5,350 source
+files with SHA `412419e0747ae26380362f90a161070611d37a0666f4b7727edb33e71aa5e7d3`.
+The complete local check suite passes before the build.
+
+Command `D:\projects\test-native-ck-sm121-r2.ps1`, executor source
+`6c959cddf1002a3cfa57ec2bd929d31db4bdd1f3`, calls the actual DLL ABI with the same
+qualified q7169 layer-3 Q/K/V from `D:\models\Qwen3.6-35B-A3B`. With correction
+enabled, all 29,364,224 BF16 and raw FP32 values equal GB10; the separate
+terminal call also matches all 4,096 BF16 values. Run SHA
+`dfa26091fdf02ad6e79f10b76eee18a957b507993b6b2f45244888cae482ccef`; provider call
+6,847.94 ms, process 7,920.576 ms, all host checks passing. With correction
+disabled, full BF16 SHA remains
+`d8aac33b2097b01d47647b8fcb2d223193a07956bca36b1634ae4e6865a2914f`, identical to the
+prior DLL, including its 65,059 known mismatches. Default-control run SHA
+`a6b0f2aff89da915417fedc5f2fb5cc65ae6afd022ff8b3314f64f1e2c22eef5`.
+
+The first enabled-ABI probe completed the provider call but the diagnostic
+harness then rejected its aggregate time as if it were one GPU dispatch.
+That failed record remains. Executor `6c959cd` distinguishes a provider call
+(20-second bound) from an individual diagnostic dispatch (3-second bound).
+The provider itself still submits at most eight queries per synchronized
+kernel and enforces its aggregate deadline. These records establish component
+integration; they do not establish full-model tokens, continuation or retained
+performance. The exact arithmetic remains too slow for product acceptance.
+
+
+The complete-model CK integration still fails the unchanged q7169 gate.
+Command `D:\projects\prepare-fla-model-q7169-ck-sm121-r2.ps1`, SHA
+`fe820a76560cbf4c13d6902ec30c4cfdf5b59b3a18d64813112b8a0f7a80ae14`, runs on baiying
+with `D:\models\Qwen3.6-35B-A3B`; whole `28c4f9df`, FLA `831c1699`, MoE
+`f164f0b0`, CLI `f544cbe` and CK `b6094534`. Run SHA
+`7248f6263449c3af289052f70a78d7a2fad45c6558e0757a368bfc68e2d68421` binds the mixed
+components and oracle. It emits 220 / 9.3125, rather than 82 / 9.25, with load
+20,056.130600 ms, diagnostic TTFT 318,233.503800 ms and wall 338,728.882 ms.
+All host checks pass. The first dispatch stopped before inference because its
+expected-output filename collided with the preceding run; the retained file
+was unchanged `[82]`, and the second dispatch uses independent paths.
+
+Complete layer-3 normalized input, Q/K/V, normalized/rotated Q/K, attention
+context, gated context, output projection and BF16 residual now match GB10
+exactly. The next normalization has 50 differing BF16 cells across 47 tokens,
+with none at the terminal position. Terminal residual layers 0–3 remain exact;
+layer 4 has 608 differences. These are diagnostics, not acceptance by internal
+hashes. Evidence: `fla-model-q7169-ck-sm121-r2/`.
+
+CPU replay with the actual native residual/update and model normalization
+weights matches all 14,682,112 GB10 postnorm values when using the characterized
+FMA/reduction order and general SM121 reciprocal-root table. An all-FMA
+scalar fold retains nine differences; host reciprocal root retains 89 even
+with the correct fold. The exact CPU variant differs from the actual native
+output in the same 50 cells. The next bounded native replay extracts the
+current provider functions verbatim, checks its baseline against the model
+capture, and separates reciprocal-root evaluation from endpoint contraction.
+Reference tensors stay on the host. Whole-model continuation, retained speed
+and release qualification remain open.
