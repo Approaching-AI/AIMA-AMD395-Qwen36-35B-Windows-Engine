@@ -932,3 +932,11 @@ read-only hooks after startup, a 768 MiB artifact ceiling, and the unchanged
 q7169 32-token/raw-logit oracle. It will expose complete prefill inputs and
 outputs around the first full-attention layer to separate upstream history
 errors from QKV, normalization/rotation, attention and output projection.
+
+The native observer now optionally writes every selected stage and layer
+boundary through QRT_QWEN36_FULL_STAGE_DUMP_PREFIX/LAYER/TOKENS. It copies
+read-only device data in bounded chunks, caps the aggregate at 768 MiB and
+24 files with a 30-second observation deadline, and refuses overwrites.
+It requires an explicitly matching prefill shape up to q8192. The default
+route adds no copies. All 268 Python cases (two existing skips), Rust/Clippy,
+C ABI, q16 transaction checks and public hygiene pass before native build.

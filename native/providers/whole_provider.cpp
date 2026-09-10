@@ -103993,6 +103993,110 @@ bool emit_qwen36_exact_arbitrary_final_norm_boundary_trace(
     return true;
 }
 
+bool dump_qwen36_selected_full_stage(
+    unsigned int layer,
+    unsigned int tokens,
+    const char *surface,
+    const void *device_values,
+    bool source_bf16,
+    size_t row_width,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    const char *prefix = std::getenv("QRT_QWEN36_FULL_STAGE_DUMP_PREFIX");
+    if (prefix == nullptr || prefix[0] == '\0' ||
+        layer != env_u32_or_default("QRT_QWEN36_FULL_STAGE_DUMP_LAYER", UINT_MAX) ||
+        tokens != env_u32_or_default("QRT_QWEN36_FULL_STAGE_DUMP_TOKENS", 0u)) {
+        return true;
+    }
+    if (failure_stage == nullptr || failure == nullptr) {
+        return false;
+    }
+    const auto reject = [&](const char *reason) {
+        *failure_stage = "selected_full_stage_dump";
+        *failure = reason;
+        return false;
+    };
+    if (tokens == 0u || tokens > 8192u || row_width == 0u ||
+        row_width > 9216u || surface == nullptr || device_values == nullptr) {
+        return reject("full stage capture requires a bounded prefill surface");
+    }
+    const std::string label(surface);
+    if (label.empty() || label.find_first_not_of(
+            "abcdefghijklmnopqrstuvwxyz0123456789_") != std::string::npos) {
+        return reject("invalid full stage capture label");
+    }
+    const size_t elements = static_cast<size_t>(tokens) * row_width;
+    const size_t bytes = elements * sizeof(uint16_t);
+    constexpr size_t kMaximumBytes = size_t{768} << 20;
+    // This observer is entered by the serialized native prefill owner. Its
+    // accounting covers every selected surface in the process, including
+    // duplicate stage/boundary observations, instead of bounding each alone.
+    static size_t captured_bytes = 0u;
+    static unsigned int captured_files = 0u;
+    static auto capture_start = std::chrono::steady_clock::now();
+    if (captured_files == 0u) {
+        capture_start = std::chrono::steady_clock::now();
+    }
+    if (captured_files >= 24u || bytes > kMaximumBytes - captured_bytes) {
+        return reject("aggregate full stage capture ceiling exceeded");
+    }
+    const std::string path = std::string(prefix) + "-" + label + "-bf16.bin";
+    std::ifstream existing(path, std::ios::binary);
+    if (existing.good()) {
+        return reject("refusing to overwrite a full stage capture");
+    }
+    std::ofstream output(path, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        return reject("cannot create full stage capture");
+    }
+    constexpr size_t kChunkElements = size_t{1} << 18;
+    std::vector<uint16_t> bf16((std::min)(elements, kChunkElements));
+    std::vector<float> f32(source_bf16 ? 0u : bf16.size());
+    for (size_t begin = 0u; begin < elements; begin += kChunkElements) {
+        if (std::chrono::duration<double>(
+                std::chrono::steady_clock::now() - capture_start).count() > 30.0) {
+            return reject("aggregate full stage capture deadline exceeded");
+        }
+        const size_t count = (std::min)(elements - begin, kChunkElements);
+        const hipError_t status = source_bf16
+            ? hipMemcpy(bf16.data(),
+                        static_cast<const uint16_t *>(device_values) + begin,
+                        count * sizeof(uint16_t), hipMemcpyDeviceToHost)
+            : hipMemcpy(f32.data(),
+                        static_cast<const float *>(device_values) + begin,
+                        count * sizeof(float), hipMemcpyDeviceToHost);
+        if (status != hipSuccess) {
+            return reject(hipGetErrorString(status));
+        }
+        if (!source_bf16) {
+            for (size_t item = 0u; item < count; ++item) {
+                bf16[item] = qrt_float_to_bf16(f32[item]);
+            }
+        }
+        output.write(reinterpret_cast<const char *>(bf16.data()),
+                     static_cast<std::streamsize>(count * sizeof(uint16_t)));
+        if (!output) {
+            return reject("full stage capture write failed");
+        }
+    }
+    output.close();
+    if (!output) {
+        return reject("full stage capture close failed");
+    }
+    captured_bytes += bytes;
+    ++captured_files;
+    std::cerr << "BATCH_MARK selected_full_stage_dump layer=" << layer
+              << " surface=" << surface << " tokens=" << tokens
+              << " row_width=" << row_width << " bytes=" << bytes
+              << " aggregate_bytes=" << captured_bytes
+              << " files=" << captured_files
+              << " source_bf16=" << (source_bf16 ? 1 : 0)
+              << " diagnostic_only=1 numerical_correctness_claimed=0"
+              << std::endl;
+    return true;
+}
+
 bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
     unsigned int layer_index,
     unsigned int prefill_tokens,
@@ -104017,6 +104121,11 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
             *failure =
                 "exact-arbitrary layer boundary tracing requires a valid device surface";
         }
+        return false;
+    }
+    if (!dump_qwen36_selected_full_stage(
+            layer_index, prefill_tokens, surface, device_output, false,
+            QRT_QWEN36_HIDDEN_SIZE, failure_stage, failure)) {
         return false;
     }
     std::array<float, QRT_QWEN36_HIDDEN_SIZE> terminal_hidden{};
@@ -104196,6 +104305,11 @@ bool emit_qwen36_exact_arbitrary_linear_stage_trace(
         }
         return false;
     }
+    if (!dump_qwen36_selected_full_stage(
+            layer_index, prefill_tokens, surface, device_output, false,
+            row_width, failure_stage, failure)) {
+        return false;
+    }
     std::vector<float> terminal(row_width, 0.0f);
     const size_t terminal_offset =
         static_cast<size_t>(prefill_tokens - 1u) * row_width;
@@ -104271,6 +104385,11 @@ bool emit_qwen36_exact_arbitrary_linear_stage_bf16_trace(
                 << " failure=" << (failure == nullptr ? 0 : 1);
             *failure = detail.str();
         }
+        return false;
+    }
+    if (!dump_qwen36_selected_full_stage(
+            layer_index, prefill_tokens, surface, device_output, true,
+            row_width, failure_stage, failure)) {
         return false;
     }
     std::vector<uint16_t> terminal(row_width, 0u);
