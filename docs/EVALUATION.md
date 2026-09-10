@@ -652,6 +652,29 @@ replay also retains full expert stages. These additions preserve runtime math
 and allow the remaining full-prefix error to be separated into routing,
 activation, projection and combination boundaries.
 
+The subsequent native capture at `db049515` completes with passing host and
+cleanup checks. MoE input, unrounded residual and next normalization retain
+their preceding full fingerprints. All 57,352 expert IDs match, but 19,464
+router weights differ at FP32 precision. Shared gate/up projections differ in
+3,025 / 4,144 cells; routed activation differs in 88,488. A full CPU combination
+replay reproduces all native residual cells exactly. Both reference and native
+shared activation obey the same BF16 SiLU/multiply endpoints, directing the
+next correction to projection accumulation and router exponent arithmetic.
+Native run SHA:
+`da87185ec273631a46e70c27db64ffe0d1452e0c39d530e08c3e9181575825d3`.
+Token remains 220 / 9.375; load 20,142.950900 ms, diagnostic TTFT including
+full capture 36,534.516300 ms. This does not pass the model oracle.
+
+
+CPU replay from actual small MoE weight tensors validates the existing
+26-bit/group-16 accumulator: zero differences across 1,856 router, 6,702
+shared-gate, 7,822 shared-up and 22,913 shared-down selected cells. The
+selection includes every gate/up mismatch plus a fixed stride control;
+shared-down uses reference activations to isolate its projection. Width-25
+and FP64 controls retain differences. The next bounded model profile will
+exercise the existing sparse projection corrections and CUDA router
+exponent compatibility, with independently captured primitive tables.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
