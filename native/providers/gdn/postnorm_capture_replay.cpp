@@ -88,23 +88,26 @@ int main(int argc, char** argv) try {
     check(hipMemcpy(dc.data, correction.data(), correction.size(), hipMemcpyHostToDevice));
     check(hipMemcpy(dt.data, table.data(), table.size(), hipMemcpyHostToDevice));
     hipEvent_t begin{}, end{}; check(hipEventCreate(&begin)); check(hipEventCreate(&end));
-    for (unsigned variant = 0; variant < 5; ++variant) {
+    for (unsigned variant = 0; variant < 6; ++variant) {
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() > 30)
             throw std::runtime_error("aggregate deadline exceeded");
         check(hipEventRecord(begin));
 #define LAUNCH(kernel, coefficients) hipLaunchKernelGGL(kernel, dim3(tokens), dim3(kThreads), 0, 0, \
     dr.as<float>(), du.as<uint16_t>(), dw.as<uint16_t>(), dh.as<float>(), dout.as<float>(), unsigned(tokens), coefficients)
-        if (variant == 0) { LAUNCH(output_bf16_residual_postnorm_vllm_kernel, dc.as<uint8_t>()); }
-        if (variant == 1) { LAUNCH(postnorm_table1_separate0_kernel, dt.as<uint8_t>()); }
-        if (variant == 2) { LAUNCH(postnorm_table0_separate1_kernel, dc.as<uint8_t>()); }
-        if (variant == 3) { LAUNCH(postnorm_table1_separate1_kernel, dt.as<uint8_t>()); }
-        if (variant == 4) hipLaunchKernelGGL(normalization_scalars, dim3(tokens), dim3(kThreads), 0, 0,
+        // The captured full-attention call passed nullptr despite loading the
+        // correction. Preserve that actual call as the baseline control.
+        if (variant == 0) { LAUNCH(output_bf16_residual_postnorm_vllm_kernel, nullptr); }
+        if (variant == 1) { LAUNCH(output_bf16_residual_postnorm_vllm_kernel, dc.as<uint8_t>()); }
+        if (variant == 2) { LAUNCH(postnorm_table1_separate0_kernel, dt.as<uint8_t>()); }
+        if (variant == 3) { LAUNCH(postnorm_table0_separate1_kernel, dc.as<uint8_t>()); }
+        if (variant == 4) { LAUNCH(postnorm_table1_separate1_kernel, dt.as<uint8_t>()); }
+        if (variant == 5) hipLaunchKernelGGL(normalization_scalars, dim3(tokens), dim3(kThreads), 0, 0,
             dr.as<float>(), du.as<uint16_t>(), dc.as<uint8_t>(), dt.as<unsigned char>(), ds.as<float>());
 #undef LAUNCH
         check(hipGetLastError()); check(hipEventRecord(end)); check(hipEventSynchronize(end));
         float ms; check(hipEventElapsedTime(&ms, begin, end));
         if (!std::isfinite(ms) || ms > 3000) throw std::runtime_error("dispatch deadline exceeded");
-        if (variant == 4) {
+        if (variant == 5) {
             check(hipMemcpy(scalars.data(), ds.data, scalars.size() * 4, hipMemcpyDeviceToHost));
             size_t differences = 0;
             for (size_t t = 0; t < tokens; ++t) differences += std::memcmp(&scalars[t * 4 + 2], &scalars[t * 4 + 3], 4) != 0;

@@ -131927,7 +131927,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     device_residual_hidden,
                     device_post_attention,
                     target_tokens_u32,
-                    nullptr
+                    device_gfx1151_sm121_rsqrt_correction
                 );
             } else {
                 hipLaunchKernelGGL(
@@ -131954,6 +131954,11 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 << " context_bf16=1"
                 << " output_projection_bf16=1"
                 << " residual_postnorm_fused=1"
+                << " postnorm_rsqrt_correction="
+                << (use_q65536_vllm_bf16_residual_norm &&
+                            device_gfx1151_sm121_rsqrt_correction != nullptr
+                        ? 1
+                        : 0)
                 << std::endl;
         } else {
             hipLaunchKernelGGL(
