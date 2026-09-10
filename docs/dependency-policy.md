@@ -111,3 +111,22 @@ The optional Windows loader validates its layout and SHA using the operating
 system's existing BCrypt API, and shares one immutable device copy per provider
 process. CUDA/Python is confined to offline construction. Native qualification
 and release inclusion remain pending.
+
+
+## Optional attention reciprocal compatibility
+
+The captured-input attention diagnostic can reproduce SM121 approximate
+reciprocals using an 8,388,640-byte coefficient file, SHA
+`d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39`.
+It stores signed one-ULP deltas from correctly rounded reciprocal for all
+8,388,608 normalized FP32 mantissas. Construction independently verifies all
+159,383,552 positive inputs at exponents 0 through 18; the same coefficients
+cover attention denominators throughout the supported context range. No model,
+weight, prompt, hidden value, logit or generated token enters construction.
+
+The concrete benefit is matching the `div.full.f32` reciprocal-multiply
+endpoint of the pinned original attention implementation. Native diagnostic
+use adds 8 MiB of immutable device storage and an equal offline artifact,
+validated with existing Windows BCrypt and explicit format bounds. It adds no
+CUDA, Python or third-party runtime dependency to Windows. The current retained
+profile is unchanged; component and real-model qualification are separate.

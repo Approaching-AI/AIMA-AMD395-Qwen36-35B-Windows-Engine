@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../gdn/sm121_exp2_table.h"
+#include "../gdn/sm121_attention_rcp.h"
 namespace qrt_blackwell_attention {
 constexpr unsigned int kQueryHeads = 16u, kKvHeads = 2u;
 constexpr unsigned int kHeadDim = 256u, kThreads = 256u;
@@ -215,7 +216,8 @@ __global__ void blackwell_exact_attention_kernel(
     const unsigned char* exp2_table,
     float* raw_accumulator,
     float* raw_denominator,
-    bool vllm_sum) {
+    bool vllm_sum,
+    const unsigned char* rcp_table) {
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -398,8 +400,9 @@ __global__ void blackwell_exact_attention_kernel(
     }
 
     if (thread < kHeadDim) {
-        output[output_base + thread] =
-            output_accumulator[thread] / running_sum;
+        output[output_base + thread] = rcp_table
+            ? output_accumulator[thread] * qrt_sm121_attention_rcp::evaluate(rcp_table, running_sum)
+            : output_accumulator[thread] / running_sum;
         if (raw_accumulator) raw_accumulator[output_base + thread] = output_accumulator[thread];
     }
     if (raw_denominator && thread == 0u)
@@ -411,7 +414,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     unsigned int query_start, unsigned int query_count,
     unsigned int output_start, const unsigned char* exp2_table = nullptr,
     float* raw_accumulator = nullptr, float* raw_denominator = nullptr,
-    bool vllm_sum = false) {
+    bool vllm_sum = false, const unsigned char* rcp_table = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -419,7 +422,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     hipLaunchKernelGGL(blackwell_exact_attention_kernel,
         dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
         q, k, v, output, query_start, output_start, exp2_table,
-        raw_accumulator, raw_denominator, vllm_sum);
+        raw_accumulator, raw_denominator, vllm_sum, rcp_table);
     return int(hipGetLastError());
 }
 } // namespace qrt_blackwell_attention

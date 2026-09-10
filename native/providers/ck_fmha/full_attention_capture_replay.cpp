@@ -165,6 +165,23 @@ int main(int argc, char** argv) {
         }
         Device dt(use_table ? table.size() : 4u), output(size_t(count) * 4096u * 4u);
         Device accumulator(size_t(count) * 4096u * 4u), denominator(size_t(count) * 16u * 4u);
+        const char* rcp_path = std::getenv("QRT_CK_FMHA_SM121_RCP_TABLE");
+        const bool use_rcp = rcp_path && *rcp_path;
+        std::vector<unsigned char> rcp_table;
+        if (use_rcp) {
+            rcp_table = read<unsigned char>(rcp_path, qrt_sm121_attention_rcp::table_bytes);
+            if (!qrt_sm121_attention_rcp::valid_layout(rcp_table.data(), rcp_table.size()))
+                throw std::runtime_error("invalid reciprocal table layout");
+            BCRYPT_ALG_HANDLE algorithm = nullptr; unsigned char digest[32]{};
+            if (BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0) < 0)
+                throw std::runtime_error("SHA256 provider unavailable");
+            const auto status = BCryptHash(algorithm, nullptr, 0, rcp_table.data(), ULONG(rcp_table.size()), digest, sizeof(digest));
+            BCryptCloseAlgorithmProvider(algorithm, 0);
+            if (status < 0 || std::memcmp(digest, qrt_sm121_attention_rcp::sha256, 32))
+                throw std::runtime_error("reciprocal table fingerprint mismatch");
+        }
+        Device dr(use_rcp ? rcp_table.size() : 4u);
+        if (use_rcp) check(hipMemcpy(dr.pointer, rcp_table.data(), rcp_table.size(), hipMemcpyHostToDevice));
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0;
         for (unsigned offset = 0; offset < count; offset += batch) {
@@ -174,12 +191,16 @@ int main(int argc, char** argv) {
             check(hipError_t(qrt_blackwell_attention::launch_queries(dq.as<uint16_t>(), dk.as<uint16_t>(),
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
-                accumulator.as<float>(), denominator.as<float>(), true)));
+                accumulator.as<float>(), denominator.as<float>(), true,
+                use_rcp ? dr.as<unsigned char>() : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
         }
         std::vector<float> host(size_t(count) * 4096u);
         check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
-        report(use_table ? "blackwell-sm121-exp" : "blackwell-amd-exp", host, reference, start, argv[6], total, maximum);
+        const char* route = use_table
+            ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
+            : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
+        report(route, host, reference, start, argv[6], total, maximum);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);
