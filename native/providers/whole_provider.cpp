@@ -121914,7 +121914,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
                 1u
             );
-        if ((descriptor.layer_index ==
+        if (target_token_count == prefill_tokens &&
+            (descriptor.layer_index ==
                 exact_arbitrary_layer_boundary_trace_layer ||
              qwen36_all_norm_capture_active(prefill_tokens)) &&
             (!emit_qwen36_exact_arbitrary_layer_boundary_trace(
@@ -132246,7 +132247,19 @@ bool run_full_attention_prefill_resident_core_for_targets(
             "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER",
             UINT_MAX
         );
-    if ((descriptor.layer_index ==
+    if (qwen36_all_norm_capture_active(prefill_tokens) &&
+        target_token_count != prefill_tokens) {
+        // The final-layer route may own just the requested terminal row.
+        // History length must never be used as that allocation's row count.
+        std::cerr << "BATCH_MARK all_norm_capture_sparse_target"
+                  << " layer=" << descriptor.layer_index
+                  << " materialized_rows=" << target_token_count
+                  << " history_tokens=" << prefill_tokens
+                  << " full_prefix_captured=0 diagnostic_only=1"
+                  << std::endl;
+    }
+    if (target_token_count == prefill_tokens &&
+        (descriptor.layer_index ==
             exact_arbitrary_layer_boundary_trace_layer ||
          qwen36_all_norm_capture_active(prefill_tokens)) &&
         (!emit_qwen36_exact_arbitrary_layer_boundary_trace(

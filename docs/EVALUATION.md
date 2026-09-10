@@ -37,8 +37,9 @@ instead of GB10 82 / 9.25. Load is 20,062.162500 ms and diagnostic TTFT
 319,214.462000 ms. All eleven complete layer-3 attention boundaries now match
 GB10, including normalization after repairing its missing reciprocal-root
 correction argument. Terminal residual layers 0–19 are exact; divergence starts
-at layer 20 in the terminal trace. Complete per-layer normalization capture
-will distinguish the earliest full-prefix cause from downstream propagation.
+at layer 20 in the terminal trace. The expanded GB10 reference is now qualified;
+native observation of each materialized normalization boundary will locate the
+earliest full-prefix cause.
 
 The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
@@ -1164,3 +1165,38 @@ and 60 seconds of aggregate observer work, separate from bounded inference
 time. The default single-layer observer keeps its original limits. The broad
 native record will be compared with the preceding model's output and terminal
 rows to check that observation did not change arithmetic.
+
+
+The expanded GB10 capture is independently qualified. Source
+`743bd42155d912353024024e14d1dab4d329a917`, command
+`run-qrt-gb10-allnorm-20260911-r1.py`, host `aitopatom-66c4`, model
+`/mnt/data/models/Qwen3.6-35B-A3B`, pinned original image. It records all 80
+complete normalization boundaries and full attention at layer 19: 212 files,
+2,826,802,176 bytes. Capture SHA
+`f17592ae9d7d332386eb4b2a3f001f73e497aab94463588b4252e2f23eebdcc0`.
+All 32 output tokens equal the unchanged oracle, the raw first token is
+82 / 9.25, and final norm SHA remains
+`be3354ef1cd706c10a5ee58ae4da7492389d1679cff89e02fa5a6e1229355483`.
+Load 298.795621 seconds, observed request 15.839573 seconds, owned container
+346.500576 seconds / exit 0, minimum host available memory 17,963,675,648 bytes.
+These are GB10 reference timings, not Windows performance evidence.
+
+Review of the native final layer shows `target_tokens=1` with 7,169 history
+positions. The first all-layer observer run was explicitly stopped after
+120,601.910 ms, before reaching that sparse final target. All host and cleanup
+checks pass; the partial files remain diagnostic only. The revised observer
+requires materialized rows to equal the requested full-prefix extent before
+reading a full surface. This q7169 route therefore supplies 78 full
+normalization boundaries (layers 0–38); the existing terminal trace covers
+layer 39 and a structured marker explains its omitted full-prefix capture.
+No model operator is replaced to create nonexistent last-layer rows.
+
+The interrupted native run is bound to source `743bd42155d912353024024e14d1dab4d329a917`,
+host `baiying`, model `D:\models\Qwen3.6-35B-A3B`, command
+`prepare-fla-model-q7169-all-norm-r1.ps1`, and run SHA
+`45fa9db93fee1b2028d224f00486ba3b92cd9fc13ecb7db622e08178075d8a0a`.
+All 24 complete normalization files from layers 0–11 match the newly qualified
+GB10 reference by SHA256. No output token was produced before the controlled
+stop. The materialized-row guard passes `make check PYTHON=python3.12`:
+268 Python tests (two existing skips), 45 Rust tests, Clippy, C ABI, seven q16
+checks and public hygiene. Native rebuild and full-model observation follow.
