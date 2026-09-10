@@ -895,3 +895,40 @@ precedence over the profile.
 
 All JSON/JSONL evidence is newline-terminated and accompanied by SHA256 in the
 release manifest.
+
+
+The original SM121 rotary constructor is now captured with an explicit vLLM
+configuration. The first attempt stops at CustomOp configuration lookup before
+emitting a table; source `8d35a1d07b673c5804fa3fb6c0386fef7e46b2a2` fixes that
+construction context. Capture `ae093b416a31cebba3b060e8371bedd25dcae35d166eb61592865990e2f7ff6d`
+uses the pinned original image on `aitopatom-66c4`, command file
+`run-qrt-rope-cache-20260911-r2.sh`, and the real model config. The complete
+262,144-position prefix has 16,777,216 BF16 values and zero differences between
+the original four-context MRoPE cache and a separate one-context construction.
+Peak device allocation is 675,283,456 bytes. The 33,554,432-byte table has SHA
+`ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80`.
+No weights, prompt IDs, hidden states, logits or generated tokens enter this
+primitive builder. The owned container exits 0; the original service remains
+stopped.
+
+Command `prepare-fla-model-q7169-sm121-rope-r1.ps1` binds the table to the actual
+Windows model config and reuses whole `db049515`, MoE `f164f0b0`, FLA `831c1699`
+and CLI `f544cbe`. Run `047ecf5cefb5e0874660b0ad6d6114a9774fb0f54da7bd81004b94228e553434`
+on `baiying`, model `D:\models\Qwen3.6-35B-A3B`, completes with output 220 / 9.375,
+load 20,090.013500 ms and diagnostic TTFT 219,695.110600 ms. All host checks
+pass with the new boot-event guard. The full layer-1 input normalization
+retains the GB10 fingerprint `48f9e2ae4c55f3842c81e3294da506416abbbe50958ce7e41dd4b77d5f9474f2`.
+The log confirms the authoritative cache was used. Terminal residual layers
+0–2 remain exact; layer 3 improves from 589 to 491 BF16 differences against the
+same GB10 row. The post-attention terminal residual has 118 differences.
+The fused-QKV experiment's corresponding residual had 202 differences, but
+that run also changed QKV projection, so these counts do not isolate a RoPE
+operator error by themselves. Comparison SHA `26ca014e1df82cc42551d67376e642cb94e299e0ba5ef2813b86ba8603c41060`.
+The first-token boundary still fails; no continuation or performance
+acceptance follows from this improvement.
+
+The next bounded reference capture uses an owned full-model GB10 process,
+read-only hooks after startup, a 768 MiB artifact ceiling, and the unchanged
+q7169 32-token/raw-logit oracle. It will expose complete prefill inputs and
+outputs around the first full-attention layer to separate upstream history
+errors from QKV, normalization/rotation, attention and output projection.
