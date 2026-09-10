@@ -79,6 +79,10 @@ def gpu_capture(args, manifest, payloads):
     options = dict(num_warps=1)
     arguments = [g, beta, parameters[0], inputs["a"], inputs["b"], parameters[1], 1, 32, 1.0, 20.0, 8]
     prepared = kernel.warmup(*arguments, grid=(1, 1, 4), **options)
+    # Triton's lazy driver/module initialization must complete before the CUDA
+    # timing events. Merely compiling with warmup does not load the executable.
+    if not callable(prepared.run):
+        raise ValueError("gating launcher unavailable")
     ptx_path = args.output_dir / "gating.ptx"
     ptx_path.write_text(prepared.asm["ptx"])
     ptx_sha = file_sha(ptx_path)

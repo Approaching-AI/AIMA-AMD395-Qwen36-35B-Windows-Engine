@@ -229,7 +229,15 @@ launcher with mocked HIP to check cross-window tails, no repeated indices,
 admission failure, asynchronous error cleanup and count-only behavior.
 Native `qrt-projection-safety.exe --correction` adds an irregular K2048
 case and a synthetic full q7169 geometry with more candidates than the former
-global quota. Native and real-model evidence for this new launcher is pending.
+global quota. At `5fc0c7a2e6e7c3c78f4d797e3cd4873ab83e2471`, native
+Windows validation on baiying passes all 132,999 endpoints for an irregular
+K2048 case and all 58,728,448 endpoints for the synthetic q7169/K16 geometry.
+The latter streams 917,633 candidates through 897 windows and 7,170 exact
+launches in 301.540 ms (max completed dispatch 0.296 ms); all input/output
+redzones and host/cleanup checks pass. The first synthetic test incorrectly
+expected some zero outputs to retain a negative final-product sign; its
+corrected expectation is independently checked against the production scalar
+accumulator. Full-model validation of this launcher is pending.
 
 ## MMLU-Pro full evaluation
 
