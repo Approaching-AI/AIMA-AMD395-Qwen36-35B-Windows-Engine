@@ -586,7 +586,20 @@ before emitting a token; host and cleanup checks pass. Run SHA:
 The provider now publishes the unrounded variance when the next layer requests
 it, including padded tiles. It rejects providers without the required residual
 endpoint before attempting to derive that variance. The full local check suite
-passes; the changed handoff awaits native build and real-model verification.
+and the native Windows build pass at `f0d916e`. The next real-model run,
+`prepare-fla-model-q7169-sm121silu-allnorm-gated-r1.ps1`, also enables the
+independently replayed gated mode 3 and fingerprinted SM121 SiLU/rsqrt tables.
+All four complete layer-zero surfaces (Z, gated norm, output projection and
+postnorm) now match GB10, including all 229,408 FP32 gated inverse scales.
+All 39 variance publications are consumed successfully. Layer one's terminal
+seed, input norm, QKV/Z/A/B projections match; raw convolution still has
+6/11/15 Q/K/V differences and 14 FP32 log-gate differences. Its core output
+retains 967 BF16 differences. The final token remains 220 / 9.375, load
+20,231.831800 ms and diagnostic TTFT 33,933.016600 ms. Host and cleanup checks
+pass; this is not inference acceptance. Native run SHA:
+`bc70fdf56fe5c27c1d5b523087f2c5dda415e303f4200d3419b7bdb37d7109b7`.
+Full/terminal comparison SHA:
+`fe07898caa59d64c1b60bbc5fb9fd84d80e936dcf85cf7220caa23de2b9230eb`.
 
 ## MMLU-Pro full evaluation
 
