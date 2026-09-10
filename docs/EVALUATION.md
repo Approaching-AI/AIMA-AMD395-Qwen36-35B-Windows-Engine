@@ -561,6 +561,33 @@ replays hold native predecessors fixed to distinguish propagation from local
 arithmetic. Native captures and expected terminal values only compare results.
 This supervised, opt-in component probe is not an inference or timing gate.
 
+That replay completed on GB10 with source `1cdb433`: the full QKV and all four
+terminal controls have zero differences. Holding native predecessors fixed
+leaves 342 gated-normalization differences, zero output-projection differences
+across 14,682,112 cells, and 46 residual-normalization differences. Capture SHA:
+`67e01e6dc0cf26580ad4b8c5a9d1e49c7fca01e612f247c4c78070734f6a5a49`.
+The original gated kernel runs in 0.792064 ms after module initialization is
+excluded from its unchanged 100 ms dispatch limit. This is component timing.
+
+On baiying, `prepare-fla-model-q7169-sm121silu-z-moe-endpoints-r1.ps1`
+uses the same real model and component commits while correcting Z and selecting
+the GB10-anchored BF16 weighted-contribution/FP32 route-sum endpoints. All
+29,364,224 Z cells now match. Gated normalization retains 342 differences,
+propagating to 10,432 output and 2,809 post-normalization differences. The
+second layer's terminal seed improves from 334 differences to zero; its input
+normalization still has 444 differences. Token 220 / 9.375 remains incorrect;
+load is 20,001.767300 ms and diagnostic TTFT 33,294.909000 ms. Run SHA:
+`a31589eb53eb36eabda81cd10a6508976c6f52e69562c8463f380ddb85759155`.
+
+Selecting residual normalization for all 40 layers exposes a missing variance
+handoff in the padded MoE route. The bounded run exits normally with code 5
+before emitting a token; host and cleanup checks pass. Run SHA:
+`ed26e2bf872fedd1d0811a94187bf1e7176e798218e8bbc5fb3aa4443fd7843a`.
+The provider now publishes the unrounded variance when the next layer requests
+it, including padded tiles. It rejects providers without the required residual
+endpoint before attempting to derive that variance. The full local check suite
+passes; the changed handoff awaits native build and real-model verification.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

@@ -104925,10 +104925,17 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
         raw_env_flag_enabled(
             "QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER"
         );
+    // The next layer consumes this variance.  In particular, an arbitrary
+    // q8192-padded tile has the same unrounded residual endpoint as the
+    // dynamic provider; restricting publication to the dynamic route loses
+    // the variance before a layer selected by the residual-norm mask.
     const bool use_vllm_split_variance =
-        dynamic_logical_moe_provider_requested &&
-        qwen36_vllm_bf16_residual_norm_active() &&
-        qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens);
+        qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens) &&
+        (qwen36_vllm_bf16_residual_norm_active() ||
+         qwen36_exact_arbitrary_vllm_bf16_residual_norm_active(
+             layer_index + 1u,
+             prefill_tokens
+         ));
     const bool short_chunk_palette_requested = raw_env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_SHORT_LOSSLESS_PALETTE"
     );
@@ -106006,6 +106013,23 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
         );
     }
     if (!providers_loaded) {
+        free_device(device_residual_output);
+        return false;
+    }
+    if (use_vllm_split_variance &&
+        (smooth_tail_moe || exact_arbitrary_q1024_moe ||
+         (dynamic_provider_launch == nullptr &&
+          padded_provider_launch == nullptr) ||
+         !(raw_env_flag_enabled(
+               "QRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER"
+           ) || raw_env_flag_enabled(
+               "QRT_QWEN36_Q65536_VLLM_BF16_RESIDUAL_NORM"
+           )))) {
+        output_residual_run->failure_stage =
+            "q8192_triton_selected_moe_full_v2_split_variance_provider";
+        output_residual_run->failure =
+            "unrounded residual variance requires a dynamic or padded "
+            "selected-MoE provider with the BF16 residual carrier enabled";
         free_device(device_residual_output);
         return false;
     }
