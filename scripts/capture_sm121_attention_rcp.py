@@ -25,7 +25,7 @@ def reciprocal_kernel(table, errors, start, exponent, N: tl.constexpr,
     index = start + local
     base_bits = (0x3F800000 + index).to(tl.uint32)
     base = base_bits.to(tl.float32, bitcast=True)
-    x = (base_bits + (exponent.to(tl.uint32) << 23)).to(tl.float32, bitcast=True)
+    x = (base_bits + (tl.cast(exponent, tl.uint32) << 23)).to(tl.float32, bitcast=True)
     actual = tl.inline_asm_elementwise("rcp.approx.ftz.f32 $0, $1;", constraints="=f,f",
                                       args=[x], dtype=tl.float32, is_pure=True, pack=1).to(tl.int32, bitcast=True)
     rn = tl.inline_asm_elementwise("rcp.rn.f32 $0, $1;", constraints="=f,f",
