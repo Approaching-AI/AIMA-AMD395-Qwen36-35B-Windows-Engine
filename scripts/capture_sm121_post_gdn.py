@@ -15,6 +15,7 @@ import os
 from pathlib import Path
 import socket
 import sys
+import time
 import types
 
 from capture_fla_state_prefix import arm_parent_death, supervise
@@ -143,11 +144,17 @@ def execute(args, manifest):
                      128, 128, 128, TOKENS * 32, 128, 1e-6]
         grid = (triton.cdiv(TOKENS * 32, 4), 1)
         compiled = gated_kernel.warmup(*arguments, **options, grid=grid)
+        load_started = time.monotonic()
+        if not callable(compiled.run):
+            raise ValueError("gated normalization launcher unavailable")
+        torch.cuda.synchronize()
+        progress(dict(stage=name + "_loaded", load_wall_ms=(time.monotonic() - load_started) * 1000))
         start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
         start.record()
         gated_kernel[grid](*arguments, **options)
         end.record(); end.synchronize()
         ms = start.elapsed_time(end)
+        progress(dict(stage=name + "_completed_dispatch", dispatch_ms=ms))
         if ms > 100:
             raise ValueError("gated normalization dispatch exceeded 100 ms")
         ptx = compiled.asm["ptx"]
