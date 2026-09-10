@@ -390,7 +390,38 @@ to reproduce the complete real-token control, then enumerates every model
 embedding. Its output is a 248,320-entry FP32 table for the existing native
 layer-zero inverse-scale path. Model weights, source, launch geometry and the
 comparison capture are fingerprinted; expected outputs do not generate table
-entries. Native table validation is pending.
+entries.
+
+The full-vocabulary inverse table completes at `ca45343`: 123 launches,
+0.334720 ms maximum dispatch, 58,761,728 peak device bytes, with both complete
+controls exact. Table SHA:
+`f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67`;
+capture SHA:
+`13de7395d4bc89dbbd39d1292f8d780d9d827ece9e6808efca0abdc1e4a9e1d7`.
+`prepare-fla-model-q7169-embeddingnorm-capture-r1.ps1` verifies the complete
+native embedding/norm tensor hashes and uses the existing `4b73ada` DLL.
+All 14,682,112 native normalized BF16 cells now match the compiled reference.
+The model still emits 220 / 9.375 versus 82 / 9.25 (82 is at 9.1875).
+Load is 20,045.338200 ms, diagnostic TTFT 25,517.049100 ms, wall 45,940.778 ms;
+native host/cleanup checks pass. Run SHA:
+`6a4fc47b153e645d0ba1a68903b8fb1e343bea0959e3977f5f48f05d0c79ff8b`.
+Terminal QKV retains 47 differences (45 tiny values and two ordinary
+cancellation endpoints); core/gated/out have 439 / 453 / 656 BF16 differences.
+Complete post-convolution Q / K / V captures retain only 32 / 61 / 94 BF16
+differences; all G / beta cells match. The subsequent 10,000 ppb L2 selector
+probe reaches its unchanged 10-second correction deadline before any token:
+14,686,604 candidates, 115,055 exact dispatches, maximum dispatch 1.125 ms.
+The guarded process exits normally with a rejected result and healthy host.
+No product result has been accepted.
+
+The compacted correction permits an explicit 64-CTA batch, keeping the
+eight-CTA default and the 100 ms / 10 second deadlines. Each subgroup still
+owns exactly one dot. The native regression adds a real QKV replay that reads
+the complete current normalized inputs and actual weights, evaluates every
+BF16 output against the independent SM121 capture, reports selector coverage
+and required observed error scale, and checks redzones and input immutability.
+Reference values never participate in GPU computation. This component check
+does not substitute for token-loop acceptance; native validation is pending.
 
 ## MMLU-Pro full evaluation
 

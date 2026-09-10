@@ -68,19 +68,16 @@ constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
 // gfx1151 runs under WDDM on the Windows acceptance host.  A single
 // product-shape Hawkeye correction grid can otherwise occupy the GPU for
 // long enough to take the host off the LAN without leaving a watchdog dump.
-// The 2026-09-01 q7169 recovery proved the sparse correction through layer 1
-// with eight blocks per launch after a 64-block run hard-locked the host.
-// The subsequent full run still faulted in layer 2 QKV, so a block cap alone
-// is insufficient. The common launcher also checks candidate density and
-// completed-dispatch time before submitting further exact-dot work.
-// Keep the exact-dot dispatch hard-capped at that recovered boundary; the
-// cells are independent, so partitioning does not change the arithmetic or
-// endpoint.  Candidate counting has no exact dot and retains its own wider
-// cap so the safety split cannot be undone through an environment override.
+// The earlier source-block correction could give one CTA unbounded candidate
+// work. The compacted kernel now assigns exactly one dot to each of its 16
+// subgroups. Real q7169 evidence has bounded single-dispatch time but substantial
+// serial launch overhead. Keep eight CTAs as the default and allow explicit
+// 64-CTA compacted batches, under the same completion and aggregate deadlines.
+// Candidate collection has no exact dot and retains its own wider cap.
 constexpr unsigned int
     kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 8u;
 constexpr unsigned int
-    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 8u;
+    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 64u;
 constexpr unsigned int
     kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch = 256u;
 constexpr unsigned int

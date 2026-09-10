@@ -92,5 +92,10 @@ the embedding tensor on CPU in bounded chunks. It first validates the
 complete real-token norm control, then computes all entries solely from model
 parameters and the fixed epsilon. No CUDA, Python or new third-party library
 is added to Windows inference. Release packaging still requires table/model
-fingerprints and real-model qualification; construction/native validation
-remain pending.
+fingerprints and real-model qualification. Construction passes with table SHA
+`f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67`.
+Both complete real-token controls pass, including a second application after
+all vocabulary rows are enumerated. The native command verifies the complete
+embedding and norm-weight tensor fingerprints before use; its captured full
+input normalization matches every reference BF16 cell. The raw runtime loader
+still needs equivalent artifact/model binding for release packaging.

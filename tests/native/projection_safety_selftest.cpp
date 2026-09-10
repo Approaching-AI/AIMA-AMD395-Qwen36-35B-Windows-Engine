@@ -1,5 +1,6 @@
 // Compile the real provider kernels and launch guards in the same translation
-// unit. No model files or external inference service are used by this test.
+// unit. Synthetic modes use no model files. The optional real-QKV mode reads
+// fingerprinted captured tensors; its wrapper binds the reference provenance.
 #define main qrt_legacy_provider_diagnostic_main
 #include "../../native/providers/whole_provider.cpp"
 #undef main
@@ -192,7 +193,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
     const auto start = std::chrono::steady_clock::now();
     hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(
         dw.data(), di.data(), nullptr, nullptr, nullptr, df.data(), rows, tokens,
-        k, 512u, dense ? tokens : 0u, 0u, 8u, nullptr), "streamed_correction");
+        k, 512u, dense ? tokens : 0u, 0u, dense ? 64u : 8u, nullptr), "streamed_correction");
     const double ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - start).count();
     df.read(output);
@@ -235,12 +236,14 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 }
 } // namespace projection_safety_test
 
+#include "projection_real_replay.h"
+
 int main(int argc, char **argv) {
     using namespace projection_safety_test;
     try {
-        require(argc == 2, "select --host-only, --small, --full-shape, or --correction");
+        require(argc == 2 || (argc == 6 && std::string(argv[1]) == "--real-qkv"), "select a synthetic mode or --real-qkv INPUT WEIGHT REFERENCE PPB");
         const std::string mode = argv[1];
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -248,7 +251,12 @@ int main(int argc, char **argv) {
             hipDeviceProp_t properties{};
             hip_ok(hipGetDeviceProperties(&properties, 0), "device_properties");
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
-            if (mode == "--small") {
+            if (mode == "--real-qkv") {
+                const auto ppb = std::stoul(argv[5]);
+                require(ppb > 0u && ppb <= 1000000u, "invalid real-QKV selector bound");
+                run_real_qkv(argv[2], argv[3], argv[4], static_cast<unsigned int>(ppb));
+                ++cases;
+            } else if (mode == "--small") {
                 const unsigned int shapes[][2] = {{1u, 1u}, {127u, 63u}, {128u, 64u}, {129u, 65u}};
                 for (const auto &shape : shapes) {
                     for (bool consumer : {false, true}) {
@@ -269,7 +277,8 @@ int main(int argc, char **argv) {
         }
         std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"" << mode
                   << "\",\"gpu_cases\":" << cases
-                  << ",\"inference_success_claimed\":false,\"numerical_scope\":\"synthetic_bf16_projection_endpoint\"}" << std::endl;
+                  << ",\"inference_success_claimed\":false,\"numerical_scope\":\""
+                  << (mode == "--real-qkv" ? "real_bf16_qkv_projection" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
         return 0;
     } catch (const std::exception &error) {
         std::cerr << "projection_safety_failure: " << error.what() << std::endl;

@@ -348,7 +348,7 @@ class NativeRouteContractTests(unittest.TestCase):
             self.provider,
         )
         self.assertIn(
-            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 8u",
+            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 64u",
             self.provider,
         )
         self.assertIn(

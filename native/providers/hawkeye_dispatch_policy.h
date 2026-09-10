@@ -9,8 +9,8 @@ namespace qrt_hawkeye_dispatch {
 // windows instead of failing because their aggregate candidate count is large.
 // The completed-dispatch and whole-correction deadlines still bound execution.
 constexpr std::uint32_t maximum_candidates = 131072u;
-// At most 256 lightweight collection blocks, separately from the eight-block
-// exact-dot cap. The scratch capacity also covers a completely dense window.
+// At most 256 lightweight collection blocks, separately from the configured
+// compacted exact-dot cap. Scratch also covers a completely dense window.
 constexpr std::uint32_t maximum_window_elements = 65536u;
 // Limit the actual exact-dot CTA, not the density of a pre-compaction source
 // block. The compacted kernel dispatches at most 16 candidate subgroups.
