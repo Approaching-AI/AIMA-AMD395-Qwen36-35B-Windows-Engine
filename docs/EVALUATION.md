@@ -703,6 +703,43 @@ that also contain conditional AOT. It requires native batched gate/down
 support and the BF16 SiLU table. The default remains the existing route;
 this new selection requires full native product-shape qualification.
 
+
+The native SM121 routed selection at `dc84f3a7` passes Windows compilation,
+default smoke, asynchronous parity, and all 32 dynamic logical component
+cases. DLL SHA `67f820752b1a8c1cc381f3d83cd99987c4a2221da72a86d4e72f13abc5e5453b`.
+Real q7169 run `prepare-fla-model-q7169-moe-sm121-r1.ps1` on `baiying`,
+model `D:\models\Qwen3.6-35B-A3B`, uses whole `db049515`, MoE `dc84f3a7`,
+FLA `831c1699` and CLI `f544cbe`. Run SHA
+`ceaca018e3310fc3c5f251d0d8114e9a25da5774649a41fad73e05d0f01a626f`.
+It completes normally with host/cleanup checks passing. The first token
+is still wrong: 220 / 9.3125 versus GB10 82 / 9.25. Load is 20,087.255900 ms;
+diagnostic TTFT is 44,552.757100 ms, including stage copies and corrections.
+No inference or performance acceptance is claimed.
+
+The full MoE input is unchanged and GB10-exact. CPU replay reproduces all
+14,682,112 native unrounded combination cells. Compared with the same
+GB10 full-stage capture, routed BF16 output differences fall from 263,798
+to 79 and total MoE differences from 164,073 to 231. The complete next-layer
+normalization differs in 122 cells, versus 55,851 before the primitive and
+MoE changes. Shared output still differs in 3,047 cells; router logits in
+12, top-k weights in 30, expert IDs in zero. This retains the corrected
+accumulation as a component improvement, not a qualified model route.
+Full comparison SHA
+`7178bf459fa1c640420cdfcc2b0fe21eaa3f9136998250d7a6c7553e6bfb006b`;
+next-normalization comparison SHA
+`822d2098d6920b2841a08e749328917228605a4cac241ee9ce7173f1acbffea2`.
+
+The next optional selector adds live input/weight L2 metadata across router,
+shared gate/up/down and routed gate/up/down. It supplements the midpoint
+radius with `QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB`, default zero.
+The configured coefficient is an error estimate requiring numerical
+validation; Cauchy bounds the absolute-product sum, not the cross-device
+accumulation error by itself. Shared metadata has separate stream ownership.
+Each correction launch admits at most 64 CTAs of 256 candidates, and norm
+launches at most 4,096 rows. Both neighboring BF16 rounding boundaries are
+considered, including the asymmetric spacing at exponent changes. The new
+selector requires native product-shape qualification before any acceptance.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

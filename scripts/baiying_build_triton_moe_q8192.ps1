@@ -1308,6 +1308,9 @@ $record = [ordered]@{
     provider_source_sha256 = (
         Get-FileHash -Algorithm SHA256 -LiteralPath $providerSource
     ).Hash.ToLowerInvariant()
+    midpoint_selector_source_sha256 = (
+        Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\bf16_midpoint_selector.h')
+    ).Hash.ToLowerInvariant()
     generator_source_sha256 = (
         Get-FileHash -Algorithm SHA256 -LiteralPath $generator
     ).Hash.ToLowerInvariant()

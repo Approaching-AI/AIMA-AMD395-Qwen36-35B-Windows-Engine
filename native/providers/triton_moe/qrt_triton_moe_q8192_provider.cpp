@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+#include "../moe_accumulator/bf16_midpoint_selector.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -1676,6 +1677,21 @@ struct FullV3EventSlot {
     bool in_flight = false;
 };
 
+enum class MoeL2 : uint32_t {
+    Input, Router, SharedInput, SharedGate, SharedUp, SharedActivated,
+    SharedDown, RoutedGateUp, RoutedActivated, RoutedDown, Count
+};
+constexpr size_t kMoeL2Rows[] = {
+    kTokens, kExperts, kTokens, kIntermediate, kIntermediate, kTokens,
+    kHidden, kExperts * 2u * kIntermediate, kRoutes, kExperts * kHidden
+};
+struct MoeCorrectionBounds {
+    const float *input_l2;
+    const float *weight_l2;
+    float error_scale;
+    uint32_t first_block;
+};
+
 struct ProviderState {
     ModuleKernel count;
     ModuleKernel prefix;
@@ -1765,6 +1781,8 @@ struct ProviderState {
     uint16_t *activated = nullptr;
     uint16_t *cuda_vllm_silu_bf16_domain_lut = nullptr;
     bool sm121_routed_hawkeye = false;
+    uint32_t sm121_moe_absolute_error_ppb = 0u;
+    std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
     uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_hawkeye_low_exponent_threshold = 0u;
@@ -3703,6 +3721,39 @@ __device__ __forceinline__ float router_bf16_cuda_reduction_dot(
     return accumulator;
 }
 
+// L2 norms are selection metadata, never replacement activations. Separate
+// shared-stream buffers avoid races with the router/routed stream. F64 squares
+// cover the complete finite BF16 range; outward inflation covers storage.
+__global__ __launch_bounds__(256)
+void moe_bf16_row_l2_kernel(const uint16_t *values, float *norms,
+                          uint32_t rows, uint32_t columns, uint32_t first_row) {
+    __shared__ double partial[kNativeThreads];
+    const uint32_t row = first_row + blockIdx.x;
+    if (row >= rows) return;
+    double sum = 0.0;
+    for (uint32_t k = threadIdx.x; k < columns; k += blockDim.x) {
+        const double v = static_cast<double>(bf16_to_float(
+            values[static_cast<size_t>(row) * columns + k]));
+        sum += v * v;
+    }
+    partial[threadIdx.x] = sum;
+    __syncthreads();
+    for (uint32_t offset = kNativeThreads / 2u; offset; offset >>= 1u) {
+        if (threadIdx.x < offset) partial[threadIdx.x] += partial[threadIdx.x + offset];
+        __syncthreads();
+    }
+    if (threadIdx.x == 0u) norms[row] = static_cast<float>(sqrt(partial[0])) * 1.00002f;
+}
+
+__device__ bool moe_l2_candidate(float endpoint, const MoeCorrectionBounds &bounds,
+                                 uint32_t input_row, uint32_t weight_row,
+                                 float endpoint_scale = 1.0f) {
+    if (bounds.error_scale == 0.0f) return false;
+    const float error = bounds.input_l2[input_row] * bounds.weight_l2[weight_row] *
+        bounds.error_scale * fabsf(endpoint_scale);
+    return qrt_bf16_midpoint::within_error(endpoint, error);
+}
+
 // hipBLASLt remains the fast router projection.  Request its F32 endpoint so
 // cells close to a BF16 midpoint can be identified, then replay only those
 // sparse cells with the measured Hopper mma.sync K16 arithmetic.  The older
@@ -3716,7 +3767,8 @@ void router_hawkeye_midpoint_correction_kernel(
     const uint16_t *router_weights,
     uint16_t *corrected_logits,
     uint32_t token_count,
-    uint32_t midpoint_radius
+    uint32_t midpoint_radius,
+    MoeCorrectionBounds bounds
 ) {
 #if QRT_TRITON_MOE_BATCHED_HAWKEYE
     constexpr uint32_t kWave16 = 16u;
@@ -3732,7 +3784,7 @@ void router_hawkeye_midpoint_correction_kernel(
     const size_t elements =
         static_cast<size_t>(token_count) * kExperts;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     if (index < elements) {
         const float native = native_logits[index];
         corrected_logits[index] = float_to_bf16(native);
@@ -3741,7 +3793,8 @@ void router_hawkeye_midpoint_correction_kernel(
         const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
             ? low_bits - UINT32_C(0x8000)
             : UINT32_C(0x8000) - low_bits;
-        if (midpoint_distance <= midpoint_radius) {
+        if (midpoint_distance <= midpoint_radius ||
+            moe_l2_candidate(native, bounds, index / kExperts, index % kExperts)) {
 #if QRT_TRITON_MOE_BATCHED_HAWKEYE
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
@@ -5713,6 +5766,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
     uint32_t *correction_count_debug,
     uint32_t debug_token
 #endif
+    , MoeCorrectionBounds bounds
 ) {
     constexpr uint32_t kWave16 = 16u;
     constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
@@ -5726,7 +5780,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
     const size_t projection_elements =
         static_cast<size_t>(route_count) * kIntermediate;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     if (index < projection_elements) {
         const float native = gate_up_native_f32[index];
         activated_bf16[index] = float_to_bf16(native);
@@ -5737,6 +5791,11 @@ void routed_gate_batched_hawkeye_correction_kernel(
             : UINT32_C(0x8000) - low_bits;
         const uint32_t native_exponent =
             (native_bits >> 23u) & UINT32_C(0xff);
+        const uint32_t selected_route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t selected_weight_row = static_cast<uint32_t>(topk_ids[selected_route]) *
+            (2u * kIntermediate) + index % kIntermediate;
+        const bool absolute_candidate = moe_l2_candidate(
+            native, bounds, selected_route / kTopK, selected_weight_row);
         const bool midpoint_candidate = midpoint_radius != 0u &&
             midpoint_distance <= midpoint_radius;
         const bool low_exponent_candidate =
@@ -5747,7 +5806,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
                 gate_up_native_f32[kActivatedElements + index],
                 cuda_vllm_silu_bf16_domain_lut
             );
-        if (midpoint_candidate || low_exponent_candidate) {
+        if (midpoint_candidate || low_exponent_candidate || absolute_candidate) {
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
         }
@@ -5827,6 +5886,7 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
     uint32_t *correction_count_debug,
     uint32_t debug_token
 #endif
+    , MoeCorrectionBounds bounds
 ) {
     constexpr uint32_t kWave16 = 16u;
     constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
@@ -5840,7 +5900,7 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
     const size_t projection_elements =
         static_cast<size_t>(route_count) * kIntermediate;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     float *up_native_f32 = gate_up_native_f32 + kActivatedElements;
     if (index < projection_elements) {
         const float native = up_native_f32[index];
@@ -5851,17 +5911,22 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
             : UINT32_C(0x8000) - low_bits;
         const uint32_t native_exponent =
             (native_bits >> 23u) & UINT32_C(0xff);
+        const uint32_t selected_route = static_cast<uint32_t>(index / kIntermediate);
+        const uint32_t selected_weight_row = static_cast<uint32_t>(topk_ids[selected_route]) *
+            (2u * kIntermediate) + index % kIntermediate + kIntermediate;
+        const bool absolute_candidate = moe_l2_candidate(
+            native, bounds, selected_route / kTopK, selected_weight_row);
         const bool midpoint_candidate = midpoint_radius != 0u &&
             midpoint_distance <= midpoint_radius;
         const bool low_exponent_candidate =
             low_exponent_threshold != 0u &&
             native_exponent <= low_exponent_threshold;
-        if ((midpoint_candidate || low_exponent_candidate) &&
+        if (absolute_candidate || ((midpoint_candidate || low_exponent_candidate) &&
             routed_up_projection_needs_hawkeye_replay(
                 native,
                 activated_bf16[index],
                 cuda_vllm_silu_bf16_domain_lut
-            )) {
+            ))) {
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
         }
@@ -10810,7 +10875,8 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
     const uint16_t *weights_bf16,
     uint16_t *corrected_projection,
     uint32_t token_count,
-    uint32_t midpoint_radius
+    uint32_t midpoint_radius,
+    MoeCorrectionBounds bounds
 ) {
     __shared__ uint32_t candidate_count;
     __shared__ uint32_t candidate_indices[kNativeThreads];
@@ -10822,7 +10888,7 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
     const size_t projection_elements =
         static_cast<size_t>(token_count) * kIntermediate;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     if (index < projection_elements) {
         const float native = native_projection[index];
         corrected_projection[index] = float_to_bf16(native);
@@ -10830,7 +10896,8 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
         const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
             ? low_bits - UINT32_C(0x8000)
             : UINT32_C(0x8000) - low_bits;
-        if (midpoint_distance <= midpoint_radius) {
+        if (midpoint_distance <= midpoint_radius ||
+            moe_l2_candidate(native, bounds, index / kIntermediate, index % kIntermediate)) {
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
         }
@@ -10886,7 +10953,8 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
     const uint16_t *weights_bf16,
     uint16_t *corrected_projection,
     uint32_t token_count,
-    uint32_t midpoint_radius
+    uint32_t midpoint_radius,
+    MoeCorrectionBounds bounds
 ) {
     __shared__ uint32_t candidate_count;
     __shared__ uint32_t candidate_indices[kNativeThreads];
@@ -10898,7 +10966,7 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
     const size_t projection_elements =
         static_cast<size_t>(token_count) * kHidden;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     if (index < projection_elements) {
         const float native = native_projection[index];
         corrected_projection[index] = float_to_bf16(native);
@@ -10906,7 +10974,8 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
         const uint32_t midpoint_distance = low_bits >= UINT32_C(0x8000)
             ? low_bits - UINT32_C(0x8000)
             : UINT32_C(0x8000) - low_bits;
-        if (midpoint_distance <= midpoint_radius) {
+        if (midpoint_distance <= midpoint_radius ||
+            moe_l2_candidate(native, bounds, index / kHidden, index % kHidden)) {
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
         }
@@ -11063,7 +11132,8 @@ void routed_down_batched_hawkeye_correction_kernel(
     const uint16_t *routed_down_weights,
     uint32_t route_count,
     uint32_t midpoint_radius,
-    uint32_t low_exponent_threshold
+    uint32_t low_exponent_threshold,
+    MoeCorrectionBounds bounds
 ) {
     constexpr uint32_t kWave16 = 16u;
     constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
@@ -11077,7 +11147,7 @@ void routed_down_batched_hawkeye_correction_kernel(
     const size_t output_elements =
         static_cast<size_t>(route_count) * kHidden;
     const size_t index =
-        static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
+        static_cast<size_t>(bounds.first_block + blockIdx.x) * blockDim.x + threadIdx.x;
     if (index < output_elements) {
         const uint32_t route = static_cast<uint32_t>(index / kHidden);
         const float native_down = route_outputs[index];
@@ -11095,7 +11165,10 @@ void routed_down_batched_hawkeye_correction_kernel(
             native_down_exponent <= low_exponent_threshold;
         if ((midpoint_radius != 0u &&
              midpoint_distance <= midpoint_radius) ||
-            low_exponent_candidate) {
+            low_exponent_candidate ||
+            moe_l2_candidate(contribution, bounds, route,
+                static_cast<uint32_t>(topk_ids[route]) * kHidden + index % kHidden,
+                topk_weights[route])) {
             const uint32_t slot = atomicAdd(&candidate_count, 1u);
             candidate_indices[slot] = static_cast<uint32_t>(index);
         }
@@ -11794,6 +11867,9 @@ bool release_state() {
     if (g_state.transposed_router_weights != nullptr) {
         (void)hipFree(g_state.transposed_router_weights);
     }
+    for (float *buffer : g_state.moe_l2) {
+        if (buffer != nullptr) (void)hipFree(buffer);
+    }
     if (g_state.input_bf16 != nullptr) (void)hipFree(g_state.input_bf16);
     release_kernel(&g_state.down);
     release_kernel(&g_state.gate_up);
@@ -11976,8 +12052,60 @@ bool allocate(T **pointer, size_t bytes, const char *stage) {
     return true;
 }
 
+bool allocate_optional_moe_l2() {
+    if (g_state.sm121_moe_absolute_error_ppb == 0u) return true;
+    for (size_t i = 0; i < g_state.moe_l2.size(); ++i) {
+        if (!allocate(&g_state.moe_l2[i], kMoeL2Rows[i] * sizeof(float),
+                      "hipMalloc(MoE L2 selector)")) return false;
+    }
+    return true;
+}
+
+bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
+                   uint32_t rows, uint32_t columns, hipStream_t stream) {
+    if (g_state.sm121_moe_absolute_error_ppb == 0u) return true;
+    const size_t slot = static_cast<size_t>(surface);
+    if (values == nullptr || rows > kMoeL2Rows[slot]) {
+        set_error_text("invalid live MoE L2 surface");
+        return false;
+    }
+    for (uint32_t first = 0; first < rows; first += 4096u) {
+        const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
+        hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(count), dim3(kNativeThreads),
+            0, stream, values, g_state.moe_l2[slot], rows, columns, first);
+        const hipError_t status = hipGetLastError();
+        if (status != hipSuccess) { set_error("MoE L2 row metadata", status); return false; }
+    }
+    return true;
+}
+
+// At most 64 CTAs and 256 candidates per CTA when the absolute selector is
+// enabled. Keep the existing single launch when the option is disabled.
+// Stream ordering preserves all consumers and the v3 completion event ring.
+template <typename Kernel, typename... Args>
+hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t stream,
+                                 MoeL2 input, MoeL2 weights, Args... arguments) {
+    const bool bounded = g_state.sm121_moe_absolute_error_ppb != 0u;
+    const uint32_t step = bounded ? 64u : blocks;
+    for (uint32_t first = 0; first < blocks; first += step) {
+        const uint32_t count = blocks - first < step ? blocks - first : step;
+        const MoeCorrectionBounds bounds{
+            g_state.moe_l2[static_cast<size_t>(input)],
+            g_state.moe_l2[static_cast<size_t>(weights)],
+            static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
+            first
+        };
+        hipLaunchKernelGGL(kernel, dim3(count), dim3(kNativeThreads), 0, stream,
+                          arguments..., bounds);
+        const hipError_t status = hipGetLastError();
+        if (status != hipSuccess) return status;
+    }
+    return hipSuccess;
+}
+
 bool allocate_optional_shared_projection_hawkeye() {
-    if (g_state.shared_projection_hawkeye_midpoint_radius == 0u) {
+    if (g_state.shared_projection_hawkeye_midpoint_radius == 0u &&
+        g_state.sm121_moe_absolute_error_ppb == 0u) {
         return true;
     }
     return allocate(
@@ -12339,7 +12467,8 @@ bool allocate_optional_hipblaslt_router_logits() {
                static_cast<size_t>(kTokens) * kExperts * sizeof(uint16_t),
                "hipMalloc(router_logits_bf16)"
            ) &&
-        (g_state.router_hawkeye_midpoint_radius == 0u ||
+        ((g_state.router_hawkeye_midpoint_radius == 0u &&
+         g_state.sm121_moe_absolute_error_ppb == 0u) ||
          allocate(
              &g_state.router_logits_f32,
              static_cast<size_t>(kTokens) * kExperts * sizeof(float),
@@ -12357,7 +12486,8 @@ bool ensure_optional_hipblaslt_router_plan(
             kHidden,
             token_count,
             0u,
-            g_state.router_hawkeye_midpoint_radius != 0u
+            (g_state.router_hawkeye_midpoint_radius != 0u ||
+                 g_state.sm121_moe_absolute_error_ppb != 0u)
                 ? HIP_R_32F
                 : HIP_R_16BF
         );
@@ -12385,7 +12515,8 @@ bool ensure_full_matrix_plans(uint32_t token_count) {
             "QRT_QWEN36_Q8192_SHARED_DOWN_HIPBLASLT_HEURISTIC_INDEX"
         );
     const hipDataType shared_projection_output_type =
-        g_state.shared_projection_hawkeye_midpoint_radius != 0u
+        (g_state.shared_projection_hawkeye_midpoint_radius != 0u ||
+         g_state.sm121_moe_absolute_error_ppb != 0u)
             ? HIP_R_32F
             : HIP_R_16BF;
     return ensure_optional_hipblaslt_router_plan(token_count) &&
@@ -13130,6 +13261,10 @@ bool launch_routed_matrices_after_input_conversion(
     hipEvent_t gate_done = nullptr,
     hipEvent_t tail_done = nullptr
 ) {
+    if (!launch_moe_l2(g_state.input_bf16, MoeL2::Input, token_count, kHidden, stream) ||
+        !launch_moe_l2(gate_up_bf16, MoeL2::RoutedGateUp,
+                       kExperts * 2u * kIntermediate, kHidden, stream)) return false;
+
 #if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
     const uint16_t *gate_up_pointer = gate_up_bf16;
     const uint16_t *input_pointer = g_state.input_bf16;
@@ -13756,12 +13891,8 @@ bool launch_routed_matrices_after_input_conversion(
         const uint32_t correction_blocks = static_cast<uint32_t>(
             (projection_elements + kNativeThreads - 1u) / kNativeThreads
         );
-        hipLaunchKernelGGL(
-            routed_gate_batched_hawkeye_correction_kernel,
-            dim3(correction_blocks),
-            dim3(kNativeThreads),
-            0,
-            stream,
+        const hipError_t correction_status = launch_moe_correction(
+            routed_gate_batched_hawkeye_correction_kernel, correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp,
             g_state.route_outputs,
             g_state.input_bf16,
             gate_up_bf16,
@@ -13778,14 +13909,10 @@ bool launch_routed_matrices_after_input_conversion(
             routed_projection_debug_token
 #endif
         );
-        status = hipGetLastError();
+        status = correction_status;
         if (status == hipSuccess) {
-            hipLaunchKernelGGL(
-                routed_up_batched_hawkeye_correction_activation_kernel,
-                dim3(correction_blocks),
-                dim3(kNativeThreads),
-                0,
-                stream,
+            const hipError_t correction_status = launch_moe_correction(
+                routed_up_batched_hawkeye_correction_activation_kernel, correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp,
                 g_state.route_outputs,
                 g_state.input_bf16,
                 gate_up_bf16,
@@ -13802,7 +13929,7 @@ bool launch_routed_matrices_after_input_conversion(
                 routed_projection_debug_token
 #endif
             );
-            status = hipGetLastError();
+            status = correction_status;
         }
     }
 #endif
@@ -14188,18 +14315,17 @@ bool launch_routed_matrices_after_input_conversion(
     if (status == hipSuccess &&
         (!QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN || g_state.sm121_routed_hawkeye) &&
         (g_state.routed_down_contribution_hawkeye_midpoint_radius != 0u ||
-         g_state.routed_down_hawkeye_low_exponent_threshold != 0u)) {
+         g_state.routed_down_hawkeye_low_exponent_threshold != 0u ||
+         g_state.sm121_moe_absolute_error_ppb != 0u)) {
+        if (!launch_moe_l2(g_state.activated, MoeL2::RoutedActivated, token_count * kTopK, kIntermediate, stream) ||
+            !launch_moe_l2(down_bf16, MoeL2::RoutedDown, kExperts * kHidden, kIntermediate, stream)) return false;
         const size_t route_output_elements =
             static_cast<size_t>(token_count) * kTopK * kHidden;
         const uint32_t correction_blocks = static_cast<uint32_t>(
             (route_output_elements + kNativeThreads - 1u) / kNativeThreads
         );
-        hipLaunchKernelGGL(
-            routed_down_batched_hawkeye_correction_kernel,
-            dim3(correction_blocks),
-            dim3(kNativeThreads),
-            0,
-            stream,
+        const hipError_t correction_status = launch_moe_correction(
+            routed_down_batched_hawkeye_correction_kernel, correction_blocks, stream, MoeL2::RoutedActivated, MoeL2::RoutedDown,
             g_state.route_outputs,
             g_state.topk_weights,
             g_state.topk_ids,
@@ -14209,7 +14335,7 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.routed_down_contribution_hawkeye_midpoint_radius,
             g_state.routed_down_hawkeye_low_exponent_threshold
         );
-        status = hipGetLastError();
+        status = correction_status;
     }
 #endif
 #else
@@ -14369,7 +14495,8 @@ bool launch_router(
             }
         } else {
             const bool router_hawkeye =
-                g_state.router_hawkeye_midpoint_radius != 0u;
+                (g_state.router_hawkeye_midpoint_radius != 0u ||
+                 g_state.sm121_moe_absolute_error_ppb != 0u);
             void *router_output = router_hawkeye
                 ? static_cast<void *>(g_state.router_logits_f32)
                 : static_cast<void *>(g_state.router_logits_bf16);
@@ -14392,17 +14519,15 @@ bool launch_router(
                 return false;
             }
             if (router_hawkeye) {
+                if (!launch_moe_l2(g_state.input_bf16, MoeL2::Input, token_count, kHidden, stream) ||
+                    !launch_moe_l2(router_bf16, MoeL2::Router, kExperts, kHidden, stream)) return false;
                 const size_t router_elements =
                     static_cast<size_t>(token_count) * kExperts;
-                hipLaunchKernelGGL(
-                    router_hawkeye_midpoint_correction_kernel,
-                    dim3(static_cast<uint32_t>(
+                const hipError_t correction_status = launch_moe_correction(
+                    router_hawkeye_midpoint_correction_kernel, static_cast<uint32_t>(
                         (router_elements + kNativeThreads - 1u) /
                             kNativeThreads
-                    )),
-                    dim3(kNativeThreads),
-                    0,
-                    stream,
+                    ), stream, MoeL2::Input, MoeL2::Router,
                     g_state.router_logits_f32,
                     g_state.input_bf16,
                     router_bf16,
@@ -14410,7 +14535,7 @@ bool launch_router(
                     token_count,
                     g_state.router_hawkeye_midpoint_radius
                 );
-                const hipError_t hawkeye_status = hipGetLastError();
+                const hipError_t hawkeye_status = correction_status;
                 if (hawkeye_status != hipSuccess) {
                     set_error(
                         "router Hawkeye midpoint correction",
@@ -15105,7 +15230,8 @@ bool launch_shared_pipeline(
     }
 #endif
     const bool shared_hawkeye =
-        g_state.shared_projection_hawkeye_midpoint_radius != 0u;
+        (g_state.shared_projection_hawkeye_midpoint_radius != 0u ||
+         g_state.sm121_moe_absolute_error_ppb != 0u);
     void *shared_gate_output = shared_hawkeye
         ? static_cast<void *>(g_state.shared_gate_projection_f32)
         : static_cast<void *>(g_state.shared_gate_projection);
@@ -15146,16 +15272,15 @@ bool launch_shared_pipeline(
     const size_t shared_projection_elements =
         static_cast<size_t>(token_count) * kIntermediate;
     if (shared_hawkeye) {
+        if (!launch_moe_l2(g_state.input_bf16, MoeL2::SharedInput, token_count, kHidden, stream) ||
+            !launch_moe_l2(shared_gate_projection_bf16, MoeL2::SharedGate, kIntermediate, kHidden, stream) ||
+            !launch_moe_l2(shared_up_projection_bf16, MoeL2::SharedUp, kIntermediate, kHidden, stream)) return false;
         const uint32_t correction_blocks = static_cast<uint32_t>(
             (shared_projection_elements + kNativeThreads - 1u) /
             kNativeThreads
         );
-        hipLaunchKernelGGL(
-            shared_projection_hawkeye_midpoint_correction_kernel,
-            dim3(correction_blocks),
-            dim3(kNativeThreads),
-            0,
-            stream,
+        const hipError_t correction_status = launch_moe_correction(
+            shared_projection_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedGate,
             g_state.shared_gate_projection_f32,
             g_state.input_bf16,
             shared_gate_projection_bf16,
@@ -15163,14 +15288,10 @@ bool launch_shared_pipeline(
             token_count,
             g_state.shared_projection_hawkeye_midpoint_radius
         );
-        status = hipGetLastError();
+        status = correction_status;
         if (status == hipSuccess) {
-            hipLaunchKernelGGL(
-                shared_projection_hawkeye_midpoint_correction_kernel,
-                dim3(correction_blocks),
-                dim3(kNativeThreads),
-                0,
-                stream,
+            const hipError_t correction_status = launch_moe_correction(
+                shared_projection_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedUp,
                 g_state.shared_up_projection_f32,
                 g_state.input_bf16,
                 shared_up_projection_bf16,
@@ -15178,7 +15299,7 @@ bool launch_shared_pipeline(
                 token_count,
                 g_state.shared_projection_hawkeye_midpoint_radius
             );
-            status = hipGetLastError();
+            status = correction_status;
         }
         if (status != hipSuccess) {
             set_error("shared projection Hawkeye correction", status);
@@ -15225,17 +15346,15 @@ bool launch_shared_pipeline(
         return false;
     }
     if (shared_hawkeye) {
+        if (!launch_moe_l2(g_state.shared_activated, MoeL2::SharedActivated, token_count, kIntermediate, stream) ||
+            !launch_moe_l2(shared_down_bf16, MoeL2::SharedDown, kHidden, kIntermediate, stream)) return false;
         const size_t shared_down_elements =
             static_cast<size_t>(token_count) * kHidden;
         const uint32_t correction_blocks = static_cast<uint32_t>(
             (shared_down_elements + kNativeThreads - 1u) / kNativeThreads
         );
-        hipLaunchKernelGGL(
-            shared_down_hawkeye_midpoint_correction_kernel,
-            dim3(correction_blocks),
-            dim3(kNativeThreads),
-            0,
-            stream,
+        const hipError_t correction_status = launch_moe_correction(
+            shared_down_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedActivated, MoeL2::SharedDown,
             g_state.shared_down_projection_f32,
             g_state.shared_activated,
             shared_down_bf16,
@@ -15243,7 +15362,7 @@ bool launch_shared_pipeline(
             token_count,
             g_state.shared_projection_hawkeye_midpoint_radius
         );
-        status = hipGetLastError();
+        status = correction_status;
         if (status != hipSuccess) {
             set_error("shared down Hawkeye correction", status);
             return false;
@@ -15971,6 +16090,18 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         }
 #endif
     }
+    const char *absolute_ppb = std::getenv("QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB");
+    if (absolute_ppb != nullptr && absolute_ppb[0] != '\0') {
+        char *end = nullptr;
+        const unsigned long parsed = std::strtoul(absolute_ppb, &end, 10);
+        if (end == absolute_ppb || *end != '\0' || parsed > 1000000ul ||
+            (parsed != 0u && (!g_state.sm121_routed_hawkeye ||
+             !q8192_hipblaslt_bf16_router_requested() || q8192_router_cuda_reduction_all_requested()))) {
+            set_error_text("SM121 MoE absolute selector requires native SM121 routed and hipBLASLt BF16 router; ppb must be 0..1000000");
+            return 0;
+        }
+        g_state.sm121_moe_absolute_error_ppb = static_cast<uint32_t>(parsed);
+    }
     g_state.routed_projection_hawkeye_midpoint_radius =
         requested_routed_projection_hawkeye_midpoint_radius();
     g_state.routed_up_projection_hawkeye_midpoint_radius =
@@ -16275,6 +16406,7 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         !allocate(&g_state.shared_gate_logits, static_cast<size_t>(kTokens) * sizeof(uint16_t), "hipMalloc(shared_gate_logits)") ||
         !allocate(&g_state.shared_gate_projection, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_gate_projection)") ||
         !allocate(&g_state.shared_up_projection, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_up_projection)") ||
+        !allocate_optional_moe_l2() ||
         !allocate_optional_shared_projection_hawkeye() ||
         !allocate(&g_state.shared_activated, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_activated)") ||
         !allocate(&g_state.shared_down_projection, kOutputElements * sizeof(uint16_t), "hipMalloc(shared_down_projection)") ||
@@ -16298,7 +16430,8 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             kHidden,
             kTokens,
             0u,
-            g_state.shared_projection_hawkeye_midpoint_radius != 0u
+            (g_state.shared_projection_hawkeye_midpoint_radius != 0u ||
+         g_state.sm121_moe_absolute_error_ppb != 0u)
                 ? HIP_R_32F
                 : HIP_R_16BF
         ) ||
@@ -16308,7 +16441,8 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             kIntermediate,
             kTokens,
             0u,
-            g_state.shared_projection_hawkeye_midpoint_radius != 0u
+            (g_state.shared_projection_hawkeye_midpoint_radius != 0u ||
+         g_state.sm121_moe_absolute_error_ppb != 0u)
                 ? HIP_R_32F
                 : HIP_R_16BF
         )) {
@@ -16340,6 +16474,14 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     }
 #endif
     g_state.prepared = true;
+    if (g_state.sm121_moe_absolute_error_ppb != 0u) {
+        size_t bytes = 0u;
+        for (size_t rows : kMoeL2Rows) bytes += rows * sizeof(float);
+        std::fprintf(stderr, "BATCH_MARK q8192_triton_selected_moe_sm121_absolute_selector "
+            "ppb=%u norm_bytes=%zu maximum_correction_blocks=64 maximum_norm_rows=4096 "
+            "weight_source=live_bf16 input_source=live_bf16 numerical_correctness_claimed=0\n",
+            g_state.sm121_moe_absolute_error_ppb, bytes);
+    }
     if (g_state.sm121_routed_hawkeye) {
         std::fprintf(stderr,
             "BATCH_MARK q8192_triton_selected_moe_sm121_routed_hawkeye "
