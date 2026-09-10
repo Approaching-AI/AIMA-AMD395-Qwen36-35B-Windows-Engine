@@ -77,10 +77,35 @@ Run-record SHA256 is
 This mixed-component diagnostic is not an all-component package build, a
 passing continuation result, or accepted performance.
 
-Other isolated stages still have known mismatches: inverse, W/U and output
-arithmetic. The complete state repair provides a firmer boundary for their
-replacement; it does not erase errors entering the recurrence. Full local
-checks pass 238 Python tests (two platform/dependency skips), 45 Rust tests,
+The extension at `0b10c4571c5403f972a4238d2a43720a80466c42` applies the
+general exponent table to KKT gating and adds optional native Blackwell W/U
+and output kernels. On the full captured q7169 inputs, W and U each match
+all 29,364,224 BF16 values exactly, with the production U=V alias. Each CTA
+reads its complete V column tile into shared memory before writing U. The
+standalone output comparison improves to 177 differences / 29,364,224
+values, relative L2 8.8967834e-8; it is still not bit-exact. The q64 component
+controls pass, including the output kernel. Dispatches remain bounded to
+64 tokens with per-call timing admission. Output reuses dead state residual
+scratch; the standalone harness reads back one chunk at a time.
+
+The integrated real q7169 replay still has 1,904,743 output differences
+(relative L2 0.0009123102), which are much larger than the isolated output
+kernel's residual. The following real-model test also **fails** with token
+220 / logit 9.3125; the diagnostic top five are
+`220:9.3125, 82:9.125, 64:9.0625, 144:8.9375, 83:8.8125`.
+Load is 20004.9421 ms and TTFT 21870.2059 ms. The full route is not promoted.
+The r16 FLA DLL is
+`78aa91c9f64a611606ef1a3cee5f8fdc7013e24ad393f940e25113a256beeec0`;
+the whole-provider and CLI retain their preceding source identities. Command
+file `prepare-fla-model-q7169-blackwell-aux-r1.ps1` runs on the same Windows
+host/model and oracle; run-record SHA256 is
+`df4b3ee3bcaeda11b63ff090ab71e63615aa8b5ed681b868f769adde9d1238e0`.
+All native build/replay/model guards complete with passing host checks.
+
+The remaining investigation follows actual input propagation through
+normalization, gating and inverse arithmetic; isolated kernel success does
+not erase an incorrect predecessor. Full local checks pass 243 Python tests
+(two platform/dependency skips), 45 Rust tests,
 clippy, C ABI, seven q16 contracts and public hygiene. The skipped NumPy
 packing tests pass in the existing reference container; these source checks
 cannot replace real-token, prefix, HTTP/archive and retained-performance
