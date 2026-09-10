@@ -420,8 +420,32 @@ owns exactly one dot. The native regression adds a real QKV replay that reads
 the complete current normalized inputs and actual weights, evaluates every
 BF16 output against the independent SM121 capture, reports selector coverage
 and required observed error scale, and checks redzones and input immutability.
-Reference values never participate in GPU computation. This component check
-does not substitute for token-loop acceptance; native validation is pending.
+Reference values never participate in GPU computation. Native `569846a`
+passes the dense K2048 control in 21.581 ms (225 dispatches, maximum 0.199 ms),
+with control run SHA
+`cabb2fea8f31157a50b36d4e0d0f9f450c5231724630c7b6b22a42792f03f2a6`.
+The real QKV replay matches all 58,728,448 BF16 cells, with intact redzones
+and unchanged inputs. At 10,000 ppb it corrects 16,842,592 candidates in
+1,889.600 ms, using 16,903 dispatches with maximum 2.152 ms. The uncorrected
+WMMA has 346,303 BF16 differences; the selected set covers all of them.
+The maximum observed required selector scale is 87 ppb, a diagnostic rather
+than a general error guarantee. Run SHA:
+`2281bf6161bb7e7c4d0730db333a1726fc651e2f81def5267c65911606741589`.
+This component check does not substitute for token-loop acceptance.
+
+The corresponding live model run keeps all four terminal QKV/Z/A/B projections
+exact, but terminal core/gated/out retain 408 / 427 / 657 BF16 differences.
+The first token remains 220 / 9.375 (reference 82 / 9.25; actual 82 is now
+9.25). Load is 20,005.306700 ms, diagnostic TTFT 28,181.956999 ms and wall
+48,567.896 ms. Both full QKV corrections complete within their bounds; host
+and cleanup checks pass. Whole DLL SHA:
+`b521728b3bb2a3b9642031562f93af8d13a9473724149315a75bde92333b8f05`;
+run SHA: `9ba7dce5b190ed8ef3921271165845639422cc696c523a4c08de8944d5661b43`.
+`tools/compare_gdn_capture.cpp` compares complete live GDN inputs/output/state
+on either CPU host and emits only counts, errors and at most 64 differing
+coordinates per surface. Its local replay reproduces every prior comparison
+count and maximum error. This avoids transporting each large live capture
+while retaining reference and capture fingerprints.
 
 ## MMLU-Pro full evaluation
 
