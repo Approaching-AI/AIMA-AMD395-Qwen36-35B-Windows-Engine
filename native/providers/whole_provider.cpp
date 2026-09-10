@@ -73,12 +73,13 @@ constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
 // work. The compacted kernel now assigns exactly one dot to each of its 16
 // subgroups. Real q7169 evidence has bounded single-dispatch time but substantial
 // serial launch overhead. Keep eight CTAs as the default and allow explicit
-// 64-CTA compacted batches, under the same completion and aggregate deadlines.
+// complete-window compacted batches under the same dispatch and total deadlines.
 // Candidate collection has no exact dot and retains its own wider cap.
 constexpr unsigned int
     kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 8u;
 constexpr unsigned int
-    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 64u;
+    kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit =
+        qrt_hawkeye_dispatch::maximum_exact_blocks;
 constexpr unsigned int
     kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch = 256u;
 constexpr unsigned int
@@ -41303,6 +41304,13 @@ bool qwen36_layer39_dynamic_terminal_compact_q_enabled(
         );
 }
 
+bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {
+    // The complete-prefix path reuses the validated attention and MoE providers.
+    // Keep this explicit replay within their existing single q8192 allocation.
+    return prefill_tokens > 1u && prefill_tokens <= kRetainedPrefillTokens &&
+        env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX");
+}
+
 bool qwen36_layer39_dynamic_terminal_packed_moe_enabled(
     unsigned int prefill_tokens
 ) {
@@ -41959,12 +41967,13 @@ bool descriptor_product_q8192_triton_selected_moe_full_provider_enabled(
         env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_FULL_LAYER38"
         );
-    const bool q262144_terminal_prefill_layer =
-        maximum_context_streamed_prefill_tokens(prefill_tokens) &&
+    const bool full_prefix_terminal_prefill_layer =
+        (maximum_context_streamed_prefill_tokens(prefill_tokens) ||
+         qwen36_final_layer_full_prefix_requested(prefill_tokens)) &&
         layer_index == kDescriptorBatchFinalLayer;
     return (layer_index >= 2u || whole_early_layer) &&
         (layer_index + 2u < QRT_QWEN36_LAYER_COUNT || terminal_prefill_layer ||
-         q262144_terminal_prefill_layer) &&
+         full_prefix_terminal_prefill_layer) &&
         descriptor_product_q8192_triton_selected_moe_provider_enabled(
             layer_index,
             prefill_tokens
@@ -138338,11 +138347,15 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
     const bool q262144_terminal_full_prefix_attention =
         final_layer_is_full_attention &&
         maximum_context_streamed_prefill_tokens(prefill_tokens);
+    const bool final_full_prefix_attention =
+        q262144_terminal_full_prefix_attention ||
+        (final_layer_is_full_attention &&
+         qwen36_final_layer_full_prefix_requested(prefill_tokens));
     if (final_layer_is_full_attention &&
-        !q262144_terminal_full_prefix_attention) {
+        !final_full_prefix_attention) {
         segment_full_attention_target_tokens.back() = repeated_target_tokens;
     }
-    if (q262144_terminal_full_prefix_attention) {
+    if (final_full_prefix_attention) {
         if (!token_ids_are_zero_based_prefix(
                 segment_full_attention_target_tokens.back(),
                 prefill_tokens
@@ -138350,12 +138363,14 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
             run->failure_stage =
                 "q262144_terminal_full_attention_target_contract";
             run->failure =
-                "q262144 terminal full-attention must retain the complete "
+                "terminal full-attention must retain the complete "
                 "zero-based BF16 prefix so layer-39 K/V can be captured";
             return false;
         }
         std::cerr
-            << "BATCH_MARK q262144_terminal_full_attention_plan"
+            << (q262144_terminal_full_prefix_attention
+                    ? "BATCH_MARK q262144_terminal_full_attention_plan"
+                    : "BATCH_MARK full_prefix_terminal_full_attention_plan")
             << " layer=" << kDescriptorBatchFinalLayer
             << " target_tokens="
             << segment_full_attention_target_tokens.back().size()

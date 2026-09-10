@@ -91,6 +91,8 @@ static_assert(window_elements(0) == 0, "empty projection");
 static_assert(window_elements(65535) == 65535, "partial window");
 static_assert(window_elements(65536) == 65536, "full collection grid");
 static_assert(window_elements(UINT64_MAX) == 65536, "wide remaining count cannot wrap");
+static_assert(maximum_exact_blocks * 16u == maximum_window_elements,
+              "a full-window exact batch fits the existing index window");
 static_assert(admitted(131072, 64), "inclusive admission boundary");
 static_assert(!admitted(131073, 1), "one window cannot exceed scratch capacity");
 static_assert(!admitted(1, 65), "one dense block must also be rejected");

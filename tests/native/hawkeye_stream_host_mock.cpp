@@ -16,12 +16,14 @@ enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorInvalidConfiguration
 using hipStream_t = void *;
 constexpr int hipMemcpyDeviceToHost = 0;
 constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
-constexpr unsigned int kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 64u;
+constexpr unsigned int kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit =
+    qrt_hawkeye_dispatch::maximum_exact_blocks;
 constexpr unsigned int kThreads = 256u;
 struct dim3 { unsigned int x; explicit dim3(unsigned int value) : x(value) {} };
 static unsigned int allocations = 0, frees = 0, collections = 0, corrections = 0, rounds = 0;
 static unsigned int reject_collection = 0, fail_sync = 0, syncs = 0;
 static unsigned int exact_blocks = 0;
+static unsigned int requested_blocks = 8u;
 static size_t scratch_bytes = 0;
 static bool invalid_grid = false, invalid_range = false;
 static std::vector<size_t> corrected;
@@ -44,7 +46,9 @@ hipError_t hipStreamSynchronize(hipStream_t) {
 }
 void grid(const char *name, dim3 blocks, dim3 threads) {
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr;
-    const unsigned int limit = exact ? 64u : 256u;
+    const unsigned int limit = exact
+        ? (std::min)(requested_blocks, qrt_hawkeye_dispatch::maximum_exact_blocks)
+        : 256u;
     if (exact) exact_blocks = blocks.x;
     if (blocks.x == 0 || blocks.x > limit || threads.x != 256u) invalid_grid = true;
 }
@@ -131,7 +135,7 @@ int main() {
     auto invoke = [&](std::vector<float> &output) {
         return launch_selected_bf16_projection_hawkeye_midpoint_correction(
             &value, &value, nullptr, nullptr, nullptr, output.data(), rows, tokens,
-            2048u, 512u, 0u, 0u, 999u, nullptr);
+            2048u, 512u, 0u, 0u, requested_blocks, nullptr);
     };
     auto output = initial;
     if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u) return 1;
@@ -146,12 +150,19 @@ int main() {
         scratch_bytes != (131072u + 2u) * sizeof(unsigned int)) return 4;
     // Fully dense source blocks remain bounded after compaction. The actual
     // kernel has only 16 candidate subgroups per CTA, under the configured cap.
-    reset(); output.assign(total_elements, 1.00390625f);
-    if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u ||
-        corrected.size() != total_elements || invalid_grid || allocations != frees) return 14;
-    for (size_t i = 0; i < total_elements; ++i) {
-        if (output[i] != static_cast<float>((i / rows) * 2u + i % rows)) return 15;
+    for (unsigned int cap : {8u, 64u, 999u, 4096u, UINT32_MAX}) {
+        requested_blocks = cap;
+        reset(); output.assign(total_elements, 1.00390625f);
+        if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u ||
+            corrected.size() != total_elements || invalid_grid || allocations != frees) return 14;
+        for (size_t i = 0; i < total_elements; ++i) {
+            if (output[i] != static_cast<float>((i / rows) * 2u + i % rows)) return 15;
+        }
+        std::sort(corrected.begin(), corrected.end());
+        if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 16;
+        if (cap >= 4096u && corrections != collections) return 17;
     }
+    requested_blocks = 8u;
     reset(); count_only(true); output = initial;
     if (invoke(output) != hipErrorInvalidConfiguration || collections != 3u ||
         rounds || corrections || output != initial || allocations != frees) return 5;

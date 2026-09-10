@@ -32,24 +32,22 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
-instead of GB10 82 / 9.25. Load is 20,105.987800 ms and diagnostic TTFT
-319,066.176000 ms. The tiny-positive exponential fix repairs the complete
-layer-20 GDN and its downstream normalization. All 54 full normalization
-boundaries through layer-26 post-attention now match GB10. The first remaining
-difference is layer-27 input normalization at position 946: 720 BF16 values
-in that one row, while the other 7,168 rows are exact. Terminal residual layers
-0–27 match the reference; layer 28 is the first terminal difference. The paired
-original GB10 capture localizes the first difference to layer-26 shared scalar
-gating: the native adjacent FP32 tree produces -1.40625, whereas the original
-CUDA projection produces -1.4140625 at position 946. Full MoE input and residual,
-selected experts/weights, routed output and the other shared stages are exact.
-Substituting the reference scalar only in an offline diagnostic restores every
-shared and MoE output value at this position. The complete
-40-layer component replay qualifies the original CUDA gate output. Sixteen
-strided sequential FP32 folds followed by lane offsets 8/4/2/1 match all
-286,760 gates; the native implementation now uses this order and awaits its
-rebuilt full-model test. FP64 alone retains three reference differences.
+The latest real q7169 model run on baiying remains unqualified: 220 / 9.25
+instead of GB10 82 / 9.25. Load is 20,106.041700 ms and diagnostic TTFT
+318,952.135200 ms. With the GDN exponential and shared scalar gate fixes,
+all 78 complete normalization boundaries through layer 38 now match GB10.
+Terminal residuals in layers 0–38 also match; only layer 39 remains different
+(1,164 FP32 carrier values). Full layer-28 GDN, gated norm, output projection
+and post-attention residual are exact. The remaining final layer uses a
+separate one-row attention/MoE path, including its older routed AOT and
+hipBLASLt shared computation.
+
+The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` now allows the bounded
+2–8192-token route to compute layer 39 with the same full-prefix attention and
+MoE providers, then materialize only the requested final rows for the output
+head. It preserves the existing sparse default and larger-context plan.
+This route and the larger correction batches await native qualification;
+the token gate and retained performance target are unchanged.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native
@@ -1362,3 +1360,37 @@ that order with four independent rows per block. The six observed midpoint
 and cancellation cases are retained as source-bound numerical regression
 fixtures. A rebuilt native full-model run is required before inference or
 performance acceptance; the first-token gate is still open.
+
+
+MoE source `023e5dc6baa74ee2b0e57a58826adeb363cee938` passes the full local
+check (269 Python tests, two existing skips; Rust/Clippy, C ABI, q16 and hygiene)
+and the bounded native build. Host baiying, command
+`run-native-moe-gate16-build-r1.ps1`, build run SHA
+`50de2c8b1746a668acb420679ce1ddd5c44c41b202347e33bdbbb8807656b798`,
+16,875.896 ms, all host checks pass. DLL SHA
+`013a8ad9085d4a139db47a80bff817e3ae19834a63dc384d43cd5ce0750da1be`,
+513,536 bytes. Async parity and all 32 dynamic logical cases pass. The old
+synthetic self-hash changes and remains diagnostic. The real q7169 run uses
+`prepare-fla-model-q7169-gate16-r1.ps1` (SHA
+`9bd34000b184691a8343e2c0866d8ac12bf2fc435ea37056963b180fb8f1285f`),
+retaining whole e9a7012 / FLA 2f346df / CK b609453 / CLI f544cbe.
+
+The preceding complete model trace measures 1,420,778 synchronized exact-dot
+dispatches, with about 1,000 candidates each. The compacted scheduler now allows
+an explicit cap up to one full 65,536-candidate window (4,096 CTAs). The default
+remains eight CTAs, each still owns at most sixteen dots, scratch remains
+512 KiB plus counters, and the 100-ms dispatch / 10-second correction deadlines
+remain active. Host execution of the actual launcher verifies sparse/dense
+windows, partial tails, unique index coverage and cleanup across caps
+8/64/999/4096/UINT32_MAX. Native numerical and product timing checks must follow
+before this scheduling option is retained as a performance improvement.
+
+
+The shared-gate full model completes with all host checks passing: run SHA
+`c2bcd3936abb3479c74c1667408a1fc9902911b9fdb8c01c332c24d56db0be1b`,
+105 files / 2,997,564,232 bytes, process wall 339,481.310 ms. All 78 full norms
+match capture f17592ae; all 39 preceding terminal residuals are exact. Its
+remaining layer-39 difference does not qualify inference. The expanded final
+layer path retains the requested terminal output selection and its complete
+KV history while selecting full-prefix computation internally. The component
+provider and normalization observers can therefore cover the final layer too.

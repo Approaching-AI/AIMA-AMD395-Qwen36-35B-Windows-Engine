@@ -347,9 +347,10 @@ class NativeRouteContractTests(unittest.TestCase):
             "kDefaultSelectedHawkeyeCorrectionMaximumBlocksPerLaunch = 8u",
             self.provider,
         )
-        self.assertIn(
-            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit = 64u",
-            self.provider,
+        self.assertTrue(
+            "kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit =\n"
+            "        qrt_hawkeye_dispatch::maximum_exact_blocks;" in self.provider,
+            "exact-dot launch cap must follow the bounded collection window",
         )
         self.assertIn(
             "kDefaultSelectedHawkeyeCandidateCountMaximumBlocksPerLaunch = 256u",
