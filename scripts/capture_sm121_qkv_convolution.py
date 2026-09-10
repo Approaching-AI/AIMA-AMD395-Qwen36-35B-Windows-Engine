@@ -22,7 +22,9 @@ from capture_sm121_exp2_table import file_sha
 
 FUNCTION = "_causal_conv1d_fwd_kernel"
 TOKENS = 7169
-DEVICE_LIMIT = 512 << 20
+# Full-shape CUDA BLAS can allocate an FP32 projection workspace in addition
+# to the BF16 result. Include that transient allocation in the bounded replay.
+DEVICE_LIMIT = 1 << 30
 LAYOUTS = {"input": (TOKENS, 2048), "qkv_weight": (8192, 2048),
            "z_weight": (4096, 2048), "conv_weight": (8192, 4),
            "terminal_qkv": (8192,), "q": (TOKENS, 2048),
@@ -110,8 +112,14 @@ def execute(args):
         torch.mm(x, weights.T, out=projected)
         end.record(); end.synchronize()
         projection_ms = start.elapsed_time(end)
+        with (args.output_dir / "allocation.jsonl").open("a") as stream:
+            stream.write(json.dumps(dict(case=name, stage="projection", elapsed_ms=projection_ms,
+                                         current_bytes=torch.cuda.memory_allocated(),
+                                         peak_bytes=torch.cuda.max_memory_allocated())) + "\n")
         if projection_ms > 100:
             raise ValueError("projection dispatch exceeded 100 ms")
+        if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
+            raise ValueError("projection device allocation ceiling exceeded")
         qkv = projected[:, :8192]
         qkv_cpu = qkv.view(torch.uint16).cpu().numpy()
         qkv_path = args.output_dir / (name + "-qkv-bf16.bin")
@@ -136,6 +144,10 @@ def execute(args):
             raise ValueError("convolution launcher unavailable")
         (args.output_dir / (name + "-conv.ptx")).write_text(compiled.asm["ptx"])
         torch.cuda.synchronize()
+        with (args.output_dir / "allocation.jsonl").open("a") as stream:
+            stream.write(json.dumps(dict(case=name, stage="convolution_ready",
+                                         current_bytes=torch.cuda.memory_allocated(),
+                                         peak_bytes=torch.cuda.max_memory_allocated())) + "\n")
         if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
             raise ValueError("device allocation ceiling exceeded")
         start.record()
