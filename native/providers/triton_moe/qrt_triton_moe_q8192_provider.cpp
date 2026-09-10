@@ -19,6 +19,7 @@
 
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
+#include "../moe_accumulator/sm121_shared_gate.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -10654,10 +10655,10 @@ __global__ void router_topk_kernel(
 
 // The live GB10 shared-expert scalar gate is dispatched through cuBLAS GEMV,
 // not the tensor-core GEMM used by the wider shared projections.  Its BF16
-// endpoint follows an adjacent balanced F32 tree over the 2,048 exact BF16
-// products.  This distinction is observable at exact midpoints: the former
-// 256-lane interleaved fold produced c0117fff for q2560 layer1 token 527,
-// while GB10 and the adjacent tree produce c0118000 and round to BF16 c012.
+// endpoint follows sixteen strided FP32 folds and a halving lane reduction.
+// Full q7169 replay across all 40 layers matches this order. An adjacent tree
+// incorrectly rounds layer26 position946 to bfb4 instead of the original bfb5.
+// Four independent rows share a block, matching the observed GEMV geometry.
 __global__ void shared_gate_bf16_cuda_gemv_kernel(
     const uint16_t *input_bf16,
     const uint16_t *gate_weight_bf16,
@@ -10665,54 +10666,24 @@ __global__ void shared_gate_bf16_cuda_gemv_kernel(
     uint32_t token_count
 ) {
     static_assert(
-        kHidden / kNativeThreads == 8u &&
-            kHidden % kNativeThreads == 0u,
-        "shared gate balanced tree requires eight products per lane"
+        kHidden == qrt_sm121_shared_gate::hidden,
+        "shared gate reduction requires the model hidden width"
     );
-    __shared__ float partial[2][kNativeThreads];
-    const uint32_t token = blockIdx.x;
-    const uint32_t lane = threadIdx.x;
+    constexpr uint32_t lanes = qrt_sm121_shared_gate::lanes;
+    const uint32_t token = blockIdx.x * 4u + threadIdx.x / lanes;
+    const uint32_t lane = threadIdx.x % lanes;
     if (token >= token_count) {
         return;
     }
     const uint16_t *input =
         input_bf16 + static_cast<size_t>(token) * kHidden;
-    const uint32_t column_base = lane * 8u;
-    float products[8]{};
+    float sum = qrt_sm121_shared_gate::lane_dot(input, gate_weight_bf16, lane);
 #pragma unroll
-    for (uint32_t element = 0u; element < 8u; ++element) {
-        const uint32_t column = column_base + element;
-        products[element] = __fmul_rn(
-            bf16_to_float(input[column]),
-            bf16_to_float(gate_weight_bf16[column])
-        );
-    }
-    const float pair0 = __fadd_rn(products[0], products[1]);
-    const float pair1 = __fadd_rn(products[2], products[3]);
-    const float pair2 = __fadd_rn(products[4], products[5]);
-    const float pair3 = __fadd_rn(products[6], products[7]);
-    partial[0][lane] = __fadd_rn(
-        __fadd_rn(pair0, pair1),
-        __fadd_rn(pair2, pair3)
-    );
-    __syncthreads();
-
-    uint32_t source = 0u;
-    uint32_t destination = 1u;
-#pragma unroll
-    for (uint32_t active = kNativeThreads; active > 1u; active >>= 1u) {
-        if (lane < active / 2u) {
-            partial[destination][lane] = __fadd_rn(
-                partial[source][2u * lane],
-                partial[source][2u * lane + 1u]
-            );
-        }
-        __syncthreads();
-        source ^= 1u;
-        destination ^= 1u;
+    for (uint32_t offset = lanes / 2u; offset != 0u; offset >>= 1u) {
+        sum = __fadd_rn(sum, __shfl_down(sum, offset, lanes));
     }
     if (lane == 0u) {
-        gate_logits_bf16[token] = float_to_bf16(partial[source][0]);
+        gate_logits_bf16[token] = float_to_bf16(sum);
     }
 }
 
@@ -15160,8 +15131,8 @@ bool launch_shared_pipeline(
         );
     hipLaunchKernelGGL(
         shared_gate_bf16_cuda_gemv_kernel,
-        dim3(token_count),
-        dim3(kNativeThreads),
+        dim3((token_count + 3u) / 4u),
+        dim3(4u * qrt_sm121_shared_gate::lanes),
         0,
         stream,
         g_state.input_bf16,

@@ -1,0 +1,58 @@
+{
+  "reference_capture_sha256": "af3f4e9939b3330101177d03ae43dc6eec82438b0e03e87e1e5784009bf8861a",
+  "source_commit": "ae2efa56b0860a856b494d503e544f5b57f0d953",
+  "oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+  "format": "six records: u16le reference, 2048 u16le input BF16, 2048 u16le weight BF16",
+  "sha256": "50b32fae14ad3e70c674fd711a7e06052d08cf6e512fab84eb8a4eda7a0b6cbf",
+  "bytes": 49164,
+  "cases": [
+    {
+      "layer": 23,
+      "position": 5774,
+      "expected_bf16_bits": 49056,
+      "input_sha256": "02eb98f6577001a3d562ce11a0f7d65797d189612a0005ff5b61e1ebfaa4412f",
+      "weight": "model.language_model.layers.23.mlp.shared_expert_gate.weight",
+      "weight_sha256": "278e41d86cca21c1f44e1a9c042579cb68e6398a29831103c407afdcddcf81b9"
+    },
+    {
+      "layer": 26,
+      "position": 946,
+      "expected_bf16_bits": 49077,
+      "input_sha256": "368d97070bde7249cfd5d4b0f78b6ed104dfd003bf395b0e94872d1567f566ec",
+      "weight": "model.language_model.layers.26.mlp.shared_expert_gate.weight",
+      "weight_sha256": "accb5a5551f303373ccec6bd458ab65a488bbf4ffd58a167b77381264d389aa7"
+    },
+    {
+      "layer": 39,
+      "position": 1300,
+      "expected_bf16_bits": 47586,
+      "input_sha256": "26eb634be9b4806cee4a3b7e7ebeb054f03465bc631fb4878a4d958996a97d39",
+      "weight": "model.language_model.layers.39.mlp.shared_expert_gate.weight",
+      "weight_sha256": "d8a76953dbd80eb423004ba6ebc834cefcd1fbbeefaa82c3c616359141b555a5"
+    },
+    {
+      "layer": 39,
+      "position": 2867,
+      "expected_bf16_bits": 47383,
+      "input_sha256": "1c26ecbf1837fe70571aae5c158e99ab074de52e7ad39e1e0aa15f58a4147294",
+      "weight": "model.language_model.layers.39.mlp.shared_expert_gate.weight",
+      "weight_sha256": "d8a76953dbd80eb423004ba6ebc834cefcd1fbbeefaa82c3c616359141b555a5"
+    },
+    {
+      "layer": 39,
+      "position": 4211,
+      "expected_bf16_bits": 47827,
+      "input_sha256": "62cb4065c6b199c11212f614d8ee08371085cf3ebc81bb9631dfbb2543f52860",
+      "weight": "model.language_model.layers.39.mlp.shared_expert_gate.weight",
+      "weight_sha256": "d8a76953dbd80eb423004ba6ebc834cefcd1fbbeefaa82c3c616359141b555a5"
+    },
+    {
+      "layer": 39,
+      "position": 4429,
+      "expected_bf16_bits": 47473,
+      "input_sha256": "76d32642de8e00f8daf8ea8e24ec64a5806272fa02a2c71c975dc8213aedbd25",
+      "weight": "model.language_model.layers.39.mlp.shared_expert_gate.weight",
+      "weight_sha256": "d8a76953dbd80eb423004ba6ebc834cefcd1fbbeefaa82c3c616359141b555a5"
+    }
+  ]
+}

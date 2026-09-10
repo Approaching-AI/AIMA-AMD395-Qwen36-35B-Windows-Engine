@@ -45,8 +45,11 @@ gating: the native adjacent FP32 tree produces -1.40625, whereas the original
 CUDA projection produces -1.4140625 at position 946. Full MoE input and residual,
 selected experts/weights, routed output and the other shared stages are exact.
 Substituting the reference scalar only in an offline diagnostic restores every
-shared and MoE output value at this position. The next component replay covers
-all 40 original q7169 shared gates before revising that reduction.
+shared and MoE output value at this position. The complete
+40-layer component replay qualifies the original CUDA gate output. Sixteen
+strided sequential FP32 folds followed by lane offsets 8/4/2/1 match all
+286,760 gates; the native implementation now uses this order and awaits its
+rebuilt full-model test. FP64 alone retains three reference differences.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native
@@ -1335,3 +1338,27 @@ the BF16 midpoint; the FP64 dot is -1.4101563433468982, beyond it.
 `scripts/capture_sm121_shared_gate.py` now replays all 40 original CUDA gates
 from qualified full-model inputs and requires the full layer-26 output control.
 Its alternative CPU reductions are diagnostics, not correctness authority.
+
+
+The shared-gate reference replay at source
+`ae2efa56b0860a856b494d503e544f5b57f0d953`, host `aitopatom-66c4`, model
+`/mnt/data/models/Qwen3.6-35B-A3B`, command
+`run-qrt-gb10-shared-gate-20260911-r1.py` (SHA
+`d1572a01c0464b2725a481056418ee73e918fad8403c9e204dd042ce05cbe7f6`)
+qualifies the full layer-26 gate against the original model capture and saves
+all 40 reference gate vectors and actual model weights. Capture SHA
+`af3f4e9939b3330101177d03ae43dc6eec82438b0e03e87e1e5784009bf8861a`.
+Owned container 5.538974 seconds / exit 0; peak device allocation 37,917,696
+bytes. These are component timings, not TTFT. The native adjacent tree differs
+at five positions in layers 26/39; FP64 differs at three in layers 23/39.
+
+The actual profiler records a 16-by-4-thread cuBLAS `internal::gemvx` kernel.
+Its installed SM120 SASS confirms sequential FP32 multiply-adds and halving
+lane reduction. Library SHA
+`f6297579dfc8ada7869639aaa0b5e1de43adc749dd0dea1b747b043e127382c6`.
+An independent CPU replay of sixteen strided folds and offsets 8/4/2/1
+produces all 286,760 original BF16 gates exactly. Native shared gating now uses
+that order with four independent rows per block. The six observed midpoint
+and cancellation cases are retained as source-bound numerical regression
+fixtures. A rebuilt native full-model run is required before inference or
+performance acceptance; the first-token gate is still open.
