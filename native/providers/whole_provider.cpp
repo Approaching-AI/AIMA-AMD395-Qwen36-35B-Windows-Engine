@@ -77807,7 +77807,11 @@ bool preload_capacity_sensitive_providers_before_model_store(
         return false;
     }
 
-    std::cerr
+    std::ostringstream marker;
+    marker.flags(std::cerr.flags() & ~std::ios_base::unitbuf);
+    marker.precision(std::cerr.precision());
+    marker.imbue(std::cerr.getloc());
+    marker
         << "BATCH_MARK resident_capacity_sensitive_provider_preload"
         << " before_model_store=1"
         << " triton_selected="
@@ -77856,7 +77860,8 @@ bool preload_capacity_sensitive_providers_before_model_store(
                1000000.0
         << " weight_bits=16 quantized=0 dflash_active=0 mtp_active=0"
         << " speculative_decode=0 numerical_correctness_claimed=0"
-        << std::endl;
+        << '\n';
+    std::cerr << marker.str();
     return true;
 }
 
@@ -77866,7 +77871,14 @@ void print_resident_model_shard_store_marker(
     const std::string &failure_stage
 ) {
     const ResidentModelShardStoreMetrics &metrics = store.metrics;
-    std::cerr << "BATCH_MARK resident_model_shard_store_preload"
+    // std::cerr flushes each inserted field on Windows. Assemble this
+    // diagnostic first so a reused resident model does not wait on dozens
+    // of tiny writes before its first token. Preserve the stream format.
+    std::ostringstream marker;
+    marker.flags(std::cerr.flags() & ~std::ios_base::unitbuf);
+    marker.precision(std::cerr.precision());
+    marker.imbue(std::cerr.getloc());
+    marker << "BATCH_MARK resident_model_shard_store_preload"
               << " pass=" << (pass ? 1 : 0)
               << " reused=" << (metrics.reused ? 1 : 0)
               << " failure_stage="
@@ -77947,7 +77959,8 @@ void print_resident_model_shard_store_marker(
               << (static_cast<double>(metrics.verify_ns) / 1000000.0)
               << " total_ms="
               << (static_cast<double>(metrics.total_ns) / 1000000.0)
-              << std::endl;
+              << '\n';
+    std::cerr << marker.str();
 }
 
 bool parse_resident_model_shard_header(
@@ -157220,7 +157233,11 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         );
         return 0;
     }
-    std::cerr << "BATCH_MARK qwen36_whole_provider_self_preload"
+    std::ostringstream marker;
+    marker.flags(std::cerr.flags() & ~std::ios_base::unitbuf);
+    marker.precision(std::cerr.precision());
+    marker.imbue(std::cerr.getloc());
+    marker << "BATCH_MARK qwen36_whole_provider_self_preload"
               << " elapsed_ms="
               << (static_cast<double>(out_result->preload_wall_clock_ns) /
                   1000000.0)
@@ -157232,7 +157249,8 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
               << " entries="
               << preload_timing
                      .compact_device_layout_full_prepack_stored_entry_count
-              << std::endl;
+              << '\n';
+    std::cerr << marker.str();
     // The product TTFT contract excludes model/engine startup. A direct caller
     // may rely on this idempotent preload, so begin provider inference timing
     // only after the resident weights are ready and expose the startup time in
