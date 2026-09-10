@@ -128,6 +128,13 @@ def capture_exponents(*, tokens, gates, device_gates, output_dir, torch, triton,
     ptx = prepared.asm["ptx"].encode()
     (output_dir / "state-exponents.ptx").write_bytes(ptx)
     progress("compiled", component="exponent_probe", ptx_sha256=fingerprint(ptx), options=options)
+    # CompiledKernel.run loads Triton's lazy launcher/module without dispatch.
+    load_started = time.monotonic()
+    if not callable(prepared.run):
+        raise ValueError("compiled exponent launcher is unavailable")
+    torch.cuda.synchronize()
+    progress("loaded", component="exponent_probe",
+             load_wall_ms=(time.monotonic() - load_started) * 1000)
     if torch.cuda.max_memory_allocated() > device_limit:
         raise ValueError("device allocation ceiling exceeded before exponent dispatch")
     progress("dispatch", component="exponent_probe", elements=len(expected) // 4)

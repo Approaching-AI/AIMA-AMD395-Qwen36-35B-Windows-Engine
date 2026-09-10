@@ -223,6 +223,15 @@ def gpu_capture(args, manifest: dict, payloads: dict) -> dict:
             ptx = prepared.asm["ptx"].encode()
             (args.output_dir / f"state-{dtype}.ptx").write_bytes(ptx)
             progress("compiled", checkpoint_dtype=dtype, ptx_sha256=sha256(ptx), options=options)
+            # Triton warmup compiles the code but leaves the launcher/module
+            # lazy. The public run property initializes them without dispatch.
+            # Loading between CUDA events counts host idle time as kernel time.
+            load_started = time.monotonic()
+            if not callable(prepared.run):
+                raise ValueError("compiled state launcher is unavailable")
+            torch.cuda.synchronize()
+            progress("loaded", checkpoint_dtype=dtype,
+                     load_wall_ms=(time.monotonic() - load_started) * 1000)
             if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
                 raise ValueError("device allocation ceiling exceeded before dispatch")
             progress("dispatch", checkpoint_dtype=dtype, tokens=tokens)
