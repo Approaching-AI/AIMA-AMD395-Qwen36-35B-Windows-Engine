@@ -40,6 +40,7 @@ $outputReplay = Join-Path $repo 'native\providers\gdn\fla_output_capture_replay.
 $upstreamReplay = Join-Path $repo 'native\providers\gdn\fla_upstream_capture_replay.cpp'
 $blackwellState = Join-Path $repo 'native\providers\gdn\blackwell_state.cpp'
 $blackwellStateHeader = Join-Path $repo 'native\providers\gdn\blackwell_state.h'
+$sm121Exp2TableHeader = Join-Path $repo 'native\providers\gdn\sm121_exp2_table.h'
 $blackwellWave16 = Join-Path $repo 'native\providers\gdn\blackwell_accumulator.h'
 $blackwellKkt = Join-Path $repo 'native\providers\gdn\blackwell_kkt.h'
 $blackwellAccumulator = Join-Path $repo 'native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h'
@@ -143,7 +144,7 @@ $record = [ordered]@{
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     native_blackwell_state=$true
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Exp2TableHeader) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

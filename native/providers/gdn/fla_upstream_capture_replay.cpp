@@ -235,7 +235,10 @@ int main(int argc, char** argv) try {
             else
                 expected_next = read_range<uint16_t>(path("chunk-state-bf16"), source_chunks * state_elements, chunks * state_elements, state_elements, state_elements);
             allocation = (k.size() + w.size() + u.size() + padded * value_features + chunks * state_elements) * 2u + (g.size() + state_elements * 2u) * 4u;
-            if (native_blackwell) allocation += 64u * value_features * 2u;
+            if (native_blackwell) {
+                check(qrt_fla_blackwell_state::prepare_exp2_table());
+                allocation += 64u * value_features * 2u + qrt_fla_blackwell_state::exp2_table_storage_bytes();
+            }
             Launcher launch(argv[2], argv[3], threads, shared, allocation, native_blackwell); Buffer dk, dw, du, dg, dh, dv, state_a, state_b, residual;
             dk.upload(k); dw.upload(w); du.upload(u); dg.upload(g); state_a.upload(seed); state_b.allocate(state_elements * 4u);
             dh.allocate(chunks * state_elements * 2u); dv.allocate(padded * value_features * 2u);
@@ -279,6 +282,7 @@ int main(int argc, char** argv) try {
         if (i) std::cout << ','; surfaces[i].second.print(surfaces[i].first);
         mismatch |= surfaces[i].second.mismatches != 0 || surfaces[i].second.nonfinite != 0;
     }
+    qrt_fla_blackwell_state::release_exp2_table();
     std::cout << "}}\n"; return mismatch ? 3 : 0;
 } catch (const std::exception& error) {
     std::cerr << "fla_upstream_capture_replay error=" << error.what() << '\n'; return 2;

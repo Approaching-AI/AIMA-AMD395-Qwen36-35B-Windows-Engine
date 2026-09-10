@@ -1051,6 +1051,14 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_prepare(
         set_error_text(prepare_error.c_str());
         return 0;
     }
+    if (blackwell_state_enabled()) {
+        const hipError_t status = qrt_fla_blackwell_state::prepare_exp2_table();
+        if (status != hipSuccess) {
+            release_state();
+            set_error("prepare_exp2_table", status);
+            return 0;
+        }
+    }
     g_state.prepared = true;
     g_state.error[0] = '\0';
     return 1;
@@ -1134,7 +1142,7 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
               kMainScratchBytesPerToken +
               kTailPaddingBytes +
               ((blackwell_state_enabled() || g_state.blackwell_temporary_state || g_state.blackwell_residual)
-                  ? kBlackwellStateScratchBytes : 0u)
+                  ? kBlackwellStateScratchBytes : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
         : 0u;
 }
 
@@ -1144,4 +1152,5 @@ QRT_FLA_GDN_EXPORT const char *qrt_aiter_fused_gdn_q8192_last_error() {
 
 QRT_FLA_GDN_EXPORT void qrt_aiter_fused_gdn_q8192_release() {
     release_state();
+    qrt_fla_blackwell_state::release_exp2_table();
 }
