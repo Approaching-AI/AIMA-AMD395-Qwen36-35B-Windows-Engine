@@ -17,6 +17,7 @@ from pathlib import Path
 import socket
 import struct
 import sys
+import time
 import types
 
 BLOCK = 256
