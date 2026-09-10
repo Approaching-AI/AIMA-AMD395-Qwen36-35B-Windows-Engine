@@ -46,8 +46,26 @@ The explicit `QRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1` now allows the bounded
 2–8192-token route to compute layer 39 with the same full-prefix attention and
 MoE providers, then materialize only the requested final rows for the output
 head. It preserves the existing sparse default and larger-context plan.
-This route and the larger correction batches await native qualification;
-the token gate and retained performance target are unchanged.
+Native source `1ac1ce1e7298d0599be7549cbe13625136b98e5d` passes the
+complete-window correction control: all 58,728,448 captured real layer-zero
+QKV BF16 outputs equal GB10, with immutable inputs and intact redzones. Its
+897 exact dispatches peak at 2.451 ms. Command
+`run-native-final-prefix-r1.ps1 -Action test-real-qkv -ErrorBoundPpb 10000`,
+host baiying, captured `D:\models\Qwen3.6-35B-A3B` tensors, run SHA
+`b6fd8a399b3c28888cd4f0b9afb08a057734e302039417ebcf3673b34ecdd405`.
+This is a component control, not a model timing.
+
+The first full-prefix model attempt preserves all 78 GB10-exact full norms
+through layer 38, then exits before a token because provider eligibility still
+excludes layer 39. Host baiying, model `D:\models\Qwen3.6-35B-A3B`, command
+`prepare-fla-model-q7169-final-prefix-r1.ps1`, same whole source, run SHA
+`1ba049ad83e9867be2bb940dd3ec5b1a54ba811131575e3890608a6a83ec5b30`,
+258,314.401 ms process wall, exit 5, all host checks pass. This duration is not
+TTFT. Provider eligibility and fixed-weight retention now include the explicit
+bounded final-prefix route; the next native run will qualify that wiring.
+The sparse final input-norm observer also now indexes the complete history
+allocation, rather than treating its first row as the selected terminal row.
+The token gate and retained performance target are unchanged.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native

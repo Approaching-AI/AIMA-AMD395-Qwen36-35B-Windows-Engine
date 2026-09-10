@@ -48096,16 +48096,17 @@ bool qwen36_whole_full_attention_layer_provider_enabled(
     unsigned int layer_index,
     unsigned int prefill_tokens
 ) {
-    const bool q262144_terminal_full_attention =
-        maximum_context_streamed_prefill_tokens(prefill_tokens) &&
-        layer_index == kDescriptorBatchFinalLayer;
+    const bool terminal_full_prefix_attention =
+        layer_index == kDescriptorBatchFinalLayer &&
+        (maximum_context_streamed_prefill_tokens(prefill_tokens) ||
+         qwen36_final_layer_full_prefix_requested(prefill_tokens));
     return (g_qwen36_mtp_tensor_namespace_active && layer_index == 3u) ||
         ((prefill_tokens >= kRetainedPrefillTokens ||
           qwen36_exact_arbitrary_product_path_enabled(prefill_tokens)) &&
         g_qwen36_whole_provider_selected_moe_backend_active &&
         qwen36_whole_full_attention_layer_provider_requested() &&
         (qwen36_whole_full_attention_layer_provider_layer(layer_index) ||
-         q262144_terminal_full_attention));
+         terminal_full_prefix_attention));
 }
 
 bool qwen36_whole_repeated_layer_provider_enabled(
@@ -81707,6 +81708,9 @@ bool preload_whole_repeated_layer_fixed_weights(
     const bool retain_layer39_fixed_weights =
         layer39_fixed_attention_weights_requested ||
         q262144_terminal_full_attention_weights_requested ||
+        // Preload before a request length is known, so the optional bounded
+        // full-prefix provider can borrow all attention and MoE weights.
+        qwen36_final_layer_full_prefix_requested(kRetainedPrefillTokens) ||
         compact_token_embedding_weight_requested;
     const bool selected_moe_full_v2_fixed_weights_requested =
         env_flag_enabled(
@@ -132319,7 +132323,9 @@ bool run_full_attention_prefill_resident_core_for_targets(
          !emit_qwen36_exact_arbitrary_final_norm_boundary_trace(
              "layer39_input_rmsnorm",
              prefill_tokens,
-             target_token_ids,
+             // This allocation contains history rows even when the final
+             // attention output materializes only selected terminal rows.
+             attention_previous_output_residual->selected_token_ids,
              device_input_rmsnorm,
              &run->failure_stage,
              &run->failure
