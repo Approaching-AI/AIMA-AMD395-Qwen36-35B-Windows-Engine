@@ -36,9 +36,10 @@ The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
 instead of GB10 82 / 9.25. Load is 20,056.130600 ms and diagnostic TTFT
 318,233.503800 ms. Complete layer-3 input, Q/K/V, attention, gating, output
 projection and BF16 residual now match GB10. Post-attention normalization has
-50 BF16 differences; terminal layer outputs 0–3 remain exact. A CPU replay
-using the same inputs and original arithmetic closes the normalization
-boundary, so native normalization is the next isolated control.
+50 BF16 differences; terminal layer outputs 0–3 remain exact. Native ablation
+now reproduces those 50 differences with the original null pointer and closes
+them by forwarding the already loaded reciprocal-root correction. Complete-model
+qualification of that wiring fix is pending.
 
 The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16
@@ -1107,3 +1108,31 @@ current provider functions verbatim, checks its baseline against the model
 capture, and separates reciprocal-root evaluation from endpoint contraction.
 Reference tensors stay on the host. Whole-model continuation, retained speed
 and release qualification remain open.
+
+
+The next native control identifies a missing argument, not a new numerical
+primitive. The full-attention caller loaded the configured SM121 reciprocal-root
+correction but passed `nullptr` to `output_bf16_residual_postnorm_vllm_kernel`.
+The two linear-attention call sites already forwarded the pointer. The first
+standalone extraction used the pointer and unexpectedly matched GB10 while
+differing from the actual model's 50 cells; its control rejection is preserved
+as run `9a748af39f6a5a143475844d88e93dd0dff0b4bceeff58505369fe8e900e1ce0`.
+
+Source `080d517d210280491536402248b9b8ff7ea9e42c` fixes the full-attention argument
+and reports whether the correction is active. The functions themselves are
+unchanged: extracted-header SHA remains
+`7b44988bf981363f66534f1305bea86729af925806e01181bea73c82647d22ee`.
+Command `D:\projects\run-native-postnorm-replay-r2.ps1 -Action replay`, host baiying,
+uses captured real q7169 layer-3 inputs from `D:\models\Qwen3.6-35B-A3B`, the
+actual weights and the same qualified GB10 postnorm reference. Run SHA
+`b274ad53742eca3b3991ae81084dbe572a44335e85948e9f1cfb77407e9ead41`, process wall
+669.280 ms, all host checks passing.
+
+Its null-pointer control reproduces every prior native value, including all
+50 GB10 differences. Forwarding the loaded four-MiB correction matches every
+one of 14,682,112 reference BF16 values. Direct use of the independently
+validated SM121 reciprocal-root table and explicit endpoint multiply controls
+also match. All 7,169 raw sums, variances and both reciprocal-root variants
+match the CPU replay bit-for-bit. The fix adds no table or runtime dependency.
+The complete local check suite passes. This closes a component boundary;
+full-model tokens and continuation still require the corrected provider build.

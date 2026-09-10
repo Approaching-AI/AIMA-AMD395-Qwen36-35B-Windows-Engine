@@ -1,6 +1,6 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-Review date: 2026-09-10. The Windows upstream's open issue remains
+Review date: 2026-09-11. The Windows upstream's open issue remains
 [#1](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/issues/1):
 the 8191/8193 TTFT cliff. The fork has issues disabled. No issue is closed and
 no candidate is published on the strength of this comparison.
@@ -22,6 +22,9 @@ and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 | Control-plane responsiveness (.5) | Existing bounded FIFO retained; a gated backend test proves health/shutdown and the first reasoning delta arrive before generation completes. Native packaged-server validation is still required. |
 | Default VL reasoning (.6) | Windows remains text-only; no vision implementation or inherited VL result is claimed. |
 | Partial shared prefixes (.7 / closed Linux #12) | Port safe saved checkpoints spanning KV, recurrent, convolution and hidden state. Windows currently can recompute a matched seed; it must demonstrate actual restoration, suffix-only work, restored bytes/time, and divergent/unrelated-prefix isolation. |
+
+The GitHub latest-release endpoint was rechecked on September 11 and still
+selects `.7`; no newer stable release is inferred from local branch commits.
 
 The `.7` release was published on September 9 at 13:36:02 UTC, immutable tag
 `9bd8a0fabcf2fc6ef1b882c10b04390c0e31fb00`, native source
