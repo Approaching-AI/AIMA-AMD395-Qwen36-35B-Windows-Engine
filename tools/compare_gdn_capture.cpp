@@ -40,14 +40,14 @@ float value(uint16_t input) {
     return result;
 }
 
-template<class T> void compare(const char *name, const std::vector<float> &actual,
+template<class A, class T> void compare(const char *name, const std::vector<A> &actual,
                               const std::vector<T> &reference, unsigned width,
                               unsigned stride, unsigned offset) {
     uint64_t numeric = 0, bf16_count = 0, bit_count = 0, nonfinite = 0;
     double error = 0, norm = 0, maximum = 0;
     std::vector<size_t> first;
     for (size_t i = 0; i < reference.size(); ++i) {
-        const float a = actual[(i / width) * stride + offset + i % width];
+        const float a = value(actual[(i / width) * stride + offset + i % width]);
         const float b = value(reference[i]);
         const bool wrong_bits = bits(a) != bits(b);
         numeric += a != b;
@@ -71,7 +71,7 @@ template<class T> void compare(const char *name, const std::vector<float> &actua
         const size_t i = first[n];
         if (n) std::cout << ',';
         std::cout << "{\"index\":" << i << ",\"actual_f32_bits\":"
-                  << bits(actual[(i / width) * stride + offset + i % width])
+                  << bits(value(actual[(i / width) * stride + offset + i % width]))
                   << ",\"expected_f32_bits\":" << bits(value(reference[i])) << '}';
     }
     std::cout << "]}";
@@ -79,8 +79,26 @@ template<class T> void compare(const char *name, const std::vector<float> &actua
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 6 && std::strcmp(argv[1], "--bf16") == 0) {
+            size_t row_chars = 0, token_chars = 0;
+            const unsigned long rows = std::stoul(argv[4], &row_chars);
+            const unsigned long tokens = std::stoul(argv[5], &token_chars);
+            if (!rows || rows > 8192u || !tokens || tokens > 8192u ||
+                row_chars != std::strlen(argv[4]) || token_chars != std::strlen(argv[5]))
+                throw std::runtime_error("BF16 rows/tokens must be between 1 and 8192");
+            const size_t elements = static_cast<size_t>(rows) * tokens;
+            const auto actual = read<uint16_t>(argv[2], elements);
+            const auto reference = read<uint16_t>(argv[3], elements);
+            std::cout << std::setprecision(17)
+                      << "{\"kind\":\"native_bf16_capture_comparison\",\"inference_acceptance\":false,\"tokens\":"
+                      << tokens << ",\"rows\":" << rows << ",\"surfaces\":{";
+            compare("tensor", actual, reference, static_cast<unsigned>(rows), static_cast<unsigned>(rows), 0u);
+            std::cout << "}}\n";
+            return 0;
+        }
         if (argc != 13) throw std::runtime_error(
-            "usage: compare_gdn_capture RAW GATES OUTPUT STATE Q K V G BETA REF_OUTPUT REF_STATE TOKENS");
+            "usage: compare_gdn_capture RAW GATES OUTPUT STATE Q K V G BETA REF_OUTPUT REF_STATE TOKENS; "
+            "or compare_gdn_capture --bf16 ACTUAL EXPECTED ROWS TOKENS");
         size_t consumed = 0;
         const unsigned long count = std::stoul(argv[12], &consumed);
         if (!count || count > 8192u || consumed != std::strlen(argv[12]))
