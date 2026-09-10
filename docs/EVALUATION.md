@@ -156,8 +156,29 @@ The remaining output correction rounds the scaled prior before fusing the
 local term, following the reference's evaluation order. A CPU attribution
 with the general exponent table covers all 177 residual cells and 3,585
 fixed-stride controls: all 3,762 match with this order. Reversing the FMA
-retains all 177 differences; separate scaling retains 74. Full native and
-real-model validation remain required for the correction.
+retains all 177 differences; separate scaling retains 74. Windows r19 at
+`992b04becc8057c2fc27477c4b40f6e748308184` now matches all 29,364,224 output
+BF16 cells and 524,288 terminal FP32 state cells in the integrated q7169
+capture. The q64 full-stage control remains exact. Its DLL SHA-256 is
+`42c9e97fac635bd2caf773341d1d8f104cebb39dc73bd8b0df46d28b542d8640`.
+
+The matching real-model run `prepare-fla-model-q7169-blackwell-output-r1.ps1`
+still **fails** with 220 / 9.3125; token 82's logit is 9.125. Native load is
+20,034.3477 ms and TTFT 21,868.1872 ms, with passing cleanup/host checks.
+Run-record SHA-256 is
+`a3cb14d4d190367bf6469e65de803b92404cc13e32a7b89bbefc33bf0285c2ac`.
+The requested existing layer-zero trace flags did not emit on this optimized
+path, so they do not establish live-input parity. The exact saved-input GDN
+case is retained as component evidence; the model remains unqualified.
+
+`QRT_FLA_GDN_CAPTURE_FIRST_DIR` captures the first complete native GDN call's
+actual raw inputs, gates, outputs and final state for 1..8192 tokens. It uses
+one 1 MiB host buffer, completed stream reads, an exclusively created output
+directory and a completion record after every operation succeeds. It never
+supplies values to inference. Failed capture stops the call and cannot be
+retried in the same prepared provider. The optional hook avoids reliance on
+whole-provider trace branches. Host fault/tail tests and full local checks
+pass 262 Python tests (two known skips), Rust, clippy, C ABI, q16 and hygiene.
 
 ## MMLU-Pro full evaluation
 

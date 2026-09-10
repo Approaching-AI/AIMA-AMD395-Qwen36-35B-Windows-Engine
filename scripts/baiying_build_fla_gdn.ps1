@@ -47,6 +47,7 @@ $sm121RsqrtTableHeader = Join-Path $repo 'native\providers\gdn\sm121_rsqrt_table
 $blackwellInverse = Join-Path $repo 'native\providers\gdn\blackwell_inverse.cpp'
 $blackwellInverseHeader = Join-Path $repo 'native\providers\gdn\blackwell_inverse.h'
 $blackwellInverseMath = Join-Path $repo 'native\providers\gdn\blackwell_inverse_math.h'
+$firstCallCapture = Join-Path $repo 'native\providers\gdn\first_call_capture.h'
 $blackwellStateHeader = Join-Path $repo 'native\providers\gdn\blackwell_state.h'
 $sm121Exp2TableHeader = Join-Path $repo 'native\providers\gdn\sm121_exp2_table.h'
 $blackwellWave16 = Join-Path $repo 'native\providers\gdn\blackwell_accumulator.h'
@@ -152,7 +153,7 @@ $record = [ordered]@{
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     native_blackwell_state=$true
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

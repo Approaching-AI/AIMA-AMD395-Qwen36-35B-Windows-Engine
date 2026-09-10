@@ -4,6 +4,7 @@
 #include "blackwell_wu_output.h"
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
+#include "first_call_capture.h"
 
 #include <array>
 #include <cstdint>
@@ -110,6 +111,7 @@ struct ProviderState {
     int32_t scratch_tokens = 0;
     bool prepared = false;
     bool q64_dumped = false;
+    qrt_fla_capture::FirstCall first_call_capture;
     char kernel_dir[1024]{};
     char error[768]{};
 };
@@ -912,7 +914,7 @@ int launch_segment_async(
     return 1;
 }
 
-int launch_pipeline_async(
+int launch_pipeline_async_impl(
     const float *postconv_raw_f32,
     const float *gate_f32,
     float *output_f32,
@@ -1073,6 +1075,36 @@ int launch_pipeline_async(
     }
     g_state.error[0] = '\0';
     return 1;
+}
+
+int launch_pipeline_async(
+    const float *postconv_raw_f32,
+    const float *gate_f32,
+    float *output_f32,
+    float *final_state_f32,
+    int gate_values_are_decay,
+    void *stream_pointer,
+    int32_t tokens
+) {
+    const char* directory = std::getenv("QRT_FLA_GDN_CAPTURE_FIRST_DIR");
+    auto execute = [&] {
+        return launch_pipeline_async_impl(postconv_raw_f32, gate_f32, output_f32,
+            final_state_f32, gate_values_are_decay, stream_pointer, tokens) != 0;
+    };
+    if (!directory || !*directory) return execute() ? 1 : 0;
+    if (!g_state.prepared || !supported_tokens(tokens) || gate_values_are_decay != 0 ||
+        !postconv_raw_f32 || !gate_f32 || !output_f32 || !final_state_f32) return execute() ? 1 : 0;
+    const bool success = g_state.first_call_capture.run(directory, static_cast<unsigned>(tokens),
+        postconv_raw_f32, gate_f32, output_f32, final_state_f32,
+        [&](void* host, const void* device, size_t bytes) {
+            hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
+            hipError_t status = hipMemcpyAsync(host, device, bytes, hipMemcpyDeviceToHost, stream);
+            if (status == hipSuccess) status = hipStreamSynchronize(stream);
+            if (status != hipSuccess) set_error("hipMemcpyAsync(first_call_capture)", status);
+            return status == hipSuccess;
+        }, execute);
+    if (!success && !g_state.error[0]) set_error_text(g_state.first_call_capture.error);
+    return success ? 1 : 0;
 }
 
 int launch_pipeline_synchronous(
