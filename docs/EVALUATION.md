@@ -32,26 +32,35 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-The resident BF16 argmax extension at whole source
-`41621317a7c3789c4a696d83d6dadf78d06cdb7b` passes both frozen 32-token cold
-requests on baiying with the real `D:\models\Qwen3.6-35B-A3B`. Each run has
+Both frozen 32-token cold requests now pass on baiying with the real
+`D:\models\Qwen3.6-35B-A3B`. q7169 uses whole source
+`41621317a7c3789c4a696d83d6dadf78d06cdb7b`; q8192 additionally buffers preload
+logging at `7c2f170bd40f09b808c89e4b3eac324bbe728e1f`. Each run has
 zero first-logit error at tolerance 0.125, all 32 oracle tokens, and 32 matching
 streaming callbacks before return. Exit 0 and all host checks pass.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, retained f544cbe components plus whole 4162131 and BF16 argmax | 144 / 10.375 | 20,265.380700 | 4,202.652900 | 33.004635 |
+| q8192, f544cbe components plus whole 7c2f170 and BF16 argmax | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
 | q7169, qualified compatibility components, 1000 ppb projection bounds, ordered FLA without per-stage sync | 82 / 9.25 | 20,097.572200 | 172,091.915600 | 34.857184 |
 
-The [structured records](../benchmarks/correctness/decode-bf16-argmax-20260911.json)
+The [q8192 preload records](../benchmarks/correctness/q8192-preload-buffer-20260911.json)
+bind actual callback TTFT **4,163.038700 ms**, below the unchanged
+4,187.415605 ms retained target; TPOT is also below 35.502151 ms. Command
+`run-preload-buffer-q8192-r1.ps1` has SHA
+`9aa0c45efb1b1f8eaf5c89aa8d448c9a4b48571e7cd47c876550c72f6931d481`;
+run SHA `a5846b46c84939ce3101eb83112bd8b14cae432e2c96aa67dccd81f0e9767e5d`.
+The whole DLL is `73060dddc816d0e531a70b8ea21efcae546b909fe3507d2d4acac6aa2db49279`.
+Model/resource validation and GPU synchronization remain active. Buffering
+three diagnostic lines before writing removes per-field stderr flushes:
+reused preload falls from 18.4262 to 1.7355 ms, and its model-store log phase
+from 13.8763 to 0.1145 ms. The remaining provider-time variation is separate
+from that measured saving. The earlier 4162131 q8192 run missed the target
+at 4,202.652900 ms; its shorter provider time was never substituted for TTFT.
+
+The [resident-decode and ablation records](../benchmarks/correctness/decode-bf16-argmax-20260911.json)
 bind commands, source/artifact identities, profile changes, prompt hashes and
-complete output to each run. q8192 command `run-decode-argmax-q8192-r1.ps1`
-(SHA `08d7100caa62760cf1fcb90dfac492f5774276823d77bc1d6b3244f50ae6c581`)
-has run SHA `ae3141d44980ec823fefe9c139723385e3e1d90dbcdadfe7590a05d63c11c045`.
-Its actual TTFT still exceeds the unchanged 4,187.415605 ms retained target
-by 15.237295 ms. Provider time of 4,183.652600 ms cannot substitute for the
-actual callback measurement. A repeated self-preload consumes 15.7928 ms
-inside the request and is under investigation.
+complete output to each run.
 
 q7169 command `run-decode-argmax-q7169-selective-r1.ps1`
 (SHA `3fb9cb34e0b050928854eeb32145d669054e4bb547d74e913adf3832d84f4ebb`)
@@ -65,9 +74,9 @@ TTFT by 76,555.146600 ms from the
 which also matched all 40 terminal BF16 residuals and the final norm. Those
 additional observers were not repeated in the latest run.
 
-Three faster q7169 ablations fail the frozen token gate. They retain the
-final-norm/BF16-argmax repairs at whole 378b0c3 and MoE 023e5dc; fast CK/AITER
-components are f544cbe. Commands and full identities are in the same structured
+Faster q7169 ablations fail the frozen token gate. They retain the
+final-norm/BF16-argmax repairs and MoE 023e5dc; fast CK/AITER components are
+f544cbe. The first three use whole 378b0c3 and the last uses whole 4162131. Commands and full identities are in the same structured
 record. All complete with healthy host checks; none qualifies performance.
 
 | Ablation | First token / logit | Actual TTFT ms | Oracle mismatch |
@@ -75,9 +84,16 @@ record. All complete with healthy host checks; none qualifies performance.
 | Fast matrix, attention and AITER recurrence | 220 / 9.3125 | 8,311.036100 | Token 0 and tokens 26–31 |
 | Restore qualified FLA; retain fast matrix/attention | 220 / 9.375 | 25,531.042500 | Token 0 |
 | FLA plus 100 ppb selective matrix correction; fast CK | 220 / 9.4375 | 64,761.139700 | Token 0 |
+| Qualified 1000 ppb control with only CK attention replaced | 220 / 9.375 | 98,466.847700 | Token 0 and tokens 29–31 |
 
-The last ablation first differs at layer-zero post-attention normalization:
-only 1 of 80 complete norm files matches. These norms localize the failed
+The 100 ppb ablation first differs at layer-zero post-attention normalization:
+only 1 of 80 complete norm files matches. The isolated fast-CK ablation
+matches the first 7 norms and diverges at layer-three post-attention norm,
+the first full-attention layer. Its command is
+`run-decode-argmax-q7169-fast-ck-r1.ps1` (SHA
+`9737ad2bac59c18de7b52c6913e2fa89a7f9a8b91a6fa1ec181425ed9cf8a9cc`), run
+SHA `949d2a234dfdecc37c773ec9854ffc3a430316d999ec1bf87ea37a247fbe2237`.
+These norms localize the failed
 product boundary; they are not independent acceptance gates. Cold correctness
 at two profiles does not establish a unified release configuration, paired
 decode, prefix reuse or the required context/API matrix.

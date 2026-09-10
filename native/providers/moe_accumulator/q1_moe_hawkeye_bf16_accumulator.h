@@ -23,8 +23,8 @@
  * Upstream copyright (c) 2026 erez, MIT licensed.  The complete notice is in
  * LICENSE.gpu-simulator beside this file.  This adaptation removes Torch,
  * std::vector, and per-dot allocation, specializes the two published BF16
- * parameter sets, and uses a wide signed host sum whose reachable magnitude
- * is still within the upstream int32_t range.
+ * parameter sets, and uses a wide signed host sum so the characterized
+ * rounding does not rely on signed integer overflow.
  *
  * The 26-bit/group-16 path also describes Blackwell BF16-to-FP32 MMA.  It was
  * checked bit-for-bit against 7,864,320 K16 accumulator boundaries captured
