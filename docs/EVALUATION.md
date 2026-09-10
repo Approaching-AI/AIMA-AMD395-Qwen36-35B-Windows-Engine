@@ -275,6 +275,35 @@ collection/correction clock. Product TTFT still includes the entire wait;
 Host tests cover a failed producer synchronization before allocation or any
 new kernel submission. Real-model gate-table integration remains pending.
 
+The corrected launcher at `b0847999057132ea027dfdb722cabb8bbcdbce29` builds
+DLL SHA-256 `f440e3e8e6eb7e9d9615ba6e158425b582e7e69b50f93ca39ee7b602c47864c0`.
+The completed layer-zero gate-table model run separates 80.576 / 75.822 ms
+producer waits from 772.244 / 800.431 ms correction work, whose maximum
+completed dispatches are 0.662 / 0.587 ms. G differences fall to 84 FP32
+cells, but beta remains different at 90 positions. It still emits **220 /
+9.375**, with load 20,294.459001 ms and TTFT 24,773.7647 ms. Run SHA-256:
+`fa36207aba40f3aafe7ad1371682a5ef07a4b3df7aae750619fa97a427e29ae6`.
+
+The follow-up `prepare-fla-model-q7169-streamed-qkv-gate-dot2-capture-r1.ps1`
+uses the existing BF16 dot2 A/B projections in layers zero and one. G has
+20 FP32 differences (relative L2 1.49274e-11); beta remains at the same 90,
+and Q/K/V retain 2,994 / 2,691 / 5,450. It still **fails** with 220 / 9.375,
+while 82 now has the reference 9.25 logit. Load is 20,060.325099 ms, TTFT
+24,740.179199 ms and wall 45,181.228 ms. Run SHA-256:
+`65b620e957ac5daea3e79d40b6f5ce7b90cf5ff8f40c4d7ccb4697d57e4d0a8d`.
+All native host/cleanup checks pass. CPU recomputation from captured input
+rows reproduces the 90 expected beta endpoints with four declared projection
+orders and the sigmoid table, so actual native A/B values must be observed
+before attributing the remaining discrepancy. No product result is promoted.
+
+`QRT_QWEN36_GATE_INPUT_CAPTURE_DIR` optionally saves the actual host A/B
+projection vectors and A_log/dt_bias at the gating handoff. The layer selector
+is `QRT_QWEN36_GATE_INPUT_CAPTURE_LAYER` (default zero). It accepts 1..8192
+tokens, at most 1 MiB per projection, requires a new directory and writes its
+completion record last. It only reads existing host vectors. Tests cover an
+irregular token count, exact float bits, immutable inputs, invalid shapes,
+filesystem failure and no overwrite. Native capture validation is pending.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

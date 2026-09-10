@@ -23,6 +23,7 @@
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
+#include "gate_input_capture.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -119531,6 +119532,19 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     ),
                     "hipMemcpy(" + prefix + "_layer1_helper_b_projection)"
                 )) {
+                goto cleanup;
+            }
+            const char *gate_capture_dir = std::getenv("QRT_QWEN36_GATE_INPUT_CAPTURE_DIR");
+            if (gate_capture_dir != nullptr && gate_capture_dir[0] != '\0' &&
+                descriptor.layer_index == env_u32_or_default(
+                    "QRT_QWEN36_GATE_INPUT_CAPTURE_LAYER", 0u) &&
+                !qrt_gate_capture::write(
+                    gate_capture_dir, descriptor.layer_index, target_token_count,
+                    {host_a.data(), host_a.size()}, {host_b.data(), host_b.size()},
+                    {run->gate_window.a_log.data(), run->gate_window.a_log.size()},
+                    {run->gate_window.dt_bias.data(), run->gate_window.dt_bias.size()},
+                    &run->failure)) {
+                run->failure_stage = prefix + "_gate_input_capture";
                 goto cleanup;
             }
             for (size_t target_index = 0u; target_index < token_count;
