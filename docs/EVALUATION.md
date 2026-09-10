@@ -1294,3 +1294,12 @@ captures the original layer-20 projections, convolution inputs, gates, GDN
 output, gated normalization and output projection. Its GB10 hooks are installed
 after startup, preserve the existing operators, and require the unchanged
 32-token/raw-logit oracle. The separate linear scope has a 1.5-GiB total bound.
+
+The first MoE observer attempt at source 102b468 on GB10 loads the model but
+stops before requesting tokens: its observer incorrectly required an external
+router, while the pinned original runner invokes the same gate module inside
+FusedMoE. No tensor files or qualified output are produced. Source inspection
+of the original runner confirms the module alias and selector call. The
+observer now supports that unchanged internal call and copies the selector's
+actual output, shared intermediate tensors and expert output tuple, restoring
+the selector afterward. The failed capture is retained as unqualified evidence.

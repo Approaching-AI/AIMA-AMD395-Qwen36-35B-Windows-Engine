@@ -76,6 +76,7 @@ class FullAttentionCapture:
         self._qrt_observation_seconds = 180 if all_layer_norms else 90
         self._qrt_norm_labels = set()
         self._qrt_handles = []
+        self._qrt_method_restores = []
         model = self.model_runner.model
         containers = [(name, module) for name, module in model.named_modules()
                       if isinstance(module, torch.nn.ModuleList) and len(module) == 40
@@ -85,10 +86,15 @@ class FullAttentionCapture:
         name, layers = containers[0]
         parent = model.get_submodule(name.rsplit(".", 1)[0])
 
-        def save(label, tensor, terminal=False, allow_f32=False):
+        def save(label, tensor, terminal=False, allow_f32=False, allow_i32=False):
             if label in self._qrt_files or tensor.shape[0] != TOKENS:
                 return
-            if (tensor.dtype not in ((torch.bfloat16, torch.float32) if allow_f32 else (torch.bfloat16,)) or
+            allowed = {torch.bfloat16}
+            if allow_f32:
+                allowed.add(torch.float32)
+            if allow_i32:
+                allowed.add(torch.int32)
+            if (tensor.dtype not in allowed or
                     time.monotonic() - self._qrt_started > self._qrt_observation_seconds):
                 raise ValueError("capture dtype or observation deadline changed")
             value = tensor[-1:] if terminal else tensor
@@ -96,7 +102,7 @@ class FullAttentionCapture:
             if self._qrt_bytes + size > self._qrt_maximum_bytes:
                 raise ValueError("full-prefix capture byte ceiling exceeded")
             payload = value.detach().contiguous().view(torch.uint8).cpu().numpy().tobytes()
-            dtype = "bf16" if tensor.dtype == torch.bfloat16 else "f32"
+            dtype = {torch.bfloat16: "bf16", torch.float32: "f32", torch.int32: "i32"}[tensor.dtype]
             path = root / (label + "-" + dtype + ".bin")
             with path.open("xb") as stream:
                 stream.write(payload)
@@ -220,18 +226,39 @@ class FullAttentionCapture:
             import inspect
 
             mlp = layers[moe_layer].mlp
-            if mlp.experts.is_internal_router or mlp.tp_size != 1 or mlp.shared_expert is None:
-                raise ValueError("MoE observation requires the original single-device external router and shared expert")
+            if mlp.tp_size != 1 or mlp.shared_expert is None:
+                raise ValueError("MoE observation requires the original single-device shared expert")
             source_path = Path(inspect.getsourcefile(type(mlp)))
-            moe_source = dict(file=str(source_path), sha256=file_sha(source_path))
+            moe_source = dict(file=str(source_path), sha256=file_sha(source_path),
+                              internal_router=mlp.experts.is_internal_router,
+                              router_is_original_module=mlp.experts.gate is mlp.gate)
             self._qrt_moe_labels = {
                 "moe-input", "moe-router", "moe-output", "moe-shared",
                 "moe-expert-part-0", "moe-expert-part-1", "moe-next-hidden",
-                "moe-residual"}
+                "moe-residual", "moe-shared-gate-up", "moe-shared-activated",
+                "moe-shared-down", "moe-shared-gate", "moe-topk-weights", "moe-topk-ids"}
             attach(mlp, input_hook("moe-input"), pre=True)
             attach(mlp.gate, output_hook("moe-router"))
             attach(mlp.shared_expert, output_hook("moe-shared"))
+            attach(mlp.shared_expert.gate_up_proj, output_hook("moe-shared-gate-up"))
+            attach(mlp.shared_expert.down_proj, input_hook("moe-shared-activated"), pre=True)
+            attach(mlp.shared_expert.down_proj, output_hook("moe-shared-down"))
+            attach(mlp.shared_expert_gate, output_hook("moe-shared-gate"))
             attach(mlp, output_hook("moe-output"))
+
+            router = mlp.experts.router
+            original_select = router.select_experts
+
+            def observe_selected(*args, **kwargs):
+                result = original_select(*args, **kwargs)
+                save("moe-topk-weights", result[0], allow_f32=True)
+                save("moe-topk-ids", result[1], allow_i32=True)
+                return result
+
+            # Preserve the original selector and its result. Only the actual
+            # selected tensors are copied; no independent routing is inserted.
+            self._qrt_method_restores.append((router, "select_experts", original_select))
+            router.select_experts = observe_selected
 
             def expert_outputs(module, args, output):
                 if not isinstance(output, tuple) or len(output) != 2:
@@ -256,6 +283,8 @@ class FullAttentionCapture:
                     maximum_observation_seconds=self._qrt_observation_seconds)
 
     def qrt_finish_full_attention(self):
+        for owner, name, original in self._qrt_method_restores:
+            setattr(owner, name, original)
         for handle in self._qrt_handles:
             handle.remove()
         required = {f"layer-{i:02d}-combined" for i in range(40)} | {
