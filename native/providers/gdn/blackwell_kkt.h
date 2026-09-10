@@ -1,6 +1,7 @@
 #ifndef QRT_FLA_BLACKWELL_KKT_H
 #define QRT_FLA_BLACKWELL_KKT_H
 #include "blackwell_accumulator.h"
+#include "sm121_exp2_table.h"
 namespace qrt_fla_blackwell {
 
 __global__ void dot_kernel(const uint16_t* k, const uint16_t* beta, float* a,
@@ -27,14 +28,15 @@ __global__ void dot_kernel(const uint16_t* k, const uint16_t* beta, float* a,
     }
 }
 
-__global__ void gate_kernel(float* a, const float* g, unsigned int tokens) {
+__global__ void gate_kernel(float* a, const float* g, unsigned int tokens, const unsigned char* table) {
     const unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= tokens * 32 * kChunk) return;
     const unsigned int token = index / (32 * kChunk);
     const unsigned int head = index / kChunk % 32, column = index % kChunk;
     if (column >= token % kChunk) return;  // Upper triangle is already zero.
     const float difference = g[token * 32 + head] - g[(token / kChunk * kChunk + column) * 32 + head];
-    a[index] *= exp2f(difference * 1.4426950408889634074f);
+    const float argument = difference * 1.4426950408889634074f;
+    a[index] *= table ? qrt_sm121_exp2::evaluate(table, argument) : exp2f(argument);
 }
 }  // namespace qrt_fla_blackwell
 #endif

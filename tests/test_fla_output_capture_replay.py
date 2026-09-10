@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class FlaOutputCaptureContractTests(unittest.TestCase):
     def test_standalone_native_replay_has_fixed_allocation_and_dispatch_bounds(self) -> None:
         text = (ROOT / "native/providers/gdn/fla_output_capture_replay.cpp").read_text()
-        for contract in ("number(argv[6], 8192)", "offset += 1024u",
+        for contract in ("number(argv[6], 8192)", "offset += native ? 64u : 1024u",
                          "allocation_bytes > 512u * 1024u * 1024u",
                          "allocation_bytes + 512u * 1024u * 1024u",
                          "hipEventSynchronize(end.handle)", "milliseconds <= 100.0f",

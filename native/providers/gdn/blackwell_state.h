@@ -9,6 +9,7 @@ namespace qrt_fla_blackwell_state {
 hipError_t prepare_exp2_table();
 void release_exp2_table();
 uint64_t exp2_table_storage_bytes();
+const unsigned char* exp2_table_device();
 inline bool valid_project(const uint16_t* w, const uint16_t* u, const float* g,
                           const float* initial, uint16_t* h, uint16_t* v_new,
                           uint16_t* residual, unsigned count) {

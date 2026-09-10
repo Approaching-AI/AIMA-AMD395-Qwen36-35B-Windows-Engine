@@ -4,6 +4,7 @@
 #endif
 #include <hip/hip_runtime.h>
 #include "blackwell_state.h"
+#include "blackwell_wu_output.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -154,7 +155,7 @@ int main(int argc, char** argv) try {
         return 0;
     }
     if (argc != 9) {
-        std::cerr << "usage: fla-upstream-capture-replay <solve|wu|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
+        std::cerr << "usage: fla-upstream-capture-replay <solve|wu|wu-blackwell|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
         return 2;
     }
     const std::string stage = argv[1], directory = argv[6];
@@ -164,10 +165,11 @@ int main(int argc, char** argv) try {
         throw std::runtime_error("invalid source, view, or workgroup shape");
     const char* dump = std::getenv("QRT_FLA_UPSTREAM_DUMP_Q64_DIR");
     if (dump && *dump && tokens != 64) throw std::runtime_error("binary stage capture is restricted to a q64 view");
-    const bool native_blackwell = stage == "state-blackwell";
+    const bool native_wu = stage == "wu-blackwell";
+    const bool native_blackwell = stage == "state-blackwell" || native_wu;
     if (native_blackwell && (std::string(argv[2]) != "-" || threads != 256 || shared != 0))
         throw std::runtime_error("native state has compiler-owned ABI and fixed resources");
-    const std::string symbol = native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
+    const std::string symbol = native_wu ? "native-blackwell-wu" : native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
                                stage == "wu" ? "_fla_recompute_w_u_kernel" :
                                stage == "state" ? "_fla_chunk_state_kernel" : "";
     if (symbol.empty() || symbol != argv[3]) throw std::runtime_error("stage and kernel ABI mismatch");
@@ -204,22 +206,32 @@ int main(int argc, char** argv) try {
         auto k = bf_input("k-normalized-bf16", key_features);
         auto g = read_range<float>(path("g-cumsum-f32"), source_tokens * 32u, 0, tokens * 32u, padded * 32u);
         for (unsigned int t = tokens; t < padded; ++t) for (unsigned int h = 0; h < 32; ++h) g[t * 32u + h] = g[(tokens - 1u) * 32u + h];
-        if (stage == "wu") {
+        if (stage == "wu" || native_wu) {
             auto v = bf_input("v-bf16", value_features), beta = bf_input("beta-bf16", 32u);
             auto inverse = bf_input("a-inverse-bf16", matrix_features);
             auto expected_w = bf_reference("w-bf16", value_features), expected_u = bf_reference("u-bf16", value_features);
-            allocation = (k.size() + v.size() + beta.size() + inverse.size() + 2u * padded * value_features) * 2u + g.size() * 4u;
-            Launcher launch(argv[2], argv[3], threads, shared, allocation); Buffer dk, dv, db, da, dg, dw, du;
+            allocation = (k.size() + v.size() + beta.size() + inverse.size() + (native_wu ? 1u : 2u) * padded * value_features) * 2u + g.size() * 4u;
+            if (native_wu) {
+                check(qrt_fla_blackwell_state::prepare_exp2_table());
+                allocation += qrt_fla_blackwell_state::exp2_table_storage_bytes();
+            }
+            Launcher launch(argv[2], argv[3], threads, shared, allocation, native_wu); Buffer dk, dv, db, da, dg, dw, du;
             dk.upload(k); dv.upload(v); db.upload(beta); da.upload(inverse); dg.upload(g);
-            dw.allocate(padded * value_features * 2u); du.allocate(padded * value_features * 2u);
-            for (unsigned int offset = 0; offset < padded; offset += 1024u) {
+            dw.allocate(padded * value_features * 2u);
+            if (!native_wu) du.allocate(padded * value_features * 2u);
+            for (unsigned int offset = 0; offset < padded; offset += native_wu ? 64u : 1024u) {
                 int32_t count = static_cast<int32_t>(std::min(1024u, padded - offset));
                 auto* pk = dk.at<uint16_t>(offset * key_features); auto* pv = dv.at<uint16_t>(offset * value_features);
                 auto* pb = db.at<uint16_t>(offset * 32u); auto* pa = da.at<uint16_t>(offset * matrix_features);
-                auto* pg = dg.at<float>(offset * 32u); auto* pw = dw.at<uint16_t>(offset * value_features); auto* pu = du.at<uint16_t>(offset * value_features);
-                launch.launch<8>(static_cast<unsigned int>(count) / 64u, 32u, offset, &pk, &pv, &pb, &pw, &pu, &pa, &pg, &count);
+                auto* pg = dg.at<float>(offset * 32u); auto* pw = dw.at<uint16_t>(offset * value_features);
+                auto* pu = native_wu ? pv : du.at<uint16_t>(offset * value_features);
+                if (native_wu) launch.native_launch("blackwell_wu_inplace", offset, [&](hipStream_t stream) {
+                    return qrt_fla_blackwell_aux::recompute_wu(pk, pv, pb, pa, pg, pw, pu, std::min(64u, tokens - offset), stream);
+                });
+                else launch.launch<8>(static_cast<unsigned int>(count) / 64u, 32u, offset, &pk, &pv, &pb, &pw, &pu, &pa, &pg, &count);
             }
-            auto w = download(dw.at<uint16_t>(), tokens * value_features), u = download(du.at<uint16_t>(), tokens * value_features);
+            auto w = download(dw.at<uint16_t>(), tokens * value_features);
+            auto u = download(native_wu ? dv.at<uint16_t>() : du.at<uint16_t>(), tokens * value_features);
             surfaces.emplace_back("w-bf16", compare(w, expected_w)); surfaces.emplace_back("u-bf16", compare(u, expected_u));
             dump_q64(stage, "w-bf16", w); dump_q64(stage, "u-bf16", u);
             segments = launch.segments; maximum_ms = launch.maximum_ms;

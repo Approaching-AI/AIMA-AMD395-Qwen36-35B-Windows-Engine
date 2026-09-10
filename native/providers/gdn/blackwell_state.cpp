@@ -111,6 +111,7 @@ hipError_t prepare_exp2_table() {
 }
 void release_exp2_table() { if (exp2_table) { (void)hipFree(exp2_table); exp2_table = nullptr; } }
 uint64_t exp2_table_storage_bytes() { return exp2_table ? qrt_sm121_exp2::table_bytes : 0u; }
+const unsigned char* exp2_table_device() { return exp2_table; }
 
 hipError_t project(const uint16_t* w, const uint16_t* u, const float* g,
                    const float* initial, uint16_t* h, uint16_t* v_new,

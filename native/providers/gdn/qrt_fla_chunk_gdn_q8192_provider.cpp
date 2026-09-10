@@ -1,6 +1,7 @@
 #include <hip/hip_runtime.h>
 #include "blackwell_kkt.h"
 #include "blackwell_state.h"
+#include "blackwell_wu_output.h"
 
 #include <array>
 #include <cstdint>
@@ -205,7 +206,7 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
     const unsigned int elements = static_cast<unsigned int>(tokens) * kValueHeads * kChunk;
     hipLaunchKernelGGL(qrt_fla_blackwell::gate_kernel,
         dim3((elements + 255u) / 256u), dim3(256u), 0, stream,
-        a, g, static_cast<unsigned int>(tokens));
+        a, g, static_cast<unsigned int>(tokens), qrt_fla_blackwell_state::exp2_table_device());
     status = hipGetLastError();
     if (status == hipSuccess) status = hipStreamSynchronize(stream);
     if (status != hipSuccess) { set_error("blackwell_kkt_gate", status); return false; }
@@ -464,6 +465,39 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
     }
     std::fprintf(stderr, "FLA_STATE route=blackwell_group16_width26_k128_k64 tokens=%d chunks=%u maximum_dispatch_ms=%.6f guard_ms=100\n",
         tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(maximum_ms));
+    return true;
+}
+
+bool blackwell_aux_enabled(const char* name) {
+    const char* setting = std::getenv(name);
+    return setting && std::strcmp(setting, "1") == 0;
+}
+
+template<class Operation>
+bool launch_blackwell_aux(const char* name, unsigned tokens, unsigned calls,
+                           hipStream_t stream, Operation operation) {
+    if (!tokens || tokens > kSegmentTokens || tokens % kChunk || !calls || calls > 2u ||
+        !blackwell_state_enabled() || !qrt_fla_blackwell_state::exp2_table_device()) {
+        set_error_text("Blackwell auxiliary stages require bounded chunks and the SHA-bound state route"); return false;
+    }
+    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
+    hipError_t status = hipEventCreate(&begin.handle);
+    if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    if (status != hipSuccess) { set_error(name, status); return false; }
+    float maximum_ms = 0;
+    for (unsigned offset = 0; offset < tokens; offset += kChunk) for (unsigned call = 0; call < calls; ++call) {
+        status = hipEventRecord(begin.handle, stream);
+        if (status == hipSuccess) status = operation(offset, call);
+        if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
+        if (status == hipSuccess) status = hipEventSynchronize(end.handle);
+        float milliseconds = 0;
+        if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
+        if (status != hipSuccess) { set_error(name, status); return false; }
+        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell auxiliary dispatch exceeded 100 ms; no further submission"); return false; }
+        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
+    }
+    std::fprintf(stderr, "FLA_AUX stage=%s tokens=%u chunks=%u calls=%u maximum_dispatch_ms=%.6f guard_ms=100\n",
+                 name, tokens, tokens / kChunk, tokens / kChunk * calls, static_cast<double>(maximum_ms));
     return true;
 }
 
@@ -783,7 +817,14 @@ int launch_segment_async(
         &inverse_pointer, &g_pointer, &launch_tokens,
         &global_scratch, &profile_scratch,
     };
-    if (!launch(
+    if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
+        if (!launch_blackwell_aux("wu", tokens, 1u, stream, [&](unsigned offset, unsigned) {
+                return qrt_fla_blackwell_aux::recompute_wu(k_pointer + size_t(offset) * 2048u,
+                    v_pointer + size_t(offset) * 4096u, beta_pointer + size_t(offset) * 32u,
+                    inverse_pointer + size_t(offset) * 2048u, g_pointer + size_t(offset) * 32u,
+                    w_pointer + size_t(offset) * 4096u, u_pointer + size_t(offset) * 4096u, 64u, stream);
+            })) return 0;
+    } else if (!launch(
             KernelIndex::kRecomputeWU, chunks, kValueHeads, 1u,
             stream, recompute_arguments
         )) {
@@ -819,7 +860,20 @@ int launch_segment_async(
         &g_pointer, &output_pointer, &launch_tokens,
         &global_scratch, &profile_scratch,
     };
-    if (!launch(
+    if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
+        // The recurrence completed on this stream. Its private residual
+        // buffer is dead and is large enough for one BF16 QK score chunk.
+        if (!g_state.blackwell_residual) { set_error_text("Blackwell output score scratch is unavailable"); return 0; }
+        if (!launch_blackwell_aux("output", tokens, 2u, stream, [&](unsigned offset, unsigned call) {
+                const auto* q = q_pointer + size_t(offset) * 2048u;
+                const auto* g = g_pointer + size_t(offset) * 32u;
+                if (call == 0u) return qrt_fla_blackwell_aux::output_scores(q, k_pointer + size_t(offset) * 2048u,
+                    g, g_state.blackwell_residual, 64u, stream);
+                return qrt_fla_blackwell_aux::output_values(q, v_new_pointer + size_t(offset) * 4096u,
+                    chunk_state_pointer + size_t(offset / kChunk) * kStateElements,
+                    g, g_state.blackwell_residual, output_pointer + size_t(offset) * 4096u, 64u, stream);
+            })) return 0;
+    } else if (!launch(
             KernelIndex::kChunkOutput, kOutputValueTiles, chunks, kValueHeads,
             stream, output_arguments
         )) {
@@ -1058,6 +1112,12 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_prepare(
             set_error("prepare_exp2_table", status);
             return 0;
         }
+    }
+    if ((blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL") || blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) &&
+        (!blackwell_state_enabled() || !qrt_fla_blackwell_state::exp2_table_device())) {
+        release_state();
+        set_error_text("Blackwell W/U and output stages require the SHA-bound exponent state route");
+        return 0;
     }
     g_state.prepared = true;
     g_state.error[0] = '\0';

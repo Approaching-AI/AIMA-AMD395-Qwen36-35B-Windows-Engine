@@ -3,6 +3,9 @@
 #define NOMINMAX
 #endif
 #include <hip/hip_runtime.h>
+#include "blackwell_state.h"
+#include "blackwell_wu_output.h"
+#include "sm121_exp2_table.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -69,7 +72,9 @@ int main(int argc, char** argv) try {
     if (!tokens || !threads || threads % 32) throw std::runtime_error("invalid shape or workgroup");
     const bool real = std::string(argv[7]) == "real";
     if ((!real && std::string(argv[7]) != "q64") || (!real && tokens != 64)) throw std::runtime_error("invalid capture layout");
-    if (std::string(argv[2]) != "_fla_chunk_output_kernel") throw std::runtime_error("not the captured output-stage ABI");
+    const bool native = std::string(argv[2]) == "native-blackwell-output";
+    if (native ? (std::string(argv[1]) != "-" || threads != 256u || shared != 0u) : std::string(argv[2]) != "_fla_chunk_output_kernel")
+        throw std::runtime_error("not the captured output-stage ABI");
     const unsigned int padded = (tokens + 63u) / 64u * 64u;
     constexpr size_t key_features = 16u * 128u, value_features = 32u * 128u;
     constexpr size_t state_elements = 32u * 128u * 128u;
@@ -88,8 +93,10 @@ int main(int argc, char** argv) try {
     for (unsigned int t = tokens; t < padded; ++t) {
         for (unsigned int head = 0; head < 32; ++head) g[t * 32u + head] = g[(tokens - 1u) * 32u + head];
     }
+    const size_t output_tokens = native ? 64u : padded;
     const size_t allocation_bytes = (q.size() + k.size() + v.size() + h.size()) * 2u
-                                  + g.size() * 4u + padded * value_features * 4u;
+                                  + g.size() * 4u + output_tokens * value_features * 4u
+                                  + (native ? qrt_sm121_exp2::table_bytes + 64u * 32u * 64u * 2u : 0u);
     if (allocation_bytes > 512u * 1024u * 1024u) throw std::runtime_error("diagnostic allocation ceiling exceeded");
     std::cerr << "OUTPUT_REPLAY phase=hip_preflight\n" << std::flush;
     check(hipSetDevice(0));
@@ -102,23 +109,47 @@ int main(int argc, char** argv) try {
     Stream stream; Module module; Event begin, end;
     check(hipStreamCreate(&stream.handle));
     check(hipEventCreate(&begin.handle)); check(hipEventCreate(&end.handle));
-    check(hipModuleLoad(&module.handle, argv[1]));
     hipFunction_t function = nullptr;
-    check(hipModuleGetFunction(&function, module.handle, argv[2]));
-    Buffer dq, dk, dv, dh, dg, output;
+    if (native) check(qrt_fla_blackwell_state::prepare_exp2_table());
+    else {
+        check(hipModuleLoad(&module.handle, argv[1]));
+        check(hipModuleGetFunction(&function, module.handle, argv[2]));
+    }
+    Buffer dq, dk, dv, dh, dg, output, scores;
     dq.upload(q); dk.upload(k); dv.upload(v); dh.upload(h); dg.upload(g);
-    output.allocate(padded * value_features * 4u);
+    output.allocate(output_tokens * value_features * 4u);
+    if (native) scores.allocate(64u * 32u * 64u * 2u);
     std::cerr << "OUTPUT_REPLAY phase=inputs_uploaded\n" << std::flush;
     float maximum_ms = 0;
     unsigned int segments = 0;
-    for (unsigned int offset = 0; offset < padded; offset += 1024u) {
+    std::vector<float> result(tokens * value_features);
+    auto native_launch = [&](const char* name, auto operation) {
+        std::cerr << "OUTPUT_REPLAY native_kernel=" << name << '\n' << std::flush;
+        check(hipEventRecord(begin.handle, stream.handle)); check(operation());
+        check(hipEventRecord(end.handle, stream.handle)); check(hipEventSynchronize(end.handle));
+        float milliseconds = 0; check(hipEventElapsedTime(&milliseconds, begin.handle, end.handle));
+        if (!(milliseconds <= 100.0f)) throw std::runtime_error("100 ms dispatch admission exceeded; no next segment");
+        maximum_ms = std::max(maximum_ms, milliseconds); ++segments;
+    };
+    for (unsigned int offset = 0; offset < padded; offset += native ? 64u : 1024u) {
         int32_t count = static_cast<int32_t>(std::min(1024u, padded - offset));
         auto* pq = dq.at<uint16_t>(offset * key_features);
         auto* pk = dk.at<uint16_t>(offset * key_features);
         auto* pv = dv.at<uint16_t>(offset * value_features);
         auto* ph = dh.at<uint16_t>(offset / 64u * state_elements);
         auto* pg = dg.at<float>(offset * 32u);
-        auto* po = output.at<float>(offset * value_features);
+        auto* po = output.at<float>(native ? 0u : offset * value_features);
+        if (native) {
+            const unsigned valid = std::min(64u, tokens - offset);
+            native_launch("blackwell_scores", [&] {
+                return qrt_fla_blackwell_aux::output_scores(pq, pk, pg, scores.at<uint16_t>(), valid, stream.handle);
+            });
+            native_launch("blackwell_output", [&] {
+                return qrt_fla_blackwell_aux::output_values(pq, pv, ph, pg, scores.at<uint16_t>(), po, valid, stream.handle);
+            });
+            check(hipMemcpy(result.data() + offset * value_features, po, valid * value_features * 4u, hipMemcpyDeviceToHost));
+            continue;
+        }
         // Triton 3.6 appends two global-buffer ABI slots beyond the source
         // signature. HIP dereferences every slot, even when its value is null.
         void* global_scratch = nullptr;
@@ -137,8 +168,7 @@ int main(int argc, char** argv) try {
         if (!(milliseconds <= 100.0f)) throw std::runtime_error("100 ms dispatch admission exceeded; no next segment");
         maximum_ms = std::max(maximum_ms, milliseconds); ++segments;
     }
-    std::vector<float> result(tokens * value_features);
-    check(hipMemcpy(result.data(), output.data, result.size() * 4u, hipMemcpyDeviceToHost));
+    if (!native) check(hipMemcpy(result.data(), output.data, result.size() * 4u, hipMemcpyDeviceToHost));
     std::cerr << "OUTPUT_REPLAY phase=readback_complete\n" << std::flush;
     uint64_t mismatch = 0, nonfinite = 0;
     double error2 = 0, norm2 = 0, maximum_error = 0;
@@ -161,6 +191,7 @@ int main(int argc, char** argv) try {
               << ",\"nonfinite_count\":" << nonfinite << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1.0e-300))
               << ",\"maximum_absolute_error\":" << maximum_error << ",\"first_index\":" << first
               << ",\"first_actual\":" << first_actual << ",\"first_expected\":" << first_expected << "}\n";
+    if (native) qrt_fla_blackwell_state::release_exp2_table();
     return mismatch || nonfinite ? 3 : 0;
 } catch (const std::exception& error) {
     std::cerr << "fla_output_capture_replay error=" << error.what() << '\n';
