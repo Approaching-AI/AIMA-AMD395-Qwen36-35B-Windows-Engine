@@ -17,6 +17,76 @@ SOURCE_SHA = "5a8af26832bd0b23604fefa4a0876e12b39101b85431c368649fbb7f779e8921"
 DEVICE_LIMIT = 1 << 30
 
 
+def division_kernel(numerator, denominator, output, N: tl.constexpr,
+                    MODE: tl.constexpr, BLOCK: tl.constexpr):
+    index = tl.program_id(0) * BLOCK + tl.arange(0, BLOCK)
+    a = tl.load(numerator + index, index < N, other=0.0)
+    b = tl.load(denominator + index // 256, index < N, other=1.0)
+    if MODE == 0:
+        result = tl.inline_asm_elementwise("div.full.f32 $0, $1, $2;", constraints="=f,f,f",
+                                          args=[a, b], dtype=tl.float32, is_pure=True, pack=1)
+    elif MODE == 1:
+        result = tl.inline_asm_elementwise("div.rn.f32 $0, $1, $2;", constraints="=f,f,f",
+                                          args=[a, b], dtype=tl.float32, is_pure=True, pack=1)
+    elif MODE == 2:
+        inverse = tl.inline_asm_elementwise("rcp.approx.ftz.f32 $0, $1;", constraints="=f,f",
+                                           args=[b], dtype=tl.float32, is_pure=True, pack=1)
+        result = a * inverse
+    else:
+        inverse = tl.inline_asm_elementwise("rcp.rn.f32 $0, $1;", constraints="=f,f",
+                                           args=[b], dtype=tl.float32, is_pure=True, pack=1)
+        result = a * inverse
+    tl.store(output + index, result, index < N)
+
+
+def division_controls(args, expected):
+    global tl
+    import torch
+    import triton
+    import triton.language as tl
+
+    manifest = json.loads(args.native_division_manifest.read_text())
+    if manifest["query_start"] != 0 or manifest["query_count"] != 7169:
+        raise ValueError("division controls require the full qualified geometry")
+    loaded = []
+    for key, count in (("accumulator", 7169 * 4096), ("denominator", 7169 * 16)):
+        item = manifest[key]
+        path = args.native_division_manifest.parent / item["file"]
+        if Path(item["file"]).name != item["file"] or path.stat().st_size != count * 4 or file_sha(path) != item["sha256"]:
+            raise ValueError("native division input fingerprint changed")
+        host = torch.frombuffer(bytearray(path.read_bytes()), dtype=torch.float32)
+        if not bool(torch.isfinite(host).all().item()):
+            raise ValueError("nonfinite native division input")
+        if key == "denominator" and (float(host.min()) < 1.0 or float(host.max()) > 8192.0):
+            raise ValueError("native denominator lies outside the attention bound")
+        loaded.append(host.cuda())
+    output = torch.empty_like(loaded[0])
+    reference = expected.reshape(-1).contiguous()
+    kernel = triton.jit(division_kernel)
+    rows = []
+    artifacts = []
+    for mode, name in enumerate(("div-full", "div-rn", "rcp-approx-multiply", "rcp-rn-multiply")):
+        compiled = kernel[(triton.cdiv(output.numel(), 256),)](*loaded, output, output.numel(), mode, 256)
+        torch.cuda.synchronize()
+        if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
+            raise ValueError("division control exceeds the device ceiling")
+        actual = output.cpu()
+        differences = actual.view(torch.int32) != reference.view(torch.int32)
+        indices = torch.nonzero(differences).reshape(-1)[:8]
+        row = dict(mode=name, elements=output.numel(), f32_mismatches=int(differences.sum()),
+                   bf16_mismatches=int((actual.to(torch.bfloat16).view(torch.uint16) != reference.to(torch.bfloat16).view(torch.uint16)).sum()),
+                   first_indices=indices.tolist())
+        rows.append(row)
+        print(json.dumps(row), flush=True)
+        path = args.output_dir / f"division-{name}.cubin"
+        with path.open("xb") as stream:
+            stream.write(compiled.asm["cubin"])
+        artifacts.append(dict(file=path.name, bytes=path.stat().st_size, sha256=file_sha(path)))
+    return dict(native_manifest_sha256=file_sha(args.native_division_manifest),
+                native_manifest=manifest, rows=rows, artifacts=artifacts,
+                reference_is_compute_input=False)
+
+
 def execute(args, reference):
     import torch
     import triton
@@ -97,7 +167,9 @@ def execute(args, reference):
                 artifacts.append(dict(file=path.name, bytes=path.stat().st_size, sha256=file_sha(path)))
     finally:
         module.kernel_unified_attention_2d = original
+    division = division_controls(args, host) if args.native_division_manifest else None
     return dict(completed=True, controls=controls, artifacts=artifacts,
+                division_controls=division,
                 maximum_device_bytes=torch.cuda.max_memory_allocated(),
                 torch_version=torch.__version__, triton_version=triton.__version__,
                 original_source_path=str(module.__file__), original_source_sha256=SOURCE_SHA)
@@ -109,6 +181,7 @@ def main():
     parser.add_argument("--reference-capture", type=Path, required=True)
     parser.add_argument("--expected-reference-sha256", required=True)
     parser.add_argument("--tensor-dir", type=Path, required=True)
+    parser.add_argument("--native-division-manifest", type=Path)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--expected-host")

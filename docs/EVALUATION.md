@@ -30,13 +30,24 @@ evaluation arbitration explicit prevents a score-calibration tie break from
 changing ordinary OpenAI completions; production HTTP acceptance always runs
 with the global override disabled.
 
-## Unreleased FLA diagnostics (updated September 10)
+## Unreleased correctness diagnostics (updated September 11)
 
-The latest live-model layer-zero GDN capture is exact across the complete
-q7169 Q/K/V/G/beta inputs, output and terminal state. The model still emits
-220 / 9.375 against GB10 82 / 9.25, so the route remains unqualified. The
-terminal gated RMSNorm, output projection and post-attention RMSNorm are
-exact. The terminal MoE top-eight IDs and FP32 weights also match.
+The latest real q7169 model run on baiying remains unqualified: 220 / 9.375
+instead of GB10 82 / 9.25. Load is 20,373.593500 ms and diagnostic TTFT
+253,150.381300 ms. Terminal layer outputs 0–3 are now exact. The complete
+layer-3 normalized input, Q/K/V projections and normalized/rotated Q/K are
+also exact. The earliest remaining full-prefix difference is attention core:
+65,059 of 29,364,224 BF16 values. No release or performance acceptance follows.
+
+A captured-input native replay reproduces those 65,059 differences exactly.
+The shared Blackwell arithmetic with the general SM121 exponential table
+reduces them to 228, all within four FP32 ULPs of a BF16 midpoint. Its full
+q7169 component takes 6,724.59 ms, with maximum dispatch 15.5646 ms; these are
+component timings. An independent original GB10 attention replay reproduces
+all 29,364,224 saved BF16 endpoints with both BF16 and FP32 output storage.
+The raw FP32 surface now isolates the final normalization division. Whole-model
+continuation, retained speed and release qualification remain open.
+
 The following records preserve how those boundaries were established.
 
 The optional FLA route at `33e0492ee17013aa897eb19aa092c15cf56df2bf` now

@@ -212,7 +212,9 @@ __global__ void blackwell_exact_attention_kernel(
     float *__restrict__ output,
     unsigned int query_start,
     unsigned int output_start,
-    const unsigned char* exp2_table) {
+    const unsigned char* exp2_table,
+    float* raw_accumulator,
+    float* raw_denominator) {
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -382,20 +384,25 @@ __global__ void blackwell_exact_attention_kernel(
     if (thread < kHeadDim) {
         output[output_base + thread] =
             output_accumulator[thread] / running_sum;
+        if (raw_accumulator) raw_accumulator[output_base + thread] = output_accumulator[thread];
     }
+    if (raw_denominator && thread == 0u)
+        raw_denominator[static_cast<size_t>(output_token) * kQueryHeads + query_head] = running_sum;
 }
 
 inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
     unsigned int query_start, unsigned int query_count,
-    unsigned int output_start, const unsigned char* exp2_table = nullptr) {
+    unsigned int output_start, const unsigned char* exp2_table = nullptr,
+    float* raw_accumulator = nullptr, float* raw_denominator = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
     hipLaunchKernelGGL(blackwell_exact_attention_kernel,
         dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
-        q, k, v, output, query_start, output_start, exp2_table);
+        q, k, v, output, query_start, output_start, exp2_table,
+        raw_accumulator, raw_denominator);
     return int(hipGetLastError());
 }
 } // namespace qrt_blackwell_attention

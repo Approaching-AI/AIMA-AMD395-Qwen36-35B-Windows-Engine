@@ -164,6 +164,7 @@ int main(int argc, char** argv) {
                 throw std::runtime_error("exponent table fingerprint mismatch");
         }
         Device dt(use_table ? table.size() : 4u), output(size_t(count) * 4096u * 4u);
+        Device accumulator(size_t(count) * 4096u * 4u), denominator(size_t(count) * 16u * 4u);
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0;
         for (unsigned offset = 0; offset < count; offset += batch) {
@@ -172,12 +173,18 @@ int main(int argc, char** argv) {
             check(hipEventRecord(begin.value));
             check(hipError_t(qrt_blackwell_attention::launch_queries(dq.as<uint16_t>(), dk.as<uint16_t>(),
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
-                std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr)));
+                std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
+                accumulator.as<float>(), denominator.as<float>())));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
         }
         std::vector<float> host(size_t(count) * 4096u);
         check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         report(use_table ? "blackwell-sm121-exp" : "blackwell-amd-exp", host, reference, start, argv[6], total, maximum);
+        check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
+        write(std::string(argv[6]) + "-accumulator-f32.bin", host);
+        host.resize(size_t(count) * 16u);
+        check(hipMemcpy(host.data(), denominator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
+        write(std::string(argv[6]) + "-denominator-f32.bin", host);
         return 0;
     } catch (const std::exception& error) {
         std::cerr << "attention_capture_replay_error=" << error.what() << std::endl;
