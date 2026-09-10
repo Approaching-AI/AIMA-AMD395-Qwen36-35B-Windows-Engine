@@ -30,142 +30,61 @@ evaluation arbitration explicit prevents a score-calibration tie break from
 changing ordinary OpenAI completions; production HTTP acceptance always runs
 with the global override disabled.
 
-## Unreleased FLA diagnostics
+## Unreleased FLA diagnostics (updated September 10)
 
-The unreleased FLA replacement is a separate diagnostic route, not a change
-to the published acceptance below. It now follows the reference worker's
-Triton/FLA decomposition and bounds native dispatches to 1024-token segments.
-The q64 stage comparison identified BF16 elementwise products truncating
-before a same-dtype cast. Promoting operands before explicit nearest-even
-rounding removes 1824 first-token product discrepancies and reduces output
-relative L2 from 0.0158573 to 0.000409875. Remaining differences are reported
-as failures of exact component parity, not inference success. Native q64,
-q65 and q7169 synthetic runs exit safely; only q64 has this stage reference.
-`scripts/compare_fla_gdn_capture.py` validates the saved reference manifest
-and distinguishes component diagnostics from real-token product acceptance.
-The q7169 token/continuation contract and release gates remain unchanged.
-The subsequent real-model q7169 test safely exits but still produces token
-220 instead of reference token 82, so this repair alone is not a passing
-product route or retained performance result.
+The optional FLA route at `33e0492ee17013aa897eb19aa092c15cf56df2bf` now
+matches the saved real q7169 layer-0 recurrence exactly on native Windows:
+29,364,224 V-new BF16 values, 59,244,544 checkpoint BF16 values, and all
+524,288 raw FP32 terminal-state values. Shorter q64/q384 views also pass.
+These replays use fingerprinted GB10 intermediate inputs and load no model.
+They establish a component repair, not an accepted inference route.
 
-An isolated follow-up keeps BF16 input products but accumulates U in IEEE
-F32. It removes all 50 q64 two-term midpoint discrepancies and reduces q64
-output relative L2 to 0.000271804. A fingerprint-verified saved real q7169
-layer-0 input replay has output/state relative L2 0.001072256/0.000771976.
-Both component runs safely exit, but exact parity still fails, and this
-variant has not passed a new real-model gate. The build-generated launcher
-metadata tracks its changed shared-memory requirement (16384 bytes).
+A new GB10 q384 capture preserves saved BF16 parity and same-run raw terminal
+parity before recording 12,480 independent exponent instruction samples.
+The CPU probe covers all 4096 head/value rows without feeding reference
+checkpoints into its carried trajectory. Exact exponents, continuous
+Blackwell K128/K64 accumulation and fused state update match every raw bit;
+host exp2, split projection and unfused-update controls do not.
 
-An opt-in continuous Blackwell K128 accumulator now matches all 131072
-captured q64 pre-decay KKT cells byte-for-byte. CPU attribution also matches
-28225 sampled cells spanning saved real q7169 layer-0 input. Native dispatch
-is serialized in 64-token chunks with elapsed-time admission before the next
-chunk; no high-cost correction ceiling or runtime default is relaxed.
-Gate scaling and later stages remain different. The real component replay
-has output/state relative L2 0.001061918/0.000791691, not a consistent state
-improvement and not a passing model result. The comparison tool includes the
-pre-decay surface when present, rather than silently omitting this boundary.
+The optional `QRT_FLA_GDN_SM121_EXP2_TABLE` artifact exhaustively enumerates
+all 2,139,095,041 nonpositive FP32 inputs through negative infinity. Its
+builder accepts no model or prompt input. Lossless packing produces
+183,174,448 bytes, SHA256
+`f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b`.
+All earlier independent samples also match the actual native lookup.
+Windows validates the fixed SHA through system CNG before uploading it;
+[dependency policy](dependency-policy.md) records the memory/packaging cost.
+The published default profile is unchanged.
 
-The W midpoint repair is subsequently Windows-verified: all 50 known
-two-term discrepancies disappear and the other q64 surfaces stay unchanged.
-On the saved real replay, output relative L2 is 0.001046221 but state relative
-L2 worsens to 0.000912814. It is not promoted as an overall improvement or
-real-model acceptance. A separate CPU-only U probe identifies continuous
-Blackwell K64 as bit-exact for 262144 q64 cells and 114709 sampled real cells;
-this does not bypass upstream inverse errors or authorize unbounded native
-correction. The repaired WSL AOT launcher disables GPU visibility and retains
-compiler/thread/time limits. No system configuration change is required.
+The r15 Windows build reuses unchanged, source-validated r14 AOT artifacts;
+its FLA DLL SHA256 is
+`f8339eadfca6a25379e9455eaa4b091948cccdb3887fac80108a0f4680038b0a`.
+The compiler-owned state kernels retain explicit dispatch/shape bounds,
+disjoint state ownership and scratch accounting. Full q7169 isolated replay
+uses 514,663,728 bytes and 226 dispatches, maximum 2.060 ms. All native guards
+complete with healthy cleanup. The launcher still validates compiled ABI,
+including Triton's auxiliary scratch slots. These times are diagnostics.
 
-The standalone `fla-output-capture-replay` diagnostic now isolates the last
-GDN stage using fingerprinted reference intermediate inputs. Native q64 has
-one mismatch in 262144 cells; the full real q7169 layer-0 surface has 2205
-in 29364224 cells (relative L2 2.3199896e-5), much less than the full-chain
-input replay. This localizes a major upstream contribution; it is not a
-runtime improvement, a zero-error result, or product acceptance. The harness
-is not linked into the model engine and retains bounded allocation/dispatch.
-Its initial missing auxiliary-pointer ABI bug is repaired; both corrected
-runs exit normally with numerical-difference status and healthy cleanup.
-Compiler metadata now distinguishes the source signature from the actual
-launch ABI, including Triton's two trailing scratch pointers and verified
-offsets/size. No driver or system setting was changed for this repair.
+The subsequent real-model q7169 test on `baiying`, using
+`D:\models\Qwen3.6-35B-A3B` and command file
+`prepare-fla-model-q7169-exact-exp2-r2.ps1`, **still fails**: output token 220,
+logit 9.25, versus GB10 token 82 / logit 9.25. Prompt FNV matches
+`c900c18703532d6a`. Engine load is 20122.1765 ms and TTFT 13267.5151 ms.
+The FLA source is `33e0492`; the unchanged whole-provider source is
+`c36e2674a5ade5544ef49a3756dbe99454b00991` and CLI source is `f544cbe`.
+Run-record SHA256 is
+`e8ca72baaf49064c47caee2c329442d3d5c02c2793d1b559cbaa8684bff13da1`.
+This mixed-component diagnostic is not an all-component package build, a
+passing continuation result, or accepted performance.
 
-Standalone upstream replay now isolates solve, W/U and state recurrence with
-the saved real q7169 input. Six guarded native runs (64-token parent-capture
-views, then full length) exit normally with numerical-difference status,
-passing host checks and at most 2.719 ms per dispatch. With correct inputs,
-inverse/W/U differ on 729/1577/1093 cells, but the state kernel still has
-2917457 V-new and 4636318 chunk-state differences. It is a major independent
-source of drift, not a passing replacement. Complete compiled argument
-layouts, bounded allocations and segmented/tail addresses are checked; a
-CPU fake HIP test double with sanitizers validates caller safety only.
-
-A CPU first-update replay matches all 524288 BF16 state cells with continuous
-Blackwell K64, and continuous K128 projection matches 114704 sampled V-new
-cells when supplied reference chunk state. However, all sampled full-length
-carried-state variants still fail without reference-checkpoint injection.
-The probe explicitly separates this negative trajectory result from the
-input-isolated projection control. Host exponent arithmetic is not an SM121
-SFU emulation; state-update/raw-F32 and gating attribution remain open. No
-runtime arithmetic, default profile or real-model release gate is changed
-based on these CPU controls.
-
-Offline CUDA state-IR audits at BV32 and BV64 show continuous K128
-projection, a separate zero-seeded K64 update and F32 fused decay/addition.
-They do not verify the live reference worker's autotune choice. An opt-in
-IEEE state build is implemented and safely replayed, but not retained:
-first-update BF16 differences fall from 185 to 14, while full-length V-new
-and chunk-state differences rise to 3235232 and 5139527. Default state math
-is unchanged. All nineteen build artifacts and the eleven-slot launch ABI
-are checked; both native replays exit normally with passing host checks.
-
-CPU-only exponent controls infer unique values from independent captured
-F32 products, rejecting ambiguous, conflicting and underflowed constraints.
-They cover only part of the inputs and still fail the carried trajectory;
-these reference-derived values are never a production SFU implementation.
-Per-row first-boundary traces identify an early sampled cancellation without
-injecting reference state. Final local checks pass 184 Python and 44 Rust
-tests, clippy, ABI smoke, transaction tests and hygiene. No model, retained
-performance, package or release acceptance is added by these controls.
-
-An explicit, default-off `QRT_FLA_GDN_STATE_BLACKWELL=1` control now uses
-native compiler-launched K128 projection and K64 update kernels. Separate
-64-token calls, disjoint carried-state buffers, checked tail ownership and
-post-dispatch admission preserve the bounded diagnostic route. The first
-native update matches all 524288 raw F32 cells of its CPU control. On saved
-real input, isolated V-new/H difference counts fall to 2024619/3156778,
-but full-chain state relative L2 worsens to 0.0009255941. These are not
-passing full-length component results.
-
-A new real-model q7169 first-token run covers all 30 eligible linear layers
-with this state control and the optional KKT accumulator. It completes
-normally with healthy cleanup but still emits 220/9.3125 instead of the
-frozen authority's 82/9.25. Load is 20234.0053 ms and TTFT 12972.0762 ms;
-the route is rejected as a product or retained-performance improvement.
-Default runtime arithmetic and correction limits remain unchanged. Local
-checks pass 188 Python and 44 Rust tests, clippy, ABI/transaction tests and
-public hygiene. No continuation, release or issue-closure gate is promoted.
-
-The next diagnostic is prepared without GPU execution. The offline CUDA
-auditor can widen only the existing checkpoint output pointer to F32 while
-keeping the supplied kernel body and all input/V-new types unchanged.
-BV32/BV64 compilation succeeds with matching arithmetic opcode inventories;
-this is not a live raw-state capture or a proof of runtime parity. A future
-trace must first match the saved BF16 comparison surfaces. The CPU prefix
-preparer verifies complete parent fingerprints before exporting at most
-1024 tokens; the six-chunk fixture is about 19.55 MiB. Reference checkpoints
-remain comparison-only. Latest checks pass 193 Python and 44 Rust tests;
-real-token acceptance and default runtime settings remain unchanged.
-
-The explicit reference sampler now validates source/prefix hashes, every
-input shape/type and finite value before any GPU import. Its original BF16
-control must match all saved surfaces before it may try widened checkpoint
-storage; the pair must also preserve terminal F32 bits. Default mode remains
-CPU-only. Eleven host tests pass under Linux, including deadline reaping and
-worker termination when only its supervisor is killed. Local checks pass
-204 Python tests (one Linux-only skip) and 44 Rust tests. These verify host
-logic, not the unexecuted CUDA path or the original worker's raw registers.
-The reference remains unavailable; real-token, package and release gates are
-unchanged. The default native service gains no Python/JIT dependency.
+Other isolated stages still have known mismatches: inverse, W/U and output
+arithmetic. The complete state repair provides a firmer boundary for their
+replacement; it does not erase errors entering the recurrence. Full local
+checks pass 238 Python tests (two platform/dependency skips), 45 Rust tests,
+clippy, C ABI, seven q16 contracts and public hygiene. The skipped NumPy
+packing tests pass in the existing reference container; these source checks
+cannot replace real-token, prefix, HTTP/archive and retained-performance
+qualification. The retained q8192 target and numerical tolerance remain fixed.
 
 ## MMLU-Pro full evaluation
 

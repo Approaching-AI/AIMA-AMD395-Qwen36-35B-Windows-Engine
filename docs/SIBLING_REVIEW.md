@@ -1,16 +1,17 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-Review date: 2026-09-09. The Windows upstream's open issue remains
+Review date: 2026-09-10. The Windows upstream's open issue remains
 [#1](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/issues/1):
 the 8191/8193 TTFT cliff. The fork has issues disabled. No issue is closed and
 no candidate is published on the strength of this comparison.
 
-The Linux sibling's last six releases (v1.4.1, v1.5.0, v1.5.1 and
-v1.5.1-native-vl.4/.5/.6) were reviewed along with its issues #1, #5, #6,
+The Linux sibling's recent releases (v1.4.1, v1.5.0, v1.5.1 and
+v1.5.1-native-vl.4/.5/.6/.7) were reviewed along with its issues #1, #5, #6,
 #7 and #12. The relevant release sources are
 [v1.5.1](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1),
 [.5](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.5),
-and [.6](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6).
+[.6](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6),
+and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.7).
 
 | Area | Windows action and remaining boundary |
 |---|---|
@@ -20,7 +21,17 @@ and [.6](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 | Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and explicit conservative no-progress metadata now have CPU/HTTP regressions. Semantic retry strategy and side-effect authorization remain with the caller. |
 | Control-plane responsiveness (.5) | Existing bounded FIFO retained; a gated backend test proves health/shutdown and the first reasoning delta arrive before generation completes. Native packaged-server validation is still required. |
 | Default VL reasoning (.6) | Windows remains text-only; no vision implementation or inherited VL result is claimed. |
-| Partial shared prefixes (open Linux #12) | Do not treat the sibling's in-progress checkpoints as shipped acceptance. Windows must prove restored KV, recurrent and convolution state at the actual reported boundary, plus divergent and unrelated-prefix isolation. |
+| Partial shared prefixes (.7 / closed Linux #12) | Port safe saved checkpoints spanning KV, recurrent, convolution and hidden state. Windows currently can recompute a matched seed; it must demonstrate actual restoration, suffix-only work, restored bytes/time, and divergent/unrelated-prefix isolation. |
+
+The `.7` release was published on September 9 at 13:36:02 UTC, immutable tag
+`9bd8a0fabcf2fc6ef1b882c10b04390c0e31fb00`, native source
+`edb584ee16f0ee1fc5f902459598b9446d96387e`. Its issue #12 is closed. Source
+inspection confirms up to three eligible checkpoints per LRU owner, bounded
+active KV restoration, 32-token alignment for longer prefixes and cold
+fallback for unsafe short cross-block continuations. The published divergent
+Chinese-chat reproduction restores 15 tokens and computes 11. Its 52
+generation pairs, 68 full-vocabulary comparisons, 19 text-matrix cells and
+one-hour soak are sibling qualification, not Windows acceptance.
 
 The protocol changes are independently implemented in the existing Rust server;
 no new runtime dependency, GPU binary, arithmetic threshold or model weights
