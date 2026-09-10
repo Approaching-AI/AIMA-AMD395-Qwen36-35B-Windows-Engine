@@ -2,6 +2,7 @@
 #include "blackwell_kkt.h"
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
+#include "blackwell_l2norm.h"
 
 #include <array>
 #include <cstdint>
@@ -257,6 +258,7 @@ void release_scratch() {
 
 void release_state() {
     release_scratch();
+    qrt_fla_blackwell_norm::release_table();
     for (size_t index = 0u; index < g_state.modules.size(); ++index) {
         if (g_state.modules[index] != nullptr) {
             (void)hipModuleUnload(g_state.modules[index]);
@@ -473,6 +475,21 @@ bool blackwell_aux_enabled(const char* name) {
     return setting && std::strcmp(setting, "1") == 0;
 }
 
+bool launch_blackwell_norm(const float* raw, uint16_t* q, uint16_t* k, unsigned tokens, hipStream_t stream) {
+    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
+    hipError_t status = hipEventCreate(&begin.handle);
+    if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    if (status == hipSuccess) status = hipEventRecord(begin.handle, stream);
+    if (status == hipSuccess) status = qrt_fla_blackwell_norm::normalize(raw, q, k, tokens, stream);
+    if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
+    if (status == hipSuccess) status = hipEventSynchronize(end.handle);
+    float milliseconds = 0;
+    if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
+    if (status != hipSuccess) { set_error("blackwell_norm", status); return false; }
+    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell normalization exceeded 100 ms; no further submission"); return false; }
+    return true;
+}
+
 template<class Operation>
 bool launch_blackwell_aux(const char* name, unsigned tokens, unsigned calls,
                            hipStream_t stream, Operation operation) {
@@ -678,7 +695,9 @@ int launch_segment_async(
         &global_scratch,
         &profile_scratch,
     };
-    if (!launch(
+    if (blackwell_aux_enabled("QRT_FLA_GDN_NORM_BLACKWELL")) {
+        if (!launch_blackwell_norm(raw_pointer, q_pointer, k_pointer, tokens, stream)) return 0;
+    } else if (!launch(
             KernelIndex::kQkL2Norm,
             static_cast<uint32_t>(
                 (static_cast<uint64_t>(tokens) * kQkHeads +
@@ -1113,6 +1132,14 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_prepare(
             return 0;
         }
     }
+    if (blackwell_aux_enabled("QRT_FLA_GDN_NORM_BLACKWELL")) {
+        const hipError_t status = qrt_fla_blackwell_norm::prepare_table();
+        if (status != hipSuccess) {
+            release_state();
+            set_error("prepare_rsqrt_table", status);
+            return 0;
+        }
+    }
     if ((blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL") || blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) &&
         (!blackwell_state_enabled() || !qrt_fla_blackwell_state::exp2_table_device())) {
         release_state();
@@ -1203,6 +1230,7 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
               kTailPaddingBytes +
               ((blackwell_state_enabled() || g_state.blackwell_temporary_state || g_state.blackwell_residual)
                   ? kBlackwellStateScratchBytes : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
+                  + qrt_fla_blackwell_norm::table_storage_bytes()
         : 0u;
 }
 

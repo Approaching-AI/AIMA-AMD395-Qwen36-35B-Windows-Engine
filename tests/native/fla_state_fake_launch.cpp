@@ -1,6 +1,18 @@
 // CPU-only ABI/range test double, never a numerical implementation.
 #include "../../native/providers/gdn/blackwell_state.h"
 #include "../../native/providers/gdn/blackwell_wu_output.h"
+#include "../../native/providers/gdn/blackwell_l2norm.h"
+namespace qrt_fla_blackwell_norm {
+hipError_t prepare_table() { return hipSuccess; }
+void release_table() {}
+uint64_t table_storage_bytes() { return 0; }
+const unsigned char* table_device() { return reinterpret_cast<const unsigned char*>(1); }
+hipError_t normalize(const float* raw, uint16_t* q, uint16_t* k, unsigned tokens, hipStream_t) {
+    if (!valid_normalize(raw, q, k, tokens) || !fake_range(const_cast<float*>(raw), size_t(tokens) * 8192u * 4u) ||
+        !fake_range(q, size_t(tokens) * 2048u * 2u) || !fake_range(k, size_t(tokens) * 2048u * 2u)) return 1;
+    std::cerr << "FAKE_HIP blackwell_norm tokens=" << tokens << '\n'; return 0;
+}
+}
 namespace qrt_fla_blackwell_state {
 hipError_t prepare_exp2_table() { return hipSuccess; }
 void release_exp2_table() {}

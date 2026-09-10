@@ -9,7 +9,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "native/providers/gdn/fla_upstream_capture_replay.cpp"
-SYMBOLS = {"solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "wu-blackwell": "native-blackwell-wu", "state": "_fla_chunk_state_kernel", "state-blackwell": "native-blackwell-state"}
+SYMBOLS = {"norm-blackwell": "native-blackwell-norm", "solve": "_fla_solve_tril_64_kernel", "wu": "_fla_recompute_w_u_kernel", "wu-blackwell": "native-blackwell-wu", "state": "_fla_chunk_state_kernel", "state-blackwell": "native-blackwell-state"}
 
 
 class FlaUpstreamIntegrationContractTests(unittest.TestCase):
@@ -66,6 +66,7 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
                  "beta-bf16": source_tokens * 32 * 2, "initial_state-f32": state * 4,
                  "native-final-state-f32": state * 4, "chunk-state-bf16": ((source_tokens + 63) // 64) * state * 2}
         sizes.update({name: source_tokens * 4096 * 2 for name in ("v-bf16", "w-bf16", "u-bf16", "v-new-bf16")})
+        sizes.update({name: source_tokens * 2048 * 2 for name in ("q-bf16", "k-bf16", "q-normalized-bf16")})
         for name, size in sizes.items():
             with (directory / ("full-" + name + ".bin")).open("wb") as file:
                 file.truncate(size)
@@ -74,7 +75,7 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
     def run_probe(self, stage, directory, source_tokens, tokens, **environment):
         env = {k: v for k, v in os.environ.items() if k not in ("QRT_TEST_FAKE_DISPATCH_MS", "QRT_FLA_UPSTREAM_DUMP_Q64_DIR")}
         env.update(environment)
-        native = stage in ("state-blackwell", "wu-blackwell")
+        native = stage in ("state-blackwell", "wu-blackwell", "norm-blackwell")
         return subprocess.run([str(self.executable), stage, "-" if native else "unused.hsaco", SYMBOLS[stage], "256" if native else "128", "0",
                                str(directory), str(source_tokens), str(tokens)], env=env,
                               capture_output=True, text=True, timeout=10)
@@ -97,6 +98,16 @@ class FlaUpstreamHostSafetyTests(unittest.TestCase):
         self.assertEqual(result.stderr.count("FAKE_HIP blackwell_wu_inplace tokens=64\n"), 16)
         self.assertIn("FAKE_HIP blackwell_wu_inplace tokens=1\n", result.stderr)
         self.assertEqual(json.loads(result.stdout)["segments"], 17)
+
+    def test_normalization_segments_raw_qkv_and_preserves_one_token_tail(self) -> None:
+        result = self.run_probe("norm-blackwell", self.fixture(1025), 1025, 1025)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("FAKE_HIP blackwell_norm tokens=1024\n", result.stderr)
+        self.assertIn("FAKE_HIP blackwell_norm tokens=1\n", result.stderr)
+        self.assertEqual(json.loads(result.stdout)["segments"], 2)
+        result = self.run_probe("norm-blackwell", self.fixture(1025), 1025, 1025, QRT_TEST_FAKE_DISPATCH_MS="101")
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.stderr.count("FAKE_HIP blackwell_norm"), 1)
 
     def test_native_wu_stops_before_next_dispatch_on_admission_failure(self) -> None:
         result = self.run_probe("wu-blackwell", self.fixture(128), 128, 128, QRT_TEST_FAKE_DISPATCH_MS="101")

@@ -5,6 +5,7 @@
 #include <hip/hip_runtime.h>
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
+#include "blackwell_l2norm.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -155,7 +156,7 @@ int main(int argc, char** argv) try {
         return 0;
     }
     if (argc != 9) {
-        std::cerr << "usage: fla-upstream-capture-replay <solve|wu|wu-blackwell|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
+        std::cerr << "usage: fla-upstream-capture-replay <norm-blackwell|solve|wu|wu-blackwell|state|state-blackwell> <hsaco|-> <symbol> <threads> <shared> <capture-dir> <source-tokens> <tokens>\n";
         return 2;
     }
     const std::string stage = argv[1], directory = argv[6];
@@ -166,10 +167,11 @@ int main(int argc, char** argv) try {
     const char* dump = std::getenv("QRT_FLA_UPSTREAM_DUMP_Q64_DIR");
     if (dump && *dump && tokens != 64) throw std::runtime_error("binary stage capture is restricted to a q64 view");
     const bool native_wu = stage == "wu-blackwell";
-    const bool native_blackwell = stage == "state-blackwell" || native_wu;
+    const bool native_norm = stage == "norm-blackwell";
+    const bool native_blackwell = stage == "state-blackwell" || native_wu || native_norm;
     if (native_blackwell && (std::string(argv[2]) != "-" || threads != 256 || shared != 0))
         throw std::runtime_error("native state has compiler-owned ABI and fixed resources");
-    const std::string symbol = native_wu ? "native-blackwell-wu" : native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
+    const std::string symbol = native_norm ? "native-blackwell-norm" : native_wu ? "native-blackwell-wu" : native_blackwell ? "native-blackwell-state" : stage == "solve" ? "_fla_solve_tril_64_kernel" :
                                stage == "wu" ? "_fla_recompute_w_u_kernel" :
                                stage == "state" ? "_fla_chunk_state_kernel" : "";
     if (symbol.empty() || symbol != argv[3]) throw std::runtime_error("stage and kernel ABI mismatch");
@@ -185,7 +187,31 @@ int main(int argc, char** argv) try {
     size_t allocation = 0;
     std::vector<std::pair<std::string, Stats>> surfaces;
     unsigned int segments = 0; float maximum_ms = 0;
-    if (stage == "solve") {
+    if (native_norm) {
+        auto q = bf_input("q-bf16", key_features), k = bf_input("k-bf16", key_features);
+        auto expected_q = bf_reference("q-normalized-bf16", key_features), expected_k = bf_reference("k-normalized-bf16", key_features);
+        std::vector<float> raw(size_t(padded) * 8192u, 0.0f);
+        for (unsigned t = 0; t < tokens; ++t) for (unsigned i = 0; i < key_features; ++i) {
+            raw[size_t(t) * 8192u + i] = value(q[size_t(t) * key_features + i]);
+            raw[size_t(t) * 8192u + 2048u + i] = value(k[size_t(t) * key_features + i]);
+        }
+        check(qrt_fla_blackwell_norm::prepare_table());
+        allocation = raw.size() * 4u + padded * key_features * 4u + qrt_fla_blackwell_norm::table_storage_bytes();
+        Launcher launch(argv[2], argv[3], threads, shared, allocation, true); Buffer input, dq, dk;
+        input.upload(raw); dq.allocate(padded * key_features * 2u); dk.allocate(padded * key_features * 2u);
+        for (unsigned offset = 0; offset < tokens; offset += 1024u) {
+            launch.native_launch("blackwell_norm", offset, [&](hipStream_t stream) {
+                return qrt_fla_blackwell_norm::normalize(input.at<float>(size_t(offset) * 8192u),
+                    dq.at<uint16_t>(size_t(offset) * key_features), dk.at<uint16_t>(size_t(offset) * key_features),
+                    std::min(1024u, tokens - offset), stream);
+            });
+        }
+        auto actual_q = download(dq.at<uint16_t>(), tokens * key_features), actual_k = download(dk.at<uint16_t>(), tokens * key_features);
+        surfaces.emplace_back("q-normalized-bf16", compare(actual_q, expected_q));
+        surfaces.emplace_back("k-normalized-bf16", compare(actual_k, expected_k));
+        dump_q64(stage, "q-normalized-bf16", actual_q); dump_q64(stage, "k-normalized-bf16", actual_k);
+        segments = launch.segments; maximum_ms = launch.maximum_ms;
+    } else if (stage == "solve") {
         auto a = read_range<float>(path("a-f32"), source_tokens * matrix_features, 0, tokens * matrix_features, padded * matrix_features);
         auto expected = bf_reference("a-inverse-bf16", matrix_features);
         allocation = padded * matrix_features * 6u;
@@ -295,6 +321,7 @@ int main(int argc, char** argv) try {
         mismatch |= surfaces[i].second.mismatches != 0 || surfaces[i].second.nonfinite != 0;
     }
     qrt_fla_blackwell_state::release_exp2_table();
+    qrt_fla_blackwell_norm::release_table();
     std::cout << "}}\n"; return mismatch ? 3 : 0;
 } catch (const std::exception& error) {
     std::cerr << "fla_upstream_capture_replay error=" << error.what() << '\n'; return 2;

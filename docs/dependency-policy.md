@@ -26,3 +26,23 @@ environment binding disables it in a fresh process. Removing the optional
 loader, lookup and builder removes its packaging cost entirely. The data is
 not committed as a large source-tree binary; a qualified package must include
 the fingerprinted artifact and account for its load time and memory.
+
+## Optional SM121 normalization compatibility data
+
+`QRT_FLA_GDN_NORM_BLACKWELL=1` uses the reference's 16-lane, eight-contiguous-
+dimension sum order and requires `QRT_FLA_GDN_SM121_RSQRT_TABLE`. The additional
+artifact has 17,301,808 bytes (16.50 MiB), SHA-256
+`ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850`.
+It contains compressed reciprocal-square-root values on [1,4). Exponent
+scaling, subnormal flushing and +infinity were exhaustively checked against
+all 2,139,095,041 nonnegative encodings on SM121; construction accepts no
+model or prompt input. Its packed native lookup also matches all 229,408
+independently captured Q/K reciprocal roots from the real q7169 layer.
+
+The concrete benefit is removing two independently measured normalization
+differences: the FP32 sum tree and the device reciprocal-root approximation.
+High-precision host reciprocal roots still move 98 BF16 outputs in this
+capture. The packaging cost is one optional 16.50 MiB file, an equal device
+allocation and transient host buffer during SHA verification. The same
+Windows CNG and offline builder dependencies described above apply. The
+normalization route remains opt-in pending Windows and full-model evidence.
