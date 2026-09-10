@@ -33,13 +33,15 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
-instead of GB10 82 / 9.25. The latest layer-20 capture loads in
-20,073.028400 ms; diagnostic TTFT is 318,970.640600 ms. All eleven complete layer-3 attention boundaries now match
-GB10, including normalization after repairing its missing reciprocal-root
-correction argument. Terminal residual layers 0–19 are exact; divergence starts
-at layer 20 in the terminal trace. Complete normalization observation now
-locates the first difference after linear attention at layer 20, starting at
-position 6290. All 41 preceding full normalization boundaries are exact.
+instead of GB10 82 / 9.25. Load is 20,079.540200 ms and diagnostic TTFT
+318,378.686600 ms. The tiny-positive exponential fix repairs the complete
+layer-20 GDN and its downstream normalization. All 54 full normalization
+boundaries through layer-26 post-attention now match GB10. The first remaining
+difference is layer-27 input normalization at position 946: 720 BF16 values
+in that one row, while the other 7,168 rows are exact. Terminal residual layers
+0–27 match the reference; layer 28 is the first terminal difference. Observation
+now targets layer-26 MoE, full attention at layer 27 and linear attention at
+layer 28 in independently bounded native and original GB10 runs.
 
 The qualified GB10 layer-20 capture confirms that every actual GDN input is
 exact, including raw convolution output, FP32 decay and BF16 beta. Native
@@ -49,8 +51,12 @@ lookup rejects this tiny positive value, producing one NaN that the triangular
 inverse spreads to 1,382 entries from local row 18 (global position 6290).
 The lookup now returns one for either sign below magnitude 2^-32; larger
 positive arguments remain rejected and the existing artifact is unchanged.
-Local regression and the complete check suite pass. An exhaustive original
-SM121 interval check and rebuilt native/model qualification are pending.
+Local regression and the complete check suite pass. The original SM121
+instruction exhaustively returns exactly one for all 796,917,760 FP32 inputs
+in [0, 2^-32). The rebuilt Windows component preserves the scan and upstream
+inputs while eliminating all NaNs. Its complete real q7169 layer-20 replay
+matches every one of 29,364,224 GB10 BF16 core values. The full-model run confirms this
+repair and exposes the later layer-26/27 boundary described above.
 
 The root-cause replay runs on baiying against captured real inputs from
 `D:\models\Qwen3.6-35B-A3B`, FLA source
@@ -72,6 +78,46 @@ tables by SHA. It remains too slow for product acceptance. Complete-model
 continuation, retained speed and release qualification remain open.
 
 The following records preserve how those boundaries were established.
+
+The corrected-FLA full model uses whole provider e9a7012, FLA 2f346df,
+MoE f164f0b, CK b609453 and CLI f544cbe, retaining each component's recorded
+hash. Host baiying, model `D:\models\Qwen3.6-35B-A3B`, command
+`prepare-fla-model-q7169-exp2-positive-r1.ps1` (SHA
+`e54bcaf601699fcc1091d11283e904bfd25225c78faeda539a76a8b536afcf54`), run SHA
+`eb749897bb8e6b193ed8f11f4a713284902895ddad7cda7fdd2a285dce761610`.
+All host checks pass; 92 observation files total 2,967,621,888 bytes. Full
+layer-20 core, gated norm, output projection and post-attention norm are
+GB10-exact. Complete norms improve from 41 to 54 exact files. The layer-27
+input relative L2 difference is 0.000025863643 and maximum error 0.03125.
+No 32-token native continuation or performance acceptance follows this failed
+first-token gate. The optional `--moe-layer` reference observer captures the
+live router, shared/routed output tuple, MoE sum and next residual inputs;
+its total three-GiB ceiling also covers an optional selected linear layer.
+
+
+The exhaustive tiny-positive capture uses source
+`2f346dfea97f07e89fee56d96009d2d539249a5b`, host `aitopatom-66c4`, original
+pinned SM121 image, command `run-qrt-gb10-exp2-positive-20260911-r1.py`; no model
+is loaded. Capture SHA
+`73e7d856a46a8dcaf4b6788074ad9321100f8bc89a9c61e765eadaef36811b43`,
+zero mismatches, 0.055475 seconds enumeration, 0.061536 ms maximum GPU dispatch.
+
+FLA rebuilt on baiying at that same source has DLL SHA
+`4f2cf28e282aa4e7edf2b34b66ce7044837212ae0965cedfdee66eb3ae7a3134`, 477,184 bytes.
+Command `build-native-gdn-exp2-positive-r1.ps1`, build run SHA
+`5bb885e061467c02025585f6ce9b1654ba1158207327bcaebc37df17031f6cb5`,
+33,200.163 ms, all host checks pass. Corrected q64 real-chunk command
+`run-native-linear20-chunk98-fixed-r1.ps1`, run SHA
+`853e2372569a208d3dc32606c81ffba54d7051966015008e7f9a8df145264365`,
+653.416 ms, eliminates the KKT/inverse NaNs with upstream files unchanged.
+Complete q7169 real layer-20 command `run-native-linear20-full-fixed-r1.ps1`,
+run SHA `78a19f9a81a504c0780545b1c4dc8b0d9d7e402234fefae6349b06a056118a40`,
+1,776.562 ms, output SHA
+`b17c9c28a59dbf818d0dbf658915f0ab0774bb7ed3924d0ff144a62369acf837`
+is identical to the same-run qualified GB10 full-model capture. These component
+runs use saved real `D:\models\Qwen3.6-35B-A3B` inputs from a zero initial state;
+the replay does not load the model or claim product TTFT. All host checks pass.
+
 
 The optional FLA route at `33e0492ee17013aa897eb19aa092c15cf56df2bf` now
 matches the saved real q7169 layer-0 recurrence exactly on native Windows:

@@ -26,6 +26,7 @@ TOKENS = 7169
 MAXIMUM_CAPTURE_BYTES = 768 << 20
 ALL_NORM_CAPTURE_BYTES = 3 << 30
 LINEAR_CAPTURE_BYTES = 1536 << 20
+MOE_CAPTURE_BYTES = 3 << 30
 ORACLE_SHA = "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
 
 
@@ -51,7 +52,7 @@ class FullAttentionCapture:
     """vLLM worker extension; observes the existing model without replacing ops."""
 
     def qrt_arm_full_attention(self, directory, attention_layer=3, all_layer_norms=False,
-                              linear_layer=None):
+                              linear_layer=None, moe_layer=None):
         import torch
 
         if attention_layer not in range(3, 40, 4) or not isinstance(all_layer_norms, bool):
@@ -59,6 +60,8 @@ class FullAttentionCapture:
         if linear_layer is not None and (linear_layer not in range(40) or
                                          linear_layer % 4 == 3 or all_layer_norms):
             raise ValueError("select one linear layer without the all-normalization scope")
+        if moe_layer is not None and (moe_layer not in range(39) or all_layer_norms):
+            raise ValueError("select one MoE and its next normalization without the all-normalization scope")
         if hasattr(self, "_qrt_handles"):
             raise ValueError("worker capture already initialized")
         root = Path(directory)
@@ -68,6 +71,8 @@ class FullAttentionCapture:
         self._qrt_maximum_bytes = ALL_NORM_CAPTURE_BYTES if all_layer_norms else MAXIMUM_CAPTURE_BYTES
         if linear_layer is not None:
             self._qrt_maximum_bytes = LINEAR_CAPTURE_BYTES
+        if moe_layer is not None:
+            self._qrt_maximum_bytes = MOE_CAPTURE_BYTES
         self._qrt_observation_seconds = 180 if all_layer_norms else 90
         self._qrt_norm_labels = set()
         self._qrt_handles = []
@@ -136,11 +141,12 @@ class FullAttentionCapture:
 
         for index, layer in enumerate(layers):
             attach(layer, layer_hook(index))
-            if index <= 3 or all_layer_norms or index == linear_layer:
+            if (index <= 3 or all_layer_norms or index == linear_layer or
+                    (moe_layer is not None and index in (moe_layer, moe_layer + 1))):
                 label = f"layer-{index:02d}-input-rmsnorm"
                 self._qrt_norm_labels.add(label)
                 attach(layer.input_layernorm, output_hook(label))
-            if all_layer_norms or index == linear_layer:
+            if all_layer_norms or index == linear_layer or index == moe_layer:
                 label = f"layer-{index:02d}-post-attention-rmsnorm"
                 self._qrt_norm_labels.add(label)
                 attach(layer.post_attention_layernorm, output_hook(label))
@@ -208,11 +214,45 @@ class FullAttentionCapture:
                    lambda module, args, output: save("linear-seed", output[1] if isinstance(output, tuple) else args[0]))
             attach(layers[linear_layer].post_attention_layernorm,
                    lambda module, args, output: save("linear-residual", output[1]))
+        self._qrt_moe_labels = set()
+        moe_source = None
+        if moe_layer is not None:
+            import inspect
+
+            mlp = layers[moe_layer].mlp
+            if mlp.experts.is_internal_router or mlp.tp_size != 1 or mlp.shared_expert is None:
+                raise ValueError("MoE observation requires the original single-device external router and shared expert")
+            source_path = Path(inspect.getsourcefile(type(mlp)))
+            moe_source = dict(file=str(source_path), sha256=file_sha(source_path))
+            self._qrt_moe_labels = {
+                "moe-input", "moe-router", "moe-output", "moe-shared",
+                "moe-expert-part-0", "moe-expert-part-1", "moe-next-hidden",
+                "moe-residual"}
+            attach(mlp, input_hook("moe-input"), pre=True)
+            attach(mlp.gate, output_hook("moe-router"))
+            attach(mlp.shared_expert, output_hook("moe-shared"))
+            attach(mlp, output_hook("moe-output"))
+
+            def expert_outputs(module, args, output):
+                if not isinstance(output, tuple) or len(output) != 2:
+                    raise ValueError("original shared/routed expert tuple changed")
+                for index, value in enumerate(output):
+                    save(f"moe-expert-part-{index}", value)
+
+            def next_inputs(module, args):
+                if len(args) != 2:
+                    raise ValueError("original residual normalization arguments changed")
+                save("moe-next-hidden", args[0])
+                save("moe-residual", args[1])
+
+            attach(mlp.experts, expert_outputs)
+            attach(layers[moe_layer + 1].input_layernorm, next_inputs, pre=True)
         attach(parent.norm, lambda module, args, output: save("final-norm", first(output), terminal=True))
         return dict(model_type=type(model).__name__, layer_container=name,
                     hooks=len(self._qrt_handles), maximum_bytes=self._qrt_maximum_bytes,
                     attention_layer=attention_layer, all_layer_norms=all_layer_norms,
                     linear_layer=linear_layer, linear_source=linear_source,
+                    moe_layer=moe_layer, moe_source=moe_source,
                     maximum_observation_seconds=self._qrt_observation_seconds)
 
     def qrt_finish_full_attention(self):
@@ -226,6 +266,7 @@ class FullAttentionCapture:
             "full-attention-residual", "final-norm"}
         required |= self._qrt_norm_labels
         required |= self._qrt_linear_labels
+        required |= self._qrt_moe_labels
         record = dict(files=self._qrt_files, bytes=self._qrt_bytes,
                       complete=required <= self._qrt_files.keys(),
                       missing=sorted(required - self._qrt_files.keys()),
@@ -259,7 +300,7 @@ def execute(args, prompt, oracle):
     write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds))
     armed = llm.collective_rpc("qrt_arm_full_attention", args=(
         str(args.output_dir / "tensors"), args.attention_layer, args.all_layer_norms,
-        args.linear_layer))
+        args.linear_layer, args.moe_layer))
     requested = time.monotonic()
     outputs = llm.generate([dict(prompt_token_ids=prompt)],
                            SamplingParams(temperature=0, max_tokens=32, ignore_eos=True),
@@ -304,11 +345,13 @@ def main():
                         help="observe all 80 complete normalization boundaries with a three-GiB ceiling")
     parser.add_argument("--linear-layer", type=int, choices=[i for i in range(40) if i % 4 != 3],
                         help="also observe one original linear-attention path with a 1.5-GiB total ceiling")
+    parser.add_argument("--moe-layer", type=int, choices=range(39),
+                        help="also observe one original MoE and next norm with a three-GiB total ceiling")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
-    if args.linear_layer is not None and args.all_layer_norms:
-        raise ValueError("linear and all-normalization capture scopes are separately bounded")
+    if (args.linear_layer is not None or args.moe_layer is not None) and args.all_layer_norms:
+        raise ValueError("selected-operator and all-normalization capture scopes are separately bounded")
     prompt, oracle = prompt_and_oracle(args.oracle)
     if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 480 or
             len(args.source_commit) != 40 or any(c not in "0123456789abcdef" for c in args.source_commit)):
@@ -331,8 +374,9 @@ def main():
                   oracle_sha256=file_sha(args.oracle), completed=False, oracle_qualified=False,
                   native_tensor_inputs=False, windows_acceptance=False,
                   attention_layer=args.attention_layer, all_layer_norms=args.all_layer_norms,
-                  linear_layer=args.linear_layer,
-                  maximum_capture_bytes=(LINEAR_CAPTURE_BYTES if args.linear_layer is not None else
+                  linear_layer=args.linear_layer, moe_layer=args.moe_layer,
+                  maximum_capture_bytes=(MOE_CAPTURE_BYTES if args.moe_layer is not None else
+                                         LINEAR_CAPTURE_BYTES if args.linear_layer is not None else
                                          ALL_NORM_CAPTURE_BYTES if args.all_layer_norms else MAXIMUM_CAPTURE_BYTES))
     write_json(args.output_dir / "preflight.json", record)
     if args.execute:
