@@ -447,6 +447,17 @@ coordinates per surface. Its local replay reproduces every prior comparison
 count and maximum error. This avoids transporting each large live capture
 while retaining reference and capture fingerprints.
 
+The native CPU comparison completes in 625.040 ms. Remaining Q/K/V differences
+are 28 / 43 / 45; G and beta remain exact. GDN output/state differ in
+2,032,879 BF16 / 255,346 FP32 cells. Comparison run SHA:
+`765abbc9d58ea51ebe89383bce11e49dc38131a05aa6d5e7806872879ba01a59`.
+The 116 convolution endpoint differences map to 23 distinct activation inputs
+computed from the already exact QKV and actual convolution weights. A new
+model-independent SiLU builder requires all these cases plus 192 distributed
+controls to match the original expression before exhaustive finite-FP32
+enumeration. Its compact transition representation is subsequently rechecked
+over the same full domain; native integration is pending.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |

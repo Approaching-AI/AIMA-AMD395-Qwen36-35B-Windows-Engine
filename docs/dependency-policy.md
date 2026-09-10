@@ -99,3 +99,11 @@ all vocabulary rows are enumerated. The native command verifies the complete
 embedding and norm-weight tensor fingerprints before use; its captured full
 input normalization matches every reference BF16 cell. The raw runtime loader
 still needs equivalent artifact/model binding for release packaging.
+
+The optional SiLU endpoint builder enumerates every finite FP32 input of the
+original SM121 Triton expression, after a real convolution control passes.
+It stores every BF16 output transition, including nonmonotonic transitions,
+and a page directory, then rechecks the packed lookup over the full domain.
+This would replace cross-vendor exponential/division differences without
+depending on model weights or prompt values. The artifact size and native
+integration remain pending; CUDA/Python is confined to offline construction.
