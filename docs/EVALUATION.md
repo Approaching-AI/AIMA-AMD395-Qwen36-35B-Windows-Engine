@@ -608,8 +608,34 @@ kernel and independent table lookup. Every table enumerates all BF16 inputs,
 and the shared sigmoid table must agree across every head and layer. Local
 validation covers the complete parameter set, malformed spans/shapes, duplicate
 layers and a mismatched primary model binding. The 30-layer data would occupy
-240 MiB plus a 128 KiB shared sigmoid table; generation and model qualification
-are still pending and no runtime default is changed.
+240 MiB plus a 128 KiB shared sigmoid table. The bounded SM121 capture at
+`9d612717` has now enumerated all 62,914,560 layer/head inputs, with both
+independent real-token layer controls matching. Its 483 launches take at most
+0.299808 ms each, and layer zero's tables reproduce the prior fingerprints.
+Capture SHA:
+`a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46`.
+No runtime default is changed.
+
+The following native q7169 run binds all 60 live model parameter tensors and
+loads all 30 gate tables. Layer one's terminal G and beta now match, while its
+core retains 960 BF16 differences. The final token remains 220 / 9.375;
+load is 20,021.511200 ms and diagnostic TTFT is 33,732.892200 ms. Host and
+cleanup checks pass. The CLI, FLA and whole-provider sources remain the
+explicitly mixed diagnostic stack described above; this is not acceptance.
+Command file: `prepare-fla-model-q7169-allgate-r1.ps1`. Native run SHA:
+`0687e013ce30631c525607e2107d956c721326ed538ce124ddd1d2c16a17474e`.
+
+A complete layer-one convolution replay from the native QKV capture reproduces
+its terminal native output exactly, but comparison with the independently
+captured GB10 prefix finds 638,008 Q, 633,891 K and 1,371,267 V differences.
+The first mismatches occur at token zero. Layer-one terminal projection parity
+therefore does not establish prefix parity. The next probe,
+`scripts/capture_sm121_moe_full.py`, replays the complete layer-zero MoE from
+the already validated post-attention input, using actual GB10 model weights
+fingerprinted against native safetensor spans. It requires 15 independent
+terminal controls before emitting full reference tensors and compares the
+unrounded residual and next input normalization. Local preflight and malformed
+input rejection pass; the full MoE replay is still pending.
 
 ## MMLU-Pro full evaluation
 
