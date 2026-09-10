@@ -10,6 +10,7 @@
 #include <cstring>
 #include <vector>
 #include "hawkeye_dispatch_policy.h"
+#include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorInvalidConfiguration, hipErrorUnknown };
 using hipStream_t = void *;
@@ -102,6 +103,23 @@ void reset() {
     invalid_grid = invalid_range = false; corrected.clear();
 }
 int main() {
+    // Independently validate the native synthetic test's closed-form dot,
+    // including zero signs, against the production scalar accumulator.
+    for (unsigned int k : {16u, 2048u}) {
+        std::vector<uint16_t> left(k, 0u), right(k, 0u);
+        for (int r = -6; r <= 6; ++r) for (int t = -8; t <= 8; ++t) {
+            const float a = r / 8.0f, b = t / 16.0f;
+            uint32_t ab = 0u, bb = 0u;
+            std::memcpy(&ab, &a, 4u); std::memcpy(&bb, &b, 4u);
+            left.back() = static_cast<uint16_t>(ab >> 16u);
+            right.back() = static_cast<uint16_t>(bb >> 16u);
+            const float actual = qrt_q1_moe_hawkeye::dot_bf16_impl<26, 16, -133>(
+                left.data(), right.data(), k);
+            float expected = a * b;
+            if (expected == 0.0f) expected = 0.0f;
+            if (std::memcmp(&actual, &expected, 4u) != 0) return 10;
+        }
+    }
     const unsigned int rows = 129u, tokens = 1031u;
     total_elements = static_cast<size_t>(rows) * tokens;
     std::vector<float> initial(total_elements, 1.001f);

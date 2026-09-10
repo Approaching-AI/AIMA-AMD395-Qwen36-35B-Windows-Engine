@@ -209,6 +209,15 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k)
             const unsigned int token = static_cast<unsigned int>(i / rows);
             expected = (static_cast<float>(static_cast<int>(row % 13u) - 6) / 8.0f) *
                        (static_cast<float>(static_cast<int>(token % 17u) - 8) / 16.0f);
+            // The dot begins with positive zero and includes K-1 zero
+            // products. A negative-zero final product still sums to +0.
+            if (expected == 0.0f) expected = 0.0f;
+        }
+        if (bf16(output[kGuard + i]) != bf16(expected)) {
+            std::cerr << "streamed_correction_mismatch index=" << i
+                      << " row=" << i % rows << " token=" << i / rows
+                      << " actual_bits=" << bf16(output[kGuard + i])
+                      << " expected_bits=" << bf16(expected) << std::endl;
         }
         require(bf16(output[kGuard + i]) == bf16(expected), "streamed correction endpoint mismatch");
         uint32_t bits = 0u;
