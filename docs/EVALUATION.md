@@ -111,6 +111,19 @@ packing tests pass in the existing reference container; these source checks
 cannot replace real-token, prefix, HTTP/archive and retained-performance
 qualification. The retained q8192 target and numerical tolerance remain fixed.
 
+The later normalization correction at `3d82d6950b082f36b866cd248845e3973684a1ab`
+reproduces every Q/K BF16 output in the complete frozen q7169 component case.
+It uses the independently characterized reduction order and the general
+reciprocal-root table described in `docs/dependency-policy.md`. Integrated
+q64 output differences fall from 31 to one, but the complete model still
+emits 220 / 9.3125 instead of the authority's 82 / 9.25. Native load is
+20,023.1357 ms and prefill 21,866.8483 ms. This remains an unqualified opt-in
+combination; the triangular inverse and output arithmetic remain under
+investigation. Source checks pass 254 Python tests (two known skips), 45
+Rust tests, clippy, C ABI, q16 contracts and hygiene. Native component and
+model runs completed with passing host health/cleanup checks. No release
+or retained-performance qualification follows from the component correction.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
