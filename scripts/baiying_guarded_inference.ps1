@@ -11,6 +11,7 @@ $ProgressPreference = 'SilentlyContinue'
 if (-not [Environment]::MachineName.Equals('baiying', [StringComparison]::OrdinalIgnoreCase)) {
     throw 'This acceptance runner must execute on baiying.'
 }
+. (Join-Path $PSScriptRoot 'baiying_boot_identity.ps1')
 $spec = [IO.File]::ReadAllText($SpecPath) | ConvertFrom-Json
 foreach ($path in @($spec.executable, $spec.working_directory)) {
     if (-not (Test-Path -LiteralPath $path)) { throw "Missing input: $path" }
@@ -100,6 +101,7 @@ try {
     $beforeProcesses = @(Get-EngineProcesses)
     $os = Get-CimInstance Win32_OperatingSystem -OperationTimeoutSec 5
     $boot = $os.LastBootUpTime.ToString('o')
+    $bootIdentity = Get-QrtBootIdentity $boot
     $gpus = @(Get-CimInstance Win32_VideoController -OperationTimeoutSec 5 |
         Where-Object { $_.Name -match 'AMD|Radeon' } | Select-Object Name, Status, DriverVersion)
     $checks = [ordered]@{
@@ -133,6 +135,7 @@ try {
         executable_sha256 = (Get-FileHash $spec.executable -Algorithm SHA256).Hash.ToLowerInvariant()
         input_fingerprints = $inputHashes
         boot = $boot
+        boot_identity = $bootIdentity
         memory = $beforeMemory
         gpus = $gpus
         processes = $beforeProcesses
@@ -193,11 +196,12 @@ try {
     $summary = if ($summaries.Count -gt 0) { $summaries[-1] | ConvertFrom-Json } else { $null }
     $afterProcesses = @(Get-EngineProcesses)
     $afterBoot = (Get-CimInstance Win32_OperatingSystem -OperationTimeoutSec 5).LastBootUpTime.ToString('o')
+    $afterBootIdentity = Get-QrtBootIdentity $afterBoot
     $afterMemory = [QrtRunGuard]::Snapshot()
     $afterGpus = @(Get-CimInstance Win32_VideoController -OperationTimeoutSec 5 |
         Where-Object { $_.Name -match 'AMD|Radeon' } | Select-Object Name, Status, DriverVersion)
     $hostChecks = [ordered]@{
-        same_boot = $boot -eq $afterBoot
+        same_boot = Test-QrtSameBoot $bootIdentity $afterBootIdentity
         no_engine_process = $afterProcesses.Count -eq 0
         host_memory_reserve = $afterMemory.AvailablePhysical -ge 8GB
         commit_reserve = $afterMemory.AvailableCommit -ge 20GB
@@ -211,6 +215,8 @@ try {
         preflight = $preflight; reason = $reason; exit_code = $process.ExitCode
         wall_ms = [Math]::Round($watch.Elapsed.TotalMilliseconds, 3)
         summary_present = $null -ne $summary; cli_pass = $cliPass; summary = $summary
+        after_boot = $afterBoot; after_boot_identity = $afterBootIdentity
+        boot_clock_text_unchanged = $boot -eq $afterBoot
         after_memory = $afterMemory; after_gpus = $afterGpus; after_processes = $afterProcesses
         host_checks = $hostChecks; host_checks_pass = -not ($hostChecks.Values -contains $false)
         numerical_acceptance_requires_external_oracle = $true

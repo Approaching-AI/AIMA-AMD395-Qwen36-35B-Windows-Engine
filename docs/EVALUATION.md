@@ -798,6 +798,45 @@ against the captured GB10 rows. No runtime change or new build is needed.
 The second-layer terminal QKV/Z/A/B, gated normalization and output
 projection all match in this case.
 
+
+Existing all-layer output tracing completes on the same q7169 profile,
+run `9e7122e1fd9496d811319cf7869caac93a37645830cb038203bea1877d035a2d`,
+command `prepare-fla-model-q7169-alllinear-trace-r1.ps1`. Host/cleanup checks
+pass, output is 220 / 9.3125, load 20,154.908000 ms, diagnostic TTFT
+218,689.481000 ms. The complete layer-1 input normalization keeps its GB10
+fingerprint. All 40 terminal residual rows are compared with the existing
+GB10 capture: layers 0, 1 and 2 match; layer 3 differs in 589 / 2,048 BF16
+values. Later layers diverge further. A terminal mismatch can originate in
+earlier prefix rows, so this does not identify the failing operator alone.
+Comparison SHA `d02ee27de3fab49495d27e506ec3c3f3b4bbadb53aeef391312b789d832656b0`.
+
+Enabling the existing fused full-attention QKV WMMA/correction route at
+radius 512 and 10,000 ppb does not close that boundary: layer 3 differs in
+593 cells and the output remains 220 / 9.375. Command
+`prepare-fla-model-q7169-fullattn-qkv-r1.ps1`, run SHA
+`7071eb53abc1167e128d8db6c3384fff93639cf5024131b5a5f667612fb6a6d6`,
+load 20,135.284000 ms and diagnostic TTFT 237,543.623600 ms. Both runs use
+whole `db049515`, MoE `f164f0b0`, FLA `831c1699`, CLI `f544cbe`, host `baiying`
+and model `D:\models\Qwen3.6-35B-A3B`. Neither qualifies for acceptance.
+
+The latter run finishes normally but its old `same_boot` check fails.
+The only changed host check is exact CIM boot-time text: it moves backward
+1.398022 seconds. The latest kernel boot event is still record 122570 from
+00:41 local time, and kernel time-change record 122931 records a -1,398 ms
+clock adjustment. GPU status, free-memory checks and process cleanup pass.
+The updated guard compares kernel boot-event identity and records CIM time
+separately; it retains strict CIM comparison if event lookup is unavailable.
+The original failed record remains unchanged.
+
+The next rotary-cache probe binds the original stopped reference's 19 rotary
+source files and the actual model config SHA
+`93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99`.
+It uses the original SM121 MRoPE constructor and checks the complete native
+262,144-position BF16 prefix against a second cache extent. Only model
+configuration and mathematical positions enter the builder; no prompt IDs,
+model weights or inference outputs are inputs. Runtime table use remains
+pending native numerical qualification.
+
 ## MMLU-Pro full evaluation
 
 | Measure | Windows engine | BF16 authority |
