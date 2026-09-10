@@ -988,3 +988,34 @@ nine projection-only differences when replaying the rotary-only native input.
 The opt-in wrapper covers normal and tiled full-attention output projections;
 default settings preserve the original matrix route. The remaining full-prefix
 attention differences require independent attention-core work.
+
+
+Full-attention output correction now closes the terminal layer-3 boundary.
+
+Native whole source `28c4f9df501e8e95ac357acc45d30daf48633bf8` builds cleanly
+on baiying; DLL SHA
+`0e7c9e2c6f0c64e45b32012e755735a415e0a62f63e4845c47a29df210ddcee5`.
+`make check PYTHON=python3.12` passes all 268 Python cases (two existing skips),
+45 Rust tests, Clippy, C ABI, seven q16 contracts and public hygiene.
+Command `D:\projects\prepare-fla-model-q7169-fa-out-r1.ps1` uses the real
+`D:\models\Qwen3.6-35B-A3B`, whole `28c4f9df`, FLA `831c1699`, MoE `f164f0b0`,
+CLI/CK `f544cbe`, with the same qualified GB10 full-model capture
+`087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37`.
+Run SHA `4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146`.
+
+The terminal output projection's ten differences disappear, as do the five
+post-attention residual and five normalized-output differences. All 2048
+post-MoE terminal residual values at layer 3 now match, so terminal layers
+0–3 are exact. Complete layer-3 normalized input, Q/K/V and normalized/rotated
+Q/K remain exact. Full context still has 65,059 differences and gated context
+58,453; their captures are unchanged from the preceding run. Output projection
+now has 784,949 full-prefix differences, post-attention residual 195,153 and
+normalization 191,996. These remaining downstream counts are affected by the
+known differing context. Layer 4 has 1,033 terminal residual differences.
+
+The final first token remains wrong: 220 / 9.375 instead of 82 / 9.25.
+Load is 20,373.593500 ms and diagnostic TTFT 253,150.381300 ms; all host checks
+pass. This is neither continuation nor performance acceptance. Evidence is
+under `build/recovery-20260910/fla-model-q7169-fa-out-r1/`. Next work isolates
+the full-prefix attention core using the now-exact Q/K/V input capture,
+without loading the whole model for each numerical decision.
