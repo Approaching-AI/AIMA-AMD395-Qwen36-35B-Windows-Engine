@@ -36,10 +36,13 @@ QRT_EXP2_HD inline float value(uint32_t bits) {
 }
 // Only the validated, SHA-bound artifact may reach this lookup. The table
 // enumerates every nonpositive float, independent of any model or prompt.
+// Parallel prefix scans can round equal negative sums in opposite directions.
+// Their tiny positive differences must retain exp2(x) == 1 instead of becoming
+// NaNs that contaminate the subsequent triangular inverse.
 QRT_EXP2_HD inline float evaluate(const unsigned char* table, float argument) {
     const uint32_t input = bits(argument), magnitude = input & 0x7fffffffu;
-    if (magnitude > 0x7f800000u || (!(input >> 31u) && magnitude)) return value(0x7fc00000u);
     if (magnitude < begin) return 1.0f;
+    if (magnitude > 0x7f800000u || !(input >> 31u)) return value(0x7fc00000u);
     if (magnitude >= end) return 0.0f;
     const uint32_t relative = magnitude - begin;
     const auto* entry = reinterpret_cast<const uint32_t*>(table + 48u) + (relative >> 8u) * 2u;

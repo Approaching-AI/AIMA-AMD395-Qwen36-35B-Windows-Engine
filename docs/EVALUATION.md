@@ -33,13 +33,36 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 The latest real q7169 model run on baiying remains unqualified: 220 / 9.3125
-instead of GB10 82 / 9.25. Load is 20,062.162500 ms and diagnostic TTFT
-319,214.462000 ms. All eleven complete layer-3 attention boundaries now match
+instead of GB10 82 / 9.25. The latest layer-20 capture loads in
+20,073.028400 ms; diagnostic TTFT is 318,970.640600 ms. All eleven complete layer-3 attention boundaries now match
 GB10, including normalization after repairing its missing reciprocal-root
 correction argument. Terminal residual layers 0–19 are exact; divergence starts
 at layer 20 in the terminal trace. Complete normalization observation now
 locates the first difference after linear attention at layer 20, starting at
 position 6290. All 41 preceding full normalization boundaries are exact.
+
+The qualified GB10 layer-20 capture confirms that every actual GDN input is
+exact, including raw convolution output, FP32 decay and BF16 beta. Native
+q64 replay of real positions 6272–6335 reproduces a parallel prefix scan
+rounding difference of positive 2^-41 in head 24. The nonpositive exponential
+lookup rejects this tiny positive value, producing one NaN that the triangular
+inverse spreads to 1,382 entries from local row 18 (global position 6290).
+The lookup now returns one for either sign below magnitude 2^-32; larger
+positive arguments remain rejected and the existing artifact is unchanged.
+Local regression and the complete check suite pass. An exhaustive original
+SM121 interval check and rebuilt native/model qualification are pending.
+
+The root-cause replay runs on baiying against captured real inputs from
+`D:\models\Qwen3.6-35B-A3B`, FLA source
+`831c1699c3c956ace00365bb42c2deb2045a7ea7`, command
+`run-native-linear20-chunk98-old-r2.ps1`. Run SHA
+`99fb6530d56aa99efa6cb6157e79b0eface7165de75c98ed53cd145e2a41942e`;
+430.324 ms, all host checks pass. Its finite output and internal sync/async
+agreement are insufficient for numerical acceptance. The same-run qualified
+GB10 full-model capture, source `ca24ee7c56f176495ccbc48454963b4b9d3e7273`,
+command `run-qrt-gb10-linear20-20260911-r2.py`, host `aitopatom-66c4`, model
+`/mnt/data/models/Qwen3.6-35B-A3B`, retains 82 / 9.25 and all 32 oracle tokens;
+capture SHA `0182e854e9689331751bb7dafe0816203d5f12cf7ce5658ca9b9e2f233aa11f4`.
 
 The shared Blackwell attention arithmetic, original SM121 exponential,
 1/4/2/16/8 reduction and reciprocal coefficients match all 29,364,224 BF16

@@ -17,9 +17,18 @@ int main(int argc, char** argv) try {
     if (argc == 2 && std::string(argv[1]) == "--domain-only") {
         if (bits(evaluate(nullptr, -0.0f)) != 0x3f800000u || bits(evaluate(nullptr, 0.0f)) != 0x3f800000u ||
             bits(evaluate(nullptr, value(0x80000001u))) != 0x3f800000u ||
+            bits(evaluate(nullptr, value(1u))) != 0x3f800000u ||
+            bits(evaluate(nullptr, value(begin - 1u))) != 0x3f800000u ||
             bits(evaluate(nullptr, -152.0f)) != 0 || bits(evaluate(nullptr, value(0xff800000u))) != 0 ||
+            bits(evaluate(nullptr, value(begin))) != 0x7fc00000u ||
             bits(evaluate(nullptr, 1.0f)) != 0x7fc00000u || bits(evaluate(nullptr, value(0xffc00000u))) != 0x7fc00000u ||
             valid_layout(nullptr, table_bytes)) return 3;
+        // Equal mathematical prefix sums from the real linear-20 chunk round
+        // to adjacent FP32 values. The resulting positive exponent is finite
+        // and exp2 rounds to one; treating it as invalid poisons the inverse.
+        const float difference = value(0xb6a4ddfdu) - value(0xb6a4ddfeu);
+        if (bits(difference) != 0x2b000000u ||
+            bits(evaluate(nullptr, difference * 1.4426950408889634074f)) != 0x3f800000u) return 4;
         std::cout << "domain guards pass\n"; return 0;
     }
     if (argc != 4) throw std::runtime_error("usage: lookup <table> <arguments> <expected> | --domain-only");
