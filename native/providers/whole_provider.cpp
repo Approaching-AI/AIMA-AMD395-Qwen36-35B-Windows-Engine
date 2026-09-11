@@ -27,6 +27,7 @@
 #include "sm121_silu_runtime.h"
 #include "sm121_q1_runtime.h"
 #include "sm121_q1_moe_runtime.h"
+#include "sm121_q1_full_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_q1_moe.h"
@@ -15395,7 +15396,9 @@ qwen36_resident_full_attention_probability_bf16_inplace_dual_kernel(
 __global__ void qwen36_resident_full_attention_grouped_bf16_post_kernel(
     const float *rope_values,
     float *context,
-    uint16_t *context_bf16
+    uint16_t *context_bf16,
+    const float *sm121_beta,
+    float *ungated_observation
 ) {
     const unsigned int index =
         static_cast<unsigned int>(blockIdx.x) * blockDim.x + threadIdx.x;
@@ -15406,9 +15409,13 @@ __global__ void qwen36_resident_full_attention_grouped_bf16_post_kernel(
     const float gate = device_bf16_round_to_float(
         rope_values[kLayer3FullAttentionQFeatures + index]
     );
-    const float output = device_bf16_round_to_float(
-        context[index] * device_sigmoid_f32(gate)
-    );
+    const float ungated = sm121_beta
+        ? device_bf16_round_to_float(context[index]) : context[index];
+    if (ungated_observation) ungated_observation[index] = ungated;
+    const float scale = sm121_beta
+        ? device_bf16_round_to_float(sm121_beta[device_float_to_bf16(gate)])
+        : device_sigmoid_f32(gate);
+    const float output = device_bf16_round_to_float(ungated * scale);
     context[index] = output;
     if (context_bf16 != nullptr) {
         context_bf16[index] = device_float_to_bf16(output);
@@ -68471,6 +68478,15 @@ bool run_qwen36_resident_full_attention_score_value_step(
         );
     }
 
+    const bool q1_sm121_full_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_FULL");
+    qrt_sm121_q1_runtime::Tables q1_full_core_tables;
+    if (q1_sm121_full_requested &&
+        (current_surface_kind != Qwen36ResidentSessionElementKind::kBf16 ||
+         qrt_sm121_q1_runtime::prepare(&q1_full_core_tables) != hipSuccess)) {
+        return qwen36_resident_decode_set_failure(stage + "_sm121_tables",
+            "SM121 full attention requires BF16 cache and its qualified arithmetic tables",
+            failure_stage, failure);
+    }
     const size_t total_tokens_size = layer.history_tokens +
         layer.decode_tail_token_count + 1u;
     if (!qwen36_resident_decode_activation_workspace_layout_valid(
@@ -69544,7 +69560,9 @@ bool run_qwen36_resident_full_attention_score_value_step(
                     stream,
                     device_rope_values,
                     device_context_output,
-                    device_context_bf16_output
+                    device_context_bf16_output,
+                    q1_sm121_full_requested ? q1_full_core_tables.beta : nullptr,
+                    q1_sm121_full_requested ? score_scratch : nullptr
                 );
                 status = hipGetLastError();
             }
@@ -69902,7 +69920,9 @@ bool run_qwen36_resident_full_attention_score_value_step(
                     stream,
                     device_rope_values,
                     device_context_output,
-                    device_context_bf16_output
+                    device_context_bf16_output,
+                    q1_sm121_full_requested ? q1_full_core_tables.beta : nullptr,
+                    q1_sm121_full_requested ? score_scratch : nullptr
                 );
                 status = hipGetLastError();
             }
@@ -70535,7 +70555,9 @@ bool run_qwen36_resident_full_attention_score_value_step(
                     stream,
                     device_rope_values,
                     device_context_output,
-                    device_context_bf16_output
+                    device_context_bf16_output,
+                    q1_sm121_full_requested ? q1_full_core_tables.beta : nullptr,
+                    q1_sm121_full_requested ? score_scratch : nullptr
                 );
                 status = hipGetLastError();
             }
@@ -180279,6 +180301,20 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         lease->invalidate();
         return false;
     };
+    const bool q1_sm121_full_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_FULL");
+    qrt_sm121_q1_full_runtime::Tables q1_full_tables;
+    const uint8_t *q1_full_rsqrt_correction = nullptr;
+    if (q1_sm121_full_requested &&
+        (!env_flag_enabled("QRT_QWEN36_Q1_SM121_MOE") ||
+         !env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT") ||
+         absolute_position >= QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+         g_qwen36_paired_layer_execution_hooks != nullptr ||
+         qrt_sm121_q1_full_runtime::prepare(&q1_full_tables) != hipSuccess ||
+         !load_gfx1151_sm121_rsqrt_correction(&q1_full_rsqrt_correction, &run->failure,
+             std::getenv("QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION")))) {
+        return fail("qwen36_q1_sm121_full_dependencies",
+            run->failure.empty() ? "SM121 full attention requires exact Q1 MoE/output, an unpaired position and qualified tables" : run->failure);
+    }
     const bool q1_full_terminal_exact_out_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_TERMINAL_EXACT_OUT"
     );
@@ -180686,7 +180722,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PERSISTENT_Q"
     );
     const bool q1_full_attention_triton_0626_qkv_requested =
-        env_flag_enabled(
+        !q1_sm121_full_requested && env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_0626_QKV"
         );
     const size_t resident_prefix_tokens =
@@ -180703,7 +180739,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         resident_prefix_tokens == kQ262144ColdProbePrefillTokens;
     const bool
         q1_full_attention_triton_qkv_fused_prep_context_requested =
-            env_flag_enabled(
+            !q1_sm121_full_requested && env_flag_enabled(
                 "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_QKV_FUSED_PREP_CONTEXT"
             ) && q1_full_attention_fixed_optimized_prefix;
     const bool q1_full_attention_aiter_unified_requested =
@@ -180943,7 +180979,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         !use_q1_dense_w8a8_full_output &&
         !use_q1_full_attention_raw_fused;
     const bool use_q1_output_consumer_fused =
-        q1_output_consumer_fused_requested &&
+        !q1_sm121_full_requested && q1_output_consumer_fused_requested &&
         q1_full_attention_output_persistent_control_ready &&
         !q1_triton_0626_output_matvec_requested;
     const bool use_q1_output_consumer_fused_rows2 =
@@ -181695,7 +181731,29 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         ++kernel_launches;
         return check_launch(stage);
     };
-    if (paired_full_qkv_prepared) {
+    if (q1_sm121_full_requested) {
+        if (use_q1_dense_w8a8_full_input || use_q1_dense_w8a8_full_output ||
+            use_q1_full_attention_raw_fused || !q1_full_attention_bf16_output_eligible ||
+            q1_full_attention_aiter_unified_requested) {
+            return fail("qwen36_q1_sm121_full_route", "SM121 full attention requires ordinary BF16 projection and cache surfaces");
+        }
+        uint16_t *const result = reinterpret_cast<uint16_t *>(device_qk_norm);
+        const uint16_t *weights[] = {q_weights, k_weights, v_weights};
+        const unsigned int rows[] = {8192u, 512u, 512u};
+        const unsigned int offsets[] = {0u, 8192u, 8704u};
+        for (unsigned int part = 0u; part < 3u; ++part) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_sm121_q1_moe::projection<2048u>),
+                dim3((rows[part] + 15u) / 16u), dim3(256u), 0,
+                q1_decode_layer_stack_stream, device_norm_bf16, weights[part],
+                result + offsets[part], rows[part]);
+            ++kernel_launches; ++matrix_calls;
+            if (!check_launch("qwen36_q1_sm121_full_qkv")) return false;
+        }
+        if (!record_profile_boundary(Q1LayerProfileBoundary::kProjectionPrimaryEnd,
+                "qwen36_q1_sm121_full_q_end") ||
+            !record_profile_boundary(Q1LayerProfileBoundary::kProjectionSecondaryEnd,
+                "qwen36_q1_sm121_full_k_end")) return false;
+    } else if (paired_full_qkv_prepared) {
         if (!record_profile_boundary(
                 Q1LayerProfileBoundary::kProjectionPrimaryEnd,
                 "qwen36_resident_decode_full_profile_q_end"
@@ -182179,7 +182237,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         )) {
         return false;
     }
-    if (q1_full_attention_triton_0626_qkv_active) {
+    if (q1_sm121_full_requested || q1_full_attention_triton_0626_qkv_active) {
         emit_q1024_q1_full_stage_digest(
             "qkv_projection_bf16",
             reinterpret_cast<const uint16_t *>(device_qk_norm),
@@ -182214,7 +182272,17 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             << " numerical_correctness_claimed=0"
             << std::endl;
     }
-    if (use_q1_full_attention_raw_fused) {
+    if (q1_sm121_full_requested) {
+        hipLaunchKernelGGL(qrt_sm121_q1_full::prepare_qkv,
+            dim3(18u), dim3(256u), 0, q1_decode_layer_stack_stream,
+            reinterpret_cast<const uint16_t *>(device_qk_norm), q_norm_weights, k_norm_weights,
+            q1_full_tables.rope, q1_full_tables.core.rsqrt,
+            static_cast<unsigned int>(absolute_position), device_attention_rope, device_qkv);
+        ++kernel_launches;
+        if (!check_launch("qwen36_q1_sm121_full_norm_rope")) return false;
+        emit_q1024_q1_full_stage_digest("q_norm_f32", device_qkv, 4096u * sizeof(float));
+        emit_q1024_q1_full_stage_digest("k_norm_f32", device_qkv + 4096u, 512u * sizeof(float));
+    } else if (use_q1_full_attention_raw_fused) {
         hipLaunchKernelGGL(
             q1_full_attention_q_norm_rope_gate_kernel,
             dim3(kLayer3FullAttentionHeads),
@@ -182555,6 +182623,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
                 sizeof(float)
         );
     }
+    if (q1_sm121_full_requested) {
+        emit_q1024_q1_full_stage_digest("ungated_context_f32",
+            workspace->device_full_attention_score_scratch, 4096u * sizeof(float));
+    }
     // The grouped BF16 control has four explicit HIP kernels plus four rocBLAS
     // segment calls. D57/D59 replace QK/P@V independently; D73 instead owns
     // the complete QK/online-softmax/P@V core in two kernels.
@@ -182615,7 +182687,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         return false;
     }
 
-    if (use_q1_dense_w8a8_full_output ||
+    if (q1_sm121_full_requested || use_q1_dense_w8a8_full_output ||
         use_q1_output_consumer_fused ||
         use_q1_triton_0626_output_matvec ||
         q1_full_attention_output_persistent_active ||
@@ -182735,7 +182807,15 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             }
             ++kernel_launches;
         }
-        if (paired_attention_output_prepared) {
+        if (q1_sm121_full_requested) {
+            hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
+                dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                q1_decode_layer_stack_stream, output_weights, device_context_bf16, device_update_bf16);
+            ++kernel_launches;
+            if (!check_launch("qwen36_q1_sm121_full_output")) return false;
+            emit_q1024_q1_full_stage_digest("output_projection_bf16", device_update_bf16,
+                kOutProjectionRows * sizeof(uint16_t));
+        } else if (paired_attention_output_prepared) {
             // The callback published residual and BF16 postnorm endpoints for
             // both private states in one exact shared-weight launch.
         } else if (use_q1_output_consumer_fused) {
@@ -182927,7 +183007,13 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             return false;
         }
         if (!use_q1_output_consumer_fused) {
-            if (publish_q1_moe_fused_input_bf16) {
+            if (q1_sm121_full_requested) {
+                hipLaunchKernelGGL(output_bf16_residual_postnorm_vllm_kernel,
+                    dim3(1u), dim3(kThreads), 0, q1_decode_layer_stack_stream,
+                    device_input, device_update_bf16, post_norm_weights,
+                    device_residual, device_post_norm, 1u, q1_full_rsqrt_correction,
+                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr);
+            } else if (publish_q1_moe_fused_input_bf16) {
                 hipLaunchKernelGGL(
                     output_bf16_residual_postnorm_dual_kernel,
                     dim3(1u),
@@ -183394,8 +183480,9 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         << " q1_full_attention_terminal_bf16_dflash_active=0"
         << " q1_full_attention_terminal_bf16_mtp_active=0"
         << " q1_full_attention_terminal_bf16_speculative_decode=0"
+        << " q1_sm121_full_active=" << (q1_sm121_full_requested ? 1 : 0)
         << " projection_backend="
-        << (use_q1_dense_w8a8_full_input
+        << (q1_sm121_full_requested ? "q1_sm121_k16_qkv" : use_q1_dense_w8a8_full_input
                 ? (use_q1_dense_packed_w6_full_input
                        ? "q1_dense_packed_w6_qkv"
                        : "q1_dense_w8a8_qkv")

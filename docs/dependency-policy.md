@@ -1,5 +1,16 @@
 # Optional SM121 exponential compatibility data
 
+The optional `QRT_QWEN36_Q1_SM121_FULL=1` decode path also consumes the
+existing model-parameter rotary cache through
+`QRT_QWEN36_Q1_SM121_ROPE_TABLE`. The loader verifies 33,554,432 bytes and
+SHA-256 `ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80`
+using the existing Windows CNG dependency. It adds 32 MiB of device storage
+and a transient host buffer, reusing the existing reciprocal-root and
+sigmoid tables. It introduces no new offline artifact or runtime library.
+The concrete benefit is matching every observed first-decode Q/K rotary
+value for q8191 and q7169 with the original BF16 multiply/FMA sequence.
+This is a diagnostic route pending native product qualification.
+
 `QRT_FLA_GDN_SM121_EXP2_TABLE` selects an experimental, model-independent
 `ex2.approx.f32` table for the optional Blackwell GDN state implementation.
 The builder enumerates all 2,139,095,041 nonpositive finite FP32 inputs and
