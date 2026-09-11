@@ -32,26 +32,45 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
-Whole `bb4ab7c38e01bb21d2bbadf79d6c4a539c1e74ce` built with
+Whole `9b6f145481094fa7ce3332cc59075f8817b9fc9d` built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
 `13d77b63ea705ea8f4d4daee8d2ac30a581b7bfb` with
 `QRT_FLA_GDN_COOPERATIVE_EXACT=1` pass both complete
-512-token cold continuations and the q8191 32-token control on `baiying`,
+512-token cold continuations and five 32-token controls on `baiying`,
 using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
-first-token/logit, complete output and streaming boundary passes with
-successful host checks. The requests use the same strict prefill arithmetic
+first-token/logit, complete output and streaming boundary passes in these
+seven cases. The eighth case, q8193, fails its first three outputs. All eight
+complete with successful host checks. The requests use the strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/fla-cooperative-product-20260912.json)
+[complete product records](../benchmarks/correctness/dense-boundary-product-20260912.json)
 bind source, clean Windows build, component hashes, commands and all outputs.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 20,275.2753 | 54,111.6191 | 112.105394 |
-| q8192 out512 | 144 / 10.375 | 20,025.3666 | 62,835.6933 | 115.691252 |
-| q8191 out32 | 168589 / 11.375 | 20,018.4077 | 63,117.4071 | 122.899074 |
+| q7169 out512 | 82 / 9.25 | 20,021.5403 | 54,102.6683 | 112.648291 |
+| q8192 out512 | 144 / 10.375 | 20,013.6460 | 62,477.9868 | 115.855300 |
+| q8191 out32 | 168589 / 11.375 | 20,005.6537 | 63,123.1009 | 119.080342 |
 
-Cooperative FLA reduces actual callback TTFT by 5819.2376 / 5071.3091 /
+The dense absolute-error selector previously missed the closer BF16 rounding
+boundary below a power of two. It now uses the shared nearest-boundary helper.
+All 282 signed power-of-two host regressions change from missed to selected;
+four native correction/guard cases pass, including the new positive and
+negative boundary case. Both 512-output requests and q8191 retain every
+captured GB10 operator, forty-layer carrier and KV comparison, plus 554 / 806
+state boundaries. The other passing controls are q7168, q7169, q7170 and q8192.
+
+q8193 emits `64,57,82` instead of `220,220,196`; its remaining 29 tokens agree.
+Its first logit 9.75 is within tolerance, which cannot substitute for the
+required token match. The run takes 45,579.7602 ms to its first callback.
+It records zero exact-attention calls, versus twenty at q8192: the CK
+provider's selection and scratch allocation stop at 8192 although the exact
+kernel supports 16384. The next repair binds dispatch and all scratch/launch
+extents to that kernel capacity. Its Windows build and product remeasurement
+remain pending; the complete matrix and release are unqualified.
+
+The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
+reduces actual callback TTFT by 5819.2376 / 5071.3091 /
 6058.9563 ms for q8192 / q7169 / q8191 against the [preceding dense-replay
 configuration](../benchmarks/correctness/dense-subgroup-product-20260912.json).
 Its q8192 W/U, persistent-state and output intervals total 5290.60454 ms.

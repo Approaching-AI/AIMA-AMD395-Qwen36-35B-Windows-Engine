@@ -28,6 +28,7 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "bool sm121_attention_enabled", 1
         )[0]
         actual = "\n".join(function(source, name) for name in (
+            "bool sm121_attention_enabled(",
             "int prepare_sm121_attention_locked()",
             "int launch_sm121_attention(",
             "QRT_CK_EXPORT int qrt_ck_fmha_q8192_release()",
@@ -44,7 +45,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
 #include <set>
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
-constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256, kQ8192Tokens = 8192;
+constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
+namespace qrt_blackwell_attention { constexpr unsigned kSplitMaxTokens = 16384; }
 std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
 #define QRT_CK_EXPORT
@@ -132,7 +134,8 @@ int main() {
         return launch_sm121_attention(&operand, &operand, &operand, &output, nullptr,
                                       start, count, 0);
     };
-    if (launch(0, 0) != hipErrorInvalidValue || launch(8191, 2) != hipErrorInvalidValue || allocations)
+    if (launch(0, 0) != hipErrorInvalidValue || launch(16383, 2) != hipErrorInvalidValue ||
+        launch(0xffffffffu, 2) != hipErrorInvalidValue || allocations)
         return 4;
     if (launch(0, 17) != hipSuccess || transposes != 1u || queries != 3u || syncs != 3u)
         return 5;
@@ -159,6 +162,22 @@ int main() {
     if (launch(7168, 1) != hipSuccess || live.size() != 4u || g_sm121_mantissa_scores || transposes)
         return 13;
     reset(); unsetenv("QRT_CK_SM121_MANTISSA_WMMA");
+    for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u}) {
+        setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "0", 1);
+        if (sm121_attention_enabled(tokens)) return 14;
+        setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "1", 1);
+        if (!sm121_attention_enabled(tokens)) return 15;
+        reset();
+        const unsigned batches = (tokens + 7u) / 8u;
+        if (launch(0, tokens) != hipSuccess || queries != batches || syncs != batches ||
+            transposes != unsigned(tokens > 1u)) return 16;
+        reset();
+        if (launch(tokens - 1u, 1u) != hipSuccess || queries != 1u || transposes) return 17;
+    }
+    if (sm121_attention_enabled(0u) || sm121_attention_enabled(16385u) ||
+        sm121_attention_enabled(0xffffffffu)) return 18;
+    reset();
+    unsetenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
     return 0;
 }
 '''

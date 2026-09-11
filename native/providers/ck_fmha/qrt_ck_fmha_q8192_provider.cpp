@@ -189,16 +189,20 @@ float* g_sm121_scores = nullptr;
 float* g_sm121_mantissa_scores = nullptr;
 uint16_t* g_sm121_transposed_keys = nullptr;
 constexpr unsigned int kSm121QueryBatch = 8u;
+// Match the exact kernel's checked extent, including the first token beyond
+// the historical q8192 bucket. Dispatch selection, score storage, key storage
+// and launch validation must use the same capacity.
+constexpr unsigned int kSm121MaxTokens = qrt_blackwell_attention::kSplitMaxTokens;
 constexpr size_t kSm121ScoreElements =
-    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kQ8192Tokens;
+    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kSm121MaxTokens;
 constexpr size_t kSm121MantissaElements = kSm121ScoreElements + kSm121ScoreElements / 2u +
-    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * (kQ8192Tokens / 32u + 1u);
+    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * (kSm121MaxTokens / 32u + 1u);
 constexpr size_t kSm121KeyElements =
-    static_cast<size_t>(kQ8192Tokens) * kKvHeads * kHeadDim;
+    static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 
 bool sm121_attention_enabled(unsigned int tokens) {
     const char* flag = std::getenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
-    return tokens > 0u && tokens <= kQ8192Tokens && flag && std::strcmp(flag, "1") == 0;
+    return tokens > 0u && tokens <= kSm121MaxTokens && flag && std::strcmp(flag, "1") == 0;
 }
 
 template<class Validate>
@@ -265,8 +269,8 @@ int prepare_sm121_attention() {
 int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
     unsigned int query_start, unsigned int query_count, unsigned int output_start) {
-    if (!q || !k || !v || !output || query_count == 0u || query_start >= kQ8192Tokens ||
-        query_count > kQ8192Tokens - query_start) return int(hipErrorInvalidValue);
+    if (!q || !k || !v || !output || query_count == 0u || query_start >= kSm121MaxTokens ||
+        query_count > kSm121MaxTokens - query_start) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
