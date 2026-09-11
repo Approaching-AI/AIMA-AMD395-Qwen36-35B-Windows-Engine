@@ -32,17 +32,17 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Whole 3d7e265 passes the complete frozen q8191 out32 request on baiying:
+Whole b92e8d8 passes the complete frozen q8191 out32 request on baiying:
 all 32 tokens, exact first logit 11.375, matching streaming callbacks and
-all host checks. The [Q1 final-norm product evidence](../benchmarks/correctness/q1-final-norm-product-20260911.json)
+all host checks. The [K-normalization product evidence](../benchmarks/correctness/q1-key-normalization-product-20260911.json)
 binds that result to the real model and Windows build. At position 8196,
 all 40 layer carriers, every captured full-attention operator and all 2048
-final-norm values match GB10 bit-for-bit. The original fused final norm
+final-norm values match GB10 bit-for-bit. The [original fused final norm](../benchmarks/correctness/q1-final-norm-product-20260911.json)
 restores the correct 82/220 scores of 9.3125/9.375. The preceding
 [short gated-norm repair](../benchmarks/correctness/q1-continuation-origin-20260911.json)
 uses the original compiled 32-lane, four-values-per-lane reduction.
-q7169 out512 completes but still first differs at index 95 (59026 instead
-of 328), with 354 mismatches; its first 95 tokens and first logit 9.25 match.
+q7169 out512 completes but still first differs at index 148 (2450 instead
+of 10845), with 287 mismatches; its first 148 tokens and first logit 9.25 match.
 The [continuation-window evidence](../benchmarks/correctness/q1-continuation-window-20260911.json)
 shows all 40 carriers and every captured operator exact at position 7173,
 the first accepted second MTP row. By position 7200, layers 0–18 are exact
@@ -54,8 +54,20 @@ kernel uses four stride-128 warps; the native implementation reused Q's two
 stride-64 warps. That single value is the only K difference in the entire
 7264-row layer-3 history, and all V values match. Native-input attention
 replay reproduces the engine's 25 context differences at position 7263;
-original-input replay has zero. The general K reduction repair has a real
-tensor regression fixture; its Windows build and complete requests are pending.
+original-input replay has zero. The general K reduction repair passes its
+Windows build and real tensor regression fixture. In the complete q7169
+request it makes every layer-3 operator and all K/V through position 7221
+exact, and moves the first token difference from index 95 to 148. Layers
+0–18 match at position 7221; layer 19 is the first remaining differing carrier.
+The [full-19 historical-row comparison](../benchmarks/correctness/q1-full19-continuation-20260911.json)
+finds exact current QKV, Q/K normalization and RoPE at position 7200.
+Its KV cache differs only at position 7184: 183 K and 205 V values. Every
+prompt KV value and every other observed decode row match. The remaining
+investigation follows that earlier row's input through the preceding layers.
+The same strict prefill profile on q8192 completes 512 outputs with the
+first 115 tokens correct and exact first logit 10.375. Its first decode
+step has exact layer-0 state/operators and all forty layer carriers, but
+the later continuation still fails. Actual TTFT is 80,453.8138 ms.
 The observer now supports any single valid full-attention owner. The earlier
 [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
 and its complete first-decode carrier comparisons remain verified.
