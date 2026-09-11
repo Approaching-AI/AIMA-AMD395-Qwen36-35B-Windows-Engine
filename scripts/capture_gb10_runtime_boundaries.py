@@ -301,11 +301,53 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Hooks retain original qkv/norm/RoPE/attention/output results, including
         # the BF16 sigmoid-product endpoint at the output projection input.
         attention = layers[3].self_attn
+        original_attention_forward = attention.forward
+        self._qrt_boundary_restores.append((attention, "forward", original_attention_forward))
+        self._qrt_boundary_full_active = False
+        def observe_full_attention(*args, **kwargs):
+            # get_rope() caches module instances across layers. Scope their
+            # hooks to this owner's forward rather than overwriting another
+            # layer's rotary observation under the same transaction key.
+            self._qrt_boundary_full_active = True
+            try:
+                return original_attention_forward(*args, **kwargs)
+            finally:
+                self._qrt_boundary_full_active = False
+        attention.forward = observe_full_attention
+        self._qrt_boundary_full_cache = None
+        capture_full_cache = case in {"q8191-out32", "q7169-out512", "q8192-out512"}
+        self._qrt_boundary_full_cache_required = capture_full_cache
+        def full_cache():
+            transaction = self._qrt_boundary_active
+            if (not capture_full_cache or self._qrt_boundary_full_cache is not None or
+                    not self._qrt_boundary_full_active or transaction is None or
+                    transaction["first_position"] != prompt_tokens):
+                return
+            from vllm.model_executor.layers.attention.attention import get_attention_context
+            metadata, owner, cache, _ = get_attention_context(attention.attn.layer_name)
+            if (owner is not attention.attn or cache.dtype != torch.bfloat16 or
+                    cache.ndim != 5 or cache.shape[1] != 2 or tuple(cache.shape[3:]) != (2, 256)):
+                raise ValueError("original full-attention cache layout changed")
+            tokens = prompt_tokens + 1
+            if not tokens <= int(metadata.seq_lens[0].item()) <= prompt_tokens + 2:
+                raise ValueError("original full-attention cache length changed")
+            block_size = cache.shape[2]
+            blocks = metadata.block_table[0, :(tokens + block_size - 1) // block_size].long()
+            if torch.any((blocks < 0) | (blocks >= cache.shape[0])):
+                raise ValueError("original full-attention block index invalid")
+            for label, tensor in zip(("cache-k", "cache-v"), cache.unbind(1)):
+                logical = tensor.index_select(0, blocks).reshape(-1, 2, 256)[:tokens]
+                save("full-03-" + label, logical, transaction)
+            self._qrt_boundary_full_cache = dict(transaction=transaction["ordinal"],
+                layer=3, tokens=tokens, block_size=block_size, block_indices=blocks.cpu().tolist(),
+                cache_shape=list(cache.shape), max_query_len=metadata.max_query_len,
+                seq_lens=metadata.seq_lens.cpu().tolist())
         self._qrt_boundary_full_labels = {
             "qkv", "q-norm", "k-norm", "q-rope", "k-rope", "context", "gated", "output"}
         def full_stage(label, value, width):
             transaction = self._qrt_boundary_active
-            if (transaction is None or not transaction["rows"] or
+            if (not self._qrt_boundary_full_active or
+                    transaction is None or not transaction["rows"] or
                     transaction["first_position"] < prompt_tokens):
                 return
             if not 1 <= transaction["token_count"] <= 2:
@@ -315,6 +357,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         def full_output(label, width):
             def observe(module, args, output):
                 full_stage(label, output[0] if isinstance(output, tuple) else output, width)
+                if label == "context":
+                    full_cache()
             return observe
         def full_rope(module, args, output):
             if not isinstance(output, tuple) or len(output) != 2:
@@ -489,6 +533,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                      "fused_recurrent_gated_delta_rule_packed_decode"):
             wrap_operator(name)
         observed_sources.add(Path(inspect.getsourcefile(core_module)))
+        observed_sources.add(Path(inspect.getsourcefile(type(attention.attn))))
+        observed_sources.add(Path(inspect.getsourcefile(type(attention.attn.impl))))
 
         def logits(*args, **kwargs):
             output = original_logits(*args, **kwargs)
@@ -529,6 +575,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 internal_router=first_mlp.experts.is_internal_router,
                 router_is_original_module=first_mlp.experts.gate is first_mlp.gate),
             decode_full_attention_layers=[3],
+            decode_full_attention_cache=capture_full_cache,
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
 
@@ -538,6 +585,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         for handle in self._qrt_boundary_handles:
             handle.remove()
         record = super().qrt_finish_token_matrix()
+        if self._qrt_boundary_full_cache_required and self._qrt_boundary_full_cache is None:
+            raise ValueError("missing original first-decode full-attention cache")
         required = {f"layer-{i:02d}-{surface}" for i in range(40)
                     for surface in ("hidden", "residual", "combined", "input-rmsnorm", "post-attention-rmsnorm")}
         required.add("final-norm")
@@ -566,6 +615,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,
             decode_state_selections=self._qrt_boundary_decode_states,
+            full_attention_cache=self._qrt_boundary_full_cache,
             selected_positions=sorted(self._qrt_boundary_selected),
             original_methods_returned_unchanged=True, diagnostic_only=True)
         record["runtime_boundaries"] = boundaries
