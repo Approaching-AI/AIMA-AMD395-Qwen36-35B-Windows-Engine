@@ -599,22 +599,25 @@ constexpr unsigned int kIntegerMatrixColumns = 128u;
 struct IntegerOperandRow {
     uint16_t original[18];
     int high[4], low[4], minimum;
-    int maximum;  // Nineteen dwords per row avoids a common bank stride.
+    int maximum;
+    uint32_t trailing[4];  // Twenty-three dwords avoids a common bank stride.
 };
-static_assert(sizeof(IntegerOperandRow) == 76u);
+static_assert(sizeof(IntegerOperandRow) == 92u);
 
 __device__ __forceinline__ void blackwell_prepare_integer_row(IntegerOperandRow& row) {
-    row.minimum = qrt_sm121_integer_parts::row_range(row.original, &row.maximum);
+    row.minimum = qrt_sm121_integer_parts::row_unit_range(row.original, &row.maximum);
 #pragma unroll
     for (unsigned word = 0u; word < 4u; ++word) {
-        uint32_t high = 0u, low = 0u;
+        uint32_t high = 0u, low = 0u, trailing = 0u;
 #pragma unroll
         for (unsigned byte = 0u; byte < 4u; ++byte) {
             const uint16_t encoded = qrt_sm121_integer_parts::encode(row.original[word * 4u + byte], row.minimum);
             high |= uint32_t(encoded >> 8u) << (byte * 8u);
             low |= uint32_t(encoded & 255u) << (byte * 8u);
+            trailing |= qrt_sm121_integer_parts::trailing_bits(encoded) << (byte * 8u);
         }
         row.high[word] = int(high); row.low[word] = int(low);
+        row.trailing[word] = trailing;
     }
 }
 
@@ -642,7 +645,7 @@ __device__ __forceinline__ float blackwell_integer_accumulate(
     const auto carry = qrt_q1_moe_hawkeye::value_from_float(accumulator, kBlackwellZeroExponent);
     qrt_sm121_group16::AlignedSum sum;
     if (!qrt_sm121_integer_parts::sum_exact_range(carry, partials, left.minimum, left.maximum,
-            right.minimum, right.maximum, &sum)) {
+            right.minimum, right.maximum, &sum, left.trailing, right.trailing)) {
         uint32_t pairs[16];
 #pragma unroll
         for (unsigned i = 0u; i < 16u; ++i) {

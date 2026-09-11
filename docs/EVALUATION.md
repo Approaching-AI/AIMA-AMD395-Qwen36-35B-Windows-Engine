@@ -318,7 +318,17 @@ the original compensated or packed K16 path runs. All 400,000 host groups
 match the independent wide canonical accumulator, including 46,408 accepted
 groups whose conservative bound differs from the actual paired maximum,
 44,292 with nonzero carry and 12,555 beyond the signed-32-bit magnitude bound.
-Native arithmetic and captured-input performance qualification are pending.
+The [native range replay](../benchmarks/correctness/attention-integer-range-20260912.json)
+passes all 16,384 generated cells and every captured q7169 BF16/native FP32
+output, but takes 3191.52 versus 1288.02 ms for layout 4. It stays diagnostic.
+Sampled real QK groups show only 65,911 of 262,144 eligible for the initial
+bound. The next version uses the greatest common binary unit of each row and
+four packed words of trailing-bit counts. Their bytewise sum proves product
+divisibility without sixteen pair loads. The sampled eligible count rises
+to 176,056, before accounting for actual GPU execution cost. Both original
+and expanded branches pass 400,000 independent host groups each; the expanded
+branch also checks the compensated fallback and 100,000 packed predicates.
+Native qualification of this expanded branch is pending.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

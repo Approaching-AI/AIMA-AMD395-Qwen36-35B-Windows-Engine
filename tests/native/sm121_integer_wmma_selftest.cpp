@@ -36,7 +36,8 @@ __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* 
         result.accepted = qrt_sm121_integer_parts::sum(carry, pairs, partials, left[row].minimum, right[column].minimum, &sum);
         result.magnitude = sum.value.magnitude; result.negative = sum.value.negative; result.exponent = sum.max_exponent;
         result.range_accepted = qrt_sm121_integer_parts::sum_exact_range(carry, partials,
-            left[row].minimum, left[row].maximum, right[column].minimum, right[column].maximum, &sum);
+            left[row].minimum, left[row].maximum, right[column].minimum, right[column].maximum, &sum,
+            left[row].trailing, right[column].trailing);
         if (result.range_accepted) result.range_bits = qrt_sm121_native_product::float_bits(
             qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
                 qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent))));
@@ -89,14 +90,14 @@ int main() {
     unsigned range_accepted = 0, range_status_bad = 0, range_host_bad = 0, range_device_bad = 0, accumulator_bad = 0;
     for (unsigned index = 0; index < output.size(); ++index) {
         const unsigned test = index / kCells, row = index / 16u % 16u, column = index % 16u;
-        uint32_t pairs[16], products[16]; int32_t expected_parts[4]{};
+        uint32_t pairs[16], products[16], left_trailing[4]{}, right_trailing[4]{}; int32_t expected_parts[4]{};
         uint16_t left_row[18]{}, right_row[18]{};
         for (unsigned i = 0; i < 16u; ++i) {
             left_row[i] = input[test * 512u + row * 16u + i];
             right_row[i] = input[test * 512u + 256u + column * 16u + i];
         }
         int amax, bmax;
-        const int amin = qrt_sm121_integer_parts::row_range(left_row, &amax), bmin = qrt_sm121_integer_parts::row_range(right_row, &bmax);
+        const int amin = qrt_sm121_integer_parts::row_unit_range(left_row, &amax), bmin = qrt_sm121_integer_parts::row_unit_range(right_row, &bmax);
         for (unsigned i = 0; i < 16u; ++i) {
             const uint16_t a = input[test * 512u + row * 16u + i], b = input[test * 512u + 256u + column * 16u + i];
             pairs[i] = uint32_t(a) | (uint32_t(b) << 16u);
@@ -108,6 +109,8 @@ int main() {
             const int al = x & 255u, bl = y & 255u;
             expected_parts[0] += ah * bh; expected_parts[1] += ah * bl;
             expected_parts[2] += al * bh; expected_parts[3] += al * bl;
+            left_trailing[i / 4u] |= qrt_sm121_integer_parts::trailing_bits(x) << ((i % 4u) * 8u);
+            right_trailing[i / 4u] |= qrt_sm121_integer_parts::trailing_bits(y) << ((i % 4u) * 8u);
         }
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
         const auto expected = qrt_sm121_group16::sum_packed(carry, products);
@@ -119,7 +122,7 @@ int main() {
         accumulator_bad += unsigned(output[index].accumulator_bits != expected_bits);
         qrt_sm121_group16::AlignedSum range{};
         const bool range_valid = qrt_sm121_integer_parts::sum_exact_range(carry, output[index].partials,
-            amin, amax, bmin, bmax, &range);
+            amin, amax, bmin, bmax, &range, left_trailing, right_trailing);
         range_status_bad += unsigned(range_valid != bool(output[index].range_accepted));
         if (range_valid) {
             ++range_accepted;

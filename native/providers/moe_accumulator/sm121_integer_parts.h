@@ -33,11 +33,49 @@ QRT_INTEGER_INLINE int row_minimum(const uint16_t (&row)[18]) {
     return row_range(row, &maximum);
 }
 
+QRT_INTEGER_INLINE unsigned trailing_bits(uint32_t value) {
+    return value ? qrt_q1_moe_hawkeye::bit_width_u64(value & (0u - value)) - 1u : 31u;
+}
+
+// Use the greatest common binary unit, including the significand's trailing
+// zeros, to encode more rows exactly in signed sixteen bits. The returned
+// scale can exceed the smallest raw exponent; encode then divides exactly.
+QRT_INTEGER_INLINE int row_unit_range(const uint16_t (&row)[18], int* maximum_output) {
+    int minimum = 1000, maximum = 0;
+    bool valid = true;
+    for (unsigned i = 0u; i < 16u; ++i) {
+        if ((row[i] & 0x7fffu) == 0u) continue;
+        const int exponent = (row[i] >> 7u) & 255u;
+        valid = valid && exponent != 0 && exponent != 255;
+        const int unit = exponent + static_cast<int>(trailing_bits(128u | (row[i] & 127u)));
+        minimum = unit < minimum ? unit : minimum;
+        maximum = exponent > maximum ? exponent : maximum;
+    }
+    *maximum_output = minimum == 1000 ? 127 : maximum;
+    return !valid || maximum - minimum > 7 ? -1 : (minimum == 1000 ? 127 : minimum);
+}
+
 QRT_INTEGER_INLINE uint16_t encode(uint16_t value, int minimum) {
     if (minimum < 0 || (value & 0x7fffu) == 0u) return 0u;
-    const unsigned shift = static_cast<unsigned>(((value >> 7u) & 255u) - minimum);
-    const uint32_t magnitude = (128u | (value & 127u)) << shift;
+    const int shift = int((value >> 7u) & 255u) - minimum;
+    const uint32_t significand = 128u | (value & 127u);
+    const uint32_t magnitude = shift < 0 ? significand >> (-shift) : significand << shift;
     return static_cast<uint16_t>((value & 0x8000u) ? 0u - magnitude : magnitude);
+}
+
+// Four bytes describe four independent encoded operands. Nonzero values
+// have at most fourteen trailing zeros; zero uses 31 as an exact sentinel.
+// Bytewise sums therefore never carry between columns. The high-bit test
+// proves all sixteen products are divisible by 2^shift without pair loads.
+QRT_INTEGER_INLINE bool products_divisible(const uint32_t* left, const uint32_t* right, unsigned shift) {
+    if (!left || !right || shift > 31u) return false;
+    const uint32_t threshold = shift * 0x01010101u;
+#if defined(__HIP_DEVICE_COMPILE__) || defined(__CUDA_ARCH__)
+#pragma unroll
+#endif
+    for (unsigned i = 0u; i < 4u; ++i)
+        if (((left[i] + right[i] + 0x80808080u - threshold) & 0x80808080u) != 0x80808080u) return false;
+    return true;
 }
 
 // The exponent bound may be larger than the largest actual paired product.
@@ -48,7 +86,8 @@ QRT_INTEGER_INLINE uint16_t encode(uint16_t value, int minimum) {
 // it never reads or re-multiplies the sixteen original operand pairs.
 QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
     const int32_t (&partials)[4], int left_minimum, int left_maximum,
-    int right_minimum, int right_maximum, qrt_sm121_group16::AlignedSum* output) {
+    int right_minimum, int right_maximum, qrt_sm121_group16::AlignedSum* output,
+    const uint32_t* left_trailing = nullptr, const uint32_t* right_trailing = nullptr) {
     if (left_minimum < 0 || right_minimum < 0) return false;
     const int minimum = left_minimum + right_minimum - 254;
     int maximum = left_maximum + right_maximum - 254;
@@ -56,7 +95,9 @@ QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
     maximum = maximum > carry.exponent ? maximum : carry.exponent;
     // A normal BF16 product has fourteen fractional significand bits, whereas
     // the K16 alignment has twenty-five. Eleven bits of range are lossless.
-    if (maximum - minimum > 11) return false;
+    const int product_shift = maximum - minimum - 11;
+    if (product_shift > 0 && !products_divisible(left_trailing, right_trailing,
+            static_cast<unsigned>(product_shift))) return false;
     const unsigned carry_shift = static_cast<unsigned>(maximum - carry.exponent);
     const uint32_t carry_bits = carry.significand << 2u;
     if (carry_bits && (carry_shift >= 32u ||
@@ -64,7 +105,9 @@ QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
     const uint32_t aligned = carry_shift >= 32u ? 0u : carry_bits >> carry_shift;
     const int64_t mathematical = int64_t(partials[0]) * 65536 +
         (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
-    const int64_t products = mathematical * (int64_t(1) << (minimum + 11 - maximum));
+    const int64_t products = product_shift <= 0 ? mathematical * (int64_t(1) << (-product_shift)) :
+        (mathematical < 0 ? -int64_t(uint64_t(-mathematical) >> product_shift) :
+                            int64_t(uint64_t(mathematical) >> product_shift));
     const int64_t total = products + (carry.negative ? -int64_t(aligned) : int64_t(aligned));
     *output = {{static_cast<uint32_t>(total < 0 ? -total : total), total < 0}, maximum};
     return true;
@@ -107,7 +150,9 @@ QRT_INTEGER_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry, const uint32_t (&pa
             for (unsigned i = 0u; i < 16u; ++i) {
                 if (exponents[i] == -1000) continue;
                 const uint16_t a = static_cast<uint16_t>(pairs[i]), b = static_cast<uint16_t>(pairs[i] >> 16u);
-                const uint32_t magnitude = ((128u | (a & 127u)) * (128u | (b & 127u))) << (exponents[i] - minimum);
+                const uint32_t significand = (128u | (a & 127u)) * (128u | (b & 127u));
+                const int unit_shift = exponents[i] - minimum;
+                const uint32_t magnitude = unit_shift < 0 ? significand >> (-unit_shift) : significand << unit_shift;
                 const int32_t remainder = static_cast<int32_t>(magnitude & mask);
                 discarded += ((a ^ b) & 0x8000u) ? -remainder : remainder;
             }
