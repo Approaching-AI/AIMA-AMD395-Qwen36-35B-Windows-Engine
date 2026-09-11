@@ -32,6 +32,21 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
+Current continuation work is recorded in the
+[full Q1 product evidence](../benchmarks/correctness/q1-full-product-20260911.json).
+Whole 341c88d repairs pooled scratch ownership and completes both q8191 out32
+and q7169 out512 with the pool enabled and all host/streaming checks passing.
+Continuation still first differs at output indices 6 and 38. The complete
+first-decode carriers of all 40 layers are exact for q7169; the preceding
+3aa6402 run establishes the same first-decode result for q8191. At q8191
+position 8196, the current Q/K/V and layers 0–2 are exact. Its complete KV
+history differs only at earlier position 8194 (153 K and 175 V BF16 cells).
+An original-input replay at e463d90 reproduces all 4096 context values at
+position 8196, so investigation follows that earlier KV row's computation.
+Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile
+still has incorrect prefill recurrent state. This work does not qualify a
+new performance result or release; the retained results below are unchanged.
+
 Both frozen 32-token cold requests pass on baiying with the real
 `D:\models\Qwen3.6-35B-A3B`, whole 8d8af14, MoE a17a9ed, FLA 7698db3 and
 CK `ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423`. Each run has zero first-logit
@@ -232,8 +247,32 @@ Both operator runs pass host checks; their 1.316/1.166 ms GPU intervals are
 operator diagnostics. Whole 3bf42dc builds, but an obsolete output-consumer
 guard stops its first decode before any new full-attention kernel executes.
 Whole 623c8ff fixes that guard and integrates the attention core over the
-owned prefix/tail caches; its Windows build passes. Full-model qualification
-of the integrated route is pending.
+owned prefix/tail caches. Its diagnostic norm writes alias live Q/gate
+scratch, and a later terminal guard still stops completion. Whole 3aa6402
+separates the observations and scopes the terminal guard to the exact route.
+Its q8191 request completes, with all first-decode full-attention endpoints
+and all 40 layer carriers bit-exact, but later continuation remains incorrect.
+
+The next q7169 run exposes a distinct lifetime error: pooled attention-output
+scratch is released through raw `hipFree`, leaving stale pool entries that
+can later release a reused persistent allocation. Whole 341c88d returns those
+buffers through their owner and keeps persistent suffix snapshots outside
+the transient pool. The actual-function ownership regression rejects the old
+implementation and passes the corrected success and failure paths. Local
+C/ABI, Rust, Clippy and 288 Python tests (two skips), plus the Windows build,
+pass. The fixed pool now completes both requests; q7169's first layer-24
+state, convolution, projection and MoE endpoints are exact. The pool-disabled
+q7169 out32 control passes the complete frozen boundary. Longer continuation
+still differs, independently of the lifetime repair.
+
+Original layer-24 capture r10 and continuation-KV capture r11 each pass all
+eight frozen GB10 cases. At q8191 position 8196, native context differs in
+114 BF16 values while the current Q/K/V are exact. Full prefix/tail cache
+comparison identifies only the earlier row at position 8194. Extending the
+bounded capture replay to 16,384 input tokens allows the actual 8,197-token
+history to run: all context values match using original inputs, with intact
+input buffers and transpose redzones. Its 1.3119 ms GPU interval is an
+operator diagnostic, not product timing.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
