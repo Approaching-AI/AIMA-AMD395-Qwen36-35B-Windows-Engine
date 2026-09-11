@@ -97,7 +97,11 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             raise ValueError("target runner source changed")
         root = Path(directory)
         case = root.name
+        full_cache_offset = int(os.environ.get('QRT_GB10_Q8191_FULL_CACHE_OFFSET', '0')) if case == 'q8191-out32' else 0
+        if not 0 <= full_cache_offset < 32:
+            raise ValueError('full-attention observation offset exceeds the frozen continuation')
         selected = {prompt_tokens - 1, prompt_tokens}
+        selected.add(prompt_tokens + full_cache_offset)
         if case == "q8191-out32":
             # The preceding r3 capture already owns the repaired 64-row
             # prefill tail. Keep this capture focused on decode so accepted
@@ -238,6 +242,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # shared/routed rounding after the now-qualified GDN boundary.
         self._qrt_boundary_moe_layers = observation_layers(
             'QRT_GB10_BOUNDARY_MOE_LAYERS', [0, 2])
+        if 39 in self._qrt_boundary_moe_layers:
+            raise ValueError('MoE next-norm observation requires a following layer')
         def attach_moe(index):
             mlp = layers[index].mlp
             if mlp.tp_size != 1 or mlp.shared_expert is None:
@@ -336,15 +342,15 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             transaction = self._qrt_boundary_active
             if (not capture_full_cache or self._qrt_boundary_full_cache is not None or
                     not self._qrt_boundary_full_active or transaction is None or
-                    transaction["first_position"] != prompt_tokens):
+                    transaction["first_position"] != prompt_tokens + full_cache_offset):
                 return
             from vllm.model_executor.layers.attention.attention import get_attention_context
             metadata, owner, cache, _ = get_attention_context(attention.attn.layer_name)
             if (owner is not attention.attn or cache.dtype != torch.bfloat16 or
                     cache.ndim != 5 or cache.shape[1] != 2 or tuple(cache.shape[3:]) != (2, 256)):
                 raise ValueError("original full-attention cache layout changed")
-            tokens = prompt_tokens + 1
-            if not tokens <= int(metadata.seq_lens[0].item()) <= prompt_tokens + 2:
+            tokens = prompt_tokens + full_cache_offset + 1
+            if not tokens <= int(metadata.seq_lens[0].item()) <= tokens + 1:
                 raise ValueError("original full-attention cache length changed")
             block_size = cache.shape[2]
             blocks = metadata.block_table[0, :(tokens + block_size - 1) // block_size].long()
@@ -354,7 +360,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 logical = tensor.index_select(0, blocks).reshape(-1, 2, 256)[:tokens]
                 save("full-03-" + label, logical, transaction)
             self._qrt_boundary_full_cache = dict(transaction=transaction["ordinal"],
-                layer=3, tokens=tokens, block_size=block_size, block_indices=blocks.cpu().tolist(),
+                layer=3, tokens=tokens, decode_offset=full_cache_offset,
+                row=0, input_token_id=transaction['input_token_ids'][0],
+                block_size=block_size, block_indices=blocks.cpu().tolist(),
                 cache_shape=list(cache.shape), max_query_len=metadata.max_query_len,
                 seq_lens=metadata.seq_lens.cpu().tolist())
         self._qrt_boundary_full_labels = {
