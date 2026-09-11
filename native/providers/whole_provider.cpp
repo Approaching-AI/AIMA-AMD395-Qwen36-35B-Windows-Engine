@@ -34681,13 +34681,16 @@ __global__ void layer1_bf16_input_rmsnorm_vllm_kernel(
 // inverse as prefill. A double-precision sum followed by sqrt/division can
 // cross a BF16 midpoint and poison otherwise identical recurrent states.
 // Both resident BF16 embeddings and the host-materialized F32 row enter here.
+// A device top-1 index also selects a row from the full embedding matrix for
+// next-token prefetch, which must not bypass the corrected arithmetic.
 __global__ void layer0_input_rmsnorm_sm121_kernel(
     const uint16_t *input_bf16,
     const float *input_f32,
     const uint16_t *norm_weights,
     float *residual_input_f32,
     float *outputs,
-    const uint8_t *rsqrt_correction
+    const uint8_t *rsqrt_correction,
+    const uint32_t *topk_ids
 ) {
     __shared__ float partial[kThreads];
     __shared__ float inverse;
@@ -34695,6 +34698,11 @@ __global__ void layer0_input_rmsnorm_sm121_kernel(
     if ((input_bf16 == nullptr && input_f32 == nullptr) ||
         norm_weights == nullptr || residual_input_f32 == nullptr ||
         outputs == nullptr || rsqrt_correction == nullptr) return;
+    if (topk_ids != nullptr) {
+        const uint32_t token_id = topk_ids[0];
+        if (input_bf16 == nullptr || token_id >= QRT_QWEN36_VOCAB_SIZE) return;
+        input_bf16 += static_cast<size_t>(token_id) * QRT_QWEN36_HIDDEN_SIZE;
+    }
     float values[8];
     #pragma unroll
     for (unsigned int item = 0; item < 8; ++item) {
@@ -161415,7 +161423,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             device_embedding_input_available
                 ? input_residual.resident_device_bf16_input : nullptr,
             device_input, input_norm_weights, device_input, device_norm_f32,
-            q1_sm121_rsqrt_correction);
+            q1_sm121_rsqrt_correction, nullptr);
     } else if (!paired_linear_projection_prepared &&
         !device_token_layer0_prefetch_available &&
         !use_q1_moe_next_input_rmsnorm_fused &&
@@ -191641,7 +191649,27 @@ bool run_qwen36_resident_decode_direct_output_plan(
             float *device_z = workspace->device_linear_aux;
             float *device_a = device_z + kZRows;
             float *device_b = device_a + kAbRows;
-            if (qwen36_vllm_bf16_residual_norm_active()) {
+            if (env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN")) {
+                const uint8_t *correction = nullptr;
+                if (!load_gfx1151_sm121_rsqrt_correction(
+                        &correction, failure,
+                        std::getenv("QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION"))) {
+                    return fail("qwen36_q1_sm121_prefetch_norm_table",
+                                "cannot prepare original embedding inverse for prefetch");
+                }
+                hipLaunchKernelGGL(
+                    layer0_input_rmsnorm_sm121_kernel,
+                    dim3(1u), dim3(kThreads), 0, direct_output_stream,
+                    device_token_embedding_weights, nullptr, input_norm_weights,
+                    workspace->device_hidden[0u], workspace->device_norm_f32,
+                    correction, workspace->device_direct_output_topk_ids);
+                if (workspace->q1_decode_device_token_layer0_prefetch_launch_count == 0u) {
+                    std::cerr << "BATCH_MARK qwen36_q1_sm121_embedding_prefetch"
+                              << " reduction_warps=8 values_per_lane=8"
+                              << " rsqrt_correction=1 numerical_correctness_claimed=0"
+                              << std::endl;
+                }
+            } else if (qwen36_vllm_bf16_residual_norm_active()) {
                 hipLaunchKernelGGL(
                     device_top1_layer0_input_rmsnorm_vllm_kernel,
                     dim3(1u),
