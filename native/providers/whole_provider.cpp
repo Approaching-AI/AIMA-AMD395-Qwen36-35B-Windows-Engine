@@ -165993,7 +165993,6 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             device_input_bf16, router_weights_row_major, device_router_logits_bf16, QRT_QWEN36_EXPERT_COUNT);
         hipLaunchKernelGGL(qrt_sm121_q1_moe::router, dim3(1u), dim3(32u), 0, q1_moe_router_stream,
             device_router_logits_bf16, device_topk_ids, device_topk_weights, q1_sm121_moe_tables.router);
-        kernel_launches += 3u; ++matrix_calls;
     } else if (paired_tail_only || paired_moe_router_prepared) {
         // The paired batch-two router already published each private
         // workspace's BF16 logits and deterministic top-k metadata before the
@@ -166534,7 +166533,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         ));
     };
     const uint64_t preserved_router_kernel_launches =
-        use_q1_dense_w8a8_router
+        q1_sm121_moe_requested ? UINT64_C(3) : use_q1_dense_w8a8_router
             ? UINT64_C(4)
             : (use_q1_moe_rocblas_router ? UINT64_C(2) : UINT64_C(1));
     uint64_t kernel_launches = preserved_router_kernel_launches +
