@@ -1,0 +1,2632 @@
+{
+  "schema_version": 1,
+  "kind": "bounded_fp32_recurrent_checkpoint_capture",
+  "source": {
+    "sha": "872a0424409552ed01c4c8f7a6691c742236795e",
+    "bundle": "fla-checkpoints-872a042.bundle",
+    "bundle_sha256": "79b91c0e1a4f67961a1d4777c266306e5ca6705d135b20c12a81af90d0f73df0",
+    "repo": "D:/projects/AIMA-public-fla-checkpoints-20260912"
+  },
+  "cases": [
+    {
+      "case": "build-r1",
+      "run": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+          "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+          "command_file": "D:\\projects\\build-native-fla-checkpoints-r1.ps1",
+          "command_file_sha256": "fa4ba24333647ca7d68aae87b9f3d4247c253e30a416a0323fce5c3a6569ff7b",
+          "model": "none; native build",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "source_inputs": [
+            {
+              "sha256": "27d058ab35bcc44f6061447d760bfb5feceeca3225d5e05b698e1ccf4f0c65ed",
+              "file": "native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp"
+            },
+            {
+              "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+              "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "fd2432e3e6dc837bff8697d8ce81b80cf0ebeac5fc33322008020235363b4b33",
+              "file": "native\\providers\\gdn\\blackwell_cooperative.cpp"
+            },
+            {
+              "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+              "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373",
+              "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "7afb24cc0918004ff102091ed99243050ce9932a5c95bd1023afb74d7a1583a6",
+              "file": "native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "d9907ae7e41ca9c433c11c10d81c5b65ef24972a095ce8e3bd7df1c1ae46f39e",
+              "file": "native\\src\\qrt.h"
+            },
+            {
+              "sha256": "fb8436bc67c2bcfb330a9e006f071d7678d5dacd003c7e61f482e0bad2b8dfb4",
+              "file": "scripts\\baiying_build_fla_gdn.ps1"
+            }
+          ],
+          "purpose": "Build optional unrounded FP32 FLA checkpoints; native checkpoint and original arithmetic qualification pending",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+            "-OutDir",
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+            "-AotDir",
+            "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+            "-TimeoutSeconds",
+            "120"
+          ]
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T23:04:30.3677841Z",
+          "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+            "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+            "command_file": "D:\\projects\\build-native-fla-checkpoints-r1.ps1",
+            "command_file_sha256": "fa4ba24333647ca7d68aae87b9f3d4247c253e30a416a0323fce5c3a6569ff7b",
+            "model": "none; native build",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "source_inputs": [
+              {
+                "sha256": "27d058ab35bcc44f6061447d760bfb5feceeca3225d5e05b698e1ccf4f0c65ed",
+                "file": "native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp"
+              },
+              {
+                "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "fd2432e3e6dc837bff8697d8ce81b80cf0ebeac5fc33322008020235363b4b33",
+                "file": "native\\providers\\gdn\\blackwell_cooperative.cpp"
+              },
+              {
+                "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+                "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+              },
+              {
+                "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373",
+                "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "7afb24cc0918004ff102091ed99243050ce9932a5c95bd1023afb74d7a1583a6",
+                "file": "native\\providers\\gdn\\fla_checkpoint.h"
+              },
+              {
+                "sha256": "d9907ae7e41ca9c433c11c10d81c5b65ef24972a095ce8e3bd7df1c1ae46f39e",
+                "file": "native\\src\\qrt.h"
+              },
+              {
+                "sha256": "fb8436bc67c2bcfb330a9e006f071d7678d5dacd003c7e61f482e0bad2b8dfb4",
+                "file": "scripts\\baiying_build_fla_gdn.ps1"
+              }
+            ],
+            "purpose": "Build optional unrounded FP32 FLA checkpoints; native checkpoint and original arithmetic qualification pending",
+            "arguments": [
+              "-NoLogo",
+              "-NoProfile",
+              "-NonInteractive",
+              "-File",
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+              "-OutDir",
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+              "-AotDir",
+              "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+              "-TimeoutSeconds",
+              "120"
+            ]
+          },
+          "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24888508416,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147293691904,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533468839936,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 37481.343,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24895459328,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147269079040,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533467607040,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "run_record_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+      "stdout_sha256": "0e5c757263159102c23b66c924b91ac679b441e5bd5fb20729193c3e2b6012c0",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "build_provenance": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_build_only",
+        "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+        "timeout_seconds": 120,
+        "wall_ms": 36729.757900000004,
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "wsl_distribution": "Ubuntu-24.04",
+        "triton_python": "/opt/qwen36-vllm/bin/python",
+        "precompiled_aot": "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+        "state_dot": "wmma",
+        "native_blackwell_state": true,
+        "cooperative_exact_available": true,
+        "cooperative_exact_lanes": 4,
+        "sources": [
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\generators\\compile_q8192_fla_chunk_gdn.py",
+            "sha256": "46eea902c6e7eeb6d24a8d1004e9ebd869a9f852da6212752da9cdc817f00bb6"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp",
+            "sha256": "27d058ab35bcc44f6061447d760bfb5feceeca3225d5e05b698e1ccf4f0c65ed"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\q64_fla_chunk_gdn_smoke.cpp",
+            "sha256": "380802508176c5efbf0531af5b435205f53a7534d07f707f8a3d6611511d0edd"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_kkt.h",
+            "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\fla_output_capture_replay.cpp",
+            "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\fla_upstream_capture_replay.cpp",
+            "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_state.cpp",
+            "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_state.h",
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_accumulator.h",
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h",
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h",
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h",
+            "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\moe_accumulator\\sm121_paired_products.h",
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\sm121_exp2_table.h",
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_wu_output.cpp",
+            "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_wu_output.h",
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_cooperative.cpp",
+            "sha256": "fd2432e3e6dc837bff8697d8ce81b80cf0ebeac5fc33322008020235363b4b33"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_cooperative.h",
+            "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\fla_checkpoint.h",
+            "sha256": "7afb24cc0918004ff102091ed99243050ce9932a5c95bd1023afb74d7a1583a6"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_l2norm.cpp",
+            "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_l2norm.h",
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\sm121_rsqrt_table.h",
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_inverse.cpp",
+            "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_inverse.h",
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\blackwell_inverse_math.h",
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\native\\providers\\gdn\\first_call_capture.h",
+            "sha256": "2e6af3e3651f3b097664880a2843cf18a34bfe6bc8ef112df4a01100011edebd"
+          }
+        ],
+        "artifacts": [
+          {
+            "file": "fla-output-capture-replay.exe",
+            "bytes": 458240,
+            "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+          },
+          {
+            "file": "fla-upstream-capture-replay.exe",
+            "bytes": 543232,
+            "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+          },
+          {
+            "file": "metadata.json",
+            "bytes": 13951,
+            "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+          },
+          {
+            "file": "q64-fla-smoke.exe",
+            "bytes": 328192,
+            "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+          },
+          {
+            "file": "q65-fla-smoke.exe",
+            "bytes": 344064,
+            "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+          },
+          {
+            "file": "q7169-fla-smoke.exe",
+            "bytes": 344064,
+            "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+            "bytes": 16120,
+            "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+            "bytes": 16112,
+            "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+            "bytes": 18880,
+            "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+            "bytes": 6664,
+            "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+            "bytes": 26816,
+            "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+            "bytes": 27960,
+            "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+            "bytes": 45112,
+            "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+            "bytes": 38272,
+            "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+            "bytes": 13160,
+            "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+            "bytes": 6168,
+            "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+          },
+          {
+            "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+            "bytes": 6040,
+            "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+          },
+          {
+            "file": "qrt_fla_chunk_gdn_provider.dll",
+            "bytes": 542720,
+            "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+          },
+          {
+            "file": "qrt_fla_gdn_kernel_specs.inc",
+            "bytes": 940,
+            "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+          }
+        ],
+        "numerical_acceptance": false
+      }
+    },
+    {
+      "case": "q64-probe-r1",
+      "run": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q64-fla-smoke.exe",
+          "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+          "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+          "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+          "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+          "model": "synthetic component operands",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "arguments": [
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+          ],
+          "components": [
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 458240,
+                  "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 543232,
+                  "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328192,
+                  "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 542720,
+                  "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+              "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+              "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+            },
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 389632,
+                  "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 473088,
+                  "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 464896,
+                  "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+              "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+              "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+            }
+          ],
+          "input_audit": null,
+          "input_audit_sha256": null,
+          "tables": [
+            {
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+              "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+            },
+            {
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+              "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+            }
+          ],
+          "environment": {
+            "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+            "QRT_FLA_GDN_BATCHED_EXACT": "1",
+            "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+            "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+            "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+            "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+            "QRT_FLA_GDN_WU_BLACKWELL": "1",
+            "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+            "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+            "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+            "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "QRT_FLA_GDN_SMOKE_INPUT_DIR": "",
+            "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+            "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+            "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+            "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "0",
+            "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": ""
+          },
+          "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T23:05:10.2043473Z",
+          "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q64-fla-smoke.exe",
+            "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+            "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+            "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+            "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+            "model": "synthetic component operands",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "arguments": [
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+            ],
+            "components": [
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 458240,
+                    "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 543232,
+                    "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328192,
+                    "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 542720,
+                    "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+                "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+                "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+              },
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 389632,
+                    "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 473088,
+                    "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 464896,
+                    "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+                "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+                "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+              }
+            ],
+            "input_audit": null,
+            "input_audit_sha256": null,
+            "tables": [
+              {
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+                "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+              },
+              {
+                "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+                "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+              }
+            ],
+            "environment": {
+              "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+              "QRT_FLA_GDN_BATCHED_EXACT": "1",
+              "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+              "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+              "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+              "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+              "QRT_FLA_GDN_WU_BLACKWELL": "1",
+              "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+              "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+              "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+              "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+              "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+              "QRT_FLA_GDN_SMOKE_INPUT_DIR": "",
+              "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+              "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+              "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+              "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "0",
+              "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": ""
+            },
+            "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+          },
+          "executable_sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24874446848,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147243499520,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533470547968,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 830.992,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24831500288,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147204890624,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462409216,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "run_record_sha256": "42016a09b79d4faf88edecfdf9c7da1a2bba4c434146f476500f4084850c7ae8",
+      "stdout_sha256": "13905fa78a0e3e21fe9c9a0b78876adb98ae59e492c94f5606f9b2537f9746de",
+      "stderr_sha256": "c785d8473e5b4edfffbfb099b497c52701d7590d042a444242bf2100ff3a9100",
+      "reports": [],
+      "component_output": "q64_fla_chunk_gdn_smoke pass=1 sync_async_exact=1 output_nonfinite=0 state_nonfinite=0 output_nonzero=261888 output_hash=bec127e285766f47 state_hash=24a981531ffb7040 scratch_bytes=213087840 fixture=synthetic reference_compared=1 reference_exact_required=1 output_reference_bit_mismatches=0 state_reference_bit_mismatches=0 output_reference_relative_l2=0 output_reference_mean_abs=0 output_reference_max_abs=0 output_candidate_l2=1.61739 output_reference_l2=1.61739 output_max_error_index=0 output_max_error_candidate=-0.00138092 output_max_error_reference=-0.00138092 state_reference_relative_l2=0 state_reference_mean_abs=0 state_reference_max_abs=0 state_candidate_l2=2.33139 state_reference_l2=2.33139 state_max_error_index=0 state_max_error_candidate=0.0101005 state_max_error_reference=0.0101005\n"
+    },
+    {
+      "case": "q65-probe-r1",
+      "run": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q65-fla-smoke.exe",
+          "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+          "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+          "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+          "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+          "model": "synthetic component operands",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "arguments": [
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+          ],
+          "components": [
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 458240,
+                  "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 543232,
+                  "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328192,
+                  "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 542720,
+                  "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+              "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+              "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+            },
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 389632,
+                  "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 473088,
+                  "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 464896,
+                  "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+              "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+              "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+            }
+          ],
+          "input_audit": null,
+          "input_audit_sha256": null,
+          "tables": [
+            {
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+              "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+            },
+            {
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+              "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+            }
+          ],
+          "environment": {
+            "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+            "QRT_FLA_GDN_BATCHED_EXACT": "1",
+            "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+            "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+            "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+            "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+            "QRT_FLA_GDN_WU_BLACKWELL": "1",
+            "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+            "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+            "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+            "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "QRT_FLA_GDN_SMOKE_INPUT_DIR": "",
+            "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+            "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+            "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+            "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "1",
+            "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla-checkpoints-q65-probe-r1\\checkpoint"
+          },
+          "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T23:05:12.8481487Z",
+          "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q65-fla-smoke.exe",
+            "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+            "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+            "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+            "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+            "model": "synthetic component operands",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "arguments": [
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+            ],
+            "components": [
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 458240,
+                    "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 543232,
+                    "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328192,
+                    "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 542720,
+                    "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+                "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+                "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+              },
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 389632,
+                    "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 473088,
+                    "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 464896,
+                    "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+                "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+                "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+              }
+            ],
+            "input_audit": null,
+            "input_audit_sha256": null,
+            "tables": [
+              {
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+                "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+              },
+              {
+                "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+                "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+              }
+            ],
+            "environment": {
+              "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+              "QRT_FLA_GDN_BATCHED_EXACT": "1",
+              "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+              "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+              "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+              "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+              "QRT_FLA_GDN_WU_BLACKWELL": "1",
+              "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+              "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+              "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+              "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+              "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+              "QRT_FLA_GDN_SMOKE_INPUT_DIR": "",
+              "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+              "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+              "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+              "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "1",
+              "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla-checkpoints-q65-probe-r1\\checkpoint"
+            },
+            "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+          },
+          "executable_sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24874147840,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147239194624,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533471080448,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 635.473,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24833208320,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147199762432,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462417408,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "run_record_sha256": "aa5ce1061d33bb6b8637b33b033f2147f4ffa9cd65454a05e58e6de57b363ab2",
+      "stdout_sha256": "33497e72ef5af8b8c17f1ccf0e7332b6539d538057001138bc00ef9911480ad2",
+      "stderr_sha256": "a0a83b97572e8c08e5b271fa15e0927809bc15f8eccfc8f2b5d37f213404c0cd",
+      "reports": [
+        {
+          "kind": "fla_fp32_checkpoint",
+          "tokens": 65,
+          "prefix_tokens": 64,
+          "state_elements": 524288,
+          "state_bit_mismatches": 0,
+          "prefix_output_bit_mismatches": 0,
+          "guarded_prefix_pass": true,
+          "model_checkpoint_qualified": false
+        },
+        {
+          "kind": "fla_fp32_checkpoint_capture",
+          "tokens": 65,
+          "checkpoints": 1,
+          "capture_wall_ms": 3.1289,
+          "full_output_elements": 266240,
+          "unchanged_output_state_and_inputs": true,
+          "inference_acceptance": false
+        }
+      ],
+      "component_output": "{\"kind\":\"fla_fp32_checkpoint\",\"tokens\":65,\"prefix_tokens\":64,\"state_elements\":524288,\"state_bit_mismatches\":0,\"prefix_output_bit_mismatches\":0,\"guarded_prefix_pass\":true,\"model_checkpoint_qualified\":false}\n{\"kind\":\"fla_fp32_checkpoint_capture\",\"tokens\":65,\"checkpoints\":1,\"capture_wall_ms\":3.1289,\"full_output_elements\":266240,\"unchanged_output_state_and_inputs\":true,\"inference_acceptance\":false}\nq64_fla_chunk_gdn_smoke pass=1 sync_async_exact=1 output_nonfinite=0 state_nonfinite=0 output_nonzero=265980 output_hash=8524343f52dbcc6f state_hash=a4a0683aa5a2803b scratch_bytes=216245856 fixture=synthetic reference_compared=1 reference_exact_required=1 output_reference_bit_mismatches=0 state_reference_bit_mismatches=0 output_reference_relative_l2=0 output_reference_mean_abs=0 output_reference_max_abs=0 output_candidate_l2=1.6303 output_reference_l2=1.6303 output_max_error_index=0 output_max_error_candidate=-0.00138092 output_max_error_reference=-0.00138092 state_reference_relative_l2=0 state_reference_mean_abs=0 state_reference_max_abs=0 state_candidate_l2=2.31599 state_reference_l2=2.31599 state_max_error_index=0 state_max_error_candidate=0.0100374 state_max_error_reference=0.0100374\n",
+      "snapshots": [
+        {
+          "sha256": "6f7a2469863e5445ce673891f8acffacfafb48fffb92e70f6273a6d9e461d133",
+          "file": "checkpoint-prefix64-state-f32.bin",
+          "bytes": 2097152
+        }
+      ]
+    },
+    {
+      "case": "q7169-probe-r1",
+      "run": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q7169-fla-smoke.exe",
+          "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+          "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+          "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+          "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+          "model": "GB10 Qwen3.6-35B-A3B BF16 captured layer-0 q7169 operands",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "arguments": [
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+          ],
+          "components": [
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 458240,
+                  "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 543232,
+                  "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328192,
+                  "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 344064,
+                  "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 542720,
+                  "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+              "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+              "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+            },
+            {
+              "artifacts": [
+                {
+                  "file": "fla-output-capture-replay.exe",
+                  "bytes": 389632,
+                  "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                },
+                {
+                  "file": "fla-upstream-capture-replay.exe",
+                  "bytes": 473088,
+                  "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                },
+                {
+                  "file": "metadata.json",
+                  "bytes": 13951,
+                  "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                },
+                {
+                  "file": "q64-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                },
+                {
+                  "file": "q65-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                },
+                {
+                  "file": "q7169-fla-smoke.exe",
+                  "bytes": 328704,
+                  "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                  "bytes": 16120,
+                  "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                  "bytes": 16112,
+                  "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                  "bytes": 18880,
+                  "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                  "bytes": 6664,
+                  "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                  "bytes": 26816,
+                  "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                  "bytes": 27960,
+                  "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                  "bytes": 45112,
+                  "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                  "bytes": 38272,
+                  "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                  "bytes": 13160,
+                  "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                  "bytes": 6168,
+                  "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                },
+                {
+                  "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                  "bytes": 6040,
+                  "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                },
+                {
+                  "file": "qrt_fla_chunk_gdn_provider.dll",
+                  "bytes": 464896,
+                  "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                },
+                {
+                  "file": "qrt_fla_gdn_kernel_specs.inc",
+                  "bytes": 940,
+                  "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                }
+              ],
+              "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+              "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+              "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+            }
+          ],
+          "input_audit": {
+            "kind": "saved_real_gdn_component_replay",
+            "tokens": 7169,
+            "reference_capture": "GB10 layer 0 capture 2026-08-24; fingerprint-verified, not recaptured",
+            "captured_seed_exact_zero": true,
+            "inference_acceptance": false,
+            "verification": {
+              "schema_version": 1,
+              "surface": "gdn-full-verification",
+              "output_bit_exact": true,
+              "state_bit_exact": true,
+              "scale": 0.08838834764831845
+            },
+            "verification_sha256": "f9abc0fe5307e6fa74a3cd1ecdf2de22d5d414e886bd95449bd8e6a94f10dce1",
+            "reference_files": {
+              "q": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-q-bf16.bin",
+                "dtype": "bfloat16",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "bytes": 29364224,
+                "sha256": "b060def5e5fcb028fdcd575d1be04275309ce2047601b984a6a18ef248e4ae1c",
+                "descriptor_sha256": "6ff4ce688a50892b8a1c96bbae4744df85799f3cb4e6de0dd2d46d63f84fe4ef"
+              },
+              "k": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-k-bf16.bin",
+                "dtype": "bfloat16",
+                "shape": [
+                  1,
+                  7169,
+                  16,
+                  128
+                ],
+                "bytes": 29364224,
+                "sha256": "601fa1266e4403da579bc7352a1a8650e4a8b22a06d847f730084aafd5080d14",
+                "descriptor_sha256": "050159bb3b92f823f7163e826c972c040cfb5a5ae41383331cdf6a2a0ead2170"
+              },
+              "v": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-bf16.bin",
+                "dtype": "bfloat16",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "bytes": 58728448,
+                "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+                "descriptor_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+              },
+              "g": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-g-f32.bin",
+                "dtype": "float32",
+                "shape": [
+                  1,
+                  7169,
+                  32
+                ],
+                "bytes": 917632,
+                "sha256": "8bab0ca92fcebdb6dad0301da9303f86f8c4ef95053325acd0021a24d964a8ab",
+                "descriptor_sha256": "8d9cb178ce59121cac3629fe4ad426464625471f82bad8768c252ec16bfb0c63"
+              },
+              "beta": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-beta-bf16.bin",
+                "dtype": "bfloat16",
+                "shape": [
+                  1,
+                  7169,
+                  32
+                ],
+                "bytes": 458816,
+                "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+                "descriptor_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+              },
+              "initial_state": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-initial_state-f32.bin",
+                "dtype": "float32",
+                "shape": [
+                  1,
+                  32,
+                  128,
+                  128
+                ],
+                "bytes": 2097152,
+                "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+                "descriptor_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+              },
+              "native-output": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-native-output-bf16.bin",
+                "dtype": "bfloat16",
+                "shape": [
+                  1,
+                  7169,
+                  32,
+                  128
+                ],
+                "bytes": 58728448,
+                "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+                "descriptor_sha256": "6a0ea8cb68f22a208827686ead44717c12c1fa650f67620e1edefdf5b9684e74"
+              },
+              "native-final-state": {
+                "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-native-final-state-f32.bin",
+                "dtype": "float32",
+                "shape": [
+                  1,
+                  32,
+                  128,
+                  128
+                ],
+                "bytes": 2097152,
+                "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+                "descriptor_sha256": "f15e27d4e4ad85a0cdf6fe7ea28bcb52f98d30b2f948105b6dd719e7d92484b5"
+              }
+            },
+            "surfaces": {}
+          },
+          "input_audit_sha256": "29ede781444477bfc4c267c24b1d894a62c0be37d0017a8bafdbcc0f496bf64d",
+          "tables": [
+            {
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+              "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+            },
+            {
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+              "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+            }
+          ],
+          "environment": {
+            "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+            "QRT_FLA_GDN_BATCHED_EXACT": "1",
+            "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+            "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+            "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+            "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+            "QRT_FLA_GDN_WU_BLACKWELL": "1",
+            "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+            "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+            "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+            "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "QRT_FLA_GDN_SMOKE_INPUT_DIR": "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input",
+            "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+            "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+            "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+            "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "1",
+            "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla-checkpoints-q7169-probe-r1\\checkpoint"
+          },
+          "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T23:05:15.7642159Z",
+          "command_file": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\q7169-fla-smoke.exe",
+            "working_directory": "D:\\projects\\AIMA-public-fla-checkpoints-20260912",
+            "repo_commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+            "command_file": "D:\\projects\\run-native-fla-checkpoints-probes-r1.ps1",
+            "command_file_sha256": "fbd4dd853b6135000b88d2f056f4ef86c4e6d68d221f80e8d1b5312ae0d36176",
+            "model": "GB10 Qwen3.6-35B-A3B BF16 captured layer-0 q7169 operands",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "arguments": [
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll"
+            ],
+            "components": [
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 458240,
+                    "sha256": "ce758830d1ee8b36d9c2c84c54825a3548ef147ddcb0958ae693877fdb4c6633"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 543232,
+                    "sha256": "6991f260b0a8e9f8130277794e6057156ff569e44b4cbeaa4faf3dd5a7e10469"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328192,
+                    "sha256": "6537dfa54d11e26c78dc91c14a114e12ed37ae8bf91302cb5637a9f4276e09a0"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7ea0c901c8ff58fcd09db39aa8806df5408991ca898e406879b54bec943d2ebb"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 344064,
+                    "sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 542720,
+                    "sha256": "af14a4d78dd0ed45f044f8958a7afbd79b96211f5b74c9c39ece23c0f798aac6"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "52ac824b55fa68ae536912b3df1e62dfcac5d1dc8fec5c809b99877eba99348f",
+                "commit": "872a0424409552ed01c4c8f7a6691c742236795e",
+                "build_metadata_sha256": "b1f9955b5bdc1055bca7b1b6edcafa012440301d34e38b59c09ee04743e9b04b"
+              },
+              {
+                "artifacts": [
+                  {
+                    "file": "fla-output-capture-replay.exe",
+                    "bytes": 389632,
+                    "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+                  },
+                  {
+                    "file": "fla-upstream-capture-replay.exe",
+                    "bytes": 473088,
+                    "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+                  },
+                  {
+                    "file": "metadata.json",
+                    "bytes": 13951,
+                    "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+                  },
+                  {
+                    "file": "q64-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+                  },
+                  {
+                    "file": "q65-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+                  },
+                  {
+                    "file": "q7169-fla-smoke.exe",
+                    "bytes": 328704,
+                    "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                    "bytes": 16120,
+                    "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                    "bytes": 16112,
+                    "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                    "bytes": 18880,
+                    "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                    "bytes": 6664,
+                    "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                    "bytes": 26816,
+                    "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                    "bytes": 27960,
+                    "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                    "bytes": 45112,
+                    "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                    "bytes": 38272,
+                    "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                    "bytes": 13160,
+                    "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                    "bytes": 6168,
+                    "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+                  },
+                  {
+                    "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                    "bytes": 6040,
+                    "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+                  },
+                  {
+                    "file": "qrt_fla_chunk_gdn_provider.dll",
+                    "bytes": 464896,
+                    "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+                  },
+                  {
+                    "file": "qrt_fla_gdn_kernel_specs.inc",
+                    "bytes": 940,
+                    "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+                  }
+                ],
+                "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+                "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+                "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28"
+              }
+            ],
+            "input_audit": {
+              "kind": "saved_real_gdn_component_replay",
+              "tokens": 7169,
+              "reference_capture": "GB10 layer 0 capture 2026-08-24; fingerprint-verified, not recaptured",
+              "captured_seed_exact_zero": true,
+              "inference_acceptance": false,
+              "verification": {
+                "schema_version": 1,
+                "surface": "gdn-full-verification",
+                "output_bit_exact": true,
+                "state_bit_exact": true,
+                "scale": 0.08838834764831845
+              },
+              "verification_sha256": "f9abc0fe5307e6fa74a3cd1ecdf2de22d5d414e886bd95449bd8e6a94f10dce1",
+              "reference_files": {
+                "q": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-q-bf16.bin",
+                  "dtype": "bfloat16",
+                  "shape": [
+                    1,
+                    7169,
+                    16,
+                    128
+                  ],
+                  "bytes": 29364224,
+                  "sha256": "b060def5e5fcb028fdcd575d1be04275309ce2047601b984a6a18ef248e4ae1c",
+                  "descriptor_sha256": "6ff4ce688a50892b8a1c96bbae4744df85799f3cb4e6de0dd2d46d63f84fe4ef"
+                },
+                "k": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-k-bf16.bin",
+                  "dtype": "bfloat16",
+                  "shape": [
+                    1,
+                    7169,
+                    16,
+                    128
+                  ],
+                  "bytes": 29364224,
+                  "sha256": "601fa1266e4403da579bc7352a1a8650e4a8b22a06d847f730084aafd5080d14",
+                  "descriptor_sha256": "050159bb3b92f823f7163e826c972c040cfb5a5ae41383331cdf6a2a0ead2170"
+                },
+                "v": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-v-bf16.bin",
+                  "dtype": "bfloat16",
+                  "shape": [
+                    1,
+                    7169,
+                    32,
+                    128
+                  ],
+                  "bytes": 58728448,
+                  "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+                  "descriptor_sha256": "62161b892292780c64dcca337c2ad149a0e3c913fcfe27b9d4a1a37927a2e2bd"
+                },
+                "g": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-g-f32.bin",
+                  "dtype": "float32",
+                  "shape": [
+                    1,
+                    7169,
+                    32
+                  ],
+                  "bytes": 917632,
+                  "sha256": "8bab0ca92fcebdb6dad0301da9303f86f8c4ef95053325acd0021a24d964a8ab",
+                  "descriptor_sha256": "8d9cb178ce59121cac3629fe4ad426464625471f82bad8768c252ec16bfb0c63"
+                },
+                "beta": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-beta-bf16.bin",
+                  "dtype": "bfloat16",
+                  "shape": [
+                    1,
+                    7169,
+                    32
+                  ],
+                  "bytes": 458816,
+                  "sha256": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+                  "descriptor_sha256": "f84b00d7d8bbf5191ad661a168ad28e31a7d3a84038642c62e8fd178ed1772ad"
+                },
+                "initial_state": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-initial_state-f32.bin",
+                  "dtype": "float32",
+                  "shape": [
+                    1,
+                    32,
+                    128,
+                    128
+                  ],
+                  "bytes": 2097152,
+                  "sha256": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+                  "descriptor_sha256": "a69666b9dfad9a1c965c391d305505cda6384edd6360d8d77c06c71568e2b447"
+                },
+                "native-output": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-native-output-bf16.bin",
+                  "dtype": "bfloat16",
+                  "shape": [
+                    1,
+                    7169,
+                    32,
+                    128
+                  ],
+                  "bytes": 58728448,
+                  "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+                  "descriptor_sha256": "6a0ea8cb68f22a208827686ead44717c12c1fa650f67620e1edefdf5b9684e74"
+                },
+                "native-final-state": {
+                  "path": "/capture/gb10-q7169-gdn-full-l0-r20260824/full-native-final-state-f32.bin",
+                  "dtype": "float32",
+                  "shape": [
+                    1,
+                    32,
+                    128,
+                    128
+                  ],
+                  "bytes": 2097152,
+                  "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+                  "descriptor_sha256": "f15e27d4e4ad85a0cdf6fe7ea28bcb52f98d30b2f948105b6dd719e7d92484b5"
+                }
+              },
+              "surfaces": {}
+            },
+            "input_audit_sha256": "29ede781444477bfc4c267c24b1d894a62c0be37d0017a8bafdbcc0f496bf64d",
+            "tables": [
+              {
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+                "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin"
+              },
+              {
+                "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+                "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin"
+              }
+            ],
+            "environment": {
+              "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+              "QRT_FLA_GDN_BATCHED_EXACT": "1",
+              "QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT": "1",
+              "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+              "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+              "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+              "QRT_FLA_GDN_WU_BLACKWELL": "1",
+              "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+              "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+              "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+              "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+              "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+              "QRT_FLA_GDN_SMOKE_INPUT_DIR": "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input",
+              "QRT_FLA_GDN_DUMP_Q64_DIR": "",
+              "QRT_FLA_GDN_SMOKE_DUMP_PREFIX": "",
+              "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+              "QRT_FLA_GDN_SMOKE_CHECKPOINTS": "1",
+              "QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-checkpoints-20260912\\build\\fla-checkpoints-q7169-probe-r1\\checkpoint"
+            },
+            "purpose": "Compare every output and final state bit against the qualified old exact component, then verify async parity; this is component evidence only"
+          },
+          "executable_sha256": "7eaaf27b47e9748bcb62f6a1303dd20f0753c4a4fc0e51c946053e79e0765c2b",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24869998592,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147228635136,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533470969856,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2606.347,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24845533184,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147217530880,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462130688,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "run_record_sha256": "2f8da7bde525e86031ed0dd0d958c878e6354fb97d4028fbe6d993a8f226c8dd",
+      "stdout_sha256": "10abf7da9de3b8d6e759472ce65ba728546f718475a97ebbdf77af5e7ac093f2",
+      "stderr_sha256": "c077c19845730a29c64342c8e2b17e1d6aedb0cfe9d5f2efbfde865c1b9d12be",
+      "reports": [
+        {
+          "kind": "fla_fp32_checkpoint",
+          "tokens": 7169,
+          "prefix_tokens": 64,
+          "state_elements": 524288,
+          "state_bit_mismatches": 0,
+          "prefix_output_bit_mismatches": 0,
+          "guarded_prefix_pass": true,
+          "model_checkpoint_qualified": false
+        },
+        {
+          "kind": "fla_fp32_checkpoint",
+          "tokens": 7169,
+          "prefix_tokens": 1024,
+          "state_elements": 524288,
+          "state_bit_mismatches": 0,
+          "prefix_output_bit_mismatches": 0,
+          "guarded_prefix_pass": true,
+          "model_checkpoint_qualified": false
+        },
+        {
+          "kind": "fla_fp32_checkpoint",
+          "tokens": 7169,
+          "prefix_tokens": 7168,
+          "state_elements": 524288,
+          "state_bit_mismatches": 0,
+          "prefix_output_bit_mismatches": 0,
+          "guarded_prefix_pass": true,
+          "model_checkpoint_qualified": false
+        },
+        {
+          "kind": "fla_fp32_checkpoint_capture",
+          "tokens": 7169,
+          "checkpoints": 3,
+          "capture_wall_ms": 186.066,
+          "full_output_elements": 29364224,
+          "unchanged_output_state_and_inputs": true,
+          "inference_acceptance": false
+        }
+      ],
+      "component_output": "{\"kind\":\"fla_fp32_checkpoint\",\"tokens\":7169,\"prefix_tokens\":64,\"state_elements\":524288,\"state_bit_mismatches\":0,\"prefix_output_bit_mismatches\":0,\"guarded_prefix_pass\":true,\"model_checkpoint_qualified\":false}\n{\"kind\":\"fla_fp32_checkpoint\",\"tokens\":7169,\"prefix_tokens\":1024,\"state_elements\":524288,\"state_bit_mismatches\":0,\"prefix_output_bit_mismatches\":0,\"guarded_prefix_pass\":true,\"model_checkpoint_qualified\":false}\n{\"kind\":\"fla_fp32_checkpoint\",\"tokens\":7169,\"prefix_tokens\":7168,\"state_elements\":524288,\"state_bit_mismatches\":0,\"prefix_output_bit_mismatches\":0,\"guarded_prefix_pass\":true,\"model_checkpoint_qualified\":false}\n{\"kind\":\"fla_fp32_checkpoint_capture\",\"tokens\":7169,\"checkpoints\":3,\"capture_wall_ms\":186.066,\"full_output_elements\":29364224,\"unchanged_output_state_and_inputs\":true,\"inference_acceptance\":false}\nq64_fla_chunk_gdn_smoke pass=1 sync_async_exact=1 output_nonfinite=0 state_nonfinite=0 output_nonzero=29364212 output_hash=1978781ecffe2b30 state_hash=0a7acb48a3111ba4 scratch_bytes=260458080 fixture=gb10_capture reference_compared=1 reference_exact_required=1 output_reference_bit_mismatches=0 state_reference_bit_mismatches=0 output_reference_relative_l2=0 output_reference_mean_abs=0 output_reference_max_abs=0 output_candidate_l2=583.326 output_reference_l2=583.326 output_max_error_index=0 output_max_error_candidate=5.26905e-05 output_max_error_reference=5.26905e-05 state_reference_relative_l2=0 state_reference_mean_abs=0 state_reference_max_abs=0 state_candidate_l2=182.701 state_reference_l2=182.701 state_max_error_index=0 state_max_error_candidate=0.000507844 state_max_error_reference=0.000507844\n",
+      "snapshots": [
+        {
+          "sha256": "e326983cbadec99475f696b492d6538acb5995a213770d66f92771e8400e2c03",
+          "file": "checkpoint-prefix1024-state-f32.bin",
+          "bytes": 2097152
+        },
+        {
+          "sha256": "33e6b09f1f3414fb7596739ed8f57415d14efc9dc59ebd8589cd421acaf61fcb",
+          "file": "checkpoint-prefix64-state-f32.bin",
+          "bytes": 2097152
+        },
+        {
+          "sha256": "32fde7171a414e88b91f4ffb702b7d26caf515d75b31a61ab5d6759ee5835562",
+          "file": "checkpoint-prefix7168-state-f32.bin",
+          "bytes": 2097152
+        }
+      ]
+    }
+  ],
+  "local_validation": {
+    "python_tests": 312,
+    "skipped": 2,
+    "c_abi": true,
+    "rust": true,
+    "clippy": true,
+    "q16": true,
+    "hygiene": true,
+    "log_sha256": "53b21a3b2cdf1ad96f8e3433c335fa41547c5aa17b1346466da0bb5d8e41c15b"
+  },
+  "component_correctness_qualified": true,
+  "model_checkpoint_qualified": false,
+  "product_correctness_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "maximum_checkpoints": 3,
+  "checkpoint_alignment_tokens": 64,
+  "state_bytes_per_checkpoint": 2097152,
+  "result": "Native real q7169 output and final FP32 state match the qualified old exact provider; checkpoints at 64, 1024 and 7168 each match all 524288 state bits-as-float cells from separately executed prefix controls. Prefix outputs, guards and inputs match. Synthetic q65 checkpoint64 and q64 compatibility pass.",
+  "limitation": "This supplies recurrent FP32 checkpoints only. Full model publication and restoration require convolution history, KV, hidden state, complete layer coverage and owner/generation/token identity. No whole-runtime checkpoint or prefix-speed qualification is claimed."
+}

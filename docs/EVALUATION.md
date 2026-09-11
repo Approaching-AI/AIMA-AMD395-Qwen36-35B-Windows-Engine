@@ -99,6 +99,18 @@ and records 63,115.4979 ms provider TTFT beside the actual 63,115.6430 ms
 callback. Arbitrary new prompts, general partial checkpoints, long contexts,
 packaged HTTP, performance and release qualification remain open.
 
+The [FP32 recurrent checkpoint producer](../benchmarks/correctness/fla-fp32-checkpoints-20260912.json)
+at `872a042` builds on `baiying` in 37481.343 ms. Its optional FLA export
+saves up to three unrounded states on existing 64-token boundaries. Real
+q7169 snapshots at 64, 1024 and 7168 each match all 524,288 FP32 cells of
+separately executed prefixes from the qualified old exact provider. All
+29,364,224 full outputs, final state, prefix outputs, inputs and guards
+remain exact. q64 compatibility and q65 checkpoint/tail controls pass.
+Local C/ABI, Rust, Clippy, q16, 312 Python tests (two skips) and hygiene
+pass. This is the recurrent-state producer only: complete convolution,
+KV and hidden capture, atomic publication, restoration and model-level
+prefix/GB10 acceptance remain open.
+
 The [integer operand prepacking trial](../benchmarks/correctness/attention-integer-prepack-20260912.json)
 at `31f3e7f` preserves all 29,364,224 captured q7169 attention BF16 values
 and passes input/encoding/redzone checks. Its 64,253,536-byte workspace moves
