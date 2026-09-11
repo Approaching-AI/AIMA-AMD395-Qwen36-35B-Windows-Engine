@@ -1,6 +1,7 @@
 #ifndef QRT_SM121_SUBGROUP_H
 #define QRT_SM121_SUBGROUP_H
 #include "sm121_wave16.h"
+#include "sm121_paired_products.h"
 #include <cstring>
 #include <type_traits>
 
@@ -27,10 +28,21 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
         __builtin_memcpy(&b, right + lane * items, sizeof(Packed));
         uint32_t products[items];
         int maximum = carry.exponent > -133 ? carry.exponent : -133;
+        if constexpr (QRT_SM121_PAIRED_PRODUCTS) {
+#pragma unroll
+            for (unsigned i = 0u; i < items; i += 2u) {
+                const auto pair = qrt_sm121_paired_products::multiply(uint32_t(a >> (i * 16u)), uint32_t(b >> (i * 16u)));
+                products[i] = pair.low; products[i + 1u] = pair.high;
+            }
+        } else {
+#pragma unroll
+            for (unsigned i = 0u; i < items; ++i) {
+                products[i] = qrt_sm121_group16::pack_product(
+                    qrt_q1_moe_hawkeye::multiply_bf16(uint16_t(a >> (i * 16u)), uint16_t(b >> (i * 16u)), -133));
+            }
+        }
 #pragma unroll
         for (unsigned i = 0u; i < items; ++i) {
-            products[i] = qrt_sm121_group16::pack_product(
-                qrt_q1_moe_hawkeye::multiply_bf16(uint16_t(a >> (i * 16u)), uint16_t(b >> (i * 16u)), -133));
             const int exponent = qrt_sm121_group16::packed_exponent(products[i]);
             maximum = exponent > maximum ? exponent : maximum;
         }

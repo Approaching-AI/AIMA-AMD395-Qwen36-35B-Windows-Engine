@@ -1,0 +1,559 @@
+{
+  "kind": "fp16_mantissa_matrix_partial_failure",
+  "source": {
+    "sha": "fa26ce23b5eda78308f030469a188783b1298130",
+    "bundle": "fp16-parts-probe-fa26ce2.bundle",
+    "bundle_sha256": "d5564f41ab5e6e6b03f449caa6ce9ad74cdf5e8b7857d44eb43a31ccf3d712e9",
+    "repo": "D:/projects/AIMA-public-fp16-parts-20260912"
+  },
+  "host": "baiying",
+  "model_reference": "none; generated BF16 arithmetic controls",
+  "cases": [
+    {
+      "name": "build",
+      "run_record_sha256": "df06a983badbb52d27e6322ba2c474abbbbc7588c0a1c0186cf8071a5f0949ca",
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-DQRT_MANTISSA_PROBE_FP16=1",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-fp16-parts-20260912\\build\\fp16-parts-probe\\fp16-parts-probe.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-fp16-parts-20260912",
+          "repo_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+          "source_inputs": [
+            {
+              "sha256": "cd362da0b5736fbcb44e0ac2d4ddf8cfe71713b31274d3abaf45bbdb43d5b3de",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp"
+            },
+            {
+              "sha256": "7583b7441d5d5b8180bc57580a7498faed4b518c699c5b8a0f1a7bcd15779b75",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "428c45e03650fd57e1faf4d7aca24565df356f2e90edaf670b45d5c4f871fdf5",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            }
+          ],
+          "command_file": "D:\\projects\\run-native-fp16-parts-probe-r1.ps1",
+          "command_file_sha256": "bfb4ae89d63da2b16f28e275f7b3306fe2cf24b85fe197935964e6ce90be5554",
+          "model": "none; generated BF16 arithmetic controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "purpose": "build"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T20:57:58.6044711Z",
+          "command_file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O3",
+              "-DQRT_MANTISSA_PROBE_FP16=1",
+              "--offload-arch=gfx1151",
+              "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp",
+              "-o",
+              "D:\\projects\\AIMA-public-fp16-parts-20260912\\build\\fp16-parts-probe\\fp16-parts-probe.exe"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-fp16-parts-20260912",
+            "repo_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+            "source_inputs": [
+              {
+                "sha256": "cd362da0b5736fbcb44e0ac2d4ddf8cfe71713b31274d3abaf45bbdb43d5b3de",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp"
+              },
+              {
+                "sha256": "7583b7441d5d5b8180bc57580a7498faed4b518c699c5b8a0f1a7bcd15779b75",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "428c45e03650fd57e1faf4d7aca24565df356f2e90edaf670b45d5c4f871fdf5",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              }
+            ],
+            "command_file": "D:\\projects\\run-native-fp16-parts-probe-r1.ps1",
+            "command_file_sha256": "bfb4ae89d63da2b16f28e275f7b3306fe2cf24b85fe197935964e6ce90be5554",
+            "model": "none; generated BF16 arithmetic controls",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "purpose": "build"
+          },
+          "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24944230400,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147344384000,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533475397632,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 4846.914,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24930693120,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147318194176,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462908928,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "dispatch": {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-native-fp16-parts-probe-r1.ps1 -Action build",
+        "source_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+        "returncode": 0,
+        "stdout": "HEAD is now at fa26ce2 Check exact FP16 matrix partials after integer schedule regressions\n{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  4846.914,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n\n\n",
+        "stderr": "From D:\\projects\\fp16-parts-probe-fa26ce2.bundle\n * branch            HEAD       -> FETCH_HEAD\nPreparing worktree (detached HEAD fa26ce2)\n"
+      },
+      "stdout": "",
+      "build_provenance": {
+        "run_record_sha256": "df06a983badbb52d27e6322ba2c474abbbbc7588c0a1c0186cf8071a5f0949ca",
+        "source_inputs": [
+          {
+            "sha256": "cd362da0b5736fbcb44e0ac2d4ddf8cfe71713b31274d3abaf45bbdb43d5b3de",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp"
+          },
+          {
+            "sha256": "7583b7441d5d5b8180bc57580a7498faed4b518c699c5b8a0f1a7bcd15779b75",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "428c45e03650fd57e1faf4d7aca24565df356f2e90edaf670b45d5c4f871fdf5",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "repo_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+        "executable": {
+          "sha256": "b4c041f4512aad21ff35e67442450ba6752f4f68c8201445a095544b4f393b03",
+          "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\build\\fp16-parts-probe\\fp16-parts-probe.exe",
+          "bytes": 519680
+        }
+      }
+    },
+    {
+      "name": "test",
+      "run_record_sha256": "9c63676f3ac522c49755463518f2f06ff96e4f9385f9d18ba32f395c8a8194dc",
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-fp16-parts-20260912\\build\\fp16-parts-probe\\fp16-parts-probe.exe",
+          "arguments": [
+            "--selftest"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-fp16-parts-20260912",
+          "repo_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+          "source_inputs": [
+            {
+              "sha256": "cd362da0b5736fbcb44e0ac2d4ddf8cfe71713b31274d3abaf45bbdb43d5b3de",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp"
+            },
+            {
+              "sha256": "7583b7441d5d5b8180bc57580a7498faed4b518c699c5b8a0f1a7bcd15779b75",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "428c45e03650fd57e1faf4d7aca24565df356f2e90edaf670b45d5c4f871fdf5",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            }
+          ],
+          "command_file": "D:\\projects\\run-native-fp16-parts-probe-r1.ps1",
+          "command_file_sha256": "bfb4ae89d63da2b16f28e275f7b3306fe2cf24b85fe197935964e6ce90be5554",
+          "model": "none; generated BF16 arithmetic controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "purpose": "test"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-11T20:58:05.7158965Z",
+          "command_file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-fp16-parts-20260912\\build\\fp16-parts-probe\\fp16-parts-probe.exe",
+            "arguments": [
+              "--selftest"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-fp16-parts-20260912",
+            "repo_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+            "source_inputs": [
+              {
+                "sha256": "cd362da0b5736fbcb44e0ac2d4ddf8cfe71713b31274d3abaf45bbdb43d5b3de",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\tests\\native\\sm121_mantissa_wmma_selftest.cpp"
+              },
+              {
+                "sha256": "7583b7441d5d5b8180bc57580a7498faed4b518c699c5b8a0f1a7bcd15779b75",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "428c45e03650fd57e1faf4d7aca24565df356f2e90edaf670b45d5c4f871fdf5",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-fp16-parts-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              }
+            ],
+            "command_file": "D:\\projects\\run-native-fp16-parts-probe-r1.ps1",
+            "command_file_sha256": "bfb4ae89d63da2b16f28e275f7b3306fe2cf24b85fe197935964e6ce90be5554",
+            "model": "none; generated BF16 arithmetic controls",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "purpose": "test"
+          },
+          "executable_sha256": "b4c041f4512aad21ff35e67442450ba6752f4f68c8201445a095544b4f393b03",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 26,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24952729600,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 147332489216,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533474316288,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 2,
+        "wall_ms": 366.389,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24910901248,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147290996736,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533461917696,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "dispatch": {
+        "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-native-fp16-parts-probe-r1.ps1 -Action test",
+        "source_commit": "fa26ce23b5eda78308f030469a188783b1298130",
+        "returncode": 0,
+        "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  2,\n    \"wall_ms\":  366.389,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\nDIFF index=4 carry=00000000 accepted=1 host=84769590 device=84769590 expected=84769590 exponent=2\nPART 0 expected=411910a0 native=411910a0\nPART 1 expected=3e499200 native=3e499200\nPART 2 expected=3eae2a80 native=3eae2a80\nPART 3 expected=3ae55800 native=3ae55801\n00000000 bda73e34 3fd140a7 be6fbe93 becb3e09 00000000 3e273d65 3f40bee8 3cc4c02d 3faabc1b 00000000 3db8bdd0 c01abd68 c02ebf30 3ed4bc1a 00000000 \nDIFF index=13 carry=00000000 accepted=1 host=24672893 device=24672893 expected=24672889 exponent=0\nPART 0 expected=3f483e40 native=3f483e42\nPART 1 expected=bd766fc0 native=bd766fc1\nPART 2 expected=3c82d180 native=3c82d184\nPART 3 expected=bb309340 native=bb309340\n3f590000 00003e34 be4940a7 3e9cbe93 3c583e09 bcbb0000 00003d65 c090bee8 3d7dc02d bd5dbc1b 408c0000 0000bdd0 bc25bd68 3d2bbf30 bdcbbc1a bef50000 \n{\"kind\":\"mantissa_fp16_wmma_selftest\",\"cells\":16384,\"accepted\":11962,\"partial_mismatches\":6835,\"host_sum_mismatches\":3864,\"device_sum_mismatches\":3864,\"eligibility_mismatches\":0,\"input_conversion_mismatches\":0,\"inference_acceptance\":false}\n\n\n",
+        "stderr": ""
+      },
+      "stdout": "DIFF index=4 carry=00000000 accepted=1 host=84769590 device=84769590 expected=84769590 exponent=2\nPART 0 expected=411910a0 native=411910a0\nPART 1 expected=3e499200 native=3e499200\nPART 2 expected=3eae2a80 native=3eae2a80\nPART 3 expected=3ae55800 native=3ae55801\n00000000 bda73e34 3fd140a7 be6fbe93 becb3e09 00000000 3e273d65 3f40bee8 3cc4c02d 3faabc1b 00000000 3db8bdd0 c01abd68 c02ebf30 3ed4bc1a 00000000 \nDIFF index=13 carry=00000000 accepted=1 host=24672893 device=24672893 expected=24672889 exponent=0\nPART 0 expected=3f483e40 native=3f483e42\nPART 1 expected=bd766fc0 native=bd766fc1\nPART 2 expected=3c82d180 native=3c82d184\nPART 3 expected=bb309340 native=bb309340\n3f590000 00003e34 be4940a7 3e9cbe93 3c583e09 bcbb0000 00003d65 c090bee8 3d7dc02d bd5dbc1b 408c0000 0000bdd0 bc25bd68 3d2bbf30 bdcbbc1a bef50000 \n{\"kind\":\"mantissa_fp16_wmma_selftest\",\"cells\":16384,\"accepted\":11962,\"partial_mismatches\":6835,\"host_sum_mismatches\":3864,\"device_sum_mismatches\":3864,\"eligibility_mismatches\":0,\"input_conversion_mismatches\":0,\"inference_acceptance\":false}\n"
+    }
+  ],
+  "decision": {
+    "input_conversion": "exact",
+    "partial_mismatches": 6835,
+    "accepted_cells": 11962,
+    "compensated_sum_mismatches": 3864,
+    "same_counterexamples_as_bf16": true,
+    "selected_for_product": false,
+    "inference_acceptance": false,
+    "reason": "FP16 instructions produce the same mismatching floating matrix partials even with zero conversion mismatches. Re-encoding the floating parts does not solve the arithmetic boundary."
+  },
+  "isa_reference": "https://docs.amd.com/api/khub/documents/UkT_UPQL21KfKAMUBFnZTw/content"
+}

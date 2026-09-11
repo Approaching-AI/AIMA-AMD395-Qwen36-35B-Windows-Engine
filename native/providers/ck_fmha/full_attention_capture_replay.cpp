@@ -135,6 +135,8 @@ bool report(const char* route, const std::vector<float>& output,
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"native_products\":" << (native_products ? "true" : "false")
+              << ",\"paired_products\":" << (std::strcmp(route, "ck") && qrt_blackwell_attention::kPairedProducts &&
+                  !native_products && (memory_layout == 4u || memory_layout == 8u) ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
               << ",\"integer_wmma\":" << (memory_layout == 5u ? "true" : "false")
               << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u) ? "true" : "false")

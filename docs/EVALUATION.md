@@ -339,7 +339,19 @@ FP32 rounding mode is not a supported way to obtain the reference arithmetic.
 The native mantissa probe can instead test FP16 matrix instructions with
 exactly representable four-bit parts, separately from the failing BF16
 partial controls. This is an arithmetic experiment, not a model precision
-change or an accepted provider; native results are pending.
+change or an accepted provider. The [native FP16 control](../benchmarks/correctness/attention-fp16-parts-20260912.json)
+has zero conversion mismatches but repeats the BF16 result: 6,835 differing
+partials and 3,864 differing compensated sums among 11,962 eligible cells.
+Changing the input encoding does not solve the matrix arithmetic boundary.
+
+The next diagnostic uses packed unsigned sixteen-bit multiplication to
+construct two original BF16 products at once. Packed integer masks handle
+both exponents, zero/subnormal significands and signs; the K16 alignment and
+normalizer stay unchanged. All 65,536 input encodings against sixteen
+independent controls and randomized companion halfwords pass 2,097,152 host
+product comparisons. `QRT_SM121_PAIRED_PRODUCTS=1` enables it in transposed
+QK, serial PV and four/eight-lane subgroup dots; the default remains off.
+Native instruction and real captured-input qualification are pending.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

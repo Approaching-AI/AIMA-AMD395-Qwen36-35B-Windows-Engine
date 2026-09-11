@@ -1377,6 +1377,8 @@ $record = [ordered]@{
     routed_replay_lanes = $RoutedReplayLanes
     sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h')).Hash.ToLowerInvariant()
+    sm121_paired_products_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_paired_products.h')).Hash.ToLowerInvariant()
     full_shared_hawkeye = ($FullSharedHawkeye -ne 0)
     native_wmma_gate = ($NativeWmmaGate -ne 0)
     native_wmma_down = ($NativeWmmaDown -ne 0)

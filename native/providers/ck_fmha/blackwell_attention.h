@@ -21,6 +21,7 @@ namespace exp2_backend = qrt_sm121_exp2;
 #endif
 constexpr unsigned int kQueryHeads = 16u, kKvHeads = 2u;
 constexpr unsigned int kHeadDim = 256u, kThreads = 256u;
+constexpr bool kPairedProducts = QRT_SM121_PAIRED_PRODUCTS != 0;
 __device__ uint16_t f32_to_bf16(float value) {
     const uint32_t bits = __float_as_uint(value);
     if ((bits & 0x7f800000u) == 0x7f800000u) {
@@ -132,13 +133,23 @@ __global__ void blackwell_transposed_scores_kernel(
     qrt_q1_moe_hawkeye::Value dot{0u, kBlackwellZeroExponent, false};
     for (unsigned int base = 0u; base < kHeadDim; base += kBlackwellMmaGroup) {
         uint32_t products[kBlackwellMmaGroup];
+        constexpr unsigned step = kPairedProducts && !NativeProducts ? 2u : 1u;
 #pragma unroll
-        for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
+        for (unsigned int item = 0u; item < kBlackwellMmaGroup; item += step) {
+            if constexpr (kPairedProducts && !NativeProducts) {
+                uint32_t q;
+                __builtin_memcpy(&q, query + query_base + base + item, sizeof(q));
+                const size_t k_index = (static_cast<size_t>(kv_head) * kHeadDim + base + item) * key_stride + key_token;
+                const uint32_t k = uint32_t(transposed_key[k_index]) | (uint32_t(transposed_key[k_index + key_stride]) << 16u);
+                const auto pair = qrt_sm121_paired_products::multiply(q, k);
+                products[item] = pair.low; products[item + 1u] = pair.high;
+            } else {
             const uint16_t q = query[query_base + base + item];
             const uint16_t k = transposed_key[(static_cast<size_t>(kv_head) * kHeadDim + base + item) *
                                                 key_stride + key_token];
             products[item] = NativeProducts ? qrt_sm121_native_product::pack(q, k) :
                 qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(q, k, kBlackwellZeroExponent));
+            }
         }
         const auto sum = NativeProducts ? qrt_sm121_native_product::sum(dot, products) :
             qrt_sm121_group16::sum_packed(dot, products);
@@ -312,19 +323,31 @@ __global__ void blackwell_exact_attention_kernel(
             for (unsigned int begin = 0u; begin < kExactTileTokens;
                  begin += kBlackwellMmaGroup) {
                 uint32_t products[kBlackwellMmaGroup];
+                constexpr unsigned step = kPairedProducts && !NativeProducts ? 2u : 1u;
 #pragma unroll
-                for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
-                    const unsigned int key_token = tile * kExactTileTokens + begin + item;
-                    uint16_t v = 0u;
-                    if (key_token < tokens) {
-                        const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
-                        const uint16_t *source = in_tail ? decode_tail_value : value;
-                        const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
-                        v = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
+                for (unsigned int item = 0u; item < kBlackwellMmaGroup; item += step) {
+                    uint16_t values[step]{};
+#pragma unroll
+                    for (unsigned part = 0u; part < step; ++part) {
+                        const unsigned int key_token = tile * kExactTileTokens + begin + item + part;
+                        if (key_token < tokens) {
+                            const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
+                            const uint16_t *source = in_tail ? decode_tail_value : value;
+                            const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
+                            values[part] = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
+                        }
                     }
-                    products[item] = NativeProducts ? qrt_sm121_native_product::pack(probability_bf16[begin + item], v) :
-                        qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
-                            probability_bf16[begin + item], v, kBlackwellZeroExponent));
+                    if constexpr (kPairedProducts && !NativeProducts) {
+                        uint32_t p;
+                        __builtin_memcpy(&p, probability_bf16 + begin + item, sizeof(p));
+                        const auto pair = qrt_sm121_paired_products::multiply(p, uint32_t(values[0]) | (uint32_t(values[1]) << 16u));
+                        products[item] = pair.low; products[item + 1u] = pair.high;
+                    } else {
+                        const uint16_t v = values[0];
+                        products[item] = NativeProducts ? qrt_sm121_native_product::pack(probability_bf16[begin + item], v) :
+                            qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                                probability_bf16[begin + item], v, kBlackwellZeroExponent));
+                    }
                 }
                 const auto sum = NativeProducts ? qrt_sm121_native_product::sum(partial, products) :
                     qrt_sm121_group16::sum_packed(partial, products);
