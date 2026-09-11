@@ -189706,6 +189706,32 @@ bool emit_qwen36_resident_decode_coarse_categories(
     return true;
 }
 
+bool launch_qwen36_resident_decode_sm121_final_norm(
+    const float *input,
+    const uint16_t *weights,
+    float *output,
+    hipStream_t stream,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    const uint8_t *correction = nullptr;
+    if (!load_gfx1151_sm121_rsqrt_correction(
+            &correction, failure,
+            std::getenv("QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION"))) {
+        *failure_stage = "qwen36_q1_final_norm_rsqrt_correction";
+        return false;
+    }
+    // The layer-39 carrier is the exact unrounded addition of two BF16
+    // residuals. Original GemmaRMSNorm rounds its numerator to BF16 but
+    // computes the variance from that unrounded sum, including in Q1 decode.
+    hipLaunchKernelGGL(
+        final_norm_unrounded_vllm_kernel,
+        dim3(1u), dim3(kThreads), 0, stream,
+        input, weights, output, 1u, correction);
+    return check_hip(hipGetLastError(), "qwen36_q1_sm121_final_norm",
+                     failure_stage, failure);
+}
+
 bool run_qwen36_resident_decode_dual_direct_output_plan(
     ScopedQwen36ResidentSessionDecode *primary_lease,
     size_t absolute_position,
@@ -189899,18 +189925,31 @@ bool run_qwen36_resident_decode_dual_direct_output_plan(
     }
 
     const uint64_t start_ns = qrt_now_ns();
-    hipLaunchKernelGGL(
-        dual_layer1_input_rmsnorm_kernel,
-        dim3(2u),
-        dim3(kThreads),
-        0,
-        hooks->shared_stream,
-        primary_workspace->device_hidden[0u],
-        alternate_workspace->device_hidden[0u],
-        primary_workspace->device_direct_output_final_norm_weights,
-        primary_workspace->device_norm_f32,
-        alternate_workspace->device_norm_f32
-    );
+    if (env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT")) {
+        for (auto *workspace : {primary_workspace, alternate_workspace}) {
+            if (!launch_qwen36_resident_decode_sm121_final_norm(
+                    workspace->device_hidden[0u],
+                    workspace->device_direct_output_final_norm_weights,
+                    workspace->device_norm_f32, hooks->shared_stream,
+                    failure_stage, failure)) {
+                invalidate_pair();
+                return false;
+            }
+        }
+    } else {
+        hipLaunchKernelGGL(
+            dual_layer1_input_rmsnorm_kernel,
+            dim3(2u),
+            dim3(kThreads),
+            0,
+            hooks->shared_stream,
+            primary_workspace->device_hidden[0u],
+            alternate_workspace->device_hidden[0u],
+            primary_workspace->device_direct_output_final_norm_weights,
+            primary_workspace->device_norm_f32,
+            alternate_workspace->device_norm_f32
+        );
+    }
     const dim3 norm_conversion_grid(
         (QRT_QWEN36_HIDDEN_SIZE + kThreads - 1u) / kThreads
     );
@@ -190770,7 +190809,18 @@ bool run_qwen36_resident_decode_direct_output_plan(
     const uint64_t start_ns = qrt_now_ns();
     const bool q1_vllm_bf16_residual_norm =
         qwen36_vllm_bf16_residual_norm_active();
-    if (q1_vllm_bf16_residual_norm) {
+    const bool q1_sm121_final_norm = env_flag_enabled(
+        "QRT_QWEN36_Q1_SM121_OUTPUT");
+    if (q1_sm121_final_norm) {
+        if (!launch_qwen36_resident_decode_sm121_final_norm(
+                workspace->device_hidden[0u],
+                workspace->device_direct_output_final_norm_weights,
+                workspace->device_norm_f32, direct_output_stream,
+                failure_stage, failure)) {
+            lease->invalidate();
+            return false;
+        }
+    } else if (q1_vllm_bf16_residual_norm) {
         hipLaunchKernelGGL(
             layer1_input_rmsnorm_vllm_bf16_kernel,
             dim3(1u),
@@ -190816,7 +190866,14 @@ bool run_qwen36_resident_decode_direct_output_plan(
         lease->invalidate();
         return false;
     }
-    if (q1_vllm_bf16_residual_norm &&
+    if (q1_sm121_final_norm &&
+        workspace->direct_output_plan_activation_count == UINT64_C(0)) {
+        std::cerr << "BATCH_MARK qwen36_resident_decode_sm121_final_norm"
+                  << " numerator=bf16 variance=f32_unrounded_sum"
+                  << " rsqrt_correction=1 numerical_correctness_claimed=0"
+                  << std::endl;
+    }
+    if (!q1_sm121_final_norm && q1_vllm_bf16_residual_norm &&
         workspace->direct_output_plan_activation_count == UINT64_C(0)) {
         std::cerr
             << "BATCH_MARK qwen36_resident_decode_vllm_bf16_residual_norm"
@@ -190826,6 +190883,37 @@ bool run_qwen36_resident_decode_direct_output_plan(
             << " quantized=0 dflash_active=0 mtp_active=0"
             << " speculative_decode=0 numerical_correctness_claimed=0"
             << std::endl;
+    }
+
+    const char *final_norm_dump_prefix = std::getenv(
+        "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX");
+    if (final_norm_dump_prefix != nullptr && final_norm_dump_prefix[0] != '\0' &&
+        absolute_position == static_cast<size_t>(env_u32_or_default(
+            "QRT_QWEN36_Q1_LAYER_TRACE_POSITION", UINT_MAX))) {
+        std::array<uint16_t, QRT_QWEN36_HIDDEN_SIZE> norm{};
+        hipError_t status = hipStreamSynchronize(direct_output_stream);
+        if (status == hipSuccess) {
+            status = hipMemcpy(norm.data(), workspace->device_norm_bf16,
+                               sizeof(norm), hipMemcpyDeviceToHost);
+        }
+        if (status != hipSuccess) {
+            return fail("qwen36_q1_final_norm_trace",
+                        hipGetErrorString(status));
+        }
+        std::ostringstream path;
+        path << final_norm_dump_prefix;
+        if (env_flag_enabled("QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS")) {
+            path << ".txn" << std::setfill('0') << std::setw(2)
+                 << g_q1024_q1_layer_digest_transaction_ordinal;
+        }
+        path << ".final_norm.bf16le.bin";
+        std::ofstream output(path.str(), std::ios::binary | std::ios::trunc);
+        output.write(reinterpret_cast<const char *>(norm.data()), sizeof(norm));
+        output.close();
+        if (!output) {
+            return fail("qwen36_q1_final_norm_trace_write",
+                        "cannot write selected final-norm observation");
+        }
     }
 
     uint16_t *lm_head_weights = const_cast<uint16_t *>(

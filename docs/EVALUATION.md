@@ -32,17 +32,23 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Current continuation work is recorded in the
-[full Q1 product evidence](../benchmarks/correctness/q1-full-product-20260911.json).
-Whole 341c88d repairs pooled scratch ownership and completes both q8191 out32
-and q7169 out512 with the pool enabled and all host/streaming checks passing.
-Continuation still first differs at output indices 6 and 38. The complete
-first-decode carriers of all 40 layers are exact for q7169; the preceding
-3aa6402 run establishes the same first-decode result for q8191. At q8191
-position 8196, the current Q/K/V and layers 0–2 are exact. Its complete KV
-history differs only at earlier position 8194 (153 K and 175 V BF16 cells).
-An original-input replay at e463d90 reproduces all 4096 context values at
-position 8196, so investigation follows that earlier KV row's computation.
+Current work is recorded in the
+[continuation origin evidence](../benchmarks/correctness/q1-continuation-origin-20260911.json).
+Whole df05a32 repairs short-decode gated normalization using the original
+compiled 32-lane, four-values-per-lane reduction. At q8191 positions 8194
+and 8196, every captured operator and all 40 complete layer carriers now
+match GB10 bit-for-bit. Both q8191 out32 and q7169 out512 complete with
+successful host/streaming checks. q7169's first difference moves from output
+index 38 to 95, with all first 95 tokens correct. q8191 still differs at index
+6: its direct final norm retained the old unrounded numerator. CPU replay
+finds 351 differing BF16 norm values with that formula and zero with the
+original fused formula, which restores the correct 82/220 logit ordering.
+Current source connects the original final norm to serial and paired Q1
+output; native product validation is pending. New GB10 captures r15/r16 fail
+the first frozen q7169 control and are excluded from numerical authority.
+The earlier
+[pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
+and its complete first-decode carrier comparisons remain verified.
 Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile
 still has incorrect prefill recurrent state. This work does not qualify a
 new performance result or release; the retained results below are unchanged.
@@ -273,6 +279,31 @@ bounded capture replay to 16,384 input tokens allows the actual 8,197-token
 history to run: all context values match using original inputs, with intact
 input buffers and transpose redzones. Its 1.3119 ms GPU interval is an
 operator diagnostic, not product timing.
+
+The next original captures r12/r13 pass all eight frozen cases and locate
+q8191's earlier KV difference in layer-2 gated normalization. Its input,
+convolution, recurrent states and core are exact. One gated BF16 value changes
+nine output-projection values, one residual/postnorm value and 494 completed
+carrier values. Original TTGIR/PTX distinguishes short decode's 32 lanes of
+four adjacent values from prefill's 16 lanes of eight. Both use the original
+product-1/FMA-0,2,... order. Replaying the short layout matches all 4096 gated
+values. The regression fixture preserves the captured head and compiled-code
+fingerprints; it exposes the one-ULP sum difference between the layouts.
+
+Whole df05a32 connects this layout to exact Q1 decode and passes the Windows
+build. The original failing position now has all 40 carriers and every
+captured layer-2/full-attention endpoint exact. Its full q8191 request still
+differs at output index 6, requiring the next continuation comparison. q7169
+at position 7206 instead has differing incoming layer-2 recurrent state despite
+exact current projections and convolution. Its complete KV first differs at
+position 7179. Second-row state comparisons use the original preceding-row
+updated state and the actual accepted convolution-history offset.
+
+Capture r14 lacks the requested first-pair transaction and is excluded. The
+corrected-position r15 fails the original q7169 out32 control itself (220
+instead of 82), so it is also excluded; the frozen oracle is unchanged.
+Local C/ABI, Rust, Clippy, 291 Python tests (two skips) and public hygiene pass.
+No new product performance or release is qualified.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
