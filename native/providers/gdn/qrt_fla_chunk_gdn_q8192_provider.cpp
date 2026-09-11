@@ -1095,6 +1095,11 @@ int launch_pipeline_async(
             final_state_f32, gate_values_are_decay, stream_pointer, tokens) != 0;
     };
     if (!directory || !*directory) return execute() ? 1 : 0;
+    unsigned selected_call = 0;
+    if (!qrt_fla_capture::parse_call_index(std::getenv("QRT_FLA_GDN_CAPTURE_CALL_INDEX"), selected_call)) {
+        set_error_text("FLA capture call index must be an integer in 0..63");
+        return 0;
+    }
     if (!g_state.prepared || !supported_tokens(tokens) || gate_values_are_decay != 0 ||
         !postconv_raw_f32 || !gate_f32 || !output_f32 || !final_state_f32) return execute() ? 1 : 0;
     const bool success = g_state.first_call_capture.run(directory, static_cast<unsigned>(tokens),
@@ -1105,7 +1110,7 @@ int launch_pipeline_async(
             if (status == hipSuccess) status = hipStreamSynchronize(stream);
             if (status != hipSuccess) set_error("hipMemcpyAsync(first_call_capture)", status);
             return status == hipSuccess;
-        }, execute);
+        }, execute, selected_call);
     if (!success && !g_state.error[0]) set_error_text(g_state.first_call_capture.error);
     return success ? 1 : 0;
 }

@@ -22,6 +22,17 @@ class FirstCallCaptureTests(unittest.TestCase):
 int main(int argc, char** argv) {
     if (argc != 3) return 1;
     const std::string mode(argv[2]);
+    if (mode == "parse") {
+        unsigned value = 99;
+        if (!qrt_fla_capture::parse_call_index(nullptr, value) || value != 0) return 3;
+        for (unsigned i = 0; i <= 63; ++i) {
+            if (!qrt_fla_capture::parse_call_index(std::to_string(i).c_str(), value) || value != i) return 4;
+        }
+        for (const char* bad : {"", "-1", "+3", "3x", " 3", "64", "999999999999"}) {
+            if (qrt_fla_capture::parse_call_index(bad, value)) return 5;
+        }
+        std::cout << "{}\n"; return 0;
+    }
     unsigned tokens = mode == "invalid" ? 8193 : 65;
     std::vector<float> raw(65*8192, 1), gates(65*64, 2), output(65*4096, 3), state(524288, 4);
     const auto original_raw = raw, original_gates = gates;
@@ -35,11 +46,21 @@ int main(int argc, char** argv) {
     };
     auto execute = [&] {
         ++executions;
-        if (mode != "disabled" && !std::filesystem::exists(std::filesystem::path(argv[1]) / "gates-f32.bin")) std::abort();
+        if (mode != "disabled" && (mode != "selected" || executions >= 4) &&
+            !std::filesystem::exists(std::filesystem::path(argv[1]) / "gates-f32.bin")) std::abort();
         if (mode == "execute_failure") return false;
-        output[0] = 7; state.back() = 8; return true;
+        output[0] = mode == "selected" ? 6.0f + executions : 7; state.back() = 8; return true;
     };
     const char* path = mode == "disabled" ? nullptr : argv[1];
+    if (mode == "selected") {
+        for (unsigned i = 0; i < 5; ++i) {
+            if (!capture.run(path, tokens, raw.data(), gates.data(), output.data(), state.data(), copy, execute, 3)) return 6;
+            if (i < 3 && (copies || std::filesystem::exists(path))) return 7;
+            if (i >= 3 && copies != 8) return 8;
+        }
+        if (executions != 5 || raw != original_raw || gates != original_gates) return 9;
+        std::cout << "{}\n"; return 0;
+    }
     bool first = capture.run(path, tokens, raw.data(), gates.data(), output.data(), state.data(), copy, execute);
     unsigned copies_first = copies;
     bool second = capture.run(path, tokens, raw.data(), gates.data(), output.data(), state.data(), copy, execute);
@@ -97,3 +118,15 @@ int main(int argc, char** argv) {
         self.assertEqual(result["executions"], 2)
         self.assertEqual(result["copies"], 0)
         self.assertFalse(path.exists())
+
+    def test_selected_call_has_no_earlier_reads_and_records_actual_ordinal(self):
+        path, _ = self.run_case("selected")
+        record = json.loads((path / "capture.json").read_text())
+        self.assertEqual(record["kind"], "selected_native_gdn_call")
+        self.assertEqual(record["call_index"], 3)
+        self.assertTrue(record["complete"])
+        import struct
+        self.assertEqual(struct.unpack("<f", (path / "output-f32.bin").read_bytes()[:4])[0], 10)
+
+    def test_call_index_parsing_rejects_ambiguous_or_unbounded_selection(self):
+        self.run_case("parse")
