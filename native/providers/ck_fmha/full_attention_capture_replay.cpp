@@ -102,7 +102,7 @@ bool report(const char* route, const std::vector<float>& output,
     for (size_t head = 0u; head < output.size() / 256u; ++head) {
         const auto* expected = reference.data() + size_t(start) * 4096u + head * 256u;
         affected_heads += std::memcmp(rounded.data() + head * 256u, expected, 512u) != 0;
-        if (memory_layout < 6u) continue;
+        if (memory_layout != 6u && memory_layout != 7u) continue;
         double peak = 0.0;
         for (unsigned d = 0u; d < 256u; ++d) peak = std::max(peak, std::abs(double(output[head * 256u + d])));
         bool selected[5]{};
@@ -128,7 +128,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
-                    ? "provider_call" : (memory_layout >= 6u ? "key_transpose_and_native_mma_triplets" : (memory_layout == 5u ? "key_transpose_and_mantissa_wmma_triplets"
+                    ? "provider_call" : (memory_layout == 8u ? "cooperative_qk_probability_pv_triplets" : memory_layout >= 6u ? "key_transpose_and_native_mma_triplets" : (memory_layout == 5u ? "key_transpose_and_mantissa_wmma_triplets"
                     : (memory_layout == 4u ? "key_transpose_and_qk_pv_pairs"
                         : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
                             : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))))))
@@ -137,7 +137,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"native_products\":" << (native_products ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
               << ",\"integer_wmma\":" << (memory_layout == 5u ? "true" : "false")
-              << ",\"native_mma_pv\":" << (memory_layout >= 6u ? "true" : "false")
+              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u) ? "true" : "false")
               << ",\"native_mma_qk\":" << (memory_layout == 7u ? "true" : "false")
               << ",\"score_probability_redzones_checked\":" << (std::strcmp(route, "ck") ? "true" : "false")
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
@@ -145,10 +145,10 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"probabilities_ms\":" << probabilities_ms
               << ",\"value_ms\":" << value_ms
               << ",\"preparation_ms\":" << preparation_ms
-              << ",\"key_transpose_and_redzones_checked\":" << (memory_layout >= 4u ? "true" : "false")
+              << ",\"key_transpose_and_redzones_checked\":" << ((memory_layout >= 4u && memory_layout <= 7u) ? "true" : "false")
               << ",\"affected_query_heads\":" << affected_heads
               << ",\"candidate_bounds_are_diagnostics\":true,\"head_peak_margin_sweep\":[";
-    if (memory_layout >= 6u) for (unsigned j = 0u; j < 5u; ++j)
+    if (memory_layout == 6u || memory_layout == 7u) for (unsigned j = 0u; j < 5u; ++j)
         std::cout << (j ? "," : "") << "{\"ppm\":" << margin_ppm[j]
                   << ",\"candidate_cells\":" << candidate_cells[j]
                   << ",\"candidate_heads\":" << candidate_heads[j]
@@ -166,12 +166,12 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_7]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_8]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 7) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 8) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -246,8 +246,9 @@ int main(int argc, char** argv) {
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0, scores_total = 0, probabilities_total = 0, value_total = 0;
         Event scores_done, probabilities_done;
-        Device transposed(memory_layout >= 4u ? (k.size() + 256u) * 2u : 4u);
-        auto* transposed_data = memory_layout >= 4u ? transposed.as<uint16_t>() + 128u : nullptr;
+        const bool needs_transpose = memory_layout >= 4u && memory_layout <= 7u;
+        Device transposed(needs_transpose ? (k.size() + 256u) * 2u : 4u);
+        auto* transposed_data = needs_transpose ? transposed.as<uint16_t>() + 128u : nullptr;
         float preparation_ms = 0;
         if (transposed_data) {
             check(hipMemset(transposed.pointer, 0xa5, (k.size() + 256u) * 2u));

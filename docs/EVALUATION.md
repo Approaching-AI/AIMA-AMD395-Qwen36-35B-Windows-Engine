@@ -35,29 +35,30 @@ with the global override disabled.
 Whole `bb4ab7c38e01bb21d2bbadf79d6c4a539c1e74ce` built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
-`aec3f70d7104a3f1ee4b51741cae5246ac4d0576` pass both complete
+`13d77b63ea705ea8f4d4daee8d2ac30a581b7bfb` with
+`QRT_FLA_GDN_COOPERATIVE_EXACT=1` pass both complete
 512-token cold continuations and the q8191 32-token control on `baiying`,
 using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
 first-token/logit, complete output and streaming boundary passes with
 successful host checks. The requests use the same strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/dense-subgroup-product-20260912.json)
+[complete product records](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 bind source, clean Windows build, component hashes, commands and all outputs.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 20,001.4726 | 59,182.9282 | 112.613701 |
-| q8192 out512 | 144 / 10.375 | 20,027.1528 | 68,654.9309 | 116.830721 |
-| q8191 out32 | 168589 / 11.375 | 19,983.0761 | 69,176.3634 | 119.854655 |
+| q7169 out512 | 82 / 9.25 | 20,275.2753 | 54,111.6191 | 112.105394 |
+| q8192 out512 | 144 / 10.375 | 20,025.3666 | 62,835.6933 | 115.691252 |
+| q8191 out32 | 168589 / 11.375 | 20,018.4077 | 63,117.4071 | 122.899074 |
 
-The four-lane dense replay retains every candidate and ordered K16 carry,
-while reducing q8192 correction wall from 15068.905 to 7039.798 ms. Actual
-callback TTFT improves by 8345.9698 / 7590.3114 / 8738.0705 ms for q8192 /
-q7169 / q8191 against the [preceding compacted-MoE configuration](../benchmarks/correctness/moe-compaction-product-20260911.json).
+Cooperative FLA reduces actual callback TTFT by 5819.2376 / 5071.3091 /
+6058.9563 ms for q8192 / q7169 / q8191 against the [preceding dense-replay
+configuration](../benchmarks/correctness/dense-subgroup-product-20260912.json).
+Its q8192 W/U, persistent-state and output intervals total 5290.60454 ms.
 All recorded GB10 operators, forty-layer carriers, KV and 554 / 806 state
-boundaries remain exact. Keep dense replay at four lanes and routed MoE at
-sixteen lanes. The immutable q8192 performance gate and release acceptance
-remain open.
+boundaries remain exact. Keep cooperative FLA, dense replay at four lanes,
+and routed MoE at sixteen lanes. The immutable q8192 performance gate and
+release acceptance remain open.
 
 The explicit `QRT_FLA_GDN_BATCHED_EXACT=1` route batches independent
 KKT/WU/output chunks and retains four recurrent value rows per CTA through
@@ -294,8 +295,17 @@ state. Shared K-contiguous tiles reuse V/checkpoint/key operands; each state
 CTA still owns four complete value rows through a bounded segment. Original
 rounding, chunk checkpoints, final FMA and U=V ownership remain unchanged.
 Threaded execution of the actual kernel bodies passes tail, alias, checkpoint
-and nonzero-state transport under ASan/UBSan. Native arithmetic and product
-qualification remain open; the selected FLA component remains unchanged.
+and nonzero-state transport under ASan/UBSan. The clean Windows build passes
+in 36496.782 ms. Native q64/q65 and real q7169 replay match every output and
+final state bit, with exact synchronous/asynchronous parity. All three
+complete frozen products and captured GB10 boundaries pass as reported above.
+All 306 Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
+
+Attention replay layout 8 applies four-lane exact dots to QK and stages K32 V
+slabs for cooperative PV. It preserves the original online probabilities,
+alpha rescale, K16 finish points and reciprocal. Scratch and submission-failure
+checks cover the new layout. Native component qualification is pending, and
+the selected product attention provider is unchanged.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

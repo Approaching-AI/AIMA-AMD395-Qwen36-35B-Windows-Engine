@@ -28,8 +28,11 @@ struct dim3 { explicit dim3(unsigned, unsigned = 1u, unsigned = 1u) {} };
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
+constexpr unsigned kCooperativeColumns = 64;
 constexpr unsigned kExactTileTokens = 32;
 void blackwell_exact_scores_kernel() {}
+void blackwell_cooperative_scores_kernel() {}
+void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
@@ -72,7 +75,7 @@ int main() {
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
-    if (split(0, 8, &scratch, SIZE_MAX, 8) != hipErrorInvalidValue) return 8;
+    if (split(0, 8, &scratch, SIZE_MAX, 9) != hipErrorInvalidValue) return 8;
     if (launches || error_queries) return 9;
     if (split(0, 8, &scratch, 1791, 3) != hipErrorInvalidValue || launches || error_queries)
         return 13;
@@ -172,6 +175,16 @@ int main() {
             !std::strstr(launch_names[1], "blackwell_online_probability_kernel") ||
             !std::strstr(launch_names[2], "blackwell_mantissa_value_kernel<true>")) return 35;
     }
+    launches = error_queries = 0u;
+    if (split(1, 16, &scratch, matrix_elements - 1u, 8u) != hipErrorInvalidValue || launches) return 36;
+    if (split(1, 16, &scratch, matrix_elements, 8u) != hipSuccess || launches != 3u ||
+        !std::strstr(launch_names[0], "blackwell_cooperative_scores_kernel") ||
+        !std::strstr(launch_names[1], "blackwell_online_probability_kernel") ||
+        !std::strstr(launch_names[2], "blackwell_cooperative_value_kernel")) return 37;
+    launches = error_queries = 0u; fail_scores = true;
+    if (split(1, 16, &scratch, matrix_elements, 8u) != hipErrorUnknown || launches != 1u) return 38;
+    launches = error_queries = 0u; fail_scores = false; fail_probability = true;
+    if (split(1, 16, &scratch, matrix_elements, 8u) != hipErrorUnknown || launches != 2u) return 39;
     return 0;
 }
 '''
