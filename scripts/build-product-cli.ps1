@@ -132,7 +132,11 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
     throw "product CLI build did not emit $executable"
 }
 
-$sourceRecords = foreach ($source in $sources) {
+$sourceRecords = foreach ($source in @($sources) + @(
+        (Join-Path $sourceDir "qrt.h"),
+        (Join-Path $sourceDir "qrt_prefix_logit.h"),
+        (Join-Path $sourceDir "qwen36_baseline.h")
+    )) {
     [ordered]@{
         path = $source
         sha256 = (Get-FileHash -Algorithm SHA256 `

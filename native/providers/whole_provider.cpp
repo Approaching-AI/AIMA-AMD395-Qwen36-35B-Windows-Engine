@@ -20,6 +20,7 @@
 #endif
 
 #include "qrt.h"
+#include "qrt_prefix_logit.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
@@ -220013,6 +220014,16 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
         out_result->teacher_forced_prediction_tokens[
             request->suffix_token_count - 1u
         ];
+    if (!q1024_owner_shape && !exact_low_margin_verifier_requested &&
+        g_qwen36_resident_session.last_decode_top2_valid &&
+        g_qwen36_resident_session.last_decode_top2_position ==
+            static_cast<size_t>(request->input_token_count) - 1u &&
+        g_qwen36_resident_session.last_decode_top2_ids[0u] ==
+            out_result->output_tokens[0]) {
+        qrt_prefix_first_logit_store(
+            out_result->reserved, out_result->output_tokens[0],
+            g_qwen36_resident_session.last_decode_top2_logits[0u]);
+    }
     out_result->output_timing_count = request->output_token_capacity;
     out_result->output_token_step_elapsed_ns[0] =
         out_result->ttft_elapsed_ns;

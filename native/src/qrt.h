@@ -5111,6 +5111,8 @@ typedef struct qrt_qwen36_resident_prefix_cache_result_v1_t {
         [QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS];
     char failure_stage[64];
     char failure[QRT_LOAD_ERROR_CAPACITY];
+    /* Optional token-bound first-logit extension: qrt_prefix_logit.h.
+     * Zero words from older providers mean unavailable, never a seed logit. */
     uint64_t reserved[2];
 } qrt_qwen36_resident_prefix_cache_result_v1_t;
 

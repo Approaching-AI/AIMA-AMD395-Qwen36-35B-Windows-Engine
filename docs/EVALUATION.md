@@ -71,9 +71,25 @@ in 37,030.338 ms and now executes nine full-prefix and ten terminal exact
 calls at q8193. Its [product result](../benchmarks/correctness/attention-extent-product-20260912.json)
 still has the identical three token errors, with 63,529.5056 ms callback TTFT.
 The dispatch omission is fixed, but another numerical difference remains.
-The GB10 capture processes this request as 8192 tokens followed by one token;
-the next comparison uses the native saved-prefix/suffix interface at that
-same boundary. The complete matrix and release remain unqualified.
+The GB10 capture processes this request as 8192 tokens followed by one token.
+The [native saved-prefix diagnostic](../benchmarks/correctness/prefill-split-product-20260912.json)
+matches all 32 outputs and the first logit 9.75, including two repeated hits,
+rollback and an unrelated-prefix rejection before provider invocation. Three
+suffix executions consume the actual prompt token 63 at position 8192. Internal
+layer-0 QKV/Z and downstream carriers differ from the original prefill
+transaction; these diagnostics do not reject a GB10-valid output. The initial
+seed/fallback takes 66,900.9132 ms, including its unstreamed 32-token continuation.
+Warm hit callbacks of 172.6169 / 161.4405 ms are **not cold TTFT**.
+
+The ordinary core now executes a cold 8192 prefix followed by the bounded
+1..1024-token suffix when the existing resident tail can hold the request.
+The intermediate seed is not published. Both callback and report clocks include
+the cold seed. A tagged optional extension in the existing prefix result binds
+the first logit to output zero before later decode/rollback; old provider results
+leave it unavailable. Local tests cover clocks, cancellation, failures, suffix
+and output limits, hidden seed and stale-logit rejection. Windows compilation
+and ordinary frozen-matrix qualification of this integration are pending.
+The complete ordinary matrix, performance and release remain unqualified.
 
 The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 reduces actual callback TTFT by 5819.2376 / 5071.3091 /

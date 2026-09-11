@@ -222,6 +222,8 @@ $record = [ordered]@{
     qrt_header_path = $qrtHeader
     qrt_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()
+    prefix_logit_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\src\qrt_prefix_logit.h')).Hash.ToLowerInvariant()
     q1_moe_avx512bf16_host_provider_source_path = $hostSource
     q1_moe_avx512bf16_host_provider_source_sha256 = `
         (Get-FileHash -Algorithm SHA256 `

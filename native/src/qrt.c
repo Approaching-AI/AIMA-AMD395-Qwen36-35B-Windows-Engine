@@ -1,4 +1,5 @@
 #include "qrt.h"
+#include "qrt_prefix_logit.h"
 
 #include <limits.h>
 #include <math.h>
@@ -721,6 +722,7 @@ struct qrt_engine {
     qrt_token_stream_callback_v1_t token_stream_callback;
     void *token_stream_user_data;
     uint64_t token_stream_request_start_ns;
+    uint64_t token_stream_prefill_seed_elapsed_ns;
     uint64_t token_stream_last_request_elapsed_ns;
     size_t token_stream_callback_count;
     uint32_t token_stream_emitted_tokens
@@ -27381,6 +27383,15 @@ static int QRT_CDECL qrt_qwen36_whole_provider_prefix_token_stream_bridge(
             bridge->engine->token_stream_contract_failed = 1;
         }
         return 0;
+    }
+    if (output_index == 0u) {
+        const uint64_t seed_ns =
+            bridge->engine->token_stream_prefill_seed_elapsed_ns;
+        if (seed_ns > UINT64_MAX - token_step_elapsed_ns) {
+            bridge->engine->token_stream_contract_failed = 1;
+            return 0;
+        }
+        token_step_elapsed_ns += seed_ns;
     }
     return qrt_engine_emit_token_stream_event(
         bridge->engine,
@@ -64199,6 +64210,18 @@ static qrt_status_t qrt_qwen36_try_whole_provider_direct_entry(
 }
 #endif
 
+#ifdef _WIN32
+static qrt_status_t qrt_qwen36_try_bounded_prefill_suffix(
+    qrt_engine_t *engine,
+    const uint32_t *input_tokens,
+    size_t input_token_count,
+    uint32_t *output_tokens,
+    size_t output_token_capacity,
+    size_t *out_output_token_count,
+    int *out_handled
+);
+#endif
+
 qrt_status_t qrt_engine_request_tokens(
     qrt_engine_t *engine,
     const uint32_t *input_tokens,
@@ -64214,6 +64237,16 @@ qrt_status_t qrt_engine_request_tokens(
         return QRT_STATUS_INVALID_ARGUMENT;
     }
 #ifdef _WIN32
+    {
+        int suffix_handled = 0;
+        status = qrt_qwen36_try_bounded_prefill_suffix(
+            engine, input_tokens, input_token_count, output_tokens,
+            output_token_capacity, out_output_token_count, &suffix_handled
+        );
+        if (suffix_handled) {
+            return status;
+        }
+    }
     {
         int direct_entry_handled = 0;
         qrt_status_t status =
@@ -82270,6 +82303,7 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
 
         ++engine->request_count;
         ++engine->token_request_count;
+        qrt_engine_clear_baseline_output_head_report(engine);
         qrt_engine_set_token_request_failure(engine, "", "");
         request_start_ns = qrt_now_ns();
         provider_ok = engine->qwen36_whole_provider_prefix(
@@ -82430,6 +82464,16 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
             provider_result.output_tokens,
             output_token_capacity * sizeof(output_tokens[0])
         );
+        {
+            float first_logit;
+            if (qrt_prefix_first_logit_read(
+                    provider_result.reserved, output_tokens[0], &first_logit)) {
+                engine->baseline_output_head_token_emitted = 1;
+                engine->baseline_output_head_sampled_token_id = output_tokens[0];
+                engine->baseline_output_head_topk_token_ids[0] = output_tokens[0];
+                engine->baseline_output_head_topk_logits[0] = first_logit;
+            }
+        }
         engine->last_request_elapsed_ns =
             provider_result.total_elapsed_ns != UINT64_C(0)
                 ? provider_result.total_elapsed_ns
@@ -82456,6 +82500,127 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
     }
 #endif
 }
+
+#ifdef _WIN32
+/* Preserve the reference prefill batch boundary for a bounded final suffix.
+ * This is a cold ordinary request: seed work is always executed and included
+ * in the first callback and request clocks. Only the actual prompt suffix is
+ * teacher-forced; all published tokens are native autoregressive outputs. */
+static qrt_status_t qrt_qwen36_try_bounded_prefill_suffix(
+    qrt_engine_t *engine,
+    const uint32_t *input_tokens,
+    size_t input_token_count,
+    uint32_t *output_tokens,
+    size_t output_token_capacity,
+    size_t *out_output_token_count,
+    int *out_handled
+) {
+    const size_t prefix_tokens = QRT_QWEN36_PRODUCT_Q8192_CONTEXT_TOKENS;
+    qrt_engine_request_serialization_guard_t guard;
+    qrt_qwen36_resident_prefix_cache_result_v1_t result;
+    qrt_status_t status;
+    uint32_t seed_token = UINT32_MAX;
+    size_t seed_count = 0u;
+    size_t request_count_before;
+    size_t token_request_count_before;
+    uint64_t request_elapsed_before;
+    uint64_t request_start_ns;
+    uint64_t seed_elapsed_ns;
+    uint64_t old_seed_clock;
+    int stream_active;
+    size_t i;
+
+    *out_handled = 0;
+    if (input_token_count <= prefix_tokens ||
+        input_token_count - prefix_tokens >
+            QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_SUFFIX_TOKENS ||
+        !qrt_qwen36_whole_provider_direct_entry_eligible(
+            engine, input_token_count, output_token_capacity) ||
+        engine->resident_prefix_cache_seed_capture_active ||
+        input_token_count - prefix_tokens + output_token_capacity - 1u >
+            QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_TAIL_TOKENS) {
+        return QRT_STATUS_UNSUPPORTED;
+    }
+    *out_handled = 1;
+    *out_output_token_count = 0u;
+    for (i = 0u; i < input_token_count; ++i) {
+        if (input_tokens[i] >= QRT_QWEN36_VOCAB_SIZE) {
+            qrt_engine_set_token_request_failure(engine,
+                "bounded_prefill_token", "prefill contains an out-of-vocabulary token");
+            return QRT_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    if (!qrt_engine_request_serialization_acquire(
+            engine, QRT_QWEN36_REQUEST_SERIALIZATION_OPERATION_ORDINARY, &guard)) {
+        qrt_engine_set_token_request_failure(engine,
+            "bounded_prefill_serialization", "could not serialize the complete cold prefill");
+        return QRT_STATUS_UNSUPPORTED;
+    }
+    request_count_before = engine->request_count;
+    token_request_count_before = engine->token_request_count;
+    request_elapsed_before = engine->request_elapsed_ns;
+    request_start_ns = qrt_now_ns();
+    stream_active = engine->token_stream_active;
+    old_seed_clock = engine->token_stream_prefill_seed_elapsed_ns;
+    engine->token_stream_active = 0;
+    engine->resident_prefix_cache_seed_capture_active = 1;
+    status = qrt_engine_request_tokens(
+        engine, input_tokens, prefix_tokens, &seed_token, 1u, &seed_count);
+    engine->resident_prefix_cache_seed_capture_active = 0;
+    engine->token_stream_active = stream_active;
+    seed_elapsed_ns = qrt_elapsed_ns(request_start_ns, qrt_now_ns());
+    qrt_engine_clear_baseline_output_head_report(engine);
+    memset(&result, 0, sizeof(result));
+    if (status == QRT_STATUS_OK &&
+        (seed_count != 1u || seed_token >= QRT_QWEN36_VOCAB_SIZE)) {
+        qrt_engine_clear_resident_prefix_cache_identity(engine, 0);
+        status = QRT_STATUS_UNSUPPORTED;
+        qrt_engine_set_token_request_failure(engine,
+            "bounded_prefill_seed", "cold prefix did not return one valid seed token");
+    }
+    if (status == QRT_STATUS_OK) {
+        engine->token_stream_prefill_seed_elapsed_ns = seed_elapsed_ns;
+        status = qrt_engine_request_tokens_prefix_v1_unlocked(
+            engine, input_tokens, input_token_count, prefix_tokens,
+            output_tokens, output_token_capacity, &result, stream_active);
+        if (status == QRT_STATUS_OK &&
+            seed_elapsed_ns > UINT64_MAX - result.ttft_elapsed_ns) {
+            status = QRT_STATUS_UNSUPPORTED;
+            qrt_engine_set_token_request_failure(engine,
+                "bounded_prefill_clock", "cold prefill clock overflowed");
+        }
+        if (status == QRT_STATUS_OK &&
+            !engine->baseline_output_head_token_emitted) {
+            status = QRT_STATUS_UNSUPPORTED;
+            qrt_engine_set_token_request_failure(engine,
+                "bounded_prefill_first_logit",
+                "prefix provider did not return the token-bound first-logit extension");
+        }
+    }
+    engine->token_stream_prefill_seed_elapsed_ns = old_seed_clock;
+    engine->last_input_token_count = input_token_count;
+    engine->last_input_token = input_tokens[input_token_count - 1u];
+    engine->last_request_elapsed_ns = qrt_elapsed_ns(request_start_ns, qrt_now_ns());
+    engine->request_count = request_count_before + 1u;
+    engine->token_request_count = token_request_count_before + 1u;
+    engine->request_elapsed_ns = request_elapsed_before + engine->last_request_elapsed_ns;
+    if (request_count_before == 0u) {
+        engine->first_request_elapsed_ns = engine->last_request_elapsed_ns;
+    }
+    if (status == QRT_STATUS_OK) {
+        engine->last_request_ttft_elapsed_ns = seed_elapsed_ns + result.ttft_elapsed_ns;
+        *out_output_token_count = result.output_token_count;
+    } else {
+        qrt_engine_clear_baseline_output_head_report(engine);
+        engine->last_request_ttft_elapsed_ns = UINT64_C(0);
+        engine->last_request_tpot_elapsed_ns = UINT64_C(0);
+        engine->last_request_tpot_sample_count = 0u;
+        engine->last_request_output_token_count = 0u;
+    }
+    qrt_engine_request_serialization_release(&guard);
+    return status;
+}
+#endif
 
 qrt_status_t qrt_engine_request_tokens_prefix_v1(
     qrt_engine_t *engine,

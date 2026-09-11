@@ -974,8 +974,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             );
         }
         request_wall_ns = qrt_product_elapsed_ns(stream.request_start_ns);
-        if (qrt_engine_report(engine, report) == QRT_STATUS_OK &&
-            options->prefix_token_count == 0u) {
+        if (qrt_engine_report(engine, report) == QRT_STATUS_OK) {
             request_provider_ttft_ns = report->last_request_ttft_elapsed_ns;
             request_provider_tpot_ns = report->last_request_tpot_elapsed_ns;
             request_provider_tpot_samples =
