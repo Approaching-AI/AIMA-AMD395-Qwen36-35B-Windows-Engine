@@ -460,7 +460,7 @@ bool ensure_scratch(int32_t tokens) {
 bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t* w,
                             const float* g, uint16_t* h, uint16_t* v_new,
                             float* state, int32_t tokens, hipStream_t stream,
-                            int32_t valid_tokens) {
+                            int32_t valid_tokens, qrt_fla_checkpoint::Segment checkpoints = {}) {
     if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
         valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
         set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
@@ -486,6 +486,9 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
     float sequence_ms = 0.0f;
     if (blackwell_batched_enabled()) {
         if (!launch_blackwell_math("blackwell_state_segment", stream, [&] {
+            if (checkpoints.count)
+                return qrt_fla_blackwell_cooperative::state_checkpoints(k, u, w, g, h, v_new, state,
+                    static_cast<unsigned>(valid_tokens), qrt_fla_blackwell_state::exp2_table_device(), stream, checkpoints);
             return qrt_fla_blackwell_state::segment(k, u, w, g, h, v_new, state,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return false;
@@ -681,7 +684,8 @@ int launch_segment_async(
     void *stream_pointer,
     int32_t tokens,
     bool reset_state,
-    int32_t valid_tokens = 0
+    int32_t valid_tokens = 0,
+    qrt_fla_checkpoint::Segment checkpoints = {}
 ) {
     if (valid_tokens == 0) valid_tokens = tokens;
     if (tokens <= 0 || tokens % static_cast<int32_t>(kChunk) ||
@@ -925,7 +929,7 @@ int launch_segment_async(
     };
     if (blackwell_state_enabled()) {
         if (!launch_blackwell_state(k_pointer, u_pointer, w_pointer, g_pointer, chunk_state_pointer,
-                                    v_new_pointer, final_state_f32, tokens, stream, valid_tokens)) return 0;
+                                    v_new_pointer, final_state_f32, tokens, stream, valid_tokens, checkpoints)) return 0;
     } else if (!launch(
             KernelIndex::kChunkState, kStateValueTiles, kValueHeads, 1u,
             stream, state_arguments
@@ -988,7 +992,8 @@ int launch_pipeline_async_impl(
     float *final_state_f32,
     int gate_values_are_decay,
     void *stream_pointer,
-    int32_t tokens
+    int32_t tokens,
+    const qrt_fla_checkpoint::Plan* checkpoints = nullptr
 ) {
     const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
     if (dump_directory != nullptr && dump_directory[0] != '\0' && tokens != kSmokeTokens) {
@@ -1028,7 +1033,8 @@ int launch_pipeline_async_impl(
                     postconv_raw_f32 + static_cast<size_t>(offset) * kQkvRows,
                     gate_f32 + static_cast<size_t>(offset) * kGateRows,
                     output_f32 + static_cast<size_t>(offset) * kValueFeatures,
-                    final_state_f32, stream_pointer, count, offset == 0
+                    final_state_f32, stream_pointer, count, offset == 0, 0,
+                    qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(offset), static_cast<unsigned>(count))
                 ) == 0) {
                 return 0;
             }
@@ -1101,7 +1107,8 @@ int launch_pipeline_async_impl(
                 stream_pointer,
                 static_cast<int32_t>(kChunk),
                 prefix_tokens == 0,
-                tail_tokens
+                tail_tokens,
+                qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(prefix_tokens), static_cast<unsigned>(tail_tokens))
             ) == 0) {
             return 0;
         }
@@ -1135,7 +1142,8 @@ int launch_pipeline_async_impl(
                 final_state_f32,
                 stream_pointer,
                 segment_tokens,
-                token_offset == 0
+                token_offset == 0, 0,
+                qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(token_offset), static_cast<unsigned>(segment_tokens))
             ) == 0) {
             return 0;
         }
@@ -1152,12 +1160,13 @@ int launch_pipeline_async(
     float *final_state_f32,
     int gate_values_are_decay,
     void *stream_pointer,
-    int32_t tokens
+    int32_t tokens,
+    const qrt_fla_checkpoint::Plan* checkpoints = nullptr
 ) {
     const char* directory = std::getenv("QRT_FLA_GDN_CAPTURE_FIRST_DIR");
     auto execute = [&] {
         return launch_pipeline_async_impl(postconv_raw_f32, gate_f32, output_f32,
-            final_state_f32, gate_values_are_decay, stream_pointer, tokens) != 0;
+            final_state_f32, gate_values_are_decay, stream_pointer, tokens, checkpoints) != 0;
     };
     if (!directory || !*directory) return execute() ? 1 : 0;
     unsigned selected_call = 0;
@@ -1339,6 +1348,27 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_launch_async_dynamic(
         stream_pointer,
         tokens
     );
+}
+
+QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_checkpoints_v1(
+    const float* postconv_raw_f32, const float* gate_f32, float* output_f32,
+    float* final_state_f32, int gate_values_are_decay, void* stream_pointer,
+    int32_t tokens, const qrt_fla_checkpoint::Plan* checkpoints
+) {
+    // Reject the complete plan before touching any caller buffer. Publication
+    // still belongs to the model owner after stream completion and capture of
+    // every other required surface; a partially failed run is never reusable.
+    if (tokens <= 0 || !qrt_fla_checkpoint::valid(checkpoints, static_cast<uint32_t>(tokens)) ||
+        !blackwell_state_enabled() || !blackwell_batched_enabled() || !qrt_fla_blackwell_cooperative::enabled() ||
+        !qrt_fla_checkpoint::disjoint(*checkpoints, postconv_raw_f32, uint64_t(tokens) * kQkvRows * sizeof(float)) ||
+        !qrt_fla_checkpoint::disjoint(*checkpoints, gate_f32, uint64_t(tokens) * kGateRows * sizeof(float)) ||
+        !qrt_fla_checkpoint::disjoint(*checkpoints, output_f32, uint64_t(tokens) * kValueFeatures * sizeof(float)) ||
+        !qrt_fla_checkpoint::disjoint(*checkpoints, final_state_f32, qrt_fla_checkpoint::kStateBytes)) {
+        set_error_text("FP32 checkpoints require a valid disjoint plan and the exact cooperative FLA route");
+        return 0;
+    }
+    return launch_pipeline_async(postconv_raw_f32, gate_f32, output_f32, final_state_f32,
+        gate_values_are_decay, stream_pointer, tokens, checkpoints);
 }
 
 QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(

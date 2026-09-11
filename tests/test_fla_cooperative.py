@@ -14,7 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class CooperativeFlaTests(unittest.TestCase):
     def test_actual_kernels_tail_checkpoint_alias_and_column_ownership(self):
         s = (ROOT / 'native/providers/gdn/blackwell_cooperative.cpp').read_text()
-        kernels = '\n'.join(function(s, '__global__ void ' + name + '(')
+        kernels = '\n'.join(('template<bool Capture = false>\n' if name == 'state_kernel' else '') +
+                            function(s, '__global__ void ' + name + '(')
                             for name in ('wu_kernel', 'scores_kernel', 'output_kernel', 'state_kernel'))
         source = r'''
 #include <algorithm>
@@ -27,6 +28,7 @@ class CooperativeFlaTests(unittest.TestCase):
 #include <mutex>
 #include <thread>
 #include <vector>
+#include "native/providers/gdn/fla_checkpoint.h"
 #define __global__
 #define __shared__ static
 constexpr unsigned threads=32,lanes=4,groups=threads/lanes,tile_columns=8,state_columns=4;
@@ -90,7 +92,9 @@ void check(unsigned count){
  fill(w);v=input_v;
  std::vector<float> state(32*128*128),expected;
  for(size_t i=0;i<state.size();++i)state[i]=float(int(i*3%13)-6)/128;
- expected=state;
+ expected=state;const auto initial_state=state;
+ std::vector<float> checkpoint64(524288+32,fguard),checkpoint128=checkpoint64;
+ auto expected64=checkpoint64,expected128=checkpoint128;
  std::vector<uint16_t> h(size_t(chunks)*524288,guard),want_h=h,new_v(count*4096,guard),want_new=new_v;
  for(unsigned head:{0u,31u})for(unsigned col=0;col<128;++col){if(!owned(col,4))continue;
   size_t base=(head*128+col)*128;
@@ -104,12 +108,24 @@ void check(unsigned count){
    for(unsigned key=0;key<128;++key){float sum=0;for(unsigned token=0;token<valid;++token)
     sum+=from_bf16(k[((offset+token)*16+head/2)*128+key])*from_bf16(residual[token]);
     expected[base+key]=fmaf(expected[base+key],exponential(g[(offset+valid-1)*32+head],nullptr),sum);
+    if(offset+valid==64u)expected64[base+key]=expected[base+key];
+    if(offset+valid==128u)expected128[base+key]=expected[base+key];
    }
   }
  }
  for(unsigned head:{0u,31u})for(unsigned tile:{0u,31u})
-  pool.run({tile,head,0},[&]{state_kernel(k.data(),v.data(),w.data(),g.data(),h.data(),new_v.data(),state.data(),count,nullptr);});
+  pool.run({tile,head,0},[&]{state_kernel<false>(k.data(),v.data(),w.data(),g.data(),h.data(),new_v.data(),state.data(),count,nullptr,{});});
  assert(h==want_h&&new_v==want_new&&state==expected&&v==input_v);
+ if(count>64){
+  qrt_fla_checkpoint::Segment capture;capture.count=1;capture.prefix_tokens[0]=64;capture.states[0]=checkpoint64.data();
+  if(count>128){capture.count=2;capture.prefix_tokens[1]=128;capture.states[1]=checkpoint128.data();}
+  state=initial_state;std::fill(h.begin(),h.end(),guard);std::fill(new_v.begin(),new_v.end(),guard);
+  for(unsigned head:{0u,31u})for(unsigned tile:{0u,31u})
+   pool.run({tile,head,0},[&]{state_kernel<true>(k.data(),v.data(),w.data(),g.data(),h.data(),new_v.data(),state.data(),count,nullptr,capture);});
+  assert(h==want_h&&new_v==want_new&&state==expected&&checkpoint64==expected64);
+  if(count>128)assert(checkpoint128==expected128);
+ }
+
  // Scores execute complete logical rows, including causal zeros and the tail.
  std::vector<uint16_t> scores(count*2048,guard),want_scores=scores;
  for(unsigned chunk=0;chunk<chunks;++chunk)for(unsigned head:{0u,31u}){
@@ -135,13 +151,13 @@ void check(unsigned count){
   pool.run({tile,head,chunk},[&]{output_kernel(q.data(),v.data(),h.data(),g.data(),scores.data(),output.data(),count,nullptr);});
  assert(output==want_output&&k==input_k&&q==input_q&&g==input_g);
 }
-int main(){check(1);check(65);}
+int main(){check(1);check(65);check(129);}
 '''
         with tempfile.TemporaryDirectory() as directory:
             p = Path(directory)
             (p / 'test.cpp').write_text(source)
             build = subprocess.run(['c++','-std=c++17','-O1','-ffp-contract=off','-pthread',
-                '-fsanitize=address,undefined',str(p/'test.cpp'),'-o',str(p/'test')],capture_output=True,text=True,timeout=30)
+                '-fsanitize=address,undefined','-I',str(ROOT),str(p/'test.cpp'),'-o',str(p/'test')],capture_output=True,text=True,timeout=30)
             self.assertEqual(build.returncode,0,build.stderr)
-            run = subprocess.run([str(p/'test')],capture_output=True,text=True,timeout=40)
+            run = subprocess.run([str(p/'test')],capture_output=True,text=True,timeout=55)
             self.assertEqual(run.returncode,0,run.stderr)

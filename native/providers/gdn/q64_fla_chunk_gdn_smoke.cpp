@@ -1,4 +1,5 @@
 #include <hip/hip_runtime.h>
+#include "fla_checkpoint.h"
 
 #if defined(_WIN32)
 #ifndef NOMINMAX
@@ -8,6 +9,8 @@
 #endif
 
 #include <algorithm>
+#include <array>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -60,6 +63,7 @@ struct ProviderApi {
     LaunchFunction launch = nullptr;
     LaunchFunction launch_async = nullptr;
     DynamicLaunchFunction launch_async_dynamic = nullptr;
+    qrt_fla_checkpoint::Launch launch_checkpoints = nullptr;
     ScratchBytesFunction scratch_bytes = nullptr;
     LastErrorFunction last_error = nullptr;
     ReleaseFunction release = nullptr;
@@ -127,6 +131,9 @@ bool load_provider(const char *path, ProviderApi *api) {
     );
     api->scratch_bytes = reinterpret_cast<ScratchBytesFunction>(
         GetProcAddress(api->module, "qrt_fla_chunk_gdn_scratch_bytes")
+    );
+    api->launch_checkpoints = reinterpret_cast<qrt_fla_checkpoint::Launch>(
+        GetProcAddress(api->module, "qrt_fla_gdn_launch_async_checkpoints_v1")
     );
     api->last_error = reinterpret_cast<LastErrorFunction>(
         GetProcAddress(api->module, "qrt_aiter_fused_gdn_q8192_last_error")
@@ -310,6 +317,133 @@ bool load_gb10_capture_fixture(
 }
 
 }  // namespace
+
+
+bool check_fp32_checkpoints(const ProviderApi& api, const ProviderApi& reference,
+    const std::vector<float>& raw, const std::vector<float>& gate,
+    const float* device_raw, const float* device_gate, hipStream_t stream,
+    const std::vector<float>& expected_output, const std::vector<float>& expected_state) {
+    if (kTokens <= 64 || !api.launch_checkpoints || !reference.launch_async_dynamic) {
+        std::cerr << "FLA_CHECKPOINT missing checkpoint/reference route or eligible prefix\n";
+        return false;
+    }
+    using namespace qrt_fla_checkpoint;
+    constexpr size_t guard = 64u;
+    constexpr float sentinel = 12345.0f;
+    Plan plan{}; plan.struct_size = sizeof(plan); plan.abi_version = kVersion;
+    const unsigned last = (static_cast<unsigned>(kTokens) - 1u) / 64u * 64u;
+    for (unsigned position : {64u, 1024u, last}) {
+        if (position >= static_cast<unsigned>(kTokens) ||
+            (plan.count && position <= plan.prefix_tokens[plan.count - 1u])) continue;
+        plan.prefix_tokens[plan.count++] = position;
+    }
+    std::array<float*, kCapacity> allocations{};
+    std::array<std::vector<float>, kCapacity> snapshots;
+    float *out_allocation = nullptr, *state_allocation = nullptr;
+    std::vector<float> output(expected_output.size() + 2u * guard, sentinel);
+    std::vector<float> state(kStateElements + 2u * guard, sentinel);
+    bool ok = check_hip(hipMalloc(reinterpret_cast<void**>(&out_allocation), output.size() * sizeof(float)), "checkpoint_output_allocate") &&
+        check_hip(hipMalloc(reinterpret_cast<void**>(&state_allocation), state.size() * sizeof(float)), "checkpoint_state_allocate");
+    auto upload = [&](float* dst, const std::vector<float>& src) {
+        return check_hip(hipMemcpyAsync(dst, src.data(), src.size() * sizeof(float), hipMemcpyHostToDevice, stream), "checkpoint_upload");
+    };
+    auto download = [&](std::vector<float>& dst, const float* src) {
+        return check_hip(hipMemcpyAsync(dst.data(), src, dst.size() * sizeof(float), hipMemcpyDeviceToHost, stream), "checkpoint_download") &&
+            check_hip(hipStreamSynchronize(stream), "checkpoint_wait");
+    };
+    auto guards = [&](const std::vector<float>& values) {
+        for (size_t i = 0u; i < guard; ++i)
+            if (values[i] != sentinel || values[values.size() - 1u - i] != sentinel) return false;
+        return true;
+    };
+    for (unsigned slot = 0u; ok && slot < plan.count; ++slot) {
+        snapshots[slot] = state;
+        ok = check_hip(hipMalloc(reinterpret_cast<void**>(&allocations[slot]), state.size() * sizeof(float)), "checkpoint_slot_allocate");
+        if (ok) {
+            plan.states[slot] = allocations[slot] + guard; plan.state_bytes[slot] = kStateBytes;
+            ok = upload(allocations[slot], snapshots[slot]);
+        }
+    }
+    if (ok) ok = upload(out_allocation, output) && upload(state_allocation, state);
+    if (ok) {
+        // Real API rejects invalid plans before touching output/state/checkpoints.
+        for (unsigned fault = 0u; ok && fault < 4u; ++fault) {
+            Plan invalid = plan;
+            if (fault == 0u) invalid.count = kCapacity + 1u;
+            if (fault == 1u) invalid.prefix_tokens[0] = 63u;
+            if (fault == 2u) invalid.state_bytes[0] = kStateBytes - 1u;
+            if (fault == 3u) invalid.states[0] = state_allocation + guard + 1u;
+            ok = api.launch_checkpoints(device_raw, device_gate, out_allocation + guard,
+                state_allocation + guard, 0, stream, kTokens, &invalid) == 0;
+        }
+        if (ok) ok = download(output, out_allocation) && download(state, state_allocation);
+        if (ok) ok = std::all_of(output.begin(), output.end(), [&](float x){return x == sentinel;}) &&
+            std::all_of(state.begin(), state.end(), [&](float x){return x == sentinel;});
+        for (unsigned slot = 0u; ok && slot < plan.count; ++slot) {
+            ok = download(snapshots[slot], allocations[slot]);
+            if (ok) ok = std::all_of(snapshots[slot].begin(), snapshots[slot].end(), [&](float x){return x == sentinel;});
+        }
+    }
+    const auto begin = std::chrono::steady_clock::now();
+    if (ok) ok = api.launch_checkpoints(device_raw, device_gate, out_allocation + guard,
+        state_allocation + guard, 0, stream, kTokens, &plan) != 0;
+    if (ok) ok = check_hip(hipStreamSynchronize(stream), "checkpoint_capture_wait");
+    const double capture_ms = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - begin).count();
+    if (ok) ok = download(output, out_allocation) && download(state, state_allocation);
+    if (ok) ok = guards(output) && guards(state) &&
+        std::memcmp(output.data() + guard, expected_output.data(), expected_output.size() * sizeof(float)) == 0 &&
+        std::memcmp(state.data() + guard, expected_state.data(), kStateBytes) == 0;
+    for (unsigned slot = 0u; ok && slot < plan.count; ++slot) {
+        ok = download(snapshots[slot], allocations[slot]) && guards(snapshots[slot]);
+        const unsigned prefix = plan.prefix_tokens[slot];
+        std::fill(output.begin(), output.end(), sentinel); std::fill(state.begin(), state.end(), sentinel);
+        if (ok) ok = upload(out_allocation, output) && upload(state_allocation, state);
+        // A separately executed qualified old provider computes only this
+        // prefix. It never sees or consumes the captured checkpoint buffer.
+        if (ok) ok = reference.launch_async_dynamic(device_raw, device_gate, out_allocation + guard,
+            state_allocation + guard, 0, stream, static_cast<int32_t>(prefix)) != 0;
+        if (ok) ok = download(state, state_allocation) && download(output, out_allocation);
+        size_t state_errors = 0u, output_errors = 0u;
+        if (ok) {
+            for (size_t i = 0u; i < kStateElements; ++i)
+                state_errors += std::memcmp(&state[i + guard], &snapshots[slot][i + guard], sizeof(float)) != 0;
+            for (size_t i = 0u; i < size_t(prefix) * kValueFeatures; ++i)
+                output_errors += std::memcmp(&output[i + guard], &expected_output[i], sizeof(float)) != 0;
+            ok = guards(state) && guards(output) && state_errors == 0u && output_errors == 0u &&
+                std::all_of(output.begin() + guard + size_t(prefix) * kValueFeatures,
+                            output.end(), [&](float x){return x == sentinel;});
+        }
+        std::cout << "{\"kind\":\"fla_fp32_checkpoint\",\"tokens\":" << kTokens
+                  << ",\"prefix_tokens\":" << prefix << ",\"state_elements\":" << kStateElements
+                  << ",\"state_bit_mismatches\":" << state_errors << ",\"prefix_output_bit_mismatches\":" << output_errors
+                  << ",\"guarded_prefix_pass\":" << (ok ? "true" : "false")
+                  << ",\"model_checkpoint_qualified\":false}" << std::endl;
+        const char* dump = std::getenv("QRT_FLA_GDN_CHECKPOINT_DUMP_PREFIX");
+        if (ok && dump && *dump) ok = write_binary_file(std::string(dump) + "-prefix" + std::to_string(prefix) + "-state-f32.bin",
+            snapshots[slot].data() + guard, kStateBytes);
+    }
+    // Repeated shorter calls cannot mutate any saved checkpoint or input.
+    for (unsigned slot = 0u; ok && slot < plan.count; ++slot) {
+        std::vector<float> after(snapshots[slot].size());
+        ok = download(after, allocations[slot]) && std::memcmp(after.data(), snapshots[slot].data(), after.size() * sizeof(float)) == 0;
+    }
+    if (ok) {
+        std::vector<float> after(raw.size()); ok = download(after, device_raw) &&
+            std::memcmp(after.data(), raw.data(), raw.size() * sizeof(float)) == 0;
+        after.resize(gate.size()); if (ok) ok = download(after, device_gate) &&
+            std::memcmp(after.data(), gate.data(), gate.size() * sizeof(float)) == 0;
+    }
+    std::cout << "{\"kind\":\"fla_fp32_checkpoint_capture\",\"tokens\":" << kTokens << ",\"checkpoints\":" << plan.count
+              << ",\"capture_wall_ms\":" << capture_ms << ",\"full_output_elements\":" << expected_output.size()
+              << ",\"unchanged_output_state_and_inputs\":" << (ok ? "true" : "false")
+              << ",\"inference_acceptance\":false}" << std::endl;
+    if (!ok) std::cerr << "FLA_CHECKPOINT error=" << api.last_error() << std::endl;
+    (void)hipStreamSynchronize(stream);
+    for (auto allocation : allocations) if (allocation) (void)hipFree(allocation);
+    if (state_allocation) (void)hipFree(state_allocation);
+    if (out_allocation) (void)hipFree(out_allocation);
+    return ok;
+}
 
 int main(int argc, char **argv) {
     if (argc != 3 && argc != 5) {
@@ -655,6 +789,11 @@ int main(int argc, char **argv) {
             (!require_reference_exact ||
              (output_reference_bit_mismatches == 0u && state_reference_bit_mismatches == 0u));
     }
+
+    const char* checkpoint_setting = std::getenv("QRT_FLA_GDN_SMOKE_CHECKPOINTS");
+    if (ok && checkpoint_setting && std::strcmp(checkpoint_setting, "1") == 0)
+        ok = check_fp32_checkpoints(api, reference_api, raw, gate, device_raw, device_gate,
+            stream, sync_output, sync_state);
 
     const char *dump_prefix = std::getenv("QRT_FLA_GDN_SMOKE_DUMP_PREFIX");
     if (ok && dump_prefix != nullptr && dump_prefix[0] != '\0') {

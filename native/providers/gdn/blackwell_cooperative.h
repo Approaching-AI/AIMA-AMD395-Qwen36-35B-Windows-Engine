@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
+#include "fla_checkpoint.h"
 
 // Optional batched FLA schedule. Public entry points validate the same spans
 // and aliases before dispatch. Reference arithmetic and endpoint types remain
@@ -21,5 +22,8 @@ hipError_t output(const uint16_t*, const uint16_t*, const uint16_t*, const float
                   const uint16_t*, float*, unsigned, const unsigned char*, hipStream_t);
 hipError_t state(const uint16_t*, const uint16_t*, const uint16_t*, const float*,
                  uint16_t*, uint16_t*, float*, unsigned, const unsigned char*, hipStream_t);
+hipError_t state_checkpoints(const uint16_t*, const uint16_t*, const uint16_t*, const float*,
+                 uint16_t*, uint16_t*, float*, unsigned, const unsigned char*, hipStream_t,
+                 qrt_fla_checkpoint::Segment);
 }
 #endif

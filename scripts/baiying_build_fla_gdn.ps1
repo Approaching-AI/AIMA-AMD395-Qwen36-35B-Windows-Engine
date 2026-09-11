@@ -42,6 +42,7 @@ $blackwellState = Join-Path $repo 'native\providers\gdn\blackwell_state.cpp'
 $blackwellAux = Join-Path $repo 'native\providers\gdn\blackwell_wu_output.cpp'
 $blackwellCooperative = Join-Path $repo 'native\providers\gdn\blackwell_cooperative.cpp'
 $blackwellCooperativeHeader = Join-Path $repo 'native\providers\gdn\blackwell_cooperative.h'
+$flaCheckpointHeader = Join-Path $repo 'native\providers\gdn\fla_checkpoint.h'
 $sm121SubgroupHeader = Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h'
 $sm121PairedHeader = Join-Path $repo 'native\providers\moe_accumulator\sm121_paired_products.h'
 $blackwellAuxHeader = Join-Path $repo 'native\providers\gdn\blackwell_wu_output.h'
@@ -159,7 +160,7 @@ $record = [ordered]@{
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121SubgroupHeader, $sm121PairedHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121SubgroupHeader, $sm121PairedHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $flaCheckpointHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

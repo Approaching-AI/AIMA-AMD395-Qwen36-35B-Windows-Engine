@@ -108,10 +108,11 @@ __global__ void output_kernel(const uint16_t* q, const uint16_t* v, const uint16
 // Retain four complete state rows through each bounded segment. A shared
 // key transpose makes every K64 update contiguous; all checkpoints and final
 // FP32 cells keep the original ownership and layout.
+template<bool Capture = false>
 __global__ void state_kernel(const uint16_t* k, const uint16_t* u,
                              const uint16_t* w, const float* g, uint16_t* h,
                              uint16_t* v_new, float* state, unsigned count,
-                             const unsigned char* table) {
+                             const unsigned char* table, qrt_fla_checkpoint::Segment checkpoints) {
     __shared__ float current[state_columns][128];
     __shared__ uint16_t rounded[state_columns][128], residual[state_columns][64];
     __shared__ uint16_t keys[128][64];
@@ -156,6 +157,14 @@ __global__ void state_kernel(const uint16_t* k, const uint16_t* u,
                 exponential(g[size_t(offset + valid - 1u) * 32u + head], table), sum);
         }
         __syncthreads();
+        if constexpr (Capture) {
+            for (unsigned slot = 0u; slot < checkpoints.count; ++slot) {
+                if (offset + valid != checkpoints.prefix_tokens[slot]) continue;
+                for (unsigned cell = thread; cell < state_columns * 128u; cell += threads)
+                    checkpoints.states[slot][(head * 128u + columns + cell / 128u) * 128u + cell % 128u] =
+                        current[cell / 128u][cell % 128u];
+            }
+        }
     }
     for (unsigned cell = thread; cell < state_columns * 128u; cell += threads)
         state[(head * 128u + columns + cell / 128u) * 128u + cell % 128u] =
@@ -186,8 +195,32 @@ hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const
 hipError_t state(const uint16_t* k, const uint16_t* u, const uint16_t* w, const float* g,
                  uint16_t* h, uint16_t* v_new, float* state, unsigned count,
                  const unsigned char* table, hipStream_t stream) {
-    hipLaunchKernelGGL(state_kernel, dim3(128u / state_columns, 32u), dim3(threads),
-        0u, stream, k, u, w, g, h, v_new, state, count, table);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(state_kernel<false>), dim3(128u / state_columns, 32u), dim3(threads),
+        0u, stream, k, u, w, g, h, v_new, state, count, table, qrt_fla_checkpoint::Segment{});
+    return hipGetLastError();
+}
+hipError_t state_checkpoints(const uint16_t* k, const uint16_t* u, const uint16_t* w, const float* g,
+                 uint16_t* h, uint16_t* v_new, float* state, unsigned count,
+                 const unsigned char* table, hipStream_t stream, qrt_fla_checkpoint::Segment checkpoints) {
+    if (!k || !u || !w || !g || !h || !v_new || !state || !table ||
+        !checkpoints.count || checkpoints.count > qrt_fla_checkpoint::kCapacity || !count || count > 1024u)
+        return hipErrorInvalidValue;
+    qrt_fla_checkpoint::Plan plan{};
+    plan.struct_size = sizeof(plan); plan.abi_version = qrt_fla_checkpoint::kVersion; plan.count = checkpoints.count;
+    for (unsigned i = 0u; i < checkpoints.count; ++i) {
+        plan.states[i] = checkpoints.states[i]; plan.prefix_tokens[i] = checkpoints.prefix_tokens[i];
+        plan.state_bytes[i] = qrt_fla_checkpoint::kStateBytes;
+    }
+    if (!qrt_fla_checkpoint::valid(&plan, count + 1u) ||
+        !qrt_fla_checkpoint::disjoint(plan, k, size_t(count) * 2048u * sizeof(uint16_t)) ||
+        !qrt_fla_checkpoint::disjoint(plan, u, size_t(count) * 4096u * sizeof(uint16_t)) ||
+        !qrt_fla_checkpoint::disjoint(plan, w, size_t(count) * 4096u * sizeof(uint16_t)) ||
+        !qrt_fla_checkpoint::disjoint(plan, g, size_t(count) * 32u * sizeof(float)) ||
+        !qrt_fla_checkpoint::disjoint(plan, h, size_t((count + 63u) / 64u) * 524288u * sizeof(uint16_t)) ||
+        !qrt_fla_checkpoint::disjoint(plan, v_new, size_t(count) * 4096u * sizeof(uint16_t)) ||
+        !qrt_fla_checkpoint::disjoint(plan, state, qrt_fla_checkpoint::kStateBytes)) return hipErrorInvalidValue;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(state_kernel<true>), dim3(128u / state_columns, 32u), dim3(threads),
+        0u, stream, k, u, w, g, h, v_new, state, count, table, checkpoints);
     return hipGetLastError();
 }
 }
