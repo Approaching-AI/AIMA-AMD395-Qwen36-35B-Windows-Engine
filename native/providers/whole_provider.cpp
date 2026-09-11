@@ -37031,23 +37031,41 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     unsigned int window_elements
 ) {
     __shared__ unsigned int block_candidate_count;
+    __shared__ unsigned int block_candidate_base;
     if (threadIdx.x == 0u) block_candidate_count = 0u;
     __syncthreads();
     const size_t local_index =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     const size_t index = element_offset + local_index;
-    if (local_index < window_elements &&
+    const bool candidate = local_index < window_elements &&
         selected_bf16_projection_hawkeye_candidate(
             outputs[index], index, rows, midpoint_radius, full_prefix_tokens,
             absolute_error_bound_ppb, absolute_product_sums,
-            selected_input_l2_upper_bounds, weight_l2_upper_bounds)) {
-        const unsigned int slot = atomicAdd(global_candidate_counts, 1u);
-        candidate_indices[slot] = static_cast<unsigned int>(index);
-        (void)atomicAdd(&block_candidate_count, 1u);
+            selected_input_l2_upper_bounds, weight_l2_upper_bounds);
+    // Reserve once per CTA rather than once per candidate. Ballot ranks keep
+    // stores contiguous within each wave on both wave32 and wave64 targets.
+    const unsigned int lane = threadIdx.x % warpSize;
+    const unsigned long long mask = __ballot(candidate);
+    const unsigned int wave_count = static_cast<unsigned int>(__popcll(mask));
+    unsigned int wave_base = 0u;
+    if (lane == 0u) {
+        wave_base = atomicAdd(&block_candidate_count, wave_count);
     }
+    wave_base = __shfl(wave_base, 0, warpSize);
     __syncthreads();
     if (threadIdx.x == 0u) {
-        (void)atomicMax(global_candidate_counts + 1u, block_candidate_count);
+        block_candidate_base = 0u;
+        if (block_candidate_count != 0u) {
+            block_candidate_base = atomicAdd(global_candidate_counts, block_candidate_count);
+            (void)atomicMax(global_candidate_counts + 1u, block_candidate_count);
+        }
+    }
+    __syncthreads();
+    if (candidate) {
+        const unsigned int rank = static_cast<unsigned int>(
+            __popcll(mask & ((1ull << lane) - 1ull)));
+        candidate_indices[block_candidate_base + wave_base + rank] =
+            static_cast<unsigned int>(index);
     }
 }
 
@@ -37227,9 +37245,9 @@ hipError_t count_selected_bf16_projection_hawkeye_candidates(
 }
 
 // Stream bounded index windows and independently completed exact-dot dispatches.
-// The scratch space is constant (512 KiB plus counters), and empty windows need
-// no exact-dot work. This diagnostic retains both the WDDM dispatch deadline and
-// the aggregate deadline; it is not the retained-performance fast path.
+// Scratch is bounded at 64 MiB plus counters and shrinks for short projections.
+// Collection uses broad windows while each exact-dot dispatch retains its
+// existing quantum and completed-dispatch/aggregate deadlines.
 hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const uint16_t *weights,
     const uint16_t *selected_inputs,
@@ -37244,11 +37262,13 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     unsigned int full_prefix_tokens,
     unsigned int absolute_error_bound_ppb,
     unsigned int maximum_blocks_per_launch,
-    hipStream_t stream
+    hipStream_t stream,
+    unsigned int requested_window_elements = qrt_hawkeye_dispatch::maximum_window_elements
 ) {
     if (weights == nullptr || selected_inputs == nullptr || outputs == nullptr ||
         rows == 0u || selected_token_count == 0u || reduction_size == 0u ||
-        reduction_size % 16u != 0u ||
+        reduction_size % 16u != 0u || requested_window_elements == 0u ||
+        requested_window_elements > qrt_hawkeye_dispatch::maximum_window_elements ||
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
     }
@@ -37266,9 +37286,13 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         "included_in_product_ttft=1 diagnostic_only=1\n",
         rows, selected_token_count, reduction_size, input_wait_ms);
     std::fflush(stderr);
+    const size_t elements = static_cast<size_t>(selected_token_count) * rows;
+    const unsigned int window_capacity = qrt_hawkeye_dispatch::window_elements(
+        elements, requested_window_elements);
+    const size_t scratch_bytes = (static_cast<size_t>(window_capacity) + 2u) *
+        sizeof(unsigned int);
     unsigned int *scratch = nullptr;
-    status = hipMalloc(reinterpret_cast<void **>(&scratch),
-        (qrt_hawkeye_dispatch::maximum_candidates + 2u) * sizeof(*scratch));
+    status = hipMalloc(reinterpret_cast<void **>(&scratch), scratch_bytes);
     if (status != hipSuccess) return status;
     const char *count_only_value =
         std::getenv("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY");
@@ -37280,8 +37304,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     constexpr unsigned int subgroups_per_block =
         kSelectedHawkeyeCorrectionThreads / 16u;
     const unsigned int candidates_per_launch = bounded_blocks * subgroups_per_block;
-    const size_t elements = static_cast<size_t>(selected_token_count) * rows;
-    const size_t elements_per_launch = qrt_hawkeye_dispatch::maximum_window_elements;
+    const size_t elements_per_launch = window_capacity;
     const auto correction_start = std::chrono::steady_clock::now();
     uint64_t total_candidates = 0u;
     unsigned int maximum_block_candidates = 0u;
@@ -37314,7 +37337,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
              element_offset += elements_per_launch) {
             ++windows;
             const unsigned int window_elements =
-                qrt_hawkeye_dispatch::window_elements(elements - element_offset);
+                qrt_hawkeye_dispatch::window_elements(elements - element_offset, window_capacity);
             hipError_t result = hipMemsetAsync(scratch, 0, 2u * sizeof(*scratch), stream);
             if (result != hipSuccess) return result;
             auto dispatch_start = std::chrono::steady_clock::now();
@@ -37338,7 +37361,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             // compaction: every dispatched CTA owns at most 16 candidates.
             // Apply the work bound to that actual geometry, retaining the
             // source density only as an observation.
-            if (!qrt_hawkeye_dispatch::admitted(counts[0],
+            if (counts[0] > window_elements || !qrt_hawkeye_dispatch::admitted(counts[0],
                     (std::min)(counts[0], subgroups_per_block))) {
                 std::fprintf(stderr,
                     "BATCH_MARK hawkeye_dispatch_admission rows=%u tokens=%u k=%u "
@@ -37348,7 +37371,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     "numerical_correctness_claimed=0\n",
                     rows, selected_token_count, reduction_size, windows, element_offset,
                     counts[0], counts[1], count_only ? 1u : 0u,
-                    qrt_hawkeye_dispatch::maximum_candidates,
+                    window_capacity,
                     qrt_hawkeye_dispatch::maximum_candidates_per_block);
                 std::fflush(stderr);
                 return hipErrorInvalidConfiguration;
@@ -37393,7 +37416,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         static_cast<unsigned long long>(total_candidates), maximum_block_candidates,
         dispatches, maximum_dispatch_ms, correction_ms, count_only ? 1u : 0u,
         status == hipSuccess ? 1u : 0u,
-        (qrt_hawkeye_dispatch::maximum_candidates + 2u) * sizeof(*scratch));
+        scratch_bytes);
     std::fflush(stderr);
     const hipError_t free_status = hipFree(scratch);
     return status != hipSuccess ? status : free_status;

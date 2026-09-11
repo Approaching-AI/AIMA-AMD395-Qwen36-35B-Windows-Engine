@@ -90,11 +90,12 @@ static_assert(admitted(0, 0), "empty candidate set");
 static_assert(window_elements(0) == 0, "empty projection");
 static_assert(window_elements(65535) == 65535, "partial window");
 static_assert(window_elements(65536) == 65536, "full collection grid");
-static_assert(window_elements(UINT64_MAX) == 65536, "wide remaining count cannot wrap");
-static_assert(maximum_exact_blocks * 16u == maximum_window_elements,
-              "a full-window exact batch fits the existing index window");
-static_assert(admitted(131072, 64), "inclusive admission boundary");
-static_assert(!admitted(131073, 1), "one window cannot exceed scratch capacity");
+static_assert(window_elements(UINT64_MAX) == 16777216, "wide remaining count cannot wrap");
+static_assert(maximum_exact_blocks * 16u == 65536u,
+              "exact-dot quantum is independent of collection size");
+static_assert(window_elements(UINT64_MAX, 65536) == 65536, "bounded control window");
+static_assert(admitted(16777216, 64), "inclusive admission boundary");
+static_assert(!admitted(16777217, 1), "one window cannot exceed scratch capacity");
 static_assert(!admitted(1, 65), "one dense block must also be rejected");
 static_assert(!admitted(UINT32_MAX, UINT32_MAX), "no integer wraparound");
 static_assert(time_remaining(100.0, 10000.0), "inclusive time boundary");

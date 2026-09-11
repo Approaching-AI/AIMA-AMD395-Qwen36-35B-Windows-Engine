@@ -33,23 +33,32 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B` and all four rebuilt providers at
-`7c09aaf14240b923b50ffd04ca3559981f4ad874`. Each run has zero first-logit error
+`D:\models\Qwen3.6-35B-A3B`, whole/MoE/FLA providers at
+`7c09aaf14240b923b50ffd04ca3559981f4ad874` and CK attention at
+`473ad19b013689d240e347135fcf144e361674c7`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
 retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, four providers at 7c09aaf, fast profile | 144 / 10.375 | 20,063.167500 | 4,195.258200 | 33.079400 |
-| q7169, four providers at 7c09aaf, 1000 ppb compatibility profile | 82 / 9.25 | 20,070.665000 | 135,951.305400 | 34.738623 |
+| q8192, shared providers plus CK 473ad19, fast profile | 144 / 10.375 | 20,067.279000 | 4,149.304700 | 32.963306 |
+| q7169, shared providers plus CK 473ad19, 1000 ppb profile | 82 / 9.25 | 20,056.463800 | 126,453.136300 | 34.729790 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [independent-PV product records](../benchmarks/correctness/attention-pv-product-20260911.json)
+qualify all 32 tokens and logit for both cases. The latest actual q8192 callback
+TTFT passes the immutable retained target, as do load and TPOT. Exact PV
+arithmetic is inactive in that fast profile, so the q8192 timing difference
+is not attributed to it. q7169 improves by 9,498.169100 ms; all 80 complete
+norm files still match GB10. The separate prior shared-stack q8192 target miss
+remains recorded below. Package and broader product qualification remain open.
 
 The [shared-arithmetic records](../benchmarks/correctness/shared-wave16-20260911.json)
 bind four successful Windows builds and both full-model runs to the common
 K16 implementation, including its final negative-zero canonicalization.
 q7169 improves by 11,857.096400 ms from the 147,808.401800 ms control; all
-80 complete norm files still match qualified GB10 capture f17592ae. The latest
+80 complete norm files still match qualified GB10 capture f17592ae. That preceding
 q8192 run misses the immutable retained TTFT target by 7.842595 ms. Neither
 provider-only time nor the earlier mixed-stack result qualifies this newer
 combination's retained performance. Native CPU wide-sum/endpoint controls,
@@ -147,7 +156,8 @@ GB10 BF16 outputs and the same native FP32 control remain identical. Kernel
 intervals total **3,822.13 ms**, maximum **9.3963 ms**; the same-run original
 provider takes 4,561.25 ms. One million independent packed-product alignment
 controls pass under UBSan, as does the complete local check. This mapping is
-selected for the next CK build; whole-model qualification remains pending.
+qualified by the complete frozen q7169 product run above; broader release
+qualification remains open.
 
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)

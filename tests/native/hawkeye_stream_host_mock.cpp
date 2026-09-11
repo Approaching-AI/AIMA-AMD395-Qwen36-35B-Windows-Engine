@@ -48,7 +48,7 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr;
     const unsigned int limit = exact
         ? (std::min)(requested_blocks, qrt_hawkeye_dispatch::maximum_exact_blocks)
-        : 256u;
+        : qrt_hawkeye_dispatch::maximum_window_elements / 256u;
     if (exact) exact_blocks = blocks.x;
     if (blocks.x == 0 || blocks.x > limit || threads.x != 256u) invalid_grid = true;
 }
@@ -135,7 +135,7 @@ int main() {
     auto invoke = [&](std::vector<float> &output) {
         return launch_selected_bf16_projection_hawkeye_midpoint_correction(
             &value, &value, nullptr, nullptr, nullptr, output.data(), rows, tokens,
-            2048u, 512u, 0u, 0u, requested_blocks, nullptr);
+            2048u, 512u, 0u, 0u, requested_blocks, nullptr, 65536u);
     };
     auto output = initial;
     if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u) return 1;
@@ -147,7 +147,7 @@ int main() {
     std::sort(corrected.begin(), corrected.end());
     if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 3;
     if (invalid_grid || invalid_range || allocations != 1u || frees != 1u ||
-        scratch_bytes != (131072u + 2u) * sizeof(unsigned int)) return 4;
+        scratch_bytes != (65536u + 2u) * sizeof(unsigned int)) return 4;
     // Fully dense source blocks remain bounded after compaction. The actual
     // kernel has only 16 candidate subgroups per CTA, under the configured cap.
     for (unsigned int cap : {8u, 64u, 999u, 4096u, UINT32_MAX}) {
@@ -161,6 +161,19 @@ int main() {
         std::sort(corrected.begin(), corrected.end());
         if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 16;
         if (cap >= 4096u && corrections != collections) return 17;
+    }
+    // A production-sized collection window gathers this whole projection at
+    // once while exact dispatches still obey their independent work quantum.
+    reset(); output = initial;
+    if (launch_selected_bf16_projection_hawkeye_midpoint_correction(
+        &value, &value, nullptr, nullptr, nullptr, output.data(), rows, tokens,
+        2048u, 512u, 0u, 0u, 4096u, nullptr) != hipSuccess || collections != 1u ||
+        rounds != 1u || scratch_bytes != (total_elements + 2u) * sizeof(unsigned int) ||
+        invalid_grid || invalid_range || allocations != frees) return 18;
+    for (size_t i = 0; i < total_elements; ++i) {
+        const float expected = initial[i] == 1.00390625f
+            ? static_cast<float>((i / rows) * 2u + i % rows) : 1.0f;
+        if (output[i] != expected) return 19;
     }
     requested_blocks = 8u;
     reset(); count_only(true); output = initial;
@@ -180,5 +193,12 @@ int main() {
     if (launch_selected_bf16_projection_hawkeye_midpoint_correction(
         &value, &value, nullptr, nullptr, nullptr, output.data(), UINT32_MAX,
         2u, 2048u, 512u, 0u, 0u, 8u, nullptr) != hipErrorInvalidValue || allocations || syncs) return 9;
+    for (unsigned int capacity : {0u, qrt_hawkeye_dispatch::maximum_window_elements + 1u}) {
+        reset();
+        if (launch_selected_bf16_projection_hawkeye_midpoint_correction(
+            &value, &value, nullptr, nullptr, nullptr, output.data(), rows, tokens,
+            2048u, 512u, 0u, 0u, 8u, nullptr, capacity) != hipErrorInvalidValue ||
+            allocations || syncs) return 20;
+    }
     return 0;
 }
