@@ -32,57 +32,60 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Whole daa054d extends the strict q8192 request from 115 to 255 consecutive
-exact outputs. Its complete 512-token request still first differs at index
-255 (488 instead of 1394), with 236 mismatches. q7169 out512 still first
-differs at index 148 (2450 instead of 10845), with 287 mismatches. Both
-first-token logits remain exact, every output is streamed before return,
-and all host checks pass. q8191 out32 continues to pass its entire frozen
-request with exact first logit 11.375. The
-[recurrent-output product evidence](../benchmarks/correctness/q1-recurrent-output-product-20260911.json)
-binds these runs to the real model, clean Windows build and unchanged
-oracle. Actual callback TTFT remains 69,774.3355 ms for q7169 and
-80,869.4488 ms for q8192; these are diagnostic timings, not retained wins.
+Whole `0c1467710732ea38dc57275119291fba5e18a057` passes both complete
+512-token cold continuations and the q8191 32-token control on `baiying`,
+using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
+first-token/logit, complete output and streaming boundary passes with
+successful host checks. The requests use the same strict prefill arithmetic
+profile, with the candidate bound derived from actual prompt length. The
+[complete product records](../benchmarks/correctness/q1-embedding-norm-product-20260911.json)
+bind source, clean Windows build, component hashes, commands and all outputs.
 
-The [recurrent-output isolation](../benchmarks/correctness/q1-recurrent-output-order-20260911.json)
-finds one wrong core value at q7169 position 7184, layer 18, head 16,
-value 62. Every FP32 recurrent state cell before and after update, input
-norm, projection and convolution is exact. Original runtime PTX applies
-the special last-four-row paired reduction only to the decayed K
-projection. Updated-state Q output uses product 1 followed by FMA 0/2/3
-for every row. Separating these orders makes all 4096 replayed outputs
-exact while preserving the original state-update regressions. The Windows
-request now has exact layer-18 operators, MoE, all forty carriers and all
-3,678,720 layer-19 K values and V values through position 7184. The earlier
-[full-19 historical-row comparison](../benchmarks/correctness/q1-full19-continuation-20260911.json)
-had found 183 K and 205 V differences confined to that row.
+| Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
+|---|---|---:|---:|---:|
+| q7169 out512 | 82 / 9.25 | 20,206.4055 | 69,766.0335 | 111.995395 |
+| q8192 out512 | 144 / 10.375 | 20,016.5907 | 80,832.1604 | 117.349153 |
+| q8191 out32 | 168589 / 11.375 | 20,013.2751 | 80,974.1091 | 118.777987 |
 
-At q8192 position 8300, the same repair restores exact layer-1 state
-before/after, all captured operators and all forty carriers. The previous
-strict run had 240,536 differing incoming state cells there, despite an
-exact first decode step. q8191's forty carriers and full-attention stages
-at 8196 remain exact. Local C/ABI, Rust, Clippy, q16, 295 Python tests
-(two skips) and public hygiene pass; the native build passes in
-80,973.532 ms. The next observations follow the two remaining first
-continuation differences under their matching generated histories.
+The [embedding-norm origin](../benchmarks/correctness/q1-embedding-norm-origin-20260911.json)
+locates the remaining long-decode error at positions 7277 and 8426.
+Incoming layer-0 recurrent state and convolution history are exact, but
+one BF16 input-normalization value differs in each request. The original
+CUDA one-row normalization reproduces the old native result; the actual
+original two-row transaction and its FP32 variance/inverse reproduce the
+repair. The native implementation now uses the original eight-warp,
+eight-adjacent-values reduction and existing SM121 inverse correction for
+both the normal embedding entry and device-top1 prefetch. The first attempt
+covered only the normal entry; 502 prefetched steps bypassed it, leaving
+both complete output sequences unchanged. That failed integration is
+retained in the evidence. No token, position or expected-output special
+case is introduced.
 
-The preceding [K-normalization product repair](../benchmarks/correctness/q1-key-normalization-product-20260911.json)
-uses the original four stride-128 warps for the strided K head view;
-Q retains two stride-64 warps. Its
-[real tensor and causal attention replay](../benchmarks/correctness/q1-key-normalization-20260911.json)
-locate a single wrong K value at position 7221. Correcting it makes the
-entire observed layer-3 KV history and all current operators exact and
-moves q7169's first token difference from index 95 to 148. The
-[original final-norm repair](../benchmarks/correctness/q1-final-norm-product-20260911.json)
-and [short gated-norm repair](../benchmarks/correctness/q1-continuation-origin-20260911.json)
-also remain active. The observer supports any single full-attention owner,
-and the [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
-retains independently owned state snapshots.
+After repairing both entries, all captured operators and all forty carriers
+at both origins are exact. All 3,726,336 layer-19 K values and V values
+through position 7277, and all 4,314,624 through position 8426, match GB10.
+The subsequent 806 / 554 observed layer-0 state boundaries are exact;
+these hashes diagnose the repair while the complete token/logit results
+provide acceptance. q8191's forty carriers and full-attention operators at
+8196 remain exact. GB10 captures r25/r26/r27 each pass all eight unchanged
+frozen cases. Local C/ABI, Rust, Clippy, q16, 297 Python tests (two skips)
+and public hygiene pass; the Windows build passes in 80,649.669 ms.
+The actual kernel is also exercised with resident BF16, host F32 and
+indirect device-top1 inputs against both real norm fixtures.
 
-Long decode, true partial-prefix restore and product performance remain
-open. The fast q8192 profile still has incorrect prefill recurrent state.
-No new performance result or release is qualified; retained results below
-and all numerical tolerances remain unchanged.
+The prior [recurrent output reduction repair](../benchmarks/correctness/q1-recurrent-output-order-20260911.json),
+[K head normalization repair](../benchmarks/correctness/q1-key-normalization-product-20260911.json),
+[final normalization](../benchmarks/correctness/q1-final-norm-product-20260911.json)
+and [short gated normalization](../benchmarks/correctness/q1-continuation-origin-20260911.json)
+remain active. Before the embedding repair, daa054d first differed at
+q7169 output index 148 and q8192 index 255; both now pass all 512 outputs.
+
+These strict timings remain above the immutable performance limits.
+The retained fast prefill profile is being tested with the repaired decode
+against complete continuations. Its different internal state hashes alone
+cannot reject a valid product result. Other prompt lengths, longer context
+targets, true partial-prefix restore and packaged API acceptance remain
+open. No new performance result or release is qualified.
 
 The [reference autotune controls](../benchmarks/correctness/reference-autotune-controls-20260911.json)
 explain why captures r15/r16 are excluded: they fail the first original
