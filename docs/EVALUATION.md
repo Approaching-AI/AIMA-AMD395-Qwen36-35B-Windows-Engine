@@ -54,6 +54,21 @@ boundary (reference 11.375, tolerance 0.125). The seventh output differs:
 32-token controls and all 80 complete q7169 norms pass, and actual q8192
 TTFT, load and TPOT satisfy the unchanged retained targets.
 
+The subsequent [positive-exp2 repair](../benchmarks/correctness/exp2-plateau-product-20260911.json)
+matches all 80 complete q8191 prefill normalization tensors to GB10, as
+well as all 80 q7169 tensors. Actual AMD scan output identifies a positive
+roundoff at layer 4, head 12, token 564; one invalid exponential spreads
+into 866 inverse entries starting at token 562. GB10 exhaustively verifies
+all 855,638,016 nonnegative FP32 inputs below 2^-25 produce exactly one.
+FLA 41236de uses that verified plateau without another runtime artifact.
+The same saved-input component now has finite output/state and exact
+sync/async parity. q8191 emits the exact first logit 11.375, but output
+index 6 remains 82 instead of 220, leaving decode correctness open.
+Both original 32-token controls pass. This run's q8192 callback TTFT is
+4,240.562900 ms, above the unchanged retained target; the earlier
+4,135.594501 ms result remains retained. Local checks pass C/ABI, Rust,
+Clippy, 286 Python tests (two skips), q16 and public hygiene.
+
 The [matched-history runtime capture](../benchmarks/correctness/runtime-boundaries-20260911.json)
 reproduces all eight frozen GB10 cases and their complete first-logits
 tensors. q8191 matches the first nine complete normalization boundaries;
