@@ -170,8 +170,26 @@ router, selector, shared expert, routed/shared output tuple and next residual
 inputs while returning every original result unchanged. Native Q1 adds
 bounded optional MoE files using its existing diagnostic reads, plus live
 shared gate/down/activation and next-norm endpoints. It caps files at 128 KiB
-each, 64 files and 4 MiB total per process. These observations will identify
-the remaining arithmetic boundary; they do not qualify a release.
+each, 64 files and 4 MiB total per process.
+
+The [MoE boundary captures](../benchmarks/correctness/q1-moe-boundary-20260911.json)
+pass all eight original GB10 controls. Native whole 23a2e9c reproduces the
+q7169/q8191 MoE input, router logits and expert IDs exactly, but shared
+activation differs in 142/148 BF16 values and routed output in 1109/1218.
+The next input norm differs in 1072/904 values. Both native requests complete
+with successful host checks and the same token failures as whole 2b90db9.
+CPU replay of all 22 observed rows matches the original router and shared
+projections with K16 width-26 arithmetic, the scalar gate's cuBLAS reduction,
+and BF16 activation/scaling. Original CUDA exp plus its reduction/division
+order matches all 176 routing weights; host exp changes 59. These are
+operator controls, not full-model or performance acceptance.
+
+The opt-in `QRT_QWEN36_Q1_SM121_MOE=1` connects these rules to all Q1 layers:
+exact router, selected/shared projections, BF16 weighted contributions and
+route sum, and the rounded norm numerator with unrounded residual variance.
+It requires the existing exact Q1 GDN/output path and next-layer norm handoff.
+It uses Q1-specific table bindings and has no effect on prefill. The native
+implementation remains a diagnostic candidate pending product tests.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead

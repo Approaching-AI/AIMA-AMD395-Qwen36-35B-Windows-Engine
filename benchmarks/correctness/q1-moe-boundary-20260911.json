@@ -1,0 +1,6117 @@
+{
+  "schema": "qrt_q1_moe_boundary_v1",
+  "inference_acceptance": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "reference_capture_sha256": "c4b6fa7b9c30a44afc3359c92162f94ddcf54061b960003103679e1b34391432",
+  "reference_capture": {
+    "kind": "gb10_bf16_token_matrix_capture",
+    "host": "aitopatom-66c4",
+    "command": [
+      "/work/scripts/capture_gb10_token_matrix.py",
+      "--source-commit",
+      "69c21a29e4d96e10844babd05314b90d9f0f997a",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "590",
+      "--runtime-boundaries",
+      "--execute",
+      "--worker",
+      "--supervisor-pid",
+      "7"
+    ],
+    "source_commit": "69c21a29e4d96e10844babd05314b90d9f0f997a",
+    "source_sha256": "9ee7803739590d6bcfc911c548c597033dcb724c23cb2648435a34e6719459e2",
+    "model": "/models",
+    "oracle_sha256": {
+      "7169": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+      "8192": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+    },
+    "fixtures": [
+      {
+        "name": "q7169-out32",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 32,
+        "control": true,
+        "family": 7169
+      },
+      {
+        "name": "q8192-out32",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 32,
+        "control": true,
+        "family": 8192
+      },
+      {
+        "name": "q7168-out32",
+        "prompt": {
+          "token_count": 7168,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "69ac88b3ab23db63b0dc97ce0ba4f3a1142f6f03a82880d40400d2a147a0808c",
+          "u32le_fnv1a64": "df799e629e63b300"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 7169
+      },
+      {
+        "name": "q7170-out32",
+        "prompt": {
+          "token_count": 7170,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "bec91c975401208667e5a728da9235d8e3f87aa775abd69db0fc556b09a717d6",
+          "u32le_fnv1a64": "fd950cdf1546d98a"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 7169
+      },
+      {
+        "name": "q8191-out32",
+        "prompt": {
+          "token_count": 8191,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "aaf30058b943ba25c4dcabeb2d603dba5e0a63a1e12a96a466e574ee19cfbff5",
+          "u32le_fnv1a64": "7015b1f272403af6"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 8192
+      },
+      {
+        "name": "q8193-out32",
+        "prompt": {
+          "token_count": 8193,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "9ccfb67142cceeba42bf3f3ac62a0a0aea6127b353897512f0ea516c0882160a",
+          "u32le_fnv1a64": "67496c4b22db5cf4"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 8192
+      },
+      {
+        "name": "q7169-out512",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 512,
+        "control": true,
+        "family": 7169
+      },
+      {
+        "name": "q8192-out512",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 512,
+        "control": true,
+        "family": 8192
+      }
+    ],
+    "completed": true,
+    "controls_qualified": true,
+    "windows_acceptance": false,
+    "prefix_caching": false,
+    "native_tensor_inputs": false,
+    "runtime_boundaries": true,
+    "load_seconds": 305.10909131300286,
+    "model_evidence": {
+      "config_file": "config.json",
+      "config_sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99",
+      "index_file": "model.safetensors.index.json",
+      "index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+      "weight_tensor_key": "lm_head.weight",
+      "weight_shape": [
+        248320,
+        2048
+      ],
+      "weight_dtype": "torch.bfloat16",
+      "weight_shard": "model-00026-of-00026.safetensors",
+      "weight_shard_bytes": 2231416848,
+      "weight_shard_sha256": "1a97404220077ed3d4182e10385b152004cab608377f50cec9f54a6b8d28b613"
+    },
+    "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+    "raw_logit_method": "observer of original GPU model.compute_logits output; returned unchanged",
+    "case_count": 8,
+    "case_details": "Original capture record is fingerprinted above; compact observed-file manifests follow."
+  },
+  "reference_dispatch": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-runtime-moe-20260911-r6",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "${GB10_WORKSPACE}/qrt-gb10-runtime-moe-20260911-r6:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "620",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--source-commit",
+      "69c21a29e4d96e10844babd05314b90d9f0f997a",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "590",
+      "--runtime-boundaries",
+      "--execute"
+    ],
+    "command_file": "${GB10_WORKSPACE}/run-qrt-gb10-runtime-moe-20260911-r6.py",
+    "command_file_sha256": "7c01f5f9eb9050f92ec8e29a7c4b36820387cc3c95f9495577a36e719f76affd",
+    "source_commit": "69c21a29e4d96e10844babd05314b90d9f0f997a",
+    "returncode": 0,
+    "reason": "completed",
+    "wall_seconds": 405.03555136900104,
+    "minimum_host_available_bytes": 16426258432,
+    "container_status": "false 0",
+    "archive_sha256": "77b0acfaaf0dde1fb044273c9c22c052db51246b72738e9ca534e848781152cf"
+  },
+  "observations": [
+    {
+      "case": "q7168-out32",
+      "case_sha256": "c8b62edf58fcbd5f0020f7c3411beef033cb703f59543f73908907e860ca5e3b",
+      "full_matrix_case_pass": true,
+      "first_token": 220,
+      "first_logit": 9.5625,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1b0fb38d177d5a9d8559c16e432bc420073eadb86bdf568bc1441d0b2d9c735f",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "a818901863ce1f8acf6d55499a4040977ca666ae2597fe2094afe04a72d8946a",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "c91aba313bd1bd5f7b8b097c22fb125be0285e779a500f0c04a5c4065e35cf07",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "bb791e185f58de5958727e4a929b74d64aee4e3cb16a392b596d17bfcd88ecf8",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "37b8ae9e6e991ff9040e0bd1f93deaaf77c1f3c35447273af0a91f37ed51e096",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "fbd788e537cf4da4dbd99208f194b67a32d10c42c08c6c010087156497c527b5",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8c95634d7425f19cb93f2f93439ac775c2a3f97737ad61eea0c4679a8d251d21",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b06af07bb7d9346bf989c1998f71af3df5aea094f3f7b6dd72db31c95612f83",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b06af07bb7d9346bf989c1998f71af3df5aea094f3f7b6dd72db31c95612f83",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "840e40fa7d09193f31322deeb900c3e7344a612624bfa468b102b7cc7c813162",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4af322e0d20afc4d5fcad15081f768d0d7e543030fe41547a5100e45e654de3b",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "4af322e0d20afc4d5fcad15081f768d0d7e543030fe41547a5100e45e654de3b",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "35e6daed5378a9e7e61646301a5e717d9687219294b3f514407787e2b2942fab",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q7169-out32",
+      "case_sha256": "9989674e772e2ddede740d228dea89b1626fcad3d31cbd3d8a25b13bef67f6cf",
+      "full_matrix_case_pass": true,
+      "first_token": 82,
+      "first_logit": 9.25,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bfc9c258a0f41cc5871b8eaa4762be7c17ad2bdf01097d6f1ea722b7a410038e",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "338d4effda643c76e524b07ebbfa3c875c43cffe18ce40eb9376fe2cb0461966",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "932af006d80f09e567dbf2172c9849e9617170959b3e31523c4083eb5669b579",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "07c54cd205b0d359d16303b826771351937f3909dc044be12745548759a5a922",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "b83b7c283db7fc7d8592aa10d74123f37c9964c622154ecc77dd03dbc5e0d5ef",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "3d18a9b1fa29f2fe9e06e7007088f58e24d96765f13a51b5ff03310b6ba96337",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "92bd3eaaefec2f6ab0e59f10c779c4c71c60807d9989155e0d2d494b3a967a9d",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "37fa37fad50cd2be34fbb1af48001d0733e4db11b7aa618b08e403100a6c6b17",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "37fa37fad50cd2be34fbb1af48001d0733e4db11b7aa618b08e403100a6c6b17",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3ac8ee156c19afa5724d7297262a8c96aa982e0ae76210e5b7ab288d529beca9",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b0b697534b522addc746c3aca2bc596361f666bec9c52ef8ee8c49223f916aa",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q7169-out512",
+      "case_sha256": "0adca31d5e9debff59b9ecdaabc28b319c36d559f067f97921d20717ab75caf1",
+      "full_matrix_case_pass": true,
+      "first_token": 82,
+      "first_logit": 9.25,
+      "output_tokens": 512,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "bfc9c258a0f41cc5871b8eaa4762be7c17ad2bdf01097d6f1ea722b7a410038e",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "338d4effda643c76e524b07ebbfa3c875c43cffe18ce40eb9376fe2cb0461966",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "932af006d80f09e567dbf2172c9849e9617170959b3e31523c4083eb5669b579",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "07c54cd205b0d359d16303b826771351937f3909dc044be12745548759a5a922",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "b83b7c283db7fc7d8592aa10d74123f37c9964c622154ecc77dd03dbc5e0d5ef",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "3d18a9b1fa29f2fe9e06e7007088f58e24d96765f13a51b5ff03310b6ba96337",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "92bd3eaaefec2f6ab0e59f10c779c4c71c60807d9989155e0d2d494b3a967a9d",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "37fa37fad50cd2be34fbb1af48001d0733e4db11b7aa618b08e403100a6c6b17",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "37fa37fad50cd2be34fbb1af48001d0733e4db11b7aa618b08e403100a6c6b17",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3ac8ee156c19afa5724d7297262a8c96aa982e0ae76210e5b7ab288d529beca9",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b0b697534b522addc746c3aca2bc596361f666bec9c52ef8ee8c49223f916aa",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0018-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "12e0c38fbb857f4c58ceedd55e0d8ca339e392402cb922df3092999f021eeeea",
+          "transaction": 18,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0018-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            256
+          ],
+          "bytes": 1024,
+          "sha256": "e04b16cc80d2554c025d9fdc4eb3eeb5ab4c0465b09c2e8212cc697ce7a06ec5",
+          "transaction": 18,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0018-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "16b26de5c030fdda06b90bc3898f6584fab1ed9ee161ddd3d0beed203139bb27",
+          "transaction": 18,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0018-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "a88e1ee5388b2b4c5097f71f74979c4eb41585424fd5eea0b45dd7fc10cf52bd",
+          "transaction": 18,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0018-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1024
+          ],
+          "bytes": 4096,
+          "sha256": "c7b2254df02b168cae4cec1242c88d9ca3f9e89423d3229aa0844ebfdb8ccf62",
+          "transaction": 18,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0018-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            512
+          ],
+          "bytes": 2048,
+          "sha256": "49c832e8b0fb763609aa7d715012959d37690e7adac2f373a7d303b4f35fed7d",
+          "transaction": 18,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0018-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d366fcaee369fda2edb3fd244f3432b7acea12e2ce08c9806e8d22eb56e23667",
+          "transaction": 18,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0018-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1
+          ],
+          "bytes": 4,
+          "sha256": "f88a09a30763dbd8df950fdfff66f0c049e4eb65f8e2b2b4a4d4c90c85dd05f3",
+          "transaction": 18,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0018-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "0515fb04e22ec4b2f5b1fd538750a3140f4c2ec01a617837db2c7723abe15109",
+          "transaction": 18,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0018-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "0515fb04e22ec4b2f5b1fd538750a3140f4c2ec01a617837db2c7723abe15109",
+          "transaction": 18,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0018-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "bb70950fd171b3ecd19ee864da3751ad5238832d00953257a44af54f631e43eb",
+          "transaction": 18,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0018-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "6b116519f387a5e91b47ffa172d9d8133906b5d94f72b30471a2b6d55ba501e2",
+          "transaction": 18,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0018-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "6b116519f387a5e91b47ffa172d9d8133906b5d94f72b30471a2b6d55ba501e2",
+          "transaction": 18,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0018-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "243d1ce42cf832fcc18c0a5a1e50074eea709d516d44b0358e88e6ca6011c420",
+          "transaction": 18,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0019-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "00af75dac816b6e4a55882a238b13ff5003a7e8a8ae6ddc1f54c686f7f6125dd",
+          "transaction": 19,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0019-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "5ea44076a87eb1fae32dc010a81c6646b1b7d82ae797de69357431164c6ca801",
+          "transaction": 19,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0019-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "1c3b1ecb717258d25f6ac53d80ce4c4446e616cc5004e0c1d539799a96939e5a",
+          "transaction": 19,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0019-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "835c07a2a2a20b8a6ac562bdd4d4c0c1b0399bdd9ae51e9735c73bece2f5ccee",
+          "transaction": 19,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0019-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "0815e72627fd20707be8a2214f6a021075e6a4ecccfa2f78df4792d4eecda17a",
+          "transaction": 19,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0019-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "139b0dfb7c8334fd73a4c20e63ba1b465f5cce3bde709051e7124bd49da285b4",
+          "transaction": 19,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0019-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b2a3ba31f44dca2a2e08410b0ab0a0dffd537db0d6f44ae8364b947c13eafd61",
+          "transaction": 19,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0019-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "f7570749c6d4428ea758d5449c02607304c5e8adbceece8aece934ac6449df6b",
+          "transaction": 19,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0019-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "03d71e52c4fd3cb3dbb712ddea024050aaf6a808b5619d79e04b70a219329871",
+          "transaction": 19,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0019-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "03d71e52c4fd3cb3dbb712ddea024050aaf6a808b5619d79e04b70a219329871",
+          "transaction": 19,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0019-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2aecc34f3f7f6c95a6bc0c1e7a86da3ffdd64143262aa6177d19943cecb646fa",
+          "transaction": 19,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0019-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "eb49be929e2bfe15683d5e61c0fd3581ee7df8c242a039f7709f9ecd43ffea0f",
+          "transaction": 19,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0019-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "eb49be929e2bfe15683d5e61c0fd3581ee7df8c242a039f7709f9ecd43ffea0f",
+          "transaction": 19,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0019-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2c61b0beb4c9a16ff4a7c063b1b427e3190ee789b216cb3fd351b0e9f19676c3",
+          "transaction": 19,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0065-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3a6805eac358cad282f39b00a2d2e46e38037e18d2aad25acc34d50717096ac3",
+          "transaction": 65,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0065-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "2adeeee35e31742dc042a298207bff0f25833234bfd94fb6bc1668a43c0d4bd2",
+          "transaction": 65,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0065-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "4021bbd0be0494ba416ed8a490e70c7f501401002c81aea0ae4b510cc6a871a7",
+          "transaction": 65,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0065-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "52a57c624e0b1c4ae3cc044fe57658f315d262fbafddb6cea6f21863a520b677",
+          "transaction": 65,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0065-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "6ffd8819393038e687185db95cbae331d481e5973217e5a55ab552c05932de61",
+          "transaction": 65,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0065-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "c561686fa30b369d3623cf537030bf8008ef4462da21c8e174d0bdf09dd032b4",
+          "transaction": 65,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0065-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "339f74384d0759058b2251d7033f3a73f2c3e592e8d8292abf65ea7dd37f13d9",
+          "transaction": 65,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0065-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "5ab2b14f193ad5d36ccd1abab4a606991a21ee9cb616299ff9dd91a1f9e14191",
+          "transaction": 65,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0065-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b86911bc0c7daa304fc165898ade193d8c5dcfb02ca9dc2f621839e01ce55d0",
+          "transaction": 65,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0065-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b86911bc0c7daa304fc165898ade193d8c5dcfb02ca9dc2f621839e01ce55d0",
+          "transaction": 65,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0065-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "dba2f999d7ce92dd68b6b334edc9393246b9a2f76d8060e20ad5c5778f98a26d",
+          "transaction": 65,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0065-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "decf96c2db214933597fa688660c2d40643a4df9e7e579930e7c74f1e7e36d58",
+          "transaction": 65,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0065-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "decf96c2db214933597fa688660c2d40643a4df9e7e579930e7c74f1e7e36d58",
+          "transaction": 65,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0065-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "11ac2b8c4910ac4356afa22d967afc358f19415ec8f4a14f18f19b85fef84ab0",
+          "transaction": 65,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0066-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "97b386fdba0c13695a46abd7ac6d9ed08fdd191991b8d74f47a94c307626bd7b",
+          "transaction": 66,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0066-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            256
+          ],
+          "bytes": 1024,
+          "sha256": "ae1379274ad59b0578f286fb9a2d9d21bca36fa51dc1cc550d15df3e6f5ecb1c",
+          "transaction": 66,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0066-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "0e54262241e21656f346b8da4bd9d45bbb13cc0ee575b77b08d54b68d3afe25e",
+          "transaction": 66,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0066-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "070baade6e93b3aa4a2de32087899fd3b4d9f58b013fb1f6d4510aa06233e412",
+          "transaction": 66,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0066-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1024
+          ],
+          "bytes": 4096,
+          "sha256": "627e5535a8fc1701d57a306c1642cd372c1d094110b0459a2c735d4549191252",
+          "transaction": 66,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0066-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            512
+          ],
+          "bytes": 2048,
+          "sha256": "6d14272d4e9e4a25036b9d673d1f26eb5a2180dd5b2e7cd9a5204dca641b91e9",
+          "transaction": 66,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0066-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b429f5994c0a23d212f2236f445ffc78233ec433be84e57eb06f48b472d538d8",
+          "transaction": 66,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0066-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1
+          ],
+          "bytes": 4,
+          "sha256": "00fb2a5929ed0b7a76efcc4dad0b67d87fd09d8f55ac13adda469e04dcad7839",
+          "transaction": 66,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0066-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "156a84a9592bcb45c7b3ebc96fe4e02bc242ec74d941dc5a082b619aba505538",
+          "transaction": 66,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0066-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "156a84a9592bcb45c7b3ebc96fe4e02bc242ec74d941dc5a082b619aba505538",
+          "transaction": 66,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0066-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "9497637b95f7160735d5eec3c9563d730bfec13c3bf71a87447a3837b5cc2802",
+          "transaction": 66,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0066-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "7e860a99ecd29bb26f8255fa7b2b3da8572ae2f5e522b0d95c21cecdc6136f5f",
+          "transaction": 66,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0066-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "7e860a99ecd29bb26f8255fa7b2b3da8572ae2f5e522b0d95c21cecdc6136f5f",
+          "transaction": 66,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0066-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "010cf111c168170060725e83d4d4d3d93cbcaab352db1a336e8753dda768078c",
+          "transaction": 66,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0067-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cd4f26c35bb9e6ad9634f67a2a0862804d22cb2510be10b9ab5a081eb00152f7",
+          "transaction": 67,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0067-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "4fce0750ed45aadd9534e741fdc822745c1851c74b918ab14e69ccc660469698",
+          "transaction": 67,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0067-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "c7af02c376fcade56782dddaae0bf76d300416616a1cdd796fcbb96a5578e15d",
+          "transaction": 67,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0067-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "39455707eac0c8c616383037b12590129c3c3c2ce1c3e1a490451318e71cf1a2",
+          "transaction": 67,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0067-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "84ee068431ee65d662868157e68ee0b7053806d4aa79cda9b709823d75168646",
+          "transaction": 67,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0067-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "b12ed4d8ae3e0dbb953961910144b03ebff851b013fe9c6897e36312a2957785",
+          "transaction": 67,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0067-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c2709220210c3e7f3b878057ba32e55a7e56eec667d4b825392f597ddbc20776",
+          "transaction": 67,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0067-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "4c90a75eca13d0d30af775db8d60546e4e68949f2d2d94b7d52c0a9fa4d06aa9",
+          "transaction": 67,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0067-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "174cd179b3a2d32fc40276d8c7b69b2b8ca640443ffe95a9cba39c55dfb5ea65",
+          "transaction": 67,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0067-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "174cd179b3a2d32fc40276d8c7b69b2b8ca640443ffe95a9cba39c55dfb5ea65",
+          "transaction": 67,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0067-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d367e3f02f9d0407b0ea3d6e8292a86efd52c69f16487ff5a8b50d8f20fb8aa8",
+          "transaction": 67,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0067-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "06560368d8a7fba106b0fa195947948f60d6df84e3403f27c6e963358dcb6987",
+          "transaction": 67,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0067-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "06560368d8a7fba106b0fa195947948f60d6df84e3403f27c6e963358dcb6987",
+          "transaction": 67,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0067-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a8bfe842cc0f00bac0f60a51eae35455bf33988c66bf13ae37c615efe2b24d27",
+          "transaction": 67,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q7170-out32",
+      "case_sha256": "cad6a8d896bdf28e15e7ad2976c8f8fd42e74d0d9f952eec12adcfaafc3d250b",
+      "full_matrix_case_pass": true,
+      "first_token": 94,
+      "first_logit": 18.25,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d2388bb9188976fa9348857a3c5853c5f6ff2b906b6c49d3f3a635e1a9d6b29f",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "6b061ef16572a9bbf0fb006b24ed5394182437b8b175ed054b131d775e2bc1a2",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "3e452c85870a9c0bb1dc649099d43aa762b31d9bf3a1e4b77aca1d7c74805158",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "33a971914765362ad4e6b49cf425d31f4860553410b6b8fcf627300ba283b5a3",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "ba54f4beb12158dbe7ad06af206cc34dbc92edabfd019f8ca0d9b1dfc326e324",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "a7141ccfbf70cce6f98a49bab0511f11e98d5239d52963696aa011f4bda41399",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1fb4720de579c10676f8533456f626c6326d38ecd30dc3d55e9b34b69e83ca3c",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "098500ec2e3388ba850a8db4352164526d04af3cfbca695fe07e5deafd863208",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "136facf52ce19f11aefc949fad9313167306b861b7e78190ebdd98cf3fcc3f0b",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "136facf52ce19f11aefc949fad9313167306b861b7e78190ebdd98cf3fcc3f0b",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "720231edc2cc9e1d19c679ebbdd72fd74824fa8773144d907fa639ec17cff5fc",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "18b0dd8ae590bcc5bd323d9256f88fd7ce1c38f61152002bb42426e9e656e6b4",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "18b0dd8ae590bcc5bd323d9256f88fd7ce1c38f61152002bb42426e9e656e6b4",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "783e5d3eb33e48ade23d703e74731ac9ddf117a49a1d55ad50028b84814dbdb0",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q8191-out32",
+      "case_sha256": "bbdf8d76417734958d2f1235f8004ace6a33c772be2f68f6ce586f2b3174e969",
+      "full_matrix_case_pass": true,
+      "first_token": 168589,
+      "first_logit": 11.375,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "f356f24a3c8777dd1cd2918110511767d5d0392ccbf91099f75144e6a161e308",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            256
+          ],
+          "bytes": 1024,
+          "sha256": "42ef93d54f6078c50bbdc9af24261b8bcc1e879b075e4e1f71b34475c21e10ec",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "bd1562cde39579ec6f884c723324da0f646e90e78c58558008aa982488f391e6",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "95065f9ae89a5c90285eb742d296227b5ea4d364b109b34d10fa293b6a3dc864",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1024
+          ],
+          "bytes": 4096,
+          "sha256": "2f8bcb481264d95d5a87fb62551a489a94a9291bc14e0f0ea434d9ffe26cd328",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            512
+          ],
+          "bytes": 2048,
+          "sha256": "caacbc123a686dc48a1cab00d3793a5d35ea17651117ea1ceb8cdfe0415b2500",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b84d5f41e8ef49104679d9525efb0c713899a260c63d0a37041b364108d0bd43",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1
+          ],
+          "bytes": 4,
+          "sha256": "8b7e01df0adc4fe2a09efc83f81e463c5676f53eebb12d3906a554b9268555f5",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "09b45e4c215301c4c718082a6365a39c95be39aaa4496c6f8adc0779f3bd8153",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "09b45e4c215301c4c718082a6365a39c95be39aaa4496c6f8adc0779f3bd8153",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d0a3b25a350a8d2b053c6869103bed0c02c55062c9291a2adec69ae3f02a7c80",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b3326df1f3c4dfcdef754fff2b9163577119387e77a3e82805298828846d79b9",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b3326df1f3c4dfcdef754fff2b9163577119387e77a3e82805298828846d79b9",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d02fdd486b596f1af197761df33f25e6f50d95d3f0544633ed6f590aeab374b7",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0002-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c375b59ee6ade55c2fb1f0bd1930b32fe54bf340592c26c5219d0540364ed3bc",
+          "transaction": 2,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0002-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "86cd378dcdefaa64e5f43cfa84e3245f505e4e115cf3b30756b08ee94e22a90f",
+          "transaction": 2,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0002-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "be8adae0113c8a9341eb9a73cee14826e64c7b77667b217017bbfb6bd1dce2d8",
+          "transaction": 2,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0002-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "3f10e8c51e5edc6ea15630069547418fdcd7a2c0b13974661aebec4d8cf1ac24",
+          "transaction": 2,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0002-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "3d901d457e0ea1a982b3bdbd809e6d4c186f4c66d43a863557cb05602be7d4f6",
+          "transaction": 2,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0002-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "e64cc4b9664ca6d681aa303c77c27d91d92302a00c56bc7d2118e3121fc30b86",
+          "transaction": 2,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0002-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "f1b4277641960893c7ccd43119d50e38e764ef56739a0cd3c8b0ae189d6dbdb4",
+          "transaction": 2,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0002-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "9b45990d60e1c9dc8bd8c09ddd81b432e3c282be3ae4817d3383400c530d730e",
+          "transaction": 2,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0002-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "399a10fe50c74a2719b0e0e8e06bb1628bba928356ab101caf317d30e77da2b8",
+          "transaction": 2,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0002-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "399a10fe50c74a2719b0e0e8e06bb1628bba928356ab101caf317d30e77da2b8",
+          "transaction": 2,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0002-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "252db7da0c6485b043ccba7812f131961bc3360bbe87dab4fe13ce692aec0928",
+          "transaction": 2,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0002-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2e08078a30aeadd803cd76c08e4a6d57f66285c003f6c19e19cb772824ea2337",
+          "transaction": 2,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0002-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2e08078a30aeadd803cd76c08e4a6d57f66285c003f6c19e19cb772824ea2337",
+          "transaction": 2,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0002-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8defd5966ad8c476fc16e0482ce2694ab8b22c96e9b5512394d58018220df36d",
+          "transaction": 2,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0005-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "07ac7cd6aca6004075c0d21f7065e3933eb7457de7294a4d91c653fcc89d1713",
+          "transaction": 5,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0005-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "bd21268b70a6ef85427adc799801f55ec54b3f7abc733c30a8cbd2a82544282e",
+          "transaction": 5,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0005-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "8c0dfdbeb3a1affaeedd20bfb17196ad7aa6c1a824d061382a89a03a8a735eb3",
+          "transaction": 5,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0005-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "4a15f47e58697668ec67e2e0da5494b1438637950d8f65304828a673ed26572a",
+          "transaction": 5,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0005-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "a08b89a35a10a65dc0946aa4406727f6269e430581d996714b12dc3e078774a3",
+          "transaction": 5,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0005-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "bea12516cc53d73e25409205f237fbd0bc9b36054ede1571341f95f495b81db9",
+          "transaction": 5,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0005-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a77f7d6d92cce6be96864a76882f05626f37c69c3ea67865a3e16eeca3c52939",
+          "transaction": 5,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0005-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "2f599eab2ede779f206f8139f204d422041ecaef453979539988ff9903ac0864",
+          "transaction": 5,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0005-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "44b989ffb9d65f0edf1a1e8c352937ad31d282d854e49d2fe38a788dda5a5be1",
+          "transaction": 5,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0005-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "44b989ffb9d65f0edf1a1e8c352937ad31d282d854e49d2fe38a788dda5a5be1",
+          "transaction": 5,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0005-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ea0f2dc1166f27dace99e8322ff1608e5270bf58d7a195a363ab97059dc3b79e",
+          "transaction": 5,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0005-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b7d0545f865bd1178483676670b43ec60fad47ac8608a42a97347788e0f22761",
+          "transaction": 5,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0005-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "b7d0545f865bd1178483676670b43ec60fad47ac8608a42a97347788e0f22761",
+          "transaction": 5,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0005-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "6b134466d39c0b4857ca2a62ce5ed1802224588f0e239587a3628069ae368d2d",
+          "transaction": 5,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0006-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "48dccde8bd42844cc3a0cf1c26b166eede131947467c9fd30602ea4df8e90955",
+          "transaction": 6,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0006-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "9136e079886bc1b16ef4900cec85fe123006e7e0f998ead5bac1e26af4adc8f1",
+          "transaction": 6,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0006-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "115dbcb1f05403e92bc05dc99895374113a60b74d425eae4f5c48106bab51726",
+          "transaction": 6,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0006-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "bccd4bcb3196f87f3c942602fa981bcca1c2baf432064cebc1d285d5821b72ff",
+          "transaction": 6,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0006-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "5428688c5b71651f78b4dedddc8d95cd7342c670c762546524862744ef168f95",
+          "transaction": 6,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0006-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "580426968269c53e7e9b92f1472506dd68c3fc5f41cf21639b4ffb0189bf69cb",
+          "transaction": 6,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0006-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ff1ebeb6fadb915b95ae1512742af6a4f1a9c58c472f3a54d47e0fb04c4ce244",
+          "transaction": 6,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0006-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "0f806f6c03ab0b2e3164513666341371d285b33d6225a1dd3ff3d1f44f693a20",
+          "transaction": 6,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0006-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "13f1c0f811db00bcf130d07946d306ef1bc471c95eeee908dda6195ebf67b6be",
+          "transaction": 6,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0006-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "13f1c0f811db00bcf130d07946d306ef1bc471c95eeee908dda6195ebf67b6be",
+          "transaction": 6,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0006-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e98078f50b9ad63aab2d2b862fd494330ae3fba3603741db8302794eb72160a6",
+          "transaction": 6,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0006-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "362feceee9ab926c06d67675b269172b064b67b7835fc28fd373937715ea4f03",
+          "transaction": 6,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0006-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "362feceee9ab926c06d67675b269172b064b67b7835fc28fd373937715ea4f03",
+          "transaction": 6,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0006-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "99834908c57ba583d36acfc221ead641d5be1c78334cd72dfda400b2134c7119",
+          "transaction": 6,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q8192-out32",
+      "case_sha256": "a0d9cc5dca3f1721e1c1b376947768ce979376c0cc959400d9fa38c4ab3607b7",
+      "full_matrix_case_pass": true,
+      "first_token": 144,
+      "first_logit": 10.375,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "b404aa7615ce5d3dc24d2c22c243255b083deae2df5ba8f8ef0f9599d8684b35",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "6585b2cc0a5d7d60c74c60b4def30173bd48daf86dad91a72059740f9abc30dd",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "8a5412a0dc61e722dd810fe6b9ba67c5fd298e6d05798c9d53e0f8425e352a31",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "e374ee4f340f0ac5328e16bcc4f6e376beaac7dbddd749c25a43237b13b32d16",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "4cecb447f3c96004576e99c10f664827b77b2953792993c20ae13c4906045ff3",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2d8d23fab934e59108242c7eae599ab3015552ceeddd36bc28c0030e72aae2c2",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "0feed37ddec047856b4a8f458b31d44c7204582de27954da35e1afb0a12871df",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fbe32151a16e29d9df73fb6f70cccd403a82e816172d52e92fc2c93b4bd965af",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fbe32151a16e29d9df73fb6f70cccd403a82e816172d52e92fc2c93b4bd965af",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e41447a2c8a6a0a3c6d9652f348e3a340ce8316f90320901102ed6c64e13e72c",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b950f32eee2bf5bf88bd399b0000a81ef161dbe69578d49270a3f533a095f22",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b950f32eee2bf5bf88bd399b0000a81ef161dbe69578d49270a3f533a095f22",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2b6389aba45f7c5e601d3ea3d74bded1ceb0acc92dcc2351370610e3e61639dc",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q8192-out512",
+      "case_sha256": "96ecb7fe8a8ea6de164039ae1e12520acdc2c4266d5005f29916dfecdce28a57",
+      "full_matrix_case_pass": true,
+      "first_token": 144,
+      "first_logit": 10.375,
+      "output_tokens": 512,
+      "moe_files": [
+        {
+          "file": "txn0001-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286",
+          "transaction": 1,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0001-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "b404aa7615ce5d3dc24d2c22c243255b083deae2df5ba8f8ef0f9599d8684b35",
+          "transaction": 1,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0001-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "6585b2cc0a5d7d60c74c60b4def30173bd48daf86dad91a72059740f9abc30dd",
+          "transaction": 1,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0001-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "8a5412a0dc61e722dd810fe6b9ba67c5fd298e6d05798c9d53e0f8425e352a31",
+          "transaction": 1,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "e374ee4f340f0ac5328e16bcc4f6e376beaac7dbddd749c25a43237b13b32d16",
+          "transaction": 1,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0001-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "4cecb447f3c96004576e99c10f664827b77b2953792993c20ae13c4906045ff3",
+          "transaction": 1,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0001-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2d8d23fab934e59108242c7eae599ab3015552ceeddd36bc28c0030e72aae2c2",
+          "transaction": 1,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0001-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "0feed37ddec047856b4a8f458b31d44c7204582de27954da35e1afb0a12871df",
+          "transaction": 1,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0001-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fbe32151a16e29d9df73fb6f70cccd403a82e816172d52e92fc2c93b4bd965af",
+          "transaction": 1,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "fbe32151a16e29d9df73fb6f70cccd403a82e816172d52e92fc2c93b4bd965af",
+          "transaction": 1,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0001-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "e41447a2c8a6a0a3c6d9652f348e3a340ce8316f90320901102ed6c64e13e72c",
+          "transaction": 1,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0001-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b950f32eee2bf5bf88bd399b0000a81ef161dbe69578d49270a3f533a095f22",
+          "transaction": 1,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0001-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "9b950f32eee2bf5bf88bd399b0000a81ef161dbe69578d49270a3f533a095f22",
+          "transaction": 1,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0001-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "2b6389aba45f7c5e601d3ea3d74bded1ceb0acc92dcc2351370610e3e61639dc",
+          "transaction": 1,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0057-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "cd9916bbedb35a04b4180bed269c4a776d3ebbc62aace02f6ce5d5b13b8378a8",
+          "transaction": 57,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0057-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "b4259435758ffdb1b5bd0317afb7a0fa1cdc6a47c9694625f282ddd5c7f7f871",
+          "transaction": 57,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0057-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "2627e6d7066894a68689f20af4fc56a013d43625c38e5712756d7005aae1b004",
+          "transaction": 57,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0057-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "56f8adc12233dcc192dc57f2098d345ea48153b953766bddfafad1a7009a7d58",
+          "transaction": 57,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0057-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "50e85139374d2f463a3ebabdcd239c1914b4001aa1a6993fbdd26ca68513dabb",
+          "transaction": 57,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0057-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "850ba4542ddfb1e27d2cfb9a1c9a33551fa57705c0163a557aabeddc43587d9e",
+          "transaction": 57,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0057-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "7fffa8feb751f995af0a28c34fca68d1165836f5c201bb8279aa2e0223c3ce51",
+          "transaction": 57,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0057-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+          "transaction": 57,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0057-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1954ca7340f4d79bf7ce4af16fd7ec45137edee69eaa9691dbe17892cf2d3bd5",
+          "transaction": 57,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0057-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "1954ca7340f4d79bf7ce4af16fd7ec45137edee69eaa9691dbe17892cf2d3bd5",
+          "transaction": 57,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0057-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "df6636c2029aaded4cf9ccc3e89a5c1d8f44197fe1c142a59838692258e3f4ed",
+          "transaction": 57,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0057-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c083b7fa6c07bae91f53b5c3abb09333579bdfa4eba5966390c5dc44e07aee4e",
+          "transaction": 57,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0057-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "c083b7fa6c07bae91f53b5c3abb09333579bdfa4eba5966390c5dc44e07aee4e",
+          "transaction": 57,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0057-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "58c7485ca07b4de3a9cb1d282f05c21a7fc3c72afa57219e5837556597e2313d",
+          "transaction": 57,
+          "label": "moe-00-residual"
+        },
+        {
+          "file": "txn0058-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "6f702bd108dc3578c21036d37364bc68ee447204906da84ae758ff7121fb160c",
+          "transaction": 58,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0058-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            256
+          ],
+          "bytes": 1024,
+          "sha256": "0b23f5c57ec5c63d4a38c8164d43fc8c0e75987ac7d90590e03a970e773536d0",
+          "transaction": 58,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0058-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "b0e31e25ea0eaabf69e51a6918a74e81047d05b2809cef943b4effb8e24aee7d",
+          "transaction": 58,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0058-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            2,
+            8
+          ],
+          "bytes": 64,
+          "sha256": "5f4eb2d70742096b6effb4405ae3e793d1da1c4a603be811b81755cdb8277cf4",
+          "transaction": 58,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0058-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1024
+          ],
+          "bytes": 4096,
+          "sha256": "9cdd18b9fd5a2ad35695ed0546bcd589fd8b1a2117ae3abc23aa168be2402569",
+          "transaction": 58,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0058-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            512
+          ],
+          "bytes": 2048,
+          "sha256": "7bf89ab209c7fc9eefa89e76957ee2639396b63877dc65b8fed52b73678c7f4c",
+          "transaction": 58,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0058-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "b497207d2e6785d7f7b6738c2cfaf1c2cce0797c0bb19efae53d8e3f0c20c2d7",
+          "transaction": 58,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0058-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            1
+          ],
+          "bytes": 4,
+          "sha256": "e6667a0f3fe499a2ec73d58c58247605727e22626664f7eed632e0fd5208ac61",
+          "transaction": 58,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0058-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d8926e76080b5f73a24172b7c52d4b60b6a9e67c5cf8f97661f37643071b64ab",
+          "transaction": 58,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0058-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "d8926e76080b5f73a24172b7c52d4b60b6a9e67c5cf8f97661f37643071b64ab",
+          "transaction": 58,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0058-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "fad3337aebfc4cb6ba60c811c37a37bb96ad605a354d002a19b83951ce0da9e6",
+          "transaction": 58,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0058-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "bb04ff3a6118f6df0b8b78309e8aa6b60d96a3fc17122125c3cddb893308ee27",
+          "transaction": 58,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0058-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "bb04ff3a6118f6df0b8b78309e8aa6b60d96a3fc17122125c3cddb893308ee27",
+          "transaction": 58,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0058-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            2,
+            2048
+          ],
+          "bytes": 8192,
+          "sha256": "dd735e8a6e2e83c872a839f7bbded899bbb443aa43ba57a602317706acc8c48b",
+          "transaction": 58,
+          "label": "moe-00-residual"
+        }
+      ]
+    },
+    {
+      "case": "q8193-out32",
+      "case_sha256": "3972e1d80da1080fad66970560e2efb9ac359623c33b754d0b792767b8a74b03",
+      "full_matrix_case_pass": true,
+      "first_token": 220,
+      "first_logit": 9.75,
+      "output_tokens": 32,
+      "moe_files": [
+        {
+          "file": "txn0002-moe-00-input-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "7341bc60f80433bf670c24ad27aec69838c195371ba1c5f812756c1f138a9464",
+          "transaction": 2,
+          "label": "moe-00-input"
+        },
+        {
+          "file": "txn0002-moe-00-router-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            256
+          ],
+          "bytes": 512,
+          "sha256": "505dde5b424a65433eec8c177f315b391f4723fd8f4fc5b246715ffe61c8f8d8",
+          "transaction": 2,
+          "label": "moe-00-router"
+        },
+        {
+          "file": "txn0002-moe-00-topk-weights-f32.bin",
+          "dtype": "f32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "e5699dad2deab0ac31da736ae10bd483b650584b43fcb50ccb64852dd986859f",
+          "transaction": 2,
+          "label": "moe-00-topk-weights"
+        },
+        {
+          "file": "txn0002-moe-00-topk-ids-i32.bin",
+          "dtype": "i32",
+          "shape": [
+            1,
+            8
+          ],
+          "bytes": 32,
+          "sha256": "72a3d734fe79f272a59ad764c27700cd116a9915164e81b87743165a3734cf45",
+          "transaction": 2,
+          "label": "moe-00-topk-ids"
+        },
+        {
+          "file": "txn0002-moe-00-shared-gate-up-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1024
+          ],
+          "bytes": 2048,
+          "sha256": "fd8ef5e3d38bc85853e100bd9f1af2c58d57d1ee2723109c06b4415ff32a655e",
+          "transaction": 2,
+          "label": "moe-00-shared-gate-up"
+        },
+        {
+          "file": "txn0002-moe-00-shared-activated-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            512
+          ],
+          "bytes": 1024,
+          "sha256": "3124bea99e7ad6a3deac870a1838f846e3d19ac4e16307ca3bb3abaa8de74393",
+          "transaction": 2,
+          "label": "moe-00-shared-activated"
+        },
+        {
+          "file": "txn0002-moe-00-shared-down-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "d7b20717cbf97f49cd0ef6f4abe75844c5e7535ae6f4441f20a0b45d0616c682",
+          "transaction": 2,
+          "label": "moe-00-shared-down"
+        },
+        {
+          "file": "txn0002-moe-00-shared-gate-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            1
+          ],
+          "bytes": 2,
+          "sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+          "transaction": 2,
+          "label": "moe-00-shared-gate"
+        },
+        {
+          "file": "txn0002-moe-00-shared-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ea180c9c5b071a32e6c2b83a378bc39b11ea836c7a9a04257f3bfd86c7b9e0b0",
+          "transaction": 2,
+          "label": "moe-00-shared"
+        },
+        {
+          "file": "txn0002-moe-00-expert-part-0-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ea180c9c5b071a32e6c2b83a378bc39b11ea836c7a9a04257f3bfd86c7b9e0b0",
+          "transaction": 2,
+          "label": "moe-00-expert-part-0"
+        },
+        {
+          "file": "txn0002-moe-00-expert-part-1-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "ec63804cd2c45a433b87d9c90c76fa1e042ef3b81586fda59c7b602726e52885",
+          "transaction": 2,
+          "label": "moe-00-expert-part-1"
+        },
+        {
+          "file": "txn0002-moe-00-output-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8c1ef93297a6f5a8f422f8dd23471b75847f7fefcbf7a5708806aa458657dcae",
+          "transaction": 2,
+          "label": "moe-00-output"
+        },
+        {
+          "file": "txn0002-moe-00-next-hidden-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "8c1ef93297a6f5a8f422f8dd23471b75847f7fefcbf7a5708806aa458657dcae",
+          "transaction": 2,
+          "label": "moe-00-next-hidden"
+        },
+        {
+          "file": "txn0002-moe-00-residual-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1,
+            2048
+          ],
+          "bytes": 4096,
+          "sha256": "3d4a6a27914211cf80cfae4e0c658351487b08a3d13184e5722798ac1425d3b5",
+          "transaction": 2,
+          "label": "moe-00-residual"
+        }
+      ]
+    }
+  ],
+  "cpu_replay": {
+    "sources": {
+      "tools/q1_moe_reference_replay.cpp": "559629f52a3bfad4c7ebf8895aecd40217c3e512e1030d1e18da3d09581d434a",
+      "tools/q1_moe_router_reference_replay.cpp": "d29711dab30c23b5da5215a5f8ac6fcdd163d49dabf8149870ebe354e34c8ff9",
+      "native/providers/moe_accumulator/sm121_router_exp.h": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad"
+    },
+    "seconds": 1.302303665317595,
+    "observations": [
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7168-out32",
+        "transaction": 1,
+        "input_sha256": "1b0fb38d177d5a9d8559c16e432bc420073eadb86bdf568bc1441d0b2d9c735f",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 1
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out32",
+        "transaction": 1,
+        "input_sha256": "bfc9c258a0f41cc5871b8eaa4762be7c17ad2bdf01097d6f1ea722b7a410038e",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 4
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 1,
+        "input_sha256": "bfc9c258a0f41cc5871b8eaa4762be7c17ad2bdf01097d6f1ea722b7a410038e",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 4
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 2,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 18,
+        "input_sha256": "12e0c38fbb857f4c58ceedd55e0d8ca339e392402cb922df3092999f021eeeea",
+        "routing": {
+          "rows": 2,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 9
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 1,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 19,
+        "input_sha256": "00af75dac816b6e4a55882a238b13ff5003a7e8a8ae6ddc1f54c686f7f6125dd",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 1
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 65,
+        "input_sha256": "3a6805eac358cad282f39b00a2d2e46e38037e18d2aad25acc34d50717096ac3",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 4
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 2,
+        "router_k16_bad": 0,
+        "router_f32_bad": 1,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 66,
+        "input_sha256": "97b386fdba0c13695a46abd7ac6d9ed08fdd191991b8d74f47a94c307626bd7b",
+        "routing": {
+          "rows": 2,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 14
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7169-out512",
+        "transaction": 67,
+        "input_sha256": "cd4f26c35bb9e6ad9634f67a2a0862804d22cb2510be10b9ab5a081eb00152f7",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 1
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q7170-out32",
+        "transaction": 1,
+        "input_sha256": "d2388bb9188976fa9348857a3c5853c5f6ff2b906b6c49d3f3a635e1a9d6b29f",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 1
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 2,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8191-out32",
+        "transaction": 1,
+        "input_sha256": "f356f24a3c8777dd1cd2918110511767d5d0392ccbf91099f75144e6a161e308",
+        "routing": {
+          "rows": 2,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 4
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8191-out32",
+        "transaction": 2,
+        "input_sha256": "c375b59ee6ade55c2fb1f0bd1930b32fe54bf340592c26c5219d0540364ed3bc",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 1
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8191-out32",
+        "transaction": 5,
+        "input_sha256": "07ac7cd6aca6004075c0d21f7065e3933eb7457de7294a4d91c653fcc89d1713",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 2
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8191-out32",
+        "transaction": 6,
+        "input_sha256": "48dccde8bd42844cc3a0cf1c26b166eede131947467c9fd30602ea4df8e90955",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8192-out32",
+        "transaction": 1,
+        "input_sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 2
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8192-out512",
+        "transaction": 1,
+        "input_sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 2
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8192-out512",
+        "transaction": 57,
+        "input_sha256": "cd9916bbedb35a04b4180bed269c4a776d3ebbc62aace02f6ce5d5b13b8378a8",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 4
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 2,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8192-out512",
+        "transaction": 58,
+        "input_sha256": "6f702bd108dc3578c21036d37364bc68ee447204906da84ae758ff7121fb160c",
+        "routing": {
+          "rows": 2,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 2
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      },
+      {
+        "rows": 1,
+        "router_k16_bad": 0,
+        "router_f32_bad": 0,
+        "scalar_gate_bad": 0,
+        "gate_bad": 0,
+        "up_bad": 0,
+        "activation_host_bad": 0,
+        "activation_lut_bad": 0,
+        "down_bad": 0,
+        "shared_beta_lut_bad": 0,
+        "shared_host_bad": 0,
+        "case": "q8193-out32",
+        "transaction": 2,
+        "input_sha256": "7341bc60f80433bf670c24ad27aec69838c195371ba1c5f812756c1f138a9464",
+        "routing": {
+          "rows": 1,
+          "variants": [
+            {
+              "cuda_exp": false,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 3
+            },
+            {
+              "cuda_exp": true,
+              "id_mismatches": 0,
+              "weight_bit_mismatches": 0
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "native_build": {
+    "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+    "run_sha256": "661371eee5b0750c84644f36b479e354b3c8f7e2199b21c6a503728bf3efad7c"
+  },
+  "native_runs": [
+    {
+      "case": "q8191-out32",
+      "run_record_sha256": "f9d9469941aaa6c395a61873636af085a42166bab916321832118da53d8ba7f9",
+      "host": "baiying",
+      "command": null,
+      "command_file": "D:\\projects\\run-native-q1-moe-stages-product-r1.ps1",
+      "command_file_sha256": "56d85ef824610f1e288d58ad51ac17a93dbc2b7e930fa6ace8df804170504f47",
+      "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+      "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+      "environment_sha256": "47010f77d81feecefe1ea71801f3307a2d622824e37095678d2ec4b7d131d2ad",
+      "components": {
+        "whole": {
+          "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+          "directory": "D:\\projects\\AIMA-public-q1-moe-stages-20260911\\build\\whole",
+          "build_metadata_sha256": "b66fe5b8afb6ea1c2b8a9a3761d169e43947d94f27a67463aa2920f35c7c05a6",
+          "build_run_sha256": "661371eee5b0750c84644f36b479e354b3c8f7e2199b21c6a503728bf3efad7c",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11530752,
+              "sha256": "4ff1b8a6505883c8898a665db13196ea4c9606356e602bbc726945d50683c07b"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "590567edb31a69897013418ba518482a601248654d5be077d38d1e798eb639e0"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+          "directory": "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+          "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28",
+          "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464896,
+              "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "reason": "completed",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "summary": {
+        "type": "summary",
+        "status": "fail",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-q1-moe-stages-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 168589,
+        "first_token_report_top1_token_id": 168589,
+        "first_token_raw_logit": 11.375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8191,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8191,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "7015b1f272403af6",
+        "output_token_ids_fnv1a64": "8afc146f85bff62b",
+        "engine_load_ms": 20235.332201,
+        "provider_preload_ms": 20225.375499,
+        "provider_preload_reported_ms": 20224.7602,
+        "provider_preload_dll_load_ms": 8.823299,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.119601,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 82321.215801,
+        "ttft_ms": 80587.713601,
+        "provider_ttft_ms": 80583.4114,
+        "prefill_tokens_per_second": 101.640804,
+        "tpot_ms": 52.6416,
+        "decode_tokens_per_second": 18.996383,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 80587.713601,
+        "last_callback_wall_ms": 82318.329501,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          168589,
+          57,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "first_different_token_index": 6,
+      "token_mismatches": 15,
+      "moe_comparison": {
+        "case": "q8191-out32",
+        "host": "baiying",
+        "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+        "position": 8191,
+        "transaction": 1,
+        "reference_row": 0,
+        "reference_case_sha256": "bbdf8d76417734958d2f1235f8004ace6a33c772be2f68f6ce586f2b3174e969",
+        "native_run_sha256": "f9d9469941aaa6c395a61873636af085a42166bab916321832118da53d8ba7f9",
+        "stages": [
+          {
+            "elements": 2048,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "post_attention",
+            "native_sha256": "1292a3b5fc7edbe2777c37036de7e8556e0a21b390d17f5ae8bf7fa9d6f8a088",
+            "reference_sha256": "f356f24a3c8777dd1cd2918110511767d5d0392ccbf91099f75144e6a161e308",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 0,
+              "max_abs": 0.0,
+              "first": []
+            }
+          },
+          {
+            "elements": 256,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "router_logits_bf16",
+            "native_sha256": "a42b1aef4f9532eb42f555957e65ccb979df5230b7220c205a7b871af085345c",
+            "reference_sha256": "42ef93d54f6078c50bbdc9af24261b8bcc1e879b075e4e1f71b34475c21e10ec"
+          },
+          {
+            "elements": 512,
+            "bit_mismatches": 148,
+            "max_abs": 0.00390625,
+            "first": [
+              {
+                "index": 1,
+                "native": -0.02197265625,
+                "reference": -0.0218505859375
+              },
+              {
+                "index": 6,
+                "native": -0.0164794921875,
+                "reference": -0.016357421875
+              },
+              {
+                "index": 7,
+                "native": 0.037109375,
+                "reference": 0.037353515625
+              },
+              {
+                "index": 11,
+                "native": -0.1806640625,
+                "reference": -0.1796875
+              },
+              {
+                "index": 13,
+                "native": -0.0198974609375,
+                "reference": -0.019775390625
+              },
+              {
+                "index": 29,
+                "native": 0.0830078125,
+                "reference": 0.08251953125
+              },
+              {
+                "index": 31,
+                "native": 0.1650390625,
+                "reference": 0.166015625
+              },
+              {
+                "index": 32,
+                "native": -0.03369140625,
+                "reference": -0.033935546875
+              }
+            ],
+            "stage": "shared_activated_bf16",
+            "native_sha256": "b69c5367a80afee651dff81f8dbd9e467abd5e26d6fc0344018051c1f6c73b60",
+            "reference_sha256": "caacbc123a686dc48a1cab00d3793a5d35ea17651117ea1ceb8cdfe0415b2500"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 955,
+            "max_abs": 0.0009765625,
+            "first": [
+              {
+                "index": 2,
+                "native": 0.016845703125,
+                "reference": 0.0169677734375
+              },
+              {
+                "index": 4,
+                "native": -0.0072021484375,
+                "reference": -0.00726318359375
+              },
+              {
+                "index": 7,
+                "native": -0.0291748046875,
+                "reference": -0.029052734375
+              },
+              {
+                "index": 8,
+                "native": 0.0107421875,
+                "reference": 0.01068115234375
+              },
+              {
+                "index": 12,
+                "native": -0.0098876953125,
+                "reference": -0.00982666015625
+              },
+              {
+                "index": 14,
+                "native": -0.0101318359375,
+                "reference": -0.01031494140625
+              },
+              {
+                "index": 17,
+                "native": -0.004241943359375,
+                "reference": -0.004119873046875
+              },
+              {
+                "index": 18,
+                "native": -0.002655029296875,
+                "reference": -0.0026092529296875
+              }
+            ],
+            "stage": "shared_down_bf16",
+            "native_sha256": "da72d003bc217dc748e50481dd5e509b6e0fd5cb2ab8efa66473402130bb72a5",
+            "reference_sha256": "b84d5f41e8ef49104679d9525efb0c713899a260c63d0a37041b364108d0bd43"
+          },
+          {
+            "elements": 1,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "shared_gate_bf16",
+            "native_sha256": "c8cba9396db03628396d751970cd9a1fbcaba577843e22b2db0712bb9b89b49b",
+            "reference_sha256": "8b7e01df0adc4fe2a09efc83f81e463c5676f53eebb12d3906a554b9268555f5"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 1218,
+            "max_abs": 0.0001220703125,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.00051116943359375,
+                "reference": -0.000499725341796875
+              },
+              {
+                "index": 1,
+                "native": -4.315376281738281e-05,
+                "reference": -4.38690185546875e-05
+              },
+              {
+                "index": 3,
+                "native": -0.000823974609375,
+                "reference": -0.00083160400390625
+              },
+              {
+                "index": 6,
+                "native": -0.00079345703125,
+                "reference": -0.000782012939453125
+              },
+              {
+                "index": 10,
+                "native": -0.00069427490234375,
+                "reference": -0.0007171630859375
+              },
+              {
+                "index": 11,
+                "native": -0.00022029876708984375,
+                "reference": -0.000217437744140625
+              },
+              {
+                "index": 13,
+                "native": 0.0035552978515625,
+                "reference": 0.003570556640625
+              },
+              {
+                "index": 17,
+                "native": 0.005950927734375,
+                "reference": 0.00592041015625
+              }
+            ],
+            "stage": "routed",
+            "native_sha256": "b497b5af352d485fcdfb93acddc2aff17a74a697ca24dbb0eacbfde83e0400c7",
+            "reference_sha256": "d0a3b25a350a8d2b053c6869103bed0c02c55062c9291a2adec69ae3f02a7c80",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 1218,
+              "max_abs": 0.0001220703125,
+              "first": [
+                {
+                  "index": 0,
+                  "native": -0.00051116943359375,
+                  "reference": -0.000499725341796875
+                },
+                {
+                  "index": 1,
+                  "native": -4.315376281738281e-05,
+                  "reference": -4.38690185546875e-05
+                },
+                {
+                  "index": 3,
+                  "native": -0.000823974609375,
+                  "reference": -0.00083160400390625
+                },
+                {
+                  "index": 6,
+                  "native": -0.00079345703125,
+                  "reference": -0.000782012939453125
+                },
+                {
+                  "index": 10,
+                  "native": -0.00069427490234375,
+                  "reference": -0.0007171630859375
+                },
+                {
+                  "index": 11,
+                  "native": -0.00022029876708984375,
+                  "reference": -0.000217437744140625
+                },
+                {
+                  "index": 13,
+                  "native": 0.0035552978515625,
+                  "reference": 0.003570556640625
+                },
+                {
+                  "index": 17,
+                  "native": 0.005950927734375,
+                  "reference": 0.00592041015625
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "residual",
+            "native_sha256": "fadad14f888d9eef00bc38461d365d86fe54e39e2f6a533e58bf175ab34f7fa6",
+            "reference_sha256": "d02fdd486b596f1af197761df33f25e6f50d95d3f0544633ed6f590aeab374b7",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 0,
+              "max_abs": 0.0,
+              "first": []
+            }
+          },
+          {
+            "elements": 8,
+            "bit_mismatches": 0,
+            "max_abs": 0,
+            "first": [],
+            "stage": "topk-ids",
+            "native_sha256": "96d821f3ce663d40da6c6c5c777532a01ae5646af6862864f21eee7bab001aaa",
+            "reference_sha256": "95065f9ae89a5c90285eb742d296227b5ea4d364b109b34d10fa293b6a3dc864"
+          },
+          {
+            "elements": 8,
+            "bit_mismatches": 3,
+            "max_abs": 7.450580596923828e-09,
+            "first": [
+              {
+                "index": 2,
+                "native": 0.11887901276350021,
+                "reference": 0.11887902021408081
+              },
+              {
+                "index": 4,
+                "native": 0.11167649924755096,
+                "reference": 0.11167649179697037
+              },
+              {
+                "index": 7,
+                "native": 0.09114770591259003,
+                "reference": 0.09114769846200943
+              }
+            ],
+            "stage": "topk-weights",
+            "native_sha256": "96d821f3ce663d40da6c6c5c777532a01ae5646af6862864f21eee7bab001aaa",
+            "reference_sha256": "bd1562cde39579ec6f884c723324da0f646e90e78c58558008aa982488f391e6"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 2048,
+            "max_abs": 0.000143514946103096,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.012704901397228241,
+                "reference": 0.0127105712890625
+              },
+              {
+                "index": 1,
+                "native": 0.015557103790342808,
+                "reference": 0.01555633544921875
+              },
+              {
+                "index": 2,
+                "native": -0.02956726774573326,
+                "reference": -0.029541015625
+              },
+              {
+                "index": 3,
+                "native": 0.03075477108359337,
+                "reference": 0.0307464599609375
+              },
+              {
+                "index": 4,
+                "native": 0.04412394016981125,
+                "reference": 0.04412841796875
+              },
+              {
+                "index": 5,
+                "native": 0.015074405819177628,
+                "reference": 0.01507568359375
+              },
+              {
+                "index": 6,
+                "native": 0.001967115793377161,
+                "reference": 0.001983642578125
+              },
+              {
+                "index": 7,
+                "native": -0.044182248413562775,
+                "reference": -0.044189453125
+              }
+            ],
+            "stage": "shared_final",
+            "native_sha256": "6333a2490dd43898af586348516e34aac7c784d80277dd0af31b454e7a4dfbd2",
+            "reference_output_sha256": "b3326df1f3c4dfcdef754fff2b9163577119387e77a3e82805298828846d79b9",
+            "reference_residual_sha256": "d02fdd486b596f1af197761df33f25e6f50d95d3f0544633ed6f590aeab374b7",
+            "both_bf16_rounded": {
+              "elements": 2048,
+              "bit_mismatches": 728,
+              "max_abs": 0.00048828125,
+              "first": [
+                {
+                  "index": 6,
+                  "native": 0.0019683837890625,
+                  "reference": 0.001983642578125
+                },
+                {
+                  "index": 8,
+                  "native": -0.0008087158203125,
+                  "reference": -0.00079345703125
+                },
+                {
+                  "index": 14,
+                  "native": -0.01434326171875,
+                  "reference": -0.014404296875
+                },
+                {
+                  "index": 20,
+                  "native": -0.00885009765625,
+                  "reference": -0.0089111328125
+                },
+                {
+                  "index": 24,
+                  "native": -0.01324462890625,
+                  "reference": -0.0133056640625
+                },
+                {
+                  "index": 27,
+                  "native": 0.007232666015625,
+                  "reference": 0.00726318359375
+                },
+                {
+                  "index": 29,
+                  "native": -0.00080108642578125,
+                  "reference": -0.00079345703125
+                },
+                {
+                  "index": 33,
+                  "native": -0.0003261566162109375,
+                  "reference": -0.000335693359375
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 2048,
+            "max_abs": 0.000143514946103096,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.012704901397228241,
+                "reference": 0.0127105712890625
+              },
+              {
+                "index": 1,
+                "native": 0.015557103790342808,
+                "reference": 0.01555633544921875
+              },
+              {
+                "index": 2,
+                "native": -0.02956726774573326,
+                "reference": -0.029541015625
+              },
+              {
+                "index": 3,
+                "native": 0.03075477108359337,
+                "reference": 0.0307464599609375
+              },
+              {
+                "index": 4,
+                "native": 0.04412394016981125,
+                "reference": 0.04412841796875
+              },
+              {
+                "index": 5,
+                "native": 0.015074405819177628,
+                "reference": 0.01507568359375
+              },
+              {
+                "index": 6,
+                "native": 0.001967115793377161,
+                "reference": 0.001983642578125
+              },
+              {
+                "index": 7,
+                "native": -0.044182248413562775,
+                "reference": -0.044189453125
+              }
+            ],
+            "stage": "output",
+            "native_sha256": "6333a2490dd43898af586348516e34aac7c784d80277dd0af31b454e7a4dfbd2",
+            "reference_output_sha256": "b3326df1f3c4dfcdef754fff2b9163577119387e77a3e82805298828846d79b9",
+            "reference_residual_sha256": "d02fdd486b596f1af197761df33f25e6f50d95d3f0544633ed6f590aeab374b7",
+            "both_bf16_rounded": {
+              "elements": 2048,
+              "bit_mismatches": 728,
+              "max_abs": 0.00048828125,
+              "first": [
+                {
+                  "index": 6,
+                  "native": 0.0019683837890625,
+                  "reference": 0.001983642578125
+                },
+                {
+                  "index": 8,
+                  "native": -0.0008087158203125,
+                  "reference": -0.00079345703125
+                },
+                {
+                  "index": 14,
+                  "native": -0.01434326171875,
+                  "reference": -0.014404296875
+                },
+                {
+                  "index": 20,
+                  "native": -0.00885009765625,
+                  "reference": -0.0089111328125
+                },
+                {
+                  "index": 24,
+                  "native": -0.01324462890625,
+                  "reference": -0.0133056640625
+                },
+                {
+                  "index": 27,
+                  "native": 0.007232666015625,
+                  "reference": 0.00726318359375
+                },
+                {
+                  "index": 29,
+                  "native": -0.00080108642578125,
+                  "reference": -0.00079345703125
+                },
+                {
+                  "index": 33,
+                  "native": -0.0003261566162109375,
+                  "reference": -0.000335693359375
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 904,
+            "max_abs": 0.0625,
+            "first": [
+              {
+                "index": 6,
+                "native": 0.09326171875,
+                "reference": 0.09423828125
+              },
+              {
+                "index": 8,
+                "native": -0.0322265625,
+                "reference": -0.03173828125
+              },
+              {
+                "index": 10,
+                "native": -2.109375,
+                "reference": -2.09375
+              },
+              {
+                "index": 11,
+                "native": 1.21875,
+                "reference": 1.2109375
+              },
+              {
+                "index": 15,
+                "native": -0.12353515625,
+                "reference": -0.1240234375
+              },
+              {
+                "index": 17,
+                "native": 0.5234375,
+                "reference": 0.52734375
+              },
+              {
+                "index": 19,
+                "native": 1.421875,
+                "reference": 1.4140625
+              },
+              {
+                "index": 20,
+                "native": -0.345703125,
+                "reference": -0.34765625
+              }
+            ],
+            "stage": "next_input_norm_f32",
+            "native_sha256": "90fb626e1fd8b4d4e06d66c52d76feb971f6451661b2d8b84364e0d3609d9035",
+            "reference_sha256": "f12e9bffe5293e46e0c68cfe5efeb0edbab6a42e59e02ff728a85ef3d0ecc17a"
+          }
+        ]
+      }
+    },
+    {
+      "case": "q7169-out512",
+      "run_record_sha256": "085d51b6d403b0fd3b410ce9b074b601b7363fbc5dda29d90ca2a341ae8f0c8c",
+      "host": "baiying",
+      "command": null,
+      "command_file": "D:\\projects\\run-native-q1-moe-stages-product-r1.ps1",
+      "command_file_sha256": "56d85ef824610f1e288d58ad51ac17a93dbc2b7e930fa6ace8df804170504f47",
+      "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+      "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+      "environment_sha256": "09f94e6f26b13e8666b0b61969a434c6f59a7f01190a140d9ef45c51d9088f5e",
+      "components": {
+        "whole": {
+          "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+          "directory": "D:\\projects\\AIMA-public-q1-moe-stages-20260911\\build\\whole",
+          "build_metadata_sha256": "b66fe5b8afb6ea1c2b8a9a3761d169e43947d94f27a67463aa2920f35c7c05a6",
+          "build_run_sha256": "661371eee5b0750c84644f36b479e354b3c8f7e2199b21c6a503728bf3efad7c",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11530752,
+              "sha256": "4ff1b8a6505883c8898a665db13196ea4c9606356e602bbc726945d50683c07b"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "590567edb31a69897013418ba518482a601248654d5be077d38d1e798eb639e0"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+          "directory": "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+          "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28",
+          "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464896,
+              "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "reason": "completed",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "summary": {
+        "type": "summary",
+        "status": "fail",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-q1-moe-stages-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 82,
+        "first_token_report_top1_token_id": 82,
+        "first_token_raw_logit": 9.25,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7169,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7169,
+        "output_tokens": 512,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "50f9c8dbec6c32e5",
+        "engine_load_ms": 20017.484099,
+        "provider_preload_ms": 20006.4861,
+        "provider_preload_reported_ms": 20005.8432,
+        "provider_preload_dll_load_ms": 9.9305,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.053699,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 91744.7393,
+        "ttft_ms": 69551.9963,
+        "provider_ttft_ms": 69547.7237,
+        "prefill_tokens_per_second": 103.073965,
+        "tpot_ms": 43.230181,
+        "decode_tokens_per_second": 23.131987,
+        "stream_callback_count": 512,
+        "first_callback_wall_ms": 69551.9963,
+        "last_callback_wall_ms": 91742.477,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          7701,
+          421,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          16421,
+          47739,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          58256,
+          470,
+          13,
+          1049,
+          5435,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          83123,
+          4105,
+          421,
+          635,
+          524,
+          1304,
+          53916,
+          22157,
+          466,
+          264,
+          2708,
+          1876,
+          13,
+          271,
+          2592,
+          488,
+          10287,
+          310,
+          2466,
+          264,
+          3296,
+          11,
+          4191,
+          264,
+          3255,
+          11,
+          466,
+          1622,
+          1928,
+          11,
+          4338,
+          1380,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          674,
+          10289,
+          678,
+          1876,
+          332,
+          303,
+          2708,
+          11,
+          5129,
+          1414,
+          13,
+          198,
+          17,
+          13,
+          2972,
+          3840,
+          364,
+          10845,
+          4562,
+          332,
+          413,
+          488,
+          21103,
+          321,
+          3162,
+          290,
+          494,
+          264,
+          2450,
+          421,
+          2493,
+          599,
+          8613,
+          35358,
+          5787,
+          13,
+          198,
+          18,
+          13,
+          2972,
+          58387,
+          777,
+          2193,
+          332,
+          748,
+          353,
+          628,
+          2577,
+          3418,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          13,
+          271,
+          40,
+          4110,
+          1532,
+          310,
+          7543,
+          0,
+          5044,
+          2579,
+          1845,
+          310,
+          35932,
+          678,
+          1622,
+          13,
+          25677,
+          232,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          369,
+          1990,
+          7132,
+          36412,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          4839,
+          310,
+          3418,
+          13,
+          1368,
+          488,
+          2224,
+          4313,
+          310,
+          18459,
+          2414,
+          3050,
+          11,
+          4338,
+          1380,
+          310,
+          311,
+          26812,
+          466,
+          35932,
+          678,
+          1622,
+          303,
+          2708,
+          11,
+          5129,
+          1414,
+          13,
+          271,
+          2592,
+          488,
+          599,
+          264,
+          3296,
+          11,
+          1144,
+          1438,
+          440,
+          264,
+          3274,
+          11,
+          466,
+          1318,
+          310,
+          4191,
+          1928,
+          11,
+          2579,
+          1845,
+          310,
+          3300,
+          777,
+          3447,
+          11,
+          321,
+          353,
+          3172,
+          635,
+          821,
+          1786,
+          310,
+          7543,
+          488,
+          0,
+          25677,
+          232,
+          271,
+          2381,
+          3010,
+          25,
+          198,
+          12,
+          8448,
+          488,
+          9859,
+          364,
+          1438,
+          440,
+          264,
+          3050,
+          8282,
+          30,
+          198,
+          12,
+          3054,
+          488,
+          1144,
+          12622,
+          440,
+          4237,
+          11,
+          10505,
+          11,
+          466,
+          3377,
+          94762,
+          30,
+          198,
+          12,
+          2091,
+          1017,
+          264,
+          3820,
+          3296,
+          488,
+          4035,
+          1040,
+          18018,
+          30,
+          271,
+          9764,
+          728,
+          1366,
+          1204,
+          353,
+          628,
+          7543,
+          0,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          369,
+          1990,
+          7132,
+          36412,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          4839,
+          310,
+          3418,
+          13,
+          1368,
+          488,
+          2224,
+          4313,
+          310,
+          18459,
+          2414,
+          3050,
+          11,
+          4338,
+          1380,
+          310,
+          311,
+          26812,
+          466,
+          35932,
+          678,
+          1622,
+          303,
+          2708,
+          11,
+          5129,
+          1414,
+          13,
+          271,
+          2592,
+          488,
+          599,
+          264,
+          3296,
+          11,
+          1144,
+          1438,
+          440,
+          264,
+          3274,
+          11,
+          466,
+          1318,
+          310,
+          4191,
+          1928,
+          11,
+          2579,
+          1845,
+          310,
+          3300,
+          777,
+          3447,
+          11,
+          321,
+          353,
+          3172,
+          635,
+          821,
+          1786,
+          310,
+          7543,
+          488,
+          0,
+          25677,
+          232,
+          271,
+          2381,
+          3010,
+          25,
+          198,
+          12,
+          8448,
+          488,
+          9859,
+          364,
+          1438,
+          440,
+          264,
+          3050,
+          8282,
+          30,
+          198,
+          12,
+          3054,
+          488,
+          1144,
+          12622,
+          440,
+          4237,
+          11,
+          10505,
+          11,
+          466,
+          3377,
+          94762,
+          30,
+          198,
+          12,
+          2091,
+          1017,
+          264,
+          3820,
+          3296,
+          488
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "first_different_token_index": 38,
+      "token_mismatches": 464,
+      "moe_comparison": {
+        "case": "q7169-out512",
+        "host": "baiying",
+        "commit": "23a2e9cffc518ba96be6b38e600b9e7b04ffabd0",
+        "position": 7169,
+        "transaction": 1,
+        "reference_row": 0,
+        "reference_case_sha256": "0adca31d5e9debff59b9ecdaabc28b319c36d559f067f97921d20717ab75caf1",
+        "native_run_sha256": "085d51b6d403b0fd3b410ce9b074b601b7363fbc5dda29d90ca2a341ae8f0c8c",
+        "stages": [
+          {
+            "elements": 2048,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "post_attention",
+            "native_sha256": "7c69629f7b03c8cb258ebed32673272a7140551b1a77a1b6ca3d9f3c060b235b",
+            "reference_sha256": "bfc9c258a0f41cc5871b8eaa4762be7c17ad2bdf01097d6f1ea722b7a410038e",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 0,
+              "max_abs": 0.0,
+              "first": []
+            }
+          },
+          {
+            "elements": 256,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "router_logits_bf16",
+            "native_sha256": "338d4effda643c76e524b07ebbfa3c875c43cffe18ce40eb9376fe2cb0461966",
+            "reference_sha256": "338d4effda643c76e524b07ebbfa3c875c43cffe18ce40eb9376fe2cb0461966"
+          },
+          {
+            "elements": 512,
+            "bit_mismatches": 142,
+            "max_abs": 0.001953125,
+            "first": [
+              {
+                "index": 2,
+                "native": -0.0322265625,
+                "reference": -0.032470703125
+              },
+              {
+                "index": 3,
+                "native": 0.0091552734375,
+                "reference": 0.00921630859375
+              },
+              {
+                "index": 4,
+                "native": -0.002410888671875,
+                "reference": -0.0023956298828125
+              },
+              {
+                "index": 5,
+                "native": -0.056884765625,
+                "reference": -0.05712890625
+              },
+              {
+                "index": 8,
+                "native": 0.00579833984375,
+                "reference": 0.005767822265625
+              },
+              {
+                "index": 9,
+                "native": -0.01422119140625,
+                "reference": -0.0142822265625
+              },
+              {
+                "index": 12,
+                "native": 0.0947265625,
+                "reference": 0.09423828125
+              },
+              {
+                "index": 13,
+                "native": 0.0302734375,
+                "reference": 0.0303955078125
+              }
+            ],
+            "stage": "shared_activated_bf16",
+            "native_sha256": "f6693ba419e20225a09b2cb53179ad3da2802ce8675ebba619cdc276e953a33e",
+            "reference_sha256": "3d18a9b1fa29f2fe9e06e7007088f58e24d96765f13a51b5ff03310b6ba96337"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 981,
+            "max_abs": 0.00048828125,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.0068359375,
+                "reference": 0.006805419921875
+              },
+              {
+                "index": 1,
+                "native": -0.013427734375,
+                "reference": -0.01336669921875
+              },
+              {
+                "index": 3,
+                "native": -0.01025390625,
+                "reference": -0.01019287109375
+              },
+              {
+                "index": 5,
+                "native": 0.0032958984375,
+                "reference": 0.003326416015625
+              },
+              {
+                "index": 6,
+                "native": -0.035888671875,
+                "reference": -0.03564453125
+              },
+              {
+                "index": 7,
+                "native": 0.007080078125,
+                "reference": 0.007110595703125
+              },
+              {
+                "index": 8,
+                "native": -0.000396728515625,
+                "reference": -0.0004138946533203125
+              },
+              {
+                "index": 9,
+                "native": -0.012939453125,
+                "reference": -0.01287841796875
+              }
+            ],
+            "stage": "shared_down_bf16",
+            "native_sha256": "1dbe0da2fda6dd63a2009659ce3c1cf7a0ad236c265b4dc2eb21364237a6659f",
+            "reference_sha256": "92bd3eaaefec2f6ab0e59f10c779c4c71c60807d9989155e0d2d494b3a967a9d"
+          },
+          {
+            "elements": 1,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "shared_gate_bf16",
+            "native_sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009",
+            "reference_sha256": "35b1d30deacad2ef83c02fa317a4785dca79b2f0d76e7fa7ba5a9d65a744a009"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 1109,
+            "max_abs": 6.103515625e-05,
+            "first": [
+              {
+                "index": 2,
+                "native": 0.0035400390625,
+                "reference": 0.0035552978515625
+              },
+              {
+                "index": 4,
+                "native": 0.0022125244140625,
+                "reference": 0.002227783203125
+              },
+              {
+                "index": 5,
+                "native": -0.00150299072265625,
+                "reference": -0.00151824951171875
+              },
+              {
+                "index": 6,
+                "native": 0.0026092529296875,
+                "reference": 0.002593994140625
+              },
+              {
+                "index": 8,
+                "native": 0.00029754638671875,
+                "reference": 0.0002841949462890625
+              },
+              {
+                "index": 10,
+                "native": 0.000690460205078125,
+                "reference": 0.0006866455078125
+              },
+              {
+                "index": 12,
+                "native": -0.002685546875,
+                "reference": -0.0027008056640625
+              },
+              {
+                "index": 14,
+                "native": -0.00115966796875,
+                "reference": -0.00116729736328125
+              }
+            ],
+            "stage": "routed",
+            "native_sha256": "8b684efba7e9295a3b8edf45c59f7d2085b2e0d8c05b567cca0b7a18063c866a",
+            "reference_sha256": "3ac8ee156c19afa5724d7297262a8c96aa982e0ae76210e5b7ab288d529beca9",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 1109,
+              "max_abs": 6.103515625e-05,
+              "first": [
+                {
+                  "index": 2,
+                  "native": 0.0035400390625,
+                  "reference": 0.0035552978515625
+                },
+                {
+                  "index": 4,
+                  "native": 0.0022125244140625,
+                  "reference": 0.002227783203125
+                },
+                {
+                  "index": 5,
+                  "native": -0.00150299072265625,
+                  "reference": -0.00151824951171875
+                },
+                {
+                  "index": 6,
+                  "native": 0.0026092529296875,
+                  "reference": 0.002593994140625
+                },
+                {
+                  "index": 8,
+                  "native": 0.00029754638671875,
+                  "reference": 0.0002841949462890625
+                },
+                {
+                  "index": 10,
+                  "native": 0.000690460205078125,
+                  "reference": 0.0006866455078125
+                },
+                {
+                  "index": 12,
+                  "native": -0.002685546875,
+                  "reference": -0.0027008056640625
+                },
+                {
+                  "index": 14,
+                  "native": -0.00115966796875,
+                  "reference": -0.00116729736328125
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 0,
+            "max_abs": 0.0,
+            "first": [],
+            "stage": "residual",
+            "native_sha256": "f13e317d81cca73f187dcf57aebc73571d16d1a6e0783df330efb27d13da9982",
+            "reference_sha256": "9b0b697534b522addc746c3aca2bc596361f666bec9c52ef8ee8c49223f916aa",
+            "after_bf16_rounding": {
+              "elements": 2048,
+              "bit_mismatches": 0,
+              "max_abs": 0.0,
+              "first": []
+            }
+          },
+          {
+            "elements": 8,
+            "bit_mismatches": 0,
+            "max_abs": 0,
+            "first": [],
+            "stage": "topk-ids",
+            "native_sha256": "4e6c0a6b21523d424d6daa6adb5b096b28470433cae0c1472256ec172d6bd3ec",
+            "reference_sha256": "07c54cd205b0d359d16303b826771351937f3909dc044be12745548759a5a922"
+          },
+          {
+            "elements": 8,
+            "bit_mismatches": 5,
+            "max_abs": 1.4901161193847656e-08,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.21624334156513214,
+                "reference": 0.21624332666397095
+              },
+              {
+                "index": 2,
+                "native": 0.12130152434110641,
+                "reference": 0.12130150943994522
+              },
+              {
+                "index": 3,
+                "native": 0.11044628918170929,
+                "reference": 0.11044629663228989
+              },
+              {
+                "index": 6,
+                "native": 0.07831814885139465,
+                "reference": 0.07831814140081406
+              },
+              {
+                "index": 7,
+                "native": 0.07831814885139465,
+                "reference": 0.07831814140081406
+              }
+            ],
+            "stage": "topk-weights",
+            "native_sha256": "4e6c0a6b21523d424d6daa6adb5b096b28470433cae0c1472256ec172d6bd3ec",
+            "reference_sha256": "932af006d80f09e567dbf2172c9849e9617170959b3e31523c4083eb5669b579"
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 2047,
+            "max_abs": 7.986277341842651e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.0014114840887486935,
+                "reference": -0.00140380859375
+              },
+              {
+                "index": 1,
+                "native": -0.0036285039968788624,
+                "reference": -0.0036163330078125
+              },
+              {
+                "index": 2,
+                "native": -0.004896944388747215,
+                "reference": -0.0048828125
+              },
+              {
+                "index": 3,
+                "native": -0.008945396170020103,
+                "reference": -0.008941650390625
+              },
+              {
+                "index": 4,
+                "native": -0.005250992253422737,
+                "reference": -0.0052337646484375
+              },
+              {
+                "index": 5,
+                "native": -0.004476160742342472,
+                "reference": -0.004486083984375
+              },
+              {
+                "index": 6,
+                "native": 0.009935621172189713,
+                "reference": 0.0099334716796875
+              },
+              {
+                "index": 7,
+                "native": 0.0030928542837500572,
+                "reference": 0.0030975341796875
+              }
+            ],
+            "stage": "shared_final",
+            "native_sha256": "03a959ba81b81f23ea4dacb48f163a3a410c4f30210d785182afe96d9d50f226",
+            "reference_output_sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+            "reference_residual_sha256": "9b0b697534b522addc746c3aca2bc596361f666bec9c52ef8ee8c49223f916aa",
+            "both_bf16_rounded": {
+              "elements": 2048,
+              "bit_mismatches": 934,
+              "max_abs": 0.000244140625,
+              "first": [
+                {
+                  "index": 0,
+                  "native": -0.00141143798828125,
+                  "reference": -0.00140380859375
+                },
+                {
+                  "index": 1,
+                  "native": -0.003631591796875,
+                  "reference": -0.0036163330078125
+                },
+                {
+                  "index": 3,
+                  "native": -0.00897216796875,
+                  "reference": -0.0089111328125
+                },
+                {
+                  "index": 8,
+                  "native": -0.007354736328125,
+                  "reference": -0.00738525390625
+                },
+                {
+                  "index": 9,
+                  "native": 0.004730224609375,
+                  "reference": 0.0047607421875
+                },
+                {
+                  "index": 20,
+                  "native": -0.00439453125,
+                  "reference": -0.004364013671875
+                },
+                {
+                  "index": 21,
+                  "native": -0.01361083984375,
+                  "reference": -0.0135498046875
+                },
+                {
+                  "index": 22,
+                  "native": -0.0011444091796875,
+                  "reference": -0.00115966796875
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 2047,
+            "max_abs": 7.986277341842651e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.0014114840887486935,
+                "reference": -0.00140380859375
+              },
+              {
+                "index": 1,
+                "native": -0.0036285039968788624,
+                "reference": -0.0036163330078125
+              },
+              {
+                "index": 2,
+                "native": -0.004896944388747215,
+                "reference": -0.0048828125
+              },
+              {
+                "index": 3,
+                "native": -0.008945396170020103,
+                "reference": -0.008941650390625
+              },
+              {
+                "index": 4,
+                "native": -0.005250992253422737,
+                "reference": -0.0052337646484375
+              },
+              {
+                "index": 5,
+                "native": -0.004476160742342472,
+                "reference": -0.004486083984375
+              },
+              {
+                "index": 6,
+                "native": 0.009935621172189713,
+                "reference": 0.0099334716796875
+              },
+              {
+                "index": 7,
+                "native": 0.0030928542837500572,
+                "reference": 0.0030975341796875
+              }
+            ],
+            "stage": "output",
+            "native_sha256": "03a959ba81b81f23ea4dacb48f163a3a410c4f30210d785182afe96d9d50f226",
+            "reference_output_sha256": "17b6a9d5bd79699025599bb95acaed7302131748dede7e21d7e6590e2feadf99",
+            "reference_residual_sha256": "9b0b697534b522addc746c3aca2bc596361f666bec9c52ef8ee8c49223f916aa",
+            "both_bf16_rounded": {
+              "elements": 2048,
+              "bit_mismatches": 934,
+              "max_abs": 0.000244140625,
+              "first": [
+                {
+                  "index": 0,
+                  "native": -0.00141143798828125,
+                  "reference": -0.00140380859375
+                },
+                {
+                  "index": 1,
+                  "native": -0.003631591796875,
+                  "reference": -0.0036163330078125
+                },
+                {
+                  "index": 3,
+                  "native": -0.00897216796875,
+                  "reference": -0.0089111328125
+                },
+                {
+                  "index": 8,
+                  "native": -0.007354736328125,
+                  "reference": -0.00738525390625
+                },
+                {
+                  "index": 9,
+                  "native": 0.004730224609375,
+                  "reference": 0.0047607421875
+                },
+                {
+                  "index": 20,
+                  "native": -0.00439453125,
+                  "reference": -0.004364013671875
+                },
+                {
+                  "index": 21,
+                  "native": -0.01361083984375,
+                  "reference": -0.0135498046875
+                },
+                {
+                  "index": 22,
+                  "native": -0.0011444091796875,
+                  "reference": -0.00115966796875
+                }
+              ]
+            }
+          },
+          {
+            "elements": 2048,
+            "bit_mismatches": 1072,
+            "max_abs": 0.125,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.10595703125,
+                "reference": -0.10546875
+              },
+              {
+                "index": 1,
+                "native": -0.2216796875,
+                "reference": -0.220703125
+              },
+              {
+                "index": 2,
+                "native": -0.310546875,
+                "reference": -0.30859375
+              },
+              {
+                "index": 5,
+                "native": -0.271484375,
+                "reference": -0.2734375
+              },
+              {
+                "index": 9,
+                "native": 0.275390625,
+                "reference": 0.27734375
+              },
+              {
+                "index": 10,
+                "native": -0.099609375,
+                "reference": -0.10009765625
+              },
+              {
+                "index": 20,
+                "native": -0.255859375,
+                "reference": -0.25390625
+              },
+              {
+                "index": 21,
+                "native": -1.0546875,
+                "reference": -1.046875
+              }
+            ],
+            "stage": "next_input_norm_f32",
+            "native_sha256": "86e95b62e5bcc736300ef9bb985af1c6646c5661af11551113cdabfc7e1ebe96",
+            "reference_sha256": "f67fe3ae0a5dc3ce1d3e3e51fc382504ac687364e3bf8742bbde212c04f2bed6"
+          }
+        ]
+      }
+    }
+  ],
+  "conclusion": "All eight original GB10 controls pass. Native 23a2 has exact first-layer MoE inputs, router logits and expert IDs, but shared activation, routed output and next norm differ. CPU original-input replay exactly reproduces all 22 observed router/shared rows with K16 arithmetic and original BF16 endpoints; ordinary router reductions and host exponential weights fail negative controls. The new Q1 MoE implementation is a diagnostic candidate pending native product tests."
+}

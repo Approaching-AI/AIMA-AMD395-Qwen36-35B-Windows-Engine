@@ -26,8 +26,10 @@
 #include "gate_input_capture.h"
 #include "sm121_silu_runtime.h"
 #include "sm121_q1_runtime.h"
+#include "sm121_q1_moe_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
+#include "moe_accumulator/sm121_q1_moe.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
 #endif
@@ -22520,6 +22522,46 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
             postnorm_outputs_bf16[token_base + col] =
                 device_float_to_bf16(normalized);
         }
+    }
+}
+
+// Batch-one MoE preserves the original BF16 shared/routed endpoints and the
+// unrounded variance carrier. Its next-layer norm uses the same reduction as
+// the qualified attention residual norm, without changing prefill flags.
+__global__ void q1_moe_sm121_tail_kernel(
+    const uint16_t *down, const uint16_t *gate, const float *routed,
+    const float *residual, float *output, const uint16_t *norm_weights,
+    float *normalized, uint16_t *normalized_bf16,
+    const float *sigmoid, const unsigned char *rsqrt_table, bool next_norm
+) {
+    __shared__ float partial[kThreads];
+    __shared__ float inverse;
+    constexpr unsigned items = QRT_QWEN36_HIDDEN_SIZE / kThreads;
+    const unsigned lane = threadIdx.x;
+    float values[items], unrounded[items];
+    const float scale = device_bf16_round_to_float(sigmoid[gate[0]]);
+    for (unsigned j = 0; j < items; ++j) {
+        const unsigned col = lane * items + j;
+        const float shared = device_bf16_round_to_float(
+            __fmul_rn(scale, device_bf16_to_float(down[col])));
+        const float update = device_bf16_round_to_float(
+            __fadd_rn(device_bf16_round_to_float(routed[col]), shared));
+        unrounded[j] = __fadd_rn(device_bf16_round_to_float(residual[col]), update);
+        values[j] = device_bf16_round_to_float(unrounded[j]);
+        output[col] = unrounded[j];
+    }
+    if (!next_norm) return;
+    const float sum = vllm_triton_reduce_sumsq(
+        vllm_triton_lane8_sumsq(unrounded), partial, lane);
+    if (lane == 0u) inverse = qrt_sm121_rsqrt::evaluate(rsqrt_table,
+        __fadd_rn(sum / float(QRT_QWEN36_HIDDEN_SIZE), QRT_QWEN36_RMS_NORM_EPSILON));
+    __syncthreads();
+    for (unsigned j = 0; j < items; ++j) {
+        const unsigned col = lane * items + j;
+        const float v = values[j] * inverse * (1.0f + device_bf16_to_float(norm_weights[col]));
+        const uint16_t endpoint = device_float_to_bf16(v);
+        normalized[col] = device_bf16_to_float(endpoint);
+        normalized_bf16[col] = endpoint;
     }
 }
 
@@ -164592,8 +164634,10 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
     const bool use_q1_decode_early_layer_bf16_moe =
         q1_decode_early_layer_bf16_moe_requested &&
         q1_decode_early_layer_bf16_moe_layer_selected;
+    const bool q1_sm121_moe_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_MOE");
+    qrt_sm121_q1_moe_runtime::Tables q1_sm121_moe_tables;
     const bool legacy_early_f32 =
-        q1_decode_early_layer_bf16_moe_layer &&
+        !q1_sm121_moe_requested && q1_decode_early_layer_bf16_moe_layer &&
         !use_q1_decode_early_layer_bf16_moe;
     const bool q1_decode_early_layer_f32_routed_tile_requested =
         env_flag_enabled(
@@ -165176,7 +165220,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         q1_moe_0626_row_parallel_bf16_requested &&
         use_q1_moe_raw_bf16_wave;
     const bool use_q1_moe_triton_0626_selected =
-        q1_moe_triton_0626_selected_requested &&
+        !q1_sm121_moe_requested && q1_moe_triton_0626_selected_requested &&
         q1_moe_triton_0626_selected_layer &&
         use_q1_moe_0626_row_parallel_bf16;
     const bool use_q1_moe_triton_0626_selected_gate_warps8 =
@@ -165187,7 +165231,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         q1_moe_vllm_triton_requested &&
         use_q1_moe_triton_0626_selected;
     const bool use_q1_moe_triton_0626_shared =
-        q1_moe_triton_0626_shared_requested &&
+        !q1_sm121_moe_requested && q1_moe_triton_0626_shared_requested &&
         use_q1_moe_0626_row_parallel_bf16;
     hipFunction_t q1_moe_triton_0626_gate_up_function = nullptr;
     hipFunction_t q1_moe_triton_0626_down_function = nullptr;
@@ -165309,7 +165353,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         use_q1_moe_raw_multirow_fused ||
         use_q1_moe_raw_route_parallel_fused;
     const bool use_q1_moe_shared_final_output_fused =
-        use_q1_moe_raw_fused_tail ||
+        q1_sm121_moe_requested || use_q1_moe_raw_fused_tail ||
         use_q1_moe_raw_shared_wave ||
         use_q1_moe_rocblas_shared_batch ||
         use_q1_moe_0626_rocblas_shared_hybrid ||
@@ -165348,7 +165392,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         );
     }
     if (use_q1_moe_next_input_rmsnorm_fused &&
-        !legacy_early_f32 && !use_q1_moe_triton_0626_shared) {
+        !q1_sm121_moe_requested && !legacy_early_f32 && !use_q1_moe_triton_0626_shared) {
         return fail(
             "qwen36_resident_decode_q1_moe_next_input_rmsnorm_provider",
             "cross-layer MoE/input-RMSNorm fusion currently requires either the exact early-F32 output owner or the retained Triton 0626 BF16 shared-output owner"
@@ -165497,6 +165541,21 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             "qwen36_resident_decode_q1_rocblas_stream_binding_cache_dependency",
             "resident q1 rocBLAS stream binding cache requires continuous layer-stack priority execution with the retained rocBLAS router and a supported MoE provider"
         );
+    }
+    if (q1_sm121_moe_requested) {
+        if (!env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT") ||
+            !env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN") ||
+            !use_q1_moe_device_router_chain || !use_q1_moe_rocblas_router ||
+            !q1_moe_next_input_rmsnorm_fused_requested ||
+            !use_q1_moe_0626_row_parallel_bf16 ||
+            paired_router_only || paired_tail_only ||
+            g_qwen36_paired_layer_execution_hooks != nullptr ||
+            q1_sparse_avx512bf16_routed_active) {
+            return fail("qwen36_q1_sm121_moe_dependency",
+                "SM121 Q1 MoE requires the unquantized batch-one device chain, exact linear output and next-layer norm");
+        }
+        const hipError_t prepared = qrt_sm121_q1_moe_runtime::prepare(&q1_sm121_moe_tables);
+        if (prepared != hipSuccess) return fail("qwen36_q1_sm121_moe_tables", hipGetErrorString(prepared));
     }
     hipStream_t q1_moe_router_stream = qwen36_paired_layer_stream_or(
         use_q1_decode_layer_stack_priority_stream
@@ -165927,7 +165986,15 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         return false;
     }
     const uint64_t router_start_ns = qrt_now_ns();
-    if (paired_tail_only || paired_moe_router_prepared) {
+    if (q1_sm121_moe_requested) {
+        hipLaunchKernelGGL(f32_to_bf16_kernel, dim3(8u), dim3(256u), 0, q1_moe_router_stream,
+            device_post_attention, device_input_bf16, hidden_elements);
+        hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<2048u>), dim3(16u), dim3(256u), 0, q1_moe_router_stream,
+            device_input_bf16, router_weights_row_major, device_router_logits_bf16, QRT_QWEN36_EXPERT_COUNT);
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::router, dim3(1u), dim3(32u), 0, q1_moe_router_stream,
+            device_router_logits_bf16, device_topk_ids, device_topk_weights, q1_sm121_moe_tables.router);
+        kernel_launches += 3u; ++matrix_calls;
+    } else if (paired_tail_only || paired_moe_router_prepared) {
         // The paired batch-two router already published each private
         // workspace's BF16 logits and deterministic top-k metadata before the
         // shared dual-row projections.
@@ -166615,6 +166682,15 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         emit_q1024_q1_moe_stage_digest("shared_down_bf16", down_projection, hidden_elements * sizeof(uint16_t));
         emit_q1024_q1_moe_stage_digest("shared_gate_bf16", gate_logit_bf16, sizeof(uint16_t));
 
+        if (q1_sm121_moe_requested) {
+            hipLaunchKernelGGL(q1_moe_sm121_tail_kernel, dim3(1u), dim3(kThreads), 0, q1_moe_post_router_stream,
+                down_projection, gate_logit_bf16, device_routed_output, device_residual, device_output,
+                q1_moe_next_input_rmsnorm_weights, device_router_logits, device_input_bf16,
+                q1_sm121_moe_tables.core.beta, q1_sm121_moe_tables.core.rsqrt,
+                use_q1_moe_next_input_rmsnorm_fused);
+            ++kernel_launches;
+            return check_launch(stage) && publish_q1_moe_next_input_rmsnorm_frontier();
+        }
         bool paired_moe_tail_prepared =
             qwen36_paired_moe_tail_active_for_session(
                 g_qwen36_resident_active_session,
@@ -167953,7 +168029,22 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             << std::endl;
     }
 #endif
-    if (!paired_moe_projection_prepared &&
+    if (q1_sm121_moe_requested) {
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::routed_activation, dim3(256u), dim3(256u), 0, q1_moe_post_router_stream,
+            device_input_bf16, routed_weights->device_gate_up, device_topk_ids,
+            q1_sm121_moe_tables.silu, device_routed_gate, device_routed_activated);
+        if (!check_launch("qwen36_q1_sm121_moe_routed_activation")) return false;
+        emit_q1024_q1_moe_stage_digest("routed_gate_up_bf16", device_routed_gate, 8u * 1024u * sizeof(uint16_t));
+        emit_q1024_q1_moe_stage_digest("routed_activated_bf16", device_routed_activated, 8u * 512u * sizeof(uint16_t));
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::routed_down, dim3(1024u), dim3(256u), 0, q1_moe_post_router_stream,
+            device_routed_activated, routed_weights->device_down, device_topk_ids, device_topk_weights, device_route_outputs);
+        if (!check_launch("qwen36_q1_sm121_moe_routed_down")) return false;
+        emit_q1024_q1_moe_stage_digest("routed_weighted_bf16", device_route_outputs, 8u * 2048u * sizeof(uint16_t));
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::route_sum, dim3(8u), dim3(256u), 0, q1_moe_post_router_stream,
+            device_route_outputs, device_routed_output);
+        kernel_launches += 3u; matrix_calls += 3u * route_count;
+        if (!check_launch("qwen36_q1_sm121_moe_route_sum")) return false;
+    } else if (!paired_moe_projection_prepared &&
         !q1_moe_avx512bf16_host_active) {
 #ifdef QRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED
     if (use_q1_moe_rocblas_batched) {
@@ -169471,7 +169562,22 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
     );
 
     const uint64_t shared_start_ns = qrt_now_ns();
-    if (paired_moe_projection_prepared) {
+    if (q1_sm121_moe_requested) {
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::shared_activation, dim3(32u), dim3(256u), 0, q1_moe_post_router_stream,
+            device_input_bf16, shared_gate_projection_weights, shared_up_projection_weights,
+            q1_sm121_moe_tables.silu, device_rocblas_shared_activated);
+        hipLaunchKernelGGL(qrt_sm121_q1_moe::shared_gate, dim3(1u), dim3(16u), 0, q1_moe_post_router_stream,
+            device_input_bf16, shared_gate_weights, device_rocblas_shared_gate_logit_bf16);
+        if (!check_launch("qwen36_q1_sm121_moe_shared_activation")) return false;
+        emit_q1024_q1_moe_stage_digest("shared_activated_bf16", device_rocblas_shared_activated,
+            QRT_QWEN36_MOE_EXPERT_INTERMEDIATE * sizeof(uint16_t));
+        hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<512u>), dim3(128u), dim3(256u), 0, q1_moe_post_router_stream,
+            device_rocblas_shared_activated, shared_down_weights, device_rocblas_shared_down_output, QRT_QWEN36_HIDDEN_SIZE);
+        kernel_launches += 3u; matrix_calls += 4u;
+        if (!check_launch("qwen36_q1_sm121_moe_shared_down") ||
+            !launch_q1_moe_shared_final_output(device_rocblas_shared_down_output,
+                device_rocblas_shared_gate_logit_bf16, "qwen36_q1_sm121_moe_tail")) return false;
+    } else if (paired_moe_projection_prepared) {
         if (!launch_q1_moe_shared_final_output(
                 device_rocblas_shared_down_output,
                 device_rocblas_shared_gate_logit_bf16,
@@ -171620,6 +171726,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         << (use_q1_moe_raw_gpu_routed ? 1 : 0)
         << " q1_moe_triton_0626_selected_requested="
         << (q1_moe_triton_0626_selected_requested ? 1 : 0)
+        << " q1_sm121_moe_active=" << (q1_sm121_moe_requested ? 1 : 0)
         << " q1_moe_triton_0626_selected_active="
         << (use_q1_moe_triton_0626_selected ? 1 : 0)
         << " q1_moe_triton_0626_selected_gate_warps8_requested="

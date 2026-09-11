@@ -96,6 +96,20 @@ third-party runtime dependency. Q1-specific path variables isolate this
 choice from prefill. Model-file binding, total load cost and full-model
 qualification remain release requirements.
 
+The optional Q1 MoE path reuses the existing model-independent CUDA router
+fraction and BF16 SiLU files. Q1-specific aliases are
+`QRT_QWEN36_Q1_SM121_ROUTER_TABLE` and
+`QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE`. Their sizes are 33,554,432 and
+131,096 bytes, with SHA-256
+`b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0` and
+`97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac`.
+The concrete benefit is reproducing all 176 original decode routing weights
+and all shared activation endpoints in 22 observed rows. The Q1 loader uses
+Windows CNG and adds 33,685,528 bytes of device storage, potentially duplicating
+the separate prefill provider's copies. It reuses Q1 sigmoid/root storage.
+No new offline artifact or Windows runtime library is introduced; packaging
+and load-time qualification still apply.
+
 ## Optional model embedding inverse scales
 
 `scripts/capture_sm121_embedding_scales.py` precomputes one FP32 inverse
