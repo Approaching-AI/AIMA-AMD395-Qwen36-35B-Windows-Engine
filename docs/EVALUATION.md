@@ -30,9 +30,10 @@ evaluation arbitration explicit prevents a score-calibration tie break from
 changing ordinary OpenAI completions; production HTTP acceptance always runs
 with the global override disabled.
 
-## Unreleased correctness diagnostics (updated September 11)
+## Unreleased correctness diagnostics (updated September 12)
 
-Whole `649f595fc1183ab0bc212e23d4f253e7e3e63545`, MoE
+Whole `bb4ab7c38e01bb21d2bbadf79d6c4a539c1e74ce` built with
+`-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
 `aec3f70d7104a3f1ee4b51741cae5246ac4d0576` pass both complete
 512-token cold continuations and the q8191 32-token control on `baiying`,
@@ -40,20 +41,23 @@ using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
 first-token/logit, complete output and streaming boundary passes with
 successful host checks. The requests use the same strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/moe-compaction-product-20260911.json)
+[complete product records](../benchmarks/correctness/dense-subgroup-product-20260912.json)
 bind source, clean Windows build, component hashes, commands and all outputs.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 20,051.5878 | 66,773.2396 | 112.314974 |
-| q8192 out512 | 144 / 10.375 | 20,036.9195 | 77,000.9007 | 114.521664 |
-| q8191 out32 | 168589 / 11.375 | 20,038.8771 | 77,914.4339 | 117.050974 |
+| q7169 out512 | 82 / 9.25 | 20,001.4726 | 59,182.9282 | 112.613701 |
+| q8192 out512 | 144 / 10.375 | 20,027.1528 | 68,654.9309 | 116.830721 |
+| q8191 out32 | 168589 / 11.375 | 19,983.0761 | 69,176.3634 | 119.854655 |
 
-The optional routed candidate compaction retains every captured GB10 boundary
-and lowers callback TTFT by 2473.8031 / 2482.0551 / 1851.4333 ms for q8192 /
-q7169 / q8191 against the [preceding strict configuration](../benchmarks/correctness/fla-batched-exact-product-20260911.json).
-Keep it selected for further structural experiments. The immutable q8192
-performance gate and release acceptance remain open.
+The four-lane dense replay retains every candidate and ordered K16 carry,
+while reducing q8192 correction wall from 15068.905 to 7039.798 ms. Actual
+callback TTFT improves by 8345.9698 / 7590.3114 / 8738.0705 ms for q8192 /
+q7169 / q8191 against the [preceding compacted-MoE configuration](../benchmarks/correctness/moe-compaction-product-20260911.json).
+All recorded GB10 operators, forty-layer carriers, KV and 554 / 806 state
+boundaries remain exact. Keep dense replay at four lanes and routed MoE at
+sixteen lanes. The immutable q8192 performance gate and release acceptance
+remain open.
 
 The explicit `QRT_FLA_GDN_BATCHED_EXACT=1` route batches independent
 KKT/WU/output chunks and retains four recurrent value rows per CTA through
@@ -268,14 +272,22 @@ first logit, streaming and captured GB10 state/KV boundaries, but callback TTFT
 is 87643.8764 ms versus the selected 77000.9007 ms. Keep the selected product
 components. A correctness-attached profile locates the added time before
 gate, in an interval that also contains input/weight L2 work. Those kernels
-and native route-layout machine code are unchanged; a current 16-lane control
-is needed before attributing the interval to the new replay arithmetic.
+and native route-layout machine code are unchanged. A current compacted
+16-lane control also concentrates time in that nominal interval, so its label
+alone does not establish exact replay cost. It nevertheless confirms the
+product regression: the fully correct profiled 16-/4-lane requests take
+79956.5816 / 89658.8676 ms actual callback TTFT, and total MoE intervals are
+15592.472139 / 27955.314637 ms. Retain 16-lane MoE for the product.
 
 The same proven subgroup helper is now optional for dense prefill projection
 correction via `-HawkeyeReplayLanes 4` or `8`. Its host launcher derives both
 candidate capacity and grid geometry from the selected subgroup size. All
 three sizes pass index transport, partial windows, dense selection and failure
-cleanup tests. Native dense replay and complete products remain open.
+cleanup tests. The Windows whole build passes in 83534.787 ms, native safety
+build in 83697.142 ms, and all three correction cases in 680.18 ms with zero
+BF16 mismatches and intact redzones. The complete frozen products above
+qualify the four-lane dense configuration as an improvement. All 305 Python
+tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or
