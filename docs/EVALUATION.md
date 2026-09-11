@@ -177,6 +177,18 @@ controls pass under UBSan, as does the complete local check. This mapping is
 qualified by the complete frozen q7169 product run above; broader release
 qualification remains open.
 
+The next [split-QK replay](../benchmarks/correctness/attention-split-20260911.json)
+at source d30356f computes a bounded slab of exact scores before ordered
+online softmax/PV. All 29,364,224 GB10 BF16 outputs and the qualified native
+FP32 control remain identical. Eight-query dispatch pairs total 2,417.09 ms,
+maximum 5.664 ms; the same-run serial-PV provider takes 3,886.01 ms. The
+32-query control totals 2,474.38 ms, maximum 23.5475 ms. The next provider
+uses eight-query pairs and a reusable 4 MiB score slab protected through
+completion and release. The complete local check passes 271 Python tests
+(including actual scratch-span/submission-failure guards) and 45 Rust tests.
+These component intervals do not qualify a product result; full-model
+qualification of the integrated provider remains pending.
+
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
 already matched all 80 layer norms and all 40 terminal residuals, but emitted
