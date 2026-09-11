@@ -32,6 +32,7 @@
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_subgroup.h"
+#include "moe_accumulator/bf16_midpoint_selector.h"
 #include "moe_accumulator/sm121_q1_moe.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -37259,17 +37260,8 @@ __device__ bool selected_bf16_projection_hawkeye_candidate(
         (absolute_product_sums != nullptr ||
          (selected_input_l2_upper_bounds != nullptr &&
           weight_l2_upper_bounds != nullptr))) {
-        union {
-            uint32_t bits;
-            float value;
-        } midpoint{};
-        midpoint.bits =
-            (accumulator.bits & UINT32_C(0xffff0000)) |
-            UINT32_C(0x8000);
         const unsigned int exponent =
             (accumulator.bits >> 23u) & UINT32_C(0xff);
-        const float absolute_midpoint_margin =
-            fabsf(accumulator.value - midpoint.value);
         const size_t token = index / rows;
         const size_t row = index - token * rows;
         const float absolute_product_upper_bound =
@@ -37285,7 +37277,7 @@ __device__ bool selected_bf16_projection_hawkeye_candidate(
         // exact while the absolute-product bound handles the normal range.
         absolute_error_candidate =
             exponent < 32u ||
-            absolute_midpoint_margin <= absolute_error_bound;
+            qrt_bf16_midpoint::within_error(accumulator.value, absolute_error_bound);
     }
     return exact_prefix_cell ||
         midpoint_distance <= midpoint_radius ||
@@ -130228,19 +130220,10 @@ bool run_full_attention_prefill_resident_core_for_targets(
                                 : UINT32_C(0x8000) - low_bits;
                         const unsigned int exponent =
                             (raw_bits >> 23u) & UINT32_C(0xff);
-                        uint32_t midpoint_bits =
-                            (raw_bits & UINT32_C(0xffff0000)) |
-                            UINT32_C(0x8000);
-                        float midpoint = 0.0f;
-                        std::memcpy(
-                            &midpoint,
-                            &midpoint_bits,
-                            sizeof(midpoint)
-                        );
                         const float absolute_product_sum =
                             absolute_full_qkv_f32[index];
                         const float absolute_midpoint_margin =
-                            fabsf(native - midpoint);
+                            qrt_bf16_midpoint::nearest_distance(native);
                         const size_t token =
                             index / kLayer3FullAttentionQkvRows;
                         const size_t row = index -

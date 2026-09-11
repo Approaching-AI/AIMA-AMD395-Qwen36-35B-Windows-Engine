@@ -17,19 +17,17 @@ namespace qrt_bf16_midpoint {
 // error estimate, then recomputes admitted dots from live inputs and weights.
 // Adjacent midpoints matter at binade boundaries: immediately above 1.0 the
 // lower rounding boundary is closer than the midpoint in the current binade.
-QRT_MIDPOINT_HD inline bool within_error(float value, float error) {
+QRT_MIDPOINT_HD inline float nearest_distance(float value) {
     uint32_t bits;
     memcpy(&bits, &value, sizeof(bits));
     bits &= UINT32_C(0x7fffffff);
     if (bits >= UINT32_C(0x7f800000)) {
-        return true;
-    }
-    if (!(error >= 0.0f)) {
-        return true;
+        return 0.0f;
     }
     float magnitude;
     memcpy(&magnitude, &bits, sizeof(magnitude));
     const uint32_t middle = (bits & UINT32_C(0xffff0000)) | UINT32_C(0x8000);
+    float distance = INFINITY;
     for (int offset = -1; offset <= 1; ++offset) {
         if (offset == -1 && middle < UINT32_C(0x10000)) {
             continue;
@@ -40,11 +38,14 @@ QRT_MIDPOINT_HD inline bool within_error(float value, float error) {
         }
         float midpoint;
         memcpy(&midpoint, &candidate, sizeof(midpoint));
-        if (fabsf(magnitude - midpoint) <= error) {
-            return true;
-        }
+        const float current = fabsf(magnitude - midpoint);
+        if (current < distance) distance = current;
     }
-    return false;
+    return distance;
+}
+
+QRT_MIDPOINT_HD inline bool within_error(float value, float error) {
+    return !(error >= 0.0f) || nearest_distance(value) <= error;
 }
 
 }  // namespace qrt_bf16_midpoint

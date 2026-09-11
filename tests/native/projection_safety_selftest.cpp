@@ -228,6 +228,40 @@ void run_staging_case(unsigned int rows, unsigned int tokens) {
 // index transport and correction launcher. Exact dots vary with both token and
 // row; other cells must still receive BF16 rounding. A product-sized case has
 // more candidates than the former whole-tensor admission quota.
+void run_boundary_correction_case() {
+    constexpr unsigned rows = 4u, k = 16u;
+    std::vector<uint16_t> weights(rows * k + 2u * kGuard, kBf16Guard), inputs(k + 2u * kGuard, kBf16Guard);
+    std::vector<float> output(rows + 2u * kGuard, kF32Guard), input_norm(1u + 2u * kGuard, kF32Guard), weight_norm(output);
+    std::fill(weights.begin() + kGuard, weights.end() - kGuard, uint16_t{0});
+    std::fill(inputs.begin() + kGuard, inputs.end() - kGuard, uint16_t{0});
+    inputs[kGuard] = bf16(1.75f); inputs[kGuard + 1u] = bf16(std::ldexp(1.0f, -10));
+    input_norm[kGuard] = 2.0f;
+    for (unsigned row = 0; row < rows; ++row) {
+        const float scale = (row & 1u ? -1.0f : 1.0f) * (row < 2u ? 1.0f : 2.0f);
+        output[kGuard + row] = scale;
+        weights[kGuard + row * k] = bf16(0.5703125f * scale);
+        weights[kGuard + row * k + 1u] = bf16(-std::ldexp(scale, -14));
+        weight_norm[kGuard + row] = 1000.0f * std::fabs(scale);
+    }
+    const auto original_weights = weights, original_inputs = inputs;
+    DeviceBuffer<uint16_t> dw(weights), di(inputs);
+    DeviceBuffer<float> df(output), dn(input_norm), wn(weight_norm);
+    hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(dw.data(), di.data(), nullptr,
+        dn.data(), wn.data(), df.data(), rows, 1u, k, 0u, 0u, 1000u, 8u, nullptr), "boundary_correction");
+    df.read(output);
+    for (unsigned row = 0; row < rows; ++row) {
+        const float scale = (row & 1u ? -1.0f : 1.0f) * (row < 2u ? 1.0f : 2.0f);
+        const float exact = scale * (0.998046875f - std::ldexp(1.0f, -24));
+        require(bf16(output[kGuard + row]) == bf16(exact), "lower neighboring midpoint was not corrected");
+        require(bf16(output[kGuard + row]) != bf16(scale), "boundary control did not change endpoint");
+    }
+    for (size_t i = 0; i < kGuard; ++i)
+        require(output[i] == kF32Guard && output[kGuard + rows + i] == kF32Guard, "boundary correction redzone");
+    dw.read(weights); di.read(inputs);
+    require(weights == original_weights && inputs == original_inputs, "boundary correction modified operands");
+    std::cout << "{\"type\":\"correction_boundary_case\",\"cells\":4,\"bf16_reference_mismatches\":0,\"both_signs\":true,\"redzones_pass\":true}" << std::endl;
+}
+
 void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false) {
     const size_t elements = static_cast<size_t>(rows) * tokens;
     std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
@@ -340,10 +374,11 @@ int main(int argc, char **argv) {
                     }
                 }
             } else if (mode == "--correction") {
+                run_boundary_correction_case();
                 run_correction_case(129u, 1031u, 2048u);
                 run_correction_case(8192u, 7169u, 16u);
                 run_correction_case(32u, 7169u, 2048u, true);
-                cases += 3u;
+                cases += 4u;
             } else {
                 run_case(8192u, 7169u, true, true);
                 ++cases;

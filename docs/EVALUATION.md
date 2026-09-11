@@ -351,7 +351,24 @@ normalizer stay unchanged. All 65,536 input encodings against sixteen
 independent controls and randomized companion halfwords pass 2,097,152 host
 product comparisons. `QRT_SM121_PAIRED_PRODUCTS=1` enables it in transposed
 QK, serial PV and four/eight-lane subgroup dots; the default remains off.
-Native instruction and real captured-input qualification are pending.
+The [native paired-product checks](../benchmarks/correctness/attention-paired-products-20260912.json)
+confirm the actual `v_pk_mul_lo_u16` instruction, 2,097,166 exact products,
+intact guards, immutable inputs and exact four/eight/sixteen-lane dots at
+K16/K512/K2048. Every captured q7169 BF16/native FP32 output matches.
+Attention takes 1410.7 / 1518.95 ms at batches 32 / 8 versus 1279.37 /
+1364.54 ms for the original. QK improves modestly but PV regresses, without
+register spills. Keep the original product arithmetic.
+
+Dense projection correction had a separate selector omission: it checked
+only the midpoint inside the current BF16 binade. Immediately around a
+power of two, the neighboring lower midpoint is closer. Dense correction
+and its diagnostic now use the same nearest-boundary predicate as routed
+MoE, retaining the existing error coefficient and exact correction math.
+The actual dense predicate passes 282 positive/negative boundary cases with
+both absolute-sum and L2 addressing; the common helper passes 130,552 finite
+cell-boundary checks. A GPU regression seeds valid error intervals whose
+correct endpoints cross the formerly missed boundary. Native and complete
+frozen-product validation of this correctness repair are pending.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

@@ -19,7 +19,8 @@ int main() {
             const float near = float(fmin(fabs(double(x) - (double(c) + p) / 2.0),
                                           fabs(double(x) - (double(c) + n) / 2.0)));
             for (float sign : {-1.0f, 1.0f}) {
-                if (qrt_bf16_midpoint::within_error(sign * x, near * 0.5f) ||
+                if (qrt_bf16_midpoint::nearest_distance(sign * x) != near ||
+                    qrt_bf16_midpoint::within_error(sign * x, near * 0.5f) ||
                     !qrt_bf16_midpoint::within_error(sign * x, near * 1.01f)) return 1;
                 ++checked;
             }
