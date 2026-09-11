@@ -14,7 +14,7 @@ namespace qrt_sm121_integer_parts {
 // 16-bit integer row times a common power of two: |integer| <= 255*128.
 // Split it into an unsigned low byte and a signed high byte. Four integer
 // matrix products reconstruct the complete signed dot without FP rounding.
-QRT_INTEGER_INLINE int row_minimum(const uint16_t (&row)[18]) {
+QRT_INTEGER_INLINE int row_range(const uint16_t (&row)[18], int* maximum_output) {
     int minimum = 255, maximum = 0;
     bool valid = true;
     for (unsigned i = 0u; i < 16u; ++i) {
@@ -24,7 +24,13 @@ QRT_INTEGER_INLINE int row_minimum(const uint16_t (&row)[18]) {
         minimum = exponent < minimum ? exponent : minimum;
         maximum = exponent > maximum ? exponent : maximum;
     }
+    *maximum_output = minimum == 255 ? 127 : maximum;
     return !valid || maximum - minimum > 7 ? -1 : (minimum == 255 ? 127 : minimum);
+}
+
+QRT_INTEGER_INLINE int row_minimum(const uint16_t (&row)[18]) {
+    int maximum;
+    return row_range(row, &maximum);
 }
 
 QRT_INTEGER_INLINE uint16_t encode(uint16_t value, int minimum) {
@@ -32,6 +38,36 @@ QRT_INTEGER_INLINE uint16_t encode(uint16_t value, int minimum) {
     const unsigned shift = static_cast<unsigned>(((value >> 7u) & 255u) - minimum);
     const uint32_t magnitude = (128u | (value & 127u)) << shift;
     return static_cast<uint16_t>((value & 0x8000u) ? 0u - magnitude : magnitude);
+}
+
+// The exponent bound may be larger than the largest actual paired product.
+// If alignment at this bound discards no product OR carry bits, it represents
+// the same exact sum as the original alignment. Normalization is therefore
+// identical even when the intermediate exponent and magnitude differ.
+// This branch needs only row ranges and four hardware integer dot results;
+// it never reads or re-multiplies the sixteen original operand pairs.
+QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
+    const int32_t (&partials)[4], int left_minimum, int left_maximum,
+    int right_minimum, int right_maximum, qrt_sm121_group16::AlignedSum* output) {
+    if (left_minimum < 0 || right_minimum < 0) return false;
+    const int minimum = left_minimum + right_minimum - 254;
+    int maximum = left_maximum + right_maximum - 254;
+    maximum = maximum > -133 ? maximum : -133;
+    maximum = maximum > carry.exponent ? maximum : carry.exponent;
+    // A normal BF16 product has fourteen fractional significand bits, whereas
+    // the K16 alignment has twenty-five. Eleven bits of range are lossless.
+    if (maximum - minimum > 11) return false;
+    const unsigned carry_shift = static_cast<unsigned>(maximum - carry.exponent);
+    const uint32_t carry_bits = carry.significand << 2u;
+    if (carry_bits && (carry_shift >= 32u ||
+        (carry_bits & ((uint32_t(1) << carry_shift) - 1u)))) return false;
+    const uint32_t aligned = carry_shift >= 32u ? 0u : carry_bits >> carry_shift;
+    const int64_t mathematical = int64_t(partials[0]) * 65536 +
+        (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
+    const int64_t products = mathematical * (int64_t(1) << (minimum + 11 - maximum));
+    const int64_t total = products + (carry.negative ? -int64_t(aligned) : int64_t(aligned));
+    *output = {{static_cast<uint32_t>(total < 0 ? -total : total), total < 0}, maximum};
+    return true;
 }
 
 QRT_INTEGER_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry, const uint32_t (&pairs)[16],

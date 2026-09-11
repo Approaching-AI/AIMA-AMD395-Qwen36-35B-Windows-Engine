@@ -7,6 +7,92 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class IntegerPartsTests(unittest.TestCase):
+    def test_range_bound_preserves_canonical_sum_and_falls_back(self):
+        source = r'''
+#include <cassert>
+#include <cstdio>
+#include "sm121_integer_parts.h"
+using namespace qrt_sm121_integer_parts;
+using qrt_q1_moe_hawkeye::Value;
+unsigned seed=0x3952026u;
+unsigned random_word(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
+int high_byte(uint16_t v){int h=v>>8u;return h>=128?h-256:h;}
+Value canonical(qrt_sm121_group16::AlignedSum sum){
+ const Value scaled{sum.value.magnitude,int16_t(sum.max_exponent-2),sum.value.negative};
+ return qrt_sm121_group16::finish_accumulator(qrt_q1_moe_hawkeye::group_sum<26,-133>(&scaled,1u));
+}
+int main(){
+ unsigned accepted=0,rejected=0,rebound=0,with_carry=0,over_i32=0,zeros=0,underflow=0;
+ for(unsigned group=0;group<400000u;++group){
+  uint16_t a[18]{},b[18]{};Value values[17];int32_t partials[4]{};uint32_t packed[16];
+  const unsigned ae=1u+random_word()%244u,be=1u+random_word()%244u,spread=1u+group%11u;
+  for(unsigned i=0;i<16u;++i){
+   a[i]=uint16_t((random_word()&0x807fu)|((ae+random_word()%spread)<<7u));
+   b[i]=uint16_t((random_word()&0x807fu)|((be+random_word()%spread)<<7u));
+   if(group%13u==0u){ // Opposite extrema make the bound larger than every actual product.
+    a[i]=uint16_t((random_word()&0x807fu)|((ae+i%4u)<<7u));
+    b[i]=uint16_t((random_word()&0x807fu)|((be+3u-i%4u)<<7u));
+   }
+   if(group%17u==0u)a[i]=0u;
+   if(group%19u==0u)b[i]=0x8000u;
+   if(group%23u==0u&&i==2u)a[i]=1u;
+   if(group%29u==0u&&i==3u)b[i]=0x7fc1u;
+   if(group%31u==0u){ // Near the signed-32-bit overflow bound, both signs.
+    a[i]=uint16_t(0x3fffu|((group&1u)<<15u));b[i]=0x3fffu;
+   }
+   if(group%37u==0u){ // Exact cancellation despite a conservative range bound.
+    a[i]=uint16_t((0x3f80u+(i/2u%4u)*128u)|((i&1u)<<15u));
+    b[i]=uint16_t(0x3f80u+(3u-i/2u%4u)*128u);
+   }
+   values[i+1]=qrt_q1_moe_hawkeye::multiply_bf16(a[i],b[i],-133);
+   packed[i]=qrt_sm121_group16::pack_product(values[i+1]);
+  }
+  int amax,bmax;const int amin=row_range(a,&amax),bmin=row_range(b,&bmax);
+  assert(amin==row_minimum(a)&&bmin==row_minimum(b));
+  for(unsigned i=0;i<16u;++i){
+   const uint16_t x=encode(a[i],amin),y=encode(b[i],bmin);
+   const int ah=high_byte(x),bh=high_byte(y),al=x&255u,bl=y&255u;
+   partials[0]+=ah*bh;partials[1]+=ah*bl;partials[2]+=al*bh;partials[3]+=al*bl;
+  }
+  const int product_max=amax+bmax-254;
+  values[0]={(random_word()&0x7fffffu)|0x800000u,
+             int16_t(product_max+int(group%48u)-16),bool(group&1u)};
+  if(group%3u==0u||group%37u==0u)values[0]={0u,-133,bool(group&1u)};
+  if(group%5u==0u)values[0].significand&=0xffff00u; // Exact aligned carry beyond two bits.
+  if(group%31u==0u)values[0]={0xffffffu,0,bool(group&1u)};
+  const auto expected=qrt_sm121_group16::finish_accumulator(qrt_q1_moe_hawkeye::group_sum<26,-133>(values,17u));
+  qrt_sm121_group16::AlignedSum actual{{123u,true},777};
+  if(sum_exact_range(values[0],partials,amin,amax,bmin,bmax,&actual)){
+   ++accepted;const auto result=canonical(actual);
+   const auto original=qrt_sm121_group16::sum_packed(values[0],packed);
+   rebound+=unsigned(actual.max_exponent!=original.max_exponent);
+   with_carry+=unsigned(values[0].significand!=0u);
+   over_i32+=unsigned(actual.value.magnitude>0x7fffffffu);
+   zeros+=unsigned(result.significand==0u);
+   underflow+=unsigned(result.exponent==-126);
+   assert(result.significand==expected.significand&&result.exponent==expected.exponent&&result.negative==expected.negative);
+  }else{
+   ++rejected;assert(actual.max_exponent==777&&actual.value.magnitude==123u&&actual.value.negative);
+  }
+ }
+ // A carry whose low bit would be lost must decline without modifying output.
+ const int32_t parts[4]{};qrt_sm121_group16::AlignedSum untouched{{123u,true},777};
+ assert(!sum_exact_range({0x800001u,-3,false},parts,127,127,127,127,&untouched));
+ assert(!sum_exact_range({0x800000u,-40,false},parts,127,127,127,127,&untouched));
+ assert(untouched.max_exponent==777&&untouched.value.magnitude==123u);
+ assert(accepted>50000u&&rejected>50000u&&rebound>1000u&&with_carry>10000u);
+ assert(over_i32>1000u&&zeros>1000u&&underflow>10u);
+ std::printf("integer_range_groups=400000 accepted=%u rejected=%u rebound=%u carry=%u over_i32=%u zeros=%u underflow=%u canonical_exact=1\n",
+  accepted,rejected,rebound,with_carry,over_i32,zeros,underflow);
+}
+'''
+        with tempfile.TemporaryDirectory(prefix='qrt-integer-range-') as tmp:
+            exe = str(Path(tmp) / 'range')
+            subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror',
+                            '-fsanitize=undefined', '-I', str(ROOT / 'native/providers/moe_accumulator'),
+                            '-x', 'c++', '-', '-o', exe], input=source, text=True, check=True, timeout=30)
+            subprocess.run([exe], check=True, timeout=20)
+
     def test_byte_matrix_and_compensation_match_original_groups(self):
         source = r'''
 #include <cassert>

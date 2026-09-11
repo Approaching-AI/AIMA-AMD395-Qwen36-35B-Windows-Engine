@@ -5,7 +5,10 @@
 #include <vector>
 
 constexpr unsigned kCases = 64u, kCells = 256u;
-struct Cell { int32_t partials[4]; uint32_t magnitude; int exponent; unsigned negative, accepted; };
+struct Cell {
+    int32_t partials[4]; uint32_t magnitude; int exponent; unsigned negative, accepted;
+    unsigned range_accepted; uint32_t range_bits, accumulator_bits;
+};
 
 __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* output) {
     __shared__ qrt_blackwell_attention::IntegerOperandRow left[16], right[16];
@@ -32,6 +35,13 @@ __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* 
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
         result.accepted = qrt_sm121_integer_parts::sum(carry, pairs, partials, left[row].minimum, right[column].minimum, &sum);
         result.magnitude = sum.value.magnitude; result.negative = sum.value.negative; result.exponent = sum.max_exponent;
+        result.range_accepted = qrt_sm121_integer_parts::sum_exact_range(carry, partials,
+            left[row].minimum, left[row].maximum, right[column].minimum, right[column].maximum, &sum);
+        if (result.range_accepted) result.range_bits = qrt_sm121_native_product::float_bits(
+            qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
+                qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent))));
+        result.accumulator_bits = qrt_sm121_native_product::float_bits(
+            qrt_blackwell_attention::blackwell_integer_accumulate(carries[index], left[row], right[column], partials));
         output[index] = result;
     }
 }
@@ -53,6 +63,8 @@ int main() {
             input[test * 512u + i] = uint16_t((random_word() & 0x807fu) | (exponent << 7u));
             if (test % 11u == 0u && i % 5u == 0u) input[test * 512u + i] = 0u;
             if (test == 61u || test == 62u) input[test * 512u + i] = uint16_t(0x3fffu | ((test == 62u && i < 256u) ? 0x8000u : 0u));
+            if (test == 63u) input[test * 512u + i] = uint16_t((random_word() & 0x807fu) |
+                ((120u + (i < 256u ? i % 4u : 3u - i % 4u)) << 7u));
         }
         for (unsigned i = 0; i < kCells; ++i) {
             const uint32_t bits = (random_word() & 0x807fffffu) | ((123u + test % 24u) << 23u);
@@ -74,6 +86,7 @@ int main() {
     check(hipMemcpy(output.data(), device_output, output.size() * sizeof(Cell), hipMemcpyDeviceToHost));
     check(hipFree(device_output)); check(hipFree(device_carry)); check(hipFree(device_input));
     unsigned accepted = 0, partial_bad = 0, host_bad = 0, device_bad = 0, status_bad = 0;
+    unsigned range_accepted = 0, range_status_bad = 0, range_host_bad = 0, range_device_bad = 0, accumulator_bad = 0;
     for (unsigned index = 0; index < output.size(); ++index) {
         const unsigned test = index / kCells, row = index / 16u % 16u, column = index % 16u;
         uint32_t pairs[16], products[16]; int32_t expected_parts[4]{};
@@ -82,7 +95,8 @@ int main() {
             left_row[i] = input[test * 512u + row * 16u + i];
             right_row[i] = input[test * 512u + 256u + column * 16u + i];
         }
-        const int amin = qrt_sm121_integer_parts::row_minimum(left_row), bmin = qrt_sm121_integer_parts::row_minimum(right_row);
+        int amax, bmax;
+        const int amin = qrt_sm121_integer_parts::row_range(left_row, &amax), bmin = qrt_sm121_integer_parts::row_range(right_row, &bmax);
         for (unsigned i = 0; i < 16u; ++i) {
             const uint16_t a = input[test * 512u + row * 16u + i], b = input[test * 512u + 256u + column * 16u + i];
             pairs[i] = uint32_t(a) | (uint32_t(b) << 16u);
@@ -97,6 +111,25 @@ int main() {
         }
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
         const auto expected = qrt_sm121_group16::sum_packed(carry, products);
+        qrt_q1_moe_hawkeye::Value values[17]; values[0] = carry;
+        for (unsigned i = 0; i < 16u; ++i)
+            values[i + 1u] = qrt_q1_moe_hawkeye::multiply_bf16(left_row[i], right_row[i], -133);
+        const uint32_t expected_bits = qrt_sm121_native_product::float_bits(qrt_q1_moe_hawkeye::value_to_float(
+            qrt_sm121_group16::finish_accumulator(qrt_q1_moe_hawkeye::group_sum<26, -133>(values, 17u))));
+        accumulator_bad += unsigned(output[index].accumulator_bits != expected_bits);
+        qrt_sm121_group16::AlignedSum range{};
+        const bool range_valid = qrt_sm121_integer_parts::sum_exact_range(carry, output[index].partials,
+            amin, amax, bmin, bmax, &range);
+        range_status_bad += unsigned(range_valid != bool(output[index].range_accepted));
+        if (range_valid) {
+            ++range_accepted;
+            // Independent wide host group_sum normalizes the scaled integer.
+            const qrt_q1_moe_hawkeye::Value scaled{range.value.magnitude, int16_t(range.max_exponent - 2), range.value.negative};
+            const uint32_t host_bits = qrt_sm121_native_product::float_bits(qrt_q1_moe_hawkeye::value_to_float(
+                qrt_sm121_group16::finish_accumulator(qrt_q1_moe_hawkeye::group_sum<26, -133>(&scaled, 1u))));
+            range_host_bad += unsigned(host_bits != expected_bits);
+            range_device_bad += unsigned(output[index].range_bits != expected_bits);
+        }
         qrt_sm121_group16::AlignedSum host{};
         const bool valid = qrt_sm121_integer_parts::sum(carry, pairs, output[index].partials, amin, bmin, &host);
         if (valid != bool(output[index].accepted)) ++status_bad;
@@ -120,5 +153,8 @@ int main() {
     }
     std::printf("{\"kind\":\"integer_wmma_selftest\",\"cells\":%u,\"accepted\":%u,\"partial_mismatches\":%u,\"host_sum_mismatches\":%u,\"device_sum_mismatches\":%u,\"eligibility_mismatches\":%u,\"inference_acceptance\":false}\n",
         unsigned(output.size()), accepted, partial_bad, host_bad, device_bad, status_bad);
-    return accepted && !partial_bad && !host_bad && !device_bad && !status_bad ? 0 : 2;
+    std::printf("{\"kind\":\"integer_wmma_range_selftest\",\"cells\":%u,\"range_accepted\":%u,\"range_status_mismatches\":%u,\"range_host_mismatches\":%u,\"range_device_mismatches\":%u,\"complete_accumulator_mismatches\":%u,\"inference_acceptance\":false}\n",
+        unsigned(output.size()), range_accepted, range_status_bad, range_host_bad, range_device_bad, accumulator_bad);
+    return accepted && range_accepted && !partial_bad && !host_bad && !device_bad && !status_bad &&
+        !range_status_bad && !range_host_bad && !range_device_bad && !accumulator_bad ? 0 : 2;
 }

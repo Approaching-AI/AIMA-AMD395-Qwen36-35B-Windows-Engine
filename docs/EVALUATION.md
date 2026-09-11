@@ -304,8 +304,21 @@ All 306 Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
 Attention replay layout 8 applies four-lane exact dots to QK and stages K32 V
 slabs for cooperative PV. It preserves the original online probabilities,
 alpha rescale, K16 finish points and reciprocal. Scratch and submission-failure
-checks cover the new layout. Native component qualification is pending, and
-the selected product attention provider is unchanged.
+checks cover the new layout. The [native captured-input replay](../benchmarks/correctness/attention-cooperative-20260912.json)
+matches all 29,364,224 BF16 cells and the qualified native FP32 output at both
+eight and thirty-two queries per batch, but takes 2229.53 / 2076.33 ms versus
+1363.33 / 1286.46 ms for layout 4. The 65-query offset tail also matches every
+BF16 cell; its negative PV stage interval is invalid timing evidence. This
+schedule is rejected for product performance, and layout 4 stays selected.
+
+The integer WMMA diagnostic now tries a row-exponent bound before loading the
+sixteen original operand pairs for each cell. Four exact integer matrix
+partials suffice when alignment discards no product or carry bits. Otherwise
+the original compensated or packed K16 path runs. All 400,000 host groups
+match the independent wide canonical accumulator, including 46,408 accepted
+groups whose conservative bound differs from the actual paired maximum,
+44,292 with nonzero carry and 12,555 beyond the signed-32-bit magnitude bound.
+Native arithmetic and captured-input performance qualification are pending.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

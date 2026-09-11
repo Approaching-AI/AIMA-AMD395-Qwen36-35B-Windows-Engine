@@ -599,12 +599,12 @@ constexpr unsigned int kIntegerMatrixColumns = 128u;
 struct IntegerOperandRow {
     uint16_t original[18];
     int high[4], low[4], minimum;
-    int padding;  // Nineteen dwords per row avoids a common bank stride.
+    int maximum;  // Nineteen dwords per row avoids a common bank stride.
 };
 static_assert(sizeof(IntegerOperandRow) == 76u);
 
 __device__ __forceinline__ void blackwell_prepare_integer_row(IntegerOperandRow& row) {
-    row.minimum = qrt_sm121_integer_parts::row_minimum(row.original);
+    row.minimum = qrt_sm121_integer_parts::row_range(row.original, &row.maximum);
 #pragma unroll
     for (unsigned word = 0u; word < 4u; ++word) {
         uint32_t high = 0u, low = 0u;
@@ -637,17 +637,29 @@ __device__ __forceinline__ IntegerMatrixParts blackwell_integer_prepared_product
 }
 
 __device__ __forceinline__ float blackwell_integer_accumulate(
-    float accumulator, const uint32_t (&pairs)[16], const int32_t (&partials)[4], int left_minimum, int right_minimum) {
+    float accumulator, const IntegerOperandRow& left, const IntegerOperandRow& right,
+    const int32_t (&partials)[4], unsigned valid_values = 16u) {
     const auto carry = qrt_q1_moe_hawkeye::value_from_float(accumulator, kBlackwellZeroExponent);
     qrt_sm121_group16::AlignedSum sum;
-    if (!qrt_sm121_integer_parts::sum(carry, pairs, partials, left_minimum, right_minimum, &sum)) {
-        uint32_t products[16];
+    if (!qrt_sm121_integer_parts::sum_exact_range(carry, partials, left.minimum, left.maximum,
+            right.minimum, right.maximum, &sum)) {
+        uint32_t pairs[16];
 #pragma unroll
-        for (unsigned int i = 0u; i < 16u; ++i)
-            products[i] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
-                static_cast<uint16_t>(pairs[i]), static_cast<uint16_t>(pairs[i] >> 16u),
-                kBlackwellZeroExponent));
-        sum = qrt_sm121_group16::sum_packed(carry, products);
+        for (unsigned i = 0u; i < 16u; ++i) {
+            // PV pads both operands beyond this row's causal extent. The
+            // matrix result is unchanged because the left row is already zero.
+            const uint16_t v = i < valid_values ? right.original[i] : 0u;
+            pairs[i] = uint32_t(left.original[i]) | (uint32_t(v) << 16u);
+        }
+        if (!qrt_sm121_integer_parts::sum(carry, pairs, partials, left.minimum, right.minimum, &sum)) {
+            uint32_t products[16];
+#pragma unroll
+            for (unsigned int i = 0u; i < 16u; ++i)
+                products[i] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                    static_cast<uint16_t>(pairs[i]), static_cast<uint16_t>(pairs[i] >> 16u),
+                    kBlackwellZeroExponent));
+            sum = qrt_sm121_group16::sum_packed(carry, products);
+        }
     }
     return qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
         qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent)));
@@ -702,14 +714,10 @@ __global__ void blackwell_mantissa_scores_kernel(
                 const unsigned int local_row = 2u * element + lane / 16u;
                 const unsigned int row = query_tile + local_row, key = key_tile + wave * 16u + lane % 16u;
                 if (row < query_count && key < score_stride && key <= query_start + row) {
-                    uint32_t pairs[16];
-#pragma unroll
-                    for (unsigned int i = 0u; i < 16u; ++i)
-                        pairs[i] = uint32_t(left[local_row].original[i]) | (uint32_t(right[wave * 16u + lane % 16u].original[i]) << 16u);
                     const int32_t partials[4] = {matrix.value[0][element], matrix.value[1][element],
                         matrix.value[2][element], matrix.value[3][element]};
-                    accumulator[element] = blackwell_integer_accumulate(accumulator[element], pairs, partials,
-                        left[local_row].minimum, right[wave * 16u + lane % 16u].minimum);
+                    accumulator[element] = blackwell_integer_accumulate(accumulator[element],
+                        left[local_row], right[wave * 16u + lane % 16u], partials);
                 }
             }
             }
@@ -797,17 +805,11 @@ __global__ void blackwell_mantissa_value_kernel(
                     volatile float rounded = accumulator[element] * alpha;
                     accumulator[element] = rounded;
                 }
-                uint32_t pairs[16];
-#pragma unroll
-                for (unsigned int i = 0u; i < 16u; ++i) {
-                    // The reference pads both operands beyond this row's causal extent.
-                    const uint16_t v = base + i < tokens ? right[wave * 16u + lane % 16u].original[i] : 0u;
-                    pairs[i] = uint32_t(left[local_row].original[i]) | (uint32_t(v) << 16u);
-                }
                 const int32_t partials[4] = {matrix.value[0][element], matrix.value[1][element],
                     matrix.value[2][element], matrix.value[3][element]};
-                accumulator[element] = blackwell_integer_accumulate(accumulator[element], pairs, partials,
-                        left[local_row].minimum, right[wave * 16u + lane % 16u].minimum);
+                accumulator[element] = blackwell_integer_accumulate(accumulator[element],
+                    left[local_row], right[wave * 16u + lane % 16u], partials,
+                    base < tokens ? min(16u, tokens - base) : 0u);
             }
         }
         }
