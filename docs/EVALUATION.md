@@ -99,6 +99,14 @@ and records 63,115.4979 ms provider TTFT beside the actual 63,115.6430 ms
 callback. Arbitrary new prompts, general partial checkpoints, long contexts,
 packaged HTTP, performance and release qualification remain open.
 
+The [integer operand prepacking trial](../benchmarks/correctness/attention-integer-prepack-20260912.json)
+at `31f3e7f` preserves all 29,364,224 captured q7169 attention BF16 values
+and passes input/encoding/redzone checks. Its 64,253,536-byte workspace moves
+KV preparation outside repeated matrix tiles, but total GPU time remains
+3433.81 ms versus the selected layout's 1284.12 ms. The included KV preparation
+takes 0.6574 ms. Keep this replay mode outside the product path; the next
+attention experiment changes the exact product reduction mapping.
+
 The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 reduces actual callback TTFT by 5819.2376 / 5071.3091 /
 6058.9563 ms for q8192 / q7169 / q8191 against the [preceding dense-replay
