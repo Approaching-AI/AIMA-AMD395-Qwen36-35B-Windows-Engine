@@ -1,0 +1,2035 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "host": "BAIYING",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source_commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+  "runtime_change_commit": "515e573783889ad799a40b78352b0e4aa46a9aca",
+  "change": "Increase the bounded absolute-selector submission from 64 to 1024 CTAs, with at most 262144 candidate cells per dispatch. Per-CTA ownership, selector precision, K16 order and stream dependencies are unchanged.",
+  "local_validation": {
+    "source_commit": "515e573783889ad799a40b78352b0e4aa46a9aca",
+    "command": "make check PYTHON=python3.12",
+    "log": "build/check-20260911-moe-batch-r1.log",
+    "seconds": 43.20970245823264,
+    "python_passed": 271,
+    "python_skipped": 2,
+    "rust_passed": 45,
+    "complete_check": "pass",
+    "subsequent_changes": "Native harness build defines corrected at 3d9cf99 and a17a9ed; actual native compilation and safety then pass."
+  },
+  "native_checks": {
+    "safety-build": {
+      "run_record_sha256": "1577e471197b4a55e7190e5bf31ee93128b7e8cca1e7205d9759811af7245612",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "-L",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-safety",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\tests\\native\\moe_correction_batch_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-safety\\moe-correction-batch-safety.exe",
+          "-lhipblaslt"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3",
+        "repo_commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+        "command_file": "D:\\projects\\run-native-moe-batch-safety-r3.ps1",
+        "command_file_sha256": "23f69078dd6332d10e1c9b5b1f4554acce454a3e91f4123f5697ab3d793593df",
+        "source_inputs": [
+          {
+            "sha256": "8fe54aa9f740ce25a85d427c4c20b171964cadeb918f24f6271f4627f4110719",
+            "file": "tests\\native\\moe_correction_batch_selftest.cpp"
+          },
+          {
+            "sha256": "4b5ddf86752d5ca44c78cecf9c281b2bac9077f7ac5f40e3d6abde5370821fd1",
+            "file": "native\\providers\\triton_moe\\qrt_triton_moe_q8192_provider.cpp"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "767447b62f81a9dbab3a90affaf38dcb36ff05e997cd4177c071ca757b46438d",
+            "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          }
+        ],
+        "model": "none; actual MoE correction dense/sparse safety kernels",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-safety\\hipblaslt.lib"
+          }
+        ]
+      },
+      "wall_ms": 5250.191,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "provenance_sha256": "d98a745e473bcf41f52ba99c77e7eb37c2a28b6dac4270565791a10f8ff7393c",
+      "artifact": {
+        "sha256": "063d3848d1055fd21742b65e06625972d5bca735881ec03e9124fc0303f46375",
+        "file": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-safety\\moe-correction-batch-safety.exe",
+        "bytes": 476160
+      }
+    },
+    "safety-test": {
+      "run_record_sha256": "1931c92a77ea6289402d4922aa5ec56b6f2daf5dccf9f9c97a44775fc1973158",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-safety\\moe-correction-batch-safety.exe",
+        "arguments": [
+          "--selftest"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3",
+        "repo_commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+        "command_file": "D:\\projects\\run-native-moe-batch-safety-r4.ps1",
+        "command_file_sha256": "b2fa79756ef8f27f3f9a6aeda57e669f538c98b5c47c60be73cc7d8e71515706",
+        "source_inputs": [
+          {
+            "sha256": "8fe54aa9f740ce25a85d427c4c20b171964cadeb918f24f6271f4627f4110719",
+            "file": "tests\\native\\moe_correction_batch_selftest.cpp"
+          },
+          {
+            "sha256": "4b5ddf86752d5ca44c78cecf9c281b2bac9077f7ac5f40e3d6abde5370821fd1",
+            "file": "native\\providers\\triton_moe\\qrt_triton_moe_q8192_provider.cpp"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "767447b62f81a9dbab3a90affaf38dcb36ff05e997cd4177c071ca757b46438d",
+            "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          }
+        ],
+        "model": "none; actual MoE correction dense/sparse safety kernels",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "build_provenance_sha256": "d98a745e473bcf41f52ba99c77e7eb37c2a28b6dac4270565791a10f8ff7393c"
+      },
+      "wall_ms": 404.052,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "moe_correction_batch_safety",
+          "tokens": 512,
+          "elements": 262144,
+          "dense": true,
+          "maximum_blocks": 64,
+          "interval_kind": "correction_sequence",
+          "interval_ms": 10.6948,
+          "cpu_reference_mismatches": 0,
+          "redzones": "pass",
+          "immutable_inputs": "pass",
+          "inference_acceptance": false
+        },
+        {
+          "kind": "moe_correction_batch_safety",
+          "tokens": 512,
+          "elements": 262144,
+          "dense": true,
+          "maximum_blocks": 1024,
+          "interval_kind": "correction_sequence",
+          "interval_ms": 6.96331,
+          "cpu_reference_mismatches": 0,
+          "redzones": "pass",
+          "immutable_inputs": "pass",
+          "inference_acceptance": false
+        },
+        {
+          "kind": "moe_correction_batch_safety",
+          "tokens": 513,
+          "elements": 262656,
+          "dense": true,
+          "maximum_blocks": 1024,
+          "interval_kind": "correction_sequence",
+          "interval_ms": 7.25453,
+          "cpu_reference_mismatches": 0,
+          "redzones": "pass",
+          "immutable_inputs": "pass",
+          "inference_acceptance": false
+        },
+        {
+          "kind": "moe_correction_batch_safety",
+          "tokens": 513,
+          "elements": 262656,
+          "dense": false,
+          "maximum_blocks": 1024,
+          "interval_kind": "correction_sequence",
+          "interval_ms": 0.746,
+          "cpu_reference_mismatches": 0,
+          "redzones": "pass",
+          "immutable_inputs": "pass",
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "provider-build": {
+      "run_record_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "working_directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3",
+        "repo_commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+        "command_file": "D:\\projects\\run-native-moe-batch-build-r3.ps1",
+        "command_file_sha256": "3b23ffdf34ba38ba0e7f1caf33945c0c6c98b3850298185fed8080a1bbef6343",
+        "model": "none; native build and component smoke",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "source_inputs": [
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          }
+        ],
+        "purpose": "Build shared exact K16 arithmetic provider: moe",
+        "retained_provider_source_sha256": "d280c717570cca5c368152b1e85948e056252f582606dcabffde76bbbaaf724d",
+        "retained_provider_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\scripts\\baiying_build_triton_moe_q8192.ps1",
+          "-BuildDir",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "-ReuseAotDir",
+          "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\q8192-moe",
+          "-HipccPath",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "-WslDistribution",
+          "Ubuntu-24.04",
+          "-WslLlvmStrip",
+          "/opt/rocm/llvm/bin/llvm-strip",
+          "-BlockM",
+          "64",
+          "-BlockN",
+          "64",
+          "-GateBlockN",
+          "64",
+          "-DownBlockN",
+          "64",
+          "-GateBlockK",
+          "64",
+          "-DownBlockK",
+          "64",
+          "-GroupM",
+          "1",
+          "-NumWarps",
+          "4",
+          "-NumStages",
+          "1",
+          "-WavesPerEu",
+          "0",
+          "-GateNumWarps",
+          "4",
+          "-GateNumStages",
+          "1",
+          "-GateWavesPerEu",
+          "0",
+          "-DownNumWarps",
+          "4",
+          "-DownNumStages",
+          "1",
+          "-DownWavesPerEu",
+          "0",
+          "-VllmSiluBf16Intermediate",
+          "0",
+          "-NativeWmmaRouted",
+          "0",
+          "-RoutedProjectionDebug",
+          "0",
+          "-BatchedHawkeye",
+          "1",
+          "-FullSharedHawkeye",
+          "0",
+          "-ExactShared",
+          "0",
+          "-ConditionalExactGate",
+          "1",
+          "-SortedConditionalExactGate",
+          "1",
+          "-RowMajorSortedConditionalExactGate",
+          "1",
+          "-ConditionalExactGateRows",
+          "256",
+          "-ConditionalExactDown",
+          "1",
+          "-ConditionalExactDownRows",
+          "4",
+          "-NativeWmmaGate",
+          "1",
+          "-NativeWmmaDown",
+          "1",
+          "-NativeFusedRouteLayout",
+          "1",
+          "-NativeWmmaAdaptiveTail",
+          "0",
+          "-NativeWmmaBucketedTail",
+          "0",
+          "-NativeWmmaParallelBucketedTail",
+          "0",
+          "-NativeWmmaCompactSplitTail",
+          "0",
+          "-NativeWmmaTail32",
+          "0",
+          "-NativeWmmaPrune16",
+          "0",
+          "-NativeWmmaWideN",
+          "0",
+          "-NativeWmmaLdsB",
+          "1",
+          "-NativeWmmaLdsBNarrowN",
+          "0",
+          "-NativeWmmaLdsBM96",
+          "0",
+          "-NativeWmmaLdsBM64",
+          "0",
+          "-NativeWmmaLdsBM80LoadWave",
+          "0",
+          "-NativeWmmaLdsBM80LoadThreads",
+          "0",
+          "-NativeWmmaLdsBM64LoadThreads",
+          "192",
+          "-NativeWmmaLdsBM64GateLoadThreads",
+          "0",
+          "-NativeWmmaLdsBM64DownLoadThreads",
+          "0",
+          "-NativeWmmaLdsBSplitGatePasses",
+          "1",
+          "-NativeWmmaLdsBSerialGateN32",
+          "1",
+          "-NativeWmmaLdsBParallelGateN64",
+          "0",
+          "-NativeWmmaLdsBParallelGateUpN32",
+          "0",
+          "-NativeWmmaLdsBSerialDownN32",
+          "1",
+          "-NativeWmmaLdsBSerialWideN64",
+          "0",
+          "-NativeWmmaLdsBCompactM96Waves",
+          "0",
+          "-NativeWmmaLdsBSkipInactiveAStores",
+          "1",
+          "-NativeWmmaLdsBFusedOverflow16",
+          "0",
+          "-NativeWmmaLdsBM64FusedOverflow32",
+          "1",
+          "-NativeWmmaLosslessPalette",
+          "1",
+          "-NativeWmmaLosslessRowPalette",
+          "1",
+          "-NativeWmmaWeightInt8",
+          "0",
+          "-NativeWmmaWeightInt8GroupValues",
+          "128",
+          "-NativeWmmaWeightInt8ScaleFp16",
+          "0",
+          "-NativeWmmaLdsBM64DirectM16",
+          "0",
+          "-NativeWmmaLdsBM64DualM16",
+          "0",
+          "-NativeWmmaLdsBGroupedSoleM16",
+          "0",
+          "-NativeWmmaLdsBM64QuadGateM16",
+          "0",
+          "-NativeWmmaLdsBAdaptiveM128",
+          "0",
+          "-NativeWmmaLdsBHybridM96M128",
+          "0",
+          "-NativeWmmaLdsBAdaptiveDirectGrid",
+          "0",
+          "-NativeWmmaLdsBFullDirectTail",
+          "0",
+          "-NativeWmmaLdsBCompactSoleTail",
+          "0",
+          "-NativeWmmaLdsBParallelCompactSoleTail",
+          "0",
+          "-NativeWmmaTallM96",
+          "0",
+          "-NativeWmmaKStage",
+          "32",
+          "-TransposedRouter",
+          "1",
+          "-RouterThreads",
+          "256",
+          "-RouterTokenTile",
+          "8",
+          "-FullV3FusedCombine",
+          "1",
+          "-FusedCombineWidth",
+          "4",
+          "-FullV3EventSlots",
+          "16",
+          "-Repetitions",
+          "1",
+          "-RequireExpectedFullProviderHash",
+          "0"
+        ]
+      },
+      "wall_ms": 16410.81,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "provenance_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+      "artifact": [
+        {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 507392,
+          "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+        }
+      ]
+    }
+  },
+  "runs": {
+    "q7169": {
+      "run_record_sha256": "3a082fe946107db1608827dd021fee742dd94ee7ecf8fa6b853372d3af77e2ae",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\AIMA-public-f544cbed7966\\build\\q7169-f544cbe-r2-qualified-stack\\prompt-q7169.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\carry-specs\\q7169-r1-expected.json",
+          "--expected-prompt-fnv",
+          "c900c18703532d6a",
+          "--env-file",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\product-specs\\moe-batch-q7169-r4.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-replicated-carry-20260911",
+        "repo_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "command_file": "D:\\projects\\run-moe-batch-product-r4.ps1",
+        "command_file_sha256": "f238626e6ef94ed8dff550b9bda0d90980111636d472aa092d4c815ab104d04c",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "oracle": "D:\\projects\\AIMA-public-replicated-carry-20260911\\contracts\\arbitrary_q7169_gb10_oracle.json",
+        "oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "parent_run_sha256": "1c8ceb3f948d90ec8a112b2ec77212693c74fbd27e4979adc73f568b8a9f26f3",
+        "parent_environment_sha256": "5cc494b2414af4fdfd438bcf4965bbedc636c4959c39938f6e22850a3024ab67",
+        "environment_sha256": "9a412746230e4651d1151b28630acae9e8040f9804ac969ea68b11961767d88e",
+        "environment_overrides": {
+          "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe\\qrt_triton_moe_q8192_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_KERNEL_DIR": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe-batch-q7169-r4\\norm"
+        },
+        "components": {
+          "whole": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole",
+            "build_metadata_sha256": "e13617ea19b4bd0749c916ac9224132df4f44590219f37f51f065680d1ca5fc7",
+            "build_run_sha256": "e8dbad64e1561dcac55c757d017714bee09eb3bef8631d8f250b6d921e0192ce",
+            "artifacts": [
+              {
+                "name": "qrt_qwen36_whole_provider.dll",
+                "bytes": 11475456,
+                "sha256": "8d5c41e01bebc9dd776ee663bc90791ed745d0008f5d573b59f44043290c0e8e"
+              },
+              {
+                "name": "q1_moe_avx512bf16_host_provider.obj",
+                "bytes": 183170,
+                "sha256": "f01200c4768647de3356c8a9e95e353bbfc67f34f9b4843eef9a8d5edb94b84d"
+              }
+            ]
+          },
+          "fla": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\fla",
+            "build_metadata_sha256": "0b43ed0c0d4d27c3871a85d23893ea7a928addd1a5698043e0eb5a8fb1a8da0a",
+            "build_run_sha256": "8e942edce0fcc0c5a37e665a5aaf98e4f95f1b37e957d087adbc429ff6527d7e",
+            "artifacts": [
+              {
+                "file": "fla-output-capture-replay.exe",
+                "bytes": 389632,
+                "sha256": "f10b9019129c8266beb2103c9623c7369253bc8ff673b80ff34d1d7b25293ea3"
+              },
+              {
+                "file": "fla-upstream-capture-replay.exe",
+                "bytes": 473088,
+                "sha256": "68e165498ac6adbe96a81bd6a1baee55db25051dbe60febe2e59bdff7da46e83"
+              },
+              {
+                "file": "metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "file": "q64-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "8887e00970a95fc889cf3b5ffcc86723f44330a6296c2b5cda5f9495a3251090"
+              },
+              {
+                "file": "q65-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "8559f9c58bbb07636d677ba582bac2c41782d03c1f5dd33bae3b083b3471f269"
+              },
+              {
+                "file": "q7169-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "548ce02202d578a46232595a19b1d97bc4e9e99edafb061a20870541a8a69eb2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "file": "qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 464896,
+                "sha256": "12e605b089a6a4b08db74c07b61445b3f23caa6e6c7794c5d6df12ed94f229ad"
+              },
+              {
+                "file": "qrt_fla_gdn_kernel_specs.inc",
+                "bytes": 940,
+                "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+              }
+            ]
+          },
+          "moe": {
+            "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+            "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+            "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+            "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+            "artifacts": [
+              {
+                "file": "q8192_selected_moe_route_count.hsaco",
+                "bytes": 4816,
+                "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+              },
+              {
+                "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+                "bytes": 4960,
+                "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+              },
+              {
+                "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+                "bytes": 5040,
+                "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+              },
+              {
+                "file": "q8192_selected_moe_route_scatter.hsaco",
+                "bytes": 5608,
+                "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+              },
+              {
+                "file": "q8192_selected_moe_gate_up_silu.hsaco",
+                "bytes": 17752,
+                "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+              },
+              {
+                "file": "q8192_selected_moe_down.hsaco",
+                "bytes": 11384,
+                "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+              },
+              {
+                "file": "qrt_triton_moe_q8192_provider.dll",
+                "bytes": 507392,
+                "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+              },
+              {
+                "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+                "bytes": 7736,
+                "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+                "bytes": 6824,
+                "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+                "bytes": 6696,
+                "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+              },
+              {
+                "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+                "bytes": 7504,
+                "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+              }
+            ]
+          },
+          "ck": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck",
+            "build_metadata_sha256": "1ff08b7827a38d806fea7f7a1b54a953f26c1fa9eb3d93e0a1bec0c0aaed9e73",
+            "build_run_sha256": "ddf9e325557fec48777d32613eff02e8bb65f071a82a99dc24e0a5c6803a3615",
+            "artifacts": {
+              "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+              "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+              "bytes": 467456
+            }
+          }
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+        "purpose": "Qualify bounded MoE correction submission batches against frozen GB10 full-model tokens and logit",
+        "output_tokens_requested": 32,
+        "inference_acceptance": false,
+        "native_safety_run_sha256": "1931c92a77ea6289402d4922aa5ec56b6f2daf5dccf9f9c97a44775fc1973158"
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 82,
+        "first_token_report_top1_token_id": 82,
+        "first_token_raw_logit": 9.25,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7169,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7169,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "7e8c505cfcbfcf2d",
+        "engine_load_ms": 20084.4713,
+        "provider_preload_ms": 20074.286499,
+        "provider_preload_reported_ms": 20073.6986,
+        "provider_preload_dll_load_ms": 9.047999,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.123701,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 82064.8253,
+        "ttft_ms": 80887.015401,
+        "provider_ttft_ms": 80883.0888,
+        "prefill_tokens_per_second": 88.6298,
+        "tpot_ms": 34.618123,
+        "decode_tokens_per_second": 28.886604,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 80887.015401,
+        "last_callback_wall_ms": 82062.255501,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "frozen_gb10_boundary": "pass",
+      "streaming_boundary": "pass",
+      "full_norm_comparison": {
+        "inference_acceptance": false,
+        "diagnostic_only": true,
+        "completed_model_run": true,
+        "host": "BAIYING",
+        "source_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "command_file": "D:\\projects\\run-moe-batch-product-r4.ps1",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "native_run_sha256": "3a082fe946107db1608827dd021fee742dd94ee7ecf8fa6b853372d3af77e2ae",
+        "manifest_sha256": "351d7fe884d6ddeab594ef946c7f169c771511ed9614592cd9963a5ac9d098d0",
+        "gb10_capture_sha256": "f17592ae9d7d332386eb4b2a3f001f73e497aab94463588b4252e2f23eebdcc0",
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "first_token_raw_logit": 9.25,
+        "engine_load_ms": 20084.4713,
+        "ttft_ms": 80887.015401,
+        "expected_layers": 40,
+        "full_norm_files": 80,
+        "exact_files": 80,
+        "differing_files": 0,
+        "first_difference": null,
+        "rows": [
+          {
+            "layer": 0,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer0-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-00-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+            "reference_sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+            "matches_gb10": true
+          },
+          {
+            "layer": 0,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer0-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-00-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "54163f195b48d6ac767e61eeef137674ae5c83ac9552f04e737959afa834a143",
+            "reference_sha256": "54163f195b48d6ac767e61eeef137674ae5c83ac9552f04e737959afa834a143",
+            "matches_gb10": true
+          },
+          {
+            "layer": 1,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer1-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-01-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "48f9e2ae4c55f3842c81e3294da506416abbbe50958ce7e41dd4b77d5f9474f2",
+            "reference_sha256": "48f9e2ae4c55f3842c81e3294da506416abbbe50958ce7e41dd4b77d5f9474f2",
+            "matches_gb10": true
+          },
+          {
+            "layer": 1,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer1-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-01-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "14707888a3cc8caa5da668ac07121afb0d4b5d84d5004146163bdab71a259c5a",
+            "reference_sha256": "14707888a3cc8caa5da668ac07121afb0d4b5d84d5004146163bdab71a259c5a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 2,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer2-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-02-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "5f5b964fe4cc9980d5802cd0326b88c535fe299b1c68fe35c99d0d77a8794253",
+            "reference_sha256": "5f5b964fe4cc9980d5802cd0326b88c535fe299b1c68fe35c99d0d77a8794253",
+            "matches_gb10": true
+          },
+          {
+            "layer": 2,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer2-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-02-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "6979e496c5f4e62150011cf674b7413c745fc3ea018ad602321fca90d4b28b37",
+            "reference_sha256": "6979e496c5f4e62150011cf674b7413c745fc3ea018ad602321fca90d4b28b37",
+            "matches_gb10": true
+          },
+          {
+            "layer": 3,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer3-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-03-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "d805c2841af875d53e56bd861ce30074fd89405440a9049fee2e5d47d6b59cca",
+            "reference_sha256": "d805c2841af875d53e56bd861ce30074fd89405440a9049fee2e5d47d6b59cca",
+            "matches_gb10": true
+          },
+          {
+            "layer": 3,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer3-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-03-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "058bb87ca31a8da9032d266ba8c65f946f94c85df20767c75e2d76787f2bf4ed",
+            "reference_sha256": "058bb87ca31a8da9032d266ba8c65f946f94c85df20767c75e2d76787f2bf4ed",
+            "matches_gb10": true
+          },
+          {
+            "layer": 4,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer4-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-04-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "3a73c65d2502d94326f2c5ae5127e4e6b52ee141a3671b5acc0bd7ddf76126b8",
+            "reference_sha256": "3a73c65d2502d94326f2c5ae5127e4e6b52ee141a3671b5acc0bd7ddf76126b8",
+            "matches_gb10": true
+          },
+          {
+            "layer": 4,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer4-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-04-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "e1bb9525b2a41c346a8c6dcd74be2d70b7cf1fb189160793e049d8d00a9cbe9d",
+            "reference_sha256": "e1bb9525b2a41c346a8c6dcd74be2d70b7cf1fb189160793e049d8d00a9cbe9d",
+            "matches_gb10": true
+          },
+          {
+            "layer": 5,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer5-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-05-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "07a43c29d2c1a219b7bbbcdacd689d602bc5a89c2f0082cffb14c3619f4f5327",
+            "reference_sha256": "07a43c29d2c1a219b7bbbcdacd689d602bc5a89c2f0082cffb14c3619f4f5327",
+            "matches_gb10": true
+          },
+          {
+            "layer": 5,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer5-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-05-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "8f406a588a3dcfdd0954f640c96e1a00a8e04e798b8582f33bfa8207c307edcb",
+            "reference_sha256": "8f406a588a3dcfdd0954f640c96e1a00a8e04e798b8582f33bfa8207c307edcb",
+            "matches_gb10": true
+          },
+          {
+            "layer": 6,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer6-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-06-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "7a01d018946f0d8b7a786e0a020d3a5380768c28f59835c276a071d55fd060d2",
+            "reference_sha256": "7a01d018946f0d8b7a786e0a020d3a5380768c28f59835c276a071d55fd060d2",
+            "matches_gb10": true
+          },
+          {
+            "layer": 6,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer6-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-06-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "7daf805763b570f69e8c812bfc5fd3c9ed3ac45cb980f71cfbe16e551da6d795",
+            "reference_sha256": "7daf805763b570f69e8c812bfc5fd3c9ed3ac45cb980f71cfbe16e551da6d795",
+            "matches_gb10": true
+          },
+          {
+            "layer": 7,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer7-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-07-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "8fa396532b61ee181550351471e9320899072ea3dc842b0edef75af022462303",
+            "reference_sha256": "8fa396532b61ee181550351471e9320899072ea3dc842b0edef75af022462303",
+            "matches_gb10": true
+          },
+          {
+            "layer": 7,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer7-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-07-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b0c6f0fdbfefcbbce93861dd63dcae9044dc5b320baafcd216ea5d46e3e4fa4a",
+            "reference_sha256": "b0c6f0fdbfefcbbce93861dd63dcae9044dc5b320baafcd216ea5d46e3e4fa4a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 8,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer8-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-08-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "29a65f5ddf45539d921b793df3632a397db5720625ff1827858b881436cd0c6d",
+            "reference_sha256": "29a65f5ddf45539d921b793df3632a397db5720625ff1827858b881436cd0c6d",
+            "matches_gb10": true
+          },
+          {
+            "layer": 8,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer8-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-08-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "448d13958a1fe9075ccec5b2b24fb5a0613f356581b9d60dd172f232d567bec0",
+            "reference_sha256": "448d13958a1fe9075ccec5b2b24fb5a0613f356581b9d60dd172f232d567bec0",
+            "matches_gb10": true
+          },
+          {
+            "layer": 9,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer9-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-09-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "040a063e539090e5546ea9a09a746e4ac01a96e42104b04fd32d593b917f13a0",
+            "reference_sha256": "040a063e539090e5546ea9a09a746e4ac01a96e42104b04fd32d593b917f13a0",
+            "matches_gb10": true
+          },
+          {
+            "layer": 9,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer9-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-09-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "4091e2192016aa9cf7c58fe70f131ff0e4d644d6e9fa4f0ca6502463742bdd89",
+            "reference_sha256": "4091e2192016aa9cf7c58fe70f131ff0e4d644d6e9fa4f0ca6502463742bdd89",
+            "matches_gb10": true
+          },
+          {
+            "layer": 10,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer10-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-10-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "f81ac788e18ab75f9ef8cbeeb029c548c9abbea4651d7bad7bf97d6016b7c14f",
+            "reference_sha256": "f81ac788e18ab75f9ef8cbeeb029c548c9abbea4651d7bad7bf97d6016b7c14f",
+            "matches_gb10": true
+          },
+          {
+            "layer": 10,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer10-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-10-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "e55c75c17728ca600bf2745ef116daac3ddc4d4bf180eb0a8c626a633a974317",
+            "reference_sha256": "e55c75c17728ca600bf2745ef116daac3ddc4d4bf180eb0a8c626a633a974317",
+            "matches_gb10": true
+          },
+          {
+            "layer": 11,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer11-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-11-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "71e933ded870e72b6b1b3469b9602a0961f3e09675f29d286d4b64ea44743488",
+            "reference_sha256": "71e933ded870e72b6b1b3469b9602a0961f3e09675f29d286d4b64ea44743488",
+            "matches_gb10": true
+          },
+          {
+            "layer": 11,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer11-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-11-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "94ac1fb949b7bb8330f2a664b5d504c7ed07d39b415d3724042235ca09aaa0ba",
+            "reference_sha256": "94ac1fb949b7bb8330f2a664b5d504c7ed07d39b415d3724042235ca09aaa0ba",
+            "matches_gb10": true
+          },
+          {
+            "layer": 12,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer12-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-12-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "ba4ab271a7276199a69a6d4b26823459670eb7ce24479adbd69e3637b6b167f3",
+            "reference_sha256": "ba4ab271a7276199a69a6d4b26823459670eb7ce24479adbd69e3637b6b167f3",
+            "matches_gb10": true
+          },
+          {
+            "layer": 12,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer12-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-12-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "d52a661d14ee09858f08fc74480e96ef45e2ae5ebe8f18c114e34481a6d20169",
+            "reference_sha256": "d52a661d14ee09858f08fc74480e96ef45e2ae5ebe8f18c114e34481a6d20169",
+            "matches_gb10": true
+          },
+          {
+            "layer": 13,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer13-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-13-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "e8afc29930bfbd3c3ba6aed879038e4effbb4586a6fb06320796de26e554816a",
+            "reference_sha256": "e8afc29930bfbd3c3ba6aed879038e4effbb4586a6fb06320796de26e554816a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 13,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer13-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-13-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "302da840bc64a94bdacfd7d837a4ebf09b120be42431f19e783904dd0421ad15",
+            "reference_sha256": "302da840bc64a94bdacfd7d837a4ebf09b120be42431f19e783904dd0421ad15",
+            "matches_gb10": true
+          },
+          {
+            "layer": 14,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer14-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-14-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "218a380f5e084abd4c8e404ef585e64ad534705d97fea006399ce2f4b06592fe",
+            "reference_sha256": "218a380f5e084abd4c8e404ef585e64ad534705d97fea006399ce2f4b06592fe",
+            "matches_gb10": true
+          },
+          {
+            "layer": 14,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer14-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-14-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "79f2f8d7e587d0f862272b9c1f93cc47ca137a662453dfab9aa4fda639ed3814",
+            "reference_sha256": "79f2f8d7e587d0f862272b9c1f93cc47ca137a662453dfab9aa4fda639ed3814",
+            "matches_gb10": true
+          },
+          {
+            "layer": 15,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer15-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-15-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "098c5a2fa9843963eab5a5d7a9d205dd690fc84191e44f606ca2e495ec7a80ca",
+            "reference_sha256": "098c5a2fa9843963eab5a5d7a9d205dd690fc84191e44f606ca2e495ec7a80ca",
+            "matches_gb10": true
+          },
+          {
+            "layer": 15,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer15-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-15-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "4b0f30cf786e2134a74d5ffbc002e2e0af84f01f7ad7b8cfc58ca72e881acf88",
+            "reference_sha256": "4b0f30cf786e2134a74d5ffbc002e2e0af84f01f7ad7b8cfc58ca72e881acf88",
+            "matches_gb10": true
+          },
+          {
+            "layer": 16,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer16-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-16-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "f054c502e66cc52d814921ba9c8f5b1711445c2054ac1ef4fda249aa9668b44e",
+            "reference_sha256": "f054c502e66cc52d814921ba9c8f5b1711445c2054ac1ef4fda249aa9668b44e",
+            "matches_gb10": true
+          },
+          {
+            "layer": 16,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer16-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-16-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "d71a4e659f78ca7b8805269b6e7e73b05c0586bf91f271a86c39454045847ea0",
+            "reference_sha256": "d71a4e659f78ca7b8805269b6e7e73b05c0586bf91f271a86c39454045847ea0",
+            "matches_gb10": true
+          },
+          {
+            "layer": 17,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer17-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-17-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "9594058b108ef66bc282350e8d17633a5bfd550bfec0e53de14be9ed326feda9",
+            "reference_sha256": "9594058b108ef66bc282350e8d17633a5bfd550bfec0e53de14be9ed326feda9",
+            "matches_gb10": true
+          },
+          {
+            "layer": 17,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer17-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-17-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "9de4b44de468e8e14c82c3bb61ea0bd8e4ae12c1b4b11d829725da9da7aa91f6",
+            "reference_sha256": "9de4b44de468e8e14c82c3bb61ea0bd8e4ae12c1b4b11d829725da9da7aa91f6",
+            "matches_gb10": true
+          },
+          {
+            "layer": 18,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer18-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-18-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b599d58e85eecc80543f53a6e826f790f5f03838e986639df3daabfb29d25401",
+            "reference_sha256": "b599d58e85eecc80543f53a6e826f790f5f03838e986639df3daabfb29d25401",
+            "matches_gb10": true
+          },
+          {
+            "layer": 18,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer18-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-18-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "a9a22a82465f65c9150e1ac17483503fa8f223328e12c0327be973c03ab27251",
+            "reference_sha256": "a9a22a82465f65c9150e1ac17483503fa8f223328e12c0327be973c03ab27251",
+            "matches_gb10": true
+          },
+          {
+            "layer": 19,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer19-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-19-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b3a6b6077157028607d17428ed2b3820bd9bf64a5b784de5212c35ef78aa7b4a",
+            "reference_sha256": "b3a6b6077157028607d17428ed2b3820bd9bf64a5b784de5212c35ef78aa7b4a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 19,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer19-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-19-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "43b1219f94751dad22cc379353dff559c643f1b82f9639200718b510d7ffb5f7",
+            "reference_sha256": "43b1219f94751dad22cc379353dff559c643f1b82f9639200718b510d7ffb5f7",
+            "matches_gb10": true
+          },
+          {
+            "layer": 20,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer20-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-20-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "15365788928f391ef85e95a479075b4d546b5897b5fc85548feb7d86ea08a26e",
+            "reference_sha256": "15365788928f391ef85e95a479075b4d546b5897b5fc85548feb7d86ea08a26e",
+            "matches_gb10": true
+          },
+          {
+            "layer": 20,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer20-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-20-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "bf6b4adfaed2565544f79d8aadb51e881232542596a5bb5795cd03cd309d3418",
+            "reference_sha256": "bf6b4adfaed2565544f79d8aadb51e881232542596a5bb5795cd03cd309d3418",
+            "matches_gb10": true
+          },
+          {
+            "layer": 21,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer21-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-21-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "8cbb89a7c746b86d719463274f9dda1f43549e6e82e94035e8e6d7aa23968dd4",
+            "reference_sha256": "8cbb89a7c746b86d719463274f9dda1f43549e6e82e94035e8e6d7aa23968dd4",
+            "matches_gb10": true
+          },
+          {
+            "layer": 21,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer21-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-21-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "fbbfc5777001902cbf89a37cf13f6ea22ff53c403dcce2a83669b47bd13c1acb",
+            "reference_sha256": "fbbfc5777001902cbf89a37cf13f6ea22ff53c403dcce2a83669b47bd13c1acb",
+            "matches_gb10": true
+          },
+          {
+            "layer": 22,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer22-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-22-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b013dcc6c10082f54c254190bdc9ab11e442600cdc788e817f6fb53027a0afa7",
+            "reference_sha256": "b013dcc6c10082f54c254190bdc9ab11e442600cdc788e817f6fb53027a0afa7",
+            "matches_gb10": true
+          },
+          {
+            "layer": 22,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer22-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-22-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "2d3d04cdbced7b8f284bc5af02421aa42395996e4b31d7963c6a4edcdfcb8772",
+            "reference_sha256": "2d3d04cdbced7b8f284bc5af02421aa42395996e4b31d7963c6a4edcdfcb8772",
+            "matches_gb10": true
+          },
+          {
+            "layer": 23,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer23-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-23-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "a3cd592960137b653f04d7561188fdc580dc1a01871860ed7e2e9b0edf00f606",
+            "reference_sha256": "a3cd592960137b653f04d7561188fdc580dc1a01871860ed7e2e9b0edf00f606",
+            "matches_gb10": true
+          },
+          {
+            "layer": 23,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer23-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-23-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "1fe3c6d99d89faa0606045320e1e212804ff0249b0f9bf72e99ee0337d7b5775",
+            "reference_sha256": "1fe3c6d99d89faa0606045320e1e212804ff0249b0f9bf72e99ee0337d7b5775",
+            "matches_gb10": true
+          },
+          {
+            "layer": 24,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer24-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-24-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "e605bb5f4be83333dfbf1ed4a9ba9cb21510e9f6665ef9bcc45be50d43e4438e",
+            "reference_sha256": "e605bb5f4be83333dfbf1ed4a9ba9cb21510e9f6665ef9bcc45be50d43e4438e",
+            "matches_gb10": true
+          },
+          {
+            "layer": 24,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer24-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-24-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "c60dca47cf83e113fd1df42e72071b7e4ea3b36e1fec469271f5441791fceca7",
+            "reference_sha256": "c60dca47cf83e113fd1df42e72071b7e4ea3b36e1fec469271f5441791fceca7",
+            "matches_gb10": true
+          },
+          {
+            "layer": 25,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer25-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-25-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "67b6988c0bcd671d51e7fb050cd152d64f9b47ecdad2cff206a411820bf4cebf",
+            "reference_sha256": "67b6988c0bcd671d51e7fb050cd152d64f9b47ecdad2cff206a411820bf4cebf",
+            "matches_gb10": true
+          },
+          {
+            "layer": 25,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer25-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-25-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "a74a08a59e70985de9e42731d351fe5d6687e3a5e0804de782ac9788f93f24b5",
+            "reference_sha256": "a74a08a59e70985de9e42731d351fe5d6687e3a5e0804de782ac9788f93f24b5",
+            "matches_gb10": true
+          },
+          {
+            "layer": 26,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer26-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-26-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "f8389ed2870bcdb298bc832944a4d7fd7b4e31c56651b04949f129a7b5897298",
+            "reference_sha256": "f8389ed2870bcdb298bc832944a4d7fd7b4e31c56651b04949f129a7b5897298",
+            "matches_gb10": true
+          },
+          {
+            "layer": 26,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer26-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-26-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "bcd9ad5809a8c2f5dc7f13bda4bf870c910b041e8ca7c13dc377c8fff59d2638",
+            "reference_sha256": "bcd9ad5809a8c2f5dc7f13bda4bf870c910b041e8ca7c13dc377c8fff59d2638",
+            "matches_gb10": true
+          },
+          {
+            "layer": 27,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer27-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-27-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "144f9e751901441479207fe6027e940885983306291f36567256551bd1df88e2",
+            "reference_sha256": "144f9e751901441479207fe6027e940885983306291f36567256551bd1df88e2",
+            "matches_gb10": true
+          },
+          {
+            "layer": 27,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer27-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-27-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "894c3ae8dcf06cdd8eb6a72c90c1b7fd3c030a107effe9342c67bca2b72d81b9",
+            "reference_sha256": "894c3ae8dcf06cdd8eb6a72c90c1b7fd3c030a107effe9342c67bca2b72d81b9",
+            "matches_gb10": true
+          },
+          {
+            "layer": 28,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer28-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-28-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "a98d985f1c321b4bec2adc45fb438db704c294616b4c6fcdc31c819ba3296b3d",
+            "reference_sha256": "a98d985f1c321b4bec2adc45fb438db704c294616b4c6fcdc31c819ba3296b3d",
+            "matches_gb10": true
+          },
+          {
+            "layer": 28,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer28-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-28-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "a903d75942d610a6257ffcce290fd4fb5522afa90410fabbb5d84645189d53fb",
+            "reference_sha256": "a903d75942d610a6257ffcce290fd4fb5522afa90410fabbb5d84645189d53fb",
+            "matches_gb10": true
+          },
+          {
+            "layer": 29,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer29-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-29-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "890134119298c44e630df2b1d182529668ca8b6f0bc3d92b970bde35e8f71329",
+            "reference_sha256": "890134119298c44e630df2b1d182529668ca8b6f0bc3d92b970bde35e8f71329",
+            "matches_gb10": true
+          },
+          {
+            "layer": 29,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer29-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-29-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "98284aa84be4d15b45c6c381a5f612f903b91c044b890d8ed7a14f7aaf198fbf",
+            "reference_sha256": "98284aa84be4d15b45c6c381a5f612f903b91c044b890d8ed7a14f7aaf198fbf",
+            "matches_gb10": true
+          },
+          {
+            "layer": 30,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer30-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-30-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "56c13a780298b794fdcd8704ad857f611eef66d5f542f5cc8cec932a71ae4a7a",
+            "reference_sha256": "56c13a780298b794fdcd8704ad857f611eef66d5f542f5cc8cec932a71ae4a7a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 30,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer30-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-30-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "9770e7e1a857e43c7e04c537040cde2cf4cdf8cb342fe21ae4b6cef0bda229e9",
+            "reference_sha256": "9770e7e1a857e43c7e04c537040cde2cf4cdf8cb342fe21ae4b6cef0bda229e9",
+            "matches_gb10": true
+          },
+          {
+            "layer": 31,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer31-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-31-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "674d06c2d0ec02764d7306c565ca321b259081aac99a32130c2c352d6d651927",
+            "reference_sha256": "674d06c2d0ec02764d7306c565ca321b259081aac99a32130c2c352d6d651927",
+            "matches_gb10": true
+          },
+          {
+            "layer": 31,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer31-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-31-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "63888de9d73d95f22eade00988ea7d189474e10fa65b4374aff4a2597be665df",
+            "reference_sha256": "63888de9d73d95f22eade00988ea7d189474e10fa65b4374aff4a2597be665df",
+            "matches_gb10": true
+          },
+          {
+            "layer": 32,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer32-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-32-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b6132c0cf2194e2c9ca5e5e2e87b6890525e7bf8965516baba21d2015fbd8511",
+            "reference_sha256": "b6132c0cf2194e2c9ca5e5e2e87b6890525e7bf8965516baba21d2015fbd8511",
+            "matches_gb10": true
+          },
+          {
+            "layer": 32,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer32-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-32-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "ccde20dde644ab2870faf1063a142f5924097ae69d0480f05e8d5e89b8158804",
+            "reference_sha256": "ccde20dde644ab2870faf1063a142f5924097ae69d0480f05e8d5e89b8158804",
+            "matches_gb10": true
+          },
+          {
+            "layer": 33,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer33-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-33-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "5e7e562a3777e98c4432bcd8f2ab7626bf057c8ff78c11503a4d87e429bdab8b",
+            "reference_sha256": "5e7e562a3777e98c4432bcd8f2ab7626bf057c8ff78c11503a4d87e429bdab8b",
+            "matches_gb10": true
+          },
+          {
+            "layer": 33,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer33-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-33-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "d7f589cd5aa0cac1a61e234f90ac3c4c4bdb8348e4bd706cc48cc4fd1ae3a3df",
+            "reference_sha256": "d7f589cd5aa0cac1a61e234f90ac3c4c4bdb8348e4bd706cc48cc4fd1ae3a3df",
+            "matches_gb10": true
+          },
+          {
+            "layer": 34,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer34-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-34-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "b0380ca3c2accd929612140b638b077af95802be813feeb6106a238c6f146dd2",
+            "reference_sha256": "b0380ca3c2accd929612140b638b077af95802be813feeb6106a238c6f146dd2",
+            "matches_gb10": true
+          },
+          {
+            "layer": 34,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer34-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-34-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "60584fd11f37ff1a0096686b55c7b2a375abc5bc25d98402152f2339456463a8",
+            "reference_sha256": "60584fd11f37ff1a0096686b55c7b2a375abc5bc25d98402152f2339456463a8",
+            "matches_gb10": true
+          },
+          {
+            "layer": 35,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer35-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-35-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "1b9dfb645c95fbffa6770d8b48ec1793f5721b6e40e2c42082a84c465936ad7a",
+            "reference_sha256": "1b9dfb645c95fbffa6770d8b48ec1793f5721b6e40e2c42082a84c465936ad7a",
+            "matches_gb10": true
+          },
+          {
+            "layer": 35,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer35-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-35-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "3fbec3bb95798ac6aec9dfe1f0878281ca6b1a1353566e7b09b41b9edaf58778",
+            "reference_sha256": "3fbec3bb95798ac6aec9dfe1f0878281ca6b1a1353566e7b09b41b9edaf58778",
+            "matches_gb10": true
+          },
+          {
+            "layer": 36,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer36-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-36-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "0139b1e8248a48cbd2b371dd9eb69dc52882719cd9f2ff0b7252c01c3371e348",
+            "reference_sha256": "0139b1e8248a48cbd2b371dd9eb69dc52882719cd9f2ff0b7252c01c3371e348",
+            "matches_gb10": true
+          },
+          {
+            "layer": 36,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer36-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-36-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "80effb692bd3fa614c7c0467d02d389b0d009073dce8ca320ad6204317e6acb4",
+            "reference_sha256": "80effb692bd3fa614c7c0467d02d389b0d009073dce8ca320ad6204317e6acb4",
+            "matches_gb10": true
+          },
+          {
+            "layer": 37,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer37-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-37-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "d52d1a4f9ec8e9ad5118f5fa40d1ea374b670d6a2ea3073d2abc8d8eab283fd3",
+            "reference_sha256": "d52d1a4f9ec8e9ad5118f5fa40d1ea374b670d6a2ea3073d2abc8d8eab283fd3",
+            "matches_gb10": true
+          },
+          {
+            "layer": 37,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer37-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-37-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "1acc943846e43e883493011f147bbc857eb83ffdd2816fd6883ebb5cfd6faef8",
+            "reference_sha256": "1acc943846e43e883493011f147bbc857eb83ffdd2816fd6883ebb5cfd6faef8",
+            "matches_gb10": true
+          },
+          {
+            "layer": 38,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer38-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-38-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "4f4cd1f90ca79e073f087b466235583ee73c7f90dc87aee29ca3af0158afa06c",
+            "reference_sha256": "4f4cd1f90ca79e073f087b466235583ee73c7f90dc87aee29ca3af0158afa06c",
+            "matches_gb10": true
+          },
+          {
+            "layer": 38,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer38-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-38-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "eee890341a5dd7142c63a46efca76057c80da42e9900b1d11d45c02e98c69bc5",
+            "reference_sha256": "eee890341a5dd7142c63a46efca76057c80da42e9900b1d11d45c02e98c69bc5",
+            "matches_gb10": true
+          },
+          {
+            "layer": 39,
+            "surface": "input_rmsnorm",
+            "native_file": "norm-layer39-input_rmsnorm-bf16.bin",
+            "reference_file": "layer-39-input-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "4501ef6c924dd6c9e74f73df4d7f6f345b1332c2a429da796aec7074e5a7edad",
+            "reference_sha256": "4501ef6c924dd6c9e74f73df4d7f6f345b1332c2a429da796aec7074e5a7edad",
+            "matches_gb10": true
+          },
+          {
+            "layer": 39,
+            "surface": "post_attention_rmsnorm",
+            "native_file": "norm-layer39-post_attention_rmsnorm-bf16.bin",
+            "reference_file": "layer-39-post-attention-rmsnorm-bf16.bin",
+            "bytes": 29364224,
+            "native_sha256": "1b74278e324633031241b53b6fb9bec72488f76f1b99653f28d2cbabca5fd465",
+            "reference_sha256": "1b74278e324633031241b53b6fb9bec72488f76f1b99653f28d2cbabca5fd465",
+            "matches_gb10": true
+          }
+        ]
+      },
+      "same_profile_ttft_improvement_ms": 18252.57359900001
+    },
+    "q8192": {
+      "run_record_sha256": "9fd16bed1683648a056f09a7279abae0f12b3f85ce623614918d0200ed4fc5ab",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\AIMA-public-f544cbed7966\\build\\formal-q8192-f544cbe-r1\\prompt-q8192.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\carry-specs\\q8192-r1-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "e60389077f247d2c",
+          "--env-file",
+          "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\product-specs\\moe-batch-q8192-r4.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-replicated-carry-20260911",
+        "repo_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "command_file": "D:\\projects\\run-moe-batch-product-r4.ps1",
+        "command_file_sha256": "f238626e6ef94ed8dff550b9bda0d90980111636d472aa092d4c815ab104d04c",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "oracle": "D:\\projects\\AIMA-public-replicated-carry-20260911\\contracts\\hprefill_q8192_gb10_oracle.json",
+        "oracle_sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
+        "parent_run_sha256": "fe6fbc7a07bb357395de1984a4753729bdcdfa5bdc4258c08f8bb586dde9bccc",
+        "parent_environment_sha256": "8e450901188b966deaaaedf92172324e7b80b6b9b915db45f9e81f8fab527f28",
+        "environment_sha256": "e5121d2e5cfb98bf537aa4f45f291d7d5dce7a0422aaaf40dfb23221329f0907",
+        "environment_overrides": {
+          "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe\\qrt_triton_moe_q8192_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_KERNEL_DIR": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe"
+        },
+        "components": {
+          "whole": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole",
+            "build_metadata_sha256": "e13617ea19b4bd0749c916ac9224132df4f44590219f37f51f065680d1ca5fc7",
+            "build_run_sha256": "e8dbad64e1561dcac55c757d017714bee09eb3bef8631d8f250b6d921e0192ce",
+            "artifacts": [
+              {
+                "name": "qrt_qwen36_whole_provider.dll",
+                "bytes": 11475456,
+                "sha256": "8d5c41e01bebc9dd776ee663bc90791ed745d0008f5d573b59f44043290c0e8e"
+              },
+              {
+                "name": "q1_moe_avx512bf16_host_provider.obj",
+                "bytes": 183170,
+                "sha256": "f01200c4768647de3356c8a9e95e353bbfc67f34f9b4843eef9a8d5edb94b84d"
+              }
+            ]
+          },
+          "fla": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\fla",
+            "build_metadata_sha256": "0b43ed0c0d4d27c3871a85d23893ea7a928addd1a5698043e0eb5a8fb1a8da0a",
+            "build_run_sha256": "8e942edce0fcc0c5a37e665a5aaf98e4f95f1b37e957d087adbc429ff6527d7e",
+            "artifacts": [
+              {
+                "file": "fla-output-capture-replay.exe",
+                "bytes": 389632,
+                "sha256": "f10b9019129c8266beb2103c9623c7369253bc8ff673b80ff34d1d7b25293ea3"
+              },
+              {
+                "file": "fla-upstream-capture-replay.exe",
+                "bytes": 473088,
+                "sha256": "68e165498ac6adbe96a81bd6a1baee55db25051dbe60febe2e59bdff7da46e83"
+              },
+              {
+                "file": "metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "file": "q64-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "8887e00970a95fc889cf3b5ffcc86723f44330a6296c2b5cda5f9495a3251090"
+              },
+              {
+                "file": "q65-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "8559f9c58bbb07636d677ba582bac2c41782d03c1f5dd33bae3b083b3471f269"
+              },
+              {
+                "file": "q7169-fla-smoke.exe",
+                "bytes": 328704,
+                "sha256": "548ce02202d578a46232595a19b1d97bc4e9e99edafb061a20870541a8a69eb2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "file": "qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 464896,
+                "sha256": "12e605b089a6a4b08db74c07b61445b3f23caa6e6c7794c5d6df12ed94f229ad"
+              },
+              {
+                "file": "qrt_fla_gdn_kernel_specs.inc",
+                "bytes": 940,
+                "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+              }
+            ]
+          },
+          "moe": {
+            "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+            "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+            "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+            "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+            "artifacts": [
+              {
+                "file": "q8192_selected_moe_route_count.hsaco",
+                "bytes": 4816,
+                "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+              },
+              {
+                "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+                "bytes": 4960,
+                "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+              },
+              {
+                "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+                "bytes": 5040,
+                "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+              },
+              {
+                "file": "q8192_selected_moe_route_scatter.hsaco",
+                "bytes": 5608,
+                "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+              },
+              {
+                "file": "q8192_selected_moe_gate_up_silu.hsaco",
+                "bytes": 17752,
+                "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+              },
+              {
+                "file": "q8192_selected_moe_down.hsaco",
+                "bytes": 11384,
+                "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+              },
+              {
+                "file": "qrt_triton_moe_q8192_provider.dll",
+                "bytes": 507392,
+                "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+              },
+              {
+                "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+                "bytes": 7736,
+                "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+                "bytes": 6824,
+                "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+                "bytes": 6696,
+                "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+              },
+              {
+                "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+                "bytes": 7504,
+                "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+              }
+            ]
+          },
+          "ck": {
+            "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+            "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck",
+            "build_metadata_sha256": "1ff08b7827a38d806fea7f7a1b54a953f26c1fa9eb3d93e0a1bec0c0aaed9e73",
+            "build_run_sha256": "ddf9e325557fec48777d32613eff02e8bb65f071a82a99dc24e0a5c6803a3615",
+            "artifacts": {
+              "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+              "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+              "bytes": 467456
+            }
+          }
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+        "purpose": "Qualify bounded MoE correction submission batches against frozen GB10 full-model tokens and logit",
+        "output_tokens_requested": 32,
+        "inference_acceptance": false,
+        "native_safety_run_sha256": "1931c92a77ea6289402d4922aa5ec56b6f2daf5dccf9f9c97a44775fc1973158"
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 144,
+        "first_token_report_top1_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8192,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8192,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "e60389077f247d2c",
+        "engine_load_ms": 20089.1141,
+        "provider_preload_ms": 20078.7958,
+        "provider_preload_reported_ms": 20078.0642,
+        "provider_preload_dll_load_ms": 9.209001,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.0973,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 5245.0222,
+        "ttft_ms": 4151.7511,
+        "provider_ttft_ms": 4148.0145,
+        "prefill_tokens_per_second": 1973.143332,
+        "tpot_ms": 32.966542,
+        "decode_tokens_per_second": 30.333785,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 4151.7511,
+        "last_callback_wall_ms": 5242.3198,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "frozen_gb10_boundary": "pass",
+      "streaming_boundary": "pass",
+      "same_run_retained_targets": "pass"
+    }
+  },
+  "failed_setup": [
+    {
+      "run_record_sha256": "ec23432891acb36134d4b365dc5e8c96da89a2b51690c49b0a08a86c6cb8d84b",
+      "source_commit": "515e573783889ad799a40b78352b0e4aa46a9aca",
+      "command_file": "D:\\projects\\run-native-moe-batch-safety-r1.ps1",
+      "command_file_sha256": "98161c96bdc5af837ec88bd66f701c145817704362dddd674bb93150863867af",
+      "exit_code": 1,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reason": "Harness omitted required retained M64 route defines; compilation rejected before GPU work."
+    },
+    {
+      "run_record_sha256": "d39f6ec4162cbe5d4ae9a1f174d20db615c3a5f8071dfd46a3fd3769c32d1f14",
+      "source_commit": "3d9cf9987a6adef5da929d1c94490a26fe8059aa",
+      "command_file": "D:\\projects\\run-native-moe-batch-safety-r2.ps1",
+      "command_file_sha256": "c2d2af29d3f4102302d53fa299c500106707877068306621db91df4de30b94e1",
+      "exit_code": 1,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reason": "Harness omitted the required 192-thread M64 load geometry; compilation rejected before GPU work."
+    },
+    {
+      "dispatch_record_sha256": "22e25e7a073b8efdadfea57bff189915b4e49cc951e619a75c81bf341e640899",
+      "reason": "Guard Start-Process rejected an empty ArgumentList before executable startup; r4 supplies --selftest and uses fresh evidence paths.",
+      "inference_started": false
+    }
+  ],
+  "release_qualified": false,
+  "limitations": [
+    "Dense/sparse component tests are synthetic safety controls, not GB10 model acceptance.",
+    "Whole/FLA/CK remain cf5da64; CLI/AITER remain f544cbe.",
+    "q7169 and q8192 still use different arithmetic profiles; no unified package is qualified.",
+    "Arbitrary-length performance, true prefix restoration, wider context and packaged API acceptance remain open."
+  ]
+}

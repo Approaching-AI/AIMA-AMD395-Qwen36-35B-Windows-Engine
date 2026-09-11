@@ -33,17 +33,26 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole/MoE/FLA/CK providers at
-`cf5da6481b13278212d102b2050bd54180b773dc`. Each run has zero first-logit error
+`D:\models\Qwen3.6-35B-A3B`, whole/FLA/CK at cf5da64 and MoE at
+`a17a9edeb4e93dcf626b19041c700e9e2100ea90`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
 retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, four cf5da64 providers, fast profile | 144 / 10.375 | 20,120.348300 | 4,124.805900 | 32.968803 |
-| q7169, four cf5da64 providers, 1000 ppb profile | 82 / 9.25 | 20,067.702900 | 99,139.589000 | 34.730342 |
+| q8192, MoE a17a9ed plus cf5da64 providers, fast profile | 144 / 10.375 | 20,089.114100 | 4,151.751100 | 32.966542 |
+| q7169, MoE a17a9ed plus cf5da64 providers, 1000 ppb profile | 82 / 9.25 | 20,084.471300 | 80,887.015401 | 34.618123 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
+qualify 1024-CTA batches with the original selector and dot arithmetic.
+The same q7169 profile improves by 18,252.573599 ms; all 80 complete GB10
+norm files remain exact. The actual-kernel dense control checks 262,144
+candidate cells in 6.963310 ms; dense tail and sparse cases also match the
+scalar reference with intact redzones and inputs. These synthetic intervals
+are safety checks. Both full-model runs supply their own frozen GB10 gates;
+q8192 again meets actual retained TTFT, load and TPOT targets.
 
 The [replicated-carry records](../benchmarks/correctness/replicated-carry-20260911.json)
 bind all four successful native builds and both product runs to uniform K16
