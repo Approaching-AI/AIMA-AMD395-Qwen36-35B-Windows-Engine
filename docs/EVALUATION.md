@@ -33,18 +33,25 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole provider at
-`c7f6cd1560a3f565b17144d847a2934886c9571c`, MoE/FLA at 7c09aaf and CK at
-`3b227fecf24f4c30f4def454136884fcdb352aa9`. Each run has zero first-logit error
+`D:\models\Qwen3.6-35B-A3B`, whole/MoE/FLA/CK providers at
+`cf5da6481b13278212d102b2050bd54180b773dc`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
 retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, whole c7f6cd1 plus CK 3b227fe, fast profile | 144 / 10.375 | 20,074.182000 | 4,155.686800 | 32.911829 |
-| q7169, whole c7f6cd1 plus CK 3b227fe, 1000 ppb profile | 82 / 9.25 | 20,061.671500 | 106,001.312700 | 34.709061 |
+| q8192, four cf5da64 providers, fast profile | 144 / 10.375 | 20,120.348300 | 4,124.805900 | 32.968803 |
+| q7169, four cf5da64 providers, 1000 ppb profile | 82 / 9.25 | 20,067.702900 | 99,139.589000 | 34.730342 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [replicated-carry records](../benchmarks/correctness/replicated-carry-20260911.json)
+bind all four successful native builds and both product runs to uniform K16
+carry ownership. q7169 improves by 6,861.723700 ms with all 80 complete GB10
+norm files unchanged. The full attention replay matches all 29,364,224 GB10
+BF16 cells and the qualified native FP32 control in 2,306.52 ms; this component
+interval is not TTFT. The same-run actual q8192 retained TTFT, load and TPOT
+pass. Full local checks also pass; broader product qualification remains open.
 
 The [split-attention product records](../benchmarks/correctness/attention-split-product-20260911.json)
 qualify the reusable 4 MiB score arena and eight-query QK/PV dispatch pairs.
