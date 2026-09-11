@@ -8,30 +8,29 @@ constexpr unsigned kCases = 64u, kCells = 256u;
 struct Cell { int32_t partials[4]; uint32_t magnitude; int exponent; unsigned negative, accepted; };
 
 __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* output) {
-    __shared__ uint16_t left[16][18], right[16][18];
-    __shared__ int left_minimum[16], right_minimum[16];
+    __shared__ qrt_blackwell_attention::IntegerOperandRow left[16], right[16];
     const unsigned lane = threadIdx.x, base = blockIdx.x * 512u;
     if (lane < 16u) {
         for (unsigned i = 0; i < 16u; ++i) {
-            left[lane][i] = input[base + lane * 16u + i];
-            right[lane][i] = input[base + 256u + lane * 16u + i];
+            left[lane].original[i] = input[base + lane * 16u + i];
+            right[lane].original[i] = input[base + 256u + lane * 16u + i];
         }
-        left_minimum[lane] = qrt_sm121_integer_parts::row_minimum(left[lane]);
-        right_minimum[lane] = qrt_sm121_integer_parts::row_minimum(right[lane]);
+        qrt_blackwell_attention::blackwell_prepare_integer_row(left[lane]);
+        qrt_blackwell_attention::blackwell_prepare_integer_row(right[lane]);
     }
     __syncthreads();
-    const auto matrix = qrt_blackwell_attention::blackwell_integer_products(left, right, left_minimum, right_minimum, lane);
+    const auto matrix = qrt_blackwell_attention::blackwell_integer_prepared_products(left[lane % 16u], right[lane % 16u]);
     for (unsigned element = 0; element < 8u; ++element) {
         const unsigned row = 2u * element + lane / 16u, column = lane % 16u;
         const unsigned index = blockIdx.x * 256u + row * 16u + column;
         Cell result{};
         uint32_t pairs[16]; int32_t partials[4];
         for (unsigned i = 0; i < 16u; ++i)
-            pairs[i] = uint32_t(left[row][i]) | (uint32_t(right[column][i]) << 16u);
+            pairs[i] = uint32_t(left[row].original[i]) | (uint32_t(right[column].original[i]) << 16u);
         for (unsigned i = 0; i < 4u; ++i) result.partials[i] = partials[i] = matrix.value[i][element];
         qrt_sm121_group16::AlignedSum sum{};
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
-        result.accepted = qrt_sm121_integer_parts::sum(carry, pairs, partials, left_minimum[row], right_minimum[column], &sum);
+        result.accepted = qrt_sm121_integer_parts::sum(carry, pairs, partials, left[row].minimum, right[column].minimum, &sum);
         result.magnitude = sum.value.magnitude; result.negative = sum.value.negative; result.exponent = sum.max_exponent;
         output[index] = result;
     }

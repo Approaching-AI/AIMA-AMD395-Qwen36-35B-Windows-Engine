@@ -1,0 +1,3074 @@
+{
+  "schema_version": 1,
+  "kind": "exact_integer_wmma_attention_component",
+  "decision": "numerically retained diagnostic; slower than selected integer-packed attention",
+  "source": {
+    "sha": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+    "bundle": "attention-integer-wmma-a9e46b7.bundle",
+    "bundle_sha256": "d0db477c0fef840327036aeb916913f8571a0ed916a6a48319d3fd3ef01ee671",
+    "repo": "D:/projects/AIMA-public-integer-wmma-20260911"
+  },
+  "host": "baiying",
+  "model_reference": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "verification": {
+    "real_bf16_elements": 29364224,
+    "real_bf16_mismatches": 0,
+    "full_native_f32_sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+    "tail_start": 1,
+    "tail_queries": 65,
+    "tail_bf16_mismatches": 0,
+    "native_integer_probe_cells": 16384,
+    "native_eligible_cells": 12335,
+    "native_partial_and_sum_mismatches": 0,
+    "cpu_groups": 200000,
+    "cpu_accepted": 129734,
+    "cpu_rejected": 70266,
+    "cpu_shifted": 97591,
+    "local_tests": 304,
+    "local_skips": 2
+  },
+  "timing_ms": {
+    "original": {
+      "total": 1363.4,
+      "qk": 571.81,
+      "pv": 789.974,
+      "preparation": 1.61382
+    },
+    "integer_wmma": {
+      "total": 4663.77,
+      "qk": 1460.27,
+      "probability": 294.659,
+      "pv": 2907.07,
+      "preparation": 1.76548
+    }
+  },
+  "runs": [
+    {
+      "name": "integer-probe-build-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 15898,
+          "sha256": "1c48834b56639b95ab87b2be9713b8d4c838960ef5e29cd93b459d0cacf2eabc",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+              "arguments": [
+                "-std=c++17",
+                "-O3",
+                "--offload-arch=gfx1151",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp",
+                "-o",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\integer-probe\\integer-probe.exe"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "bd99adbc0271fbc6e9a52e6ad57bf8177f30eed01d9cadb2030860357dcfa911",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-integer-probe-r1.ps1",
+              "command_file_sha256": "0eb9504b17e2eda01dea5f55d1f33fce7bcba881a4aea0e3cb744b21f883a30c",
+              "model": "none; generated BF16 arithmetic controls",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "purpose": "build"
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:21.0660672Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+                "arguments": [
+                  "-std=c++17",
+                  "-O3",
+                  "--offload-arch=gfx1151",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp",
+                  "-o",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\integer-probe\\integer-probe.exe"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "bd99adbc0271fbc6e9a52e6ad57bf8177f30eed01d9cadb2030860357dcfa911",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-integer-probe-r1.ps1",
+                "command_file_sha256": "0eb9504b17e2eda01dea5f55d1f33fce7bcba881a4aea0e3cb744b21f883a30c",
+                "model": "none; generated BF16 arithmetic controls",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "purpose": "build"
+              },
+              "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25084424192,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147448647680,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533471186944,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 4357.113,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 25073815552,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147429482496,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533463130112,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "content": ""
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "content": ""
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 820,
+          "sha256": "3d05fed1851a2f6c7d3235d0b7338e65b9556366747546f8dfd3001f592eeb0a",
+          "content": {
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-native-integer-probe-r1.ps1 -Action build",
+            "returncode": 0,
+            "stdout": "HEAD is now at a9e46b7 Replace floating matrix partials with exact signed integer limbs\n{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  4357.113,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n\n\n",
+            "stderr": "From D:\\projects\\attention-integer-wmma-a9e46b7.bundle\n * branch            HEAD       -> FETCH_HEAD\nPreparing worktree (detached HEAD a9e46b7)\n"
+          }
+        },
+        {
+          "file": "build-provenance.json",
+          "bytes": 3669,
+          "sha256": "9c6fe87c0d76a868513f9a928176b0c744cae15ffa7b13ae5e268db02e880cf1",
+          "content": {
+            "run_record_sha256": "1c48834b56639b95ab87b2be9713b8d4c838960ef5e29cd93b459d0cacf2eabc",
+            "source_inputs": [
+              {
+                "sha256": "bd99adbc0271fbc6e9a52e6ad57bf8177f30eed01d9cadb2030860357dcfa911",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp"
+              },
+              {
+                "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              }
+            ],
+            "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "executable": {
+              "sha256": "1191d471a5f8740e1569644a5e14e49ebfa34f0c6c93d049508f83b04f77406b",
+              "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\integer-probe\\integer-probe.exe",
+              "bytes": 473600
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "integer-probe-test-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 15063,
+          "sha256": "0c73f39b2e238ff11cfc87d0074b9897e3f156ee11594f41fe18c01c9028043b",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\integer-probe\\integer-probe.exe",
+              "arguments": [
+                "--selftest"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "bd99adbc0271fbc6e9a52e6ad57bf8177f30eed01d9cadb2030860357dcfa911",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-integer-probe-r1.ps1",
+              "command_file_sha256": "0eb9504b17e2eda01dea5f55d1f33fce7bcba881a4aea0e3cb744b21f883a30c",
+              "model": "none; generated BF16 arithmetic controls",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "purpose": "test"
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:27.9429779Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\integer-probe\\integer-probe.exe",
+                "arguments": [
+                  "--selftest"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "bd99adbc0271fbc6e9a52e6ad57bf8177f30eed01d9cadb2030860357dcfa911",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\tests\\native\\sm121_integer_wmma_selftest.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-integer-probe-r1.ps1",
+                "command_file_sha256": "0eb9504b17e2eda01dea5f55d1f33fce7bcba881a4aea0e3cb744b21f883a30c",
+                "model": "none; generated BF16 arithmetic controls",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "purpose": "test"
+              },
+              "executable_sha256": "1191d471a5f8740e1569644a5e14e49ebfa34f0c6c93d049508f83b04f77406b",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25092902912,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147440951296,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533469601792,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 365.386,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 25054900224,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147406213120,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533461397504,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 194,
+          "sha256": "e22cfc6764902457069ef46b21958228969d1514f403cb761724bf267fc38b49",
+          "content": "{\"kind\":\"integer_wmma_selftest\",\"cells\":16384,\"accepted\":12335,\"partial_mismatches\":0,\"host_sum_mismatches\":0,\"device_sum_mismatches\":0,\"eligibility_mismatches\":0,\"inference_acceptance\":false}\n"
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "content": ""
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 792,
+          "sha256": "d1ecbe7bd87941b1390ca41dc713b92795917549d2d5140e04371beeee8adb3b",
+          "content": {
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File D:/projects/run-native-integer-probe-r1.ps1 -Action test",
+            "returncode": 0,
+            "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  365.386,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n{\"kind\":\"integer_wmma_selftest\",\"cells\":16384,\"accepted\":12335,\"partial_mismatches\":0,\"host_sum_mismatches\":0,\"device_sum_mismatches\":0,\"eligibility_mismatches\":0,\"inference_acceptance\":false}\n\n\n",
+            "stderr": ""
+          }
+        }
+      ]
+    },
+    {
+      "name": "attention-integer-wmma-build-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 17362,
+          "sha256": "55b6eb1d4c5ea24df12024fc2766a87783e2b8be617de3a79880f7964f35d2e6",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+              "arguments": [
+                "-std=c++17",
+                "-O3",
+                "--offload-arch=gfx1151",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+                "-lbcrypt",
+                "-o",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+              "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "model": "none; native attention replay build",
+              "purpose": "build",
+              "memory_layout": 0,
+              "native_products": false,
+              "mantissa_wmma": false,
+              "integer_wmma": false,
+              "environment_overrides": {
+                "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+              },
+              "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+              "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78"
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:31.1662751Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+                "arguments": [
+                  "-std=c++17",
+                  "-O3",
+                  "--offload-arch=gfx1151",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+                  "-lbcrypt",
+                  "-o",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+                "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "model": "none; native attention replay build",
+                "purpose": "build",
+                "memory_layout": 0,
+                "native_products": false,
+                "mantissa_wmma": false,
+                "integer_wmma": false,
+                "environment_overrides": {
+                  "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+                },
+                "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+                "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78"
+              },
+              "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25083826176,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147426611200,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533469646848,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 5452.963,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 25064701952,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147399815168,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533461938176,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "content": ""
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 5035,
+          "sha256": "1ff47a877a810435c1dfe67e0d0f09a4d32f886568db624f4bb009587b0b6760",
+          "content": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp:143:50: warning: 'getenv' is deprecated: This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [-Wdeprecated-declarations]\n  143 |         const char* native_product_option = std::getenv(\"QRT_CK_SM121_NATIVE_PRODUCTS\");\n      |                                                  ^\nC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdlib.h:1183:20: note: 'getenv' has been explicitly marked deprecated here\n 1183 |     _Check_return_ _CRT_INSECURE_DEPRECATE(_dupenv_s)\n      |                    ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:368:55: note: expanded from macro '_CRT_INSECURE_DEPRECATE'\n  368 |         #define _CRT_INSECURE_DEPRECATE(_Replacement) _CRT_DEPRECATE_TEXT(    \\\n      |                                                       ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:358:47: note: expanded from macro '_CRT_DEPRECATE_TEXT'\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\nD:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp:197:37: warning: 'getenv' is deprecated: This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [-Wdeprecated-declarations]\n  197 |         const char* rcp_path = std::getenv(\"QRT_CK_FMHA_SM121_RCP_TABLE\");\n      |                                     ^\nC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdlib.h:1183:20: note: 'getenv' has been explicitly marked deprecated here\n 1183 |     _Check_return_ _CRT_INSECURE_DEPRECATE(_dupenv_s)\n      |                    ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:368:55: note: expanded from macro '_CRT_INSECURE_DEPRECATE'\n  368 |         #define _CRT_INSECURE_DEPRECATE(_Replacement) _CRT_DEPRECATE_TEXT(    \\\n      |                                                       ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:358:47: note: expanded from macro '_CRT_DEPRECATE_TEXT'\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\n2 warnings generated when compiling for gfx1151.\nD:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp:143:50: warning: 'getenv' is deprecated: This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [-Wdeprecated-declarations]\n  143 |         const char* native_product_option = std::getenv(\"QRT_CK_SM121_NATIVE_PRODUCTS\");\n      |                                                  ^\nC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdlib.h:1183:20: note: 'getenv' has been explicitly marked deprecated here\n 1183 |     _Check_return_ _CRT_INSECURE_DEPRECATE(_dupenv_s)\n      |                    ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:368:55: note: expanded from macro '_CRT_INSECURE_DEPRECATE'\n  368 |         #define _CRT_INSECURE_DEPRECATE(_Replacement) _CRT_DEPRECATE_TEXT(    \\\n      |                                                       ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:358:47: note: expanded from macro '_CRT_DEPRECATE_TEXT'\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\nD:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp:197:37: warning: 'getenv' is deprecated: This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [-Wdeprecated-declarations]\n  197 |         const char* rcp_path = std::getenv(\"QRT_CK_FMHA_SM121_RCP_TABLE\");\n      |                                     ^\nC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdlib.h:1183:20: note: 'getenv' has been explicitly marked deprecated here\n 1183 |     _Check_return_ _CRT_INSECURE_DEPRECATE(_dupenv_s)\n      |                    ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:368:55: note: expanded from macro '_CRT_INSECURE_DEPRECATE'\n  368 |         #define _CRT_INSECURE_DEPRECATE(_Replacement) _CRT_DEPRECATE_TEXT(    \\\n      |                                                       ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:358:47: note: expanded from macro '_CRT_DEPRECATE_TEXT'\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\n2 warnings generated when compiling for host.\n"
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 2179,
+          "sha256": "8c782293193faeb5209db744158e789bd0b4ab40f0346fead789cf556eedb13f",
+          "content": {
+            "command_file": "run-native-attention-integer-wmma-r1.ps1",
+            "arguments": " -Action build -Name build-r1",
+            "source_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "archive_sha256": "d0db477c0fef840327036aeb916913f8571a0ed916a6a48319d3fd3ef01ee671",
+            "returncode": 0,
+            "wall_seconds": 6.511325208470225,
+            "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  5452.963,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\nD:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp:197:37: warning: 'getenv' is deprecated: This function or variable may be unsafe. Consider using _dupenv_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [-Wdeprecated-declarations]\n  197 |         const char* rcp_path = std::getenv(\"QRT_CK_FMHA_SM121_RCP_TABLE\");\n      |                                     ^\nC:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt\\stdlib.h:1183:20: note: 'getenv' has been explicitly marked deprecated here\n 1183 |     _Check_return_ _CRT_INSECURE_DEPRECATE(_dupenv_s)\n      |                    ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:368:55: note: expanded from macro '_CRT_INSECURE_DEPRECATE'\n  368 |         #define _CRT_INSECURE_DEPRECATE(_Replacement) _CRT_DEPRECATE_TEXT(    \\\n      |                                                       ^\nD:\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\include\\vcruntime.h:358:47: note: expanded from macro '_CRT_DEPRECATE_TEXT'\n  358 | #define _CRT_DEPRECATE_TEXT(_Text) __declspec(deprecated(_Text))\n      |                                               ^\n2 warnings generated when compiling for host.\n",
+            "stderr": ""
+          }
+        },
+        {
+          "file": "build-provenance.json",
+          "bytes": 4292,
+          "sha256": "1638cca72132b7ecb9a62402aae70d738fb56c07b7c4ea192230101fe2ea5dc4",
+          "content": {
+            "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "source_inputs": [
+              {
+                "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+              },
+              {
+                "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              }
+            ],
+            "host": "BAIYING",
+            "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O3",
+              "--offload-arch=gfx1151",
+              "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+              "-lbcrypt",
+              "-o",
+              "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe"
+            ],
+            "run_record_sha256": "55b6eb1d4c5ea24df12024fc2766a87783e2b8be617de3a79880f7964f35d2e6",
+            "executable": {
+              "sha256": "48323e2ebef557b4958cae0edd79f2c1c3e9ceb3188fbcb0d569fe3a5e12226a",
+              "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+              "bytes": 654336
+            }
+          }
+        },
+        {
+          "file": "kernel-metadata.json",
+          "bytes": 28125,
+          "sha256": "ca42f2a10e8cac2757ed83d7e554df15787e93a6fa4c616ce2e9b08816783994",
+          "content": {
+            "executable_sha256": "48323e2ebef557b4958cae0edd79f2c1c3e9ceb3188fbcb0d569fe3a5e12226a",
+            "elf_offset": 357376,
+            "metadata": {
+              "amdhsa.kernels": [
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 24,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 28,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 0,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 36,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention29blackwell_exact_scores_kernelEPKtS1_Pfjjj",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 14,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention29blackwell_exact_scores_kernelEPKtS1_Pfjjj.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 23,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 16,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 2112,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 20,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention31blackwell_transpose_keys_kernelEPKtPtj",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 10,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention31blackwell_transpose_keys_kernelEPKtPtj.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 14,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 24,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 28,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 32,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 40,
+                      ".size": 1,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 0,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 44,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention35blackwell_online_probability_kernelEPKfPtPfjjPKhb",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 30,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention35blackwell_online_probability_kernelEPKfPtPfjjPKhb.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 18,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 40,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 64,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 0,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 72,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention34blackwell_probability_value_kernelEPKtS1_PKfPfjjjPKhS4_S4_",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 107,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention34blackwell_probability_value_kernelEPKtS1_PKfPfjjjPKhS4_S4_.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 79,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 24,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 28,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1280,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 40,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention32blackwell_mantissa_scores_kernelEPKtS1_Pfjjjj",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 98,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention32blackwell_mantissa_scores_kernelEPKtS1_Pfjjjj.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 148,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 40,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 44,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 64,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1280,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 72,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention31blackwell_mantissa_value_kernelEPKtS1_PKfPfjjjjPKhS4_S4_",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 61,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention31blackwell_mantissa_value_kernelEPKtS1_PKfPfjjjjPKhS4_S4_.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 185,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 24,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 28,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 0,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 40,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention34blackwell_transposed_scores_kernelILb1EEEvPKtS2_Pfjjjj",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 30,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention34blackwell_transposed_scores_kernelILb1EEEvPKtS2_Pfjjjj.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 48,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 24,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 28,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 0,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 40,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention34blackwell_transposed_scores_kernelILb0EEEvPKtS2_Pfjjjj",
+                  ".private_segment_fixed_size": 0,
+                  ".sgpr_count": 18,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention34blackwell_transposed_scores_kernelILb0EEEvPKtS2_Pfjjjj.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 93,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 40,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 64,
+                      ".size": 1,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 72,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 80,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 88,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 96,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 104,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1488,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 108,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb1ELb0ELb1EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 61,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb1ELb0ELb1EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 53,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 40,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 64,
+                      ".size": 1,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 72,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 80,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 88,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 96,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 104,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1488,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 108,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb1ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 57,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb1ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 83,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 40,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 64,
+                      ".size": 1,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 72,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 80,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 88,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 96,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 104,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1488,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 108,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb0ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 55,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb1ELb0ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 95,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                },
+                {
+                  ".args": [
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 0,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 8,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "read_only",
+                      ".address_space": "global",
+                      ".offset": 16,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".actual_access": "write_only",
+                      ".address_space": "global",
+                      ".offset": 24,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 32,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".offset": 36,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 40,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 48,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 56,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 64,
+                      ".size": 1,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 72,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 80,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 88,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    },
+                    {
+                      ".address_space": "global",
+                      ".offset": 96,
+                      ".size": 8,
+                      ".value_kind": "global_buffer"
+                    },
+                    {
+                      ".offset": 104,
+                      ".size": 4,
+                      ".value_kind": "by_value"
+                    }
+                  ],
+                  ".group_segment_fixed_size": 1488,
+                  ".kernarg_segment_align": 8,
+                  ".kernarg_segment_size": 108,
+                  ".language": "OpenCL C",
+                  ".language_version": [
+                    2,
+                    0
+                  ],
+                  ".max_flat_workgroup_size": 1024,
+                  ".name": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb0ELb0ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j",
+                  ".private_segment_fixed_size": 12,
+                  ".sgpr_count": 45,
+                  ".sgpr_spill_count": 0,
+                  ".symbol": "_ZN23qrt_blackwell_attention32blackwell_exact_attention_kernelILb0ELb0ELb0ELb0EEEvPKtS2_S2_PfjjPKhS3_S3_bS5_PKfjS2_j.kd",
+                  ".uniform_work_group_size": 1,
+                  ".uses_dynamic_stack": false,
+                  ".vgpr_count": 49,
+                  ".vgpr_spill_count": 0,
+                  ".wavefront_size": 32,
+                  ".workgroup_processor_mode": 1
+                }
+              ],
+              "amdhsa.target": "amdgcn-amd-amdhsa--gfx1151",
+              "amdhsa.version": [
+                1,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "attention-integer-wmma-integer-tail-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 25409,
+          "sha256": "ba8cd51b4b255e38c56a3cc2c9c30ab51a297447143d84de80cf46131cbb4a80",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+              "arguments": [
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-integer-tail-r1\\attention",
+                "7169",
+                "1",
+                "65",
+                "32",
+                "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                "0",
+                "5"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+              "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+              "purpose": "replay",
+              "memory_layout": 5,
+              "native_products": false,
+              "mantissa_wmma": true,
+              "integer_wmma": true,
+              "environment_overrides": {
+                "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+              },
+              "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+              "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+              "reciprocal_table": {
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+              },
+              "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+              "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+              "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+              "input_files": [
+                {
+                  "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                },
+                {
+                  "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                  "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                },
+                {
+                  "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                  "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                }
+              ],
+              "reference_host": "aitopatom-66c4",
+              "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+              "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+              "reference_is_compute_input": false
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:39.0260614Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+                "arguments": [
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                  "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                  "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-integer-tail-r1\\attention",
+                  "7169",
+                  "1",
+                  "65",
+                  "32",
+                  "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                  "0",
+                  "5"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+                "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+                "purpose": "replay",
+                "memory_layout": 5,
+                "native_products": false,
+                "mantissa_wmma": true,
+                "integer_wmma": true,
+                "environment_overrides": {
+                  "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+                },
+                "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+                "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                "reciprocal_table": {
+                  "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                  "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                  "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+                },
+                "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+                "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+                "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+                "input_files": [
+                  {
+                    "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                  },
+                  {
+                    "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                    "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                  },
+                  {
+                    "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                    "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                  }
+                ],
+                "reference_host": "aitopatom-66c4",
+                "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+                "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+                "reference_is_compute_input": false
+              },
+              "executable_sha256": "48323e2ebef557b4958cae0edd79f2c1c3e9ceb3188fbcb0d569fe3a5e12226a",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25098752000,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147419271168,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533469597696,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 499.185,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 25051791360,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147381141504,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533461393408,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 688,
+          "sha256": "41fce7db75056c7151c82691765f7ca815916a7ac95af507900484b76b42bbbf",
+          "content": "{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":1,\"elements\":266240,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_mantissa_wmma_triplets\",\"interval_total_ms\":1.3505,\"maximum_interval_ms\":0.5771,\"memory_layout\":5,\"native_products\":false,\"mantissa_wmma\":true,\"integer_wmma\":true,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":0.8972,\"probabilities_ms\":0.0109,\"value_ms\":0.3579,\"preparation_ms\":0.0845,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n"
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "content": ""
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 3749,
+          "sha256": "b52199404ccd4af991802b2681d674b037bfeaf8f87be1b0976429923468ca27",
+          "content": {
+            "command_file": "run-native-attention-integer-wmma-r1.ps1",
+            "arguments": " -Action replay -Name integer-tail-r1 -QueryStart 1 -QueryCount 65 -Batch 32 -UseTable -UseRcp -MemoryLayout 5",
+            "source_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "archive_sha256": "d0db477c0fef840327036aeb916913f8571a0ed916a6a48319d3fd3ef01ee671",
+            "returncode": 0,
+            "wall_seconds": 1.637725499458611,
+            "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  499.185,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":1,\"elements\":266240,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_mantissa_wmma_triplets\",\"interval_total_ms\":1.3505,\"maximum_interval_ms\":0.5771,\"memory_layout\":5,\"native_products\":false,\"mantissa_wmma\":true,\"integer_wmma\":true,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":0.8972,\"probabilities_ms\":0.0109,\"value_ms\":0.3579,\"preparation_ms\":0.0845,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n{\n    \"bf16_reference_match\":  true,\n    \"native_raw_f32_control\":  [\n                                   {\n                                       \"matches_qualified_native\":  false,\n                                       \"sha256\":  \"c5cf9026dd132f8da30b37347d9858b3afe104b6127738c19e3f109a07ac5870\",\n                                       \"file\":  \"attention-blackwell-sm121-exp-rcp-f32.bin\"\n                                   }\n                               ],\n    \"elements\":  266240,\n    \"f32_control_sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n    \"reports\":  [\n                    {\n                        \"kind\":  \"full_attention_capture_replay\",\n                        \"route\":  \"blackwell-sm121-exp-rcp\",\n                        \"query_start\":  1,\n                        \"elements\":  266240,\n                        \"bf16_mismatches\":  0,\n                        \"affected_tokens\":  0,\n                        \"nonfinite\":  0,\n                        \"first_mismatch\":  -1,\n                        \"maximum_absolute_error\":  0,\n                        \"relative_l2\":  0,\n                        \"interval_kind\":  \"key_transpose_and_mantissa_wmma_triplets\",\n                        \"interval_total_ms\":  1.3505,\n                        \"maximum_interval_ms\":  0.5771,\n                        \"memory_layout\":  5,\n                        \"native_products\":  false,\n                        \"mantissa_wmma\":  true,\n                        \"integer_wmma\":  true,\n                        \"score_probability_redzones_checked\":  true,\n                        \"stage_timing_enabled\":  true,\n                        \"scores_ms\":  0.8972,\n                        \"probabilities_ms\":  0.0109,\n                        \"value_ms\":  0.3579,\n                        \"preparation_ms\":  0.0845,\n                        \"key_transpose_and_redzones_checked\":  true,\n                        \"reference_is_compute_input\":  false,\n                        \"inference_acceptance\":  false\n                    }\n                ]\n}\n",
+            "stderr": ""
+          }
+        },
+        {
+          "file": "file-manifest.json",
+          "bytes": 748,
+          "sha256": "716d4e0ff83ddd065719d7e9fb1e8d485a8b2d9f066778fe6bbb70517fdb899e",
+          "content": [
+            {
+              "sha256": "46af1b573bee92eac1ae6eb41ec96c32db7552d806f4295664207dd3c7f3831d",
+              "file": "attention-accumulator-f32.bin",
+              "bytes": 1064960
+            },
+            {
+              "sha256": "316cc3442af87309634bc3491af4f5d856619899edb3e38d6ae79456c0927817",
+              "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+              "bytes": 532480
+            },
+            {
+              "sha256": "c5cf9026dd132f8da30b37347d9858b3afe104b6127738c19e3f109a07ac5870",
+              "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+              "bytes": 1064960
+            },
+            {
+              "sha256": "bb088b79d001731acb65491b6a41e7960417e5389522ee2996ab5450962f43d3",
+              "file": "attention-denominator-f32.bin",
+              "bytes": 4160
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "attention-integer-wmma-original-k16-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 25416,
+          "sha256": "ee33c4ed50ba238550523458191eba436c981298ecf2f831e762ec95d2a54c2e",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+              "arguments": [
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-original-k16-r1\\attention",
+                "7169",
+                "0",
+                "7169",
+                "8",
+                "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                "1",
+                "4"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+              "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+              "purpose": "replay",
+              "memory_layout": 4,
+              "native_products": false,
+              "mantissa_wmma": false,
+              "integer_wmma": false,
+              "environment_overrides": {
+                "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+              },
+              "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+              "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+              "reciprocal_table": {
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+              },
+              "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+              "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+              "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+              "input_files": [
+                {
+                  "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                },
+                {
+                  "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                  "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                },
+                {
+                  "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                  "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                }
+              ],
+              "reference_host": "aitopatom-66c4",
+              "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+              "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+              "reference_is_compute_input": false
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:42.0184743Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+                "arguments": [
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                  "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                  "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-original-k16-r1\\attention",
+                  "7169",
+                  "0",
+                  "7169",
+                  "8",
+                  "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                  "1",
+                  "4"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+                "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+                "purpose": "replay",
+                "memory_layout": 4,
+                "native_products": false,
+                "mantissa_wmma": false,
+                "integer_wmma": false,
+                "environment_overrides": {
+                  "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+                },
+                "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+                "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                "reciprocal_table": {
+                  "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                  "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                  "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+                },
+                "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+                "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+                "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+                "input_files": [
+                  {
+                    "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                  },
+                  {
+                    "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                    "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                  },
+                  {
+                    "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                    "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                  }
+                ],
+                "reference_host": "aitopatom-66c4",
+                "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+                "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+                "reference_is_compute_input": false
+              },
+              "executable_sha256": "48323e2ebef557b4958cae0edd79f2c1c3e9ceb3188fbcb0d569fe3a5e12226a",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25080586240,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147405508608,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533470130176,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 4962.986,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 24964476928,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147376238592,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533462290432,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 1307,
+          "sha256": "21c93ebed7072bb86c1240630195806e38fa03172d52b9e4820c825ad149f71f",
+          "content": "{\"kind\":\"full_attention_capture_replay\",\"route\":\"ck\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"provider_call\",\"interval_total_ms\":2435.59,\"maximum_interval_ms\":2435.59,\"memory_layout\":0,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":false,\"stage_timing_enabled\":false,\"scores_ms\":0,\"probabilities_ms\":0,\"value_ms\":0,\"preparation_ms\":0,\"key_transpose_and_redzones_checked\":false,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_qk_pv_pairs\",\"interval_total_ms\":1363.4,\"maximum_interval_ms\":3.3189,\"memory_layout\":4,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":571.81,\"probabilities_ms\":0,\"value_ms\":789.974,\"preparation_ms\":1.61382,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n"
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 348,
+          "sha256": "7865ef57dac8a361debe5fd8d1635c5a9115805fd7eb400e2c5d1a1129aa166e",
+          "content": "SM121_FULL_ATTENTION_TABLES exp2_bytes=183174448 rcp_bytes=8388640 score_scratch_bytes=4194304 model_independent=1\nSM121_FULL_ATTENTION query_start=0 query_count=7169 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\nSM121_FULL_ATTENTION query_start=7168 query_count=1 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\n"
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 6588,
+          "sha256": "577183ae9786321bc986566c7980874e82a75510152acc2d5a0e3477206a8cac",
+          "content": {
+            "command_file": "run-native-attention-integer-wmma-r1.ps1",
+            "arguments": " -Action replay -Name original-k16-r1 -QueryStart 0 -QueryCount 7169 -Batch 8 -UseTable -UseRcp -MemoryLayout 4 -Baseline",
+            "source_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "archive_sha256": "d0db477c0fef840327036aeb916913f8571a0ed916a6a48319d3fd3ef01ee671",
+            "returncode": 0,
+            "wall_seconds": 6.733576333150268,
+            "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  4962.986,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"ck\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"provider_call\",\"interval_total_ms\":2435.59,\"maximum_interval_ms\":2435.59,\"memory_layout\":0,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":false,\"stage_timing_enabled\":false,\"scores_ms\":0,\"probabilities_ms\":0,\"value_ms\":0,\"preparation_ms\":0,\"key_transpose_and_redzones_checked\":false,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_qk_pv_pairs\",\"interval_total_ms\":1363.4,\"maximum_interval_ms\":3.3189,\"memory_layout\":4,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":571.81,\"probabilities_ms\":0,\"value_ms\":789.974,\"preparation_ms\":1.61382,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\nSM121_FULL_ATTENTION_TABLES exp2_bytes=183174448 rcp_bytes=8388640 score_scratch_bytes=4194304 model_independent=1\nSM121_FULL_ATTENTION query_start=0 query_count=7169 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\nSM121_FULL_ATTENTION query_start=7168 query_count=1 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\n{\n    \"bf16_reference_match\":  true,\n    \"native_raw_f32_control\":  [\n                                   {\n                                       \"matches_qualified_native\":  true,\n                                       \"sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n                                       \"file\":  \"attention-ck-f32.bin\"\n                                   },\n                                   {\n                                       \"matches_qualified_native\":  true,\n                                       \"sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n                                       \"file\":  \"attention-blackwell-sm121-exp-rcp-f32.bin\"\n                                   }\n                               ],\n    \"elements\":  29364224,\n    \"f32_control_sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n    \"reports\":  [\n                    {\n                        \"kind\":  \"full_attention_capture_replay\",\n                        \"route\":  \"ck\",\n                        \"query_start\":  0,\n                        \"elements\":  29364224,\n                        \"bf16_mismatches\":  0,\n                        \"affected_tokens\":  0,\n                        \"nonfinite\":  0,\n                        \"first_mismatch\":  -1,\n                        \"maximum_absolute_error\":  0,\n                        \"relative_l2\":  0,\n                        \"interval_kind\":  \"provider_call\",\n                        \"interval_total_ms\":  2435.59,\n                        \"maximum_interval_ms\":  2435.59,\n                        \"memory_layout\":  0,\n                        \"native_products\":  false,\n                        \"mantissa_wmma\":  false,\n                        \"integer_wmma\":  false,\n                        \"score_probability_redzones_checked\":  false,\n                        \"stage_timing_enabled\":  false,\n                        \"scores_ms\":  0,\n                        \"probabilities_ms\":  0,\n                        \"value_ms\":  0,\n                        \"preparation_ms\":  0,\n                        \"key_transpose_and_redzones_checked\":  false,\n                        \"reference_is_compute_input\":  false,\n                        \"inference_acceptance\":  false\n                    },\n                    {\n                        \"kind\":  \"full_attention_capture_replay\",\n                        \"route\":  \"blackwell-sm121-exp-rcp\",\n                        \"query_start\":  0,\n                        \"elements\":  29364224,\n                        \"bf16_mismatches\":  0,\n                        \"affected_tokens\":  0,\n                        \"nonfinite\":  0,\n                        \"first_mismatch\":  -1,\n                        \"maximum_absolute_error\":  0,\n                        \"relative_l2\":  0,\n                        \"interval_kind\":  \"key_transpose_and_qk_pv_pairs\",\n                        \"interval_total_ms\":  1363.4,\n                        \"maximum_interval_ms\":  3.3189,\n                        \"memory_layout\":  4,\n                        \"native_products\":  false,\n                        \"mantissa_wmma\":  false,\n                        \"integer_wmma\":  false,\n                        \"score_probability_redzones_checked\":  true,\n                        \"stage_timing_enabled\":  true,\n                        \"scores_ms\":  571.81,\n                        \"probabilities_ms\":  0,\n                        \"value_ms\":  789.974,\n                        \"preparation_ms\":  1.61382,\n                        \"key_transpose_and_redzones_checked\":  true,\n                        \"reference_is_compute_input\":  false,\n                        \"inference_acceptance\":  false\n                    }\n                ]\n}\n",
+            "stderr": ""
+          }
+        },
+        {
+          "file": "file-manifest.json",
+          "bytes": 1104,
+          "sha256": "e66fbb2f9952344d67f010ab5cc9e497e25b181319bae08f56ab220d086c6f47",
+          "content": [
+            {
+              "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+              "file": "attention-accumulator-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+              "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+              "bytes": 58728448
+            },
+            {
+              "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+              "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+              "file": "attention-ck-bf16.bin",
+              "bytes": 58728448
+            },
+            {
+              "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+              "file": "attention-ck-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+              "file": "attention-denominator-f32.bin",
+              "bytes": 458816
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "attention-integer-wmma-integer-wmma-r1",
+      "artifacts": [
+        {
+          "file": "run-record.json",
+          "bytes": 25412,
+          "sha256": "8eda22cc85ea461533b7073a5899b8fde5430f78f521e474e39c8219f7eca996",
+          "content": {
+            "schema_version": 1,
+            "host": "BAIYING",
+            "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+            "spec": {
+              "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+              "arguments": [
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-integer-wmma-r1\\attention",
+                "7169",
+                "0",
+                "7169",
+                "8",
+                "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                "1",
+                "5"
+              ],
+              "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+              "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+              "source_inputs": [
+                {
+                  "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                },
+                {
+                  "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                },
+                {
+                  "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                },
+                {
+                  "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                },
+                {
+                  "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                },
+                {
+                  "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                },
+                {
+                  "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                },
+                {
+                  "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                },
+                {
+                  "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                },
+                {
+                  "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                  "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                }
+              ],
+              "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+              "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+              "model_loaded": false,
+              "inference_acceptance": false,
+              "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+              "purpose": "replay",
+              "memory_layout": 5,
+              "native_products": false,
+              "mantissa_wmma": true,
+              "integer_wmma": true,
+              "environment_overrides": {
+                "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+              },
+              "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+              "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+              "reciprocal_table": {
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+              },
+              "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+              "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+              "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+              "input_files": [
+                {
+                  "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                },
+                {
+                  "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                  "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                },
+                {
+                  "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                  "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                },
+                {
+                  "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                  "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                }
+              ],
+              "reference_host": "aitopatom-66c4",
+              "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+              "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+              "reference_is_compute_input": false
+            },
+            "preflight": {
+              "host": "BAIYING",
+              "utc": "2026-09-11T18:22:49.9890093Z",
+              "command_file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\scripts\\baiying_guarded_inference.ps1",
+              "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+              "spec": {
+                "executable": "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-replay\\full-attention-capture-replay.exe",
+                "arguments": [
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+                  "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+                  "D:\\projects\\full-attention-context-gb10-08734309.bin",
+                  "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+                  "D:\\projects\\AIMA-public-integer-wmma-20260911\\build\\attention-integer-wmma-r1\\attention",
+                  "7169",
+                  "0",
+                  "7169",
+                  "8",
+                  "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+                  "1",
+                  "5"
+                ],
+                "working_directory": "D:\\projects\\AIMA-public-integer-wmma-20260911",
+                "repo_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+                "source_inputs": [
+                  {
+                    "sha256": "18cb62bf221fb6841ef05a979da5bca68f7110acc5a5ac082d164e767488ce7a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+                  },
+                  {
+                    "sha256": "a9378776de32ba4e613202423e32a8c090212c2013d27d4a345a1432264afd30",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\ck_fmha\\blackwell_attention.h"
+                  },
+                  {
+                    "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+                  },
+                  {
+                    "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+                  },
+                  {
+                    "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+                  },
+                  {
+                    "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+                  },
+                  {
+                    "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+                  },
+                  {
+                    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+                  },
+                  {
+                    "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_exp2_table.h"
+                  },
+                  {
+                    "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                    "file": "D:\\projects\\AIMA-public-integer-wmma-20260911\\native\\providers\\gdn\\sm121_attention_rcp.h"
+                  }
+                ],
+                "command_file": "D:\\projects\\run-native-attention-integer-wmma-r1.ps1",
+                "command_file_sha256": "bf0a8fe63cfd8491ad6f0c0b7db7c024ba97a9fb6d7b5845b13f6e46ee67de72",
+                "model_loaded": false,
+                "inference_acceptance": false,
+                "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+                "purpose": "replay",
+                "memory_layout": 5,
+                "native_products": false,
+                "mantissa_wmma": true,
+                "integer_wmma": true,
+                "environment_overrides": {
+                  "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+                },
+                "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+                "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                "reciprocal_table": {
+                  "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+                  "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+                  "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+                },
+                "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+                "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+                "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+                "input_files": [
+                  {
+                    "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+                  },
+                  {
+                    "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+                    "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+                  },
+                  {
+                    "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+                    "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+                  },
+                  {
+                    "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+                    "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+                  }
+                ],
+                "reference_host": "aitopatom-66c4",
+                "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+                "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+                "reference_is_compute_input": false
+              },
+              "executable_sha256": "48323e2ebef557b4958cae0edd79f2c1c3e9ceb3188fbcb0d569fe3a5e12226a",
+              "input_fingerprints": {},
+              "boot": "2026-09-10T00:41:03.7810550+08:00",
+              "boot_identity": {
+                "kind": "kernel_general_boot_event",
+                "value": "122570:639245688798983488",
+                "record_id": 122570,
+                "utc": "2026-09-09T16:41:19.8983488Z",
+                "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+              },
+              "memory": {
+                "Length": 64,
+                "Load": 26,
+                "TotalPhysical": 33981009920,
+                "AvailablePhysical": 25007833088,
+                "TotalCommit": 156119142400,
+                "AvailableCommit": 147403976704,
+                "TotalVirtual": 140737488224256,
+                "AvailableVirtual": 138533470162944,
+                "AvailableExtendedVirtual": 0
+              },
+              "gpus": [
+                {
+                  "Name": "AMD Radeon(TM) 8060S Graphics",
+                  "Status": "OK",
+                  "DriverVersion": "32.0.31036.15"
+                }
+              ],
+              "processes": [],
+              "checks": {
+                "no_engine_or_compiler": true,
+                "host_memory_reserve": true,
+                "commit_reserve": true,
+                "amd_gpu_ok": true,
+                "output_disk_reserve": true,
+                "source_commit_exact": true
+              },
+              "pass": true
+            },
+            "reason": "completed",
+            "exit_code": 0,
+            "wall_ms": 8268.521,
+            "summary_present": false,
+            "cli_pass": false,
+            "summary": null,
+            "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+            "after_boot_identity": {
+              "kind": "kernel_general_boot_event",
+              "value": "122570:639245688798983488",
+              "record_id": 122570,
+              "utc": "2026-09-09T16:41:19.8983488Z",
+              "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+            },
+            "boot_clock_text_unchanged": true,
+            "after_memory": {
+              "Length": 64,
+              "Load": 26,
+              "TotalPhysical": 33981009920,
+              "AvailablePhysical": 24938229760,
+              "TotalCommit": 156119142400,
+              "AvailableCommit": 147399929856,
+              "TotalVirtual": 140737488224256,
+              "AvailableVirtual": 138533462323200,
+              "AvailableExtendedVirtual": 0
+            },
+            "after_gpus": [
+              {
+                "Name": "AMD Radeon(TM) 8060S Graphics",
+                "Status": "OK",
+                "DriverVersion": "32.0.31036.15"
+              }
+            ],
+            "after_processes": [],
+            "host_checks": {
+              "same_boot": true,
+              "no_engine_process": true,
+              "host_memory_reserve": true,
+              "commit_reserve": true,
+              "amd_gpu_ok": true
+            },
+            "host_checks_pass": true,
+            "numerical_acceptance_requires_external_oracle": true
+          }
+        },
+        {
+          "file": "product.stdout.jsonl",
+          "bytes": 1325,
+          "sha256": "6e0c55db0059ea3816e1ef794cb5e9d8c78f3e7fe993ba332b5e5b1be4c6c0bd",
+          "content": "{\"kind\":\"full_attention_capture_replay\",\"route\":\"ck\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"provider_call\",\"interval_total_ms\":2445.89,\"maximum_interval_ms\":2445.89,\"memory_layout\":0,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":false,\"stage_timing_enabled\":false,\"scores_ms\":0,\"probabilities_ms\":0,\"value_ms\":0,\"preparation_ms\":0,\"key_transpose_and_redzones_checked\":false,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_mantissa_wmma_triplets\",\"interval_total_ms\":4663.77,\"maximum_interval_ms\":12.2999,\"memory_layout\":5,\"native_products\":false,\"mantissa_wmma\":true,\"integer_wmma\":true,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":1460.27,\"probabilities_ms\":294.659,\"value_ms\":2907.07,\"preparation_ms\":1.76548,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n"
+        },
+        {
+          "file": "product.stderr.log",
+          "bytes": 348,
+          "sha256": "7865ef57dac8a361debe5fd8d1635c5a9115805fd7eb400e2c5d1a1129aa166e",
+          "content": "SM121_FULL_ATTENTION_TABLES exp2_bytes=183174448 rcp_bytes=8388640 score_scratch_bytes=4194304 model_independent=1\nSM121_FULL_ATTENTION query_start=0 query_count=7169 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\nSM121_FULL_ATTENTION query_start=7168 query_count=1 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\n"
+        },
+        {
+          "file": "dispatch.json",
+          "bytes": 6625,
+          "sha256": "b5eb3e6f5768b966a9326f8241654fe44320c194bddba4ba6dc9f2f910164861",
+          "content": {
+            "command_file": "run-native-attention-integer-wmma-r1.ps1",
+            "arguments": " -Action replay -Name integer-wmma-r1 -QueryStart 0 -QueryCount 7169 -Batch 8 -UseTable -UseRcp -MemoryLayout 5 -Baseline",
+            "source_commit": "a9e46b72c3ae776e9d9265d1f050a2c938e26a43",
+            "archive_sha256": "d0db477c0fef840327036aeb916913f8571a0ed916a6a48319d3fd3ef01ee671",
+            "returncode": 0,
+            "wall_seconds": 10.030609124340117,
+            "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  0,\n    \"wall_ms\":  8268.521,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"ck\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"provider_call\",\"interval_total_ms\":2445.89,\"maximum_interval_ms\":2445.89,\"memory_layout\":0,\"native_products\":false,\"mantissa_wmma\":false,\"integer_wmma\":false,\"score_probability_redzones_checked\":false,\"stage_timing_enabled\":false,\"scores_ms\":0,\"probabilities_ms\":0,\"value_ms\":0,\"preparation_ms\":0,\"key_transpose_and_redzones_checked\":false,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\n{\"kind\":\"full_attention_capture_replay\",\"route\":\"blackwell-sm121-exp-rcp\",\"query_start\":0,\"elements\":29364224,\"bf16_mismatches\":0,\"affected_tokens\":0,\"nonfinite\":0,\"first_mismatch\":-1,\"maximum_absolute_error\":0,\"relative_l2\":0,\"interval_kind\":\"key_transpose_and_mantissa_wmma_triplets\",\"interval_total_ms\":4663.77,\"maximum_interval_ms\":12.2999,\"memory_layout\":5,\"native_products\":false,\"mantissa_wmma\":true,\"integer_wmma\":true,\"score_probability_redzones_checked\":true,\"stage_timing_enabled\":true,\"scores_ms\":1460.27,\"probabilities_ms\":294.659,\"value_ms\":2907.07,\"preparation_ms\":1.76548,\"key_transpose_and_redzones_checked\":true,\"reference_is_compute_input\":false,\"inference_acceptance\":false}\nSM121_FULL_ATTENTION_TABLES exp2_bytes=183174448 rcp_bytes=8388640 score_scratch_bytes=4194304 model_independent=1\nSM121_FULL_ATTENTION query_start=0 query_count=7169 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\nSM121_FULL_ATTENTION query_start=7168 query_count=1 maximum_queries_per_dispatch=8 split_qk_pv=1 diagnostic_only=1\n{\n    \"bf16_reference_match\":  true,\n    \"native_raw_f32_control\":  [\n                                   {\n                                       \"matches_qualified_native\":  true,\n                                       \"sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n                                       \"file\":  \"attention-ck-f32.bin\"\n                                   },\n                                   {\n                                       \"matches_qualified_native\":  true,\n                                       \"sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n                                       \"file\":  \"attention-blackwell-sm121-exp-rcp-f32.bin\"\n                                   }\n                               ],\n    \"elements\":  29364224,\n    \"f32_control_sha256\":  \"71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4\",\n    \"reports\":  [\n                    {\n                        \"kind\":  \"full_attention_capture_replay\",\n                        \"route\":  \"ck\",\n                        \"query_start\":  0,\n                        \"elements\":  29364224,\n                        \"bf16_mismatches\":  0,\n                        \"affected_tokens\":  0,\n                        \"nonfinite\":  0,\n                        \"first_mismatch\":  -1,\n                        \"maximum_absolute_error\":  0,\n                        \"relative_l2\":  0,\n                        \"interval_kind\":  \"provider_call\",\n                        \"interval_total_ms\":  2445.89,\n                        \"maximum_interval_ms\":  2445.89,\n                        \"memory_layout\":  0,\n                        \"native_products\":  false,\n                        \"mantissa_wmma\":  false,\n                        \"integer_wmma\":  false,\n                        \"score_probability_redzones_checked\":  false,\n                        \"stage_timing_enabled\":  false,\n                        \"scores_ms\":  0,\n                        \"probabilities_ms\":  0,\n                        \"value_ms\":  0,\n                        \"preparation_ms\":  0,\n                        \"key_transpose_and_redzones_checked\":  false,\n                        \"reference_is_compute_input\":  false,\n                        \"inference_acceptance\":  false\n                    },\n                    {\n                        \"kind\":  \"full_attention_capture_replay\",\n                        \"route\":  \"blackwell-sm121-exp-rcp\",\n                        \"query_start\":  0,\n                        \"elements\":  29364224,\n                        \"bf16_mismatches\":  0,\n                        \"affected_tokens\":  0,\n                        \"nonfinite\":  0,\n                        \"first_mismatch\":  -1,\n                        \"maximum_absolute_error\":  0,\n                        \"relative_l2\":  0,\n                        \"interval_kind\":  \"key_transpose_and_mantissa_wmma_triplets\",\n                        \"interval_total_ms\":  4663.77,\n                        \"maximum_interval_ms\":  12.2999,\n                        \"memory_layout\":  5,\n                        \"native_products\":  false,\n                        \"mantissa_wmma\":  true,\n                        \"integer_wmma\":  true,\n                        \"score_probability_redzones_checked\":  true,\n                        \"stage_timing_enabled\":  true,\n                        \"scores_ms\":  1460.27,\n                        \"probabilities_ms\":  294.659,\n                        \"value_ms\":  2907.07,\n                        \"preparation_ms\":  1.76548,\n                        \"key_transpose_and_redzones_checked\":  true,\n                        \"reference_is_compute_input\":  false,\n                        \"inference_acceptance\":  false\n                    }\n                ]\n}\n",
+            "stderr": ""
+          }
+        },
+        {
+          "file": "file-manifest.json",
+          "bytes": 1104,
+          "sha256": "e66fbb2f9952344d67f010ab5cc9e497e25b181319bae08f56ab220d086c6f47",
+          "content": [
+            {
+              "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+              "file": "attention-accumulator-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+              "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+              "bytes": 58728448
+            },
+            {
+              "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+              "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+              "file": "attention-ck-bf16.bin",
+              "bytes": 58728448
+            },
+            {
+              "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+              "file": "attention-ck-f32.bin",
+              "bytes": 117456896
+            },
+            {
+              "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+              "file": "attention-denominator-f32.bin",
+              "bytes": 458816
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

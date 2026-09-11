@@ -24,7 +24,7 @@ using hipStream_t = void*;
 using hipEvent_t = void*;
 struct dim3 { explicit dim3(unsigned, unsigned = 1u, unsigned = 1u) {} };
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
-constexpr unsigned kKvHeads = 2;
+constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kExactTileTokens = 32;
 void blackwell_exact_scores_kernel() {}

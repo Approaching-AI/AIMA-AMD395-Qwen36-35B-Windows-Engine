@@ -219,7 +219,14 @@ byte matrix products without floating-point accumulation. Rows spanning
 more than seven exponents fall back to the original integer path. It keeps
 ordered softmax/PV rescaling and bounded owned workspace. All 304 local
 Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass. Native
-integer matrix behavior and captured-input performance remain unqualified.
+integer [matrix and captured-input checks](../benchmarks/correctness/attention-integer-wmma-20260911.json)
+at `a9e46b7` now pass: all 29,364,224 BF16 outputs and native FP32 bits
+match, as does the 65-query tail. The component is slower, 4663.77 versus
+1363.4 ms, so it remains a diagnostic. Compiled kernels use 148/185 VGPRs
+for QK/PV without register spills; the next experiment shares preparation
+across eight matrix tiles. The prepared-row implementation shares both
+original operands and packed byte fragments, retains the numerical fallback,
+and passes the same 304 local checks before native replay.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or
