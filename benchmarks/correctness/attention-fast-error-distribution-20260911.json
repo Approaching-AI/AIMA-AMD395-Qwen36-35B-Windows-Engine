@@ -1,0 +1,290 @@
+{
+  "schema_version": 1,
+  "kind": "fast_attention_rounding_candidate_diagnostic",
+  "source": {
+    "host": "baiying",
+    "source_run": "attention-early-amd-r1",
+    "source_commit": "fd2ddc3223cb0df495f1c6f910837c4bd87f868c",
+    "source_run_sha256": "957cecc24f9338e7365f6ea1e366516f52bd4394bd5a031456451756e5971d5c",
+    "file": "D:/projects/AIMA-public-attention-replay-20260911/build/attention-early-amd-r1/attention-ck-f32.bin",
+    "bytes": 117456896,
+    "sha256": "83661283518e5329ffbbe61d379846ca29d85916b73f29686e69754b5ee4f62e",
+    "reference_sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "analysis_host": "JiaweiMnideMini.lan",
+  "analysis_source": {
+    "file": "attention_fast_error_distribution_r1.cpp",
+    "sha256": "5526b7fc2216f2e0535dc9a54c7f3a83a4c9242e76760e3bd7d54c206a5179cc",
+    "text": "#include <algorithm>\n#include <array>\n#include <cmath>\n#include <cstdint>\n#include <cstdio>\n#include <cstring>\n#include <fstream>\n#include <stdexcept>\n#include <vector>\ntemplate<class T> std::vector<T> read(const char* path) {\n std::ifstream f(path,std::ios::binary|std::ios::ate); if(!f)throw std::runtime_error(path);\n const auto size=f.tellg(); if(size<0||size%sizeof(T))throw std::runtime_error(\"size\");\n std::vector<T> out(size_t(size)/sizeof(T));f.seekg(0);f.read(reinterpret_cast<char*>(out.data()),size);if(!f)throw std::runtime_error(\"read\");return out;\n}\nfloat from(uint32_t bits){float f;std::memcpy(&f,&bits,4);return f;}\nuint32_t bits(float f){uint32_t b;std::memcpy(&b,&f,4);return b;}\nuint16_t bf16(float f){auto b=bits(f);return uint16_t((b+0x7fffu+((b>>16u)&1u))>>16u);}\nstruct Stat{uint64_t cells=0,heads=0,missed=0,head_work=0;};\nint main(int argc,char**argv){\n if(argc!=4)return 1;\n const auto f=read<float>(argv[1]);const auto r=read<uint16_t>(argv[2]);const auto saved=read<uint16_t>(argv[3]);\n if(f.size()!=r.size()||f.size()!=saved.size()||f.size()%256u)return 2;\n constexpr double ppm[]={0.25,0.5,1,2,4,8,16,32,64,128,256};\n Stat stats[2][11]{};uint64_t bad=0,bad_heads=0,work=0,bad_work=0,round_bad=0,nonfinite=0;\n std::array<uint64_t,257> histogram{};uint64_t head_bad[16]{};\n for(size_t head=0;head<f.size()/256u;++head){\n  double peak=0;for(unsigned d=0;d<256u;++d)peak=std::max(peak,std::abs(double(f[head*256u+d])));\n  bool selected[2][11]{};unsigned mismatches=0;const uint64_t cost=head/16u+1u;work+=cost;\n  for(unsigned d=0;d<256u;++d){\n   const size_t i=head*256u+d;const bool mismatch=bf16(f[i])!=r[i];mismatches+=mismatch;bad+=mismatch;\n   round_bad+=bf16(f[i])!=saved[i];nonfinite+=!std::isfinite(f[i]);\n   const uint32_t magnitude=bits(f[i])&0x7fffffffu;\n   const double mid=from((magnitude&0xffff0000u)|0x8000u);\n   const double margin=std::abs(std::abs(double(f[i]))-mid);\n   for(unsigned mode=0;mode<2u;++mode)for(unsigned j=0;j<11u;++j){\n    const double error=ppm[j]*1e-6*(mode?peak:std::abs(double(f[i])));\n    const bool candidate=margin<=error;\n    stats[mode][j].cells+=candidate;stats[mode][j].missed+=mismatch&&!candidate;selected[mode][j]|=candidate;\n   }\n  }\n  ++histogram[mismatches];head_bad[head%16u]+=mismatches;\n  if(mismatches){++bad_heads;bad_work+=cost;}\n  for(unsigned mode=0;mode<2u;++mode)for(unsigned j=0;j<11u;++j)if(selected[mode][j]){++stats[mode][j].heads;stats[mode][j].head_work+=cost;}\n }\n std::printf(\"{\\\"kind\\\":\\\"fast_attention_error_distribution\\\",\\\"cells\\\":%llu,\\\"heads\\\":%llu,\\\"bf16_mismatches\\\":%llu,\\\"affected_heads\\\":%llu,\\\"affected_head_work_fraction\\\":%.9f,\\\"saved_bf16_rounding_mismatches\\\":%llu,\\\"nonfinite\\\":%llu,\\\"inference_acceptance\\\":false,\\\"performance_acceptance\\\":false,\\\"candidate_bounds_are_diagnostics\\\":true,\\\"candidate_sweeps\\\":[\",(unsigned long long)f.size(),(unsigned long long)(f.size()/256u),(unsigned long long)bad,(unsigned long long)bad_heads,double(bad_work)/work,(unsigned long long)round_bad,(unsigned long long)nonfinite);\n for(unsigned mode=0;mode<2u;++mode)for(unsigned j=0;j<11u;++j){const auto&a=stats[mode][j];std::printf(\"%s{\\\"scale\\\":\\\"%s\\\",\\\"ppm\\\":%g,\\\"candidate_cells\\\":%llu,\\\"candidate_heads\\\":%llu,\\\"head_work_fraction\\\":%.9f,\\\"missed_bf16_differences\\\":%llu}\",mode||j?\",\":\"\",mode?\"head_peak\":\"element_magnitude\",ppm[j],(unsigned long long)a.cells,(unsigned long long)a.heads,double(a.head_work)/work,(unsigned long long)a.missed);}\n std::printf(\"],\\\"mismatch_count_per_head_histogram\\\":{\");bool comma=false;for(unsigned i=0;i<histogram.size();++i)if(histogram[i]){std::printf(\"%s\\\"%u\\\":%llu\",comma?\",\":\"\",i,(unsigned long long)histogram[i]);comma=true;}std::printf(\"}}\\n\");\n return round_bad||nonfinite?3:0;\n}\n"
+  },
+  "distribution": {
+    "kind": "fast_attention_error_distribution",
+    "cells": 29364224,
+    "heads": 114704,
+    "bf16_mismatches": 65059,
+    "affected_heads": 33681,
+    "affected_head_work_fraction": 0.350698413,
+    "saved_bf16_rounding_mismatches": 0,
+    "nonfinite": 0,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "candidate_bounds_are_diagnostics": true,
+    "candidate_sweeps": [
+      {
+        "scale": "element_magnitude",
+        "ppm": 0.25,
+        "candidate_cells": 2724,
+        "candidate_heads": 2689,
+        "head_work_fraction": 0.023283251,
+        "missed_bf16_differences": 63773
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 0.5,
+        "candidate_cells": 5381,
+        "candidate_heads": 5236,
+        "head_work_fraction": 0.045303879,
+        "missed_bf16_differences": 62665
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 1,
+        "candidate_cells": 10678,
+        "candidate_heads": 10168,
+        "head_work_fraction": 0.087777172,
+        "missed_bf16_differences": 60714
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 2,
+        "candidate_cells": 21523,
+        "candidate_heads": 19625,
+        "head_work_fraction": 0.170706735,
+        "missed_bf16_differences": 57690
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 4,
+        "candidate_cells": 43176,
+        "candidate_heads": 36094,
+        "head_work_fraction": 0.315751452,
+        "missed_bf16_differences": 53502
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 8,
+        "candidate_cells": 86257,
+        "candidate_heads": 60775,
+        "head_work_fraction": 0.530825597,
+        "missed_bf16_differences": 48584
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 16,
+        "candidate_cells": 172402,
+        "candidate_heads": 89406,
+        "head_work_fraction": 0.779228554,
+        "missed_bf16_differences": 43794
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 32,
+        "candidate_cells": 345217,
+        "candidate_heads": 109070,
+        "head_work_fraction": 0.950759082,
+        "missed_bf16_differences": 39448
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 64,
+        "candidate_cells": 692219,
+        "candidate_heads": 114421,
+        "head_work_fraction": 0.997631945,
+        "missed_bf16_differences": 34935
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 128,
+        "candidate_cells": 1384426,
+        "candidate_heads": 114683,
+        "head_work_fraction": 0.999991107,
+        "missed_bf16_differences": 29916
+      },
+      {
+        "scale": "element_magnitude",
+        "ppm": 256,
+        "candidate_cells": 2766816,
+        "candidate_heads": 114686,
+        "head_work_fraction": 0.99999965,
+        "missed_bf16_differences": 24505
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 0.25,
+        "candidate_cells": 110982,
+        "candidate_heads": 70377,
+        "head_work_fraction": 0.612459877,
+        "missed_bf16_differences": 38210
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 0.5,
+        "candidate_cells": 203429,
+        "candidate_heads": 93937,
+        "head_work_fraction": 0.817277694,
+        "missed_bf16_differences": 30679
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 1,
+        "candidate_cells": 369743,
+        "candidate_heads": 109188,
+        "head_work_fraction": 0.95196312,
+        "missed_bf16_differences": 23646
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 2,
+        "candidate_cells": 666923,
+        "candidate_heads": 114089,
+        "head_work_fraction": 0.994596668,
+        "missed_bf16_differences": 17398
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 4,
+        "candidate_cells": 1187298,
+        "candidate_heads": 114683,
+        "head_work_fraction": 0.99980194,
+        "missed_bf16_differences": 12161
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 8,
+        "candidate_cells": 2083761,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 7826
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 16,
+        "candidate_cells": 3585903,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 4657
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 32,
+        "candidate_cells": 6011612,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 2459
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 64,
+        "candidate_cells": 9698971,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 1075
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 128,
+        "candidate_cells": 14787306,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 319
+      },
+      {
+        "scale": "head_peak",
+        "ppm": 256,
+        "candidate_cells": 20654619,
+        "candidate_heads": 114704,
+        "head_work_fraction": 1.0,
+        "missed_bf16_differences": 67
+      }
+    ],
+    "mismatch_count_per_head_histogram": {
+      "0": 81023,
+      "1": 23059,
+      "2": 6142,
+      "3": 1825,
+      "4": 830,
+      "5": 396,
+      "6": 294,
+      "7": 193,
+      "8": 147,
+      "9": 106,
+      "10": 97,
+      "11": 72,
+      "12": 65,
+      "13": 56,
+      "14": 39,
+      "15": 32,
+      "16": 39,
+      "17": 26,
+      "18": 24,
+      "19": 15,
+      "20": 24,
+      "21": 15,
+      "22": 17,
+      "23": 17,
+      "24": 10,
+      "25": 13,
+      "26": 6,
+      "27": 7,
+      "28": 5,
+      "29": 6,
+      "30": 8,
+      "31": 4,
+      "32": 4,
+      "33": 5,
+      "34": 4,
+      "35": 2,
+      "36": 10,
+      "37": 1,
+      "38": 3,
+      "39": 3,
+      "40": 1,
+      "41": 3,
+      "42": 6,
+      "43": 3,
+      "44": 1,
+      "45": 2,
+      "46": 2,
+      "47": 2,
+      "48": 1,
+      "49": 4,
+      "50": 6,
+      "51": 1,
+      "52": 1,
+      "53": 1,
+      "54": 3,
+      "56": 3,
+      "57": 2,
+      "58": 1,
+      "59": 1,
+      "60": 1,
+      "62": 2,
+      "64": 1,
+      "66": 1,
+      "69": 1,
+      "70": 1,
+      "74": 3,
+      "75": 1,
+      "78": 1,
+      "90": 1,
+      "93": 1,
+      "100": 1,
+      "106": 1
+    }
+  },
+  "decision": "uniform midpoint windows miss differences while selecting most heads; preserve the reference K32 softmax ordering before testing selective correction",
+  "inference_acceptance": false,
+  "performance_acceptance": false
+}

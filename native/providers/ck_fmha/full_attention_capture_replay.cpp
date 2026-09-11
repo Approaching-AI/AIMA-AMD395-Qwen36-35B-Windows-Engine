@@ -96,6 +96,29 @@ bool report(const char* route, const std::vector<float>& output,
         const auto* r = reference.data() + (size_t(start) + token) * 4096u;
         if (std::memcmp(rounded.data() + token * 4096u, r, 8192u)) ++affected;
     }
+    size_t affected_heads = 0u;
+    constexpr double margin_ppm[] = {1.0, 4.0, 16.0, 64.0, 256.0};
+    size_t candidate_cells[5]{}, candidate_heads[5]{}, missed[5]{};
+    for (size_t head = 0u; head < output.size() / 256u; ++head) {
+        const auto* expected = reference.data() + size_t(start) * 4096u + head * 256u;
+        affected_heads += std::memcmp(rounded.data() + head * 256u, expected, 512u) != 0;
+        if (memory_layout < 6u) continue;
+        double peak = 0.0;
+        for (unsigned d = 0u; d < 256u; ++d) peak = std::max(peak, std::abs(double(output[head * 256u + d])));
+        bool selected[5]{};
+        for (unsigned d = 0u; d < 256u; ++d) {
+            const size_t index = head * 256u + d;
+            const uint32_t magnitude = qrt_sm121_native_product::float_bits(output[index]) & 0x7fffffffu;
+            const double midpoint = qrt_sm121_native_product::from_bits((magnitude & 0xffff0000u) | 0x8000u);
+            const double margin = std::abs(std::abs(double(output[index])) - midpoint);
+            for (unsigned j = 0u; j < 5u; ++j) {
+                const bool candidate = margin <= peak * margin_ppm[j] * 1e-6;
+                candidate_cells[j] += candidate; selected[j] |= candidate;
+                missed[j] += rounded[index] != expected[d] && !candidate;
+            }
+        }
+        for (unsigned j = 0u; j < 5u; ++j) candidate_heads[j] += selected[j];
+    }
     write(prefix + "-" + route + "-f32.bin", output);
     write(prefix + "-" + route + "-bf16.bin", rounded);
     std::cout << "{\"kind\":\"full_attention_capture_replay\",\"route\":\"" << route
@@ -105,15 +128,17 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
-                    ? "provider_call" : (memory_layout == 5u ? "key_transpose_and_mantissa_wmma_triplets"
+                    ? "provider_call" : (memory_layout >= 6u ? "key_transpose_and_native_mma_triplets" : (memory_layout == 5u ? "key_transpose_and_mantissa_wmma_triplets"
                     : (memory_layout == 4u ? "key_transpose_and_qk_pv_pairs"
                         : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
-                            : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch")))))
+                            : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))))))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"native_products\":" << (native_products ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
               << ",\"integer_wmma\":" << (memory_layout == 5u ? "true" : "false")
+              << ",\"native_mma_pv\":" << (memory_layout >= 6u ? "true" : "false")
+              << ",\"native_mma_qk\":" << (memory_layout == 7u ? "true" : "false")
               << ",\"score_probability_redzones_checked\":" << (std::strcmp(route, "ck") ? "true" : "false")
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
               << ",\"scores_ms\":" << scores_ms
@@ -121,7 +146,14 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"value_ms\":" << value_ms
               << ",\"preparation_ms\":" << preparation_ms
               << ",\"key_transpose_and_redzones_checked\":" << (memory_layout >= 4u ? "true" : "false")
-              << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
+              << ",\"affected_query_heads\":" << affected_heads
+              << ",\"candidate_bounds_are_diagnostics\":true,\"head_peak_margin_sweep\":[";
+    if (memory_layout >= 6u) for (unsigned j = 0u; j < 5u; ++j)
+        std::cout << (j ? "," : "") << "{\"ppm\":" << margin_ppm[j]
+                  << ",\"candidate_cells\":" << candidate_cells[j]
+                  << ",\"candidate_heads\":" << candidate_heads[j]
+                  << ",\"missed_bf16_differences\":" << missed[j] << "}";
+    std::cout << "],\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
     return mismatches == 0u && nonfinite == 0u;
 }
 unsigned parse(const char* text, unsigned maximum) {
@@ -134,12 +166,12 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_5]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_7]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 5) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 7) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -241,19 +273,19 @@ int main(int argc, char** argv) {
                 use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout,
                 score_data, score_elements,
                 memory_layout >= 2u ? scores_done.value : nullptr,
-                (memory_layout == 3u || memory_layout == 5u) ? probabilities_done.value : nullptr,
+                (memory_layout == 3u || memory_layout >= 5u) ? probabilities_done.value : nullptr,
                 transposed_data, tokens, native_products)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
                 check(hipEventElapsedTime(&stage_ms, begin.value, scores_done.value));
                 scores_total += stage_ms;
-                if (memory_layout == 3u || memory_layout == 5u) {
+                if (memory_layout == 3u || memory_layout >= 5u) {
                     check(hipEventElapsedTime(&stage_ms, scores_done.value, probabilities_done.value));
                     probabilities_total += stage_ms;
                 }
                 check(hipEventElapsedTime(&stage_ms,
-                    (memory_layout == 3u || memory_layout == 5u) ? probabilities_done.value : scores_done.value, end.value));
+                    (memory_layout == 3u || memory_layout >= 5u) ? probabilities_done.value : scores_done.value, end.value));
                 value_total += stage_ms;
             }
         }

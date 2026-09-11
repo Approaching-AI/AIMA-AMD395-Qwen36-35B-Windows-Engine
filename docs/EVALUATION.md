@@ -226,7 +226,15 @@ match, as does the 65-query tail. The component is slower, 4663.77 versus
 for QK/PV without register spills; the next experiment shares preparation
 across eight matrix tiles. The prepared-row implementation shares both
 original operands and packed byte fragments, retains the numerical fallback,
-and passes the same 304 local checks before native replay.
+and passes 304 local checks plus the native arithmetic and full q7169
+[shared-preparation replay](../benchmarks/correctness/attention-integer-wmma-tiled-20260911.json).
+The component remains slower: 4467.32 versus 1367.34 ms. Keep the selected
+packed scalar route. [Earlier fast CK output analysis](../benchmarks/correctness/attention-fast-error-distribution-20260911.json)
+finds 65,059 BF16 differences across 33,681 query/head rows. A 256-ppm
+head-peak midpoint window selects 20,654,619 outputs yet misses 67 differences.
+These windows are diagnostics, not correctness thresholds. The next replay
+layouts 6/7 preserve the reference K32 online-softmax ordering and isolate
+native PV with either exact or native QK; neither is a product route.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or

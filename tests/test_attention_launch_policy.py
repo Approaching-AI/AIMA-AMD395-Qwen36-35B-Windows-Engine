@@ -19,6 +19,8 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
         source = r'''
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <initializer_list>
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t = void*;
 using hipEvent_t = void*;
@@ -32,8 +34,8 @@ void blackwell_transpose_keys_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
-void blackwell_mantissa_scores_kernel() {}
-void blackwell_mantissa_value_kernel() {}
+template<bool NativeMma = false> void blackwell_mantissa_scores_kernel() {}
+template<bool NativeMma = false> void blackwell_mantissa_value_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
          bool NativeProducts = false>
 void blackwell_exact_attention_kernel() {}
@@ -45,9 +47,10 @@ hipError_t hipEventRecord(hipEvent_t, hipStream_t) {
     ++events;
     return fail_event ? hipErrorUnknown : hipSuccess;
 }
-template<class... T> void record_launch(T...) { ++launches; }
+const char* launch_names[64]{};
+template<class... T> void record_launch(const char* name, T...) { launch_names[launches++] = name; }
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
-#define hipLaunchKernelGGL(...) record_launch(__VA_ARGS__)
+#define hipLaunchKernelGGL(kernel, ...) record_launch(#kernel, kernel, __VA_ARGS__)
 hipError_t hipGetLastError() {
     ++error_queries;
     return ((fail_scores && launches == 1u) || (fail_probability && launches == 2u))
@@ -69,7 +72,7 @@ int main() {
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
-    if (split(0, 8, &scratch, SIZE_MAX, 6) != hipErrorInvalidValue) return 8;
+    if (split(0, 8, &scratch, SIZE_MAX, 8) != hipErrorInvalidValue) return 8;
     if (launches || error_queries) return 9;
     if (split(0, 8, &scratch, 1791, 3) != hipErrorInvalidValue || launches || error_queries)
         return 13;
@@ -158,6 +161,17 @@ int main() {
     if (matrix(matrix_elements, &operand) != hipErrorUnknown || launches != 1u) return 32;
     launches = error_queries = 0u; fail_scores = false; fail_probability = true;
     if (matrix(matrix_elements, &operand) != hipErrorUnknown || launches != 2u) return 33;
+    fail_probability = false;
+    for (unsigned layout : {6u, 7u}) {
+        launches = error_queries = 0u;
+        if (launch_queries(&operand, &operand, &operand, &output, nullptr,
+            1, 16, 0, nullptr, nullptr, nullptr, true, nullptr, layout, &scratch,
+            matrix_elements, nullptr, nullptr, &operand, 17u) != hipSuccess || launches != 3u) return 34;
+        const char* expected = layout == 6u ? "blackwell_transposed_scores_kernel<false>" : "blackwell_mantissa_scores_kernel<true>";
+        if (!std::strstr(launch_names[0], expected) ||
+            !std::strstr(launch_names[1], "blackwell_online_probability_kernel") ||
+            !std::strstr(launch_names[2], "blackwell_mantissa_value_kernel<true>")) return 35;
+    }
     return 0;
 }
 '''
