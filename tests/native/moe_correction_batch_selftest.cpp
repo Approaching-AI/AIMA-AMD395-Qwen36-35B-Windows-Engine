@@ -130,6 +130,134 @@ void run_case(uint32_t tokens, bool dense) {
                 "\"immutable_inputs\":\"pass\",\"inference_acceptance\":false}\n",
                 tokens, elements, dense ? "true" : "false", MaximumBlocks, milliseconds);
 }
+
+void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
+    const uint32_t routes = tokens * kTopK;
+    const size_t elements = static_cast<size_t>(routes) * kIntermediate;
+    const size_t down_elements = static_cast<size_t>(routes) * kHidden;
+    std::vector<uint16_t> input(static_cast<size_t>(tokens) * kHidden + 2u * kGuard, kSentinel);
+    std::vector<uint16_t> weights(4u * kIntermediate * kHidden + 2u * kGuard, kSentinel);
+    std::vector<uint16_t> down_weights(2u * kHidden * kIntermediate + 2u * kGuard, kSentinel);
+    for (auto *values : {&input, &weights, &down_weights}) {
+        for (size_t i = kGuard; i < values->size() - kGuard; ++i) {
+            (*values)[i] = bf16(static_cast<float>(static_cast<int>((i * 17u) % 127u) - 63) / 64.0f);
+        }
+    }
+    std::vector<int32_t> ids(routes + 2u * kGuard, -1234567);
+    std::vector<float> topk(routes + 2u * kGuard, 12345.25f);
+    for (uint32_t i = 0u; i < routes; ++i) {
+        ids[kGuard + i] = static_cast<int32_t>((i / 3u) % 2u);
+        topk[kGuard + i] = (i % 2u ? -0.125f : 0.25f);
+    }
+    std::vector<float> native(kActivatedElements + elements + 2u * kGuard, 12345.25f);
+    std::vector<float> down(down_elements + 2u * kGuard, 12345.25f);
+    for (size_t i = 0u; i < elements; ++i) {
+        const uint32_t gate_bits = UINT32_C(0x3d800000) + static_cast<uint32_t>((i * 17777u) % UINT32_C(0x2000000));
+        const uint32_t up_bits = UINT32_C(0xbd800000) + static_cast<uint32_t>((i * 13717u) % UINT32_C(0x2000000));
+        std::memcpy(&native[kGuard + i], &gate_bits, 4u);
+        std::memcpy(&native[kGuard + kActivatedElements + i], &up_bits, 4u);
+    }
+    for (size_t i = 0u; i < down_elements; ++i) {
+        const uint32_t bits = UINT32_C(0x3e800000) + static_cast<uint32_t>((i * 7171u) % UINT32_C(0x2000000));
+        std::memcpy(&down[kGuard + i], &bits, 4u);
+    }
+    std::vector<uint16_t> activated(elements + 2u * kGuard, kSentinel);
+    std::vector<uint16_t> silu(65536u + 2u * kGuard, kSentinel);
+    for (uint32_t i = 0u; i < 65536u; ++i) {
+        uint32_t bits = i << 16u; float x; std::memcpy(&x, &bits, 4u);
+        silu[kGuard + i] = bf16(!std::isfinite(x) || x < -80.0f ? 0.0f :
+                               x > 80.0f ? x : x / (1.0f + std::exp(-x)));
+    }
+    std::vector<float> input_norm(routes + 2u * kGuard, mode == 3u ? 1000.0f : 0.0f);
+    std::vector<float> weight_norm(4u * kHidden + 2u * kGuard, mode == 3u ? 1000.0f : 0.0f);
+    std::vector<uint32_t> index(kMoeCompactionCapacity + 2u * kGuard, UINT32_C(0x5a5a5a5a));
+    std::vector<uint32_t> count(1u + 2u * kGuard, UINT32_C(0x5a5a5a5a));
+    Device<uint16_t> di(input), dw(weights), ddw(down_weights), da(activated), dl(silu);
+    Device<int32_t> did(ids);
+    Device<float> dt(topk), dn(native), dd(down), din(input_norm), dwn(weight_norm);
+    Device<uint32_t> dix(index), dc(count);
+    g_state.moe_compacted_indices = dix.data(); g_state.moe_compacted_count = dc.data();
+    g_state.sm121_moe_absolute_error_ppb = 1000u;
+    g_state.moe_l2[static_cast<size_t>(MoeL2::Input)] = din.data();
+    g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedActivated)] = din.data();
+    g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedGateUp)] = dwn.data();
+    g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedDown)] = dwn.data();
+    hipStream_t stream = nullptr;
+    hip_ok(hipStreamCreateWithFlags(&stream, hipStreamNonBlocking), "compaction stream");
+    hipEvent_t begin = nullptr, end = nullptr;
+    hip_ok(hipEventCreate(&begin), "compaction begin"); hip_ok(hipEventCreate(&end), "compaction end");
+    std::vector<float> expected_native, expected_down;
+    std::vector<uint16_t> expected_activated;
+    float times[2]{};
+    for (uint32_t compact = 0u; compact < 2u; ++compact) {
+        dn.write(native); dd.write(down); da.write(activated);
+        g_state.compact_routed_hawkeye = compact != 0u;
+        const uint32_t radius = mode == 1u ? 32768u : mode == 2u ? 128u : 0u;
+        const uint32_t exponent = mode == 2u ? 124u : 0u;
+        const uint32_t blocks = static_cast<uint32_t>((elements + kNativeThreads - 1u) / kNativeThreads);
+        using P = MoeCorrectionPhase;
+        hip_ok(hipEventRecord(begin, stream), "compaction timing begin");
+        hip_ok(launch_moe_routed_correction<false>(
+            routed_gate_batched_hawkeye_correction_kernel<P::Local>, routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
+            routed_gate_batched_hawkeye_correction_kernel<P::Replay>, routed_gate_batched_hawkeye_correction_kernel<P::Local>,
+            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
+            routes, radius, exponent), "compaction gate");
+        hip_ok(launch_moe_routed_correction<true>(
+            routed_up_batched_hawkeye_correction_activation_kernel<P::Local>, routed_up_batched_hawkeye_correction_activation_kernel<P::Collect>,
+            routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>, routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
+            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
+            routes, radius, exponent), "compaction up");
+        hip_ok(launch_moe_routed_correction<false>(
+            routed_down_batched_hawkeye_correction_kernel<P::Local>, routed_down_batched_hawkeye_correction_kernel<P::Collect>,
+            routed_down_batched_hawkeye_correction_kernel<P::Replay>, routed_down_batched_hawkeye_correction_kernel<P::Local>,
+            static_cast<uint32_t>((down_elements + kNativeThreads - 1u) / kNativeThreads), stream,
+            MoeL2::RoutedActivated, MoeL2::RoutedDown, dd.data(), dt.data(), did.data(), da.data(), ddw.data(), routes, radius, exponent), "compaction down");
+        hip_ok(hipEventRecord(end, stream), "compaction timing end");
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
+        for (;;) {
+            const hipError_t status = hipEventQuery(end);
+            if (status == hipSuccess) break;
+            require(status == hipErrorNotReady, "compaction completion failed");
+            require(std::chrono::steady_clock::now() < deadline, "compaction sequence deadline");
+            std::this_thread::yield();
+        }
+        hip_ok(hipEventElapsedTime(&times[compact], begin, end), "compaction interval");
+        auto actual_native = dn.read(native.size()), actual_down = dd.read(down.size());
+        auto actual_activated = da.read(activated.size());
+        if (compact == 0u) {
+            expected_native = std::move(actual_native); expected_down = std::move(actual_down);
+            expected_activated = std::move(actual_activated);
+        } else {
+            require(std::memcmp(actual_native.data(), expected_native.data(), native.size() * sizeof(float)) == 0 &&
+                    std::memcmp(actual_down.data(), expected_down.data(), down.size() * sizeof(float)) == 0 &&
+                    actual_activated == expected_activated, "routed compaction differs from original kernel");
+        }
+    }
+    require(std::memcmp(expected_native.data(), native.data(), (kGuard + kActivatedElements) * sizeof(float)) == 0,
+            "gate accumulator or unused projection gap changed");
+    for (size_t i = 0u; i < kGuard; ++i) {
+        require(expected_native[i] == native[i] && expected_native[native.size()-1u-i] == native.back() &&
+                expected_down[i] == down[i] && expected_down[down.size()-1u-i] == down.back() &&
+                expected_activated[i] == kSentinel && expected_activated[activated.size()-1u-i] == kSentinel,
+                "routed output redzone changed");
+    }
+    auto actual_indices = dix.read(index.size()), actual_count = dc.read(count.size());
+    for (size_t i = 0u; i < kGuard; ++i) {
+        require(actual_indices[i] == index[i] && actual_indices[index.size()-1u-i] == index.back() &&
+                actual_count[i] == count[i] && actual_count[count.size()-1u-i] == count.back(), "compaction scratch redzone changed");
+    }
+    require(di.read(input.size()) == input && dw.read(weights.size()) == weights && ddw.read(down_weights.size()) == down_weights &&
+            did.read(ids.size()) == ids && dt.read(topk.size()) == topk && dl.read(silu.size()) == silu &&
+            din.read(input_norm.size()) == input_norm && dwn.read(weight_norm.size()) == weight_norm, "routed input changed");
+    hip_ok(hipEventDestroy(end), "compaction end destroy"); hip_ok(hipEventDestroy(begin), "compaction begin destroy");
+    hip_ok(hipStreamDestroy(stream), "compaction stream destroy");
+    g_state.moe_l2.fill(nullptr); g_state.moe_compacted_indices = nullptr; g_state.moe_compacted_count = nullptr;
+    g_state.compact_routed_hawkeye = false;
+    std::printf("{\"kind\":\"routed_compaction_comparison\",\"tokens\":%u,\"mode\":%u,\"projection_elements\":%zu,"
+                "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
+                "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+                tokens, mode, elements, down_elements, times[0], times[1]);
+}
 }
 
 int main() {
@@ -138,6 +266,10 @@ int main() {
         moe_batch_test::run_case<kMaximumMoeCorrectionBlocks>(512u, true);
         moe_batch_test::run_case<kMaximumMoeCorrectionBlocks>(513u, true);
         moe_batch_test::run_case<kMaximumMoeCorrectionBlocks>(513u, false);
+        moe_batch_test::compare_routed_compaction(1u, 0u);
+        moe_batch_test::compare_routed_compaction(65u, 1u);
+        moe_batch_test::compare_routed_compaction(65u, 2u);
+        moe_batch_test::compare_routed_compaction(65u, 3u);
         return 0;
     } catch (const std::exception& error) {
         std::fprintf(stderr, "MoE correction batch safety failed: %s\n", error.what());

@@ -154,7 +154,25 @@ the legacy flag. All 300 local Python tests (two skips), C/ABI, Rust, Clippy,
 q16 and hygiene pass. The actual branch, event helper and callback are
 executed with a host HIP recorder across enabled/disabled profiling,
 cached/uncached control, early/terminal layers and launch/event faults.
-Full native profiling and frozen continuation validation remain pending.
+Whole `649f595fc1183ab0bc212e23d4f253e7e3e63545` then passes the
+Windows build (81730.553 ms) and the [complete profiled q8192 request](../benchmarks/correctness/moe-subphases-correct-continuation-20260911.json):
+all 512 frozen tokens, first logit 10.375, prompt, streaming and host checks
+pass. Captured operators, all forty carriers, full KV and all 554 later
+state boundaries remain exact. The forty MoE event spans total 18185.966 ms;
+gate/up takes 11260.171 ms and down 4571.755 ms. Profiled callback TTFT is
+82523.5147 ms, load 20300.1233 ms and TPOT 116.241378 ms. These diagnostic
+timings do not replace the unprofiled strict result.
+
+The next optional route, `QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE=1`,
+compacts routed candidate indices across 262,144-cell windows before
+replaying the original wave16 exact dots. It uses 1,048,580 bytes of scratch,
+with no host counter read or synchronization. Gate, up and down share the
+retained selectors; up finalizes after all window corrections. The original
+local schedule remains available in the same binary. All 301 local Python
+tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass. The threaded
+execution of actual selectors and scheduling covers dense/sparse/empty
+windows, partial tails, debug outputs, redzones and submission faults under
+ASan/UBSan. Native arithmetic comparison and full product validation are next.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.
