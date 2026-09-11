@@ -119,12 +119,13 @@
     }
   },
   "local_checks": {
-    "command": "make check PYTHON=/Users/jiawei-macmini/.local/bin/python3.12",
+    "command": "make check PYTHON=python3.12",
     "log_sha256": "1f4e9fd19b6ae6c76b11dfdb84b6f7bf1f49077ec4b5292414f090bfa4b524f3",
     "passed": true,
     "python_tests": 286,
     "python_skips": 2,
-    "rust_tests": 45
+    "rust_tests": 45,
+    "command_note": "Private interpreter path redacted; exact invocation is retained in the hashed local check log."
   },
   "cases": [
     {

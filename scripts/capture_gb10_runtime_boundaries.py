@@ -87,7 +87,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         case = root.name
         selected = {prompt_tokens - 1, prompt_tokens}
         if case == "q8191-out32":
-            selected.update(range(prompt_tokens - 64, prompt_tokens))
+            # The preceding r3 capture already owns the repaired 64-row
+            # prefill tail. Keep this capture focused on decode so accepted
+            # recurrent state snapshots fit the same artifact ceiling.
             selected.update((8192, 8196))
         elif case == "q7169-out512":
             selected.update((7199, 7200, 7201, 7287, 7288, 7289))
