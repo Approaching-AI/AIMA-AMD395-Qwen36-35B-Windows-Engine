@@ -125879,9 +125879,12 @@ bool full_attention_output_projection_bf16_tile(
     float *input_norm = nullptr;
     float *weight_norm = nullptr;
     const auto release = [&]() {
-        if (weight_norm != nullptr) hipFree(weight_norm);
-        if (input_norm != nullptr) hipFree(input_norm);
-        if (raw != nullptr) hipFree(raw);
+        // These allocations use the descriptor pool. A raw hipFree leaves
+        // stale live entries that can later free a newly captured KV/state
+        // allocation when the same device address is recycled.
+        free_device(weight_norm);
+        free_device(input_norm);
+        free_device(raw);
     };
     const auto checked = [&](hipError_t status, const char *operation) {
         if (status == hipSuccess) return true;
@@ -181313,6 +181316,19 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             device_data == nullptr || bytes == 0u) {
             return;
         }
+        const bool cache_stage = std::strncmp(stage, "cache_", 6u) == 0;
+        const char *dump_prefix = std::getenv(cache_stage
+            ? "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX"
+            : "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX");
+        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
+        const size_t file_limit = cache_stage ? (16u << 20u) : (128u << 10u);
+        const size_t total_limit = cache_stage ? (32u << 20u) : (4u << 20u);
+        static size_t stage_dumped_files = 0u, stage_dumped_bytes = 0u;
+        static size_t cache_dumped_files = 0u, cache_dumped_bytes = 0u;
+        size_t &dumped_files = cache_stage ? cache_dumped_files : stage_dumped_files;
+        size_t &dumped_bytes = cache_stage ? cache_dumped_bytes : stage_dumped_bytes;
+        if (cache_stage && (!dump_requested || bytes > file_limit ||
+                dumped_files >= 8u || dumped_bytes > total_limit - bytes)) return;
         if (q1024_q1_full_stage_active_transaction == UINT64_C(0)) {
             q1024_q1_full_stage_active_transaction =
                 ++q1024_q1_full_stage_transaction_ordinal;
@@ -181333,16 +181349,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             : UINT64_C(0);
         // Reuse the completed diagnostic read for bounded full-attention endpoint files.
         // Saved values are observations only and never feed inference.
-        const char *dump_prefix = std::getenv(
-            "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX"
-        );
-        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
-        static size_t dumped_files = 0u;
-        static size_t dumped_bytes = 0u;
         bool dump_ok = false;
         std::string dump_path;
-        if (dump_requested && status == hipSuccess && bytes <= (128u << 10u) &&
-            dumped_files < 64u && dumped_bytes <= (4u << 20u) - bytes) {
+        if (dump_requested && status == hipSuccess && bytes <= file_limit &&
+            dumped_files < 64u && dumped_bytes <= total_limit - bytes) {
             std::ostringstream path;
             path << dump_prefix << ".txn" << q1024_q1_full_stage_active_transaction
                  << ".pos" << absolute_position << ".layer" << descriptor.layer_index
@@ -182691,6 +182701,12 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
     if (q1_sm121_full_requested) {
         emit_q1024_q1_full_stage_digest("ungated_context_f32",
             workspace->device_full_attention_score_scratch, 4096u * sizeof(float));
+        const auto &cache = g_qwen36_resident_session.full_attention_layers[descriptor.layer_index];
+        const size_t tail_bytes = cache.decode_tail_token_count * 512u * sizeof(uint16_t);
+        emit_q1024_q1_full_stage_digest("cache_prefix_k_bf16", cache.device_k, cache.k_bytes);
+        emit_q1024_q1_full_stage_digest("cache_prefix_v_bf16", cache.device_v, cache.v_bytes);
+        emit_q1024_q1_full_stage_digest("cache_tail_k_bf16", cache.device_decode_tail_k, tail_bytes);
+        emit_q1024_q1_full_stage_digest("cache_tail_v_bf16", cache.device_decode_tail_v, tail_bytes);
     }
     // The grouped BF16 control has four explicit HIP kernels plus four rocBLAS
     // segment calls. D57/D59 replace QK/P@V independently; D73 instead owns
@@ -214214,7 +214230,7 @@ bool capture_qwen36_q1024_suffix_cache(
             );
         }
         void *allocation = nullptr;
-        status = hipMalloc(&allocation, allocation_bytes);
+        status = qrt_unpooled_device_malloc(&allocation, allocation_bytes);
         if (status == hipSuccess) {
             status = hipMemcpy(
                 allocation,
@@ -214272,7 +214288,7 @@ bool capture_qwen36_q1024_suffix_cache(
             );
         }
         void *allocation = nullptr;
-        status = hipMalloc(&allocation, allocation_bytes);
+        status = qrt_unpooled_device_malloc(&allocation, allocation_bytes);
         if (status == hipSuccess) {
             status = hipMemcpy(
                 allocation,

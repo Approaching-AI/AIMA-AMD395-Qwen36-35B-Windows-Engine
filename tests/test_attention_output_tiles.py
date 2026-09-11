@@ -11,6 +11,98 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class AttentionOutputTileTests(unittest.TestCase):
+    def test_correction_scratch_returns_to_pool_on_success_and_failure(self):
+        source = (ROOT / "native/providers/whole_provider.cpp").read_text()
+        actual = function(source, "bool full_attention_output_projection_bf16_tile(")
+        harness = r'''
+#include <algorithm>
+#include <cstddef>
+#include <cstdint>
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <vector>
+using hipStream_t = void*;
+using hipError_t = int;
+constexpr int hipSuccess = 0;
+constexpr unsigned kOutProjectionRows = 2048, kLayer3FullAttentionQFeatures = 4096;
+struct Block { void* pointer; size_t bytes; bool in_use; };
+std::vector<Block> pool;
+unsigned allocations = 0, raw_frees = 0, allocation_calls = 0, fail_allocation = 0;
+unsigned status_calls = 0, fail_status = 0;
+bool matrix_pass = true;
+unsigned env_u32_or_default(const char*, unsigned) { return 1; }
+unsigned selected_hawkeye_correction_maximum_blocks_per_launch() { return 8; }
+const char* hipGetErrorString(int) { return "injected failure"; }
+int hipMalloc(void** output, size_t bytes) {
+    if (++allocation_calls == fail_allocation) { *output = nullptr; return 1; }
+    for (auto& block : pool) if (!block.in_use && block.bytes >= bytes) {
+        block.in_use = true; *output = block.pointer; return 0;
+    }
+    *output = std::malloc(bytes); if (!*output) std::abort();
+    pool.push_back({*output, bytes, true}); ++allocations; return 0;
+}
+int hipFree(void* pointer) {
+    if (pointer) ++raw_frees;
+    // Preserve the address for the assertion and final test cleanup. Any raw
+    // release here violates the allocator contract, even if a GPU accepts it.
+    return 0;
+}
+void free_device(void* pointer) {
+    if (!pointer) return;
+    for (auto& block : pool) if (block.pointer == pointer) {
+        if (!block.in_use) std::abort();
+        block.in_use = false; return;
+    }
+    std::abort();
+}
+int hipGetLastError() { return ++status_calls == fail_status ? 1 : 0; }
+int hipStreamSynchronize(void*) { return hipGetLastError(); }
+#define hipLaunchKernelGGL(...) ((void)0)
+template<class... T> bool resident_bf16_matrix_matmul(T...) { return matrix_pass; }
+template<class... T> bool resident_bf16_matrix_matmul_f32_output(T...) { return matrix_pass; }
+template<class... T> int launch_selected_bf16_projection_hawkeye_midpoint_correction(T...) {
+    return hipGetLastError();
+}
+''' + actual + r'''
+int main() {
+    uint16_t data = 0; std::string stage, failure;
+    auto run = [&]() {
+        allocation_calls = status_calls = 0;
+        bool result = full_attention_output_projection_bf16_tile(
+            &data, &data, &data, 2048, 4096, 1, nullptr, "test", &stage, &failure);
+        if (raw_frees || std::any_of(pool.begin(), pool.end(), [](auto b){ return b.in_use; }))
+            std::exit(10);
+        return result;
+    };
+    if (!run()) return 1;
+    unsigned original_allocations = allocations;
+    if (!run() || allocations != original_allocations) return 2;
+    matrix_pass = false;
+    if (run()) return 3;
+    matrix_pass = true;
+    for (unsigned step : {1u, 2u, 3u}) {
+        fail_allocation = step;
+        if (run()) return 4;
+    }
+    fail_allocation = 0;
+    for (unsigned step : {1u, 2u, 3u, 4u}) {
+        fail_status = step;
+        if (run()) return 5;
+    }
+    fail_status = 0;
+    if (!run() || allocations != original_allocations) return 6;
+    for (auto block : pool) std::free(block.pointer);
+    return 0;
+}
+'''
+        with tempfile.TemporaryDirectory(prefix="qrt-output-pool-") as tmp:
+            executable = str(Path(tmp) / "pool")
+            subprocess.run([os.environ.get("CXX", "c++"), "-std=c++17", "-O2",
+                            "-Wall", "-Wextra", "-Werror", "-x", "c++", "-", "-o", executable],
+                           input=harness, text=True, check=True, timeout=30)
+            subprocess.run([executable], check=True, timeout=10, capture_output=True)
+
     def test_real_wrapper_preserves_strides_and_stops_after_failed_tile(self):
         source = (ROOT / "native/providers/whole_provider.cpp").read_text()
         actual = function(source, "bool full_attention_output_projection_bf16(")
