@@ -38,6 +38,22 @@ QRT_Q1_INLINE float widen(uint16_t value) {
     return qrt_sm121_exp2::value(static_cast<uint32_t>(value) << 16u);
 }
 
+// Original no-residual GemmaRMSNorm owns eight adjacent embedding values
+// per lane. Its SM121 lowering starts with square 1, then FMA 0 and 2..7.
+QRT_Q1_INLINE float embedding_lane_sumsq(const float values[8]) {
+    float sum = multiply(values[1], values[1]);
+    sum = fmaf(values[0], values[0], sum);
+    for (unsigned int i = 2; i < 8; ++i)
+        sum = fmaf(values[i], values[i], sum);
+    return sum;
+}
+
+QRT_Q1_INLINE float embedding_norm_value(float value, float inverse,
+                                         uint16_t weight) {
+    return widen(bf16(multiply(multiply(value, inverse),
+                                add(1.0f, widen(weight)))));
+}
+
 // The original Gemma head-256 kernels have different layouts: contiguous Q
 // uses two stride-64 warps; the strided K view uses four stride-128 warps.
 QRT_Q1_INLINE unsigned int head_norm_warps(bool is_key) {

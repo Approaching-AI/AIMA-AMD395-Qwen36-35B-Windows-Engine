@@ -34677,6 +34677,49 @@ __global__ void layer1_bf16_input_rmsnorm_vllm_kernel(
     }
 }
 
+// The serial decode embedding must use the same original FP32 sum and SM121
+// inverse as prefill. A double-precision sum followed by sqrt/division can
+// cross a BF16 midpoint and poison otherwise identical recurrent states.
+// Both resident BF16 embeddings and the host-materialized F32 row enter here.
+__global__ void layer0_input_rmsnorm_sm121_kernel(
+    const uint16_t *input_bf16,
+    const float *input_f32,
+    const uint16_t *norm_weights,
+    float *residual_input_f32,
+    float *outputs,
+    const uint8_t *rsqrt_correction
+) {
+    __shared__ float partial[kThreads];
+    __shared__ float inverse;
+    const unsigned int lane = threadIdx.x;
+    if ((input_bf16 == nullptr && input_f32 == nullptr) ||
+        norm_weights == nullptr || residual_input_f32 == nullptr ||
+        outputs == nullptr || rsqrt_correction == nullptr) return;
+    float values[8];
+    #pragma unroll
+    for (unsigned int item = 0; item < 8; ++item) {
+        const unsigned int col = lane * 8u + item;
+        values[item] = input_bf16 != nullptr
+            ? device_bf16_to_float(input_bf16[col]) : input_f32[col];
+    }
+    const float sumsq = vllm_triton_reduce_sumsq(
+        qrt_sm121_q1::embedding_lane_sumsq(values), partial, lane);
+    if (lane == 0u) {
+        const float variance = qrt_sm121_q1::add(
+            qrt_sm121_q1::multiply(sumsq, 1.0f / 2048.0f),
+            QRT_QWEN36_RMS_NORM_EPSILON);
+        inverse = device_sm121_rsqrt_from_gfx1151(variance, rsqrt_correction);
+    }
+    __syncthreads();
+    #pragma unroll
+    for (unsigned int item = 0; item < 8; ++item) {
+        const unsigned int col = lane * 8u + item;
+        residual_input_f32[col] = values[item];
+        outputs[col] = qrt_sm121_q1::embedding_norm_value(
+            values[item], inverse, norm_weights[col]);
+    }
+}
+
 // Layer 0 consumes immutable BF16 embedding rows. A model-specific GB10
 // inverse-scale table therefore captures the authoritative FP32 reduction and
 // rsqrt once per vocabulary row, while keeping the per-feature multiply,
@@ -161363,6 +161406,17 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     }
 
     if (!paired_linear_projection_prepared &&
+        !device_token_layer0_prefetch_available &&
+        !use_q1_moe_next_input_rmsnorm_fused &&
+        q1_sm121_gdn_requested && descriptor.layer_index == 0u) {
+        hipLaunchKernelGGL(
+            layer0_input_rmsnorm_sm121_kernel,
+            dim3(1u), dim3(kThreads), 0, q1_decode_layer_stack_stream,
+            device_embedding_input_available
+                ? input_residual.resident_device_bf16_input : nullptr,
+            device_input, input_norm_weights, device_input, device_norm_f32,
+            q1_sm121_rsqrt_correction);
+    } else if (!paired_linear_projection_prepared &&
         !device_token_layer0_prefetch_available &&
         !use_q1_moe_next_input_rmsnorm_fused &&
         device_embedding_input_available) {
