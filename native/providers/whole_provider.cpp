@@ -21910,7 +21910,8 @@ __device__ float gated_rmsnorm_core_load(
 __device__ float gated_rmsnorm_triton_segment_sum(
     const float *core_values,
     const uint16_t *core_values_bf16,
-    size_t segment_base
+    size_t segment_base,
+    unsigned int values_per_lane = 8u
 ) {
     const float second = gated_rmsnorm_core_load(
         core_values, core_values_bf16, segment_base + 1u
@@ -21921,7 +21922,7 @@ __device__ float gated_rmsnorm_triton_segment_sum(
     );
     total = fmaf(first, first, total);
     #pragma unroll
-    for (unsigned int offset = 2u; offset < 8u; ++offset) {
+    for (unsigned int offset = 2u; offset < values_per_lane; ++offset) {
         const float value = gated_rmsnorm_core_load(
             core_values, core_values_bf16, segment_base + offset
         );
@@ -21985,16 +21986,23 @@ __global__ void gated_rmsnorm_kernel(
     const unsigned int value_index = value_head * kValueDim + value_dim;
     const size_t token_base = static_cast<size_t>(token) * kValueFeatures;
     const float core = core_values[token_base + value_index];
-    if (arithmetic_mode == 3u) {
-        partial[value_dim] = value_dim < 16u
+    // Original short decode has ROWS_PER_BLOCK=1: 32 lanes each own four
+    // adjacent values. Prefill's multirow layout has sixteen lanes of eight.
+    // Both use product 1, then FMA 0/2/... before the XOR reduction.
+    const bool triton_arithmetic = arithmetic_mode == 3u || arithmetic_mode == 4u;
+    if (triton_arithmetic) {
+        const unsigned int lanes = arithmetic_mode == 4u ? 32u : 16u;
+        const unsigned int values_per_lane = kValueDim / lanes;
+        partial[value_dim] = value_dim < lanes
             ? static_cast<double>(gated_rmsnorm_triton_segment_sum(
                   core_values,
                   nullptr,
-                  token_base + value_head * kValueDim + value_dim * 8u
+                  token_base + value_head * kValueDim + value_dim * values_per_lane,
+                  values_per_lane
               ))
             : 0.0;
         __syncthreads();
-        for (unsigned int stride = 8u; stride > 0u; stride >>= 1u) {
+        for (unsigned int stride = lanes / 2u; stride > 0u; stride >>= 1u) {
             if (value_dim < stride) {
                 partial[value_dim] = static_cast<double>(
                     device_add_separate(
@@ -22039,7 +22047,7 @@ __global__ void gated_rmsnorm_kernel(
                 ) + QRT_QWEN36_RMS_NORM_EPSILON
             );
         } else {
-            const float mean_square = arithmetic_mode == 3u
+            const float mean_square = triton_arithmetic
                 ? static_cast<float>(partial[0]) /
                       static_cast<float>(kValueDim)
                 : device_mul_separate(
@@ -22064,16 +22072,16 @@ __global__ void gated_rmsnorm_kernel(
     const float silu = gb10_silu_f32_lut != nullptr
         ? gb10_silu_f32_lut[device_float_to_bf16(z)]
         : device_silu_f32(z);
-    const float x_hat = arithmetic_mode == 3u
+    const float x_hat = triton_arithmetic
         ? device_mul_separate(core, inv_shared)
         : core * inv_shared;
-    const float normalized = arithmetic_mode == 3u
+    const float normalized = triton_arithmetic
         ? device_mul_separate(
               x_hat, device_bf16_to_float(norm_weights[value_dim])
           )
         : x_hat * device_bf16_to_float(norm_weights[value_dim]);
     outputs[token_base + value_index] = device_bf16_round_to_float(
-        arithmetic_mode == 3u
+        triton_arithmetic
             ? device_mul_separate(normalized, silu)
             : normalized * silu
     );
@@ -162539,7 +162547,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         gated_norm_weights,
         device_gated,
         1u,
-        q1_sm121_gdn_requested ? 3u : 0u,
+        q1_sm121_gdn_requested ? 4u : 0u,
         q1_sm121_gated_silu,
         q1_sm121_rsqrt_correction
     );
