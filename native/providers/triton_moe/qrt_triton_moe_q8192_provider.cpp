@@ -11930,14 +11930,19 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
     return true;
 }
 
-// At most 64 CTAs and 256 candidates per CTA when the absolute selector is
-// enabled. Keep the existing single launch when the option is disabled.
+// Bound every selected dispatch to 262,144 candidate cells, including a dense
+// selector. Larger batches amortize the host submissions across routed and
+// shared projections without changing per-CTA ownership or arithmetic order.
 // Stream ordering preserves all consumers and the v3 completion event ring.
-template <typename Kernel, typename... Args>
+constexpr uint32_t kMaximumMoeCorrectionBlocks = 1024u;
+template <uint32_t MaximumBlocks = kMaximumMoeCorrectionBlocks,
+          typename Kernel, typename... Args>
 hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t stream,
                                  MoeL2 input, MoeL2 weights, Args... arguments) {
+    static_assert(MaximumBlocks > 0u && MaximumBlocks <= kMaximumMoeCorrectionBlocks,
+                  "MoE correction dispatch exceeds its candidate bound");
     const bool bounded = g_state.sm121_moe_absolute_error_ppb != 0u;
-    const uint32_t step = bounded ? 64u : blocks;
+    const uint32_t step = bounded ? MaximumBlocks : blocks;
     for (uint32_t first = 0; first < blocks; first += step) {
         const uint32_t count = blocks - first < step ? blocks - first : step;
         const MoeCorrectionBounds bounds{
@@ -16329,9 +16334,11 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         size_t bytes = 0u;
         for (size_t rows : kMoeL2Rows) bytes += rows * sizeof(float);
         std::fprintf(stderr, "BATCH_MARK q8192_triton_selected_moe_sm121_absolute_selector "
-            "ppb=%u norm_bytes=%zu maximum_correction_blocks=64 maximum_norm_rows=4096 "
+            "ppb=%u norm_bytes=%zu maximum_correction_blocks=%u "
+            "maximum_candidates_per_dispatch=%u maximum_norm_rows=4096 "
             "weight_source=live_bf16 input_source=live_bf16 numerical_correctness_claimed=0\n",
-            g_state.sm121_moe_absolute_error_ppb, bytes);
+            g_state.sm121_moe_absolute_error_ppb, bytes,
+            kMaximumMoeCorrectionBlocks, kMaximumMoeCorrectionBlocks * kNativeThreads);
     }
     if (g_state.sm121_routed_hawkeye) {
         std::fprintf(stderr,
