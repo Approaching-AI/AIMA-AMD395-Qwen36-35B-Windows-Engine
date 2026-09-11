@@ -1,0 +1,1202 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source_commit": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+  "components": {
+    "whole": {
+      "commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "directory": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole",
+      "build_metadata_sha256": "cab0b4a5f97c0c9c3e4a32c8b5724d19508dec17e4690431c3fb62ef134b19d4",
+      "build_run_sha256": "bcf8f6de4e07a53232bc9467127e6a1166582735c2f326bedc66ffff8c2d7a33",
+      "artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 11475968,
+          "sha256": "1d25c9febfb41ea064029aec1a6257c068ebc56ae09498822a8d0a6d0008c8a5"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 182869,
+          "sha256": "2d30757ceaa13d99d38c3e67a1c852c73240dd0f4f82e0765b7b346956e0eca5"
+        }
+      ]
+    },
+    "fla": {
+      "commit": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+      "directory": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla",
+      "build_metadata_sha256": "335dda4ed36b3fa371ecbb7f1a3c3c67b8db9a0fd9c46209e9dba49630d1769d",
+      "build_run_sha256": "c474313b3b37b61adbfe9f522e6371a74d7f92ab2345717372888fc916c81b6f",
+      "artifacts": [
+        {
+          "file": "fla-output-capture-replay.exe",
+          "bytes": 389632,
+          "sha256": "6ac3caf16263bdc96373a55ec4769a25daf985d21b2644be02b210dad28f889f"
+        },
+        {
+          "file": "fla-upstream-capture-replay.exe",
+          "bytes": 473088,
+          "sha256": "29581c19919a0f32dd4935262fe0046c75e428b59b23c07486dbae0279934dd6"
+        },
+        {
+          "file": "metadata.json",
+          "bytes": 13951,
+          "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+        },
+        {
+          "file": "q64-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "56a6d4a8bb61987bb04dc9a7cd9839cdd64eb690eb1e45a51d5029f38e14015c"
+        },
+        {
+          "file": "q65-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "5fae38e81e37e6c24cbd93a03a6665213f49f41ad284755e15e6d2ff7069697b"
+        },
+        {
+          "file": "q7169-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "c28cadfa7630127601c8dd0eb0b9456249a43b6eb8ef4cefcf76ccce47d7ad09"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+          "bytes": 16120,
+          "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+          "bytes": 16112,
+          "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+          "bytes": 18880,
+          "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+          "bytes": 6664,
+          "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+          "bytes": 26816,
+          "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+          "bytes": 27960,
+          "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+          "bytes": 45112,
+          "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+          "bytes": 38272,
+          "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+          "bytes": 13160,
+          "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+          "bytes": 6168,
+          "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+          "bytes": 6040,
+          "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+        },
+        {
+          "file": "qrt_fla_chunk_gdn_provider.dll",
+          "bytes": 464384,
+          "sha256": "fae4c5902cb5135fadbaa8b87b069ab9b6f1d630936d1b8b2301adfac0b48525"
+        },
+        {
+          "file": "qrt_fla_gdn_kernel_specs.inc",
+          "bytes": 940,
+          "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+        }
+      ]
+    },
+    "moe": {
+      "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+      "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+      "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+      "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+      "artifacts": [
+        {
+          "file": "q8192_selected_moe_route_count.hsaco",
+          "bytes": 4816,
+          "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+        },
+        {
+          "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+          "bytes": 4960,
+          "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+        },
+        {
+          "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+          "bytes": 5040,
+          "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+        },
+        {
+          "file": "q8192_selected_moe_route_scatter.hsaco",
+          "bytes": 5608,
+          "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+        },
+        {
+          "file": "q8192_selected_moe_gate_up_silu.hsaco",
+          "bytes": 17752,
+          "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+        },
+        {
+          "file": "q8192_selected_moe_down.hsaco",
+          "bytes": 11384,
+          "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+        },
+        {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 507392,
+          "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+        },
+        {
+          "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+          "bytes": 7736,
+          "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+          "bytes": 6824,
+          "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+          "bytes": 6696,
+          "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+        },
+        {
+          "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+          "bytes": 7504,
+          "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+        }
+      ]
+    },
+    "ck": {
+      "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+      "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+      "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+      "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+      "artifacts": [
+        {
+          "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+          "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+          "bytes": 499712
+        }
+      ]
+    }
+  },
+  "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+  "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+  "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+  "oracle_contract": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+  "oracle_contract_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "native_build": {
+    "command_file": "D:\\projects\\build-native-fla-logical-tail-r1.ps1",
+    "command_file_sha256": "6534d738f42c03f94ef3d06783fed5367ca3ff7ec3be4705daeb1765ac36e9cc",
+    "run_sha256": "c474313b3b37b61adbfe9f522e6371a74d7f92ab2345717372888fc916c81b6f",
+    "metadata_sha256": "335dda4ed36b3fa371ecbb7f1a3c3c67b8db9a0fd9c46209e9dba49630d1769d",
+    "wall_ms": 31748.967,
+    "exit_code": 0,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "artifacts": [
+      {
+        "file": "fla-output-capture-replay.exe",
+        "bytes": 389632,
+        "sha256": "6ac3caf16263bdc96373a55ec4769a25daf985d21b2644be02b210dad28f889f"
+      },
+      {
+        "file": "fla-upstream-capture-replay.exe",
+        "bytes": 473088,
+        "sha256": "29581c19919a0f32dd4935262fe0046c75e428b59b23c07486dbae0279934dd6"
+      },
+      {
+        "file": "metadata.json",
+        "bytes": 13951,
+        "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+      },
+      {
+        "file": "q64-fla-smoke.exe",
+        "bytes": 328704,
+        "sha256": "56a6d4a8bb61987bb04dc9a7cd9839cdd64eb690eb1e45a51d5029f38e14015c"
+      },
+      {
+        "file": "q65-fla-smoke.exe",
+        "bytes": 328704,
+        "sha256": "5fae38e81e37e6c24cbd93a03a6665213f49f41ad284755e15e6d2ff7069697b"
+      },
+      {
+        "file": "q7169-fla-smoke.exe",
+        "bytes": 328704,
+        "sha256": "c28cadfa7630127601c8dd0eb0b9456249a43b6eb8ef4cefcf76ccce47d7ad09"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+        "bytes": 16120,
+        "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+        "bytes": 16112,
+        "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+        "bytes": 18880,
+        "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+        "bytes": 6664,
+        "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+        "bytes": 26816,
+        "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+        "bytes": 27960,
+        "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+        "bytes": 45112,
+        "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+        "bytes": 38272,
+        "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+        "bytes": 13160,
+        "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+        "bytes": 6168,
+        "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+      },
+      {
+        "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+        "bytes": 6040,
+        "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+      },
+      {
+        "file": "qrt_fla_chunk_gdn_provider.dll",
+        "bytes": 464384,
+        "sha256": "fae4c5902cb5135fadbaa8b87b069ab9b6f1d630936d1b8b2301adfac0b48525"
+      },
+      {
+        "file": "qrt_fla_gdn_kernel_specs.inc",
+        "bytes": 940,
+        "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+      }
+    ]
+  },
+  "local_validation": {
+    "command": "make check PYTHON=python3.12",
+    "log": "build/check-20260911-fla-logical-tail-r1.log",
+    "log_sha256": "4fd93ad75c4d1ce527c4bc0ef1e70f5973516ab1a27d6ee95105673b8999402c",
+    "python_tests": 280,
+    "python_skipped": 2,
+    "rust_tests": 45,
+    "c_abi": true,
+    "clippy": true,
+    "hygiene": true,
+    "passed": true
+  },
+  "preceding_nonfinite_capture": {
+    "run_sha256": "53ad32619bf13ef8db042562f39fa2f6b4e1413cd787ad9d2fcb781d36d4eb01",
+    "spec": {
+      "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+      "arguments": [
+        "run",
+        "--model",
+        "D:\\models\\Qwen3.6-35B-A3B",
+        "--tokens",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8191-out32-prompt.json",
+        "--output-tokens",
+        "32",
+        "--expected-output",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8191-out32-expected.json",
+        "--expected-prompt-fnv",
+        "7015b1f272403af6",
+        "--env-file",
+        "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\first-nonfinite-stages-q8191-out32-r4.env",
+        "--provider-dll",
+        "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-final-norm-reference-20260911",
+      "repo_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "command_file": "D:\\projects\\run-native-first-nonfinite-stages-r4.ps1",
+      "command_file_sha256": "ca2f0879fc5b268f24ef25ade3c3b38279b9d06accdfba93d02be1909d30184a",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "oracle": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+      "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+      "parent_run_sha256": "322466c5087bf40f9b17a0029dc8409679000e39c19d78a0c828bcb8e9f7adcb",
+      "parent_environment_sha256": "697073041acac9ab399e3223a127439200bff762716ed59e2f7d6a9b0ab8f2e9",
+      "environment_sha256": "5aafa6159e27202bdb38c1e9b04b3fdc36fe935cbbac374caf67a8937ff9b9b5",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE": "1",
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION": "8190",
+        "QRT_QWEN36_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\first-nonfinite-stages-q8191-out32-r4\\layer0",
+        "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "0",
+        "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "0",
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE": "1",
+        "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\first-nonfinite-stages-q8191-out32-r4\\gdn",
+        "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "8191",
+        "QRT_QWEN36_FULL_LAYER_COMBINED_DUMP_PATH": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\first-nonfinite-stages-q8191-out32-r4\\layer0-combined-bf16.bin",
+        "QRT_QWEN36_FULL_LAYER_COMBINED_DUMP_LAYER": "0",
+        "QRT_QWEN36_FULL_LAYER_COMBINED_DUMP_TOKENS": "8191"
+      },
+      "components": {
+        "whole": {
+          "commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "directory": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole",
+          "build_metadata_sha256": "cab0b4a5f97c0c9c3e4a32c8b5724d19508dec17e4690431c3fb62ef134b19d4",
+          "build_run_sha256": "bcf8f6de4e07a53232bc9467127e6a1166582735c2f326bedc66ffff8c2d7a33",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11475968,
+              "sha256": "1d25c9febfb41ea064029aec1a6257c068ebc56ae09498822a8d0a6d0008c8a5"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 182869,
+              "sha256": "2d30757ceaa13d99d38c3e67a1c852c73240dd0f4f82e0765b7b346956e0eca5"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0",
+          "directory": "D:\\projects\\AIMA-public-fla-sequence-20260911\\build\\fla",
+          "build_metadata_sha256": "5236864d0d7682cae2594b3a1ce9477cd027acb01bd5362d82694bd75bb898a1",
+          "build_run_sha256": "12ea32b679d93a000c597f7d1e949152a2a03095c203d70e17231dc10228438e",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "8a140f915c357a12d45ccd05574fcd57cd2248abdf402b4ff4df94ff4ae96a8b"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "066551af6e9b9440c7591cb7a6a8c595f28d835c56e9beeb0b62907eda802ede"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "819e3ae2f7ef78e3d7ec6afd54b7b941528b4059dea0d36f5c31f460e915737b"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "9699de669ec9337e529f64b907a3f8816af1d389ffecd815f0945fea9ffb737d"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "5cc6903129bba5efc7e54d1a7ed963e51b03aee9802b1ff15b0ab0394519ec46"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464384,
+              "sha256": "5d9054ceb11ff7917a5bad96afc6693a91d667481b730b2ea037d448d760b30c"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+      "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+      "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+      "purpose": "Qualify final-norm scalar reference and native continuation against complete frozen GB10 matrix",
+      "output_tokens_requested": 32,
+      "inference_acceptance": false,
+      "native_safety_run_sha256": null,
+      "projection_error_bound_ppb": 1000,
+      "oracle_case": "q8191-out32",
+      "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+      "reference_case_sha256": "143a9ced34fb37c95367b8adf0a3ccd46979aa79271464abfc99190148a436c2",
+      "prior_native_safety_run_sha256": "1931c92a77ea6289402d4922aa5ec56b6f2daf5dccf9f9c97a44775fc1973158"
+    },
+    "exit_code": 5,
+    "host_checks_pass": true,
+    "scan": {
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\scan-native-first-nonfinite-stages-r5.ps1",
+      "command_file_sha256": "3baefc156b8e26d7799169b5d6056f37b75de66ab09dcd775f6dd3aa3b75dfa1",
+      "run_sha256": "53ad32619bf13ef8db042562f39fa2f6b4e1413cd787ad9d2fcb781d36d4eb01",
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "tokens": 8191,
+      "files": [
+        {
+          "elements": 524224,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 2096896,
+          "file": "gates-f32.bin",
+          "sha256": "45939c437232157f2f9e65b0e64c58370bce145509c2a1a61d0b0e6efc344fff",
+          "width": 64,
+          "elementBytes": 4
+        },
+        {
+          "elements": 262112,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 524224,
+          "file": "layer0-a_projection-bf16.bin",
+          "sha256": "ed3bc9b354693977adeaa03fe82efe718395821472940e8b4e93c7413f779746",
+          "width": 32,
+          "elementBytes": 2
+        },
+        {
+          "elements": 262112,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 524224,
+          "file": "layer0-b_projection-bf16.bin",
+          "sha256": "6ebc2aa7ff5489dfe4e4ee845acf692709dc859818610f3eaa5592527f2e2d6b",
+          "width": 32,
+          "elementBytes": 2
+        },
+        {
+          "elements": 16775168,
+          "nonfinite": 22528,
+          "first": 16752640,
+          "last": 16775167,
+          "bytes": 33550336,
+          "file": "layer0-combined-bf16.bin",
+          "sha256": "7bbcbdada536370805657c9a6e22941a26d039b9d24cf0e4eff32d575673a418",
+          "width": 2048,
+          "elementBytes": 2
+        },
+        {
+          "elements": 67100672,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 134201344,
+          "file": "layer0-conv_projection-bf16.bin",
+          "sha256": "724267d89eac1c42cb3091fa11631b3a5347bc1e3622f597217434fffa9644c1",
+          "width": 8192,
+          "elementBytes": 2
+        },
+        {
+          "elements": 33550336,
+          "nonfinite": 169,
+          "first": 33505430,
+          "last": 33546495,
+          "bytes": 67100672,
+          "file": "layer0-core-bf16.bin",
+          "sha256": "fe162d5de3844830a4aa2526058bba333a2004ef319e1c8604723059e5ef4e1d",
+          "width": 4096,
+          "elementBytes": 2
+        },
+        {
+          "elements": 524224,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 1048448,
+          "file": "layer0-gate_decay_beta-bf16.bin",
+          "sha256": "cc12bfda41a5295c79b16234e87d3b42d2f6db863274eda123b8ad8520f0708d",
+          "width": 64,
+          "elementBytes": 2
+        },
+        {
+          "elements": 33550336,
+          "nonfinite": 1408,
+          "first": 33505408,
+          "last": 33546495,
+          "bytes": 67100672,
+          "file": "layer0-gated_rmsnorm-bf16.bin",
+          "sha256": "1a548a3c4d09ecef66e608083993da63da4e37ab018f98ead31e354a1c30baf1",
+          "width": 4096,
+          "elementBytes": 2
+        },
+        {
+          "elements": 16775168,
+          "nonfinite": 22528,
+          "first": 16752640,
+          "last": 16775167,
+          "bytes": 33550336,
+          "file": "layer0-out_projection-bf16.bin",
+          "sha256": "7c3dbc871f6ed01ec2624b89610a9c18ef603c9d36639106f0561bfb6f98fe1a",
+          "width": 2048,
+          "elementBytes": 2
+        },
+        {
+          "elements": 67100672,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 134201344,
+          "file": "layer0-postconv-bf16.bin",
+          "sha256": "443703fe0b65d4cd0639d63b6adccb87af5f654c2d5d732522009e3dfd473d02",
+          "width": 8192,
+          "elementBytes": 2
+        },
+        {
+          "elements": 67100672,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 134201344,
+          "file": "layer0-qkv_projection-bf16.bin",
+          "sha256": "7d507a21d208749bc0a9efc7b6b4d53bd4b96296c45ea65100660a27f08c1501",
+          "width": 8192,
+          "elementBytes": 2
+        },
+        {
+          "elements": 33550336,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 67100672,
+          "file": "layer0-z_projection-bf16.bin",
+          "sha256": "74394d19de1e5ac38589b4c6afeffc7de94ad2ee3e0ec00e7eb02461b4b8f415",
+          "width": 4096,
+          "elementBytes": 2
+        },
+        {
+          "elements": 33550336,
+          "nonfinite": 169,
+          "first": 33505430,
+          "last": 33546495,
+          "bytes": 134201344,
+          "file": "output-f32.bin",
+          "sha256": "2a6b4a3937c9375cbc0c502b19eb36eef330af1d7093cc2156b0c7c6b442f5cd",
+          "width": 4096,
+          "elementBytes": 4
+        },
+        {
+          "elements": 67100672,
+          "nonfinite": 0,
+          "first": -1,
+          "last": -1,
+          "bytes": 268402688,
+          "file": "raw-f32.bin",
+          "sha256": "ac92039a7bef098e41f7f88bfc05b5f80de13e1e6924c96bde6c67fbd43332a3",
+          "width": 8192,
+          "elementBytes": 4
+        },
+        {
+          "elements": 524288,
+          "nonfinite": 317,
+          "first": 16440,
+          "last": 163379,
+          "bytes": 2097152,
+          "file": "state-f32.bin",
+          "sha256": "4d50e937767886ac98409936471d17712b3efee6927266b704272cad823b844d",
+          "width": 16384,
+          "elementBytes": 4
+        }
+      ],
+      "inference_acceptance": false
+    },
+    "observation": "Finite projection, convolution and gate inputs; first GDN output nonfinite at token 8180/head 1/dimension 22. 169 core nonfinite cells, 317 state nonfinite cells, and 22528 combined-output nonfinite cells.",
+    "limitation": "Padded GPU cumsum bits were not captured; rounded padded endpoints reproduce the invalid negative-table lookup mechanism in the actual gate-kernel CPU test."
+  },
+  "implementation": "Keep aligned physical allocation but pass logical tail counts to KKT masking, triangular inverse, W/U, state projection/update and output. Inactive rows cannot enter the negative-only exponent table or contaminate active arithmetic.",
+  "product_runs": [
+    {
+      "case": "q8191-out32",
+      "command_file": "D:\\projects\\run-native-fla-logical-tail-product-r1.ps1",
+      "command_file_sha256": "311e1c8bb58a704df968f13b3c552d71bfeb46bf22101aa761cf715f1955c93c",
+      "run_sha256": "9569adc596f7b63a0b4b59f5993749cc4e2616e492e66ea2314dab9f379ab830",
+      "stdout_sha256": "ab07c9ad4658667b8b1e3f973081eaecb8e9d96f4b065d140c7814f02ec663ca",
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "environment_sha256": "444fb99cd7152e3f88519aa1570d073f62537adedd837316483ec466d8f9b58e",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+      },
+      "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
+      "reference_case_sha256": "143a9ced34fb37c95367b8adf0a3ccd46979aa79271464abfc99190148a436c2",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "fail",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 168589,
+        "first_token_report_top1_token_id": 168589,
+        "first_token_raw_logit": 11.4375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8191,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8191,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "7015b1f272403af6",
+        "output_token_ids_fnv1a64": "8afc146f85bff62b",
+        "engine_load_ms": 20032.6164,
+        "provider_preload_ms": 20021.5918,
+        "provider_preload_reported_ms": 20020.8382,
+        "provider_preload_dll_load_ms": 9.7777,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.2338,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 81151.634,
+        "ttft_ms": 79956.2537,
+        "provider_ttft_ms": 79952.3073,
+        "prefill_tokens_per_second": 102.443519,
+        "tpot_ms": 35.273423,
+        "decode_tokens_per_second": 28.349957,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 79956.2537,
+        "last_callback_wall_ms": 81148.6644,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          168589,
+          57,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "first_token_logit_pass": true,
+      "all_tokens_pass": false,
+      "mismatch_count": 15,
+      "first_mismatch": {
+        "index": 6,
+        "observed": 82,
+        "expected": 220
+      },
+      "gb10_boundary_pass": false,
+      "performance_accepted": false
+    },
+    {
+      "case": "q7169-out32",
+      "command_file": "D:\\projects\\run-native-fla-logical-tail-product-r1.ps1",
+      "command_file_sha256": "311e1c8bb58a704df968f13b3c552d71bfeb46bf22101aa761cf715f1955c93c",
+      "run_sha256": "65ed0f55a600dcb43eba73c8e9eeb9292a38f18aaa8965d119f8129c5b2f2e49",
+      "stdout_sha256": "f6e4c117aa76998d1ff172f9a62f6b3c0a5a540a54591c4bcdb0018ea08f8712",
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "environment_sha256": "3da91e53f8446f6fe286ea9db2351c815c5333835c4a3a77e9d0d585ce032662",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla-logical-tail-q7169-out32-r1\\norm",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+      },
+      "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
+      "reference_case_sha256": "bccb5ae18aaaceb2c6696926e05c3c2be59f45ac1331eabb0ab4e6c592c2ef81",
+      "exit_code": 0,
+      "host_checks_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 82,
+        "first_token_report_top1_token_id": 82,
+        "first_token_raw_logit": 9.25,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7169,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7169,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "7e8c505cfcbfcf2d",
+        "engine_load_ms": 20078.009799,
+        "provider_preload_ms": 20067.149401,
+        "provider_preload_reported_ms": 20066.5327,
+        "provider_preload_dll_load_ms": 9.6733,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.173699,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 70451.9928,
+        "ttft_ms": 69278.586,
+        "provider_ttft_ms": 69273.8189,
+        "prefill_tokens_per_second": 103.480749,
+        "tpot_ms": 34.441339,
+        "decode_tokens_per_second": 29.034876,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 69278.586,
+        "last_callback_wall_ms": 70449.715,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "first_token_logit_pass": true,
+      "all_tokens_pass": true,
+      "mismatch_count": 0,
+      "first_mismatch": null,
+      "gb10_boundary_pass": true,
+      "performance_accepted": false,
+      "all_norm_comparison": {
+        "inference_acceptance": false,
+        "diagnostic_only": true,
+        "completed_model_run": true,
+        "host": "BAIYING",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "command_file": "D:\\projects\\run-native-fla-logical-tail-product-r1.ps1",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "native_run_sha256": "65ed0f55a600dcb43eba73c8e9eeb9292a38f18aaa8965d119f8129c5b2f2e49",
+        "manifest_sha256": "351d7fe884d6ddeab594ef946c7f169c771511ed9614592cd9963a5ac9d098d0",
+        "gb10_capture_sha256": "f17592ae9d7d332386eb4b2a3f001f73e497aab94463588b4252e2f23eebdcc0",
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "first_token_raw_logit": 9.25,
+        "engine_load_ms": 20078.009799,
+        "ttft_ms": 69278.586,
+        "expected_layers": 40,
+        "full_norm_files": 80,
+        "exact_files": 80,
+        "differing_files": 0,
+        "first_difference": null,
+        "record_sha256": "c6e8d24df8f0e002b1611ae7ca50b914643e30f636f8978ebc4b7fde2a9db305"
+      }
+    },
+    {
+      "case": "q8192-out32",
+      "command_file": "D:\\projects\\run-native-fla-logical-tail-product-r1.ps1",
+      "command_file_sha256": "311e1c8bb58a704df968f13b3c552d71bfeb46bf22101aa761cf715f1955c93c",
+      "run_sha256": "21223767ab6b9a589a74f779df117f19a57be5785e7576b41cd846c9cf1c9da7",
+      "stdout_sha256": "a8acf3062a076fb5495bf35173cfaea95fe5a2d9ac3e4b165c6dca6e1c123b56",
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "environment_sha256": "5a9e2d7bbf0f442c3b303d1062d4d1a76e7d70c35d8ea00c83bcc6902a621040",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+      },
+      "parent_run_sha256": "4a7a4d4baa7d7c528ade4e91f09f1eee354798f53110c1dac5130e049174a8ed",
+      "reference_case_sha256": "41163844418a3b25189739dbf8b40646a126b077095189144fcc30ef0ab2a424",
+      "exit_code": 0,
+      "host_checks_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 144,
+        "first_token_report_top1_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8192,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8192,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "e60389077f247d2c",
+        "engine_load_ms": 20097.5913,
+        "provider_preload_ms": 20086.4732,
+        "provider_preload_reported_ms": 20085.6956,
+        "provider_preload_dll_load_ms": 10.002899,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1023,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 5219.597801,
+        "ttft_ms": 4135.594501,
+        "provider_ttft_ms": 4131.4222,
+        "prefill_tokens_per_second": 1980.851846,
+        "tpot_ms": 32.711306,
+        "decode_tokens_per_second": 30.57047,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 4135.594501,
+        "last_callback_wall_ms": 5217.483701,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "first_token_logit_pass": true,
+      "all_tokens_pass": true,
+      "mismatch_count": 0,
+      "first_mismatch": null,
+      "gb10_boundary_pass": true,
+      "performance_accepted": true
+    }
+  ],
+  "release_acceptance": false,
+  "decision": "Retain the logical-tail robustness fix with unchanged q7169 full norms and retained q8192 boundary. q8191 now emits all 32 tokens with correct first token/logit, but first differs at output index 6; it is not a qualified inference/performance result. Investigate original prefill and decode boundaries, q8193, and both 512-token continuations before packaging/release."
+}

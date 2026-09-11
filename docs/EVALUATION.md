@@ -33,7 +33,7 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole 8d8af14, MoE a17a9ed, FLA bac7b8a and
+`D:\models\Qwen3.6-35B-A3B`, whole 8d8af14, MoE a17a9ed, FLA 7698db3 and
 CK `ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423`. Each run has zero first-logit
 error at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming
 callbacks before return. Exit 0 and all host checks pass. CLI and AITER still
@@ -41,11 +41,20 @@ use retained f544cbe components; the cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, whole 8d8af14 plus qualified components, fast profile | 144 / 10.375 | 20,093.967401 | 4,146.016700 | 32.719890 |
-| q7169, whole 8d8af14 plus qualified components, 1000 ppb profile | 82 / 9.25 | 20,095.333600 | 69,825.036701 | 34.625239 |
+| q8192, whole 8d8af14 plus FLA 7698db3, fast profile | 144 / 10.375 | 20,097.591300 | 4,135.594501 | 32.711306 |
+| q7169, whole 8d8af14 plus FLA 7698db3, 1000 ppb profile | 82 / 9.25 | 20,078.009799 | 69,278.586000 | 34.441339 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
 
-The [final-norm reference matrix](../benchmarks/correctness/final-norm-reference-matrix-20260911.json)
+The [logical-tail records](../benchmarks/correctness/fla-logical-tail-20260911.json)
+retain the actual valid length through KKT masking, triangular inversion,
+W/U, recurrent-state update and GDN output. q8191 now emits all 32 tokens;
+its first token 168589 and logit 11.4375 satisfy the frozen first-token
+boundary (reference 11.375, tolerance 0.125). The seventh output differs:
+82 instead of 220. This run remains numerically unqualified. The two original
+32-token controls and all 80 complete q7169 norms pass, and actual q8192
+TTFT, load and TPOT satisfy the unchanged retained targets.
+
+The preceding [final-norm reference matrix](../benchmarks/correctness/final-norm-reference-matrix-20260911.json)
 passes both original 32-token requests after matching the scalar check to
 the selected BF16 numerator. All 80 complete q7169 norms remain GB10-exact;
 actual q8192 TTFT, load and TPOT meet the unchanged retained targets.
@@ -77,13 +86,17 @@ are reproduced exactly, including their full first-logits tensors.
 The [Windows adjacent-length records](../benchmarks/correctness/neighbor-tokens-20260911.json)
 pass all 32 tokens, first logit and streaming for q7168 (220 / 9.5625) and
 q7170 (94 / 18.25), using the same strict arithmetic profile. Their actual
-TTFT is 69,223.110000 and 69,411.140199 ms. q8191 stops before token emission:
+TTFT is 69,223.110000 and 69,411.140199 ms. The earlier q8191 run stops before token emission:
 the scalar final-norm guard compares an unrounded numerator against the
 selected GPU formula’s BF16 carrier. Repairing that mismatch still does not
 complete q8191. Follow-up tracing identifies 22,528 nonfinite values in the
 layer-0 combined output: all channels of the last 11 tokens, positions
-8180 through 8190. The earlier numerical source is under investigation;
-q8191, q8193 and both 512-token Windows gates remain open.
+8180 through 8190. The next stage capture has finite QKV, convolution and
+gate inputs but 169 nonfinite GDN outputs and 317 nonfinite state values.
+An inactive padded gate can move outside the negative-only exponent table;
+the actual gate-kernel test reproduces contamination of zero padded dots.
+Logical-tail masking removes the model failure as described above, while
+q8191 continuation, q8193 and both 512-token Windows gates remain open.
 
 The [MoE phase profile](../benchmarks/correctness/moe-subphases-20260911.json)
 observes 40 physical-q8192 MoE calls for the real q7169 request. Total MoE

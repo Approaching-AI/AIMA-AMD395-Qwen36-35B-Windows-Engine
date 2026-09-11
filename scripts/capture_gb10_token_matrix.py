@@ -168,6 +168,12 @@ def execute(args, cases, oracles):
             raise ValueError("reference model configuration changed")
     if file_sha(args.model_root / evidence["weight_shard"]) != evidence["weight_shard_sha256"]:
         raise ValueError("reference LM-head weight shard changed")
+    matrix = None
+    if args.runtime_boundaries:
+        path = args.oracle_q8192.parent / "gb10_cold_token_matrix_20260911_oracle.json"
+        if file_sha(path) != "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1":
+            raise ValueError("frozen complete matrix changed")
+        matrix = {case["name"]: case for case in json.loads(path.read_text())["cases"]}
     begun = time.monotonic()
     llm = LLM(model=str(args.model_root), dtype="bfloat16", trust_remote_code=True,
               enforce_eager=True, gpu_memory_utilization=0.8, max_model_len=263680,
@@ -175,7 +181,9 @@ def execute(args, cases, oracles):
               async_scheduling=False, enable_prefix_caching=False,
               attention_config={"backend": "TRITON_ATTN"}, mm_encoder_attn_backend="TORCH_SDPA",
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
-              worker_extension_cls="capture_gb10_token_matrix.TokenMatrixCapture")
+              worker_extension_cls=("capture_gb10_runtime_boundaries.RuntimeBoundaryCapture"
+                                    if args.runtime_boundaries else
+                                    "capture_gb10_token_matrix.TokenMatrixCapture"))
     load_seconds = time.monotonic() - begun
     write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds,
                torch_version=torch.__version__, model_evidence=evidence))
@@ -217,6 +225,20 @@ def execute(args, cases, oracles):
                       control_oracle_sha256=ORACLE_SHAS[case["family"]] if case["control"] else None,
                       worker=worker, armed=armed[0], prefix_caching=False,
                       native_tensor_inputs=False, windows_acceptance=False)
+        if matrix is not None:
+            from capture_gb10_runtime_boundaries import qualify_transaction
+
+            frozen = matrix[case["name"]]["expected"]
+            record["full_matrix_case_pass"] = (tokens == frozen["output_token_ids"] and
+                abs(worker["raw_logit"] - frozen["first_token_raw_logit"]) <= 0.125)
+            history = case["prompt_token_ids"] + tokens
+            qualified_positions = set()
+            for transaction in worker["runtime_boundaries"]["transactions"]:
+                transaction["qualified_rows"] = qualify_transaction(transaction, history)
+                qualified_positions.update(row["position"] for row in transaction["qualified_rows"]
+                                           if row["matches_generated_history"])
+            if qualified_positions != set(worker["runtime_boundaries"]["selected_positions"]):
+                raise ValueError("selected boundaries lack matching generated histories")
         write_json(args.output_dir / (case["name"] + ".json"), record)
         results.append(record)
         print(json.dumps(dict(case=case["name"], first_token=tokens[0], raw_logit=worker["raw_logit"],
@@ -224,6 +246,8 @@ def execute(args, cases, oracles):
               flush=True)
         if not control_pass:
             raise ValueError("same-engine immutable control failed")
+        if matrix is not None and not record["full_matrix_case_pass"]:
+            raise ValueError("observed engine differs from the frozen complete token matrix")
         if len(results) == 2:
             write_json(args.output_dir / "controls-qualified.json", dict(
                 controls_qualified=True, oracle_sha256=ORACLE_SHAS,
@@ -244,6 +268,8 @@ def main():
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--timeout-seconds", type=int, default=590)
     parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--runtime-boundaries", action="store_true",
+                        help="observe pinned target rows and require the complete frozen matrix")
     parser.add_argument("--expected-host")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
@@ -269,7 +295,8 @@ def main():
                   model=str(args.model_root), oracle_sha256=ORACLE_SHAS,
                   fixtures=[{k: v for k, v in case.items() if k != "prompt_token_ids"} for case in cases],
                   completed=False, controls_qualified=False, windows_acceptance=False,
-                  prefix_caching=False, native_tensor_inputs=False)
+                  prefix_caching=False, native_tensor_inputs=False,
+                  runtime_boundaries=args.runtime_boundaries)
     write_json(args.output_dir / "preflight.json", record)
     if args.execute:
         try:
