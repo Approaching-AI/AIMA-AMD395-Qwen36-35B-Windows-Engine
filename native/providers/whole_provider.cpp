@@ -161050,6 +161050,10 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER",
             UINT_MAX
         );
+        const unsigned int generic_count = env_u32_or_default(
+            "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT",
+            1u
+        );
         const bool generic_trace =
             generic_position != UINT_MAX && generic_layer != UINT_MAX;
         const unsigned int selected_layer = env_u32_or_default(
@@ -161070,8 +161074,11 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         const unsigned int target_layer = generic_trace
             ? generic_layer
             : selected_layer;
+        const size_t trace_count = generic_trace ? generic_count : 1u;
         if ((!generic_trace && !q1024_trace) ||
-            absolute_position != target_position ||
+            trace_count == 0u || trace_count > 512u ||
+            absolute_position < target_position ||
+            absolute_position - target_position >= trace_count ||
             descriptor.layer_index != target_layer || stage == nullptr ||
             device_data == nullptr || bytes == 0u) {
             return;
@@ -161101,13 +161108,37 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         const uint64_t digest = status == hipSuccess
             ? qrt_fnv1a64_bytes(host_bytes.data(), host_bytes.size())
             : UINT64_C(0);
+        std::string sha256;
+#ifdef _WIN32
+        if (status == hipSuccess && host_bytes.size() <= UINT_MAX) {
+            BCRYPT_ALG_HANDLE algorithm = nullptr;
+            if (BCryptOpenAlgorithmProvider(
+                    &algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0) >= 0) {
+                unsigned char hash[32]{};
+                const NTSTATUS hashed = BCryptHash(
+                    algorithm, nullptr, 0, host_bytes.data(),
+                    static_cast<ULONG>(host_bytes.size()), hash, sizeof(hash));
+                BCryptCloseAlgorithmProvider(algorithm, 0);
+                if (hashed >= 0) {
+                    constexpr char hex[] = "0123456789abcdef";
+                    for (unsigned char byte : hash) {
+                        sha256 += hex[byte >> 4u];
+                        sha256 += hex[byte & 15u];
+                    }
+                }
+            }
+        }
+#endif
         // Reuse the completed diagnostic read to distinguish an unrounded
         // FP32 carrier from a different BF16 projection endpoint. No extra
         // device read or inference input is introduced by this optional dump.
         const char *dump_prefix = std::getenv(
             "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX"
         );
-        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
+        // A range records compact hashes at every step; raw tensors remain
+        // limited to its first position and the existing artifact ceilings.
+        const bool dump_requested = dump_prefix != nullptr &&
+            dump_prefix[0] != '\0' && absolute_position == target_position;
         static size_t dumped_files = 0u;
         static size_t dumped_bytes = 0u;
         bool dump_ok = false;
@@ -161143,6 +161174,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             << " stage=" << stage
             << " bytes=" << bytes
             << " digest=" << hex_u64(digest)
+            << " sha256=" << (sha256.empty() ? "unavailable" : sha256)
             << " hip_status=" << static_cast<int>(status)
             << " dump_requested=" << (dump_requested ? 1 : 0)
             << " dump_ok=" << (dump_ok ? 1 : 0)

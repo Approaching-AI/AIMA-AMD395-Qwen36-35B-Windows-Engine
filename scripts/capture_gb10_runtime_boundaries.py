@@ -172,6 +172,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_norms = {}
         self._qrt_boundary_stages = {}
         self._qrt_boundary_decode_states = []
+        self._qrt_boundary_state_hashes = []
+        state_hashes_enabled = os.environ.get('QRT_GB10_BOUNDARY_STATE_HASHES', '0') == '1'
         self._qrt_boundary_bytes = 0
         self._qrt_boundary_started = time.monotonic()
         self._qrt_boundary_active = None
@@ -533,7 +535,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
 
         def selected_decode():
             transaction = self._qrt_boundary_active
-            if (not active_linear or transaction is None or not transaction["rows"] or
+            if (not active_linear or transaction is None or
+                    (not transaction["rows"] and not state_hashes_enabled) or
                     transaction["first_position"] < prompt_tokens):
                 return None
             if not 1 <= transaction["token_count"] <= 2:
@@ -570,7 +573,10 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 values.apply_defaults()
                 values = values.arguments
                 prefix = f"linear-{index:02d}"
+                save_raw = bool(transaction["rows"])
                 if name == "causal_conv1d_update":
+                    if not save_raw:
+                        return original(*args, **kwargs)
                     state = values["conv_state"]
                     slots = values["conv_state_indices"].detach().cpu().tolist()
                     accepted = values["num_accepted_tokens"]
@@ -597,13 +603,36 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 selection = recurrent_state_selection(slots, accepted,
                     transaction["token_count"], state.shape[0])
                 slot = selection["initial_slot"]
-                save(prefix + "-decode-state-before", state[slot:slot + 1], transaction)
-                if name == "fused_sigmoid_gating_delta_rule_update":
+                if save_raw:
+                    save(prefix + "-decode-state-before", state[slot:slot + 1], transaction)
+
+                def state_hash(cache_slot):
+                    # Native state snapshots use key-major layout. Hash the
+                    # same FP32 bytes without changing the original cache.
+                    value = state[cache_slot].detach().transpose(-2, -1).contiguous().cpu()
+                    return hashlib.sha256(value.view(torch.uint8).numpy().tobytes()).hexdigest()
+
+                before_hash = state_hash(slot) if state_hashes_enabled else None
+                if save_raw and name == "fused_sigmoid_gating_delta_rule_update":
                     for label, width in (("q", 2048), ("k", 2048), ("v", 4096)):
                         linear_stage(index, label + "-decode-input", values[label], width)
                 result = original(*args, **kwargs)
-                save(prefix + "-decode-state-after",
-                     torch.cat([state[i:i + 1] for i in selection["final_slots"]]), transaction)
+                if save_raw:
+                    save(prefix + "-decode-state-after",
+                         torch.cat([state[i:i + 1] for i in selection["final_slots"]]), transaction)
+                if state_hashes_enabled:
+                    if (len(self._qrt_boundary_state_hashes) >=
+                            1024 * len(self._qrt_boundary_linear_layers) or
+                            time.monotonic() - self._qrt_boundary_started > 180):
+                        raise ValueError("bounded recurrent state hash trace exceeded")
+                    self._qrt_boundary_state_hashes.append(dict(
+                        transaction=transaction["ordinal"], layer=index,
+                        first_position=transaction["first_position"],
+                        input_token_ids=list(transaction["input_token_ids"]),
+                        hash_layout="head_key_value", dtype="f32", shape=[32, 128, 128],
+                        before_sha256=before_hash,
+                        after_sha256=[state_hash(i) for i in selection["final_slots"]],
+                        diagnostic_only=True))
                 self._qrt_boundary_decode_states.append(dict(transaction=transaction["ordinal"],
                     layer=index, operator=name, **selection))
                 return result
@@ -648,6 +677,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 Path(inspect.getsourcefile(layers[0].forward)),
                 Path(inspect.getsourcefile(type(layers[0].input_layernorm)))})],
             maximum_saved_bytes=128 << 20, maximum_observation_seconds=180,
+            all_decode_state_hashes=state_hashes_enabled,
+            maximum_state_hash_transactions=1024 * len(self._qrt_boundary_linear_layers),
             decode_operator_sources=[dict(file=str(path), sha256=file_sha(path))
                                      for path in sorted(observed_sources)],
             linear_stage_layers=list(self._qrt_boundary_linear_layers),
@@ -698,6 +729,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,
             decode_state_selections=self._qrt_boundary_decode_states,
+            decode_state_hashes=self._qrt_boundary_state_hashes,
             full_attention_cache=self._qrt_boundary_full_cache,
             selected_positions=sorted(self._qrt_boundary_selected),
             original_methods_returned_unchanged=True, diagnostic_only=True)
