@@ -141,6 +141,14 @@ production default. The replay now returns nonzero for numerical mismatch,
 while preserving output artifacts for diagnosis. These component intervals
 are not product TTFT.
 
+The replacement at source d116e07 assigns each PV output dimension to an
+independent lane and packs each K16 product in one register. All 29,364,224
+GB10 BF16 outputs and the same native FP32 control remain identical. Kernel
+intervals total **3,822.13 ms**, maximum **9.3963 ms**; the same-run original
+provider takes 4,561.25 ms. One million independent packed-product alignment
+controls pass under UBSan, as does the complete local check. This mapping is
+selected for the next CK build; whole-model qualification remains pending.
+
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
 already matched all 80 layer norms and all 40 terminal residuals, but emitted

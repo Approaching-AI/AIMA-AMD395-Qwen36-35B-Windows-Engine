@@ -286,7 +286,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     unsigned int output_start, const unsigned char* exp2_table = nullptr,
     float* raw_accumulator = nullptr, float* raw_denominator = nullptr,
     bool vllm_sum = false, const unsigned char* rcp_table = nullptr,
-    unsigned int memory_layout = 0u) {
+    unsigned int memory_layout = 1u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
