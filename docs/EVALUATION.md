@@ -63,8 +63,29 @@ carriers already differ from the reference under the same input history.
 Selected MTP rows retain actual positions, input IDs and logits indices;
 unaccepted draft rows are excluded from comparisons. The old global Q1
 BF16 residual-norm flag fails q7169's final variance handoff and moves
-q8192's first divergence to output index 3, so it is not retained. Projection,
-GDN and gated-output observations are being compared next.
+q8192's first divergence to output index 3, so it is not retained.
+
+The [original GDN stage capture](../benchmarks/correctness/runtime-gdn-stages-20260911.json)
+also reproduces all eight frozen GB10 cases. The complete layer-4 q8191
+input norm and QKV/Z/A/B projections are byte-exact. The first observed
+downstream difference is GDN core output: head 12 jumps above 1e30 at token
+562, while all other heads remain below 0.032. The final 64 gated rows
+differ in exactly that head. The native stage request stops at its aggregate
+capture limit, so these saved tensors do not qualify a completed model run.
+Native post-convolution Q/K diagnostic rows are already normalized; the
+reference core-input rows are raw BF16 and cannot be compared directly.
+At the first divergent q7169/q8192 decode positions, layer-0 input norm
+and A/B projection digests match the reference widened to FP32. QKV/Z
+FP32 digests differ; their BF16 endpoint still needs direct comparison.
+
+The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
+remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
+of 220 and then encounters an unspecified launch failure during layer-0
+decode copy synchronization. Owned cleanup reaches its 300-second deadline;
+all post-run host checks pass. Subsequent q7169/q8192 32-token controls pass.
+The new whole db6f3ca q8192 callback TTFT is 4,211.237900 ms, above the
+unchanged 4,187.415605 ms retained target. The earlier 4,135.594501 ms result
+remains retained; this change does not qualify a replacement package.
 
 The preceding [final-norm reference matrix](../benchmarks/correctness/final-norm-reference-matrix-20260911.json)
 passes both original 32-token requests after matching the scalar check to
@@ -583,6 +604,11 @@ supplies values to inference. Failed capture stops the call and cannot be
 retried in the same prepared provider. The optional hook avoids reliance on
 whole-provider trace branches. Host fault/tail tests and full local checks
 pass 262 Python tests (two known skips), Rust, clippy, C ABI, q16 and hygiene.
+`QRT_FLA_GDN_CAPTURE_CALL_INDEX` optionally selects the zero-based eligible
+call (0..63, default zero). Earlier calls execute without capture reads or
+filesystem writes; the completion record identifies the actual call index.
+The selected-call tests verify skipped reads, original execution order,
+unchanged inputs, one capture, and rejection of malformed indices.
 
 
 The native r20 first-call control matches the existing q64 inputs and outputs.
