@@ -113,6 +113,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"memory_layout\":" << memory_layout
               << ",\"native_products\":" << (native_products ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
+              << ",\"integer_wmma\":" << (memory_layout == 5u ? "true" : "false")
               << ",\"score_probability_redzones_checked\":" << (std::strcmp(route, "ck") ? "true" : "false")
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
               << ",\"scores_ms\":" << scores_ms

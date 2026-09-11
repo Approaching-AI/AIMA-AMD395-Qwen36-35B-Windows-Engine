@@ -1,0 +1,67 @@
+"""Prove signed-byte matrix reconstruction and individual K16 truncation."""
+from pathlib import Path
+import os
+import subprocess
+import tempfile
+import unittest
+ROOT = Path(__file__).resolve().parents[1]
+
+class IntegerPartsTests(unittest.TestCase):
+    def test_byte_matrix_and_compensation_match_original_groups(self):
+        source = r'''
+#include <cassert>
+#include <cstdio>
+#include "sm121_integer_parts.h"
+using namespace qrt_sm121_integer_parts;
+unsigned seed=0x8191395u;
+unsigned random_word(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
+int high_byte(uint16_t v){int h=v>>8u;return h>=128?h-256:h;}
+int main(){
+ unsigned accepted=0,rejected=0,shifted=0;
+ for(unsigned group=0;group<200000u;++group){
+  uint16_t a[18]{},b[18]{};uint32_t pairs[16],original[16];int32_t partials[4]{};
+  const unsigned ae=1u+random_word()%238u,be=1u+random_word()%238u;
+  const unsigned spread=group%3u==0u?11u:8u;
+  for(unsigned i=0;i<16u;++i){
+   a[i]=uint16_t((random_word()&0x807fu)|((ae+random_word()%spread)<<7u));
+   b[i]=uint16_t((random_word()&0x807fu)|((be+random_word()%spread)<<7u));
+   if(group%41u==0u)a[i]=0;
+   if(group%47u==0u)b[i]=0x8000;
+   if(group%53u==0u&&i==1u)a[i]=1;
+   if(group%59u==0u&&i==2u)b[i]=0x7f80;
+   if(group%71u==0u){a[i]=uint16_t(0x3fffu|((group&1u)<<15u));b[i]=0x3fffu;}
+   pairs[i]=uint32_t(a[i])|(uint32_t(b[i])<<16u);
+   original[i]=qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(a[i],b[i],-133));
+  }
+  int amin=row_minimum(a),bmin=row_minimum(b);
+  for(unsigned i=0;i<16u;++i){
+   const uint16_t x=encode(a[i],amin),y=encode(b[i],bmin);
+   const int ah=high_byte(x),bh=high_byte(y),al=x&255u,bl=y&255u;
+   partials[0]+=ah*bh;partials[1]+=ah*bl;partials[2]+=al*bh;partials[3]+=al*bl;
+  }
+  const int exponent=int(ae+be)-254+int(random_word()%70u)-4;
+  qrt_q1_moe_hawkeye::Value carry{(random_word()&0x7fffffu)|0x800000u,int16_t(exponent),bool(random_word()&1u)};
+  if(group%7u==0u)carry={0u,-133,false};
+  if(group%71u==0u)carry={0xffffffu,0,bool(group&1u)};
+  const auto expected=qrt_sm121_group16::sum_packed(carry,original);
+  qrt_sm121_group16::AlignedSum actual{{123u,true},777};
+  if(sum(carry,pairs,partials,amin,bmin,&actual)){
+   ++accepted;if(exponent-amin-bmin+254>11)++shifted;
+   assert(actual.max_exponent==expected.max_exponent);
+   assert(actual.value.magnitude==expected.value.magnitude);
+   assert(actual.value.negative==expected.value.negative);
+  }else{++rejected;assert(actual.max_exponent==777&&actual.value.magnitude==123u&&actual.value.negative);}
+ }
+ assert(accepted>100000u&&rejected>10000u&&shifted>10000u);
+ std::printf("integer_groups=200000 accepted=%u rejected=%u shifted=%u exact=1\n",accepted,rejected,shifted);
+}
+'''
+        with tempfile.TemporaryDirectory(prefix='qrt-integer-parts-') as tmp:
+            exe = str(Path(tmp) / 'parts')
+            subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-O2', '-Wall', '-Wextra', '-Werror',
+                            '-fsanitize=undefined', '-I', str(ROOT / 'native/providers/moe_accumulator'),
+                            '-x', 'c++', '-', '-o', exe], input=source, text=True, check=True, timeout=30)
+            subprocess.run([exe], check=True, timeout=15)
+
+if __name__ == '__main__':
+    unittest.main()

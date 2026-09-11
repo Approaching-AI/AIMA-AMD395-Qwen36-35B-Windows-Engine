@@ -240,6 +240,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_native_product.h')).Hash.ToLowerInvariant()
     sm121_mantissa_parts_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_mantissa_parts.h')).Hash.ToLowerInvariant()
+    sm121_integer_parts_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_integer_parts.h')).Hash.ToLowerInvariant()
     hipcc = $hipcc
     clang = $clang
     rocm_root = $RocmRoot

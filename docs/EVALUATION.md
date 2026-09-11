@@ -205,13 +205,21 @@ The component interval nevertheless increases from 1367.15 to 2352.06 ms
 (QK 573.904 to 848.447 ms; PV 791.727 to 1502.4 ms). Keep integer-packed
 products selected; the optional native-product path is a numerical diagnostic.
 Its slower component does not warrant a product performance run.
-The next opt-in `QRT_CK_SM121_MANTISSA_WMMA=1` route shares 16x16 operands
-across four matrix partials, compensates the individually discarded product
-bits, and falls back to the original integer K16 sum outside its proven
-exponent range. It retains ordered softmax and PV rescaling, bounds the extra
-workspace, and leaves the selected configuration unchanged. All 303 local
-Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass; native
-matrix behavior and captured-input performance are not yet qualified.
+The [four-BF16-partial matrix experiment](../benchmarks/correctness/attention-mantissa-wmma-failure-20260911.json)
+at `98cd10fddba52795dd50c3ab5dad67577cdae71a` fails a captured real
+65-query boundary: 70 of 266,240 BF16 outputs differ. Both the original
+path and the existing split-softmax control match every native FP32 bit.
+A separate native matrix probe at `f18f39b` finds 6,835 partial mismatches
+among 11,962 eligible cells; its host and device compensation agree, but
+3,864 compensated sums differ from the original integer reference. The
+FP32 representability proof does not guarantee these native WMMA partials.
+The next opt-in `QRT_CK_SM121_MANTISSA_WMMA=1` route instead represents
+normal BF16 rows as signed 16-bit integers and combines four signed/unsigned
+byte matrix products without floating-point accumulation. Rows spanning
+more than seven exponents fall back to the original integer path. It keeps
+ordered softmax/PV rescaling and bounded owned workspace. All 304 local
+Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass. Native
+integer matrix behavior and captured-input performance remain unqualified.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or
