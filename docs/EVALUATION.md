@@ -66,8 +66,14 @@ required token match. The run takes 45,579.7602 ms to its first callback.
 It records zero exact-attention calls, versus twenty at q8192: the CK
 provider's selection and scratch allocation stop at 8192 although the exact
 kernel supports 16384. The next repair binds dispatch and all scratch/launch
-extents to that kernel capacity. Its Windows build and product remeasurement
-remain pending; the complete matrix and release are unqualified.
+extents to that kernel capacity. CK `49a660b` builds successfully on Windows
+in 37,030.338 ms and now executes nine full-prefix and ten terminal exact
+calls at q8193. Its [product result](../benchmarks/correctness/attention-extent-product-20260912.json)
+still has the identical three token errors, with 63,529.5056 ms callback TTFT.
+The dispatch omission is fixed, but another numerical difference remains.
+The GB10 capture processes this request as 8192 tokens followed by one token;
+the next comparison uses the native saved-prefix/suffix interface at that
+same boundary. The complete matrix and release remain unqualified.
 
 The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 reduces actual callback TTFT by 5819.2376 / 5071.3091 /
