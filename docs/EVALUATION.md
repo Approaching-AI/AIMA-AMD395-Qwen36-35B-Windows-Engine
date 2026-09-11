@@ -32,25 +32,28 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
-Whole `9b6f145481094fa7ce3332cc59075f8817b9fc9d` built with
+Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
 `13d77b63ea705ea8f4d4daee8d2ac30a581b7bfb` with
-`QRT_FLA_GDN_COOPERATIVE_EXACT=1` pass both complete
-512-token cold continuations and five 32-token controls on `baiying`,
+`QRT_FLA_GDN_COOPERATIVE_EXACT=1`, plus CK `49a660b`, pass both complete
+512-token cold continuations and all six 32-token controls on `baiying`,
 using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
 first-token/logit, complete output and streaming boundary passes in these
-seven cases. The eighth case, q8193, fails its first three outputs. All eight
+eight cases: 1,216 generated tokens. The ordinary q8193 request now passes
+through the bounded cold prefill split. All eight
 complete with successful host checks. The requests use the strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/dense-boundary-product-20260912.json)
-bind source, clean Windows build, component hashes, commands and all outputs.
+[complete product records](../benchmarks/correctness/bounded-prefill-product-20260912.json)
+bind source, clean Windows whole/CLI builds, component hashes, commands,
+all outputs and the unchanged GB10 oracle. Performance remains unqualified.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 20,021.5403 | 54,102.6683 | 112.648291 |
-| q8192 out512 | 144 / 10.375 | 20,013.6460 | 62,477.9868 | 115.855300 |
-| q8191 out32 | 168589 / 11.375 | 20,005.6537 | 63,123.1009 | 119.080342 |
+| q7169 out512 | 82 / 9.25 | 20,012.6960 | 54,119.3108 | 112.901665 |
+| q8192 out512 | 144 / 10.375 | 20,025.2229 | 62,837.3352 | 115.219774 |
+| q8191 out32 | 168589 / 11.375 | 20,000.5564 | 63,083.9095 | 119.652074 |
+| q8193 out32 | 220 / 9.75 | 20,237.8517 | 63,115.6430 | 109.239029 |
 
 The dense absolute-error selector previously missed the closer BF16 rounding
 boundary below a power of two. It now uses the shared nearest-boundary helper.
@@ -60,7 +63,8 @@ negative boundary case. Both 512-output requests and q8191 retain every
 captured GB10 operator, forty-layer carrier and KV comparison, plus 554 / 806
 state boundaries. The other passing controls are q7168, q7169, q7170 and q8192.
 
-q8193 emits `64,57,82` instead of `220,220,196`; its remaining 29 tokens agree.
+Before the split, whole `9b6f145` emits `64,57,82` at q8193 instead of
+`220,220,196`; its remaining 29 tokens agree.
 Its first logit 9.75 is within tolerance, which cannot substitute for the
 required token match. The run takes 45,579.7602 ms to its first callback.
 It records zero exact-attention calls, versus twenty at q8192: the CK
@@ -87,9 +91,13 @@ The intermediate seed is not published. Both callback and report clocks include
 the cold seed. A tagged optional extension in the existing prefix result binds
 the first logit to output zero before later decode/rollback; old provider results
 leave it unavailable. Local tests cover clocks, cancellation, failures, suffix
-and output limits, hidden seed and stale-logit rejection. Windows compilation
-and ordinary frozen-matrix qualification of this integration are pending.
-The complete ordinary matrix, performance and release remain unqualified.
+and output limits, hidden seed and stale-logit rejection. Windows whole and
+CLI builds pass in 83,063.055 / 11,826.273 ms. All eight ordinary frozen
+requests pass; both 512-output state traces and q8191 retain their captured
+GB10 operator/carrier/KV comparisons. The q8193 cold report includes the seed
+and records 63,115.4979 ms provider TTFT beside the actual 63,115.6430 ms
+callback. Arbitrary new prompts, general partial checkpoints, long contexts,
+packaged HTTP, performance and release qualification remain open.
 
 The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 reduces actual callback TTFT by 5819.2376 / 5071.3091 /
