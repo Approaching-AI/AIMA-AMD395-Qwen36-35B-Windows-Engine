@@ -1,0 +1,1574 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "record_type": "matched_history_runtime_boundary_diagnostics",
+  "release_acceptance": false,
+  "performance_accepted": false,
+  "oracle_contract": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+  "oracle_contract_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "immutable_controls": {
+    "7169": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+    "8192": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+  },
+  "gb10": {
+    "host": "aitopatom-66c4",
+    "model": "/models",
+    "model_mount": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "source_commit": "10a792495dff130bf3e62dce2b7e21581ab05f76",
+    "entrypoint_sha256": "9ee7803739590d6bcfc911c548c597033dcb724c23cb2648435a34e6719459e2",
+    "observer_sha256": "a24b82813445b9484844dae2c6fe102ad56d6ec23c7f23fa3359b945466a6316",
+    "capture_sha256": "dcf4b7cb927b9e6e850f1eb97a0272ce1e5378acb4fb324b9692f642cdd24aec",
+    "dispatch_sha256": "d5b8649fc64ab1d134440a6f76d0cb3a04f0fc813e90778ebeddac29c6c43511",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-runtime-boundaries-20260911-r2",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "108g",
+        "--shm-size",
+        "8g",
+        "--cpus",
+        "8",
+        "-e",
+        "PYTHONPATH=/work/scripts",
+        "-e",
+        "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+        "-e",
+        "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+        "-v",
+        "<reference-home>/qrt-gb10-runtime-boundaries-20260911-r2:/work",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=10",
+        "620",
+        "python3",
+        "scripts/capture_gb10_token_matrix.py",
+        "--source-commit",
+        "10a792495dff130bf3e62dce2b7e21581ab05f76",
+        "--oracle-q7169",
+        "contracts/arbitrary_q7169_gb10_oracle.json",
+        "--oracle-q8192",
+        "contracts/hprefill_q8192_gb10_oracle.json",
+        "--output-dir",
+        "capture",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--timeout-seconds",
+        "590",
+        "--runtime-boundaries",
+        "--execute"
+      ],
+      "command_file": "<reference-home>/run-qrt-gb10-runtime-boundaries-20260911-r2.py",
+      "command_file_sha256": "5a104b663036043a42c7c4ff6cbc737ae50d0044703f4661383d1ebd21303650",
+      "source_commit": "10a792495dff130bf3e62dce2b7e21581ab05f76",
+      "returncode": 0,
+      "reason": "completed",
+      "wall_seconds": 409.33378541399725,
+      "minimum_host_available_bytes": 12984242176,
+      "container_status": "false 0",
+      "archive_sha256": "258934fdd2317e36fac9ee997b67901a100711436b76ae344018ca7da0b069c6"
+    },
+    "archive": {
+      "file": "boundaries.tgz",
+      "bytes": 77202908,
+      "sha256": "39d186fd93966aa9a1d48e929c28562128e712a0fcce3442990064b49184d3ee"
+    },
+    "completed": true,
+    "controls_qualified": true,
+    "load_seconds": 315.77219612099,
+    "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "case_sha256": "823e93384b0b509aa5613c676d0e959edd44964a5189974843c259ffa0941258",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "d8e5090640963e7f07d78fe43a3d79362db5fd7a053b0e4f96fc279edd71a7f6",
+          "u32le_fnv1a64": "7e8c505cfcbfcf2d"
+        },
+        "first_token": 82,
+        "first_raw_logit": 9.25,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+        "selected_positions": [
+          7168,
+          7169
+        ],
+        "artifact_bytes": 2967552,
+        "artifact_count": 404,
+        "transaction_count": 19
+      },
+      {
+        "name": "q8192-out32",
+        "case_sha256": "50f63322b29aeb001a09dd6e53d1b77f69c7ac4fa9cb8b7adf84cf158d152606",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "97d1c7e3ae51a6aa3d55e41d38e410c3995c9dc017a133d8d1533ad3cc3ea9b4",
+          "u32le_fnv1a64": "e60389077f247d2c"
+        },
+        "first_token": 144,
+        "first_raw_logit": 10.375,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+        "selected_positions": [
+          8191,
+          8192
+        ],
+        "artifact_bytes": 2967552,
+        "artifact_count": 404,
+        "transaction_count": 20
+      },
+      {
+        "name": "q7168-out32",
+        "case_sha256": "0769309a32fff304c44d18d292ca101538856f7292b2a2b28a4cc2cbc352307b",
+        "prompt": {
+          "token_count": 7168,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "69ac88b3ab23db63b0dc97ce0ba4f3a1142f6f03a82880d40400d2a147a0808c",
+          "u32le_fnv1a64": "df799e629e63b300"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "37735a1d2ee4eb98fef57f39dc8e8699a18c8368e53ff7f9ff682ab5bfeca453",
+          "u32le_fnv1a64": "1c9f5d2303ade09b"
+        },
+        "first_token": 220,
+        "first_raw_logit": 9.5625,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "5cac7f945165a794d8bbca8c77261dce3fd620480e7804551cc64ebf4a9b2a39",
+        "selected_positions": [
+          7167,
+          7168
+        ],
+        "artifact_bytes": 2967552,
+        "artifact_count": 404,
+        "transaction_count": 17
+      },
+      {
+        "name": "q7170-out32",
+        "case_sha256": "ea0a04a0eafb86e373c04b51096d14eabf0e22e1d13a1a4e01edfd1c8f551041",
+        "prompt": {
+          "token_count": 7170,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "bec91c975401208667e5a728da9235d8e3f87aa775abd69db0fc556b09a717d6",
+          "u32le_fnv1a64": "fd950cdf1546d98a"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "b513774994cbe67aee623ae23271c7392347692805048157adb4c4250c7cb3c3",
+          "u32le_fnv1a64": "6e50b6eae171c521"
+        },
+        "first_token": 94,
+        "first_raw_logit": 18.25,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "f0e27b896fb0529d0fa14adb4ce36c130c70cbcaf4592dd9e78dd94ee40a0bc5",
+        "selected_positions": [
+          7169,
+          7170
+        ],
+        "artifact_bytes": 2967552,
+        "artifact_count": 404,
+        "transaction_count": 18
+      },
+      {
+        "name": "q8191-out32",
+        "case_sha256": "1997c1cef14a29e8eb96d9f817b8b18f24e7a0f8bb333b884b64c9c996b3d01f",
+        "prompt": {
+          "token_count": 8191,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "aaf30058b943ba25c4dcabeb2d603dba5e0a63a1e12a96a466e574ee19cfbff5",
+          "u32le_fnv1a64": "7015b1f272403af6"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "37a60a4ba9b0b65ebc767239e8a8809904774c57e20e2cee9a7adf837d96dae3",
+          "u32le_fnv1a64": "c8195e228fda5765"
+        },
+        "first_token": 168589,
+        "first_raw_logit": 11.375,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "d893f8ab1dc417424b9c85d90543915f8a0c3d4abf0f94dffe10e6969f0d7e20",
+        "selected_positions": [
+          8127,
+          8128,
+          8129,
+          8130,
+          8131,
+          8132,
+          8133,
+          8134,
+          8135,
+          8136,
+          8137,
+          8138,
+          8139,
+          8140,
+          8141,
+          8142,
+          8143,
+          8144,
+          8145,
+          8146,
+          8147,
+          8148,
+          8149,
+          8150,
+          8151,
+          8152,
+          8153,
+          8154,
+          8155,
+          8156,
+          8157,
+          8158,
+          8159,
+          8160,
+          8161,
+          8162,
+          8163,
+          8164,
+          8165,
+          8166,
+          8167,
+          8168,
+          8169,
+          8170,
+          8171,
+          8172,
+          8173,
+          8174,
+          8175,
+          8176,
+          8177,
+          8178,
+          8179,
+          8180,
+          8181,
+          8182,
+          8183,
+          8184,
+          8185,
+          8186,
+          8187,
+          8188,
+          8189,
+          8190,
+          8191,
+          8196
+        ],
+        "artifact_bytes": 68124672,
+        "artifact_count": 808,
+        "transaction_count": 20
+      },
+      {
+        "name": "q8193-out32",
+        "case_sha256": "8c04e77a23a98318223752213643a19223a9152c8e6c65d648c2a4123a0e3e40",
+        "prompt": {
+          "token_count": 8193,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "9ccfb67142cceeba42bf3f3ac62a0a0aea6127b353897512f0ea516c0882160a",
+          "u32le_fnv1a64": "67496c4b22db5cf4"
+        },
+        "output_count": 32,
+        "output_fingerprints": {
+          "u32le_sha256": "59c04145d4c05b4df91937bec93242973b5c8cebcb6459b7fbf4cb76c384ebd3",
+          "u32le_fnv1a64": "45dbd21ceb759123"
+        },
+        "first_token": 220,
+        "first_raw_logit": 9.75,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "0d3f4ccb6a2ccda8e0c5a91b302ff1adf2c0b90c5090cab76ba1c32cfe900d90",
+        "selected_positions": [
+          8192,
+          8193
+        ],
+        "artifact_bytes": 2967552,
+        "artifact_count": 404,
+        "transaction_count": 19
+      },
+      {
+        "name": "q7169-out512",
+        "case_sha256": "80b5837678c37f8d0739974a5ba8586b349a505755f584e20fd336ee037c143b",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 512,
+        "output_fingerprints": {
+          "u32le_sha256": "2d56345ceace9b5f93417641f814c097f278c5f18108a2cecd5e22ffb27b80fb",
+          "u32le_fnv1a64": "554c240683d77bbe"
+        },
+        "first_token": 82,
+        "first_raw_logit": 9.25,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+        "selected_positions": [
+          7168,
+          7169,
+          7287,
+          7288,
+          7289
+        ],
+        "artifact_bytes": 8902656,
+        "artifact_count": 1011,
+        "transaction_count": 273
+      },
+      {
+        "name": "q8192-out512",
+        "case_sha256": "744d31bd8d130f01120f00d31e285a6d6898655d2bf838b800657a975d1f3860",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 512,
+        "output_fingerprints": {
+          "u32le_sha256": "72770928a6b7d69f0f26076247488fcba1e6dd8c94a9b488436aaf8c554ba88c",
+          "u32le_fnv1a64": "ca7c30b242ddf035"
+        },
+        "first_token": 144,
+        "first_raw_logit": 10.375,
+        "full_matrix_case_pass": true,
+        "full_first_logits_identical_to_frozen_capture": true,
+        "raw_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+        "selected_positions": [
+          8191,
+          8192,
+          8299,
+          8300,
+          8301
+        ],
+        "artifact_bytes": 7418880,
+        "artifact_count": 809,
+        "transaction_count": 286
+      }
+    ]
+  },
+  "native": {
+    "host": "baiying",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "runs": [
+      {
+        "name": "runtime-boundary-q8191-out32-r1",
+        "run_sha256": "aaedf018872723cf80588ec77eb4948ff2d0513d1f03247b3b74b88307744eea",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r1.ps1",
+        "command_file_sha256": "f95d7f6de57276741583310d842f33117db68651f2d1a74880b11c0239405100",
+        "environment_sha256": "1433af55d5b6a2a80386af828d1c8f57168d49e9dcf7a4b7f77f8784794ae308",
+        "environment_overrides": {
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8196",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q8191-out32-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8196",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "82",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "220",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q8191-out32-r1\\norm",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8191-out32",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 32,
+        "first_token": 168589,
+        "first_raw_logit": 11.4375,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "866775736ae6bff54bf69bffb9b88330c1800791e7757292d3f2b5578c17d21f",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 6,
+          "observed": 82,
+          "expected": 220
+        },
+        "mismatch_count": 15
+      },
+      {
+        "name": "runtime-boundary-q7169-out512-r1",
+        "run_sha256": "22382c7239f7aed2b77607691bb6f5a50f38953fc2eff15bd96088c48688fe59",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r1.ps1",
+        "command_file_sha256": "f95d7f6de57276741583310d842f33117db68651f2d1a74880b11c0239405100",
+        "environment_sha256": "0217baf12fea11325efa4854d6c35946253a1c1cc2d8bb6cbbc215cdf6e7504e",
+        "environment_overrides": {
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "7288",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q7169-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "7288",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "4123",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "3300",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q7169-out512",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 512,
+        "first_token": 82,
+        "first_raw_logit": 9.25,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "f915ee73b18a392f5389aaa397f0a2815f00ef36f564016e7deaa076469e5b45",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 120,
+          "observed": 4123,
+          "expected": 3300
+        },
+        "mismatch_count": 392
+      },
+      {
+        "name": "runtime-boundary-q8192-out512-r1",
+        "run_sha256": "529a32e3c8fc2f9a6abf9b8f3b46607b5390247ff511db87d34c259ebfcae4fd",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r1.ps1",
+        "command_file_sha256": "f95d7f6de57276741583310d842f33117db68651f2d1a74880b11c0239405100",
+        "environment_sha256": "b4a4436436924da08a412b7b4c56803361b6ebf1a9c548e6f471ce0d4bbe70d0",
+        "environment_overrides": {
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8300",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q8192-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8300",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "248046",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "196",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8192-out512",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 512,
+        "first_token": 144,
+        "first_raw_logit": 10.375,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "470f7b0b67dc073e666b43929c1fd8583d789a43531c67b64ca11b2a31552027",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 109,
+          "observed": 248046,
+          "expected": 196
+        },
+        "mismatch_count": 391
+      },
+      {
+        "name": "runtime-boundary-q8191-out32-r2",
+        "run_sha256": "fde91a42636ba930406dd838308ddb9b3f94293924fd4a7d4c5a2b32921339a4",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r2.ps1",
+        "command_file_sha256": "2af79916ba6524fd8ddc5f4d376aa1f2ced3fb51cfd1dee94b5d9a7a1abb1206",
+        "environment_sha256": "6234206fc02d3367ef7e9029046e9ac6362fb968e924ee276ea9bd0924d53a08",
+        "environment_overrides": {
+          "QRT_QWEN36_ALL_NORM_DUMP_TOKENS": "8191",
+          "QRT_QWEN36_Q1_VLLM_BF16_RESIDUAL_NORM": "0",
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8196",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q8191-out32-r2\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8196",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "82",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "220",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\runtime-boundary-q8191-out32-r2\\norm",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8191-out32",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 32,
+        "first_token": 168589,
+        "first_raw_logit": 11.4375,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "d87354bda93dcfb1d4727b00d55944fcd1ab723e0f0e76c3b805a52dea64182a",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 6,
+          "observed": 82,
+          "expected": 220
+        },
+        "mismatch_count": 15
+      },
+      {
+        "name": "prefill-boundary-q8191-out32-r3",
+        "run_sha256": "45009b204d53f37473c3a128529341e38c80e3bc3592eb7f817be2b395410118",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-prefill-boundaries-r3.ps1",
+        "command_file_sha256": "f88a5b65fa1a81fc49f888ca826b69ca06492cece3406945bc584a3012bba80b",
+        "environment_sha256": "402ae9ca1fadcb4e41bd2f2b03630d21930770a40f1e9b4c54fcced8d8cd0c02",
+        "environment_overrides": {
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE": "1",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION": "8190",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8191-out32",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 32,
+        "first_token": 168589,
+        "first_raw_logit": 11.4375,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "3d4b7b18e0c6288cc2fbc12c7920eb320e298382759c5cee6caef39a5654aa83",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 6,
+          "observed": 82,
+          "expected": 220
+        },
+        "mismatch_count": 15
+      },
+      {
+        "name": "q1-vllm-norm-q7169-out512-r2",
+        "run_sha256": "e77286d0dbc6a632c0ddefeb649c52d465518fcd2a60b4b9b098d96d1a2c65b8",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r2.ps1",
+        "command_file_sha256": "2af79916ba6524fd8ddc5f4d376aa1f2ced3fb51cfd1dee94b5d9a7a1abb1206",
+        "environment_sha256": "38d44891970f290f544ae367aa47566b86121116184a8eb85cea404cf7913633",
+        "environment_overrides": {
+          "QRT_QWEN36_ALL_NORM_DUMP_TOKENS": "7169",
+          "QRT_QWEN36_Q1_VLLM_BF16_RESIDUAL_NORM": "1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "7288",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\q1-vllm-norm-q7169-out512-r2\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "7288",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "4123",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "3300",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q7169-out512",
+        "exit_code": 5,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": null,
+        "first_token": null,
+        "first_raw_logit": null,
+        "expected_output_match": null,
+        "performance_accepted": false,
+        "stderr_sha256": "774196e79dff48d56dcad13e174ea7e5d9714bde4afedd3ab75686f6a39d6b34",
+        "failure_markers": [
+          "streaming request 0 failed: unsupported output=0 callbacks=0 callback_failed=0 stage=final_norm_vllm_split_variance_handoff_miss failure=final norm did not receive the final layer's unrounded vLLM residual variance"
+        ]
+      },
+      {
+        "name": "q1-vllm-norm-q8192-out512-r2",
+        "run_sha256": "5e8e008ad25748d461674f6a68cd927d2ee43eafa67f234698cf4121cf46fa73",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-runtime-boundaries-r2.ps1",
+        "command_file_sha256": "2af79916ba6524fd8ddc5f4d376aa1f2ced3fb51cfd1dee94b5d9a7a1abb1206",
+        "environment_sha256": "1b8936e940b5158645913e0ba4c9c16758cd702ee74bd9e4314d94ef0e1f84c7",
+        "environment_overrides": {
+          "QRT_QWEN36_ALL_NORM_DUMP_TOKENS": "8192",
+          "QRT_QWEN36_Q1_VLLM_BF16_RESIDUAL_NORM": "1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8300",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\q1-vllm-norm-q8192-out512-r2\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8300",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "248046",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "196",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8192-out512",
+        "exit_code": 6,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": 512,
+        "first_token": 144,
+        "first_raw_logit": 10.375,
+        "expected_output_match": false,
+        "performance_accepted": false,
+        "stderr_sha256": "ed2363a5a7d0b98feba0c18a5f1b9304be0696aada0b5e7a6471209434662916",
+        "failure_markers": [],
+        "first_mismatch": {
+          "index": 3,
+          "observed": 220,
+          "expected": 57
+        },
+        "mismatch_count": 466
+      },
+      {
+        "name": "prefill-boundary-q8193-out32-r3",
+        "run_sha256": "f22598eff570ed67439bd2a5b24f5904906800651141a08add99f3a3ee56170e",
+        "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+        "components": {
+          "whole": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+          "fla": "7698db36e5adbf9accc02b9136c9ce656af68d9c",
+          "moe": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "ck": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423"
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "command_file": "D:\\projects\\run-native-prefill-boundaries-r3.ps1",
+        "command_file_sha256": "f88a5b65fa1a81fc49f888ca826b69ca06492cece3406945bc584a3012bba80b",
+        "environment_sha256": "6499851dfeca2133d4554631a9b22fe0c11d4ccd0925eced79da09daa8333f4d",
+        "environment_overrides": {
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE": "1",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION": "8192",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-logical-tail-20260911\\build\\fla"
+        },
+        "oracle_case": "q8193-out32",
+        "exit_code": 5,
+        "reason": "completed",
+        "host_checks_pass": true,
+        "output_count": null,
+        "first_token": null,
+        "first_raw_logit": null,
+        "expected_output_match": null,
+        "performance_accepted": false,
+        "stderr_sha256": "a9896030834130d7353fa1c7880967cd76b9a1372c065eeaf3c17e4bdcaa655e",
+        "failure_markers": [
+          "streaming request 0 failed: unsupported output=0 callbacks=0 callback_failed=0 stage=layer3_resident_full_attention_core_hipblaslt_output_projection failure=full-attention output correction requires a bounded K4096 prefill tile"
+        ]
+      }
+    ]
+  },
+  "q8191_prefill": {
+    "full_norm_comparison_sha256": "55c6ad5d3e87de271e0185db1c0ce98c94cd8b8e839a94c6f7eac79272020f65",
+    "norms_exact": 9,
+    "norms_compared": 80,
+    "first_differing_norm": {
+      "layer": 4,
+      "surface": "post_attention_rmsnorm",
+      "matches": false,
+      "native_sha256": "ed9a4b10e2d3f0435766f403567da9bf0589786b87c954eeb6545f94c1adce1d",
+      "gb10_sha256": "394f67e6890cfa577722be6b2bcd03652b89231562a4ef1d687a9dd73bfaabc5"
+    },
+    "norm_comparisons": [
+      {
+        "layer": 0,
+        "surface": "input_rmsnorm",
+        "matches": true,
+        "native_sha256": "e41312d3fd8a90cc935a792c9f6cfd771673307982b9e3785c00aa3eb297fd0a",
+        "gb10_sha256": "e41312d3fd8a90cc935a792c9f6cfd771673307982b9e3785c00aa3eb297fd0a"
+      },
+      {
+        "layer": 0,
+        "surface": "post_attention_rmsnorm",
+        "matches": true,
+        "native_sha256": "19bca4f8c932b5b88b31aea3da1e9ff9b58af175c3ea7578d23e53900c20e696",
+        "gb10_sha256": "19bca4f8c932b5b88b31aea3da1e9ff9b58af175c3ea7578d23e53900c20e696"
+      },
+      {
+        "layer": 1,
+        "surface": "input_rmsnorm",
+        "matches": true,
+        "native_sha256": "d005deab9847b43a07a519c87cb6d9989e21583d747bba865ea57a0364ae3065",
+        "gb10_sha256": "d005deab9847b43a07a519c87cb6d9989e21583d747bba865ea57a0364ae3065"
+      },
+      {
+        "layer": 1,
+        "surface": "post_attention_rmsnorm",
+        "matches": true,
+        "native_sha256": "4a06bde6341006731f41f0279ac50ce03a331d3f4bfd70172bd43c3f53e904de",
+        "gb10_sha256": "4a06bde6341006731f41f0279ac50ce03a331d3f4bfd70172bd43c3f53e904de"
+      },
+      {
+        "layer": 2,
+        "surface": "input_rmsnorm",
+        "matches": true,
+        "native_sha256": "35a01f4b36358023746eaf0e1017ff678d3d50923112bf36a0a4a4ff8582483e",
+        "gb10_sha256": "35a01f4b36358023746eaf0e1017ff678d3d50923112bf36a0a4a4ff8582483e"
+      },
+      {
+        "layer": 2,
+        "surface": "post_attention_rmsnorm",
+        "matches": true,
+        "native_sha256": "26d1fb82f92a4615881980e675d71de9d66ebac9b9b9b12b26886d45fb65d079",
+        "gb10_sha256": "26d1fb82f92a4615881980e675d71de9d66ebac9b9b9b12b26886d45fb65d079"
+      },
+      {
+        "layer": 3,
+        "surface": "input_rmsnorm",
+        "matches": true,
+        "native_sha256": "1bff614dbb6f527c74f86e6aad037a0eded8c8a2a37fc232428e454c65f35651",
+        "gb10_sha256": "1bff614dbb6f527c74f86e6aad037a0eded8c8a2a37fc232428e454c65f35651"
+      },
+      {
+        "layer": 3,
+        "surface": "post_attention_rmsnorm",
+        "matches": true,
+        "native_sha256": "bf18201a927c2d74f7a90de138e805fef78f911e80f16b508ac5bcce0b3bf315",
+        "gb10_sha256": "bf18201a927c2d74f7a90de138e805fef78f911e80f16b508ac5bcce0b3bf315"
+      },
+      {
+        "layer": 4,
+        "surface": "input_rmsnorm",
+        "matches": true,
+        "native_sha256": "f6b87770eabe4eefa043f57ce270c463672ec2bda6eacaa4deb6aa34beb5e5f8",
+        "gb10_sha256": "f6b87770eabe4eefa043f57ce270c463672ec2bda6eacaa4deb6aa34beb5e5f8"
+      },
+      {
+        "layer": 4,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "ed9a4b10e2d3f0435766f403567da9bf0589786b87c954eeb6545f94c1adce1d",
+        "gb10_sha256": "394f67e6890cfa577722be6b2bcd03652b89231562a4ef1d687a9dd73bfaabc5"
+      },
+      {
+        "layer": 5,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "573f01f9abe5525666a605aa135428d4be763a547181203732e2a319de9d3ca5",
+        "gb10_sha256": "50fb804ca8a7d02bacce0f08b996abafaa744131ed68e42e2ecaf760e59e198c"
+      },
+      {
+        "layer": 5,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "ef640af7fdab5dfccf84cfa39c9a3aed4a692fbb02ef654d65d064bb0dd611bb",
+        "gb10_sha256": "7c4f9afca9ab29495b3bc57b90f00622ac4bde431814797311f41fe9b137498e"
+      },
+      {
+        "layer": 6,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "8f23129f0a172969e9f432e47c32aa0af74064cf7a19e99e8b45b32da0753a58",
+        "gb10_sha256": "7c753db5896cbc34ea68385bf078519ea156d2af95e267dafa02614f6de70399"
+      },
+      {
+        "layer": 6,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "76117971fe1816b2fa882d2cd5df6d9386771eab7d1e77b342eaa4a807db5c73",
+        "gb10_sha256": "72ab52281d358e83d2af06d6fb7fa684e741363cae7903b645331a7929b2a427"
+      },
+      {
+        "layer": 7,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "6eaf3556124c91a986f3a4cc7a7ede741d06b9221041c4e600b027a6fa358074",
+        "gb10_sha256": "5301662c8fe770a125b3309980c8b77568c29d787baba209ae1a774fb12f736e"
+      },
+      {
+        "layer": 7,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "f1c504859b8cae5b4a5888889c1c9b536b7d21ecfebe66dca985182fadc91c91",
+        "gb10_sha256": "2be104e037078e5e211bdc4577ad7032b192537af977ef604c058f80f6bd5d89"
+      },
+      {
+        "layer": 8,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "33e109dd730d2be46e0438e621c9e1d41c4ac5aa7a58e7e143d1a4cd7be0ae4e",
+        "gb10_sha256": "abaa9e27f0255a5b8ec1d3e78b3191f29358400c3281067482b30ac4d8f784f2"
+      },
+      {
+        "layer": 8,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "d89e21078617b138d4b898f3df691ea674cc22dae0d544389a6688cda459acda",
+        "gb10_sha256": "231aa30192578f99c94395b396621b2e4482959a0382a40bc4bc84e485936d58"
+      },
+      {
+        "layer": 9,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "dbbbd29af19ce846cbd052189e957be461a32a00bc3ea0e26d2557743ed7d67b",
+        "gb10_sha256": "ebc79083205dbd446d53021055a7246bca9f317a5355fd587e84fb759600e238"
+      },
+      {
+        "layer": 9,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "981fd96f99f9addcd06257d19f9b41d2cc18e7759b5dedf8a4602a8107887c25",
+        "gb10_sha256": "536a8496ce7cbf0cad5ae611123c8cb04c041728af27d671f418c9147f34adf1"
+      },
+      {
+        "layer": 10,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "8f7e85842dd23a49647d9ed9b719215ff533077fdec7a3e29eac15fe1b7c74cd",
+        "gb10_sha256": "5508893cf6d6e0717492f5d5ce3bf16c285bce128df0e5754808c08cba479bcb"
+      },
+      {
+        "layer": 10,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "956b846ecfbe9f589004fa36df995cef79c6899c18303c66aa6a7f5346d11156",
+        "gb10_sha256": "1a49b91c909daf59aba60a5885a94b3a9adf186149101eb5ac6cc8cda7b0eac2"
+      },
+      {
+        "layer": 11,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "ef541aa89e9d87efe8aa8f399c28b189ae6ffbb8f63860988c8ca5820ff0f793",
+        "gb10_sha256": "eef019281fc754e4582df9f910ea95961cadbd63660e808f10fb004d557fa880"
+      },
+      {
+        "layer": 11,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "775411a7ea35c251cc917367967f5bc0848e2af3dc9cd9236e05bb3ddf877192",
+        "gb10_sha256": "5e075e7ecea6fe348d7a6637b3cb0055937ec227a1000e1ddb8e53a804821d10"
+      },
+      {
+        "layer": 12,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "cb6fcf7f0a34660d28a866ef887c8dfc86836263067ea0452b05221d08766b32",
+        "gb10_sha256": "d26ecc9da3c3827208852ff1ac403d2aa61c67483b461c73a221f021a1ca0fc2"
+      },
+      {
+        "layer": 12,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "4820bda562e7a53908c7d3f84a66abdb5da5459dc1c2eb57f6d175ead6a4140b",
+        "gb10_sha256": "2137eaefa4c3a53f9ef7b9181f458021531213271babe17e3aedb30d33dbf42c"
+      },
+      {
+        "layer": 13,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "12fff42798b0020ecf7892b7da5b9419aea50b087229aa10452b4fd4abfc9e97",
+        "gb10_sha256": "c0c2700e762540353e4aed71e47b86a234fc0a0ac42f7e3873f4706c175e9113"
+      },
+      {
+        "layer": 13,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "ac0b56d6bd613379d7ffa226f4a2a4e22e7b919909dd27b34186cb5c960b256e",
+        "gb10_sha256": "a8ea55f766c843f73dda5d5b703e9a471ea13cd340416f1b7f4a929fdf133c6b"
+      },
+      {
+        "layer": 14,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "cda7ee6969955ab0f147dcaa5d61e0716e342cfafff915650cef33bca9d559a0",
+        "gb10_sha256": "bbf09e08077e3870b0f63bb771a2e9e38b763c2193e30c1b5bfe80fa36539d6a"
+      },
+      {
+        "layer": 14,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "851c912a25971aca9226b2418c66d7e79750a9da108f00cd773a25fdb4a1fb49",
+        "gb10_sha256": "ea5f8c44f3d84b4cd3a16bcca0c30c68e4bea19aa87902eac9c0b4b9fa35e1a6"
+      },
+      {
+        "layer": 15,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "c76f2bd2d65fc14b553803d56a44cbeffd428c1950939d77a7ff2227b38d3dd9",
+        "gb10_sha256": "12eaed19c40625c6a367760192313f8d4bf4c53a418a3003267182e91bdfe212"
+      },
+      {
+        "layer": 15,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "802daee4784f0aa19d836a1585e4ed99c46584aaabd1c31cfed4a73be4591bdc",
+        "gb10_sha256": "55b281b4883d1a54fe259ed9a3d8f3a7477bbebe765fdd33d07de33b46073c13"
+      },
+      {
+        "layer": 16,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "01f9ca665ba91f0ff334eb7033fe74bf4235a62222b6e81fa6b4189dadf2fb78",
+        "gb10_sha256": "bba37639488d665ca2dc1fcbc0bf11fe4755477c9640677680e6303b8dc6d16b"
+      },
+      {
+        "layer": 16,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "aeb21fced870601b0e718b11bc3d9fbbff114c969d2d5415f8d9c2c192cf7ee4",
+        "gb10_sha256": "bf61170d093a1f4c35aa15a1706cf786589eddb14b771e71c0d7ddd22e8e2096"
+      },
+      {
+        "layer": 17,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "a49bfc0407730405ff8fee2803babf00c987b55cb80adc39796f3f6d9d29c375",
+        "gb10_sha256": "ef31cd4d61c1d9131235dd20d51a62bd2761bab7f6754cf29c57a938e3b74793"
+      },
+      {
+        "layer": 17,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "df10bbf67680570e7e0b0c5b4f2791e24849e0604343b671120d1d80b5cf43f6",
+        "gb10_sha256": "978bf6ffdf7fb2927b03b60b80d49930a8c160258e342b42246dff4b98b87c5e"
+      },
+      {
+        "layer": 18,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "1dda93a94ee63c8a5ec4222776529433650823988002f1ee4274e7b3b3b88c84",
+        "gb10_sha256": "d54c115a64019d2fa16afba3551d929aa5b05f39ae78070612cb793dee0a0cbd"
+      },
+      {
+        "layer": 18,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "9c85e09993f53d7f1d6c2955603fee092ea0db0230a7e23c60b0fbb1c0441568",
+        "gb10_sha256": "2cb9e5c37ddd9fd8e7760729d5756a40ae4519bf02c8bc4a6cefdf4ac36d31cb"
+      },
+      {
+        "layer": 19,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "bf0035aa107472584a9b4308281e9e741c54c1f40c6191995843a1548e49a518",
+        "gb10_sha256": "e71d6313783e207518df8ae82032a62ea191e59a67f64347ec395ad4927ab8cf"
+      },
+      {
+        "layer": 19,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "402a99f07eb77c1e372f41a433477077231f522f5ed65e241e686cdad245895e",
+        "gb10_sha256": "fc877f2b52a6359c33151742ef77a52c96d5c2cf4e353cb2e39e569ff44fb0eb"
+      },
+      {
+        "layer": 20,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "bfc797601ab7d6b3b2d406492e7e51e55ce37ccbff5cdce10be704e1223676c8",
+        "gb10_sha256": "32df7192a2720aa868ae74264d667732e8641825b719312b034a97374f4459b6"
+      },
+      {
+        "layer": 20,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "f6bf418707fdce1d5f47c107a71e0491baa46f9f20ba81f982a9585b583cd78e",
+        "gb10_sha256": "6b0e1810f2e1c0a4623c26be53e84ed421fa3f158f6b6749718dfc378ada32c0"
+      },
+      {
+        "layer": 21,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "ff1b24507be1b59e6ccadece4393a83af17509564c0eea74b9b5ac9d31a3b556",
+        "gb10_sha256": "9b74b95d84b3e2aa570ba2aabb886940b68b398e31a1a5f90d9e405b709bc164"
+      },
+      {
+        "layer": 21,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "7434d416de9f4e7b666ed3ad1eab2d5fb68cadf63c2d37d3995fc1b936e54708",
+        "gb10_sha256": "16d21c97d9e7a6815ffe232943afd0b443107e659205ce4d325056b0a1260b07"
+      },
+      {
+        "layer": 22,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "89d2f28918944103cd0658dcdf667e0f1440f35ea13b63c363e548826fda3f8f",
+        "gb10_sha256": "0bb97a056cb2b1522549a6e55cfefbf317b8a8d9914b81fca4dbe8787e31025b"
+      },
+      {
+        "layer": 22,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "bd72a080c1353c287a2b430ded37aac5999696c8b8ac844a84e46b18aca6d542",
+        "gb10_sha256": "ec83489af2fc4bd9e58aa87a8970538fbbb1bb2661e8e2692a3477f5ebd67446"
+      },
+      {
+        "layer": 23,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "2e3a79ed4c108b4d5c6020c50695768bd61b265a720cec4884ef12ec0d968f5d",
+        "gb10_sha256": "66988ba794247e3d4082e43d7cda756121d976ee51f03970a80b5273b9f5751e"
+      },
+      {
+        "layer": 23,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "5f7a5e8fc8001dd9d9786dbedfbaf9e5685a962ebf86d3ce1135a5b101fbcb41",
+        "gb10_sha256": "c09164ae9b0086120d7aca4f18db8413a6422774c4731e1106ed9fce0c02efc5"
+      },
+      {
+        "layer": 24,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "1abce788d6724b0f801e15829f56ac136d7d1617208f1b8cb0b14d95cca54b34",
+        "gb10_sha256": "e8606b87eb55e1a0919f67923923e1564804b58aa5c8d012f26ec69f7512ab87"
+      },
+      {
+        "layer": 24,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "7e8337995186eb3d13536a2f6d840201f8e412699fb961da459c43ab07832ab3",
+        "gb10_sha256": "76d55524839332cb4e5f3cdce7c9f9651d51dd25cd835736e29d75142185fe69"
+      },
+      {
+        "layer": 25,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "2c1d4be867f2617ad62a7d0553412bb04bebabb453716739b707c2be7a29e893",
+        "gb10_sha256": "91e1b5eb9d86a57f79b3d5f0c8f773a67388641c4adc2d2d1f4b433a45207e6e"
+      },
+      {
+        "layer": 25,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "cbc91475f14ffa1801bb072b7e96cabbcf385190de5c93dcd9b139edc7f3b136",
+        "gb10_sha256": "019c8cbffa91a75d6506cc155dcb7e9140bdbb576a6d6712b5633f5d98a4d94b"
+      },
+      {
+        "layer": 26,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "67e694b4adb485cf020a9101eb45725656b45fa4e0242e5827d9ccf3493b4b3b",
+        "gb10_sha256": "c76ae098e2691281ea4018eb03f669d2be4688e1becff040b332547b8e40f439"
+      },
+      {
+        "layer": 26,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "070adc73743c79f362806c42df138d855e036800c637d86e5474500a67169d24",
+        "gb10_sha256": "ff3d0036430e454d0ee57df510fd9f2ddf4703d63f0a9984d41a7ff4ae959260"
+      },
+      {
+        "layer": 27,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "d828c8b5be5c908c89851fa64e34a217c7a98b1cc0a817ea55637b5e87697ed9",
+        "gb10_sha256": "ef5b9f24c4669575e0321928a769798f7ccbc5ce202b1d112f85979dd10d424b"
+      },
+      {
+        "layer": 27,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "f7d74e2a7f0f05385d91194383f941987aaf39caa6eae47562f4dd2ec9014ae2",
+        "gb10_sha256": "be3b8216cd71e4101cf016911349d41c2292d8394fe57ed1fc962ff375c93db3"
+      },
+      {
+        "layer": 28,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "e0f95a20eff8db49b00e43db3c2856038e0da51b390ff68b624d67af2fef8342",
+        "gb10_sha256": "688fef60c8cf450419e26a36e0011ad166ef538dd0c9326964bc86dc3fb4ee4a"
+      },
+      {
+        "layer": 28,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "d8b18095346e163cfa7b5c4e1f649034e35d3b1ebe154eb1e1ee5c80970f3180",
+        "gb10_sha256": "4f175880b6b15d35ac7d851ae5d9ddd97e61fa0b747b78f79608998a4c6741cd"
+      },
+      {
+        "layer": 29,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "a2765459dab82c87800eeb81428db079e8ecbfd26760b907c72f36d841d290a6",
+        "gb10_sha256": "40309d28c6fb585286609440da5401233b2fc1073756b9cb61d1ff4a837dec15"
+      },
+      {
+        "layer": 29,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "c2b2647cc6cdd0f3466ff078fd2013b9cf4ee3b6d3230d75a545ad314d48091d",
+        "gb10_sha256": "730618c6f94f440edfeef1e1312e70da8b199634dc0b7700188fc7218b904842"
+      },
+      {
+        "layer": 30,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "5b28f1fe6294bf9d4864c51a9c9c32170641046aa79bbef13e5d378399340c0f",
+        "gb10_sha256": "9fc2a9129ba0e00976c607d45dab6152f7ed0f92220a61a2456f979a356ae6eb"
+      },
+      {
+        "layer": 30,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "58e2b77bfd0d585dceefdf058feff51918d5a021638f9b279eb3a4448f02ea99",
+        "gb10_sha256": "1a810ec5d2dc8ee65aff0d5f8d487189bc7059c5da26959f34f74b667045f28e"
+      },
+      {
+        "layer": 31,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "486c54d7a5279478733adee93cde747a9ef464ad3280643b06e46d99add94659",
+        "gb10_sha256": "cc0fabc5bd6b25cab41dd2262f1614a53788b48e37e3a4c91e8abe84e950ec01"
+      },
+      {
+        "layer": 31,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "5f1a67cfb0e5ddfd866e421c4627d1518191ed029582d426546e92e7a72e5ec6",
+        "gb10_sha256": "956a58c2bf5c4a74c2c83286417b45f005524a5b71406ec49b18ec5ecc183d43"
+      },
+      {
+        "layer": 32,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "02c2ce9b4c8eb344b5a41fd8fcbba483aa01b43c50523dae40f12d3bf239773a",
+        "gb10_sha256": "367f8041c1f576d8efe318061066813281a4d440a3f0fba79ec7c516d38dd094"
+      },
+      {
+        "layer": 32,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "73c54b15333c92fde6322fe3ac323e0e51e271f6a398970465862dab17ddbeae",
+        "gb10_sha256": "b542038a0d1e7b5b5d25cfa18d2c6ea01869b2ddf155903045cc6afc65e3e60d"
+      },
+      {
+        "layer": 33,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "a8e3dd6d43978f3eb7f13f7571cd3eace2d0f9708c4d9e407e3a8231260cce7b",
+        "gb10_sha256": "55b9389da37f47bdfe164125985cff76e978c7a75de7e8644afa74daaa1c220d"
+      },
+      {
+        "layer": 33,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "d18aef24dbe6f43a3e53e078f54ae195bdd8b1b7f2fea0494eaafd1cdcd711bd",
+        "gb10_sha256": "1f76f398d0a19453b515a30bf00001f667a54ceb60e56fbfd804e799b9c7d751"
+      },
+      {
+        "layer": 34,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "50e1300a8f06b84195dd299a1d65c94ef92a2059478c1f655ac8805ddf490f02",
+        "gb10_sha256": "1723db75350fd55768460576f9944048b210e0787370cc198e84e501fa98e40d"
+      },
+      {
+        "layer": 34,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "be45e2f838e4b5dad4db2d2fdc6dee79adca1bc9ec93d315b1c6b68df47d9054",
+        "gb10_sha256": "89ee00c381dfeaeb9881ed4a6e88d02543b60d0d3631d72ee8e7a02726d7c604"
+      },
+      {
+        "layer": 35,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "0ff52c32e286e6fc871e0308a6de3b7ca0b65933f3c421ad527728afe5f3c8bd",
+        "gb10_sha256": "09f53e405cc345d6c38d1c6241e0976183046347b0d81e82e402e78aaa3f91e3"
+      },
+      {
+        "layer": 35,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "0b6077881c8b482c8f58d03ba80c341897fe6e562c94f50486143f1b360c8dce",
+        "gb10_sha256": "7c7aa528af7bc7fcb38bf586ab8d9b1d5362d11838ae1b09610ba80d76001265"
+      },
+      {
+        "layer": 36,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "4f5ead3989dd97586854b751fcc9f9ca193bb28c95a961fbdbc8f55d90c554a6",
+        "gb10_sha256": "931951a15c0f3d8dbaf6d89b4eacfd86581ef2a04b12e1f5eb472f07000e47cd"
+      },
+      {
+        "layer": 36,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "c1caa7e689b51eaf8ddf97d844ceb1de36e14ee06ab66f9bbfe0492003e6f5ee",
+        "gb10_sha256": "4d0853b5a05c659fd07af21ce0eb459f5ec2b5f2195d7f38df91e6abf3e07fc1"
+      },
+      {
+        "layer": 37,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "6d1ad7fc4576fa1434fa4ac4608fd9a5eb421ad92504e98485449260e6f2f461",
+        "gb10_sha256": "233eb241552e204744fa5a262c4b700c526836a4b6055ca92ded1dba7bcbc49b"
+      },
+      {
+        "layer": 37,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "91f32f3a422d20a5979f4f4f564a7a4e6e65af43d9e11160775454b8010a0709",
+        "gb10_sha256": "f4381a0fdd51949201e6e104d5c5dd2392ec15f1e2ad3c3403ef73a6d5819716"
+      },
+      {
+        "layer": 38,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "0a6b719b48547aeb40f4f32dea534ae0a87062e4d09e97e04c751cd3df0adba4",
+        "gb10_sha256": "5da5717abd7e2bcb9007baca76506ac276813dcf108b39d9ccc6b6c0c5694527"
+      },
+      {
+        "layer": 38,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "3e5e36c3b594c6c081a517c1f18143b13a3f066faec84b6bff87baa6ff96442d",
+        "gb10_sha256": "44471236860a9ba7aa426e8e5d4d8d890b70adbfd11560a15410c44310c009ee"
+      },
+      {
+        "layer": 39,
+        "surface": "input_rmsnorm",
+        "matches": false,
+        "native_sha256": "e1369037a15e7d03a142cd760da576ff4901bd9436d831348abb614d95f3e11e",
+        "gb10_sha256": "79e4b2930a153ecb68483bb154da51bef406f659cbf8a5d2db2fb86e45741a8d"
+      },
+      {
+        "layer": 39,
+        "surface": "post_attention_rmsnorm",
+        "matches": false,
+        "native_sha256": "b50c12a99961ddf80758520d89730ef0f61da7f9dd9f628a404b81c6c844b933",
+        "gb10_sha256": "eb892c28841999397c52ba9721cf215fdd7aec4320683ba376722f1a7b60a515"
+      }
+    ],
+    "terminal_combined_bf16_mismatches": [
+      0,
+      0,
+      0,
+      0,
+      1595,
+      1746,
+      1766,
+      1817,
+      1813,
+      1844,
+      1831,
+      1819,
+      1839,
+      1844,
+      1857,
+      1859,
+      1874,
+      1870,
+      1878,
+      1872,
+      1867,
+      1889,
+      1877,
+      1877,
+      1890,
+      1889,
+      1889,
+      1913,
+      1898,
+      1891,
+      1910,
+      1900,
+      1902,
+      1907,
+      1890,
+      1902,
+      1919,
+      1936,
+      1906,
+      1921
+    ],
+    "terminal_final_norm_bf16_mismatches": 1921,
+    "norm_tail_archive_sha256": "3d37763da2f89e14806ade8c814ff88d05d8c664a784c87e557b9ef36df96301"
+  },
+  "decode": {
+    "comparison_sha256": "d5264cb19903cbeea98ba4cb12a5026290104fe4e28617c2f7a1652c2636696f",
+    "cases": [
+      {
+        "case": "q8191-out32",
+        "position": 8196,
+        "gb10_transaction": 6,
+        "gb10_input_ids": [
+          196,
+          136
+        ],
+        "native_run_sha256": "aaedf018872723cf80588ec77eb4948ff2d0513d1f03247b3b74b88307744eea",
+        "first_differing_layer": {
+          "layer": 0,
+          "native_sha256": "bf236a4f18fb5ee1118d14b53dd950885ac4d9ea64a5c793bdd98f8cd98de66a",
+          "reference_sha256": "01c600a3df3c691b597e1d2e0244dd06ed571ccda1e256f667e0e9d7a919b54e",
+          "reference_row": 0,
+          "bf16_mismatches": 1985,
+          "f32_mismatches": 2048,
+          "max_abs": 0.004577755928039551,
+          "first_mismatch": {
+            "column": 0,
+            "native": 0.002878338098526001,
+            "reference": 0.00376129150390625
+          }
+        },
+        "layer_bf16_mismatch_counts": [
+          1985,
+          1986,
+          1967,
+          1976,
+          2007,
+          2027,
+          2018,
+          2013,
+          2022,
+          2028,
+          2026,
+          2029,
+          2032,
+          2025,
+          2023,
+          2028,
+          2023,
+          2023,
+          2021,
+          2029,
+          2033,
+          2027,
+          2028,
+          2032,
+          2035,
+          2017,
+          2020,
+          2020,
+          2021,
+          2020,
+          2015,
+          2016,
+          2023,
+          2013,
+          1998,
+          1993,
+          1997,
+          1993,
+          1991,
+          1939
+        ]
+      },
+      {
+        "case": "q7169-out512",
+        "position": 7288,
+        "gb10_transaction": 66,
+        "gb10_input_ids": [
+          466,
+          1622
+        ],
+        "native_run_sha256": "22382c7239f7aed2b77607691bb6f5a50f38953fc2eff15bd96088c48688fe59",
+        "first_differing_layer": {
+          "layer": 0,
+          "native_sha256": "c0a77145258f6f9dfd50bdd76fffc6ddbcfffe5bf0438b8e2d0f5e5a7b4bdb89",
+          "reference_sha256": "ebe1402379487879ef0d92fdca6a455dcea2f62103287d82b6e7097a637644f9",
+          "reference_row": 0,
+          "bf16_mismatches": 1441,
+          "f32_mismatches": 2048,
+          "max_abs": 0.0017265677452087402,
+          "first_mismatch": {
+            "column": 0,
+            "native": 0.007086148019880056,
+            "reference": 0.00714111328125
+          }
+        },
+        "layer_bf16_mismatch_counts": [
+          1441,
+          1565,
+          1977,
+          1953,
+          1961,
+          1907,
+          1855,
+          1888,
+          1878,
+          1880,
+          1858,
+          1954,
+          1948,
+          1925,
+          1922,
+          1916,
+          1923,
+          1910,
+          1864,
+          1870,
+          1872,
+          1861,
+          1851,
+          1894,
+          1923,
+          1913,
+          1932,
+          1911,
+          1938,
+          1932,
+          1912,
+          1911,
+          1905,
+          1919,
+          1918,
+          1930,
+          1971,
+          1956,
+          1951,
+          1976
+        ]
+      },
+      {
+        "case": "q8192-out512",
+        "position": 8300,
+        "gb10_transaction": 58,
+        "gb10_input_ids": [
+          220,
+          196
+        ],
+        "native_run_sha256": "529a32e3c8fc2f9a6abf9b8f3b46607b5390247ff511db87d34c259ebfcae4fd",
+        "first_differing_layer": {
+          "layer": 0,
+          "native_sha256": "3f41506f773accf4825b0a33ca8927defb179c0e4f311ead92dffb9c4fdca5b9",
+          "reference_sha256": "18e32469b8df52b95cc15169391994da8ee29f0dd1aef653e2c36bd1dbffc4ef",
+          "reference_row": 0,
+          "bf16_mismatches": 1462,
+          "f32_mismatches": 2048,
+          "max_abs": 0.0021017789840698242,
+          "first_mismatch": {
+            "column": 1,
+            "native": 0.0004853029386140406,
+            "reference": 0.0005521774291992188
+          }
+        },
+        "layer_bf16_mismatch_counts": [
+          1462,
+          1621,
+          1773,
+          1788,
+          1828,
+          1906,
+          1931,
+          1953,
+          1987,
+          2002,
+          2022,
+          2037,
+          2037,
+          2042,
+          2041,
+          2043,
+          2043,
+          2046,
+          2047,
+          2046,
+          2045,
+          2047,
+          2046,
+          2046,
+          2047,
+          2047,
+          2046,
+          2048,
+          2045,
+          2047,
+          2047,
+          2048,
+          2043,
+          2048,
+          2044,
+          2044,
+          2046,
+          2044,
+          2048,
+          2044
+        ]
+      }
+    ]
+  },
+  "interpretation": [
+    "q8191 matches the first nine complete normalization boundaries and the first four rounded terminal layer outputs, then differs after layer-4 attention. The tail nonfinite fix is necessary but does not establish complete prefill correctness.",
+    "At each first divergent generated token, the consumed history still matches GB10. All three cases already differ in layer-0 completed carriers. Target MTP rows are retained with transaction identity; an unaccepted draft row is not used as a reference.",
+    "The legacy global Q1 BF16 residual-norm flag breaks q7169 final variance handoff and moves q8192 first divergence earlier to index 3. It is not retained.",
+    "The strict q8193 profile exposes an output-correction limit of 8192 tokens at layer 3. The bounded-tile replacement requires separate native product qualification.",
+    "Compare original projection/GDN/gated endpoints at prefill layer 4 and decode layer 0 next. Numerical differences here are diagnostics; acceptance remains the frozen tokens and declared tolerance."
+  ],
+  "prior_observer_failure": {
+    "source_commit": "b0f87272256a53302e81e415bd9dda04a9b4eb6e",
+    "dispatch_sha256": "45fe21d7b4855515b8fc987253d23baece672c66c7195d47aa2d7592b4f644b7",
+    "reason": "Text was already embedded; forward input_ids was None. The pinned prepared token buffer is now observed and checked. No failed capture is treated as reference acceptance."
+  },
+  "public_path_redaction": "Private reference home prefix redacted in readable command metadata; original artifact hashes retained."
+}

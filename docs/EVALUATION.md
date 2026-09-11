@@ -54,6 +54,18 @@ boundary (reference 11.375, tolerance 0.125). The seventh output differs:
 32-token controls and all 80 complete q7169 norms pass, and actual q8192
 TTFT, load and TPOT satisfy the unchanged retained targets.
 
+The [matched-history runtime capture](../benchmarks/correctness/runtime-boundaries-20260911.json)
+reproduces all eight frozen GB10 cases and their complete first-logits
+tensors. q8191 matches the first nine complete normalization boundaries;
+its first differing boundary is layer-4 post-attention normalization. At
+each of the three first divergent decode tokens, native layer-0 completed
+carriers already differ from the reference under the same input history.
+Selected MTP rows retain actual positions, input IDs and logits indices;
+unaccepted draft rows are excluded from comparisons. The old global Q1
+BF16 residual-norm flag fails q7169's final variance handoff and moves
+q8192's first divergence to output index 3, so it is not retained. Projection,
+GDN and gated-output observations are being compared next.
+
 The preceding [final-norm reference matrix](../benchmarks/correctness/final-norm-reference-matrix-20260911.json)
 passes both original 32-token requests after matching the scalar check to
 the selected BF16 numerator. All 80 complete q7169 norms remain GB10-exact;
