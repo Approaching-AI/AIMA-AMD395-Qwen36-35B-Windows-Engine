@@ -1,0 +1,2018 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "kind": "matched_history_q1_projection_arithmetic",
+  "inference_acceptance": false,
+  "release_acceptance": false,
+  "reference_capture_sha256": "f37d5c671367dcc1120dbdb5c21555ec6c1ad8aa1f8a5572a8da664fba82f507",
+  "original_oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "native_whole_commit": "e68aec770863738d6c7f6eab7f4c31de75e96470",
+  "native_fla_commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+  "weights_manifest_sha256": "fe167e4989c4cdb3659aacc19bcded15a8780b20c2b4a2e68c67bd4026b94bd5",
+  "replay_source": "tools/q1_projection_reference_replay.cpp",
+  "replay_source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1",
+  "cases": [
+    {
+      "name": "q8191-out32",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-q1-raw-stages-r1.ps1",
+      "command_sha256": "6d5d34b34df469e3b1a55ff4a2cb180679e147a0fc10cd299f66388e54031d46",
+      "run_sha256": "bd7723b727f4281ef29a148a19497b030d7a04d8c9cd0f5027ca4b5488b21246",
+      "reason": "completed",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "output_tokens": 32,
+      "output_fingerprint": "8afc146f85bff62b",
+      "first_token_raw_logit": 11.375,
+      "stage_comparison": {
+        "case": "q8191-out32",
+        "position": 8196,
+        "transaction": 6,
+        "reference_row": 0,
+        "reference_capture_sha256": "f37d5c671367dcc1120dbdb5c21555ec6c1ad8aa1f8a5572a8da664fba82f507",
+        "run_sha256": "bd7723b727f4281ef29a148a19497b030d7a04d8c9cd0f5027ca4b5488b21246",
+        "stages": [
+          {
+            "stage": "input_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "3a821ee3c110dcacd6a3b09fdc8c5207e21c455cc0b4fe05ae6e8d2b19c6797c",
+            "reference_file_sha256": "48cdeb01509753bc1ebc67556b1225ed8bde6073aadd94858357ebfa544db4ec"
+          },
+          {
+            "stage": "projection_qkv_f32",
+            "elements": 8192,
+            "non_bf16_native_values": 0,
+            "mismatches": 5,
+            "first": [
+              {
+                "index": 2487,
+                "native_bits": 16339,
+                "reference_bits": 16338
+              },
+              {
+                "index": 2607,
+                "native_bits": 14809,
+                "reference_bits": 14810
+              },
+              {
+                "index": 2776,
+                "native_bits": 14873,
+                "reference_bits": 14874
+              },
+              {
+                "index": 4683,
+                "native_bits": 14512,
+                "reference_bits": 14513
+              },
+              {
+                "index": 7927,
+                "native_bits": 14901,
+                "reference_bits": 14902
+              }
+            ],
+            "native_sha256": "bad894fc866473c3dda36bfda0846993d4196fdabcdde26367b48d2ce303ee43",
+            "reference_file_sha256": "ff6e6912bb8987da78789c6056155ca3e4801f367dc5e7c5b6af317986b460c4"
+          },
+          {
+            "stage": "projection_z_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 3,
+            "first": [
+              {
+                "index": 712,
+                "native_bits": 15351,
+                "reference_bits": 15350
+              },
+              {
+                "index": 2195,
+                "native_bits": 48766,
+                "reference_bits": 48765
+              },
+              {
+                "index": 3441,
+                "native_bits": 48605,
+                "reference_bits": 48604
+              }
+            ],
+            "native_sha256": "22a2b34353b2ccfd9461de1086220027d0f4639523d05685e5ef9f66ac5ae919",
+            "reference_file_sha256": "f1b5166e38a637e710b8c365b4ff4735ebb5a1c35ff43be1dc635d59632b2274"
+          },
+          {
+            "stage": "projection_a_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "952a73e2de030f823b4ea407728992639550d9be9a41e5d405d6c2d27e702b0e",
+            "reference_file_sha256": "ebd57cd0957e51446e44d939984a9fcd94b364039df6b8c3895a1d1c54b1ae8a"
+          },
+          {
+            "stage": "projection_b_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "ada8d3ef0c54ad4ae69553c3d2e6388317b7cb0f352cfe1243a6c553a5f8f63f",
+            "reference_file_sha256": "dde4176f1f9e51e71a9e433957550eaf13e0bef7ba6d430c18ea6336714922cc"
+          },
+          {
+            "stage": "recurrent_core_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2212,
+            "first": [
+              {
+                "index": 3,
+                "native_bits": 47341,
+                "reference_bits": 47342
+              },
+              {
+                "index": 5,
+                "native_bits": 15072,
+                "reference_bits": 15073
+              },
+              {
+                "index": 13,
+                "native_bits": 47658,
+                "reference_bits": 47659
+              },
+              {
+                "index": 14,
+                "native_bits": 47413,
+                "reference_bits": 47415
+              },
+              {
+                "index": 15,
+                "native_bits": 14763,
+                "reference_bits": 14765
+              },
+              {
+                "index": 17,
+                "native_bits": 14953,
+                "reference_bits": 14954
+              },
+              {
+                "index": 34,
+                "native_bits": 14971,
+                "reference_bits": 14970
+              },
+              {
+                "index": 39,
+                "native_bits": 14719,
+                "reference_bits": 14721
+              },
+              {
+                "index": 40,
+                "native_bits": 14869,
+                "reference_bits": 14868
+              },
+              {
+                "index": 44,
+                "native_bits": 47660,
+                "reference_bits": 47659
+              },
+              {
+                "index": 45,
+                "native_bits": 15013,
+                "reference_bits": 15012
+              },
+              {
+                "index": 48,
+                "native_bits": 14923,
+                "reference_bits": 14924
+              }
+            ],
+            "native_sha256": "189680658aa4c33d04ea9ea110813b133cf6d2176953ed1609e417139a7c7c26",
+            "reference_file_sha256": "f003e0982a7df9278cf1ce121a8842183f4930a3ecbb0b9e9180090aee6e8d9d"
+          },
+          {
+            "stage": "gated_output_bf16",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2216,
+            "first": [
+              {
+                "index": 0,
+                "native_bits": 47989,
+                "reference_bits": 47990
+              },
+              {
+                "index": 1,
+                "native_bits": 47870,
+                "reference_bits": 47871
+              },
+              {
+                "index": 2,
+                "native_bits": 47966,
+                "reference_bits": 47967
+              },
+              {
+                "index": 3,
+                "native_bits": 47903,
+                "reference_bits": 47905
+              },
+              {
+                "index": 5,
+                "native_bits": 47928,
+                "reference_bits": 47929
+              },
+              {
+                "index": 6,
+                "native_bits": 15201,
+                "reference_bits": 15202
+              },
+              {
+                "index": 8,
+                "native_bits": 48037,
+                "reference_bits": 48038
+              },
+              {
+                "index": 9,
+                "native_bits": 47922,
+                "reference_bits": 47923
+              },
+              {
+                "index": 11,
+                "native_bits": 47829,
+                "reference_bits": 47830
+              },
+              {
+                "index": 13,
+                "native_bits": 48224,
+                "reference_bits": 48227
+              },
+              {
+                "index": 14,
+                "native_bits": 47818,
+                "reference_bits": 47821
+              },
+              {
+                "index": 15,
+                "native_bits": 47734,
+                "reference_bits": 47738
+              }
+            ],
+            "native_sha256": "08f1d1b659cc65f088b65651ae144bf60427af1957ead3aac14777d2550bbe7a",
+            "reference_file_sha256": "fa50921b17e113ac0d8bfca683d9a4aa87391f4f9e6c9ef65e814a75f72c7e4b"
+          },
+          {
+            "stage": "post_attention_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 1140,
+            "first": [
+              {
+                "index": 0,
+                "native_bits": 15814,
+                "reference_bits": 15820
+              },
+              {
+                "index": 2,
+                "native_bits": 16193,
+                "reference_bits": 16192
+              },
+              {
+                "index": 6,
+                "native_bits": 48259,
+                "reference_bits": 48265
+              },
+              {
+                "index": 9,
+                "native_bits": 16022,
+                "reference_bits": 16023
+              },
+              {
+                "index": 10,
+                "native_bits": 48703,
+                "reference_bits": 48701
+              },
+              {
+                "index": 11,
+                "native_bits": 16042,
+                "reference_bits": 16039
+              },
+              {
+                "index": 12,
+                "native_bits": 16059,
+                "reference_bits": 16060
+              },
+              {
+                "index": 13,
+                "native_bits": 16144,
+                "reference_bits": 16145
+              },
+              {
+                "index": 14,
+                "native_bits": 16101,
+                "reference_bits": 16100
+              },
+              {
+                "index": 16,
+                "native_bits": 49080,
+                "reference_bits": 49079
+              },
+              {
+                "index": 17,
+                "native_bits": 15925,
+                "reference_bits": 15922
+              },
+              {
+                "index": 22,
+                "native_bits": 16208,
+                "reference_bits": 16209
+              }
+            ],
+            "native_sha256": "9a82221c2ebf89222e7b1ab11ff829a9a9aa2d813853463b784fd7a9c7351f37",
+            "reference_file_sha256": "48dccde8bd42844cc3a0cf1c26b166eede131947467c9fd30602ea4df8e90955"
+          }
+        ],
+        "inference_acceptance": false
+      },
+      "cpu_replay": [
+        {
+          "differences": [
+            {
+              "row": 2487,
+              "native_bits": 16339,
+              "reference_bits": 16338,
+              "fp64_bits": 16339,
+              "group16_bits": 16338,
+              "fp32_tree_bits": 16339
+            },
+            {
+              "row": 2607,
+              "native_bits": 14809,
+              "reference_bits": 14810,
+              "fp64_bits": 14809,
+              "group16_bits": 14810,
+              "fp32_tree_bits": 14809
+            },
+            {
+              "row": 2776,
+              "native_bits": 14873,
+              "reference_bits": 14874,
+              "fp64_bits": 14873,
+              "group16_bits": 14874,
+              "fp32_tree_bits": 14873
+            },
+            {
+              "row": 4683,
+              "native_bits": 14512,
+              "reference_bits": 14513,
+              "fp64_bits": 14512,
+              "group16_bits": 14513,
+              "fp32_tree_bits": 14512
+            },
+            {
+              "row": 7927,
+              "native_bits": 14901,
+              "reference_bits": 14902,
+              "fp64_bits": 14901,
+              "group16_bits": 14902,
+              "fp32_tree_bits": 14901
+            }
+          ],
+          "rows": 8192,
+          "native_mismatches": 5,
+          "fp64_mismatches": 5,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "qkv",
+          "weights_sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+          "input_sha256": "3a821ee3c110dcacd6a3b09fdc8c5207e21c455cc0b4fe05ae6e8d2b19c6797c",
+          "reference_sha256": "ff6e6912bb8987da78789c6056155ca3e4801f367dc5e7c5b6af317986b460c4",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [
+            {
+              "row": 712,
+              "native_bits": 15351,
+              "reference_bits": 15350,
+              "fp64_bits": 15351,
+              "group16_bits": 15350,
+              "fp32_tree_bits": 15351
+            },
+            {
+              "row": 2195,
+              "native_bits": 48766,
+              "reference_bits": 48765,
+              "fp64_bits": 48766,
+              "group16_bits": 48765,
+              "fp32_tree_bits": 48766
+            },
+            {
+              "row": 3441,
+              "native_bits": 48605,
+              "reference_bits": 48604,
+              "fp64_bits": 48605,
+              "group16_bits": 48604,
+              "fp32_tree_bits": 48605
+            }
+          ],
+          "rows": 4096,
+          "native_mismatches": 3,
+          "fp64_mismatches": 3,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "z",
+          "weights_sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16",
+          "input_sha256": "3a821ee3c110dcacd6a3b09fdc8c5207e21c455cc0b4fe05ae6e8d2b19c6797c",
+          "reference_sha256": "f1b5166e38a637e710b8c365b4ff4735ebb5a1c35ff43be1dc635d59632b2274",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "a",
+          "weights_sha256": "16bea87b244f5a7b28d809e68e35148fc3fcbce533479a8479ba07bfe2b57c42",
+          "input_sha256": "3a821ee3c110dcacd6a3b09fdc8c5207e21c455cc0b4fe05ae6e8d2b19c6797c",
+          "reference_sha256": "ebd57cd0957e51446e44d939984a9fcd94b364039df6b8c3895a1d1c54b1ae8a",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "b",
+          "weights_sha256": "908969c4aa9b431756794610716ddf0474d93aee69b02f79de84710ab9b886ee",
+          "input_sha256": "3a821ee3c110dcacd6a3b09fdc8c5207e21c455cc0b4fe05ae6e8d2b19c6797c",
+          "reference_sha256": "dde4176f1f9e51e71a9e433957550eaf13e0bef7ba6d430c18ea6336714922cc",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        }
+      ],
+      "components": {
+        "whole": {
+          "commit": "e68aec770863738d6c7f6eab7f4c31de75e96470",
+          "directory": "D:\\projects\\AIMA-public-q1-raw-stages-20260911\\build\\whole",
+          "build_metadata_sha256": "5a59fe7b9b75599dfa6d18e0a9ce6b67e04e14fe5764f1fdd112b869f1bf9174",
+          "build_run_sha256": "4ba95cf11bc99f62fce5aa9f01e062f7b38976f61d5a8f8a1eab8bc7623af844",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11479040,
+              "sha256": "9a3dc07aba22c3439ef63f85560513147fe5b3bf48e825d7cf11111010799009"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "de5969913f6f3de02b53b17eb2399bed692f9bac0922fb23c4f720e2452f5154"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+          "directory": "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+          "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28",
+          "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464896,
+              "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "q7169-out512",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-q1-raw-stages-r1.ps1",
+      "command_sha256": "6d5d34b34df469e3b1a55ff4a2cb180679e147a0fc10cd299f66388e54031d46",
+      "run_sha256": "a80ae2b30b914603d4d346bf87726a8b360e397a51cf59ef2f86526cbfc518b2",
+      "reason": "completed",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "output_tokens": 512,
+      "output_fingerprint": "1f931349823d77eb",
+      "first_token_raw_logit": 9.25,
+      "stage_comparison": {
+        "case": "q7169-out512",
+        "position": 7288,
+        "transaction": 66,
+        "reference_row": 0,
+        "reference_capture_sha256": "f37d5c671367dcc1120dbdb5c21555ec6c1ad8aa1f8a5572a8da664fba82f507",
+        "run_sha256": "a80ae2b30b914603d4d346bf87726a8b360e397a51cf59ef2f86526cbfc518b2",
+        "stages": [
+          {
+            "stage": "input_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "cc9c9b6c572d6ab42c0b8f9a2bb6057a94d593f9b5c6a478b771332bb4b29a97",
+            "reference_file_sha256": "7cc1d74e98237211a28939086eec9183041f545e47a1d61f24fca5e068419dcb"
+          },
+          {
+            "stage": "projection_qkv_f32",
+            "elements": 8192,
+            "non_bf16_native_values": 0,
+            "mismatches": 9,
+            "first": [
+              {
+                "index": 1125,
+                "native_bits": 16174,
+                "reference_bits": 16173
+              },
+              {
+                "index": 2693,
+                "native_bits": 14876,
+                "reference_bits": 14877
+              },
+              {
+                "index": 2883,
+                "native_bits": 14943,
+                "reference_bits": 14944
+              },
+              {
+                "index": 3936,
+                "native_bits": 14703,
+                "reference_bits": 14702
+              },
+              {
+                "index": 4738,
+                "native_bits": 15211,
+                "reference_bits": 15210
+              },
+              {
+                "index": 6148,
+                "native_bits": 14751,
+                "reference_bits": 14750
+              },
+              {
+                "index": 6243,
+                "native_bits": 16296,
+                "reference_bits": 16295
+              },
+              {
+                "index": 7189,
+                "native_bits": 48379,
+                "reference_bits": 48378
+              },
+              {
+                "index": 7236,
+                "native_bits": 15543,
+                "reference_bits": 15544
+              }
+            ],
+            "native_sha256": "9bccbfc708623960e3f5405ebe24051e2877be27fa168887f0e13cfaa9596e8e",
+            "reference_file_sha256": "431b91ec45a91b2a145c2a98388f83e2d9dc01b1216e126f62ed6a3bf3a0438e"
+          },
+          {
+            "stage": "projection_z_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 4,
+            "first": [
+              {
+                "index": 107,
+                "native_bits": 15155,
+                "reference_bits": 15154
+              },
+              {
+                "index": 1503,
+                "native_bits": 47926,
+                "reference_bits": 47927
+              },
+              {
+                "index": 2596,
+                "native_bits": 16135,
+                "reference_bits": 16134
+              },
+              {
+                "index": 3752,
+                "native_bits": 48826,
+                "reference_bits": 48827
+              }
+            ],
+            "native_sha256": "0a4257918e17fbbd9f21a2c46340a9693d9ba2b08d480a1a4f1e620996291ea7",
+            "reference_file_sha256": "2ea481128301be263cb606d75b326fec2b95e92e6ee0db2ae551ef1c59a31335"
+          },
+          {
+            "stage": "projection_a_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "115d9d3055166b1f1dfabc1fe1dc8381a96211ce390a122fcb36be0cf70c96bd",
+            "reference_file_sha256": "daf8cf03bb54436a953ef0ae5712a11dc9e2fbaf4f6f1c868f69db945d1f8fdb"
+          },
+          {
+            "stage": "projection_b_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "4fce35faad364be24ad56aed4a401191a091880f0294fa384f486c5725dc11ed",
+            "reference_file_sha256": "df357857e61a59dcde8f889ceeee8216777c5def78af6c15728328fd41e87ed8"
+          },
+          {
+            "stage": "recurrent_core_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2595,
+            "first": [
+              {
+                "index": 4,
+                "native_bits": 14914,
+                "reference_bits": 14913
+              },
+              {
+                "index": 5,
+                "native_bits": 47430,
+                "reference_bits": 47425
+              },
+              {
+                "index": 6,
+                "native_bits": 14950,
+                "reference_bits": 14949
+              },
+              {
+                "index": 7,
+                "native_bits": 14946,
+                "reference_bits": 14945
+              },
+              {
+                "index": 11,
+                "native_bits": 14912,
+                "reference_bits": 14911
+              },
+              {
+                "index": 12,
+                "native_bits": 14754,
+                "reference_bits": 14755
+              },
+              {
+                "index": 13,
+                "native_bits": 47516,
+                "reference_bits": 47514
+              },
+              {
+                "index": 14,
+                "native_bits": 14959,
+                "reference_bits": 14960
+              },
+              {
+                "index": 15,
+                "native_bits": 47613,
+                "reference_bits": 47611
+              },
+              {
+                "index": 18,
+                "native_bits": 15018,
+                "reference_bits": 15017
+              },
+              {
+                "index": 20,
+                "native_bits": 14903,
+                "reference_bits": 14902
+              },
+              {
+                "index": 21,
+                "native_bits": 15008,
+                "reference_bits": 15007
+              }
+            ],
+            "native_sha256": "a71ac51119c86fda633fff4338fffb05b149068dcd2ae2b5db4cfe5571264702",
+            "reference_file_sha256": "9f6a1e2ad9007fc3efd212d041985bf3028795e917266ce576456dac1dbc9cba"
+          },
+          {
+            "stage": "gated_output_bf16",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2493,
+            "first": [
+              {
+                "index": 4,
+                "native_bits": 47744,
+                "reference_bits": 47743
+              },
+              {
+                "index": 5,
+                "native_bits": 47575,
+                "reference_bits": 47569
+              },
+              {
+                "index": 6,
+                "native_bits": 47879,
+                "reference_bits": 47878
+              },
+              {
+                "index": 11,
+                "native_bits": 47667,
+                "reference_bits": 47666
+              },
+              {
+                "index": 12,
+                "native_bits": 47532,
+                "reference_bits": 47533
+              },
+              {
+                "index": 13,
+                "native_bits": 47654,
+                "reference_bits": 47652
+              },
+              {
+                "index": 15,
+                "native_bits": 48019,
+                "reference_bits": 48018
+              },
+              {
+                "index": 20,
+                "native_bits": 47536,
+                "reference_bits": 47535
+              },
+              {
+                "index": 21,
+                "native_bits": 47903,
+                "reference_bits": 47902
+              },
+              {
+                "index": 27,
+                "native_bits": 47693,
+                "reference_bits": 47692
+              },
+              {
+                "index": 29,
+                "native_bits": 47769,
+                "reference_bits": 47768
+              },
+              {
+                "index": 30,
+                "native_bits": 47760,
+                "reference_bits": 47759
+              }
+            ],
+            "native_sha256": "fb18c2c12c57dc29a663126f1f4aaab58ebed08b69aa09309e3f8cca401c280e",
+            "reference_file_sha256": "d089ac07695c2e97452e96fe0546feca4bd712c4192481a46782ca33cadc75f9"
+          },
+          {
+            "stage": "post_attention_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 1169,
+            "first": [
+              {
+                "index": 6,
+                "native_bits": 48690,
+                "reference_bits": 48689
+              },
+              {
+                "index": 8,
+                "native_bits": 16042,
+                "reference_bits": 16041
+              },
+              {
+                "index": 11,
+                "native_bits": 16063,
+                "reference_bits": 16062
+              },
+              {
+                "index": 15,
+                "native_bits": 15963,
+                "reference_bits": 15959
+              },
+              {
+                "index": 17,
+                "native_bits": 48502,
+                "reference_bits": 48500
+              },
+              {
+                "index": 18,
+                "native_bits": 48742,
+                "reference_bits": 48741
+              },
+              {
+                "index": 19,
+                "native_bits": 14955,
+                "reference_bits": 14989
+              },
+              {
+                "index": 21,
+                "native_bits": 48947,
+                "reference_bits": 48948
+              },
+              {
+                "index": 24,
+                "native_bits": 15785,
+                "reference_bits": 15788
+              },
+              {
+                "index": 25,
+                "native_bits": 48673,
+                "reference_bits": 48670
+              },
+              {
+                "index": 28,
+                "native_bits": 48744,
+                "reference_bits": 48743
+              },
+              {
+                "index": 29,
+                "native_bits": 48671,
+                "reference_bits": 48673
+              }
+            ],
+            "native_sha256": "2ecd077a6eb01bc9e710ea0efbbcdb681c5f089243d53968e3d3f13b82f5d656",
+            "reference_file_sha256": "97b386fdba0c13695a46abd7ac6d9ed08fdd191991b8d74f47a94c307626bd7b"
+          }
+        ],
+        "inference_acceptance": false
+      },
+      "cpu_replay": [
+        {
+          "differences": [
+            {
+              "row": 1125,
+              "native_bits": 16174,
+              "reference_bits": 16173,
+              "fp64_bits": 16174,
+              "group16_bits": 16173,
+              "fp32_tree_bits": 16174
+            },
+            {
+              "row": 2693,
+              "native_bits": 14876,
+              "reference_bits": 14877,
+              "fp64_bits": 14876,
+              "group16_bits": 14877,
+              "fp32_tree_bits": 14876
+            },
+            {
+              "row": 2883,
+              "native_bits": 14943,
+              "reference_bits": 14944,
+              "fp64_bits": 14943,
+              "group16_bits": 14944,
+              "fp32_tree_bits": 14943
+            },
+            {
+              "row": 3936,
+              "native_bits": 14703,
+              "reference_bits": 14702,
+              "fp64_bits": 14703,
+              "group16_bits": 14702,
+              "fp32_tree_bits": 14703
+            },
+            {
+              "row": 4738,
+              "native_bits": 15211,
+              "reference_bits": 15210,
+              "fp64_bits": 15211,
+              "group16_bits": 15210,
+              "fp32_tree_bits": 15211
+            },
+            {
+              "row": 6148,
+              "native_bits": 14751,
+              "reference_bits": 14750,
+              "fp64_bits": 14751,
+              "group16_bits": 14750,
+              "fp32_tree_bits": 14751
+            },
+            {
+              "row": 6243,
+              "native_bits": 16296,
+              "reference_bits": 16295,
+              "fp64_bits": 16296,
+              "group16_bits": 16295,
+              "fp32_tree_bits": 16296
+            },
+            {
+              "row": 7189,
+              "native_bits": 48379,
+              "reference_bits": 48378,
+              "fp64_bits": 48379,
+              "group16_bits": 48378,
+              "fp32_tree_bits": 48379
+            },
+            {
+              "row": 7236,
+              "native_bits": 15543,
+              "reference_bits": 15544,
+              "fp64_bits": 15543,
+              "group16_bits": 15544,
+              "fp32_tree_bits": 15543
+            }
+          ],
+          "rows": 8192,
+          "native_mismatches": 9,
+          "fp64_mismatches": 9,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "qkv",
+          "weights_sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+          "input_sha256": "cc9c9b6c572d6ab42c0b8f9a2bb6057a94d593f9b5c6a478b771332bb4b29a97",
+          "reference_sha256": "431b91ec45a91b2a145c2a98388f83e2d9dc01b1216e126f62ed6a3bf3a0438e",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [
+            {
+              "row": 107,
+              "native_bits": 15155,
+              "reference_bits": 15154,
+              "fp64_bits": 15155,
+              "group16_bits": 15154,
+              "fp32_tree_bits": 15155
+            },
+            {
+              "row": 1503,
+              "native_bits": 47926,
+              "reference_bits": 47927,
+              "fp64_bits": 47926,
+              "group16_bits": 47927,
+              "fp32_tree_bits": 47926
+            },
+            {
+              "row": 2596,
+              "native_bits": 16135,
+              "reference_bits": 16134,
+              "fp64_bits": 16135,
+              "group16_bits": 16134,
+              "fp32_tree_bits": 16135
+            },
+            {
+              "row": 3752,
+              "native_bits": 48826,
+              "reference_bits": 48827,
+              "fp64_bits": 48826,
+              "group16_bits": 48827,
+              "fp32_tree_bits": 48826
+            }
+          ],
+          "rows": 4096,
+          "native_mismatches": 4,
+          "fp64_mismatches": 4,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "z",
+          "weights_sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16",
+          "input_sha256": "cc9c9b6c572d6ab42c0b8f9a2bb6057a94d593f9b5c6a478b771332bb4b29a97",
+          "reference_sha256": "2ea481128301be263cb606d75b326fec2b95e92e6ee0db2ae551ef1c59a31335",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "a",
+          "weights_sha256": "16bea87b244f5a7b28d809e68e35148fc3fcbce533479a8479ba07bfe2b57c42",
+          "input_sha256": "cc9c9b6c572d6ab42c0b8f9a2bb6057a94d593f9b5c6a478b771332bb4b29a97",
+          "reference_sha256": "daf8cf03bb54436a953ef0ae5712a11dc9e2fbaf4f6f1c868f69db945d1f8fdb",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "b",
+          "weights_sha256": "908969c4aa9b431756794610716ddf0474d93aee69b02f79de84710ab9b886ee",
+          "input_sha256": "cc9c9b6c572d6ab42c0b8f9a2bb6057a94d593f9b5c6a478b771332bb4b29a97",
+          "reference_sha256": "df357857e61a59dcde8f889ceeee8216777c5def78af6c15728328fd41e87ed8",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        }
+      ],
+      "components": {
+        "whole": {
+          "commit": "e68aec770863738d6c7f6eab7f4c31de75e96470",
+          "directory": "D:\\projects\\AIMA-public-q1-raw-stages-20260911\\build\\whole",
+          "build_metadata_sha256": "5a59fe7b9b75599dfa6d18e0a9ce6b67e04e14fe5764f1fdd112b869f1bf9174",
+          "build_run_sha256": "4ba95cf11bc99f62fce5aa9f01e062f7b38976f61d5a8f8a1eab8bc7623af844",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11479040,
+              "sha256": "9a3dc07aba22c3439ef63f85560513147fe5b3bf48e825d7cf11111010799009"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "de5969913f6f3de02b53b17eb2399bed692f9bac0922fb23c4f720e2452f5154"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+          "directory": "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+          "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28",
+          "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464896,
+              "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "q8192-out512",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "command_file": "D:\\projects\\run-native-q1-raw-stages-r1.ps1",
+      "command_sha256": "6d5d34b34df469e3b1a55ff4a2cb180679e147a0fc10cd299f66388e54031d46",
+      "run_sha256": "1fecbe6f190c1407c52e1cb660bc5e439a68741981b63d7acc1fd964cbcb6e32",
+      "reason": "completed",
+      "exit_code": 6,
+      "host_checks_pass": true,
+      "output_tokens": 512,
+      "output_fingerprint": "b32ece2c144ccda1",
+      "first_token_raw_logit": 10.375,
+      "stage_comparison": {
+        "case": "q8192-out512",
+        "position": 8300,
+        "transaction": 58,
+        "reference_row": 0,
+        "reference_capture_sha256": "f37d5c671367dcc1120dbdb5c21555ec6c1ad8aa1f8a5572a8da664fba82f507",
+        "run_sha256": "1fecbe6f190c1407c52e1cb660bc5e439a68741981b63d7acc1fd964cbcb6e32",
+        "stages": [
+          {
+            "stage": "input_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "3b50e3e8e0c3d97059ace34c0ba25f16101abf458269a7cdbd65984e93e6bcf3",
+            "reference_file_sha256": "d9bcb145c4bc1a2e8502786df098d43079f6ee88f2f81bea29955e8ceed43681"
+          },
+          {
+            "stage": "projection_qkv_f32",
+            "elements": 8192,
+            "non_bf16_native_values": 0,
+            "mismatches": 6,
+            "first": [
+              {
+                "index": 2107,
+                "native_bits": 15904,
+                "reference_bits": 15903
+              },
+              {
+                "index": 4717,
+                "native_bits": 47450,
+                "reference_bits": 47451
+              },
+              {
+                "index": 5516,
+                "native_bits": 48826,
+                "reference_bits": 48825
+              },
+              {
+                "index": 5917,
+                "native_bits": 48260,
+                "reference_bits": 48259
+              },
+              {
+                "index": 5924,
+                "native_bits": 15884,
+                "reference_bits": 15883
+              },
+              {
+                "index": 7030,
+                "native_bits": 15649,
+                "reference_bits": 15648
+              }
+            ],
+            "native_sha256": "9660be422995268f0697daff5426b5a6b1ed94e6486ad9f1bddeea66d6dc7a0a",
+            "reference_file_sha256": "10f8d478ca789178b1e7ff8dd10c79888445b6e68eb309af2e27f7a177d4894d"
+          },
+          {
+            "stage": "projection_z_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2,
+            "first": [
+              {
+                "index": 237,
+                "native_bits": 16213,
+                "reference_bits": 16212
+              },
+              {
+                "index": 2155,
+                "native_bits": 15788,
+                "reference_bits": 15787
+              }
+            ],
+            "native_sha256": "b8d7e816b5e5ed1d3f5b6b1c9ad5f62e09f961045eb4c74b212a4b5cb19968a1",
+            "reference_file_sha256": "01f8cab8d278e70f9dc591036be55fcc2c9c340b7384ae2fc58e0bbe09622804"
+          },
+          {
+            "stage": "projection_a_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "1f2b605df7d6baadb649a84e8a1fd659494429a66fce9feb54b5acf645781133",
+            "reference_file_sha256": "43c211108f5f45ef4be3934a7d9a19444cd4770cb562d5cbe1e9ff3c2c959791"
+          },
+          {
+            "stage": "projection_b_f32",
+            "elements": 32,
+            "non_bf16_native_values": 0,
+            "mismatches": 0,
+            "first": [],
+            "native_sha256": "7590f731867e05a6d04aad2cc3c1d6a6813770074c6871c9d95443fc77bb8cfe",
+            "reference_file_sha256": "28fc14e856dfec4c05650117e8b6fdc399129538ce859a87f085168ae799ff3f"
+          },
+          {
+            "stage": "recurrent_core_f32",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2208,
+            "first": [
+              {
+                "index": 1,
+                "native_bits": 15024,
+                "reference_bits": 15025
+              },
+              {
+                "index": 3,
+                "native_bits": 47090,
+                "reference_bits": 47091
+              },
+              {
+                "index": 5,
+                "native_bits": 14881,
+                "reference_bits": 14880
+              },
+              {
+                "index": 6,
+                "native_bits": 14985,
+                "reference_bits": 14986
+              },
+              {
+                "index": 7,
+                "native_bits": 15006,
+                "reference_bits": 15007
+              },
+              {
+                "index": 8,
+                "native_bits": 47658,
+                "reference_bits": 47656
+              },
+              {
+                "index": 10,
+                "native_bits": 15138,
+                "reference_bits": 15139
+              },
+              {
+                "index": 11,
+                "native_bits": 14990,
+                "reference_bits": 14991
+              },
+              {
+                "index": 13,
+                "native_bits": 14753,
+                "reference_bits": 14754
+              },
+              {
+                "index": 15,
+                "native_bits": 14906,
+                "reference_bits": 14907
+              },
+              {
+                "index": 18,
+                "native_bits": 15067,
+                "reference_bits": 15068
+              },
+              {
+                "index": 20,
+                "native_bits": 15025,
+                "reference_bits": 15027
+              }
+            ],
+            "native_sha256": "65dd66f48ff55e6e4c882bf089a203df03a1a7639694d97ce0c412f4e146270b",
+            "reference_file_sha256": "a220037b3415a90807fe9dd63efb83f2e24121ddcdaf4e9b28de2b466558838f"
+          },
+          {
+            "stage": "gated_output_bf16",
+            "elements": 4096,
+            "non_bf16_native_values": 0,
+            "mismatches": 2271,
+            "first": [
+              {
+                "index": 0,
+                "native_bits": 47560,
+                "reference_bits": 47559
+              },
+              {
+                "index": 2,
+                "native_bits": 47709,
+                "reference_bits": 47708
+              },
+              {
+                "index": 3,
+                "native_bits": 47119,
+                "reference_bits": 47118
+              },
+              {
+                "index": 4,
+                "native_bits": 47538,
+                "reference_bits": 47536
+              },
+              {
+                "index": 5,
+                "native_bits": 47762,
+                "reference_bits": 47760
+              },
+              {
+                "index": 8,
+                "native_bits": 15039,
+                "reference_bits": 15035
+              },
+              {
+                "index": 9,
+                "native_bits": 47673,
+                "reference_bits": 47671
+              },
+              {
+                "index": 11,
+                "native_bits": 47624,
+                "reference_bits": 47623
+              },
+              {
+                "index": 12,
+                "native_bits": 47380,
+                "reference_bits": 47379
+              },
+              {
+                "index": 13,
+                "native_bits": 14869,
+                "reference_bits": 14868
+              },
+              {
+                "index": 14,
+                "native_bits": 47725,
+                "reference_bits": 47723
+              },
+              {
+                "index": 15,
+                "native_bits": 47823,
+                "reference_bits": 47822
+              }
+            ],
+            "native_sha256": "ca2de405e1fc4a73ad5a0b962eb95d53cc0dedacbac5c552f3b0c4c9a7112f48",
+            "reference_file_sha256": "3b4761d7bee07dc301291327ba2a2486058cfdb66cdd3fc58f525c663429d05d"
+          },
+          {
+            "stage": "post_attention_norm_f32",
+            "elements": 2048,
+            "non_bf16_native_values": 0,
+            "mismatches": 1353,
+            "first": [
+              {
+                "index": 0,
+                "native_bits": 16112,
+                "reference_bits": 16111
+              },
+              {
+                "index": 1,
+                "native_bits": 48140,
+                "reference_bits": 48102
+              },
+              {
+                "index": 5,
+                "native_bits": 15717,
+                "reference_bits": 15720
+              },
+              {
+                "index": 6,
+                "native_bits": 48650,
+                "reference_bits": 48652
+              },
+              {
+                "index": 9,
+                "native_bits": 15642,
+                "reference_bits": 15645
+              },
+              {
+                "index": 10,
+                "native_bits": 15621,
+                "reference_bits": 15618
+              },
+              {
+                "index": 13,
+                "native_bits": 15620,
+                "reference_bits": 15617
+              },
+              {
+                "index": 14,
+                "native_bits": 48345,
+                "reference_bits": 48326
+              },
+              {
+                "index": 15,
+                "native_bits": 15987,
+                "reference_bits": 15989
+              },
+              {
+                "index": 16,
+                "native_bits": 48891,
+                "reference_bits": 48889
+              },
+              {
+                "index": 18,
+                "native_bits": 15922,
+                "reference_bits": 15921
+              },
+              {
+                "index": 20,
+                "native_bits": 48743,
+                "reference_bits": 48745
+              }
+            ],
+            "native_sha256": "88a26411926f4f514208bd298eb054f2aeb7f757af0bb9d4a86c50bce6a28820",
+            "reference_file_sha256": "6f702bd108dc3578c21036d37364bc68ee447204906da84ae758ff7121fb160c"
+          }
+        ],
+        "inference_acceptance": false
+      },
+      "cpu_replay": [
+        {
+          "differences": [
+            {
+              "row": 2107,
+              "native_bits": 15904,
+              "reference_bits": 15903,
+              "fp64_bits": 15904,
+              "group16_bits": 15903,
+              "fp32_tree_bits": 15904
+            },
+            {
+              "row": 4717,
+              "native_bits": 47450,
+              "reference_bits": 47451,
+              "fp64_bits": 47450,
+              "group16_bits": 47451,
+              "fp32_tree_bits": 47450
+            },
+            {
+              "row": 5516,
+              "native_bits": 48826,
+              "reference_bits": 48825,
+              "fp64_bits": 48826,
+              "group16_bits": 48825,
+              "fp32_tree_bits": 48826
+            },
+            {
+              "row": 5917,
+              "native_bits": 48260,
+              "reference_bits": 48259,
+              "fp64_bits": 48260,
+              "group16_bits": 48259,
+              "fp32_tree_bits": 48260
+            },
+            {
+              "row": 5924,
+              "native_bits": 15884,
+              "reference_bits": 15883,
+              "fp64_bits": 15884,
+              "group16_bits": 15883,
+              "fp32_tree_bits": 15884
+            },
+            {
+              "row": 7030,
+              "native_bits": 15649,
+              "reference_bits": 15648,
+              "fp64_bits": 15649,
+              "group16_bits": 15648,
+              "fp32_tree_bits": 15649
+            }
+          ],
+          "rows": 8192,
+          "native_mismatches": 6,
+          "fp64_mismatches": 6,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "qkv",
+          "weights_sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+          "input_sha256": "3b50e3e8e0c3d97059ace34c0ba25f16101abf458269a7cdbd65984e93e6bcf3",
+          "reference_sha256": "10f8d478ca789178b1e7ff8dd10c79888445b6e68eb309af2e27f7a177d4894d",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [
+            {
+              "row": 237,
+              "native_bits": 16213,
+              "reference_bits": 16212,
+              "fp64_bits": 16213,
+              "group16_bits": 16212,
+              "fp32_tree_bits": 16213
+            },
+            {
+              "row": 2155,
+              "native_bits": 15788,
+              "reference_bits": 15787,
+              "fp64_bits": 15788,
+              "group16_bits": 15787,
+              "fp32_tree_bits": 15788
+            }
+          ],
+          "rows": 4096,
+          "native_mismatches": 2,
+          "fp64_mismatches": 2,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "z",
+          "weights_sha256": "8cc5be8e1a62cc4088f800b3d4cd3ad1892b1ac871b0d5f76aec014b4b14cf16",
+          "input_sha256": "3b50e3e8e0c3d97059ace34c0ba25f16101abf458269a7cdbd65984e93e6bcf3",
+          "reference_sha256": "01f8cab8d278e70f9dc591036be55fcc2c9c340b7384ae2fc58e0bbe09622804",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "a",
+          "weights_sha256": "16bea87b244f5a7b28d809e68e35148fc3fcbce533479a8479ba07bfe2b57c42",
+          "input_sha256": "3b50e3e8e0c3d97059ace34c0ba25f16101abf458269a7cdbd65984e93e6bcf3",
+          "reference_sha256": "43c211108f5f45ef4be3934a7d9a19444cd4770cb562d5cbe1e9ff3c2c959791",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        },
+        {
+          "differences": [],
+          "rows": 32,
+          "native_mismatches": 0,
+          "fp64_mismatches": 0,
+          "group16_mismatches": 0,
+          "tree_native_mismatches": 0,
+          "inference_acceptance": false,
+          "stage": "b",
+          "weights_sha256": "908969c4aa9b431756794610716ddf0474d93aee69b02f79de84710ab9b886ee",
+          "input_sha256": "3b50e3e8e0c3d97059ace34c0ba25f16101abf458269a7cdbd65984e93e6bcf3",
+          "reference_sha256": "28fc14e856dfec4c05650117e8b6fdc399129538ce859a87f085168ae799ff3f",
+          "source_sha256": "ae60bb25923eaeb4a3d6672ed97e027511a600bf88acb2dfccbdb5d3458d52c1"
+        }
+      ],
+      "components": {
+        "whole": {
+          "commit": "e68aec770863738d6c7f6eab7f4c31de75e96470",
+          "directory": "D:\\projects\\AIMA-public-q1-raw-stages-20260911\\build\\whole",
+          "build_metadata_sha256": "5a59fe7b9b75599dfa6d18e0a9ce6b67e04e14fe5764f1fdd112b869f1bf9174",
+          "build_run_sha256": "4ba95cf11bc99f62fce5aa9f01e062f7b38976f61d5a8f8a1eab8bc7623af844",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11479040,
+              "sha256": "9a3dc07aba22c3439ef63f85560513147fe5b3bf48e825d7cf11111010799009"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "de5969913f6f3de02b53b17eb2399bed692f9bac0922fb23c4f720e2452f5154"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "41236de4e9f7fb38738435db3cd045307b65a291",
+          "directory": "D:\\projects\\AIMA-public-fla-positive-plateau-20260911\\build\\fla",
+          "build_metadata_sha256": "5f925c9e37f1c1d41124248f11f86a1bbe2a4d038db6c26f73cdb7b0c0e04c28",
+          "build_run_sha256": "6fcd1ea20e6f526e26c7881cb2cda72515d014309e70e234c78d27249b25d084",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "940b39a0792c91952c8f4320016d6b5c99d1772df22491cb04358253d224d229"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "49d15185483cfed98ea6f62604bad696ede81fd49446120834624d5b53b8402a"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "0afcd871a60dd1ef03f49fb307552dfde92f94c372371a6e9f06c9d05b891565"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "4d6d190e70247bffce7450098ae8e7438b9e5fe8d5c74c710d7591b87981ce8b"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "073308fc510170cad9187a502cce1dde47e47bd2be95c284a728f0a3738f69c0"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464896,
+              "sha256": "b911efae56db0b8636b3641dba85c63c874b949de8eee824f30d2cbf530f97b9"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "comparison": "All 17 raw stage files in each run match the hashes and sizes emitted after the original native diagnostic reads. Input norms and A/B projections match the GB10 BF16 rows widened to FP32. QKV/Z outputs already contain BF16 values: their mismatch is arithmetic, not an unrounded FP32 representation. Replaying K16 width-26 accumulation matches all 37056 reference projection values; FP64 and the old 256-lane FP32 tree fail the noted BF16 boundaries.",
+  "limitations": "CPU component parity does not qualify a changed Windows runtime. The native Q1 projection route requires rebuilt model/streaming and continuation tests. Recurrent state, convolution, gating and later decode boundaries can still differ."
+}

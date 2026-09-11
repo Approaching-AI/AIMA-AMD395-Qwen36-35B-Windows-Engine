@@ -34905,6 +34905,50 @@ __global__ void selected_float_projection_kernel(
     }
 }
 
+// Q1's early-layer norm publishes BF16 values in FP32 cells. Match the
+// authority's K16 / width-26 accumulation before the BF16 output boundary.
+// Each 16-lane subgroup owns a row; there is no cross-row synchronization.
+__global__ void selected_q1_float_projection_sm121_kernel(
+    const uint16_t *weights,
+    const float *input,
+    float *output,
+    unsigned int rows
+) {
+    constexpr unsigned int kRowsPerBlock = 16u;
+    const unsigned int row = blockIdx.x * kRowsPerBlock + threadIdx.x / 16u;
+    const unsigned int lane = threadIdx.x % 16u;
+    if (row >= rows) return;
+    qrt_q1_moe_hawkeye::Value accumulator{0u, -133, false};
+    for (unsigned int base = 0; base < QRT_QWEN36_HIDDEN_SIZE; base += 16u) {
+        const unsigned int k = base + lane;
+        accumulator = qrt_sm121_wave16::accumulate(
+            accumulator, weights[static_cast<size_t>(row) * QRT_QWEN36_HIDDEN_SIZE + k],
+            device_float_to_bf16(input[k]), lane
+        );
+    }
+    if (lane == 0u) {
+        accumulator = qrt_sm121_group16::finish_accumulator(accumulator);
+        output[row] = device_bf16_round_to_float(
+            qrt_q1_moe_hawkeye::value_to_float(accumulator)
+        );
+    }
+}
+
+void launch_q1_float_projection(
+    const uint16_t *weights, const float *input, float *output,
+    unsigned int rows, hipStream_t stream
+) {
+    if (env_flag_enabled("QRT_QWEN36_Q1_F32_PROJECTION_SM121")) {
+        hipLaunchKernelGGL(selected_q1_float_projection_sm121_kernel,
+            dim3((rows + 15u) / 16u), dim3(256u), 0, stream,
+            weights, input, output, rows);
+    } else {
+        hipLaunchKernelGGL(selected_float_projection_kernel,
+            dim3(rows, 1u), dim3(kThreads), 0, stream,
+            weights, input, output, rows, 1u);
+    }
+}
+
 __global__ void selected_float_projection_m16_exact_kernel(
     const uint16_t *weights,
     const float *selected_inputs,
@@ -161225,17 +161269,12 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
                 rows
             );
         } else {
-            hipLaunchKernelGGL(
-                selected_float_projection_kernel,
-                dim3(rows, 1u),
-                dim3(kThreads),
-                0,
-                q1_decode_layer_stack_stream,
+            launch_q1_float_projection(
                 weights,
                 device_norm_f32,
                 output,
                 rows,
-                1u
+                q1_decode_layer_stack_stream
             );
         }
         ++kernel_launches;
@@ -190881,53 +190920,21 @@ bool run_qwen36_resident_decode_direct_output_plan(
                     workspace->device_norm_f32
                 );
             }
-            hipLaunchKernelGGL(
-                selected_float_projection_kernel,
-                dim3(kQkvRows, 1u),
-                dim3(kThreads),
-                0,
-                direct_output_stream,
-                qkv_weights,
-                workspace->device_norm_f32,
-                device_qkv,
-                kQkvRows,
-                1u
+            launch_q1_float_projection(
+                qkv_weights, workspace->device_norm_f32, device_qkv,
+                kQkvRows, direct_output_stream
             );
-            hipLaunchKernelGGL(
-                selected_float_projection_kernel,
-                dim3(kZRows, 1u),
-                dim3(kThreads),
-                0,
-                direct_output_stream,
-                z_weights,
-                workspace->device_norm_f32,
-                device_z,
-                kZRows,
-                1u
+            launch_q1_float_projection(
+                z_weights, workspace->device_norm_f32, device_z,
+                kZRows, direct_output_stream
             );
-            hipLaunchKernelGGL(
-                selected_float_projection_kernel,
-                dim3(kAbRows, 1u),
-                dim3(kThreads),
-                0,
-                direct_output_stream,
-                a_weights,
-                workspace->device_norm_f32,
-                device_a,
-                kAbRows,
-                1u
+            launch_q1_float_projection(
+                a_weights, workspace->device_norm_f32, device_a,
+                kAbRows, direct_output_stream
             );
-            hipLaunchKernelGGL(
-                selected_float_projection_kernel,
-                dim3(kAbRows, 1u),
-                dim3(kThreads),
-                0,
-                direct_output_stream,
-                b_weights,
-                workspace->device_norm_f32,
-                device_b,
-                kAbRows,
-                1u
+            launch_q1_float_projection(
+                b_weights, workspace->device_norm_f32, device_b,
+                kAbRows, direct_output_stream
             );
             status = hipGetLastError();
             if (status != hipSuccess) {
