@@ -1,6 +1,13 @@
 // Exercise the actual provider selector, exact dot and host batch launcher.
 // Synthetic dense/sparse controls are safety evidence, not model acceptance.
 #define QRT_TRITON_MOE_BATCHED_HAWKEYE 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_GATE 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_DOWN 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_DOWN_N32 1
+#define QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 1
 #include "../../native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp"
 
 #include <chrono>
@@ -28,7 +35,7 @@ template<class T> struct Device {
         hip_ok(hipMalloc(reinterpret_cast<void**>(&pointer), values.size() * sizeof(T)), "allocate");
         write(values);
     }
-    ~Device() { if (pointer) hipFree(pointer); }
+    ~Device() { if (pointer) (void)hipFree(pointer); }
     Device(const Device&) = delete;
     Device& operator=(const Device&) = delete;
     T* data() { return pointer + kGuard; }
