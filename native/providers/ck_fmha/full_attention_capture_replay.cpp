@@ -74,9 +74,10 @@ float finish(Event& begin, Event& end, float limit_ms = 3000.0f) {
         throw std::runtime_error("component interval exceeds its time bound");
     return result;
 }
-void report(const char* route, const std::vector<float>& output,
+bool report(const char* route, const std::vector<float>& output,
             const std::vector<uint16_t>& reference, unsigned start,
-            const std::string& prefix, float total_ms, float max_ms) {
+            const std::string& prefix, float total_ms, float max_ms,
+            unsigned memory_layout = 0u) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -103,8 +104,9 @@ void report(const char* route, const std::vector<float>& output,
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0 ? "provider_call" : "kernel_dispatch")
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
+              << ",\"memory_layout\":" << memory_layout
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
-    if (nonfinite) throw std::runtime_error("nonfinite attention output");
+    return mismatches == 0u && nonfinite == 0u;
 }
 unsigned parse(const char* text, unsigned maximum) {
     char* end = nullptr; const auto n = std::strtoul(text, &end, 10);
@@ -115,11 +117,13 @@ unsigned parse(const char* text, unsigned maximum) {
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 13) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1");
+        if (argc != 13 && argc != 14) throw std::runtime_error(
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_2]");
         const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 2) : 0u;
+        bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
         hipDeviceProp_t properties{}; check(hipGetDeviceProperties(&properties, 0));
@@ -148,7 +152,7 @@ int main(int argc, char** argv) {
             const float ms = finish(begin, end, 20000.0f);
             std::vector<float> host(size_t(tokens) * 4096u);
             check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
-            report("ck", host, reference, 0, argv[6], ms, ms);
+            matched &= report("ck", host, reference, 0, argv[6], ms, ms);
             FreeLibrary(dll);
         }
         const bool use_table = std::string(argv[11]) != "-";
@@ -194,7 +198,7 @@ int main(int argc, char** argv) {
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
                 accumulator.as<float>(), denominator.as<float>(), true,
-                use_rcp ? dr.as<unsigned char>() : nullptr)));
+                use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
         }
         std::vector<float> host(size_t(count) * 4096u);
@@ -202,13 +206,13 @@ int main(int argc, char** argv) {
         const char* route = use_table
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
-        report(route, host, reference, start, argv[6], total, maximum);
+        matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);
         check(hipMemcpy(host.data(), denominator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-denominator-f32.bin", host);
-        return 0;
+        return matched ? 0 : 2;
     } catch (const std::exception& error) {
         std::cerr << "attention_capture_replay_error=" << error.what() << std::endl;
         return 1;
