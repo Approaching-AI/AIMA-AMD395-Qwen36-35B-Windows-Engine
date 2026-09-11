@@ -77,7 +77,8 @@ float finish(Event& begin, Event& end, float limit_ms = 3000.0f) {
 bool report(const char* route, const std::vector<float>& output,
             const std::vector<uint16_t>& reference, unsigned start,
             const std::string& prefix, float total_ms, float max_ms,
-            unsigned memory_layout = 0u) {
+            unsigned memory_layout = 0u, float scores_ms = 0.0f,
+            float probabilities_ms = 0.0f, float value_ms = 0.0f) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -107,6 +108,10 @@ bool report(const char* route, const std::vector<float>& output,
                         : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch")))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
+              << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
+              << ",\"scores_ms\":" << scores_ms
+              << ",\"probabilities_ms\":" << probabilities_ms
+              << ",\"value_ms\":" << value_ms
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
     return mismatches == 0u && nonfinite == 0u;
 }
@@ -191,7 +196,8 @@ int main(int argc, char** argv) {
         Device dr(use_rcp ? rcp_table.size() : 4u);
         if (use_rcp) check(hipMemcpy(dr.pointer, rcp_table.data(), rcp_table.size(), hipMemcpyHostToDevice));
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
-        float total = 0, maximum = 0;
+        float total = 0, maximum = 0, scores_total = 0, probabilities_total = 0, value_total = 0;
+        Event scores_done, probabilities_done;
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores(score_elements * sizeof(float));
@@ -204,15 +210,30 @@ int main(int argc, char** argv) {
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
                 accumulator.as<float>(), denominator.as<float>(), true,
                 use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout,
-                scores.as<float>(), score_elements)));
+                scores.as<float>(), score_elements,
+                memory_layout >= 2u ? scores_done.value : nullptr,
+                memory_layout == 3u ? probabilities_done.value : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
+            if (memory_layout >= 2u) {
+                float stage_ms = 0;
+                check(hipEventElapsedTime(&stage_ms, begin.value, scores_done.value));
+                scores_total += stage_ms;
+                if (memory_layout == 3u) {
+                    check(hipEventElapsedTime(&stage_ms, scores_done.value, probabilities_done.value));
+                    probabilities_total += stage_ms;
+                }
+                check(hipEventElapsedTime(&stage_ms,
+                    memory_layout == 3u ? probabilities_done.value : scores_done.value, end.value));
+                value_total += stage_ms;
+            }
         }
         std::vector<float> host(size_t(count) * 4096u);
         check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         const char* route = use_table
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
-        matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout);
+        matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
+                          scores_total, probabilities_total, value_total);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

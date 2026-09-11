@@ -53,6 +53,14 @@ so per-operation CPU synchronization was not the dominant remaining wall.
 The four logged stage intervals total 11,334.771059 ms and exclude other work.
 Full local and Windows checks pass, as do same-run q8192 retained targets.
 
+The [three-stage attention replay](../benchmarks/correctness/attention-probability-20260911.json)
+separates exact QK scores, online probabilities and PV accumulation. All
+29,364,224 BF16 cells match GB10, and the native FP32 control is unchanged.
+Eight-query batches take 2,917.23 ms versus same-run CK 2,375.87 ms;
+32-query batches take 2,670.21 ms versus CK 2,384.68 ms. These slower
+component intervals do not qualify a product improvement. Layout 3 remains
+replay-only; the selected CK provider and product results above are unchanged.
+
 The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
 qualify 1024-CTA batches with the original selector and dot arithmetic.
 The same q7169 profile improves by 18,252.573599 ms; all 80 complete GB10

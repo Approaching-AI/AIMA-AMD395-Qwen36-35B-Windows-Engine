@@ -21,6 +21,7 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
 #include <cstdint>
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t = void*;
+using hipEvent_t = void*;
 struct dim3 { explicit dim3(unsigned, unsigned = 1u) {} };
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kBlackwellSubgroups = 16;
@@ -32,6 +33,12 @@ template<bool SerialValue, bool PrecomputedScores = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
 bool fail_scores = false, fail_probability = false;
+bool fail_event = false;
+unsigned events = 0;
+hipError_t hipEventRecord(hipEvent_t, hipStream_t) {
+    ++events;
+    return fail_event ? hipErrorUnknown : hipSuccess;
+}
 template<class... T> void record_launch(T...) { ++launches; }
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
 #define hipLaunchKernelGGL(...) record_launch(__VA_ARGS__)
@@ -74,6 +81,12 @@ int main() {
     launches = error_queries = 0u; fail_probability = true;
     if (split(0, 8, &scratch, 1792, 3) != hipErrorUnknown || launches != 2u || error_queries != 2u)
         return 15;
+    if (events) return 16;  // No instrumentation calls in the provider default.
+    launches = error_queries = 0u; fail_probability = false; fail_event = true;
+    if (launch_queries(&operand, &operand, &operand, &output, nullptr,
+        0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 2, &scratch, 1024,
+        &operand) != hipErrorUnknown || launches != 1u || events != 1u)
+        return 17;  // A failed timing event also prevents dependent PV work.
     return 0;
 }
 '''

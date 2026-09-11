@@ -431,7 +431,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     float* raw_accumulator = nullptr, float* raw_denominator = nullptr,
     bool vllm_sum = false, const unsigned char* rcp_table = nullptr,
     unsigned int memory_layout = 1u,
-    float* score_scratch = nullptr, size_t score_scratch_elements = 0u) {
+    float* score_scratch = nullptr, size_t score_scratch_elements = 0u,
+    hipEvent_t scores_done = nullptr, hipEvent_t probabilities_done = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -452,6 +453,10 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             query_start, query_count, stride);
         const auto status = hipGetLastError();
         if (status != hipSuccess) return int(status);
+        if (scores_done) {
+            const auto event_status = hipEventRecord(scores_done, stream);
+            if (event_status != hipSuccess) return int(event_status);
+        }
         if (memory_layout == 3u) {
             auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
             auto* scales = reinterpret_cast<float*>(probabilities + cells);
@@ -460,6 +465,10 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 score_scratch, probabilities, scales, query_start, stride, exp2_table, vllm_sum);
             const auto probability_status = hipGetLastError();
             if (probability_status != hipSuccess) return int(probability_status);
+            if (probabilities_done) {
+                const auto event_status = hipEventRecord(probabilities_done, stream);
+                if (event_status != hipSuccess) return int(event_status);
+            }
             hipLaunchKernelGGL(blackwell_probability_value_kernel,
                 dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
                 v, probabilities, scales, output, query_start, output_start, stride,
