@@ -115,8 +115,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                       and hasattr(module[3], "self_attn")]
         if len(containers) != 1:
             raise ValueError("ambiguous target layer container")
-        name, layers = containers[0]
-        parent = model.get_submodule(name.rsplit(".", 1)[0])
+        layer_container, layers = containers[0]
+        parent = model.get_submodule(layer_container.rsplit(".", 1)[0])
         original_prepare = runner._prepare_inputs
         original_forward = runner._model_forward
         original_logits = model.compute_logits
@@ -513,7 +513,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         runner._prepare_inputs = prepare
         runner._model_forward = forward
         model.compute_logits = logits
-        record["runtime_boundaries"] = dict(layer_container=name, selected_positions=sorted(selected),
+        first_mlp = layers[self._qrt_boundary_moe_layers[0]].mlp
+        record["runtime_boundaries"] = dict(layer_container=layer_container, selected_positions=sorted(selected),
             model_sources=[dict(file=str(path), sha256=file_sha(path)) for path in sorted({
                 Path(inspect.getsourcefile(type(layers[0]))),
                 Path(inspect.getsourcefile(layers[0].forward)),
@@ -521,12 +522,13 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             maximum_saved_bytes=128 << 20, maximum_observation_seconds=180,
             decode_operator_sources=[dict(file=str(path), sha256=file_sha(path))
                                      for path in sorted(observed_sources)],
-            linear_stage_layers=[0, 4] if case == "q8191-out32" else [0],
-            decode_moe_layers=[0], decode_moe_source=dict(
-                file=str(Path(inspect.getsourcefile(type(mlp)))),
-                sha256=file_sha(Path(inspect.getsourcefile(type(mlp)))),
-                internal_router=mlp.experts.is_internal_router,
-                router_is_original_module=mlp.experts.gate is mlp.gate),
+            linear_stage_layers=list(self._qrt_boundary_linear_layers),
+            decode_moe_layers=list(self._qrt_boundary_moe_layers), decode_moe_source=dict(
+                file=str(Path(inspect.getsourcefile(type(first_mlp)))),
+                sha256=file_sha(Path(inspect.getsourcefile(type(first_mlp)))),
+                internal_router=first_mlp.experts.is_internal_router,
+                router_is_original_module=first_mlp.experts.gate is first_mlp.gate),
+            decode_full_attention_layers=[3],
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
 
