@@ -174,48 +174,66 @@ bool dump_q64_stage(bool enabled, const char *name, const void *device, size_t b
     return true;
 }
 
+// A segment contains at most sixteen q64 chunks. The callers below enqueue
+// no more than 32 ordered kernels before this completion check. Applying the
+// 100 ms guard to the entire sequence also bounds each kernel within it.
+template<class Operation>
+bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation,
+                           float* completed_ms = nullptr) {
+    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
+    hipError_t status = hipEventCreate(&begin.handle);
+    if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    if (status == hipSuccess) status = hipEventRecord(begin.handle, stream);
+    bool operation_started = false;
+    if (status == hipSuccess) {
+        operation_started = true;
+        status = operation();
+    }
+    if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
+    if (status == hipSuccess) status = hipEventSynchronize(end.handle);
+    if (status != hipSuccess) {
+        // A later submission can fail after earlier kernels were queued. Drain
+        // their stream before the caller can release or reuse shared scratch.
+        if (operation_started) (void)hipStreamSynchronize(stream);
+        set_error(name, status);
+        return false;
+    }
+    float milliseconds = 0;
+    status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
+    if (status != hipSuccess) { set_error(name, status); return false; }
+    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell math sequence exceeded 100 ms; no further submission"); return false; }
+    if (completed_ms) *completed_ms = milliseconds;
+    return true;
+}
+
 bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
                           const float* g, float* a, int32_t tokens,
                           hipStream_t stream, bool dump) {
-    // This slow-exact KKT route never queues multiple chunks. Shape admission
-    // bounds each launch to q64; completed device time also gates continuation.
     if (!k || !beta || !g || !a || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk) {
         set_error_text("Blackwell KKT requires checked chunk-aligned segment pointers");
         return false;
     }
-    struct Event {
-        hipEvent_t handle = nullptr;
-        ~Event() { if (handle) (void)hipEventDestroy(handle); }
-    } begin, end;
-    hipError_t status = hipEventCreate(&begin.handle);
-    if (status == hipSuccess) status = hipEventCreate(&end.handle);
-    if (status != hipSuccess) { set_error("hipEventCreate(blackwell_kkt)", status); return false; }
-    float maximum_ms = 0.0f;
-    for (unsigned int chunk = 0; chunk < static_cast<unsigned int>(tokens) / kChunk; ++chunk) {
-        status = hipEventRecord(begin.handle, stream);
-        if (status != hipSuccess) { set_error("hipEventRecord(blackwell_kkt_begin)", status); return false; }
-        hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
-            dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup), kValueHeads),
-            dim3(qrt_fla_blackwell::kThreads), 0, stream, k, beta, a, chunk);
-        status = hipGetLastError();
-        if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
-        if (status == hipSuccess) status = hipEventSynchronize(end.handle);
-        float milliseconds = 0.0f;
-        if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
-        if (status != hipSuccess) { set_error("blackwell_kkt_chunk", status); return false; }
-        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell KKT chunk exceeded 100 ms; remaining chunks not submitted"); return false; }
-        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
-    }
+    float sequence_ms = 0.0f;
+    if (!launch_blackwell_math("blackwell_kkt_chunks", stream, [&] {
+        for (unsigned int chunk = 0; chunk < static_cast<unsigned int>(tokens) / kChunk; ++chunk) {
+            hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
+                dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup), kValueHeads),
+                dim3(qrt_fla_blackwell::kThreads), 0, stream, k, beta, a, chunk);
+            const hipError_t status = hipGetLastError();
+            if (status != hipSuccess) return status;
+        }
+        return hipSuccess;
+    }, &sequence_ms)) return false;
     if (!dump_q64_stage(dump, "a-dot-f32", a, 64u * 32u * 64u * 4u)) return false;
     const unsigned int elements = static_cast<unsigned int>(tokens) * kValueHeads * kChunk;
     hipLaunchKernelGGL(qrt_fla_blackwell::gate_kernel,
         dim3((elements + 255u) / 256u), dim3(256u), 0, stream,
         a, g, static_cast<unsigned int>(tokens), qrt_fla_blackwell_state::exp2_table_device());
-    status = hipGetLastError();
+    hipError_t status = hipGetLastError();
     if (status == hipSuccess) status = hipStreamSynchronize(stream);
     if (status != hipSuccess) { set_error("blackwell_kkt_gate", status); return false; }
-    std::fprintf(stderr, "FLA_KKT route=blackwell_group16_width26_k128 tokens=%d chunks=%u maximum_chunk_ms=%.6f guard_ms=100\n",
-        tokens, static_cast<unsigned int>(tokens) / kChunk, static_cast<double>(maximum_ms));
+    std::fprintf(stderr, "FLA_KKT route=blackwell_group16_width26_k128 tokens=%d chunks=%u sequence_ms=%.6f guard_ms=100\n",
+        tokens, static_cast<unsigned int>(tokens) / kChunk, static_cast<double>(sequence_ms));
     return true;
 }
 
@@ -429,47 +447,34 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
             status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_residual), kChunk * kValueFeatures * sizeof(uint16_t));
         if (status != hipSuccess) { set_error("hipMalloc(blackwell_state)", status); return false; }
     }
-    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
-    hipError_t status = hipEventCreate(&begin.handle);
-    if (status == hipSuccess) status = hipEventCreate(&end.handle);
-    if (status != hipSuccess) { set_error("hipEventCreate(blackwell_state)", status); return false; }
-    float maximum_ms = 0;
-    auto timed = [&](const char* name, auto operation) {
-        hipError_t result = hipEventRecord(begin.handle, stream);
-        if (result == hipSuccess) result = operation();
-        if (result == hipSuccess) result = hipEventRecord(end.handle, stream);
-        if (result == hipSuccess) result = hipEventSynchronize(end.handle);
-        float milliseconds = 0;
-        if (result == hipSuccess) result = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
-        if (result != hipSuccess) { set_error(name, result); return false; }
-        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell state dispatch exceeded 100 ms; remaining work not submitted"); return false; }
-        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
-        return true;
-    };
+    float sequence_ms = 0.0f;
     float* initial = state; float* final = g_state.blackwell_temporary_state;
-    for (int32_t offset = 0; offset < tokens; offset += kChunk) {
-        const size_t value_offset = static_cast<size_t>(offset) * kValueFeatures;
-        const float* gate = g + static_cast<size_t>(offset) * kValueHeads;
-        if (!timed("blackwell_state_project", [&] {
-                return qrt_fla_blackwell_state::project(w + value_offset, u + value_offset, gate, initial,
-                    h + static_cast<size_t>(offset / kChunk) * kStateElements, v_new + value_offset,
-                    g_state.blackwell_residual, kChunk, stream);
-            })) return false;
-        if (!timed("blackwell_state_update", [&] {
-                return qrt_fla_blackwell_state::update(k + static_cast<size_t>(offset) * kQkHeads * kKeyDim,
-                    g_state.blackwell_residual, gate, initial, final, kChunk, stream);
-            })) return false;
-        float* swap = initial; initial = final; final = swap;
-    }
+    if (!launch_blackwell_math("blackwell_state_chunks", stream, [&] {
+        for (int32_t offset = 0; offset < tokens; offset += kChunk) {
+            const size_t value_offset = static_cast<size_t>(offset) * kValueFeatures;
+            const float* gate = g + static_cast<size_t>(offset) * kValueHeads;
+            hipError_t status = qrt_fla_blackwell_state::project(
+                w + value_offset, u + value_offset, gate, initial,
+                h + static_cast<size_t>(offset / kChunk) * kStateElements, v_new + value_offset,
+                g_state.blackwell_residual, kChunk, stream);
+            if (status != hipSuccess) return status;
+            status = qrt_fla_blackwell_state::update(
+                k + static_cast<size_t>(offset) * kQkHeads * kKeyDim,
+                g_state.blackwell_residual, gate, initial, final, kChunk, stream);
+            if (status != hipSuccess) return status;
+            float* swap = initial; initial = final; final = swap;
+        }
+        return hipSuccess;
+    }, &sequence_ms)) return false;
     // Odd chunk counts finish in the private buffer. Materialize the public
     // state before returning, including the single neutral-padded tail chunk.
     if (initial != state) {
-        status = hipMemcpyAsync(state, initial, kStateElements * sizeof(float), hipMemcpyDeviceToDevice, stream);
+        hipError_t status = hipMemcpyAsync(state, initial, kStateElements * sizeof(float), hipMemcpyDeviceToDevice, stream);
         if (status == hipSuccess) status = hipStreamSynchronize(stream);
         if (status != hipSuccess) { set_error("hipMemcpyAsync(blackwell_final_state)", status); return false; }
     }
-    std::fprintf(stderr, "FLA_STATE route=blackwell_group16_width26_k128_k64 tokens=%d chunks=%u maximum_dispatch_ms=%.6f guard_ms=100\n",
-        tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(maximum_ms));
+    std::fprintf(stderr, "FLA_STATE route=blackwell_group16_width26_k128_k64 tokens=%d chunks=%u calls=%u sequence_ms=%.6f guard_ms=100\n",
+        tokens, static_cast<unsigned>(tokens / kChunk), static_cast<unsigned>(tokens / kChunk) * 2u, static_cast<double>(sequence_ms));
     return true;
 }
 
@@ -479,46 +484,24 @@ bool blackwell_aux_enabled(const char* name) {
 }
 
 template<class Operation>
-bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation) {
-    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
-    hipError_t status = hipEventCreate(&begin.handle);
-    if (status == hipSuccess) status = hipEventCreate(&end.handle);
-    if (status == hipSuccess) status = hipEventRecord(begin.handle, stream);
-    if (status == hipSuccess) status = operation();
-    if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
-    if (status == hipSuccess) status = hipEventSynchronize(end.handle);
-    float milliseconds = 0;
-    if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
-    if (status != hipSuccess) { set_error(name, status); return false; }
-    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell math dispatch exceeded 100 ms; no further submission"); return false; }
-    return true;
-}
-
-template<class Operation>
 bool launch_blackwell_aux(const char* name, unsigned tokens, unsigned calls,
                            hipStream_t stream, Operation operation) {
     if (!tokens || tokens > kSegmentTokens || tokens % kChunk || !calls || calls > 2u ||
         !blackwell_state_enabled() || !qrt_fla_blackwell_state::exp2_table_device()) {
         set_error_text("Blackwell auxiliary stages require bounded chunks and the SHA-bound state route"); return false;
     }
-    struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
-    hipError_t status = hipEventCreate(&begin.handle);
-    if (status == hipSuccess) status = hipEventCreate(&end.handle);
-    if (status != hipSuccess) { set_error(name, status); return false; }
-    float maximum_ms = 0;
-    for (unsigned offset = 0; offset < tokens; offset += kChunk) for (unsigned call = 0; call < calls; ++call) {
-        status = hipEventRecord(begin.handle, stream);
-        if (status == hipSuccess) status = operation(offset, call);
-        if (status == hipSuccess) status = hipEventRecord(end.handle, stream);
-        if (status == hipSuccess) status = hipEventSynchronize(end.handle);
-        float milliseconds = 0;
-        if (status == hipSuccess) status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
-        if (status != hipSuccess) { set_error(name, status); return false; }
-        if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell auxiliary dispatch exceeded 100 ms; no further submission"); return false; }
-        if (milliseconds > maximum_ms) maximum_ms = milliseconds;
-    }
-    std::fprintf(stderr, "FLA_AUX stage=%s tokens=%u chunks=%u calls=%u maximum_dispatch_ms=%.6f guard_ms=100\n",
-                 name, tokens, tokens / kChunk, tokens / kChunk * calls, static_cast<double>(maximum_ms));
+    float sequence_ms = 0.0f;
+    if (!launch_blackwell_math(name, stream, [&] {
+        for (unsigned offset = 0; offset < tokens; offset += kChunk) {
+            for (unsigned call = 0; call < calls; ++call) {
+                const hipError_t status = operation(offset, call);
+                if (status != hipSuccess) return status;
+            }
+        }
+        return hipSuccess;
+    }, &sequence_ms)) return false;
+    std::fprintf(stderr, "FLA_AUX stage=%s tokens=%u chunks=%u calls=%u sequence_ms=%.6f guard_ms=100\n",
+                 name, tokens, tokens / kChunk, tokens / kChunk * calls, static_cast<double>(sequence_ms));
     return true;
 }
 

@@ -25,9 +25,11 @@ class FlaBlackwellKktContractTests(unittest.TestCase):
         start = source.index("bool launch_blackwell_kkt(")
         end = source.index("void release_scratch()", start)
         body = source[start:end]
-        self.assertIn("hipEventSynchronize(end.handle)", body)
-        self.assertIn("milliseconds <= 100.0f", body)
-        self.assertIn("remaining chunks not submitted", body)
+        timing = source[source.index("bool launch_blackwell_math("):start]
+        self.assertIn("hipEventSynchronize(end.handle)", timing)
+        self.assertIn("milliseconds <= 100.0f", timing)
+        self.assertIn('launch_blackwell_math("blackwell_kkt_chunks"', body)
+        self.assertLess(body.index("}, &sequence_ms)) return false"), body.index('"a-dot-f32"'))
         self.assertLess(body.index('"a-dot-f32"'), body.index("qrt_fla_blackwell::gate_kernel"))
 
     def test_build_provenance_includes_both_native_headers(self) -> None:
