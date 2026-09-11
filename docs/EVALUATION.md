@@ -132,8 +132,29 @@ The opt-in `QRT_QWEN36_Q1_SM121_GDN=1` now connects that convolution and
 recurrent implementation, plus exact gated normalization, to resident Q1
 decode. Its table paths use separate `QRT_QWEN36_Q1_SM121_*` variables so
 enabling it does not change prefill arithmetic. It preserves cache-frontier
-checks and supports both existing recurrent layouts. Full-model build and
-continuation qualification are pending; the retained profile is unchanged.
+checks and supports both existing recurrent layouts.
+
+The [whole-model Q1 tests](../benchmarks/correctness/q1-gdn-product-20260911.json)
+at whole 99148b3 pass the Windows HIP build and complete all three product
+requests with successful host checks. First-decode convolution, all recurrent
+state values, core and gated norm are now exact for q7169 and q8191. Token
+equality still fails at output indices 6 (q8191), 38 (q7169 out512) and
+115 (q8192 out512). Both 512-token runs match their original first 32 tokens.
+Fast q8192 retains its prefill-state differences and 862 core mismatches.
+The retained profile is unchanged; these failed continuation runs do not
+qualify performance.
+
+The next exact boundary is the linear-attention output: the old Q1
+projection differs in five BF16 values for each of q7169/q8191, and the
+following postnorm differs in 378/382 values. The same-input K4096 CPU
+projection with K16 width-26 accumulation matches all 4,096 reference
+values. Norm replay then matches both complete rows with the rounded BF16
+numerator and the variance of the unrounded residual addition. Using the
+rounded variance or unrounded numerator fails these controls. The opt-in
+`QRT_QWEN36_Q1_SM121_OUTPUT=1` connects this projection and existing exact
+residual norm to all 30 Q1 linear-attention layers, requiring the exact GDN
+route. It also publishes the optional BF16 MoE input without changing the
+original norm result. Native build and product qualification follow.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead

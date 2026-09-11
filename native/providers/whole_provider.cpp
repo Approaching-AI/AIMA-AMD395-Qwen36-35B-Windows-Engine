@@ -22457,7 +22457,8 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
     float *residual_outputs,
     float *postnorm_outputs,
     unsigned int tokens,
-    const uint8_t *gfx1151_sm121_rsqrt_correction
+    const uint8_t *gfx1151_sm121_rsqrt_correction,
+    uint16_t *postnorm_outputs_bf16
 ) {
     __shared__ float partial[kThreads];
     __shared__ float inv_shared;
@@ -22515,6 +22516,10 @@ __global__ void output_bf16_residual_postnorm_vllm_kernel(
             (1.0f + device_bf16_to_float(norm_weights[col]));
         postnorm_outputs[token_base + col] =
             device_bf16_round_to_float(normalized);
+        if (postnorm_outputs_bf16 != nullptr) {
+            postnorm_outputs_bf16[token_base + col] =
+                device_float_to_bf16(normalized);
+        }
     }
 }
 
@@ -34947,6 +34952,27 @@ void launch_q1_float_projection(
         hipLaunchKernelGGL(selected_float_projection_kernel,
             dim3(rows, 1u), dim3(kThreads), 0, stream,
             weights, input, output, rows, 1u);
+    }
+}
+
+// The same K16 / width-26 endpoint applies to the BF16 linear-attention
+// output projection. Keep it separate from the fused legacy residual tail,
+// which discards the unrounded variance needed by the original norm.
+__global__ void q1_linear_output_sm121_kernel(
+    const uint16_t *weights, const uint16_t *input, uint16_t *output
+) {
+    const unsigned int row = blockIdx.x * 16u + threadIdx.x / 16u;
+    const unsigned int lane = threadIdx.x % 16u;
+    if (row >= kOutProjectionRows) return;
+    qrt_q1_moe_hawkeye::Value accumulator{0u, -133, false};
+    for (unsigned int base = 0; base < kValueFeatures; base += 16u) {
+        const unsigned int k = base + lane;
+        accumulator = qrt_sm121_wave16::accumulate(accumulator,
+            weights[static_cast<size_t>(row) * kValueFeatures + k], input[k], lane);
+    }
+    if (lane == 0u) {
+        accumulator = qrt_sm121_group16::finish_accumulator(accumulator);
+        output[row] = device_float_to_bf16(qrt_q1_moe_hawkeye::value_to_float(accumulator));
     }
 }
 
@@ -121470,7 +121496,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     device_residual_hidden,
                     device_post_attention,
                     target_token_count,
-                    device_gfx1151_sm121_rsqrt_correction
+                    device_gfx1151_sm121_rsqrt_correction,
+                    nullptr
                 );
             } else {
                 hipLaunchKernelGGL(
@@ -121513,7 +121540,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     device_residual_hidden,
                     device_post_attention,
                     target_token_count,
-                    device_gfx1151_sm121_rsqrt_correction
+                    device_gfx1151_sm121_rsqrt_correction,
+                    nullptr
                 );
                 std::cerr
                     << "BATCH_MARK vllm_unrounded_residual_postnorm_hotpath"
@@ -132165,7 +132193,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
                     device_residual_hidden,
                     device_post_attention,
                     target_tokens_u32,
-                    device_gfx1151_sm121_rsqrt_correction
+                    device_gfx1151_sm121_rsqrt_correction,
+                    nullptr
                 );
             } else {
                 hipLaunchKernelGGL(
@@ -160349,6 +160378,10 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         (q1_decode_early_layer_bf16_projection_requested &&
          q1_decode_early_layer_bf16_projection_layer_selected);
     const bool q1_sm121_gdn_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN");
+    const bool q1_sm121_output_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT");
+    if (q1_sm121_output_requested && !q1_sm121_gdn_requested) {
+        return fail("qwen36_q1_sm121_output_dependency", "SM121 Q1 output requires the exact GDN device chain");
+    }
     const bool q1_w8a8_fused_bf16_quantize_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_W8A8_FUSED_BF16_QUANTIZE"
     );
@@ -160673,10 +160706,10 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     const bool q1_triton_0626_output_matvec_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_TRITON_0626_OUTPUT_MATVEC"
     );
-    const bool q1_output_consumer_fused_requested = env_flag_enabled(
+    const bool q1_output_consumer_fused_requested = !q1_sm121_output_requested && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED"
     );
-    const bool q1_output_consumer_fused_rows2_requested = env_flag_enabled(
+    const bool q1_output_consumer_fused_rows2_requested = !q1_sm121_output_requested && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED_ROWS2"
     );
 #ifdef QRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT
@@ -162499,6 +162532,15 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         if (paired_attention_output_prepared) {
             // The callback published residual and BF16 postnorm endpoints for
             // both private states in one exact shared-weight launch.
+        } else if (q1_sm121_output_requested) {
+            hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
+                dim3((kOutProjectionRows + 15u) / 16u), dim3(256u), 0,
+                q1_decode_layer_stack_stream, out_weights, device_gated_bf16,
+                device_update_bf16);
+            ++kernel_launches;
+            if (!check_launch("qwen36_resident_decode_linear_sm121_output")) return false;
+            emit_q1024_q1_linear_stage_digest("output_projection_bf16",
+                device_update_bf16, kOutProjectionRows * sizeof(uint16_t));
         } else if (use_q1_output_consumer_fused) {
             if (use_q1_output_consumer_fused_rows2) {
                 hipLaunchKernelGGL(
@@ -162752,7 +162794,13 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             return false;
         }
         if (!use_q1_output_consumer_fused) {
-            if (publish_q1_moe_fused_input_bf16) {
+            if (q1_sm121_output_requested) {
+                hipLaunchKernelGGL(output_bf16_residual_postnorm_vllm_kernel,
+                    dim3(1u), dim3(kThreads), 0, q1_decode_layer_stack_stream,
+                    device_input, device_update_bf16, post_norm_weights,
+                    device_residual, device_post_norm, 1u, q1_sm121_rsqrt_correction,
+                    publish_q1_moe_fused_input_bf16 ? device_norm_bf16 : nullptr);
+            } else if (publish_q1_moe_fused_input_bf16) {
                 hipLaunchKernelGGL(
                     output_bf16_residual_postnorm_dual_kernel,
                     dim3(1u),
