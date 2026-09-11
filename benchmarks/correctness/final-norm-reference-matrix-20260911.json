@@ -1,0 +1,779 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+  "oracle_contract": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+  "oracle_contract_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "components": {
+    "whole": {
+      "commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "directory": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole",
+      "build_metadata_sha256": "cab0b4a5f97c0c9c3e4a32c8b5724d19508dec17e4690431c3fb62ef134b19d4",
+      "build_run_sha256": "bcf8f6de4e07a53232bc9467127e6a1166582735c2f326bedc66ffff8c2d7a33",
+      "artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 11475968,
+          "sha256": "1d25c9febfb41ea064029aec1a6257c068ebc56ae09498822a8d0a6d0008c8a5"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 182869,
+          "sha256": "2d30757ceaa13d99d38c3e67a1c852c73240dd0f4f82e0765b7b346956e0eca5"
+        }
+      ]
+    },
+    "fla": {
+      "commit": "bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0",
+      "directory": "D:\\projects\\AIMA-public-fla-sequence-20260911\\build\\fla",
+      "build_metadata_sha256": "5236864d0d7682cae2594b3a1ce9477cd027acb01bd5362d82694bd75bb898a1",
+      "build_run_sha256": "12ea32b679d93a000c597f7d1e949152a2a03095c203d70e17231dc10228438e",
+      "artifacts": [
+        {
+          "file": "fla-output-capture-replay.exe",
+          "bytes": 389632,
+          "sha256": "8a140f915c357a12d45ccd05574fcd57cd2248abdf402b4ff4df94ff4ae96a8b"
+        },
+        {
+          "file": "fla-upstream-capture-replay.exe",
+          "bytes": 473088,
+          "sha256": "066551af6e9b9440c7591cb7a6a8c595f28d835c56e9beeb0b62907eda802ede"
+        },
+        {
+          "file": "metadata.json",
+          "bytes": 13951,
+          "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+        },
+        {
+          "file": "q64-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "819e3ae2f7ef78e3d7ec6afd54b7b941528b4059dea0d36f5c31f460e915737b"
+        },
+        {
+          "file": "q65-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "9699de669ec9337e529f64b907a3f8816af1d389ffecd815f0945fea9ffb737d"
+        },
+        {
+          "file": "q7169-fla-smoke.exe",
+          "bytes": 328704,
+          "sha256": "5cc6903129bba5efc7e54d1a7ed963e51b03aee9802b1ff15b0ab0394519ec46"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+          "bytes": 16120,
+          "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+          "bytes": 16112,
+          "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+          "bytes": 18880,
+          "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+          "bytes": 6664,
+          "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+          "bytes": 26816,
+          "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+          "bytes": 27960,
+          "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+          "bytes": 45112,
+          "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+          "bytes": 38272,
+          "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+          "bytes": 13160,
+          "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+          "bytes": 6168,
+          "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+          "bytes": 6040,
+          "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+        },
+        {
+          "file": "qrt_fla_chunk_gdn_provider.dll",
+          "bytes": 464384,
+          "sha256": "5d9054ceb11ff7917a5bad96afc6693a91d667481b730b2ea037d448d760b30c"
+        },
+        {
+          "file": "qrt_fla_gdn_kernel_specs.inc",
+          "bytes": 940,
+          "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+        }
+      ]
+    },
+    "moe": {
+      "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+      "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+      "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+      "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+      "artifacts": [
+        {
+          "file": "q8192_selected_moe_route_count.hsaco",
+          "bytes": 4816,
+          "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+        },
+        {
+          "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+          "bytes": 4960,
+          "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+        },
+        {
+          "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+          "bytes": 5040,
+          "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+        },
+        {
+          "file": "q8192_selected_moe_route_scatter.hsaco",
+          "bytes": 5608,
+          "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+        },
+        {
+          "file": "q8192_selected_moe_gate_up_silu.hsaco",
+          "bytes": 17752,
+          "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+        },
+        {
+          "file": "q8192_selected_moe_down.hsaco",
+          "bytes": 11384,
+          "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+        },
+        {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 507392,
+          "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+        },
+        {
+          "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+          "bytes": 7736,
+          "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+          "bytes": 6824,
+          "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+          "bytes": 6696,
+          "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+        },
+        {
+          "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+          "bytes": 7504,
+          "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+        }
+      ]
+    },
+    "ck": {
+      "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+      "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+      "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+      "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+      "artifacts": [
+        {
+          "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+          "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+          "bytes": 499712
+        }
+      ]
+    }
+  },
+  "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+  "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+  "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+  "native_build": {
+    "command_file": "D:\\projects\\build-native-final-norm-reference-r1.ps1",
+    "command_file_sha256": "3307d48889f50a61ed54692fd3a506ee102a251a81faaaad47825add5fcef9ac",
+    "run_record_sha256": "bcf8f6de4e07a53232bc9467127e6a1166582735c2f326bedc66ffff8c2d7a33",
+    "build_metadata_sha256": "cab0b4a5f97c0c9c3e4a32c8b5724d19508dec17e4690431c3fb62ef134b19d4",
+    "exit_code": 0,
+    "wall_ms": 79083.867,
+    "host_checks_pass": true,
+    "artifacts": [
+      {
+        "name": "qrt_qwen36_whole_provider.dll",
+        "bytes": 11475968,
+        "sha256": "1d25c9febfb41ea064029aec1a6257c068ebc56ae09498822a8d0a6d0008c8a5"
+      },
+      {
+        "name": "q1_moe_avx512bf16_host_provider.obj",
+        "bytes": 182869,
+        "sha256": "2d30757ceaa13d99d38c3e67a1c852c73240dd0f4f82e0765b7b346956e0eca5"
+      }
+    ]
+  },
+  "local_validation": {
+    "command": "make check PYTHON=python3.12",
+    "exit_code": 0,
+    "wall_seconds": 37.57709870766848,
+    "log_sha256": "d6b34b236d3cac764bf767e829b6b6adb6dc5c78be1b11079fedf8c7617fe822",
+    "python_tests": 279,
+    "python_skipped": 2,
+    "rust_tests": 45
+  },
+  "product_runs": [
+    {
+      "name": "q8191-out32",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8191-out32-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8191-out32-expected.json",
+          "--expected-prompt-fnv",
+          "7015b1f272403af6",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q8191-out32-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "b703a16be64834244de6d90fcef90e3ce5208f831dc50d024ce786e894be0929",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "1fc13cacd5cd2696397b5bbddfed6899c4545297c919f62a757f40c33e1b3ea1",
+      "reason": "completed",
+      "exit_code": 5,
+      "wall_ms": 100575.958,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "143a9ced34fb37c95367b8adf0a3ccd46979aa79271464abfc99190148a436c2",
+      "environment_sha256": "218d15930643d8001202c2800e680bc9d0affdb4b9d016cd962d5c2d81b3359e",
+      "parent_environment_sha256": "697073041acac9ab399e3223a127439200bff762716ed59e2f7d6a9b0ab8f2e9",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "summary": null,
+      "comparison": {
+        "prompt_pass": false,
+        "all_output_tokens_pass": false,
+        "first_logit_pass": false,
+        "stream_pass": false,
+        "emitted_tokens": 0,
+        "expected_tokens": 32,
+        "mismatching_emitted_tokens": 0,
+        "first_mismatch": null
+      },
+      "gb10_product_correctness_pass": false,
+      "retained_q8192_performance_pass": false,
+      "failure": {
+        "stage": "correctness_final_norm_prefill_phase",
+        "tokens_emitted": 0,
+        "callbacks": 0,
+        "followup": "Layer-output tracing observes a nonfinite layer-0 tail before final normalization."
+      }
+    },
+    {
+      "name": "q7169-out32",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out32-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out32-expected.json",
+          "--expected-prompt-fnv",
+          "c900c18703532d6a",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q7169-out32-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
+      "stdout_sha256": "f0f3bb3b1fac4ba8032e47d15ee8607428f7da4b213d549b294c0e4e126656f3",
+      "stderr_sha256": "7c23b03adca6fae12b07675776c9db7f7f3a7ceeaab9045a7cb8601f9c2ef0c9",
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 91577.423,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "bccb5ae18aaaceb2c6696926e05c3c2be59f45ac1331eabb0ab4e6c592c2ef81",
+      "environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
+      "parent_environment_sha256": "697073041acac9ab399e3223a127439200bff762716ed59e2f7d6a9b0ab8f2e9",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-q7169-out32-r1\\norm"
+      },
+      "summary": {
+        "status": "pass",
+        "input_tokens": 7169,
+        "output_tokens": 32,
+        "output_token_ids": [82,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220],
+        "first_token_raw_logit": 9.25,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "7e8c505cfcbfcf2d",
+        "engine_load_ms": 20095.3336,
+        "first_callback_wall_ms": 69825.036701,
+        "provider_ttft_ms": 69821.0976,
+        "tpot_ms": 34.625239,
+        "request_wall_ms": 71003.345601,
+        "stream_callback_count": 32,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true
+      },
+      "comparison": {
+        "prompt_pass": true,
+        "all_output_tokens_pass": true,
+        "first_logit_pass": true,
+        "stream_pass": true,
+        "emitted_tokens": 32,
+        "expected_tokens": 32,
+        "mismatching_emitted_tokens": 0,
+        "first_mismatch": null
+      },
+      "gb10_product_correctness_pass": true,
+      "retained_q8192_performance_pass": false,
+      "full_norm_comparison": {
+        "manifest_sha256": "351d7fe884d6ddeab594ef946c7f169c771511ed9614592cd9963a5ac9d098d0",
+        "gb10_capture_sha256": "f17592ae9d7d332386eb4b2a3f001f73e497aab94463588b4252e2f23eebdcc0",
+        "full_norm_files": 80,
+        "exact_files": 80,
+        "differing_files": 0,
+        "first_difference": null,
+        "comparison_sha256": "8adcff5ad7600dd88867def44554394216275e382123f1faab11e98ac57f3064"
+      }
+    },
+    {
+      "name": "q8192-out32",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "e60389077f247d2c",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q8192-out32-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "4a7a4d4baa7d7c528ade4e91f09f1eee354798f53110c1dac5130e049174a8ed",
+      "stdout_sha256": "245e0720578712d1618d3c12878fb72aeaa370909f51c2ec71410cb17fa05b8b",
+      "stderr_sha256": "74cf392decce17c65b863359050b2408da881c5c3878bc00d40692871ee0de7f",
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 25769.952,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "41163844418a3b25189739dbf8b40646a126b077095189144fcc30ef0ab2a424",
+      "environment_sha256": "5d91d85c89a701eaeaf2b1d616bb67d679efc064378f51ccd233f06e6f7c1bd5",
+      "parent_environment_sha256": "8da53f4d575cfd96dcc98345908024dc21d4853b34f02cc79578ff8ca753ffef",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "summary": {
+        "status": "pass",
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "output_token_ids": [144,255,82,57,79,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196],
+        "first_token_raw_logit": 10.375,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "e60389077f247d2c",
+        "engine_load_ms": 20093.967401,
+        "first_callback_wall_ms": 4146.0167,
+        "provider_ttft_ms": 4142.3348,
+        "tpot_ms": 32.71989,
+        "request_wall_ms": 5232.3356,
+        "stream_callback_count": 32,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true
+      },
+      "comparison": {
+        "prompt_pass": true,
+        "all_output_tokens_pass": true,
+        "first_logit_pass": true,
+        "stream_pass": true,
+        "emitted_tokens": 32,
+        "expected_tokens": 32,
+        "mismatching_emitted_tokens": 0,
+        "first_mismatch": null
+      },
+      "gb10_product_correctness_pass": true,
+      "retained_q8192_performance_pass": true
+    },
+    {
+      "name": "q8192-out512",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "ca7c30b242ddf035",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q8192-out512-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "58ca57a09b31455bc651eb8add4c0c71b85a61127ca1e46eb0626a0769c04698",
+      "stdout_sha256": "5d0cc47954aa3402d6bb2e93cb66002a257a9b75f26602abf1fb7e7cdaf4c964",
+      "stderr_sha256": "ee0295e937c35a07f3aa8cbfd880c52e25f226edd4e258d9bc9835b0845c9daa",
+      "reason": "completed",
+      "exit_code": 6,
+      "wall_ms": 41480.685,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+      "environment_sha256": "5d91d85c89a701eaeaf2b1d616bb67d679efc064378f51ccd233f06e6f7c1bd5",
+      "parent_environment_sha256": "8da53f4d575cfd96dcc98345908024dc21d4853b34f02cc79578ff8ca753ffef",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "summary": {
+        "status": "fail",
+        "input_tokens": 8192,
+        "output_tokens": 512,
+        "output_token_ids": [144,255,82,57,79,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,248046,198,248045,846,198,248046,198,248045,74455,198,248068,271,248069,271,2064,7701,421,279,1414,488,3766,369,47739,466,5435,4927,10845,5787,11,3154,424,58256,470,13,1049,5686,1040,264,6311,314,4055,5587,11,17210,11,321,83123,4105,421,1459,914,1304,53916,22157,466,21716,795,13,271,2592,488,10287,310,4191,264,3050,1876,11,2128,11,466,1970,11,4338,1380,310,25,271,16,13,2972,674,63908,279,1414,332,494,279,3889,2450,13,198,17,13,2972,3840,279,10845,332,318,68,1257,2487,19464,12,23,11,38016,8,310,5790,424,5532,914,47739,2261,8059,13,198,18,13,2972,58387,2193,332,883,1092,411,1414,369,9671,310,381,318,68,1257,2487,264,31708,11,264,10597,1433,11,264,3255,553,271,2592,488,599,264,2086,3296,466,1144,1438,440,2414,745,11,2579,1845,310,2466,0,248046,198,248044,248045,248045,248045,248045,248045,248046,198,248045,846,198,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,248068,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046,198,248045,74455,198,248068,248046,198,248045,846,248046],
+        "first_token_raw_logit": 10.375,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "b32ece2c144ccda1",
+        "engine_load_ms": 20040.122801,
+        "first_callback_wall_ms": 4105.8579,
+        "provider_ttft_ms": 4101.5463,
+        "tpot_ms": 32.927429,
+        "request_wall_ms": 21003.4538,
+        "stream_callback_count": 512,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false
+      },
+      "comparison": {
+        "prompt_pass": true,
+        "all_output_tokens_pass": false,
+        "first_logit_pass": true,
+        "stream_pass": true,
+        "emitted_tokens": 512,
+        "expected_tokens": 512,
+        "mismatching_emitted_tokens": 391,
+        "first_mismatch": {
+          "index": 109,
+          "observed": 248046,
+          "expected": 196
+        }
+      },
+      "gb10_product_correctness_pass": false,
+      "retained_q8192_performance_pass": false
+    },
+    {
+      "name": "q7169-out512",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out512-expected.json",
+          "--expected-prompt-fnv",
+          "c900c18703532d6a",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q7169-out512-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "791b2693ac6e25e5ef36e5c4b738b3f72e4ceff14371db46221bcc5327a0c966",
+      "stdout_sha256": "9806ac28c46ccf22e6fa4738a70bc49a9007686b518539b4807cccdeeb4444d6",
+      "stderr_sha256": "15c77c328deea4f5f980e08a1618b1655af4ae0457d2af9c6e52a0245ee31bb6",
+      "reason": "completed",
+      "exit_code": 6,
+      "wall_ms": 107530.515,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "522e464aeea86ceebb4eed441cfb3790d5aa837c2c2a9d79d81fef01bb11bc67",
+      "environment_sha256": "218d15930643d8001202c2800e680bc9d0affdb4b9d016cd962d5c2d81b3359e",
+      "parent_environment_sha256": "697073041acac9ab399e3223a127439200bff762716ed59e2f7d6a9b0ab8f2e9",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "summary": {
+        "status": "fail",
+        "input_tokens": 7169,
+        "output_tokens": 512,
+        "output_token_ids": [82,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,196,220,220,248046,198,248045,74455,198,248068,271,248069,271,2064,7701,421,279,1414,488,3766,369,16421,47739,11,8222,264,6311,314,4055,5587,11,17210,11,321,83123,4105,421,635,524,1304,53916,22157,466,264,63049,3992,13,1049,5686,1040,264,1067,314,795,20600,11,10845,5787,11,466,264,328,5882,1554,1,303,279,1414,9191,1817,13,271,2592,488,10287,310,2466,264,3050,3296,11,4191,264,3255,11,466,4123,264,8282,11,4338,1380,310,311,1267,678,1876,303,2708,11,5129,1414,13,353,1044,1532,310,1438,440,866,4602,466,8806,488,2493,599,0,248046,198,248044,248045,248045,248045,248045,248045,248045,248045,248045,248045,248045,248046,198,248044,248045,248045,248045,248045,248045,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447,883,1092,488,2224,9859,30,353,2688,1532,310,1438,0,248046,198,248045,846,248046,198,248045,74455,198,248068,271,248069,271,2064,4816,1040,678,1876,2493,381,31084,466,47739,13,16018,488,4338,35932,466,3300,777,3447],
+        "first_token_raw_logit": 9.25,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "1f931349823d77eb",
+        "engine_load_ms": 20052.8906,
+        "first_callback_wall_ms": 69299.5549,
+        "provider_ttft_ms": 69295.3276,
+        "tpot_ms": 34.449981,
+        "request_wall_ms": 87008.7609,
+        "stream_callback_count": 512,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false
+      },
+      "comparison": {
+        "prompt_pass": true,
+        "all_output_tokens_pass": false,
+        "first_logit_pass": true,
+        "stream_pass": true,
+        "emitted_tokens": 512,
+        "expected_tokens": 512,
+        "mismatching_emitted_tokens": 392,
+        "first_mismatch": {
+          "index": 120,
+          "observed": 4123,
+          "expected": 3300
+        }
+      },
+      "gb10_product_correctness_pass": false,
+      "retained_q8192_performance_pass": false
+    },
+    {
+      "name": "q8193-out32",
+      "command_file": "D:\\projects\\run-native-final-norm-matrix-r1.ps1",
+      "command_file_sha256": "612f3ce294d626696f072f3268deca4aa8bfa66b7f3e1e842690821cb1441031",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8193-out32-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8193-out32-expected.json",
+          "--expected-prompt-fnv",
+          "67496c4b22db5cf4",
+          "--expected-output-fnv",
+          "45dbd21ceb759123",
+          "--env-file",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\norm-reference-specs\\norm-reference-q8193-out32-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-final-norm-reference-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "run_record_sha256": "eb8ee0fb2fe35ecc6b222525ea8fc7d16456e29ee7fe88323aee6dcf441bd464",
+      "stdout_sha256": "4c42c155d98b6429894e508721e13f031903d6e8cd12c8e448ae09bb3f2ef47c",
+      "stderr_sha256": "839423d2a5362f142397508490c2e2ae9f5b109c3867f0e6b886f80e2a05aca8",
+      "reason": "completed",
+      "exit_code": 6,
+      "wall_ms": 27509.5,
+      "host_checks_pass": true,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "oracle_case_sha256": "84a07fcc5fde0136e160145227ddab4b3c9db51747a0bbb03200f0dd723a212f",
+      "environment_sha256": "5d91d85c89a701eaeaf2b1d616bb67d679efc064378f51ccd233f06e6f7c1bd5",
+      "parent_environment_sha256": "8da53f4d575cfd96dcc98345908024dc21d4853b34f02cc79578ff8ca753ffef",
+      "environment_overrides": {
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "summary": {
+        "status": "fail",
+        "input_tokens": 8193,
+        "output_tokens": 32,
+        "output_token_ids": [64,57,220,220,196,82,57,220,220,196,82,57,220,220,196,82,57,220,220,196,82,57,220,220,196,82,57,220,220,196,82,57],
+        "first_token_raw_logit": 9.75,
+        "prompt_token_ids_fnv1a64": "67496c4b22db5cf4",
+        "output_token_ids_fnv1a64": "39c91f9e666a7b7a",
+        "engine_load_ms": 20068.8801,
+        "first_callback_wall_ms": 5830.3871,
+        "provider_ttft_ms": 5825.9604,
+        "tpot_ms": 35.252474,
+        "request_wall_ms": 6992.6051,
+        "stream_callback_count": 32,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false
+      },
+      "comparison": {
+        "prompt_pass": true,
+        "all_output_tokens_pass": false,
+        "first_logit_pass": true,
+        "stream_pass": true,
+        "emitted_tokens": 32,
+        "expected_tokens": 32,
+        "mismatching_emitted_tokens": 22,
+        "first_mismatch": {
+          "index": 0,
+          "observed": 64,
+          "expected": 220
+        }
+      },
+      "gb10_product_correctness_pass": false,
+      "retained_q8192_performance_pass": false
+    }
+  ],
+  "q8191_diagnostics": {
+    "runs": [
+      {
+        "name": "norm-reference-trace-q8191-out32-r2",
+        "run_record_sha256": "dfaad3c4baaa17ce2268ef72263570dd26c5a3a3d6dca0577ae59c67ce48a17d",
+        "command_file": "D:\\projects\\run-native-final-norm-trace-r2.ps1",
+        "command_file_sha256": "943d056638de37a42bf82baebdf2df421e82ec6d721de73bf3d39c0f2f05eb4c",
+        "exit_code": 5,
+        "wall_ms": 22557.701,
+        "host_checks_pass": true,
+        "stderr_sha256": "08757c08c2652daf0f798b5da9c718d2fd94db6df164bb2c1fc360204cceb89b",
+        "failure_stage": "exact_arbitrary_layer_output_trace_nonfinite",
+        "layer": 0,
+        "tokens_emitted": 0,
+        "inference_acceptance": false
+      },
+      {
+        "name": "first-nonfinite-q8191-out32-r3",
+        "run_record_sha256": "287b861e7a121c0368acf9b2bbafca784c44efbd0e7401c494e37a021acedf78",
+        "command_file": "D:\\projects\\run-native-first-nonfinite-r3.ps1",
+        "command_file_sha256": "ab4686302f67c1ccde636b12b8b38d64ac2d674ec7b8a8c97f22c7e439d4fc60",
+        "exit_code": 5,
+        "wall_ms": 22647.398,
+        "host_checks_pass": true,
+        "stderr_sha256": "1e397eae337e36f0d4c2ae3ff969bb7952feca330ede492e083f5a31c9db4863",
+        "failure_stage": "exact_arbitrary_layer_output_trace_nonfinite",
+        "layer": 0,
+        "tokens_emitted": 0,
+        "inference_acceptance": false
+      }
+    ],
+    "scan": {
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\scan-native-first-nonfinite-r3.ps1",
+      "command_file_sha256": "42731b5bed5a9e73f28f4690744b3b3e50cf3465dde899a3b3defe545129774e",
+      "run_sha256": "287b861e7a121c0368acf9b2bbafca784c44efbd0e7401c494e37a021acedf78",
+      "source_commit": "8d8af14bfddd5c5423524f1565923c79148a2c0e",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "tokens": 8191,
+      "files": [
+        {
+          "elements": 16775168,
+          "nonfinite": 22528,
+          "first": 16752640,
+          "last": 16775167,
+          "bytes": 33550336,
+          "file": "layer0-combined-bf16.bin",
+          "sha256": "7bbcbdada536370805657c9a6e22941a26d039b9d24cf0e4eff32d575673a418",
+          "width": 2048,
+          "elementBytes": 2
+        }
+      ],
+      "inference_acceptance": false
+    },
+    "scan_sha256": "d1ccd34b5d386039e618f9cdfae959ef0628663b62865ba24ea687178255bbe5",
+    "finding": "Layer-0 combined output has 22,528 nonfinite cells: all 2048 channels of tokens 8180 through 8190. The numerator-reference repair is valid but does not resolve this earlier nonfinite source."
+  },
+  "release_acceptance": false,
+  "decision": "Retain the matching scalar formula and both 32-token regressions. Neither 512-token continuation, q8191 nor q8193 qualifies. Locate the first q8191 nonfinite operator and the first decode divergence; preserve frozen oracles and all retained thresholds."
+}

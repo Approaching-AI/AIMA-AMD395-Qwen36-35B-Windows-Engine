@@ -33,7 +33,7 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole cf5da64, MoE a17a9ed, FLA bac7b8a and
+`D:\models\Qwen3.6-35B-A3B`, whole 8d8af14, MoE a17a9ed, FLA bac7b8a and
 CK `ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423`. Each run has zero first-logit
 error at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming
 callbacks before return. Exit 0 and all host checks pass. CLI and AITER still
@@ -41,11 +41,20 @@ use retained f544cbe components; the cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, CK ac0fb7d plus retained components, fast profile | 144 / 10.375 | 20,109.543600 | 4,150.736600 | 32.794584 |
-| q7169, CK ac0fb7d plus retained components, 1000 ppb profile | 82 / 9.25 | 20,119.017701 | 69,094.914901 | 34.430252 |
+| q8192, whole 8d8af14 plus qualified components, fast profile | 144 / 10.375 | 20,093.967401 | 4,146.016700 | 32.719890 |
+| q7169, whole 8d8af14 plus qualified components, 1000 ppb profile | 82 / 9.25 | 20,095.333600 | 69,825.036701 | 34.625239 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
 
-The [transposed-QK product records](../benchmarks/correctness/attention-transpose-product-20260911.json)
+The [final-norm reference matrix](../benchmarks/correctness/final-norm-reference-matrix-20260911.json)
+passes both original 32-token requests after matching the scalar check to
+the selected BF16 numerator. All 80 complete q7169 norms remain GB10-exact;
+actual q8192 TTFT, load and TPOT meet the unchanged retained targets.
+Both 512-token requests emit all callbacks but fail token equality: q8192
+first differs at output index 109 (110th token), q7169 at index 120 (121st).
+q8193 emits 64 / 9.75 instead of 220 / 9.75. None of these failed numerical
+runs qualifies a performance result or release.
+
+The preceding [transposed-QK product records](../benchmarks/correctness/attention-transpose-product-20260911.json)
 qualify an owned 8 MiB key workspace alongside the 4 MiB score slab. All
 80 complete q7169 GB10 norms remain exact. The same-profile actual TTFT
 improves by 11,059.441299 ms. Native build, allocation/cleanup controls and
@@ -70,10 +79,11 @@ pass all 32 tokens, first logit and streaming for q7168 (220 / 9.5625) and
 q7170 (94 / 18.25), using the same strict arithmetic profile. Their actual
 TTFT is 69,223.110000 and 69,411.140199 ms. q8191 stops before token emission:
 the scalar final-norm guard compares an unrounded numerator against the
-selected GPU formula’s BF16 carrier. The reference now selects the matching
-numerator while retaining unrounded variance and the existing tolerance;
-Windows retry is required. GB10 reference capture alone does not qualify
-q8193 or either 512-token Windows request, which remain open.
+selected GPU formula’s BF16 carrier. Repairing that mismatch still does not
+complete q8191. Follow-up tracing identifies 22,528 nonfinite values in the
+layer-0 combined output: all channels of the last 11 tokens, positions
+8180 through 8190. The earlier numerical source is under investigation;
+q8191, q8193 and both 512-token Windows gates remain open.
 
 The [MoE phase profile](../benchmarks/correctness/moe-subphases-20260911.json)
 observes 40 physical-q8192 MoE calls for the real q7169 request. Total MoE
