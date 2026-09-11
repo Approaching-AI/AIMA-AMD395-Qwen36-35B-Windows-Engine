@@ -33,8 +33,8 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole/MoE/FLA providers at
-`7c09aaf14240b923b50ffd04ca3559981f4ad874` and CK attention at
+`D:\models\Qwen3.6-35B-A3B`, whole provider at
+`c7f6cd1560a3f565b17144d847a2934886c9571c`, MoE/FLA at 7c09aaf and CK at
 `473ad19b013689d240e347135fcf144e361674c7`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
@@ -42,17 +42,35 @@ retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, shared providers plus CK 473ad19, fast profile | 144 / 10.375 | 20,067.279000 | 4,149.304700 | 32.963306 |
-| q7169, shared providers plus CK 473ad19, 1000 ppb profile | 82 / 9.25 | 20,056.463800 | 126,453.136300 | 34.729790 |
+| q8192, whole c7f6cd1 plus CK 473ad19, fast profile | 144 / 10.375 | 20,104.707500 | 4,148.250500 | 32.992055 |
+| q7169, whole c7f6cd1 plus CK 473ad19, 1000 ppb profile | 82 / 9.25 | 20,057.187600 | 117,851.795900 | 34.738168 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
 
+The latest [candidate-batch product records](../benchmarks/correctness/collection-batch-20260911.json)
+retain the same precision and all 80 complete GB10 norm files. Batching
+candidate collection independently of exact computation reduces q7169 TTFT
+by 8,601.340400 ms. The captured real QKV replay matches all 58,728,448
+BF16 endpoints with immutable inputs and intact redzones: four collection
+windows, 60 exact dispatches, maximum dispatch 2.591 ms. Scratch is bounded
+at 64 MiB plus two counters; the exact-dot quantum and 100 ms/10 second
+limits are unchanged. Windows build, native safety checks and the complete
+local check pass. q8192 again passes the actual retained callback target;
+these two profiles still do not qualify a unified release package.
+
 The [independent-PV product records](../benchmarks/correctness/attention-pv-product-20260911.json)
-qualify all 32 tokens and logit for both cases. The latest actual q8192 callback
-TTFT passes the immutable retained target, as do load and TPOT. Exact PV
-arithmetic is inactive in that fast profile, so the q8192 timing difference
-is not attributed to it. q7169 improves by 9,498.169100 ms; all 80 complete
+qualify all 32 tokens and logit for both cases. That run’s actual q8192 callback
+TTFT passes the immutable retained target, as do load and TPOT. Full-prefix
+exact attention is disabled in that fast profile, while exact terminal exports
+use the PV mapping. The total q8192 timing change is not isolated to that mapping. q7169 improves by 9,498.169100 ms; all 80 complete
 norm files still match GB10. The separate prior shared-stack q8192 target miss
 remains recorded below. Package and broader product qualification remain open.
+
+A same-provider q7169 ablation reduces only the four projection selection
+bounds from 1000 to 100 ppb. It emits 220 / 9.375, with only token zero
+incorrect; actual TTFT is 114,808.991700 ms. This failed numerical gate rejects
+the result for performance, despite healthy host checks. MoE remains at
+1000 ppb and exact FLA/CK arithmetic is unchanged. The record above preserves
+this control separately from the qualified 126,453.136300 ms run.
 
 The [shared-arithmetic records](../benchmarks/correctness/shared-wave16-20260911.json)
 bind four successful Windows builds and both full-model runs to the common
