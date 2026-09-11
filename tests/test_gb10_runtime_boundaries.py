@@ -1,15 +1,40 @@
 """Bind target logits to real input histories, including rejected draft rows."""
 from pathlib import Path
+import os
 import sys
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
-    prepared_token_ids, qualify_transaction, recurrent_state_selection, target_rows,
+    full_cache_observation_offset, prepared_token_ids, qualify_transaction,
+    recurrent_state_selection, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_cache_position_is_scoped_to_its_frozen_case(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(full_cache_observation_offset('q8191-out32'), 0)
+        with patch.dict(os.environ, {
+            'QRT_GB10_Q8191_FULL_CACHE_OFFSET': '3',
+            'QRT_GB10_Q7169_FULL_CACHE_OFFSET': '37',
+            'QRT_GB10_Q8192_FULL_CACHE_OFFSET': '119',
+        }, clear=True):
+            self.assertEqual(full_cache_observation_offset('q8191-out32'), 3)
+            self.assertEqual(full_cache_observation_offset('q7169-out512'), 37)
+            self.assertEqual(full_cache_observation_offset('q8192-out512'), 119)
+            self.assertEqual(full_cache_observation_offset('q7169-out32'), 0)
+            self.assertEqual(full_cache_observation_offset('q8192-out32'), 0)
+        for case, name, values in (
+            ('q8191-out32', 'QRT_GB10_Q8191_FULL_CACHE_OFFSET', ['-1', '32', 'bad']),
+            ('q7169-out512', 'QRT_GB10_Q7169_FULL_CACHE_OFFSET', ['-1', '512']),
+        ):
+            for value in values:
+                with patch.dict(os.environ, {name: value}, clear=True):
+                    with self.assertRaises(ValueError):
+                        full_cache_observation_offset(case)
+
     def test_recurrent_input_uses_the_previous_accepted_slot(self):
         for accepted, initial in (([1], 7), ([2], 11)):
             selection = recurrent_state_selection([[7, 11]], accepted, 2, 20)

@@ -87,6 +87,21 @@ def observation_layers(name, default, *, linear=False):
     return layers
 
 
+def full_cache_observation_offset(case):
+    controls = {
+        'q8191-out32': ('QRT_GB10_Q8191_FULL_CACHE_OFFSET', 32),
+        'q7169-out512': ('QRT_GB10_Q7169_FULL_CACHE_OFFSET', 512),
+        'q8192-out512': ('QRT_GB10_Q8192_FULL_CACHE_OFFSET', 512),
+    }
+    if case not in controls:
+        return 0
+    name, continuation = controls[case]
+    offset = int(os.environ.get(name, '0'))
+    if not 0 <= offset < continuation:
+        raise ValueError('full-attention observation offset exceeds the frozen continuation')
+    return offset
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -97,9 +112,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             raise ValueError("target runner source changed")
         root = Path(directory)
         case = root.name
-        full_cache_offset = int(os.environ.get('QRT_GB10_Q8191_FULL_CACHE_OFFSET', '0')) if case == 'q8191-out32' else 0
-        if not 0 <= full_cache_offset < 32:
-            raise ValueError('full-attention observation offset exceeds the frozen continuation')
+        full_cache_offset = full_cache_observation_offset(case)
         selected = {prompt_tokens - 1, prompt_tokens}
         selected.add(prompt_tokens + full_cache_offset)
         if case == "q8191-out32":
