@@ -212,14 +212,28 @@ GB10 exactly. The first remaining carrier difference is full-attention
 layer 3 (1823/1788 F32 elements). Diagnostic callback TTFT is 80.858/69.697
 seconds and TPOT is 96.846/86.302 ms. No new performance result is retained.
 
-Expanded original observations for linear/MoE layer 2 and full-attention
-layer 3 remain pending: r7 fails on a metadata variable scope, and r8 finds
-that cached rotary modules are shared across layers. Both failed captures
-are excluded. The observer now scopes rotary hooks to the owning attention
-forward and also copies the first decode's logical KV history in three
-cases. Native full-attention observations retain the same bounded optional
-file policy. The fresh original capture must pass its controls before any
-of these new reference files qualify comparisons.
+The [expanded Q1 full-attention boundary](../benchmarks/correctness/q1-full-boundary-20260911.json)
+passes all eight original GB10 cases at observer ca9e925. Failed r7/r8
+captures remain excluded. Scoped hooks handle shared rotary modules and
+capture the first accepted decode row's actual logical KV history, excluding
+future draft rows. These observations confirm every captured layer-2
+projection, convolution, recurrent state and MoE endpoint matches at whole
+441f0f2. Full-attention layer 3 receives the exact input norm, but its QKV
+projection differs in 3/10 BF16 cells; ordinary rotary arithmetic then differs
+in 250/290 Q and 35/35 K cells after BF16 conversion.
+
+Original-input CPU replay matches Q/K/V/output projections with K16
+arithmetic and reproduces the BF16 rotary multiply/FMA and sigmoid product.
+All tested normalization trees match these two rows, so those rows alone
+do not identify a unique reduction tree. Native original-input attention
+replay at 4f1701c matches every one of the 4096 context values in both cases,
+using the complete actual KV history and original 32-token online reduction.
+Both operator runs pass host checks; their 1.316/1.166 ms GPU intervals are
+operator diagnostics. Whole 3bf42dc builds, but an obsolete output-consumer
+guard stops its first decode before any new full-attention kernel executes.
+Whole 623c8ff fixes that guard and integrates the attention core over the
+owned prefix/tail caches; its Windows build passes. Full-model qualification
+of the integrated route is pending.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
