@@ -200,13 +200,26 @@ The first q8191 attempt stopped at an obsolete rocBLAS cache dependency;
 completed reruns disable that cache. The code now skips this MoE-only
 dependency for the native HIP replacement.
 
-The next diagnostic applies the already-qualified K16 projection to all
-30 Q1 linear layers. The middle/later layers previously bypassed it through
-their AOT QKVZ+A/B path. Original observations now also cover linear/MoE
-layer 2 and the first full-attention layer's projections, normalization,
-RoPE, context and output. Native full-attention observations use the same
-bounded optional file policy. These changes await their own original
-reference controls and Windows product tests.
+The [all-linear Q1 product tests](../benchmarks/correctness/q1-all-linear-product-20260911.json)
+at whole 441f0f2 apply the qualified K16 projection to all 30 Q1 linear
+layers, replacing the middle/later AOT QKVZ+A/B bypass. The Windows build
+passes, and q8191 out32 now passes the frozen prompt, all 32 output tokens,
+first-token logit and streaming boundary. q7169 out512 still first differs
+at output index 38, with 467 mismatches; its original first 32 match. Both
+requests finish with successful host checks. At first decode, both cases'
+layer-2 input/postnorm and complete carriers for layers 0, 1 and 2 match
+GB10 exactly. The first remaining carrier difference is full-attention
+layer 3 (1823/1788 F32 elements). Diagnostic callback TTFT is 80.858/69.697
+seconds and TPOT is 96.846/86.302 ms. No new performance result is retained.
+
+Expanded original observations for linear/MoE layer 2 and full-attention
+layer 3 remain pending: r7 fails on a metadata variable scope, and r8 finds
+that cached rotary modules are shared across layers. Both failed captures
+are excluded. The observer now scopes rotary hooks to the owning attention
+forward and also copies the first decode's logical KV history in three
+cases. Native full-attention observations retain the same bounded optional
+file policy. The fresh original capture must pass its controls before any
+of these new reference files qualify comparisons.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
