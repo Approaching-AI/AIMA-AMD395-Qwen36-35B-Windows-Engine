@@ -106,7 +106,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
         self._qrt_boundary_prompt_tokens = prompt_tokens
-        self._qrt_boundary_linear_layers = [0, 4] if case == "q8191-out32" else [0]
+        self._qrt_boundary_linear_layers = [0, 2, 4] if case == "q8191-out32" else [0, 2]
         self._qrt_boundary_current = None
         self._qrt_boundary_indices = None
         model = runner.model
@@ -222,75 +222,116 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Preserve the original first-layer MoE call and selector. These
         # small decode-only endpoints distinguish projection, routing and
         # shared/routed rounding after the now-qualified GDN boundary.
-        mlp = layers[0].mlp
-        if mlp.tp_size != 1 or mlp.shared_expert is None:
-            raise ValueError("decode MoE observation requires the original shared expert")
-        self._qrt_boundary_moe_labels = {
-            "input", "router", "output", "shared", "shared-gate-up",
-            "shared-activated", "shared-down", "shared-gate", "topk-weights",
-            "topk-ids", "expert-part-0", "expert-part-1", "next-hidden", "residual"}
+        self._qrt_boundary_moe_layers = [0, 2]
+        def attach_moe(index):
+            mlp = layers[index].mlp
+            if mlp.tp_size != 1 or mlp.shared_expert is None:
+                raise ValueError("decode MoE observation requires the original shared expert")
+            self._qrt_boundary_moe_labels = {
+                "input", "router", "output", "shared", "shared-gate-up",
+                "shared-activated", "shared-down", "shared-gate", "topk-weights",
+                "topk-ids", "expert-part-0", "expert-part-1", "next-hidden", "residual"}
 
-        def moe_stage(label, value, width):
+            def moe_stage(label, value, width):
+                transaction = self._qrt_boundary_active
+                if (transaction is None or not transaction["rows"] or
+                        transaction["first_position"] < prompt_tokens):
+                    return
+                if transaction["token_count"] > 2:
+                    raise ValueError("decode MoE observation exceeds the original MTP batch")
+                if value.dtype == torch.int64:
+                    if torch.any((value < 0) | (value >= 256)):
+                        raise ValueError("decode MoE expert index out of range")
+                    value = value.to(torch.int32)
+                save(f"moe-{index:02d}-" + label, selected_tensor(value, transaction, width), transaction)
+
+            def moe_input(label, width):
+                def observe(module, args):
+                    moe_stage(label, args[0], width)
+                return observe
+
+            def moe_output(label, width):
+                def observe(module, args, output):
+                    value = output[0] if isinstance(output, tuple) else output
+                    moe_stage(label, value, width)
+                return observe
+
+            for module, hook, pre in (
+                    (mlp, moe_input("input", 2048), True),
+                    (mlp.gate, moe_output("router", 256), False),
+                    (mlp.shared_expert, moe_output("shared", 2048), False),
+                    (mlp.shared_expert.gate_up_proj, moe_output("shared-gate-up", 1024), False),
+                    (mlp.shared_expert.down_proj, moe_input("shared-activated", 512), True),
+                    (mlp.shared_expert.down_proj, moe_output("shared-down", 2048), False),
+                    (mlp.shared_expert_gate, moe_output("shared-gate", 1), False),
+                    (mlp, moe_output("output", 2048), False)):
+                register = module.register_forward_pre_hook if pre else module.register_forward_hook
+                self._qrt_boundary_handles.append(register(hook))
+            router = mlp.experts.router
+            original_select = router.select_experts
+            self._qrt_boundary_restores.append((router, "select_experts", original_select))
+
+            def observe_selected(*args, **kwargs):
+                result = original_select(*args, **kwargs)
+                moe_stage("topk-weights", result[0], 8)
+                moe_stage("topk-ids", result[1], 8)
+                return result
+
+            router.select_experts = observe_selected
+
+            def expert_outputs(module, args, output):
+                if not isinstance(output, tuple) or len(output) != 2:
+                    raise ValueError("original shared/routed expert tuple changed")
+                for part, value in enumerate(output):
+                    moe_stage(f"expert-part-{part}", value, 2048)
+
+            def next_inputs(module, args):
+                if len(args) != 2:
+                    raise ValueError("original residual normalization arguments changed")
+                moe_stage("next-hidden", args[0], 2048)
+                moe_stage("residual", args[1], 2048)
+
+            self._qrt_boundary_handles.append(mlp.experts.register_forward_hook(expert_outputs))
+            self._qrt_boundary_handles.append(layers[index + 1].input_layernorm.register_forward_pre_hook(next_inputs))
+
+        for index in self._qrt_boundary_moe_layers:
+            attach_moe(index)
+
+        # Observe the first full-attention layer after the linear/MoE boundary.
+        # Hooks retain original qkv/norm/RoPE/attention/output results, including
+        # the BF16 sigmoid-product endpoint at the output projection input.
+        attention = layers[3].self_attn
+        self._qrt_boundary_full_labels = {
+            "qkv", "q-norm", "k-norm", "q-rope", "k-rope", "context", "gated", "output"}
+        def full_stage(label, value, width):
             transaction = self._qrt_boundary_active
             if (transaction is None or not transaction["rows"] or
                     transaction["first_position"] < prompt_tokens):
                 return
-            if transaction["token_count"] > 2:
-                raise ValueError("decode MoE observation exceeds the original MTP batch")
-            if value.dtype == torch.int64:
-                if torch.any((value < 0) | (value >= 256)):
-                    raise ValueError("decode MoE expert index out of range")
-                value = value.to(torch.int32)
-            save("moe-00-" + label, selected_tensor(value, transaction, width), transaction)
-
-        def moe_input(label, width):
-            def observe(module, args):
-                moe_stage(label, args[0], width)
-            return observe
-
-        def moe_output(label, width):
+            if not 1 <= transaction["token_count"] <= 2:
+                raise ValueError("full-attention decode observation exceeds the original batch")
+            value = value.reshape(transaction["token_count"], width)
+            save("full-03-" + label, selected_tensor(value, transaction, width), transaction)
+        def full_output(label, width):
             def observe(module, args, output):
-                value = output[0] if isinstance(output, tuple) else output
-                moe_stage(label, value, width)
+                full_stage(label, output[0] if isinstance(output, tuple) else output, width)
             return observe
-
-        for module, hook, pre in (
-                (mlp, moe_input("input", 2048), True),
-                (mlp.gate, moe_output("router", 256), False),
-                (mlp.shared_expert, moe_output("shared", 2048), False),
-                (mlp.shared_expert.gate_up_proj, moe_output("shared-gate-up", 1024), False),
-                (mlp.shared_expert.down_proj, moe_input("shared-activated", 512), True),
-                (mlp.shared_expert.down_proj, moe_output("shared-down", 2048), False),
-                (mlp.shared_expert_gate, moe_output("shared-gate", 1), False),
-                (mlp, moe_output("output", 2048), False)):
-            register = module.register_forward_pre_hook if pre else module.register_forward_hook
-            self._qrt_boundary_handles.append(register(hook))
-        router = mlp.experts.router
-        original_select = router.select_experts
-        self._qrt_boundary_restores.append((router, "select_experts", original_select))
-
-        def observe_selected(*args, **kwargs):
-            result = original_select(*args, **kwargs)
-            moe_stage("topk-weights", result[0], 8)
-            moe_stage("topk-ids", result[1], 8)
-            return result
-
-        router.select_experts = observe_selected
-
-        def expert_outputs(module, args, output):
+        def full_rope(module, args, output):
             if not isinstance(output, tuple) or len(output) != 2:
-                raise ValueError("original shared/routed expert tuple changed")
-            for index, value in enumerate(output):
-                moe_stage(f"expert-part-{index}", value, 2048)
-
-        def next_inputs(module, args):
-            if len(args) != 2:
-                raise ValueError("original residual normalization arguments changed")
-            moe_stage("next-hidden", args[0], 2048)
-            moe_stage("residual", args[1], 2048)
-
-        self._qrt_boundary_handles.append(mlp.experts.register_forward_hook(expert_outputs))
-        self._qrt_boundary_handles.append(layers[1].input_layernorm.register_forward_pre_hook(next_inputs))
+                raise ValueError("original full-attention rotary result changed")
+            full_stage("q-rope", output[0], 4096)
+            full_stage("k-rope", output[1], 512)
+        def full_gated(module, args):
+            full_stage("gated", args[0], 4096)
+        for module, hook in (
+                (attention.qkv_proj, full_output("qkv", 9216)),
+                (attention.q_norm, full_output("q-norm", 4096)),
+                (attention.k_norm, full_output("k-norm", 512)),
+                (attention.rotary_emb, full_rope),
+                (attention.attn, full_output("context", 4096)),
+                (attention.o_proj, full_output("output", 2048))):
+            self._qrt_boundary_handles.append(module.register_forward_hook(hook))
+        self._qrt_boundary_handles.append(attention.o_proj.register_forward_pre_hook(full_gated))
 
         def linear_stage(index, label, value, width):
             transaction = self._qrt_boundary_active
@@ -354,9 +395,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 linear.out_proj.register_forward_pre_hook(gated),
                 linear.out_proj.register_forward_hook(out)))
 
-        attach_linear(0)
-        if case == "q8191-out32":
-            attach_linear(4)
+        for index in self._qrt_boundary_linear_layers:
+            attach_linear(index)
 
         # Observe the actual cache slots selected by the original fused decode
         # call. MTP may accept either one or two tokens from its previous call;
@@ -515,8 +555,11 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                                       "decode-state-before", "decode-state-after")}
                     if not decode_required <= observed:
                         raise ValueError("incomplete original decode state observations")
-                    if not {"moe-00-" + label for label in self._qrt_boundary_moe_labels} <= observed:
+                    if not {f"moe-{layer:02d}-" + label for layer in self._qrt_boundary_moe_layers
+                            for label in self._qrt_boundary_moe_labels} <= observed:
                         raise ValueError("incomplete original decode MoE observations")
+                    if not {"full-03-" + label for label in self._qrt_boundary_full_labels} <= observed:
+                        raise ValueError("incomplete original decode full-attention observations")
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,

@@ -34997,6 +34997,18 @@ void launch_q1_float_projection(
     }
 }
 
+__global__ void selected_q1_bf16_projection_sm121_kernel(
+    const uint16_t *weights, const uint16_t *input, float *output,
+    unsigned int rows
+) {
+    const unsigned int row = blockIdx.x * 16u + threadIdx.x / 16u;
+    if (row >= rows) return;
+    const float sum = qrt_sm121_q1_moe::dot(input,
+        weights + static_cast<size_t>(row) * QRT_QWEN36_HIDDEN_SIZE,
+        QRT_QWEN36_HIDDEN_SIZE);
+    if ((threadIdx.x & 15u) == 0u) output[row] = device_bf16_round_to_float(sum);
+}
+
 // The same K16 / width-26 endpoint applies to the BF16 linear-attention
 // output projection. Keep it separate from the fused legacy residual tail,
 // which discards the unrounded variance needed by the original norm.
@@ -161424,7 +161436,17 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
                                  float *output,
                                  unsigned int rows,
                                  const char *stage) -> bool {
-        if (projection_input_bf16) {
+        if (q1_sm121_gdn_requested) {
+            if (projection_input_bf16) {
+                hipLaunchKernelGGL(selected_q1_bf16_projection_sm121_kernel,
+                    dim3((rows + 15u) / 16u), dim3(256u), 0, q1_decode_layer_stack_stream,
+                    weights, device_norm_bf16, output, rows);
+            } else {
+                hipLaunchKernelGGL(selected_q1_float_projection_sm121_kernel,
+                    dim3((rows + 15u) / 16u), dim3(256u), 0, q1_decode_layer_stack_stream,
+                    weights, device_norm_f32, output, rows);
+            }
+        } else if (projection_input_bf16) {
             const dim3 block(kThreadTileRows, kThreadTileTokens);
             const dim3 grid(
                 (rows + kTileRows - 1u) / kTileRows,
@@ -161462,6 +161484,12 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         // four F32 projection kernels after the preceding token's device
         // top-1.  The shared priority stream preserves their order before the
         // current convolution/core continuation.
+    } else if (q1_sm121_gdn_requested) {
+        // Apply the already-qualified K16 endpoint to all thirty linear layers.
+        // The old AOT QKVZ+A/B path at layers >= 2 used a different reduction.
+        if (!launch_projection(qkv_weights, device_qkv, kQkvRows, "qwen36_q1_sm121_qkv") ||
+            !launch_projection(z_weights, device_z, kZRows, "qwen36_q1_sm121_z")) return false;
+        matrix_calls += 2u;
     } else if (use_q1_dense_w8a8_linear_input) {
         uint16_t *const device_qkvz_bf16 =
             reinterpret_cast<uint16_t *>(device_conv);
@@ -161953,6 +161981,10 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     }
     if (device_token_layer0_prefetch_available) {
         // A and B share the exact prefetched F32 frontier above.
+    } else if (q1_sm121_gdn_requested) {
+        if (!launch_projection(a_weights, device_a, kAbRows, "qwen36_q1_sm121_a") ||
+            !launch_projection(b_weights, device_b, kAbRows, "qwen36_q1_sm121_b")) return false;
+        matrix_calls += 2u;
     } else if (use_q1_linear_rocblas_qkvz_ab) {
         // The combined BF16 endpoint already unpacked Z, A, and B into the
         // contiguous linear auxiliary surface.  No secondary projection is
@@ -162009,7 +162041,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         )) {
         return false;
     }
-    if (!device_token_layer0_prefetch_available &&
+    if (!q1_sm121_gdn_requested && !device_token_layer0_prefetch_available &&
         !use_q1_linear_rocblas_qkvz_ab &&
         !use_q1_dense_w8a8_linear_ab && !use_q1_linear_fused_ab) {
         if (!launch_projection(
@@ -164712,7 +164744,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PARALLEL_TOPK_SELECTION"
     );
     const bool q1_decode_rocblas_stream_binding_cache_requested =
-        env_flag_enabled(
+        !q1_sm121_moe_requested && env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_ROCBLAS_STREAM_BINDING_CACHE"
         );
     const bool q1_moe_raw_multirow_fused_requested = env_flag_enabled(
@@ -181207,6 +181239,35 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         const uint64_t digest = status == hipSuccess
             ? qrt_fnv1a64_bytes(host_bytes.data(), host_bytes.size())
             : UINT64_C(0);
+        // Reuse the completed diagnostic read for bounded full-attention endpoint files.
+        // Saved values are observations only and never feed inference.
+        const char *dump_prefix = std::getenv(
+            "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX"
+        );
+        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
+        static size_t dumped_files = 0u;
+        static size_t dumped_bytes = 0u;
+        bool dump_ok = false;
+        std::string dump_path;
+        if (dump_requested && status == hipSuccess && bytes <= (128u << 10u) &&
+            dumped_files < 64u && dumped_bytes <= (4u << 20u) - bytes) {
+            std::ostringstream path;
+            path << dump_prefix << ".txn" << q1024_q1_full_stage_active_transaction
+                 << ".pos" << absolute_position << ".layer" << descriptor.layer_index
+                 << "." << stage << ".bin";
+            dump_path = path.str();
+            if (!std::ifstream(dump_path, std::ios::binary).good()) {
+                std::ofstream output(dump_path, std::ios::binary);
+                if (output) {
+                    output.write(reinterpret_cast<const char *>(host_bytes.data()),
+                                 static_cast<std::streamsize>(bytes));
+                    output.close();
+                    dump_ok = static_cast<bool>(output);
+                    ++dumped_files;
+                    dumped_bytes += bytes;
+                }
+            }
+        }
         std::cerr
             << "BATCH_MARK "
             << (generic_trace
@@ -181220,6 +181281,9 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             << " bytes=" << bytes
             << " digest=" << hex_u64(digest)
             << " hip_status=" << static_cast<int>(status)
+            << " dump_requested=" << (dump_requested ? 1 : 0)
+            << " dump_ok=" << (dump_ok ? 1 : 0)
+            << " dump_path=\"" << json_escape(dump_path) << "\""
             << " diagnostic_only=1"
             << std::endl;
     };

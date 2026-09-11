@@ -188,8 +188,25 @@ The opt-in `QRT_QWEN36_Q1_SM121_MOE=1` connects these rules to all Q1 layers:
 exact router, selected/shared projections, BF16 weighted contributions and
 route sum, and the rounded norm numerator with unrounded residual variance.
 It requires the existing exact Q1 GDN/output path and next-layer norm handoff.
-It uses Q1-specific table bindings and has no effect on prefill. The native
-implementation remains a diagnostic candidate pending product tests.
+It uses Q1-specific table bindings and has no effect on prefill.
+
+The [native Q1 MoE product tests](../benchmarks/correctness/q1-moe-product-20260911.json)
+at whole 9460249 pass the Windows build and complete q8191 out32/q7169 out512
+with successful host checks. Every observed first-layer MoE endpoint now
+matches GB10 exactly, including the next norm. Complete layer-0 and layer-1
+output carriers also match; the earliest difference moves to layer 2
+(969/1005 F32 values). Continuation still first differs at indices 6 and 38.
+The first q8191 attempt stopped at an obsolete rocBLAS cache dependency;
+completed reruns disable that cache. The code now skips this MoE-only
+dependency for the native HIP replacement.
+
+The next diagnostic applies the already-qualified K16 projection to all
+30 Q1 linear layers. The middle/later layers previously bypassed it through
+their AOT QKVZ+A/B path. Original observations now also cover linear/MoE
+layer 2 and the first full-attention layer's projections, normalization,
+RoPE, context and output. Native full-attention observations use the same
+bounded optional file policy. These changes await their own original
+reference controls and Windows product tests.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead
