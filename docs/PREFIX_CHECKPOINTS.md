@@ -1,8 +1,17 @@
 # Saved partial prefixes
 
 This implementation is experimental and disabled unless
-QRT_QWEN36_PREFIX_CHECKPOINTS=1. Host tests pass; complete-model Windows
-qualification is pending. The separate recurrent producer's native evidence is
+QRT_QWEN36_PREFIX_CHECKPOINTS=1. Native q7169 cold capture preserves all 32 GB10
+outputs and first-token logit, and all three model checkpoints are complete.
+Partial continuation is **not qualified**: the saved 7168 prefix and an
+independently computed prefix both return 220/9.3125 instead of the GB10 cold
+prompt's first token 82/9.25. All 186 captured operator, carrier and KV files
+in those continuation routes match bit-for-bit; repeated rollback and the
+unrelated-prefix guard pass. The next arithmetic investigation is seeded FLA
+prefill versus the current decode recurrence. This is a hypothesis, not a
+completed repair. See benchmarks/correctness/model-prefix-checkpoints-20260912.json.
+
+The separate recurrent producer's native evidence is
 benchmarks/correctness/fla-fp32-checkpoints-20260912.json. That component
 record does not qualify the model checkpoint or any release.
 

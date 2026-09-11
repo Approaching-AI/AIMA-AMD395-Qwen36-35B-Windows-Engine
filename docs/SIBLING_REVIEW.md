@@ -21,7 +21,7 @@ and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 | Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and explicit conservative no-progress metadata now have CPU/HTTP regressions. Semantic retry strategy and side-effect authorization remain with the caller. |
 | Control-plane responsiveness (.5) | Existing bounded FIFO retained; a gated backend test proves health/shutdown and the first reasoning delta arrive before generation completes. Native packaged-server validation is still required. |
 | Default VL reasoning (.6) | Windows remains text-only; no vision implementation or inherited VL result is claimed. |
-| Partial shared prefixes (.7 / closed Linux #12) | An opt-in Windows implementation now captures up to three K64 boundaries: unrounded FP32 recurrence, convolution rings, terminal hidden and owner-bound full-attention KV. Query and shadow restoration have host allocation-failure/ownership tests. Complete-model native capture, GB10 continuation, divergent requests and packaged-server qualification remain open. |
+| Partial shared prefixes (.7 / closed Linux #12) | Native q7169 captures three complete K64 model checkpoints without changing its 32 cold outputs. Saved and independent 7168-prefix continuations match all 186 captured buffers, but both produce first token 220 instead of GB10's 82. Seeded prefill arithmetic is under investigation; partial continuation, divergent requests and packaged-server qualification remain open. |
 
 The GitHub latest-release endpoint was rechecked on September 11 and still
 selects `.7`; no newer stable release is inferred from local branch commits.
