@@ -39,6 +39,7 @@ class AttentionWorkspaceTests(unittest.TestCase):
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <mutex>
 #include <set>
 using hipStream_t = void*;
@@ -94,11 +95,12 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
                    unsigned key_stride, bool = false) {
     ++queries;
-    if (!count || count > 8u || scores != g_sm121_scores ||
+    if (!count || count > 8u || scores != (layout == 5u ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
-    if (layout == 4u) {
+    if (layout == 4u || layout == 5u) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
             std::abort();
+        if (layout == 5u && elements != kSm121MantissaElements) std::abort();
     } else if (layout != 2u || prepared || transposes) std::abort();
     return queries == fail_query ? hipErrorUnknown : hipSuccess;
 }
@@ -106,7 +108,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys;
+           !g_sm121_transposed_keys && !g_sm121_mantissa_scores;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -141,6 +143,21 @@ int main() {
     if (launch(0, 17) != hipErrorUnknown || transposes != 1u || queries != 2u || syncs != 2u)
         return 8;
     reset();
+    setenv("QRT_CK_SM121_MANTISSA_WMMA", "1", 1);
+    fail_allocation = 5u;
+    if (launch(0, 17) != hipErrorUnknown || live.size() != 4u ||
+        g_sm121_mantissa_scores || transposes || queries || syncs) return 9;
+    reset();
+    if (launch(0, 17) != hipSuccess || live.size() != 5u || allocations != 5u ||
+        !g_sm121_mantissa_scores || transposes != 1u || queries != 3u || syncs != 3u) return 10;
+    transposes = queries = syncs = 0u;
+    if (launch(0, 17) != hipSuccess || allocations != 5u || queries != 3u) return 11;
+    reset(); fail_query = 2u;
+    if (launch(0, 17) != hipErrorUnknown || queries != 2u || syncs != 2u) return 12;
+    reset();
+    if (launch(7168, 1) != hipSuccess || live.size() != 4u || g_sm121_mantissa_scores || transposes)
+        return 13;
+    reset(); unsetenv("QRT_CK_SM121_MANTISSA_WMMA");
     return 0;
 }
 '''

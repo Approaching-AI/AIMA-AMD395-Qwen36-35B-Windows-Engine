@@ -22,7 +22,7 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t = void*;
 using hipEvent_t = void*;
-struct dim3 { explicit dim3(unsigned, unsigned = 1u) {} };
+struct dim3 { explicit dim3(unsigned, unsigned = 1u, unsigned = 1u) {} };
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kKvHeads = 2;
 constexpr unsigned kBlackwellSubgroups = 16;
@@ -32,6 +32,8 @@ void blackwell_transpose_keys_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
+void blackwell_mantissa_scores_kernel() {}
+void blackwell_mantissa_value_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
          bool NativeProducts = false>
 void blackwell_exact_attention_kernel() {}
@@ -67,7 +69,7 @@ int main() {
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
-    if (split(0, 8, &scratch, SIZE_MAX, 5) != hipErrorInvalidValue) return 8;
+    if (split(0, 8, &scratch, SIZE_MAX, 6) != hipErrorInvalidValue) return 8;
     if (launches || error_queries) return 9;
     if (split(0, 8, &scratch, 1791, 3) != hipErrorInvalidValue || launches || error_queries)
         return 13;
@@ -137,6 +139,25 @@ int main() {
         0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 4, &scratch, 1024,
         nullptr, nullptr, &operand, 8u, true) != hipErrorUnknown || launches != 1u)
         return 29;
+    launches = error_queries = 0u; fail_scores = false;
+    auto matrix = [&](size_t elements, const uint16_t* prepared,
+                      unsigned stride = 17u, bool native = false) {
+        return launch_queries(&operand, &operand, &operand, &output, nullptr,
+            1, 16, 0, nullptr, nullptr, nullptr, true, nullptr, 5, &scratch,
+            elements, nullptr, nullptr, prepared, stride, native);
+    };
+    const size_t matrix_elements = split_scratch_elements(16u, 17u, 5u);
+    if (matrix_elements != 7040u || matrix(matrix_elements - 1u, &operand) != hipErrorInvalidValue ||
+        matrix(matrix_elements, nullptr) != hipErrorInvalidValue ||
+        matrix(matrix_elements, &operand, 16u) != hipErrorInvalidValue ||
+        matrix(matrix_elements, &operand, 16385u) != hipErrorInvalidValue ||
+        matrix(matrix_elements, &operand, 17u, true) != hipErrorInvalidValue || launches)
+        return 30;
+    if (matrix(matrix_elements, &operand) != hipSuccess || launches != 3u || error_queries != 3u) return 31;
+    launches = error_queries = 0u; fail_scores = true;
+    if (matrix(matrix_elements, &operand) != hipErrorUnknown || launches != 1u) return 32;
+    launches = error_queries = 0u; fail_scores = false; fail_probability = true;
+    if (matrix(matrix_elements, &operand) != hipErrorUnknown || launches != 2u) return 33;
     return 0;
 }
 '''

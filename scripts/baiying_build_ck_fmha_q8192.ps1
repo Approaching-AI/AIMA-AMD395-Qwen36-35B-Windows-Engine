@@ -62,6 +62,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
     (Join-Path $sourceDir "blackwell_attention.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_native_product.h"),
+    (Join-Path $sourceDir "..\moe_accumulator\sm121_mantissa_parts.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
     (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
@@ -235,6 +236,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_group16_modulo.h')).Hash.ToLowerInvariant()
     sm121_native_product_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_native_product.h')).Hash.ToLowerInvariant()
+    sm121_mantissa_parts_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_mantissa_parts.h')).Hash.ToLowerInvariant()
     sm121_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h")).Hash.ToLowerInvariant()
     sm121_rcp_header_sha256 = (Get-FileHash -Algorithm SHA256 `

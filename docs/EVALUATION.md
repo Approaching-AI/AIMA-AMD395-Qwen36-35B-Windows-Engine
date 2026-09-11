@@ -197,8 +197,21 @@ The original ordered normalization and all softmax/PV boundaries remain.
 All 200,000 host K16 groups and 3,200,000 products match the original integer
 representation and aligned sum, including every BF16 operand encoding and
 random carries. All 302 Python tests (two skips), C/ABI, Rust, Clippy, q16
-and hygiene pass. Native captured-Q/K/V comparison and product measurement
-must follow before retaining this option.
+and hygiene pass. The [native captured-Q/K/V comparison](../benchmarks/correctness/attention-native-products-20260911.json)
+at source `f5faceed881ec08af3694355b9fedcb07641e4c3` matches all
+29,364,224 reference BF16 outputs and all original native FP32 bits. The
+Windows build and both component requests pass with healthy host checks.
+The component interval nevertheless increases from 1367.15 to 2352.06 ms
+(QK 573.904 to 848.447 ms; PV 791.727 to 1502.4 ms). Keep integer-packed
+products selected; the optional native-product path is a numerical diagnostic.
+Its slower component does not warrant a product performance run.
+The next opt-in `QRT_CK_SM121_MANTISSA_WMMA=1` route shares 16x16 operands
+across four matrix partials, compensates the individually discarded product
+bits, and falls back to the original integer K16 sum outside its proven
+exponent range. It retains ordered softmax and PV rescaling, bounds the extra
+workspace, and leaves the selected configuration unchanged. All 303 local
+Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass; native
+matrix behavior and captured-input performance are not yet qualified.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or

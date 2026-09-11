@@ -105,18 +105,21 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
-                    ? "provider_call" : (memory_layout == 4u ? "key_transpose_and_qk_pv_pairs"
+                    ? "provider_call" : (memory_layout == 5u ? "key_transpose_and_mantissa_wmma_triplets"
+                    : (memory_layout == 4u ? "key_transpose_and_qk_pv_pairs"
                         : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
-                            : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))))
+                            : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch")))))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"native_products\":" << (native_products ? "true" : "false")
+              << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
+              << ",\"score_probability_redzones_checked\":" << (std::strcmp(route, "ck") ? "true" : "false")
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
               << ",\"scores_ms\":" << scores_ms
               << ",\"probabilities_ms\":" << probabilities_ms
               << ",\"value_ms\":" << value_ms
               << ",\"preparation_ms\":" << preparation_ms
-              << ",\"key_transpose_and_redzones_checked\":" << (memory_layout == 4u ? "true" : "false")
+              << ",\"key_transpose_and_redzones_checked\":" << (memory_layout >= 4u ? "true" : "false")
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
     return mismatches == 0u && nonfinite == 0u;
 }
@@ -130,12 +133,12 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_4]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_5]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 4) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 5) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -210,8 +213,8 @@ int main(int argc, char** argv) {
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0, scores_total = 0, probabilities_total = 0, value_total = 0;
         Event scores_done, probabilities_done;
-        Device transposed(memory_layout == 4u ? (k.size() + 256u) * 2u : 4u);
-        auto* transposed_data = memory_layout == 4u ? transposed.as<uint16_t>() + 128u : nullptr;
+        Device transposed(memory_layout >= 4u ? (k.size() + 256u) * 2u : 4u);
+        auto* transposed_data = memory_layout >= 4u ? transposed.as<uint16_t>() + 128u : nullptr;
         float preparation_ms = 0;
         if (transposed_data) {
             check(hipMemset(transposed.pointer, 0xa5, (k.size() + 256u) * 2u));
@@ -223,7 +226,9 @@ int main(int argc, char** argv) {
         }
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
-        Device scores(score_elements * sizeof(float));
+        Device scores((score_elements + 128u) * sizeof(float));
+        auto* score_data = scores.as<float>() + 64u;
+        check(hipMemset(scores.pointer, 0xa5, (score_elements + 128u) * sizeof(float)));
         for (unsigned offset = 0; offset < count; offset += batch) {
             if (std::chrono::duration<double>(Clock::now() - begun).count() > 150.0)
                 throw std::runtime_error("replay aggregate deadline exceeded");
@@ -233,24 +238,29 @@ int main(int argc, char** argv) {
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
                 accumulator.as<float>(), denominator.as<float>(), true,
                 use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout,
-                scores.as<float>(), score_elements,
+                score_data, score_elements,
                 memory_layout >= 2u ? scores_done.value : nullptr,
-                memory_layout == 3u ? probabilities_done.value : nullptr,
+                (memory_layout == 3u || memory_layout == 5u) ? probabilities_done.value : nullptr,
                 transposed_data, tokens, native_products)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
                 check(hipEventElapsedTime(&stage_ms, begin.value, scores_done.value));
                 scores_total += stage_ms;
-                if (memory_layout == 3u) {
+                if (memory_layout == 3u || memory_layout == 5u) {
                     check(hipEventElapsedTime(&stage_ms, scores_done.value, probabilities_done.value));
                     probabilities_total += stage_ms;
                 }
                 check(hipEventElapsedTime(&stage_ms,
-                    memory_layout == 3u ? probabilities_done.value : scores_done.value, end.value));
+                    (memory_layout == 3u || memory_layout == 5u) ? probabilities_done.value : scores_done.value, end.value));
                 value_total += stage_ms;
             }
         }
+        uint32_t score_guards[128];
+        check(hipMemcpy(score_guards, scores.pointer, 64u * sizeof(uint32_t), hipMemcpyDeviceToHost));
+        check(hipMemcpy(score_guards + 64u, score_data + score_elements, 64u * sizeof(uint32_t), hipMemcpyDeviceToHost));
+        for (uint32_t guard : score_guards)
+            if (guard != 0xa5a5a5a5u) throw std::runtime_error("score/probability workspace redzone changed");
         std::vector<float> host(size_t(count) * 4096u);
         check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         if (transposed_data) {
