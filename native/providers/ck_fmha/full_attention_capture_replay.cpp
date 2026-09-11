@@ -78,7 +78,8 @@ bool report(const char* route, const std::vector<float>& output,
             const std::vector<uint16_t>& reference, unsigned start,
             const std::string& prefix, float total_ms, float max_ms,
             unsigned memory_layout = 0u, float scores_ms = 0.0f,
-            float probabilities_ms = 0.0f, float value_ms = 0.0f) {
+            float probabilities_ms = 0.0f, float value_ms = 0.0f,
+            float preparation_ms = 0.0f) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -104,14 +105,17 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
-                    ? "provider_call" : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
-                        : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch")))
+                    ? "provider_call" : (memory_layout == 4u ? "key_transpose_and_qk_pv_pairs"
+                        : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
+                            : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
               << ",\"scores_ms\":" << scores_ms
               << ",\"probabilities_ms\":" << probabilities_ms
               << ",\"value_ms\":" << value_ms
+              << ",\"preparation_ms\":" << preparation_ms
+              << ",\"key_transpose_and_redzones_checked\":" << (memory_layout == 4u ? "true" : "false")
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
     return mismatches == 0u && nonfinite == 0u;
 }
@@ -125,11 +129,11 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_3]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_4]");
         const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 3) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 4) : 0u;
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
@@ -198,6 +202,17 @@ int main(int argc, char** argv) {
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0, scores_total = 0, probabilities_total = 0, value_total = 0;
         Event scores_done, probabilities_done;
+        Device transposed(memory_layout == 4u ? (k.size() + 256u) * 2u : 4u);
+        auto* transposed_data = memory_layout == 4u ? transposed.as<uint16_t>() + 128u : nullptr;
+        float preparation_ms = 0;
+        if (transposed_data) {
+            check(hipMemset(transposed.pointer, 0xa5, (k.size() + 256u) * 2u));
+            check(hipEventRecord(begin.value));
+            check(hipError_t(qrt_blackwell_attention::transpose_keys(
+                dk.as<uint16_t>(), transposed_data, k.size(), tokens, nullptr)));
+            preparation_ms = finish(begin, end, 100.0f);
+            total = maximum = preparation_ms;
+        }
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores(score_elements * sizeof(float));
@@ -212,7 +227,8 @@ int main(int argc, char** argv) {
                 use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout,
                 scores.as<float>(), score_elements,
                 memory_layout >= 2u ? scores_done.value : nullptr,
-                memory_layout == 3u ? probabilities_done.value : nullptr)));
+                memory_layout == 3u ? probabilities_done.value : nullptr,
+                transposed_data, tokens)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
@@ -229,11 +245,27 @@ int main(int argc, char** argv) {
         }
         std::vector<float> host(size_t(count) * 4096u);
         check(hipMemcpy(host.data(), output.pointer, host.size() * 4, hipMemcpyDeviceToHost));
+        if (transposed_data) {
+            // Compare every transformed input cell and both 128-element redzones
+            // after all score/PV work. This observer is outside GPU timing.
+            std::vector<uint16_t> checked(k.size() + 256u);
+            check(hipMemcpy(checked.data(), transposed.pointer, checked.size() * 2u, hipMemcpyDeviceToHost));
+            for (size_t i = 0; i < 128u; ++i) {
+                if (checked[i] != 0xa5a5u || checked[128u + k.size() + i] != 0xa5a5u)
+                    throw std::runtime_error("key transpose redzone changed");
+            }
+            for (size_t row = 0; row < tokens; ++row) {
+                for (size_t column = 0; column < 512u; ++column) {
+                    if (checked[128u + column * tokens + row] != k[row * 512u + column])
+                        throw std::runtime_error("key transpose input mismatch");
+                }
+            }
+        }
         const char* route = use_table
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
-                          scores_total, probabilities_total, value_total);
+                          scores_total, probabilities_total, value_total, preparation_ms);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class AttentionLaunchPolicyTests(unittest.TestCase):
     def test_scratch_span_is_checked_and_failed_scores_do_not_submit_pv(self):
         header = (ROOT / "native/providers/ck_fmha/blackwell_attention.h").read_text()
-        launch = "inline size_t split_scratch_elements(" + header.split(
-            "inline size_t split_scratch_elements(", 1
+        launch = "inline int transpose_keys(" + header.split(
+            "inline int transpose_keys(", 1
         )[1].split("} // namespace qrt_blackwell_attention", 1)[0]
         source = r'''
 #include <cstddef>
@@ -24,9 +24,12 @@ using hipStream_t = void*;
 using hipEvent_t = void*;
 struct dim3 { explicit dim3(unsigned, unsigned = 1u) {} };
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
+constexpr unsigned kKvHeads = 2;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kExactTileTokens = 32;
 void blackwell_exact_scores_kernel() {}
+void blackwell_transpose_keys_kernel() {}
+void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false>
@@ -63,7 +66,7 @@ int main() {
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
-    if (split(0, 8, &scratch, SIZE_MAX, 4) != hipErrorInvalidValue) return 8;
+    if (split(0, 8, &scratch, SIZE_MAX, 5) != hipErrorInvalidValue) return 8;
     if (launches || error_queries) return 9;
     if (split(0, 8, &scratch, 1791, 3) != hipErrorInvalidValue || launches || error_queries)
         return 13;
@@ -87,6 +90,28 @@ int main() {
         0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 2, &scratch, 1024,
         &operand) != hipErrorUnknown || launches != 1u || events != 1u)
         return 17;  // A failed timing event also prevents dependent PV work.
+    launches = error_queries = events = 0u; fail_event = false;
+    if (transpose_keys(nullptr, &operand, 512u, 1u, nullptr) != hipErrorInvalidValue ||
+        transpose_keys(&operand, &operand, 511u, 1u, nullptr) != hipErrorInvalidValue ||
+        transpose_keys(&operand, &operand, SIZE_MAX, 8193u, nullptr) != hipErrorInvalidValue ||
+        transpose_keys(&operand, &operand, SIZE_MAX, 0u, nullptr) != hipErrorInvalidValue || launches)
+        return 18;
+    if (transpose_keys(&operand, &operand, 8192u * 512u, 8192u, nullptr) != hipSuccess ||
+        launches != 1u || error_queries != 1u) return 19;
+    launches = error_queries = 0u;
+    auto transposed = [&](const uint16_t* prepared, unsigned stride) {
+        return launch_queries(&operand, &operand, &operand, &output, nullptr,
+            7160, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 4, &scratch,
+            8u * 16u * 7168u, nullptr, nullptr, prepared, stride);
+    };
+    if (transposed(nullptr, 7168u) != hipErrorInvalidValue ||
+        transposed(&operand, 7167u) != hipErrorInvalidValue ||
+        transposed(&operand, 8193u) != hipErrorInvalidValue || launches) return 20;
+    if (transposed(&operand, 7169u) != hipSuccess || launches != 2u || error_queries != 2u)
+        return 21;
+    launches = error_queries = 0u; fail_scores = true;
+    if (transposed(&operand, 7169u) != hipErrorUnknown || launches != 1u || error_queries != 1u)
+        return 22;
     return 0;
 }
 '''

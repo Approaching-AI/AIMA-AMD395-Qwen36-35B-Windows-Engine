@@ -79,6 +79,62 @@ __global__ void blackwell_exact_scores_kernel(
     }
 }
 
+// A single bounded transpose makes adjacent independent QK lanes read adjacent
+// keys. Each lane keeps its own K-continuous carry and sixteen packed products;
+// no wave reduction is needed for the dot or its maximum exponent.
+__global__ void blackwell_transpose_keys_kernel(
+    const uint16_t* key, uint16_t* transposed, unsigned int tokens) {
+    __shared__ uint16_t tile[32][33];
+    const unsigned int column = blockIdx.x * 32u + threadIdx.x;
+    const unsigned int row = blockIdx.y * 32u + threadIdx.y;
+#pragma unroll
+    for (unsigned int part = 0u; part < 32u; part += 8u) {
+        if (row + part < tokens)
+            tile[threadIdx.y + part][threadIdx.x] =
+                key[static_cast<size_t>(row + part) * (kKvHeads * kHeadDim) + column];
+    }
+    __syncthreads();
+    const unsigned int key_token = blockIdx.y * 32u + threadIdx.x;
+    const unsigned int key_column = blockIdx.x * 32u + threadIdx.y;
+#pragma unroll
+    for (unsigned int part = 0u; part < 32u; part += 8u) {
+        if (key_token < tokens)
+            transposed[static_cast<size_t>(key_column + part) * tokens + key_token] =
+                tile[threadIdx.x][threadIdx.y + part];
+    }
+}
+
+__global__ void blackwell_transposed_scores_kernel(
+    const uint16_t* __restrict__ query, const uint16_t* __restrict__ transposed_key,
+    float* __restrict__ scores, unsigned int query_start,
+    unsigned int query_count, unsigned int score_stride, unsigned int key_stride) {
+    const unsigned int cell = blockIdx.x * kThreads + threadIdx.x;
+    const unsigned int cells = query_count * kQueryHeads * score_stride;
+    if (cell >= cells) return;
+    const unsigned int key_token = cell % score_stride;
+    const unsigned int head = (cell / score_stride) % kQueryHeads;
+    const unsigned int token = query_start + cell / (score_stride * kQueryHeads);
+    if (key_token > token) { scores[cell] = -INFINITY; return; }
+    const size_t query_base = (static_cast<size_t>(token) * kQueryHeads + head) * kHeadDim;
+    const unsigned int kv_head = head / (kQueryHeads / kKvHeads);
+    qrt_q1_moe_hawkeye::Value dot{0u, kBlackwellZeroExponent, false};
+    for (unsigned int base = 0u; base < kHeadDim; base += kBlackwellMmaGroup) {
+        uint32_t products[kBlackwellMmaGroup];
+#pragma unroll
+        for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
+            products[item] = qrt_sm121_group16::pack_product(
+                qrt_q1_moe_hawkeye::multiply_bf16(
+                    query[query_base + base + item],
+                    transposed_key[(static_cast<size_t>(kv_head) * kHeadDim + base + item) *
+                                       key_stride + key_token], kBlackwellZeroExponent));
+        }
+        const auto sum = qrt_sm121_group16::sum_packed(dot, products);
+        dot = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
+    }
+    scores[cell] = qrt_q1_moe_hawkeye::value_to_float(
+        qrt_sm121_group16::finish_accumulator(dot)) * kExactScale;
+}
+
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
 template <bool SerialValue, bool PrecomputedScores = false>
@@ -412,15 +468,26 @@ __global__ void blackwell_probability_value_kernel(
         raw_denominator[static_cast<size_t>(output_start + blockIdx.y) * kQueryHeads + head] = denominator;
 }
 
+inline int transpose_keys(const uint16_t* key, uint16_t* transposed,
+                          size_t elements, unsigned int tokens, hipStream_t stream) {
+    if (!key || !transposed || !tokens || tokens > 8192u ||
+        elements < static_cast<size_t>(tokens) * kKvHeads * kHeadDim)
+        return int(hipErrorInvalidValue);
+    hipLaunchKernelGGL(blackwell_transpose_keys_kernel,
+        dim3(kKvHeads * kHeadDim / 32u, (tokens + 31u) / 32u),
+        dim3(32u, 8u), 0u, stream, key, transposed, tokens);
+    return int(hipGetLastError());
+}
+
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > 8192u ||
-        memory_layout < 2u || memory_layout > 3u) return 0u;
+        memory_layout < 2u || memory_layout > 4u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
     // float boundary. The final float of each scale row stores its denominator.
-    return memory_layout == 2u ? cells : cells + cells / 2u +
+    return memory_layout != 3u ? cells : cells + cells / 2u +
         rows * ((stride + kExactTileTokens - 1u) / kExactTileTokens + 1u);
 }
 
@@ -432,25 +499,34 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool vllm_sum = false, const unsigned char* rcp_table = nullptr,
     unsigned int memory_layout = 1u,
     float* score_scratch = nullptr, size_t score_scratch_elements = 0u,
-    hipEvent_t scores_done = nullptr, hipEvent_t probabilities_done = nullptr) {
+    hipEvent_t scores_done = nullptr, hipEvent_t probabilities_done = nullptr,
+    const uint16_t* transposed_key = nullptr, unsigned int key_stride = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 3u) return int(hipErrorInvalidValue);
+    if (memory_layout > 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
         // The split replay is bounded to the short full-prefix product range.
         // Long-context terminal calls retain their existing allocation-free path.
         if (!score_scratch || query_count > 32u || query_start + query_count > 8192u)
             return int(hipErrorInvalidValue);
         const unsigned int stride = query_start + query_count;
+        if (memory_layout == 4u && (!transposed_key || key_stride < stride || key_stride > 8192u))
+            return int(hipErrorInvalidValue);
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
-        hipLaunchKernelGGL(blackwell_exact_scores_kernel,
-            dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
-            dim3(kThreads), 0u, stream, q, k, score_scratch,
-            query_start, query_count, stride);
+        if (memory_layout == 4u) {
+            hipLaunchKernelGGL(blackwell_transposed_scores_kernel,
+                dim3((cells + kThreads - 1u) / kThreads), dim3(kThreads), 0u, stream,
+                q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
+        } else {
+            hipLaunchKernelGGL(blackwell_exact_scores_kernel,
+                dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
+                dim3(kThreads), 0u, stream, q, k, score_scratch,
+                query_start, query_count, stride);
+        }
         const auto status = hipGetLastError();
         if (status != hipSuccess) return int(status);
         if (scores_done) {

@@ -61,6 +61,14 @@ Eight-query batches take 2,917.23 ms versus same-run CK 2,375.87 ms;
 component intervals do not qualify a product improvement. Layout 3 remains
 replay-only; the selected CK provider and product results above are unchanged.
 
+[Optional stage events](../benchmarks/correctness/attention-stages-20260911.json)
+measure the exact QK/PV pair at 2,264.82 ms: QK scores 1,554.21 ms and
+online softmax/PV 710.612 ms. The three-stage layout instead takes
+2,838.96 ms (QK 1,548.54, probabilities 194.963, PV 1,095.46 ms). Both
+complete BF16 outputs match GB10; native FP32 equality remains diagnostic.
+QK is the dominant component in this captured layer. Optional events are
+absent from provider defaults, and these component intervals are not TTFT.
+
 The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
 qualify 1024-CTA batches with the original selector and dot arithmetic.
 The same q7169 profile improves by 18,252.573599 ms; all 80 complete GB10
