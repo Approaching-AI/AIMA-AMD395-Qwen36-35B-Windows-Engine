@@ -69,6 +69,15 @@ complete BF16 outputs match GB10; native FP32 equality remains diagnostic.
 QK is the dominant component in this captured layer. Optional events are
 absent from provider defaults, and these component intervals are not TTFT.
 
+The [transposed-key replay](../benchmarks/correctness/attention-transpose-20260911.json)
+retains the exact K16 sequence while assigning each QK dot to one lane.
+All 29,364,224 BF16 endpoints match GB10, with unchanged native FP32
+diagnostics, correct transposed inputs and intact redzones. Eight-query
+batches take 1,288.17 ms including 0.979980 ms of key preparation; same-run
+CK takes 2,409.15 ms. QK falls to 582.884 ms and online softmax/PV takes
+704.307 ms. The 32-query control takes 1,293.53 ms. These complete component
+checks support provider integration; full-model qualification remains required.
+
 The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
 qualify 1024-CTA batches with the original selector and dot arithmetic.
 The same q7169 profile improves by 18,252.573599 ms; all 80 complete GB10

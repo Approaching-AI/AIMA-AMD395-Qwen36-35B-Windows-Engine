@@ -186,9 +186,12 @@ std::mutex g_sm121_mutex;
 unsigned char* g_sm121_exp2 = nullptr;
 unsigned char* g_sm121_rcp = nullptr;
 float* g_sm121_scores = nullptr;
+uint16_t* g_sm121_transposed_keys = nullptr;
 constexpr unsigned int kSm121QueryBatch = 8u;
 constexpr size_t kSm121ScoreElements =
     static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kQ8192Tokens;
+constexpr size_t kSm121KeyElements =
+    static_cast<size_t>(kQ8192Tokens) * kKvHeads * kHeadDim;
 
 bool sm121_attention_enabled(unsigned int tokens) {
     const char* flag = std::getenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
@@ -225,9 +228,11 @@ hipError_t load_sm121_table(const char* environment, size_t bytes,
 }
 
 int prepare_sm121_attention_locked() {
-    if (g_sm121_exp2 && g_sm121_rcp && g_sm121_scores) return int(hipSuccess);
+    if (g_sm121_exp2 && g_sm121_rcp && g_sm121_scores && g_sm121_transposed_keys)
+        return int(hipSuccess);
     unsigned char* exp2 = nullptr; unsigned char* rcp = nullptr;
     float* scores = nullptr;
+    uint16_t* transposed_keys = nullptr;
     auto status = load_sm121_table("QRT_CK_FMHA_SM121_EXP2_TABLE", qrt_sm121_exp2::table_bytes,
         qrt_sm121_exp2::sha256, qrt_sm121_exp2::valid_layout, &exp2);
     if (status == hipSuccess)
@@ -235,14 +240,17 @@ int prepare_sm121_attention_locked() {
             qrt_sm121_attention_rcp::sha256, qrt_sm121_attention_rcp::valid_layout, &rcp);
     if (status == hipSuccess)
         status = hipMalloc(reinterpret_cast<void**>(&scores), kSm121ScoreElements * sizeof(float));
+    if (status == hipSuccess)
+        status = hipMalloc(reinterpret_cast<void**>(&transposed_keys), kSm121KeyElements * sizeof(uint16_t));
     if (status != hipSuccess) {
-        (void)hipFree(scores); (void)hipFree(rcp); (void)hipFree(exp2);
+        (void)hipFree(transposed_keys); (void)hipFree(scores); (void)hipFree(rcp); (void)hipFree(exp2);
         return int(status);
     }
     g_sm121_exp2 = exp2; g_sm121_rcp = rcp; g_sm121_scores = scores;
-    std::fprintf(stderr, "SM121_FULL_ATTENTION_TABLES exp2_bytes=%zu rcp_bytes=%zu score_scratch_bytes=%zu model_independent=1\n",
+    g_sm121_transposed_keys = transposed_keys;
+    std::fprintf(stderr, "SM121_FULL_ATTENTION_TABLES exp2_bytes=%zu rcp_bytes=%zu score_scratch_bytes=%zu key_scratch_bytes=%zu model_independent=1\n",
         size_t(qrt_sm121_exp2::table_bytes), qrt_sm121_attention_rcp::table_bytes,
-        kSm121ScoreElements * sizeof(float));
+        kSm121ScoreElements * sizeof(float), kSm121KeyElements * sizeof(uint16_t));
     return int(hipSuccess);
 }
 
@@ -256,17 +264,28 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     unsigned int query_start, unsigned int query_count, unsigned int output_start) {
     if (!q || !k || !v || !output || query_count == 0u || query_start >= kQ8192Tokens ||
         query_count > kQ8192Tokens - query_start) return int(hipErrorInvalidValue);
-    // Own tables and the reusable 4 MiB score slab until every submitted batch
-    // completes. Preparation/release and another engine cannot reuse it early.
+    // Own tables, the 4 MiB score slab and 8 MiB transposed-key slab until all
+    // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
     const auto begin = std::chrono::steady_clock::now();
+    const bool independent_dots = query_count > 1u;
+    const unsigned int key_stride = query_start + query_count;
+    if (independent_dots) {
+        status = qrt_blackwell_attention::transpose_keys(
+            k, g_sm121_transposed_keys, kSm121KeyElements, key_stride, stream);
+        if (status != int(hipSuccess)) {
+            (void)hipStreamSynchronize(stream);
+            return status;
+        }
+    }
     for (unsigned int offset = 0; offset < query_count; offset += kSm121QueryBatch) {
         status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
             query_start + offset, std::min(kSm121QueryBatch, query_count - offset), output_start + offset,
-            g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, 2u,
-            g_sm121_scores, kSm121ScoreElements);
+            g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, independent_dots ? 4u : 2u,
+            g_sm121_scores, kSm121ScoreElements, nullptr, nullptr,
+            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -277,8 +296,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
             return int(hipErrorLaunchTimeOut);
     }
-    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 diagnostic_only=1\n",
-        query_start, query_count, kSm121QueryBatch);
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u diagnostic_only=1\n",
+        query_start, query_count, kSm121QueryBatch, unsigned(independent_dots));
     return int(hipSuccess);
 }
 
@@ -1061,9 +1080,11 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_exp2);
         (void)hipFree(g_sm121_rcp);
         (void)hipFree(g_sm121_scores);
+        (void)hipFree(g_sm121_transposed_keys);
         g_sm121_exp2 = nullptr;
         g_sm121_rcp = nullptr;
         g_sm121_scores = nullptr;
+        g_sm121_transposed_keys = nullptr;
     }
 #endif
     return static_cast<int>(hipSuccess);
