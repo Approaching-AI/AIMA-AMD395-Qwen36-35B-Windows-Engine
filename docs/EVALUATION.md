@@ -35,18 +35,26 @@ with the global override disabled.
 Both frozen 32-token cold requests pass on baiying with the real
 `D:\models\Qwen3.6-35B-A3B`, whole provider at
 `c7f6cd1560a3f565b17144d847a2934886c9571c`, MoE/FLA at 7c09aaf and CK at
-`473ad19b013689d240e347135fcf144e361674c7`. Each run has zero first-logit error
+`3b227fecf24f4c30f4def454136884fcdb352aa9`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
 retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, whole c7f6cd1 plus CK 473ad19, fast profile | 144 / 10.375 | 20,104.707500 | 4,148.250500 | 32.992055 |
-| q7169, whole c7f6cd1 plus CK 473ad19, 1000 ppb profile | 82 / 9.25 | 20,057.187600 | 117,851.795900 | 34.738168 |
+| q8192, whole c7f6cd1 plus CK 3b227fe, fast profile | 144 / 10.375 | 20,074.182000 | 4,155.686800 | 32.911829 |
+| q7169, whole c7f6cd1 plus CK 3b227fe, 1000 ppb profile | 82 / 9.25 | 20,061.671500 | 106,001.312700 | 34.709061 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
 
-The latest [candidate-batch product records](../benchmarks/correctness/collection-batch-20260911.json)
+The [split-attention product records](../benchmarks/correctness/attention-split-product-20260911.json)
+qualify the reusable 4 MiB score arena and eight-query QK/PV dispatch pairs.
+q7169 improves by 11,850.483200 ms against the same 1000 ppb profile; all
+80 complete GB10 norm files remain exact. The native CK build and full local
+check pass. q8192 meets the actual callback TTFT, load and TPOT retained
+targets on that same run. The two cold cases still do not qualify a unified
+release package or suitable arbitrary-length performance.
+
+The preceding [candidate-batch product records](../benchmarks/correctness/collection-batch-20260911.json)
 retain the same precision and all 80 complete GB10 norm files. Batching
 candidate collection independently of exact computation reduces q7169 TTFT
 by 8,601.340400 ms. The captured real QKV replay matches all 58,728,448

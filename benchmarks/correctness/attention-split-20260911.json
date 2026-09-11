@@ -367,7 +367,7 @@
       "raw_fp32_control": "Qualified native CK boundary, not an independent GB10 raw FP32 capture"
     }
   },
-  "decision": "Select eight-query split QK/online-PV batches for the next provider build; provider and product qualification remain pending.",
+  "decision": "Retain eight-query split QK/online-PV batches after native CK build and frozen full-model qualification at 3b227fe; see attention-split-product-20260911.json. Unified release qualification remains open.",
   "build": {
     "run_record_sha256": "2ff0c502ea7efea06b2d8af213b6d22cc70740dfe38f211f04a7b805a46629be",
     "provenance": {
