@@ -33,8 +33,9 @@ int main(int argc, char** argv) try {
             bits(evaluate(nullptr, difference * 1.4426950408889634074f)) != 0x3f800000u) return 4;
         // Layer-4 q8191 has a larger scan roundoff than the earlier layer-20
         // fixture. It remains inside the exhaustively verified SM121 plateau.
-        const float larger_difference = value(0x30000000u);
-        if (bits(evaluate(nullptr, larger_difference * 1.4426950408889634074f)) != 0x3f800000u) return 5;
+        const float larger_difference = value(0xbb83e5ccu) - value(0xbb83e5cdu);
+        if (bits(larger_difference) != 0x30000000u ||
+            bits(evaluate(nullptr, larger_difference * 1.4426950408889634074f)) != 0x3f800000u) return 5;
         std::cout << "domain guards pass\n"; return 0;
     }
     if (argc != 4) throw std::runtime_error("usage: lookup <table> <arguments> <expected> | --domain-only");

@@ -160785,6 +160785,36 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         const uint64_t digest = status == hipSuccess
             ? qrt_fnv1a64_bytes(host_bytes.data(), host_bytes.size())
             : UINT64_C(0);
+        // Reuse the completed diagnostic read to distinguish an unrounded
+        // FP32 carrier from a different BF16 projection endpoint. No extra
+        // device read or inference input is introduced by this optional dump.
+        const char *dump_prefix = std::getenv(
+            "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX"
+        );
+        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
+        static size_t dumped_files = 0u;
+        static size_t dumped_bytes = 0u;
+        bool dump_ok = false;
+        std::string dump_path;
+        if (dump_requested && status == hipSuccess && bytes <= (1u << 20u) &&
+            dumped_files < 64u && dumped_bytes <= (16u << 20u) - bytes) {
+            std::ostringstream path;
+            path << dump_prefix << ".txn" << q1024_q1_linear_stage_active_transaction
+                 << ".pos" << absolute_position << ".layer" << descriptor.layer_index
+                 << "." << stage << ".bin";
+            dump_path = path.str();
+            if (!std::ifstream(dump_path, std::ios::binary).good()) {
+                std::ofstream output(dump_path, std::ios::binary);
+                if (output) {
+                    output.write(reinterpret_cast<const char *>(host_bytes.data()),
+                                 static_cast<std::streamsize>(bytes));
+                    output.close();
+                    dump_ok = static_cast<bool>(output);
+                    ++dumped_files;
+                    dumped_bytes += bytes;
+                }
+            }
+        }
         std::cerr
             << "BATCH_MARK "
             << (generic_trace
@@ -160798,6 +160828,9 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             << " bytes=" << bytes
             << " digest=" << hex_u64(digest)
             << " hip_status=" << static_cast<int>(status)
+            << " dump_requested=" << (dump_requested ? 1 : 0)
+            << " dump_ok=" << (dump_ok ? 1 : 0)
+            << " dump_path=\"" << json_escape(dump_path) << "\""
             << " diagnostic_only=1"
             << std::endl;
     };
