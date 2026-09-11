@@ -20,7 +20,9 @@ int main(int argc, char** argv) try {
             bits(evaluate(nullptr, value(1u))) != 0x3f800000u ||
             bits(evaluate(nullptr, value(begin - 1u))) != 0x3f800000u ||
             bits(evaluate(nullptr, -152.0f)) != 0 || bits(evaluate(nullptr, value(0xff800000u))) != 0 ||
-            bits(evaluate(nullptr, value(begin))) != 0x7fc00000u ||
+            bits(evaluate(nullptr, value(begin))) != 0x3f800000u ||
+            bits(evaluate(nullptr, value(positive_one_end - 1u))) != 0x3f800000u ||
+            bits(evaluate(nullptr, value(positive_one_end))) != 0x7fc00000u ||
             bits(evaluate(nullptr, 1.0f)) != 0x7fc00000u || bits(evaluate(nullptr, value(0xffc00000u))) != 0x7fc00000u ||
             valid_layout(nullptr, table_bytes)) return 3;
         // Equal mathematical prefix sums from the real linear-20 chunk round
@@ -29,6 +31,10 @@ int main(int argc, char** argv) try {
         const float difference = value(0xb6a4ddfdu) - value(0xb6a4ddfeu);
         if (bits(difference) != 0x2b000000u ||
             bits(evaluate(nullptr, difference * 1.4426950408889634074f)) != 0x3f800000u) return 4;
+        // Layer-4 q8191 has a larger scan roundoff than the earlier layer-20
+        // fixture. It remains inside the exhaustively verified SM121 plateau.
+        const float larger_difference = value(0x30000000u);
+        if (bits(evaluate(nullptr, larger_difference * 1.4426950408889634074f)) != 0x3f800000u) return 5;
         std::cout << "domain guards pass\n"; return 0;
     }
     if (argc != 4) throw std::runtime_error("usage: lookup <table> <arguments> <expected> | --domain-only");

@@ -12,6 +12,10 @@
 
 namespace qrt_sm121_exp2 {
 constexpr uint32_t begin = 0x2f800000u, end = 0x43180000u;
+// Exhaustively verified on the GB10 SM121: every nonnegative FP32 input
+// below 2^-25 produces exactly one. This interval is independent of the
+// negative table's interior boundary and requires no additional artifact.
+constexpr uint32_t positive_one_end = 0x33000000u;
 constexpr uint32_t pages = (end - begin) / 256u;
 constexpr uint64_t payload_bytes = 172901632u;
 constexpr uint64_t payload_start = 48u + uint64_t(pages) * 8u;
@@ -41,7 +45,7 @@ QRT_EXP2_HD inline float value(uint32_t bits) {
 // NaNs that contaminate the subsequent triangular inverse.
 QRT_EXP2_HD inline float evaluate(const unsigned char* table, float argument) {
     const uint32_t input = bits(argument), magnitude = input & 0x7fffffffu;
-    if (magnitude < begin) return 1.0f;
+    if (magnitude < begin || (!(input >> 31u) && magnitude < positive_one_end)) return 1.0f;
     if (magnitude > 0x7f800000u || !(input >> 31u)) return value(0x7fc00000u);
     if (magnitude >= end) return 0.0f;
     const uint32_t relative = magnitude - begin;
