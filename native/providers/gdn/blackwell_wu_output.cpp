@@ -1,6 +1,7 @@
 #include "blackwell_wu_output.h"
 #include "blackwell_state.h"
 #include "blackwell_accumulator.h"
+#include "blackwell_cooperative.h"
 #include "sm121_exp2_table.h"
 
 namespace qrt_fla_blackwell_aux {
@@ -138,6 +139,8 @@ hipError_t recompute_wu_segment(const uint16_t* k, const uint16_t* v,
                                 unsigned count, hipStream_t stream) {
     const auto* table = qrt_fla_blackwell_state::exp2_table_device();
     if (!table || !valid_wu(k, v, beta, inverse, g, w, u, count, 1024u)) return hipErrorInvalidValue;
+    if (qrt_fla_blackwell_cooperative::enabled())
+        return qrt_fla_blackwell_cooperative::wu(k, v, beta, inverse, g, w, u, count, table, stream);
     hipLaunchKernelGGL(wu_kernel, dim3(16u, 32u, (count + 63u) / 64u), dim3(256u),
                        0, stream, k, v, beta, inverse, g, w, u, count, table);
     return hipGetLastError();
@@ -152,6 +155,11 @@ hipError_t output_segment(const uint16_t* q, const uint16_t* k, const uint16_t* 
     for (const void* input : inputs) if (static_cast<void*>(scores) == input || static_cast<void*>(output) == input)
         return hipErrorInvalidValue;
     if (static_cast<void*>(scores) == output) return hipErrorInvalidValue;
+    if (qrt_fla_blackwell_cooperative::enabled()) {
+        const hipError_t status = qrt_fla_blackwell_cooperative::scores(q, k, g, scores, count, table, stream);
+        if (status != hipSuccess) return status;
+        return qrt_fla_blackwell_cooperative::output(q, v, h, g, scores, output, count, table, stream);
+    }
     const unsigned chunks = (count + 63u) / 64u;
     hipLaunchKernelGGL(score_kernel, dim3(256u, 32u, chunks), dim3(256u),
                        0, stream, q, k, g, scores, count, table);

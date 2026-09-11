@@ -40,6 +40,9 @@ $outputReplay = Join-Path $repo 'native\providers\gdn\fla_output_capture_replay.
 $upstreamReplay = Join-Path $repo 'native\providers\gdn\fla_upstream_capture_replay.cpp'
 $blackwellState = Join-Path $repo 'native\providers\gdn\blackwell_state.cpp'
 $blackwellAux = Join-Path $repo 'native\providers\gdn\blackwell_wu_output.cpp'
+$blackwellCooperative = Join-Path $repo 'native\providers\gdn\blackwell_cooperative.cpp'
+$blackwellCooperativeHeader = Join-Path $repo 'native\providers\gdn\blackwell_cooperative.h'
+$sm121SubgroupHeader = Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h'
 $blackwellAuxHeader = Join-Path $repo 'native\providers\gdn\blackwell_wu_output.h'
 $blackwellNorm = Join-Path $repo 'native\providers\gdn\blackwell_l2norm.cpp'
 $blackwellNormHeader = Join-Path $repo 'native\providers\gdn\blackwell_l2norm.h'
@@ -99,7 +102,7 @@ if (-not $AotDir) {
 }
 $lines += @(
     "if not exist $(Quote-Arg (Join-Path $OutDir 'qrt_fla_gdn_kernel_specs.inc')) exit /b 26",
-    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $dll)",
+    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $dll)",
     'if not "%errorlevel%"=="0" exit /b 23'
 )
 foreach ($tokens in @(64, 65, 7169)) {
@@ -108,10 +111,10 @@ foreach ($tokens in @(64, 65, 7169)) {
     $lines += 'if not "%errorlevel%"=="0" exit /b 24'
 }
 $replayExe = Join-Path $OutDir 'fla-output-capture-replay.exe'
-$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $outputReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) -o $(Quote-Arg $replayExe)"
+$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $outputReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) -o $(Quote-Arg $replayExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 27'
 $upstreamExe = Join-Path $OutDir 'fla-upstream-capture-replay.exe'
-$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $upstreamExe)"
+$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $upstreamExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 28'
 [IO.File]::WriteAllText($batch, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8)
 $stdout = Join-Path $OutDir 'build.stdout.log'
@@ -154,8 +157,8 @@ $record = [ordered]@{
     dirty_tree=@(& git -C $repo status --porcelain).Count -ne 0
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
-    native_blackwell_state=$true
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
+    native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121SubgroupHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false

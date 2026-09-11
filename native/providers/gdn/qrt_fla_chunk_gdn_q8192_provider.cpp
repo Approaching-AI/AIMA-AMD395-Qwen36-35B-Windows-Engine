@@ -2,6 +2,7 @@
 #include "blackwell_kkt.h"
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
+#include "blackwell_cooperative.h"
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
 #include "first_call_capture.h"
@@ -488,8 +489,9 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
             return qrt_fla_blackwell_state::segment(k, u, w, g, h, v_new, state,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return false;
-        std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100\n",
-            tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(sequence_ms));
+        std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+            tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(sequence_ms),
+            qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
         return true;
     }
     float* initial = state; float* final = g_state.blackwell_temporary_state;
@@ -892,8 +894,9 @@ int launch_segment_async(
                 beta_pointer, inverse_pointer, g_pointer, w_pointer, u_pointer,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return 0;
-        std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100\n",
-            tokens, chunks, static_cast<double>(sequence_ms));
+        std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+            tokens, chunks, static_cast<double>(sequence_ms),
+            qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
         if (!launch_blackwell_aux("wu", tokens, 1u, stream, [&](unsigned offset, unsigned) {
                 const unsigned count = (std::min)(kChunk, static_cast<unsigned>(valid_tokens) - offset);
@@ -949,8 +952,9 @@ int launch_segment_async(
                 chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_pointer,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return 0;
-        std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100\n",
-            tokens, chunks, static_cast<double>(sequence_ms));
+        std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+            tokens, chunks, static_cast<double>(sequence_ms),
+            qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
         // The recurrence completed on this stream. Its private residual
         // buffer is dead and is large enough for one BF16 QK score chunk.

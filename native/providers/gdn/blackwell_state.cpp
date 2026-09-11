@@ -1,5 +1,6 @@
 #include "blackwell_state.h"
 #include "blackwell_accumulator.h"
+#include "blackwell_cooperative.h"
 #include "sm121_exp2_table.h"
 #include <cstdlib>
 #include <cstdio>
@@ -206,6 +207,8 @@ hipError_t segment(const uint16_t* k, const uint16_t* u, const uint16_t* w,
         return hipErrorInvalidValue;
     if (h == v_new || static_cast<void*>(state) == k || static_cast<void*>(state) == u ||
         static_cast<void*>(state) == w || state == g) return hipErrorInvalidValue;
+    if (qrt_fla_blackwell_cooperative::enabled())
+        return qrt_fla_blackwell_cooperative::state(k, u, w, g, h, v_new, state, count, exp2_table, stream);
     hipLaunchKernelGGL(segment_kernel, dim3(32u, 32u), dim3(256u), 0, stream,
                        k, u, w, g, h, v_new, state, count, exp2_table);
     return hipGetLastError();

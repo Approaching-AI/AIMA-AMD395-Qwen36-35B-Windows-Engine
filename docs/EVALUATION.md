@@ -288,6 +288,15 @@ build in 83697.142 ms, and all three correction cases in 680.18 ms with zero
 BF16 mismatches and intact redzones. The complete frozen products above
 qualify the four-lane dense configuration as an improvement. All 305 Python
 tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
+The optional `QRT_FLA_GDN_COOPERATIVE_EXACT=1` schedule applies the same
+four-lane K16 dot to batched W/U, output scores, output values and recurrent
+state. Shared K-contiguous tiles reuse V/checkpoint/key operands; each state
+CTA still owns four complete value rows through a bounded segment. Original
+rounding, chunk checkpoints, final FMA and U=V ownership remain unchanged.
+Threaded execution of the actual kernel bodies passes tail, alias, checkpoint
+and nonzero-state transport under ASan/UBSan. Native arithmetic and product
+qualification remain open; the selected FLA component remains unchanged.
+
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or
