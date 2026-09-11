@@ -54,6 +54,14 @@ TPOT. Full-prefix exact attention is disabled in the fast q8192 profile;
 its overall timing change is not isolated to the new QK mapping. A unified
 profile/package and broader product acceptance remain open.
 
+The [MoE phase profile](../benchmarks/correctness/moe-subphases-20260911.json)
+observes 40 physical-q8192 MoE calls for the real q7169 request. Total MoE
+time is 16,283.295993 ms; gate/up accounts for 9,984.341538 ms and down
+for 4,295.882592 ms. Shared work (3,498.791668 ms) overlaps the routed
+branch and must not be added to the total. All 32 tokens and 80 complete
+GB10 norms pass. Profiling synchronizes each observed call; its 71,368.956700
+ms TTFT is diagnostic and does not replace the unprofiled result above.
+
 The [FLA segment records](../benchmarks/correctness/fla-sequence-20260911.json)
 qualify ordered batches of at most 32 kernels and failure cleanup. All 80
 complete q7169 GB10 norm files remain exact; each measured sequence is below
