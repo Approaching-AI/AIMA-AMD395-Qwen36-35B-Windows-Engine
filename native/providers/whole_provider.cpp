@@ -53982,7 +53982,8 @@ float selected_rmsnorm_cpu_value(
     const std::vector<float> &selected_values,
     const uint16_t *norm_weights,
     size_t selected_index,
-    unsigned int row
+    unsigned int row,
+    bool round_numerator_to_bf16 = false
 ) {
     const size_t token_base = selected_index * static_cast<size_t>(QRT_QWEN36_HIDDEN_SIZE);
     double sumsq = 0.0;
@@ -53994,7 +53995,12 @@ float selected_rmsnorm_cpu_value(
         static_cast<float>(sumsq / static_cast<double>(QRT_QWEN36_HIDDEN_SIZE)) +
         QRT_QWEN36_RMS_NORM_EPSILON
     );
-    const float value = selected_values[token_base + row] *
+    // The fused final norm uses a BF16 carrier with variance from the original
+    // F32 residual. Rounding the numerator must not round the variance input.
+    const float numerator = round_numerator_to_bf16
+        ? bf16_round_to_float(selected_values[token_base + row])
+        : selected_values[token_base + row];
+    const float value = numerator *
                         inv *
                         (1.0f + qrt_bf16_to_float(norm_weights[row]));
     return bf16_round_to_float(value);
@@ -108442,7 +108448,8 @@ bool run_final_norm(
                     final_output_residual_run.gpu_output,
                     run->weights.data(),
                     selected_index,
-                    row
+                    row,
+                    use_unrounded_vllm_final_norm
                 );
                 const size_t output_index =
                     selected_index * static_cast<size_t>(QRT_QWEN36_HIDDEN_SIZE) + row;

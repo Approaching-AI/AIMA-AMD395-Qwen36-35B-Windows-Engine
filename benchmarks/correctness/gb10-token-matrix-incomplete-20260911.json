@@ -31,7 +31,7 @@
       "-e",
       "VLLM_WORKER_MULTIPROC_METHOD=spawn",
       "-v",
-      "/home/qujing/qrt-gb10-token-matrix-20260911-r1:/work",
+      "<reference-home>/qrt-gb10-token-matrix-20260911-r1:/work",
       "-v",
       "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
       "-w",
@@ -58,7 +58,7 @@
       "590",
       "--execute"
     ],
-    "command_file": "/home/qujing/run-qrt-gb10-token-matrix-20260911-r1.py",
+    "command_file": "<reference-home>/run-qrt-gb10-token-matrix-20260911-r1.py",
     "command_file_sha256": "8632129468059e322ba3e8e9235d1aa159740be5a9d83fc2128f4f73b0c51c80",
     "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
     "returncode": 1,
@@ -670,5 +670,6 @@
     "mask_prepared_at_line": 1927,
     "mask_used_at_line": 3371
   },
-  "decision": "Retain partial evidence and repair the observer using the actual sampler discard boundary. Run the complete matrix again; existing frozen oracles and Windows qualification are unchanged."
+  "decision": "Retain partial evidence and repair the observer using the actual sampler discard boundary. Run the complete matrix again; existing frozen oracles and Windows qualification are unchanged.",
+  "public_path_redaction": "Private home directory replaced by <reference-home>; source capture, command file and dispatch hashes identify original bytes."
 }

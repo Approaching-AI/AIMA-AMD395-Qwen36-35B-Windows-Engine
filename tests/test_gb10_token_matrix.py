@@ -1,6 +1,7 @@
 """Keep expanded reference captures anchored to the immutable token fixtures."""
 
 from pathlib import Path
+import hashlib
 import json
 import subprocess
 import sys
@@ -20,6 +21,37 @@ ORACLES = {
 
 
 class Gb10TokenMatrixTests(unittest.TestCase):
+    def test_frozen_matrix_binds_complete_outputs_and_original_controls(self):
+        path = ROOT / "contracts/gb10_cold_token_matrix_20260911_oracle.json"
+        self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(),
+                         "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1")
+        matrix = json.loads(path.read_text())
+        materialized, oracles = fixtures(ORACLES)
+        cases = {case["name"]: case for case in matrix["cases"]}
+        self.assertEqual(set(cases), {case["name"] for case in materialized})
+        for fixture in materialized:
+            case = cases[fixture["name"]]
+            expected = case["expected"]
+            for key, value in fixture["prompt"].items():
+                self.assertEqual(case["prompt"][key], value)
+            self.assertEqual(len(expected["output_token_ids"]), fixture["output_count"])
+            self.assertEqual(expected["first_token_id"], expected["output_token_ids"][0])
+            self.assertEqual(expected["first_token_raw_logit_tolerance"], 0.125)
+            digest = fingerprints(expected["output_token_ids"])
+            self.assertEqual(digest["u32le_sha256"], expected["output_token_ids_u32le_sha256"])
+            self.assertEqual(digest["u32le_fnv1a64"], expected["output_token_ids_u32le_fnv1a64"])
+            worker = case["raw_logits"]
+            self.assertFalse(worker["observer_modifies_output"])
+            self.assertFalse(worker["sampling_boundary"]["discarded"])
+            self.assertEqual(worker["sampling_boundary"]["processed_tokens"],
+                             fixture["prompt"]["token_count"])
+            self.assertEqual(worker["raw_argmax_token"], expected["first_token_id"])
+            self.assertEqual(worker["raw_logit"], expected["first_token_raw_logit"])
+            if fixture["control"]:
+                frozen = oracles[fixture["family"]]["expected"]
+                self.assertEqual(expected["output_token_ids"][:32], frozen["output_token_ids"])
+                self.assertEqual(expected["first_token_raw_logit"], frozen["first_token_raw_logit"])
+
     def test_partial_prefill_logits_follow_the_sampler_discard_boundary(self):
         self.assertFalse(sampled_prefill_boundary(1, 8193, 8192, True, 8193))
         self.assertTrue(sampled_prefill_boundary(1, 8193, 8193, False, 8193))

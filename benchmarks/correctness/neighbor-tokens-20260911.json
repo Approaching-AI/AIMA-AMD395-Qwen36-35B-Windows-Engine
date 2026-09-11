@@ -1,0 +1,1296 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "record_type": "windows_adjacent_prompt_product_checks",
+  "oracle_contract": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+  "oracle_contract_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "reference_comparability": "These runs consumed the individually completed r1 cases. The complete r2 matrix reproduces the same prompt, all 32 tokens, raw first logit and entire first-logits tensor for each case.",
+  "records": [
+    {
+      "name": "q7168",
+      "host": "baiying",
+      "source_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+      "command_file": "D:\\projects\\run-native-neighbor-cases-r1.ps1",
+      "command_file_sha256": "8edf3fdc80270da6c612530f5d19e8e185883adf902f3bedcfcecd5a54027651",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q7168-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q7168-expected.json",
+          "--expected-prompt-fnv",
+          "df799e629e63b300",
+          "--env-file",
+          "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\neighbor-specs\\neighbor-q7168-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "components": {
+        "whole": {
+          "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+          "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole",
+          "build_metadata_sha256": "e13617ea19b4bd0749c916ac9224132df4f44590219f37f51f065680d1ca5fc7",
+          "build_run_sha256": "e8dbad64e1561dcac55c757d017714bee09eb3bef8631d8f250b6d921e0192ce",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11475456,
+              "sha256": "8d5c41e01bebc9dd776ee663bc90791ed745d0008f5d573b59f44043290c0e8e"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "f01200c4768647de3356c8a9e95e353bbfc67f34f9b4843eef9a8d5edb94b84d"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0",
+          "directory": "D:\\projects\\AIMA-public-fla-sequence-20260911\\build\\fla",
+          "build_metadata_sha256": "5236864d0d7682cae2594b3a1ce9477cd027acb01bd5362d82694bd75bb898a1",
+          "build_run_sha256": "12ea32b679d93a000c597f7d1e949152a2a03095c203d70e17231dc10228438e",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "8a140f915c357a12d45ccd05574fcd57cd2248abdf402b4ff4df94ff4ae96a8b"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "066551af6e9b9440c7591cb7a6a8c595f28d835c56e9beeb0b62907eda802ede"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "819e3ae2f7ef78e3d7ec6afd54b7b941528b4059dea0d36f5c31f460e915737b"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "9699de669ec9337e529f64b907a3f8816af1d389ffecd815f0945fea9ffb737d"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "5cc6903129bba5efc7e54d1a7ed963e51b03aee9802b1ff15b0ab0394519ec46"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464384,
+              "sha256": "5d9054ceb11ff7917a5bad96afc6693a91d667481b730b2ea037d448d760b30c"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+      "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+      "run_record_sha256": "fafb3c82baa0ac0d2e0fce75113002b29092e2acc13f72bb6442a66e912cc685",
+      "stdout_sha256": "1cdf8ed313b3bb8d7826932d1f02a7b96c3c47c7a26cf0cccda7f9ea644f3a7b",
+      "stderr_sha256": "b113922dc17eaea962a4c68c4cccb1693c87ff6bf2e92df730c454791fbb5ab2",
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 90968.308,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 220,
+        "first_token_report_top1_token_id": 220,
+        "first_token_raw_logit": 9.5625,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7168,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7168,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "df799e629e63b300",
+        "output_token_ids_fnv1a64": "1c9f5d2303ade09b",
+        "engine_load_ms": 20088.9808,
+        "provider_preload_ms": 20077.630199,
+        "provider_preload_reported_ms": 20076.8653,
+        "provider_preload_dll_load_ms": 10.1819,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1559,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 70409.0728,
+        "ttft_ms": 69223.11,
+        "provider_ttft_ms": 69219.372,
+        "prefill_tokens_per_second": 103.549234,
+        "tpot_ms": 34.745165,
+        "decode_tokens_per_second": 28.780983,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 69223.11,
+        "last_callback_wall_ms": 70406.913899,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "original_reference": {
+        "oracle": "D:\\projects\\gb10-neighbors-20260911-r1\\q7168-oracle.json",
+        "oracle_sha256": "ce80daf859bebe4841caf7426a59834ce82f9d555df4102e10c9ef90da1d38b0",
+        "reference_data_manifest_sha256": "65a211cc5d8aff20d92dae7a5b05074a8807621b7dd2db882880fcf11ec6eecb",
+        "reference_capture": {
+          "host": "aitopatom-66c4",
+          "model": "/models (mounted /mnt/data/models/Qwen3.6-35B-A3B read-only)",
+          "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+          "command_file": "<reference-home>/run-qrt-gb10-token-matrix-20260911-r1.py",
+          "command_sha256": "8632129468059e322ba3e8e9235d1aa159740be5a9d83fc2128f4f73b0c51c80",
+          "case_sha256": "b74bd06a32aab7e4c94928777d5607e5e8753e9a2dd4208a7e87a301aab785a0",
+          "case_record": {
+            "name": "q7168-out32",
+            "prompt": {
+              "token_count": 7168,
+              "seed": 50536152,
+              "first_token_id": 30199,
+              "u32le_sha256": "69ac88b3ab23db63b0dc97ce0ba4f3a1142f6f03a82880d40400d2a147a0808c",
+              "u32le_fnv1a64": "df799e629e63b300"
+            },
+            "output_token_ids": [
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196
+            ],
+            "output_fingerprints": {
+              "u32le_sha256": "37735a1d2ee4eb98fef57f39dc8e8699a18c8368e53ff7f9ff682ab5bfeca453",
+              "u32le_fnv1a64": "1c9f5d2303ade09b"
+            },
+            "first_token_id": 220,
+            "first_token_raw_logit": 9.5625,
+            "first_token_raw_logit_tolerance": 0.125,
+            "finish_reason": "length",
+            "request_seconds": 2.206154091996723,
+            "control": false,
+            "control_pass": true,
+            "control_oracle_sha256": null,
+            "worker": {
+              "complete": true,
+              "raw_argmax_token": 220,
+              "raw_logit": 9.5625,
+              "dtype": "torch.bfloat16",
+              "shape": [
+                1,
+                248320
+              ],
+              "bytes": 496640,
+              "file": "first-logits.bin",
+              "sha256": "5cac7f945165a794d8bbca8c77261dce3fd620480e7804551cc64ebf4a9b2a39",
+              "negative_infinity_count": 0,
+              "observer_modifies_output": false
+            },
+            "armed": {
+              "compute_logits_source": {
+                "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+                "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+              },
+              "model_class": "Qwen3_5MoeForConditionalGeneration",
+              "observer_modifies_output": false
+            },
+            "prefix_caching": false,
+            "native_tensor_inputs": false,
+            "windows_acceptance": false
+          },
+          "qualifying_control_cases": [
+            {
+              "file": "q7169-out32.json",
+              "sha256": "1d810dae8aa74426510af3c463d5a92ea8867f3d485810ea8d59df870ffe5fcd",
+              "source_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
+            },
+            {
+              "file": "q8192-out32.json",
+              "sha256": "08317b8cf0f55f60f27b1f2d0866d6dfc532ce0e667182ecce872825d149a425",
+              "source_oracle_sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+            }
+          ],
+          "batch_complete": false,
+          "scope": "This completed single-chunk case and both immutable anchors precede the unrelated q8193 observer failure; no q8193 or 512-token data is admitted."
+        }
+      },
+      "completed_matrix_comparable_case_sha256": "41275959664cb8e7bff1efdc659163d5485bd8885562e088f29db4b59032031b",
+      "gb10_token_logit_and_stream_boundary_pass": true,
+      "environment_sha256": "218d15930643d8001202c2800e680bc9d0affdb4b9d016cd962d5c2d81b3359e",
+      "environment_overrides": {
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "performance_acceptance": false,
+      "failure": null
+    },
+    {
+      "name": "q7170",
+      "host": "baiying",
+      "source_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+      "command_file": "D:\\projects\\run-native-neighbor-cases-r1.ps1",
+      "command_file_sha256": "8edf3fdc80270da6c612530f5d19e8e185883adf902f3bedcfcecd5a54027651",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q7170-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q7170-expected.json",
+          "--expected-prompt-fnv",
+          "fd950cdf1546d98a",
+          "--env-file",
+          "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\neighbor-specs\\neighbor-q7170-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "components": {
+        "whole": {
+          "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+          "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole",
+          "build_metadata_sha256": "e13617ea19b4bd0749c916ac9224132df4f44590219f37f51f065680d1ca5fc7",
+          "build_run_sha256": "e8dbad64e1561dcac55c757d017714bee09eb3bef8631d8f250b6d921e0192ce",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11475456,
+              "sha256": "8d5c41e01bebc9dd776ee663bc90791ed745d0008f5d573b59f44043290c0e8e"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "f01200c4768647de3356c8a9e95e353bbfc67f34f9b4843eef9a8d5edb94b84d"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0",
+          "directory": "D:\\projects\\AIMA-public-fla-sequence-20260911\\build\\fla",
+          "build_metadata_sha256": "5236864d0d7682cae2594b3a1ce9477cd027acb01bd5362d82694bd75bb898a1",
+          "build_run_sha256": "12ea32b679d93a000c597f7d1e949152a2a03095c203d70e17231dc10228438e",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "8a140f915c357a12d45ccd05574fcd57cd2248abdf402b4ff4df94ff4ae96a8b"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "066551af6e9b9440c7591cb7a6a8c595f28d835c56e9beeb0b62907eda802ede"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "819e3ae2f7ef78e3d7ec6afd54b7b941528b4059dea0d36f5c31f460e915737b"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "9699de669ec9337e529f64b907a3f8816af1d389ffecd815f0945fea9ffb737d"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "5cc6903129bba5efc7e54d1a7ed963e51b03aee9802b1ff15b0ab0394519ec46"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464384,
+              "sha256": "5d9054ceb11ff7917a5bad96afc6693a91d667481b730b2ea037d448d760b30c"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+      "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+      "run_record_sha256": "5adc02d8f25e7c3bce483863202e2bce138b62dad61530eaedca8cb62e65ab91",
+      "stdout_sha256": "912e5f5c0f208c0e3c52880f47dcece8aeec617511634fe68dee8eaf74ea48fa",
+      "stderr_sha256": "645ee148ab899251e96aa0e66c8f1f7e813215c1015b12beeb1941f560990a30",
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 91427.885,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 94,
+        "first_token_report_top1_token_id": 94,
+        "first_token_raw_logit": 18.25,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7170,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7170,
+        "output_tokens": 32,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "fd950cdf1546d98a",
+        "output_token_ids_fnv1a64": "6e50b6eae171c521",
+        "engine_load_ms": 20350.4134,
+        "provider_preload_ms": 20339.4544,
+        "provider_preload_reported_ms": 20338.747,
+        "provider_preload_dll_load_ms": 9.7487,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1966,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 70599.7488,
+        "ttft_ms": 69411.140199,
+        "provider_ttft_ms": 69407.213,
+        "prefill_tokens_per_second": 103.29754,
+        "tpot_ms": 34.727087,
+        "decode_tokens_per_second": 28.795965,
+        "stream_callback_count": 32,
+        "first_callback_wall_ms": 69411.140199,
+        "last_callback_wall_ms": 70597.2257,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          94,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "original_reference": {
+        "oracle": "D:\\projects\\gb10-neighbors-20260911-r1\\q7170-oracle.json",
+        "oracle_sha256": "03798b9aa8089176eef818729adb714abb9011848e23e42635cffb787b16eb41",
+        "reference_data_manifest_sha256": "65a211cc5d8aff20d92dae7a5b05074a8807621b7dd2db882880fcf11ec6eecb",
+        "reference_capture": {
+          "host": "aitopatom-66c4",
+          "model": "/models (mounted /mnt/data/models/Qwen3.6-35B-A3B read-only)",
+          "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+          "command_file": "<reference-home>/run-qrt-gb10-token-matrix-20260911-r1.py",
+          "command_sha256": "8632129468059e322ba3e8e9235d1aa159740be5a9d83fc2128f4f73b0c51c80",
+          "case_sha256": "d0db24793afb200e8841f15e5af65dd39adf7a7c6a9d78a52a5f3da1d76b7126",
+          "case_record": {
+            "name": "q7170-out32",
+            "prompt": {
+              "token_count": 7170,
+              "seed": 50536152,
+              "first_token_id": 30199,
+              "u32le_sha256": "bec91c975401208667e5a728da9235d8e3f87aa775abd69db0fc556b09a717d6",
+              "u32le_fnv1a64": "fd950cdf1546d98a"
+            },
+            "output_token_ids": [
+              94,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220
+            ],
+            "output_fingerprints": {
+              "u32le_sha256": "b513774994cbe67aee623ae23271c7392347692805048157adb4c4250c7cb3c3",
+              "u32le_fnv1a64": "6e50b6eae171c521"
+            },
+            "first_token_id": 94,
+            "first_token_raw_logit": 18.25,
+            "first_token_raw_logit_tolerance": 0.125,
+            "finish_reason": "length",
+            "request_seconds": 2.278875520991278,
+            "control": false,
+            "control_pass": true,
+            "control_oracle_sha256": null,
+            "worker": {
+              "complete": true,
+              "raw_argmax_token": 94,
+              "raw_logit": 18.25,
+              "dtype": "torch.bfloat16",
+              "shape": [
+                1,
+                248320
+              ],
+              "bytes": 496640,
+              "file": "first-logits.bin",
+              "sha256": "f0e27b896fb0529d0fa14adb4ce36c130c70cbcaf4592dd9e78dd94ee40a0bc5",
+              "negative_infinity_count": 0,
+              "observer_modifies_output": false
+            },
+            "armed": {
+              "compute_logits_source": {
+                "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+                "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+              },
+              "model_class": "Qwen3_5MoeForConditionalGeneration",
+              "observer_modifies_output": false
+            },
+            "prefix_caching": false,
+            "native_tensor_inputs": false,
+            "windows_acceptance": false
+          },
+          "qualifying_control_cases": [
+            {
+              "file": "q7169-out32.json",
+              "sha256": "1d810dae8aa74426510af3c463d5a92ea8867f3d485810ea8d59df870ffe5fcd",
+              "source_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
+            },
+            {
+              "file": "q8192-out32.json",
+              "sha256": "08317b8cf0f55f60f27b1f2d0866d6dfc532ce0e667182ecce872825d149a425",
+              "source_oracle_sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+            }
+          ],
+          "batch_complete": false,
+          "scope": "This completed single-chunk case and both immutable anchors precede the unrelated q8193 observer failure; no q8193 or 512-token data is admitted."
+        }
+      },
+      "completed_matrix_comparable_case_sha256": "ea80fc046312d132fc6c0b79145aff385b54087283f74f21882e0efb95b908f5",
+      "gb10_token_logit_and_stream_boundary_pass": true,
+      "environment_sha256": "218d15930643d8001202c2800e680bc9d0affdb4b9d016cd962d5c2d81b3359e",
+      "environment_overrides": {
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "performance_acceptance": false,
+      "failure": null
+    },
+    {
+      "name": "q8191",
+      "host": "baiying",
+      "source_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+      "command_file": "D:\\projects\\run-native-neighbor-cases-r1.ps1",
+      "command_file_sha256": "8edf3fdc80270da6c612530f5d19e8e185883adf902f3bedcfcecd5a54027651",
+      "command": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q8191-prompt.json",
+          "--output-tokens",
+          "32",
+          "--expected-output",
+          "D:\\projects\\gb10-neighbors-20260911-r1\\q8191-expected.json",
+          "--expected-prompt-fnv",
+          "7015b1f272403af6",
+          "--env-file",
+          "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\neighbor-specs\\neighbor-q8191-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ]
+      },
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "components": {
+        "whole": {
+          "commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+          "directory": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\whole",
+          "build_metadata_sha256": "e13617ea19b4bd0749c916ac9224132df4f44590219f37f51f065680d1ca5fc7",
+          "build_run_sha256": "e8dbad64e1561dcac55c757d017714bee09eb3bef8631d8f250b6d921e0192ce",
+          "artifacts": [
+            {
+              "name": "qrt_qwen36_whole_provider.dll",
+              "bytes": 11475456,
+              "sha256": "8d5c41e01bebc9dd776ee663bc90791ed745d0008f5d573b59f44043290c0e8e"
+            },
+            {
+              "name": "q1_moe_avx512bf16_host_provider.obj",
+              "bytes": 183170,
+              "sha256": "f01200c4768647de3356c8a9e95e353bbfc67f34f9b4843eef9a8d5edb94b84d"
+            }
+          ]
+        },
+        "fla": {
+          "commit": "bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0",
+          "directory": "D:\\projects\\AIMA-public-fla-sequence-20260911\\build\\fla",
+          "build_metadata_sha256": "5236864d0d7682cae2594b3a1ce9477cd027acb01bd5362d82694bd75bb898a1",
+          "build_run_sha256": "12ea32b679d93a000c597f7d1e949152a2a03095c203d70e17231dc10228438e",
+          "artifacts": [
+            {
+              "file": "fla-output-capture-replay.exe",
+              "bytes": 389632,
+              "sha256": "8a140f915c357a12d45ccd05574fcd57cd2248abdf402b4ff4df94ff4ae96a8b"
+            },
+            {
+              "file": "fla-upstream-capture-replay.exe",
+              "bytes": 473088,
+              "sha256": "066551af6e9b9440c7591cb7a6a8c595f28d835c56e9beeb0b62907eda802ede"
+            },
+            {
+              "file": "metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "file": "q64-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "819e3ae2f7ef78e3d7ec6afd54b7b941528b4059dea0d36f5c31f460e915737b"
+            },
+            {
+              "file": "q65-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "9699de669ec9337e529f64b907a3f8816af1d389ffecd815f0945fea9ffb737d"
+            },
+            {
+              "file": "q7169-fla-smoke.exe",
+              "bytes": 328704,
+              "sha256": "5cc6903129bba5efc7e54d1a7ed963e51b03aee9802b1ff15b0ab0394519ec46"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "file": "qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 464384,
+              "sha256": "5d9054ceb11ff7917a5bad96afc6693a91d667481b730b2ea037d448d760b30c"
+            },
+            {
+              "file": "qrt_fla_gdn_kernel_specs.inc",
+              "bytes": 940,
+              "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+            }
+          ]
+        },
+        "moe": {
+          "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+          "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+          "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+          "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+          "artifacts": [
+            {
+              "file": "q8192_selected_moe_route_count.hsaco",
+              "bytes": 4816,
+              "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+            },
+            {
+              "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+              "bytes": 4960,
+              "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+            },
+            {
+              "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+              "bytes": 5040,
+              "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+            },
+            {
+              "file": "q8192_selected_moe_route_scatter.hsaco",
+              "bytes": 5608,
+              "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+            },
+            {
+              "file": "q8192_selected_moe_gate_up_silu.hsaco",
+              "bytes": 17752,
+              "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+            },
+            {
+              "file": "q8192_selected_moe_down.hsaco",
+              "bytes": 11384,
+              "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+            },
+            {
+              "file": "qrt_triton_moe_q8192_provider.dll",
+              "bytes": 507392,
+              "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+            },
+            {
+              "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+              "bytes": 7736,
+              "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+              "bytes": 6824,
+              "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+            },
+            {
+              "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+              "bytes": 6696,
+              "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+            },
+            {
+              "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+              "bytes": 7504,
+              "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+            }
+          ]
+        },
+        "ck": {
+          "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+          "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+          "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+          "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+          "artifacts": [
+            {
+              "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+              "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+              "bytes": 499712
+            }
+          ]
+        }
+      },
+      "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+      "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+      "run_record_sha256": "32df483e73aa519fd467b8de4eb9ee480435adafae9817aec5caafdfac340798",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "74478fe5dcc0fe344aec1bdcde28a56c917a2cce4135a3acaf54a6e8849edef2",
+      "reason": "completed",
+      "exit_code": 5,
+      "wall_ms": 100741.336,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "summary": null,
+      "original_reference": {
+        "oracle": "D:\\projects\\gb10-neighbors-20260911-r1\\q8191-oracle.json",
+        "oracle_sha256": "7d349a1ddcf48b4ddd6f36c5ca26276a15cd2ec709424f3945af046a6be4b3f1",
+        "reference_data_manifest_sha256": "65a211cc5d8aff20d92dae7a5b05074a8807621b7dd2db882880fcf11ec6eecb",
+        "reference_capture": {
+          "host": "aitopatom-66c4",
+          "model": "/models (mounted /mnt/data/models/Qwen3.6-35B-A3B read-only)",
+          "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+          "command_file": "<reference-home>/run-qrt-gb10-token-matrix-20260911-r1.py",
+          "command_sha256": "8632129468059e322ba3e8e9235d1aa159740be5a9d83fc2128f4f73b0c51c80",
+          "case_sha256": "8f91439a0a0f431a3cc24424b68b1d6672aa999a2b3362b02183699d7461dc5b",
+          "case_record": {
+            "name": "q8191-out32",
+            "prompt": {
+              "token_count": 8191,
+              "seed": 395518,
+              "first_token_id": 84411,
+              "u32le_sha256": "aaf30058b943ba25c4dcabeb2d603dba5e0a63a1e12a96a466e574ee19cfbff5",
+              "u32le_fnv1a64": "7015b1f272403af6"
+            },
+            "output_token_ids": [
+              168589,
+              57,
+              82,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220,
+              196,
+              220,
+              220
+            ],
+            "output_fingerprints": {
+              "u32le_sha256": "37a60a4ba9b0b65ebc767239e8a8809904774c57e20e2cee9a7adf837d96dae3",
+              "u32le_fnv1a64": "c8195e228fda5765"
+            },
+            "first_token_id": 168589,
+            "first_token_raw_logit": 11.375,
+            "first_token_raw_logit_tolerance": 0.125,
+            "finish_reason": "length",
+            "request_seconds": 2.548774743001559,
+            "control": false,
+            "control_pass": true,
+            "control_oracle_sha256": null,
+            "worker": {
+              "complete": true,
+              "raw_argmax_token": 168589,
+              "raw_logit": 11.375,
+              "dtype": "torch.bfloat16",
+              "shape": [
+                1,
+                248320
+              ],
+              "bytes": 496640,
+              "file": "first-logits.bin",
+              "sha256": "d893f8ab1dc417424b9c85d90543915f8a0c3d4abf0f94dffe10e6969f0d7e20",
+              "negative_infinity_count": 0,
+              "observer_modifies_output": false
+            },
+            "armed": {
+              "compute_logits_source": {
+                "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+                "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+              },
+              "model_class": "Qwen3_5MoeForConditionalGeneration",
+              "observer_modifies_output": false
+            },
+            "prefix_caching": false,
+            "native_tensor_inputs": false,
+            "windows_acceptance": false
+          },
+          "qualifying_control_cases": [
+            {
+              "file": "q7169-out32.json",
+              "sha256": "1d810dae8aa74426510af3c463d5a92ea8867f3d485810ea8d59df870ffe5fcd",
+              "source_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121"
+            },
+            {
+              "file": "q8192-out32.json",
+              "sha256": "08317b8cf0f55f60f27b1f2d0866d6dfc532ce0e667182ecce872825d149a425",
+              "source_oracle_sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+            }
+          ],
+          "batch_complete": false,
+          "scope": "This completed single-chunk case and both immutable anchors precede the unrelated q8193 observer failure; no q8193 or 512-token data is admitted."
+        }
+      },
+      "completed_matrix_comparable_case_sha256": "143a9ced34fb37c95367b8adf0a3ccd46979aa79271464abfc99190148a436c2",
+      "gb10_token_logit_and_stream_boundary_pass": false,
+      "environment_sha256": "218d15930643d8001202c2800e680bc9d0affdb4b9d016cd962d5c2d81b3359e",
+      "environment_overrides": {
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": ""
+      },
+      "performance_acceptance": false,
+      "failure": {
+        "stage": "correctness_final_norm_prefill_phase",
+        "message": "selected final norm output differed from scalar RMSNorm reference",
+        "tokens_emitted": 0,
+        "callbacks": 0,
+        "analysis": "Selected GPU mode rounds its numerator to BF16 with variance from original F32 residual; the old scalar guard uses an unrounded numerator. No token/logit acceptance or TTFT result."
+      }
+    }
+  ],
+  "decision": "q7168 and q7170 pass all 32 tokens, raw first logit and streaming. q8191 is rejected before token emission by a mismatched scalar norm formula; repair and repeat. Arbitrary-length latency and unified release qualification remain open.",
+  "public_path_redaction": "Private reference home directory replaced by <reference-home>; run and capture hashes identify original bytes."
+}

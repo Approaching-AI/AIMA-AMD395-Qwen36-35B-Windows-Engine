@@ -54,13 +54,26 @@ TPOT. Full-prefix exact attention is disabled in the fast q8192 profile;
 its overall timing change is not isolated to the new QK mapping. A unified
 profile/package and broader product acceptance remain open.
 
-The [first expanded GB10 capture](../benchmarks/correctness/gb10-token-matrix-incomplete-20260911.json)
-passes both original 32-token controls and completes q7168, q7170 and q8191
-reference requests. The batch stops at q8193: its observer saved intermediate
-q8192-prefix logits that vLLM subsequently discards. q8193 and both 512-token
-continuations remain unqualified. The observer now follows the pinned
-runner’s actual discard mask, with CPU boundary checks and a complete rerun
-required. Existing oracles and Windows product qualification are unchanged.
+The [complete expanded GB10 capture](../benchmarks/correctness/gb10-token-matrix-20260911.json)
+passes all eight requests: the two original 32-token controls, their four
+adjacent lengths, and both 512-token continuations. The separate
+[cold token matrix oracle](../contracts/gb10_cold_token_matrix_20260911_oracle.json)
+freezes every prompt, output token and sampled first raw logit. Original
+contracts remain byte-identical. The observer follows the pinned runner’s
+actual discard mask and skips one intermediate chunk for q8193. Its sampled
+first token is 220 / 9.75. All five completed cases from the
+[earlier incomplete capture](../benchmarks/correctness/gb10-token-matrix-incomplete-20260911.json)
+are reproduced exactly, including their full first-logits tensors.
+
+The [Windows adjacent-length records](../benchmarks/correctness/neighbor-tokens-20260911.json)
+pass all 32 tokens, first logit and streaming for q7168 (220 / 9.5625) and
+q7170 (94 / 18.25), using the same strict arithmetic profile. Their actual
+TTFT is 69,223.110000 and 69,411.140199 ms. q8191 stops before token emission:
+the scalar final-norm guard compares an unrounded numerator against the
+selected GPU formula’s BF16 carrier. The reference now selects the matching
+numerator while retaining unrounded variance and the existing tolerance;
+Windows retry is required. GB10 reference capture alone does not qualify
+q8193 or either 512-token Windows request, which remain open.
 
 The [MoE phase profile](../benchmarks/correctness/moe-subphases-20260911.json)
 observes 40 physical-q8192 MoE calls for the real q7169 request. Total MoE
