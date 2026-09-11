@@ -11,6 +11,17 @@ The concrete benefit is matching every observed first-decode Q/K rotary
 value for q8191 and q7169 with the original BF16 multiply/FMA sequence.
 This is a diagnostic route pending native product qualification.
 
+`QRT_QWEN36_Q1_SM121_ATTENTION=1` adds the original 32-token online
+attention reduction to that decode path. It uses the existing reciprocal
+artifact through `QRT_QWEN36_Q1_SM121_RCP_TABLE`: 8,388,640 bytes, SHA-256
+`d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39`.
+The loader verifies its layout and hash with Windows CNG and adds one device
+copy plus a transient host buffer. It reuses the Q1 exponential table and
+keeps the owned prefix and decode-tail KV allocations separate. This adds
+no offline artifact or runtime library. The arithmetic matches all 4096
+context values in each original-input q8191/q7169 first-decode GPU replay;
+the integrated product path still requires frozen-token qualification.
+
 `QRT_FLA_GDN_SM121_EXP2_TABLE` selects an experimental, model-independent
 `ex2.approx.f32` table for the optional Blackwell GDN state implementation.
 The builder enumerates all 2,139,095,041 nonpositive finite FP32 inputs and

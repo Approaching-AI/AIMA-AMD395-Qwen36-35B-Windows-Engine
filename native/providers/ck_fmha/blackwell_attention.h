@@ -137,7 +137,7 @@ __global__ void blackwell_transposed_scores_kernel(
 
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
-template <bool SerialValue, bool PrecomputedScores = false>
+template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -151,7 +151,11 @@ __global__ void blackwell_exact_attention_kernel(
     bool vllm_sum,
     const unsigned char* rcp_table,
     const float* precomputed_scores,
-    unsigned int score_stride) {
+    unsigned int score_stride,
+    const uint16_t* decode_tail_value,
+    unsigned int decode_prefix_tokens) {
+    static_assert(!SplitDecodeValue || (SerialValue && PrecomputedScores),
+                  "split decode V requires precomputed QK and the serial-value layout");
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -297,10 +301,13 @@ __global__ void blackwell_exact_attention_kernel(
 #pragma unroll
                 for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
                     const unsigned int key_token = tile * kExactTileTokens + begin + item;
-                    const uint16_t v = key_token < tokens
-                        ? value[(static_cast<size_t>(key_token) * kKvHeads + kv_head) *
-                                    kHeadDim + thread]
-                        : static_cast<uint16_t>(0u);
+                    uint16_t v = 0u;
+                    if (key_token < tokens) {
+                        const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
+                        const uint16_t *source = in_tail ? decode_tail_value : value;
+                        const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
+                        v = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
+                    }
                     products[item] = qrt_sm121_group16::pack_product(
                         qrt_q1_moe_hawkeye::multiply_bf16(
                             probability_bf16[begin + item], v, kBlackwellZeroExponent));
@@ -555,17 +562,17 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
             raw_accumulator, raw_denominator, vllm_sum, rcp_table,
-            score_scratch, stride);
+            score_scratch, stride, nullptr, 0u);
     } else if (memory_layout == 1u) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
-            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u);
+            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u, nullptr, 0u);
     } else {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<false>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
-            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u);
+            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u, nullptr, 0u);
     }
     return int(hipGetLastError());
 }

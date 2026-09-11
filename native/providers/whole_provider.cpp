@@ -28,6 +28,7 @@
 #include "sm121_q1_runtime.h"
 #include "sm121_q1_moe_runtime.h"
 #include "sm121_q1_full_runtime.h"
+#include "sm121_q1_attention_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_q1_moe.h"
@@ -68519,6 +68520,59 @@ bool run_qwen36_resident_full_attention_score_value_step(
         );
     float *const score_scratch =
         workspace.device_full_attention_score_scratch;
+    if (env_flag_enabled("QRT_QWEN36_Q1_SM121_ATTENTION")) {
+        const unsigned char *rcp = nullptr;
+        if (!q1_sm121_full_requested || aiter_operands_prepared ||
+            qrt_sm121_q1_attention_runtime::prepare(&rcp) != hipSuccess) {
+            return qwen36_resident_decode_set_failure(stage + "_sm121_contract",
+                "SM121 attention requires the exact full-attention corridor and reciprocal table",
+                failure_stage, failure);
+        }
+        auto checked = [&](hipError_t status, const char *suffix) -> bool {
+            return status == hipSuccess || qwen36_resident_decode_set_failure(
+                stage + suffix, hipGetErrorString(status), failure_stage, failure);
+        };
+        hipLaunchKernelGGL(qrt_sm121_q1_attention::append, dim3(2u), dim3(256u), 0u, stream,
+            device_rope_values, static_cast<uint16_t *>(layer.device_decode_tail_k),
+            static_cast<uint16_t *>(layer.device_decode_tail_v),
+            static_cast<unsigned int>(layer.decode_tail_token_count));
+        if (!checked(hipGetLastError(), "_sm121_append")) return false;
+        hipLaunchKernelGGL(qrt_sm121_q1_attention::scores,
+            dim3(workspace_score_scratch_token_capacity), dim3(256u), 0u, stream,
+            device_rope_values, static_cast<const uint16_t *>(layer.device_k),
+            static_cast<const uint16_t *>(layer.device_decode_tail_k), score_scratch,
+            static_cast<unsigned int>(layer.history_tokens), total_tokens,
+            workspace_score_scratch_token_capacity);
+        if (!checked(hipGetLastError(), "_sm121_scores") ||
+            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace,
+                Q1LayerProfileBoundary::kScoreEnd, stream), "_sm121_score_event")) return false;
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(
+            qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true>),
+            dim3(16u), dim3(256u), 0u, stream,
+            static_cast<const uint16_t *>(nullptr), static_cast<const uint16_t *>(nullptr),
+            static_cast<const uint16_t *>(layer.device_v), device_context_output,
+            static_cast<unsigned int>(absolute_position), 0u, q1_full_core_tables.exp2,
+            static_cast<float *>(nullptr), static_cast<float *>(nullptr), true, rcp,
+            score_scratch, workspace_score_scratch_token_capacity,
+            static_cast<const uint16_t *>(layer.device_decode_tail_v),
+            static_cast<unsigned int>(layer.history_tokens));
+        if (!checked(hipGetLastError(), "_sm121_online_pv") ||
+            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace,
+                Q1LayerProfileBoundary::kSoftmaxEnd, stream), "_sm121_pv_event")) return false;
+        hipLaunchKernelGGL(qwen36_resident_full_attention_grouped_bf16_post_kernel,
+            dim3(16u), dim3(256u), 0u, stream, device_rope_values,
+            device_context_output, device_context_bf16_output,
+            q1_full_core_tables.beta, score_scratch);
+        if (!checked(hipGetLastError(), "_sm121_gate")) return false;
+        ++workspace.full_attention_score_scratch_use_count;
+        workspace.full_attention_score_scratch_token_count += total_tokens;
+        workspace.full_attention_score_scratch_kernel_launch_count += UINT64_C(4);
+        if (workspace.aggregate_run_metadata_ready)
+            ++workspace.aggregate_run_metadata_score_marker_elision_count;
+        ++layer.decode_tail_token_count;
+        lease->mark_work_submitted();
+        return true;
+    }
     const bool q1_exact_gqa_wave_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_EXACT_GQA_WAVE_CORE"
     );
@@ -180800,10 +180854,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
     const bool q1_triton_0626_output_matvec_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_TRITON_0626_OUTPUT_MATVEC"
     );
-    const bool q1_output_consumer_fused_requested = env_flag_enabled(
+    const bool q1_output_consumer_fused_requested = !q1_sm121_full_requested && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED"
     );
-    const bool q1_output_consumer_fused_rows2_requested = env_flag_enabled(
+    const bool q1_output_consumer_fused_rows2_requested = !q1_sm121_full_requested && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED_ROWS2"
     );
     const bool q1_full_attention_terminal_bf16_active =
@@ -182652,7 +182706,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_0626_PV"
         );
+    const bool q1_sm121_attention_active = q1_sm121_full_requested &&
+        env_flag_enabled("QRT_QWEN36_Q1_SM121_ATTENTION");
     kernel_launches +=
+        q1_sm121_attention_active ? UINT64_C(4) :
         q1_full_attention_aiter_unified_active
         ? (q1_full_attention_aiter_fused_operand_publication_active
                ? UINT64_C(3)
@@ -182666,7 +182723,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             (q1_full_attention_triton_0626_pv_active
                 ? UINT64_C(1)
                 : UINT64_C(0));
-    if (current_surface_kind ==
+    if (!q1_sm121_attention_active && current_surface_kind ==
             Qwen36ResidentSessionElementKind::kBf16 &&
         env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_GROUPED_BF16_BMM"
@@ -183481,6 +183538,7 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         << " q1_full_attention_terminal_bf16_mtp_active=0"
         << " q1_full_attention_terminal_bf16_speculative_decode=0"
         << " q1_sm121_full_active=" << (q1_sm121_full_requested ? 1 : 0)
+        << " q1_sm121_attention_active=" << (q1_sm121_attention_active ? 1 : 0)
         << " projection_backend="
         << (q1_sm121_full_requested ? "q1_sm121_k16_qkv" : use_q1_dense_w8a8_full_input
                 ? (use_q1_dense_packed_w6_full_input
