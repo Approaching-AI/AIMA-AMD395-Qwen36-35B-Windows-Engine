@@ -163,6 +163,67 @@ void run_case(unsigned int rows, unsigned int tokens, bool consumer, bool full_s
               << ",\"raw_f32_max_abs_diff\":" << std::setprecision(12) << raw_f32_max_abs_diff
               << ",\"redzones_pass\":true,\"wall_ms\":" << ms << "}" << std::endl;
 }
+void run_staging_case(unsigned int rows, unsigned int tokens) {
+    const size_t k = QRT_QWEN36_HIDDEN_SIZE, cells = static_cast<size_t>(rows) * tokens;
+    std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
+    std::vector<uint16_t> inputs(static_cast<size_t>(tokens) * k + 2u * kGuard, kBf16Guard);
+    std::vector<float> original(cells + 2u * kGuard, kF32Guard), staged = original;
+    uint32_t seed = UINT32_C(0x8191395);
+    for (auto* operand : {&weights, &inputs}) {
+        for (size_t i = kGuard; i + kGuard < operand->size(); ++i) {
+            seed = seed * 1664525u + 1013904223u;
+            (*operand)[i] = static_cast<uint16_t>(
+                ((seed >> 16u) & 0x8000u) | (0x3a00u + (seed & 0x07ffu)));
+        }
+    }
+    const auto saved_weights = weights, saved_inputs = inputs;
+    DeviceBuffer<uint16_t> dw(weights), di(inputs);
+    DeviceBuffer<float> old_output(original), new_output(staged);
+    hipStream_t stream = nullptr;
+    hip_ok(hipStreamCreateWithFlags(&stream, hipStreamNonBlocking), "staging_stream_create");
+    double original_ms = 0.0, staged_ms = 0.0;
+    for (unsigned int mode = 0; mode < 2u; ++mode) {
+        const auto begin = std::chrono::steady_clock::now();
+        if (mode == 0u) {
+            hipLaunchKernelGGL(selected_bf16_projection_wmma_k16_m64_kernel,
+                dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
+                dim3(256u), 0, stream, dw.data(), di.data(), old_output.data(),
+                rows, tokens, 0u, 0u);
+        } else {
+            hipLaunchKernelGGL(selected_bf16_projection_wmma_k16_m64_lds_kernel,
+                dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
+                dim3(256u), 0, stream, dw.data(), di.data(), new_output.data(),
+                rows, tokens, 0u, 0u);
+        }
+        hip_ok(hipGetLastError(), "staging_kernel_launch");
+        hip_ok(hipStreamSynchronize(stream), "staging_kernel_completion");
+        const double ms = std::chrono::duration<double, std::milli>(
+            std::chrono::steady_clock::now() - begin).count();
+        (mode ? staged_ms : original_ms) = ms;
+    }
+    hip_ok(hipStreamDestroy(stream), "staging_stream_destroy");
+    old_output.read(original); new_output.read(staged);
+    size_t mismatches = 0u;
+    for (size_t i = 0; i < original.size(); ++i) {
+        if (i < kGuard || i >= kGuard + cells) {
+            require(original[i] == kF32Guard && staged[i] == kF32Guard, "staging output redzone modified");
+        } else {
+            require(std::isfinite(original[i]) && std::isfinite(staged[i]), "staging output nonfinite");
+            if (std::memcmp(&original[i], &staged[i], sizeof(float))) ++mismatches;
+        }
+    }
+    dw.read(weights); di.read(inputs);
+    require(weights == saved_weights && inputs == saved_inputs, "staging modified an operand");
+    std::cout << "{\"type\":\"wmma_staging_case\",\"rows\":" << rows
+              << ",\"tokens\":" << tokens << ",\"raw_f32_elements\":" << cells
+              << ",\"raw_f32_bit_mismatches\":" << mismatches
+              << ",\"original_completed_wall_ms\":" << original_ms
+              << ",\"staged_completed_wall_ms\":" << staged_ms
+              << ",\"redzones_pass\":true,\"input_immutable\":true,\"inference_acceptance\":false}"
+              << std::endl;
+    require(mismatches == 0u, "staged WMMA differs from the original ordered K16 kernel");
+}
+
 // Seed sparse accumulator midpoints to exercise the actual selector, compact
 // index transport and correction launcher. Exact dots vary with both token and
 // row; other cells must still receive BF16 rounding. A product-sized case has
@@ -246,7 +307,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -254,7 +315,12 @@ int main(int argc, char **argv) {
             hipDeviceProp_t properties{};
             hip_ok(hipGetDeviceProperties(&properties, 0), "device_properties");
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
-            if (mode == "--real-qkv") {
+            if (mode == "--wmma-staging") {
+                for (const auto shape : {std::pair{17u, 7u}, std::pair{129u, 65u}, std::pair{8192u, 8192u}}) {
+                    run_staging_case(shape.first, shape.second);
+                    ++cases;
+                }
+            } else if (mode == "--real-qkv") {
                 const auto ppb = std::stoul(argv[5]);
                 require(ppb > 0u && ppb <= 1000000u, "invalid real-QKV selector bound");
                 run_real_qkv(argv[2], argv[3], argv[4], static_cast<unsigned int>(ppb));
@@ -287,7 +353,7 @@ int main(int argc, char **argv) {
         std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"" << mode
                   << "\",\"gpu_cases\":" << cases
                   << ",\"inference_success_claimed\":false,\"numerical_scope\":\""
-                  << (mode == "--real-qkv" ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
+                  << (mode == "--wmma-staging" ? "synthetic_full_f32_staging_vs_original_wmma" : mode == "--real-qkv" ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
         return 0;
     } catch (const std::exception &error) {
         std::cerr << "projection_safety_failure: " << error.what() << std::endl;

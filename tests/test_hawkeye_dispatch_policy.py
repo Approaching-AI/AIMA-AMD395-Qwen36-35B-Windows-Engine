@@ -25,6 +25,9 @@ class HawkeyeDispatchPolicyTests(unittest.TestCase):
         source = r'''
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 #include "projection_output_policy.h"
 enum hipError_t { hipSuccess, hipErrorInvalidValue };
 using hipStream_t = void *;
@@ -32,6 +35,7 @@ struct dim3 { dim3(size_t, size_t = 1) {} };
 static unsigned int launches = 0, last_error_calls = 0;
 constexpr int f32_to_bf16_kernel = 0;
 constexpr int selected_bf16_projection_wmma_k16_m64_kernel = 0;
+constexpr int selected_bf16_projection_wmma_k16_m64_lds_kernel = 1;
 template<class... T> void record_launch(T...) { ++launches; }
 #define hipLaunchKernelGGL(...) record_launch(__VA_ARGS__)
 hipError_t hipGetLastError() { ++last_error_calls; return hipSuccess; }
@@ -52,7 +56,14 @@ int main() {
     if (launches || last_error_calls) return 6;
     if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 128, 65, 0, 0, nullptr) != hipSuccess) return 7;
     if (launch_projection_f32_to_bf16_checked(&y, &x, 128 * 65, nullptr) != hipSuccess) return 8;
-    return launches == 2 && last_error_calls == 2 ? 0 : 9;
+    if (launches != 2 || last_error_calls != 2) return 9;
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_PREFILL_WMMA_LDS", "1");
+#else
+    setenv("QRT_QWEN36_PREFILL_WMMA_LDS", "1", 1);
+#endif
+    if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 0, 0, nullptr) != hipSuccess) return 10;
+    return launches == 3 && last_error_calls == 3 ? 0 : 11;
 }
 '''
         with tempfile.TemporaryDirectory(prefix="qrt-launch-guard-") as tmp:

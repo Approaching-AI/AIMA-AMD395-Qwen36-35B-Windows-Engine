@@ -37029,6 +37029,78 @@ void selected_bf16_projection_wmma_k16_m64_kernel(
     }
 }
 
+// Reuse each input slab across all eight output-row waves. The global route
+// above fetches that slab independently in every wave. This staging changes
+// operand transport only: each output retains the same ascending K16 WMMA
+// calls, accumulator and endpoint. Two BF16 padding cells prevent different
+// rows from starting in the same LDS bank during fragment publication.
+__global__ __launch_bounds__(256)
+void selected_bf16_projection_wmma_k16_m64_lds_kernel(
+    const uint16_t *weights, const uint16_t *selected_inputs, float *outputs,
+    unsigned int rows, unsigned int selected_token_count,
+    unsigned int round_endpoint, unsigned int absolute_products
+) {
+    constexpr unsigned int kTileK = 64u, kStride = kTileK + 2u;
+    constexpr unsigned int kTileRows = 128u, kTileTokens = 64u;
+    static_assert(QRT_QWEN36_HIDDEN_SIZE % kTileK == 0u);
+    __shared__ uint16_t weight_tile[kTileRows][kStride];
+    __shared__ uint16_t input_tile[kTileTokens][kStride];
+    const unsigned int thread = threadIdx.x;
+    const unsigned int wave = thread / 32u, lane = thread % 32u;
+    const unsigned int source = lane % 16u, segment = lane / 16u;
+    const unsigned int row_tile = blockIdx.x * kTileRows;
+    const unsigned int token_tile = blockIdx.y * kTileTokens;
+    const uint16_t sign_mask = absolute_products ? uint16_t(0x7fffu) : uint16_t(0xffffu);
+    SelectedProjectionWmmaF32x8 accumulators[4] = {};
+#pragma unroll 1
+    for (unsigned int base = 0u; base < QRT_QWEN36_HIDDEN_SIZE; base += kTileK) {
+        for (unsigned int cell = thread; cell < kTileRows * kTileK; cell += 256u) {
+            const unsigned int row = cell / kTileK, column = cell % kTileK;
+            weight_tile[row][column] = row_tile + row < rows
+                ? weights[static_cast<size_t>(row_tile + row) * QRT_QWEN36_HIDDEN_SIZE + base + column] & sign_mask
+                : uint16_t(0u);
+        }
+        for (unsigned int cell = thread; cell < kTileTokens * kTileK; cell += 256u) {
+            const unsigned int token = cell / kTileK, column = cell % kTileK;
+            input_tile[token][column] = token_tile + token < selected_token_count
+                ? selected_inputs[static_cast<size_t>(token_tile + token) * QRT_QWEN36_HIDDEN_SIZE + base + column] & sign_mask
+                : uint16_t(0u);
+        }
+        __syncthreads();
+#pragma unroll
+        for (unsigned int offset = 0u; offset < kTileK; offset += 16u) {
+            SelectedProjectionWmmaBf16x16 weight_fragment;
+#pragma unroll
+            for (unsigned int element = 0u; element < 16u; ++element)
+                weight_fragment[element] = weight_tile[wave * 16u + source][offset + element];
+#pragma unroll
+            for (unsigned int fragment = 0u; fragment < 4u; ++fragment) {
+                SelectedProjectionWmmaBf16x16 input_fragment;
+#pragma unroll
+                for (unsigned int element = 0u; element < 16u; ++element)
+                    input_fragment[element] = input_tile[fragment * 16u + source][offset + element];
+                accumulators[fragment] = __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(
+                    input_fragment, weight_fragment, accumulators[fragment]);
+            }
+        }
+        // Every consumer finishes before the next K64 slab reuses this LDS.
+        __syncthreads();
+    }
+    const unsigned int row = row_tile + wave * 16u + source;
+    if (row >= rows) return;
+#pragma unroll
+    for (unsigned int fragment = 0u; fragment < 4u; ++fragment) {
+#pragma unroll
+        for (unsigned int element = 0u; element < 8u; ++element) {
+            const unsigned int token = token_tile + fragment * 16u + 2u * element + segment;
+            if (token < selected_token_count)
+                outputs[static_cast<size_t>(token) * rows + row] = round_endpoint
+                    ? device_bf16_round_to_float(accumulators[fragment][element])
+                    : accumulators[fragment][element];
+        }
+    }
+}
+
 // Validate before submission, not in a following correction kernel. The same
 // entry point is exercised by the model-free Windows safety regression.
 hipError_t launch_selected_bf16_projection_wmma_checked(
@@ -37040,12 +37112,22 @@ hipError_t launch_selected_bf16_projection_wmma_checked(
         rows == 0u || tokens == 0u || (tokens - 1u) / 64u >= 65535u) {
         return hipErrorInvalidValue;
     }
-    hipLaunchKernelGGL(
-        selected_bf16_projection_wmma_k16_m64_kernel,
-        dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
-        dim3(256u), 0, stream, weights, inputs, output, rows, tokens,
-        round_endpoint, absolute_products
-    );
+    const char* staging = std::getenv("QRT_QWEN36_PREFILL_WMMA_LDS");
+    if (staging && std::strcmp(staging, "1") == 0) {
+        hipLaunchKernelGGL(
+            selected_bf16_projection_wmma_k16_m64_lds_kernel,
+            dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
+            dim3(256u), 0, stream, weights, inputs, output, rows, tokens,
+            round_endpoint, absolute_products);
+        std::fprintf(stderr, "BATCH_MARK prefill_wmma_operand_staging rows=%u tokens=%u k=2048 tile_rows=128 tile_tokens=64 tile_k=64 lds_bytes=25344 ascending_k16=1\n",
+            rows, tokens);
+    } else {
+        hipLaunchKernelGGL(
+            selected_bf16_projection_wmma_k16_m64_kernel,
+            dim3((rows - 1u) / 128u + 1u, (tokens - 1u) / 64u + 1u),
+            dim3(256u), 0, stream, weights, inputs, output, rows, tokens,
+            round_endpoint, absolute_products);
+    }
     return hipGetLastError();
 }
 
@@ -129574,28 +129656,11 @@ bool run_full_attention_prefill_resident_core_for_targets(
                         return false;
                     }
                 }
-                hipLaunchKernelGGL(
-                    selected_bf16_projection_wmma_k16_m64_kernel,
-                    dim3(
-                        (kLayer3FullAttentionQkvRows +
-                         kWmmaRowsPerBlock - 1u) /
-                            kWmmaRowsPerBlock,
-                        (history_tokens_u32 + kWmmaTokensPerBlock - 1u) /
-                            kWmmaTokensPerBlock
-                    ),
-                    dim3(256u),
-                    0,
-                    0,
-                    device_fused_qkv_weight,
-                    device_input_rmsnorm_bf16,
-                    device_fused_qkv_f32,
-                    kLayer3FullAttentionQkvRows,
-                    history_tokens_u32,
-                    0u,
-                    0u
-                );
                 if (!fail_hip(
-                        hipGetLastError(),
+                        launch_selected_bf16_projection_wmma_checked(
+                            device_fused_qkv_weight, device_input_rmsnorm_bf16,
+                            device_fused_qkv_f32, kLayer3FullAttentionQkvRows,
+                            history_tokens_u32, 0u, 0u, nullptr),
                         prefix + "_full_attention_qkv_wmma"
                     )) {
                     cleanup();
