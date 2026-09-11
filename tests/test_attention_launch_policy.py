@@ -16,11 +16,17 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
         launch = "constexpr unsigned int kSplitMaxTokens" + header.split(
             "constexpr unsigned int kSplitMaxTokens", 1
         )[1].split("} // namespace qrt_blackwell_attention", 1)[0]
+        row = 'struct IntegerOperandRow' + header.split('struct IntegerOperandRow', 1)[1].split(
+            '__device__ __forceinline__ void blackwell_prepare_integer_row', 1)[0]
+        packed = 'struct PrepackedIntegerWorkspace' + header.split('struct PrepackedIntegerWorkspace', 1)[1].split(
+            'template<IntegerRowKind Kind>', 1)[0]
         source = r'''
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <initializer_list>
+#define __host__
+#define __device__
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t = void*;
 using hipEvent_t = void*;
@@ -30,6 +36,7 @@ constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kCooperativeColumns = 64;
 constexpr unsigned kExactTileTokens = 32;
+''' + row + packed + r'''
 void blackwell_exact_scores_kernel() {}
 void blackwell_cooperative_scores_kernel() {}
 void blackwell_cooperative_value_kernel() {}
@@ -37,12 +44,14 @@ void blackwell_transpose_keys_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
-template<bool NativeMma = false> void blackwell_mantissa_scores_kernel() {}
-template<bool NativeMma = false> void blackwell_mantissa_value_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_scores_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_value_kernel() {}
+template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
          bool NativeProducts = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
+unsigned fail_launch = 0;
 bool fail_scores = false, fail_probability = false;
 bool fail_event = false;
 unsigned events = 0;
@@ -56,7 +65,8 @@ template<class... T> void record_launch(const char* name, T...) { launch_names[l
 #define hipLaunchKernelGGL(kernel, ...) record_launch(#kernel, kernel, __VA_ARGS__)
 hipError_t hipGetLastError() {
     ++error_queries;
-    return ((fail_scores && launches == 1u) || (fail_probability && launches == 2u))
+    return ((fail_launch && launches == fail_launch) ||
+        (fail_scores && launches == 1u) || (fail_probability && launches == 2u))
         ? hipErrorUnknown : hipSuccess;
 }
 ''' + launch + r'''
@@ -185,6 +195,33 @@ int main() {
     if (split(1, 16, &scratch, matrix_elements, 8u) != hipErrorUnknown || launches != 1u) return 38;
     launches = error_queries = 0u; fail_scores = false; fail_probability = true;
     if (split(1, 16, &scratch, matrix_elements, 8u) != hipErrorUnknown || launches != 2u) return 39;
+    launches = error_queries = 0u; fail_probability = false;
+    IntegerOperandRow encoded{};
+    PrepackedIntegerWorkspace prepared{&encoded,&encoded,&encoded,&encoded,17u,16u};
+    auto prepacked = [&](const PrepackedIntegerWorkspace* p, size_t elements) {
+        return launch_queries(&operand, &operand, &operand, &output, nullptr,
+            1, 16, 0, nullptr, nullptr, nullptr, true, nullptr, 9, &scratch,
+            elements, nullptr, nullptr, nullptr, 0u, false, p);
+    };
+    if (prepacked(nullptr,matrix_elements) != hipErrorInvalidValue ||
+        prepacked(&prepared,matrix_elements-1) != hipErrorInvalidValue || launches) return 40;
+    prepared.tokens=16;
+    if (prepacked(&prepared,matrix_elements) != hipErrorInvalidValue || launches) return 41;
+    prepared.tokens=17;prepared.queries=15;
+    if (prepacked(&prepared,matrix_elements) != hipErrorInvalidValue || launches) return 42;
+    prepared.queries=16;prepared.probability=nullptr;
+    if (prepacked(&prepared,matrix_elements) != hipErrorInvalidValue || launches) return 43;
+    prepared.probability=&encoded;
+    if (prepacked(&prepared,matrix_elements) != hipSuccess || launches!=5 || error_queries!=5 ||
+        !std::strstr(launch_names[0],"blackwell_prepare_integer_rows_kernel") ||
+        !std::strstr(launch_names[1],"blackwell_mantissa_scores_kernel<false, true>") ||
+        !std::strstr(launch_names[2],"blackwell_online_probability_kernel") ||
+        !std::strstr(launch_names[3],"blackwell_prepare_integer_rows_kernel") ||
+        !std::strstr(launch_names[4],"blackwell_mantissa_value_kernel<false, true>")) return 44;
+    for(unsigned failed=1;failed<=5;++failed){
+        launches=error_queries=0;fail_launch=failed;
+        if(prepacked(&prepared,matrix_elements)!=hipErrorUnknown || launches!=failed || error_queries!=failed) return 45;
+    }
     return 0;
 }
 '''
