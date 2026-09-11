@@ -166352,8 +166352,16 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
     if (q1_sm121_moe_requested) {
         hipLaunchKernelGGL(f32_to_bf16_kernel, dim3(8u), dim3(256u), 0, q1_moe_router_stream,
             device_post_attention, device_input_bf16, hidden_elements);
+        if (!check_launch("qwen36_q1_sm121_moe_router_input") ||
+            !record_q1_moe_router_profile_boundary(
+                Q1LayerProfileBoundary::kMoeRouterInputEnd,
+                "qwen36_resident_decode_q1_moe_profile_router_input_end")) return false;
         hipLaunchKernelGGL((qrt_sm121_q1_moe::projection<2048u>), dim3(16u), dim3(256u), 0, q1_moe_router_stream,
             device_input_bf16, router_weights_row_major, device_router_logits_bf16, QRT_QWEN36_EXPERT_COUNT);
+        if (!check_launch("qwen36_q1_sm121_moe_router_projection") ||
+            !record_q1_moe_router_profile_boundary(
+                Q1LayerProfileBoundary::kMoeRouterProjectionEnd,
+                "qwen36_resident_decode_q1_moe_profile_router_projection_end")) return false;
         hipLaunchKernelGGL(qrt_sm121_q1_moe::router, dim3(1u), dim3(32u), 0, q1_moe_router_stream,
             device_router_logits_bf16, device_topk_ids, device_topk_weights, q1_sm121_moe_tables.router);
     } else if (paired_tail_only || paired_moe_router_prepared) {
@@ -171251,7 +171259,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
                         );
                     }
                     if (profile_status == hipSuccess &&
-                        use_q1_moe_rocblas_router) {
+                        (q1_sm121_moe_requested || use_q1_moe_rocblas_router)) {
                         profile_status = hipEventElapsedTime(
                             &router_input_gpu_ms,
                             workspace->q1_layer_profile_events[
@@ -171267,7 +171275,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
                         );
                     }
                     if (profile_status == hipSuccess &&
-                        use_q1_moe_rocblas_router) {
+                        (q1_sm121_moe_requested || use_q1_moe_rocblas_router)) {
                         profile_status = hipEventElapsedTime(
                             &router_projection_gpu_ms,
                             workspace->q1_layer_profile_events[
@@ -171283,7 +171291,7 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
                         );
                     }
                     if (profile_status == hipSuccess &&
-                        use_q1_moe_rocblas_router) {
+                        (q1_sm121_moe_requested || use_q1_moe_rocblas_router)) {
                         profile_status = hipEventElapsedTime(
                             &router_topk_gpu_ms,
                             workspace->q1_layer_profile_events[

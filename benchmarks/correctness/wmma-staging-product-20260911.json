@@ -1,30 +1,30 @@
 {
-  "kind": "packed_exact_projection_complete_product",
+  "kind": "shared_memory_wmma_complete_product",
   "host": "baiying",
   "model": "D:\\models\\Qwen3.6-35B-A3B",
-  "whole_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+  "whole_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
   "fla_commit": "aec3f70d7104a3f1ee4b51741cae5246ac4d0576",
   "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
-  "command_file": "record_hawkeye_packed_product_r1.py",
-  "command_file_sha256": "9c09cd62f6936499739c419226370ab9a71b6160b553a6a5ff5ce7d5710eb97a",
+  "command_file": "record_wmma_staging_product_r1.py",
+  "command_file_sha256": "5c08b0e68299acf8a54349a3171a9171d45f815036cea0f7dd6d0ff5d1ca664a",
   "native_build": {
-    "record_sha256": "dcf3dfb0d8da6e9d773257efcf4500adcfa2f19591eec363db47ce4a82bd097f",
+    "record_sha256": "2fdb8032491ccfa219dad48de2558e437561d426b04180afec52cd189c0d9e3a",
     "data": {
       "schema_version": 1,
       "host": "BAIYING",
-      "command_file": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\scripts\\baiying_guarded_inference.ps1",
+      "command_file": "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_guarded_inference.ps1",
       "spec": {
         "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-        "working_directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911",
-        "repo_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-        "command_file": "D:\\projects\\build-native-hawkeye-packed-r1.ps1",
-        "command_file_sha256": "470c0869a60f5c8b74ce55a273ca989a57bfae04396c0a689fba4abf6402918c",
+        "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+        "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+        "command_file": "D:\\projects\\build-native-wmma-staging-r1.ps1",
+        "command_file_sha256": "0e8c2b84f68ba06512bd214b436c55d619139a02f8622f6bba27b6f477da588d",
         "model": "none; native build",
         "model_loaded": false,
         "inference_acceptance": false,
         "source_inputs": [
           {
-            "sha256": "e804efa7276ea2a60d80cd0c351087f588c1ff1094c705bd8735e33c7f63cce3",
+            "sha256": "8aa9e92bbb4e40cbf687d78494f0cbdc0998efaa32be3260471b2b752ac30448",
             "file": "native\\providers\\whole_provider.cpp"
           },
           {
@@ -100,36 +100,36 @@
             "file": "scripts\\baiying_build_whole_provider.ps1"
           }
         ],
-        "purpose": "Build exact packed candidate projection with immutable transposed weight scratch",
+        "purpose": "Build ordered K16 prefill WMMA with shared operand staging",
         "arguments": [
           "-NoLogo",
           "-NoProfile",
           "-NonInteractive",
           "-File",
-          "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\scripts\\baiying_build_whole_provider.ps1",
+          "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_build_whole_provider.ps1",
           "-OutDir",
-          "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole",
+          "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole",
           "-CompileTimeoutSeconds",
           "180"
         ]
       },
       "preflight": {
         "host": "BAIYING",
-        "utc": "2026-09-11T15:53:52.0754198Z",
-        "command_file": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\scripts\\baiying_guarded_inference.ps1",
+        "utc": "2026-09-11T16:21:13.0920166Z",
+        "command_file": "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_guarded_inference.ps1",
         "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
         "spec": {
           "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-          "working_directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911",
-          "repo_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-          "command_file": "D:\\projects\\build-native-hawkeye-packed-r1.ps1",
-          "command_file_sha256": "470c0869a60f5c8b74ce55a273ca989a57bfae04396c0a689fba4abf6402918c",
+          "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+          "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+          "command_file": "D:\\projects\\build-native-wmma-staging-r1.ps1",
+          "command_file_sha256": "0e8c2b84f68ba06512bd214b436c55d619139a02f8622f6bba27b6f477da588d",
           "model": "none; native build",
           "model_loaded": false,
           "inference_acceptance": false,
           "source_inputs": [
             {
-              "sha256": "e804efa7276ea2a60d80cd0c351087f588c1ff1094c705bd8735e33c7f63cce3",
+              "sha256": "8aa9e92bbb4e40cbf687d78494f0cbdc0998efaa32be3260471b2b752ac30448",
               "file": "native\\providers\\whole_provider.cpp"
             },
             {
@@ -205,15 +205,15 @@
               "file": "scripts\\baiying_build_whole_provider.ps1"
             }
           ],
-          "purpose": "Build exact packed candidate projection with immutable transposed weight scratch",
+          "purpose": "Build ordered K16 prefill WMMA with shared operand staging",
           "arguments": [
             "-NoLogo",
             "-NoProfile",
             "-NonInteractive",
             "-File",
-            "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\scripts\\baiying_build_whole_provider.ps1",
+            "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_build_whole_provider.ps1",
             "-OutDir",
-            "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole",
+            "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole",
             "-CompileTimeoutSeconds",
             "180"
           ]
@@ -232,11 +232,11 @@
           "Length": 64,
           "Load": 26,
           "TotalPhysical": 33981009920,
-          "AvailablePhysical": 25130348544,
+          "AvailablePhysical": 25125859328,
           "TotalCommit": 156119142400,
-          "AvailableCommit": 147512635392,
+          "AvailableCommit": 147503489024,
           "TotalVirtual": 140737488224256,
-          "AvailableVirtual": 138533475389440,
+          "AvailableVirtual": 138533471182848,
           "AvailableExtendedVirtual": 0
         },
         "gpus": [
@@ -259,7 +259,7 @@
       },
       "reason": "completed",
       "exit_code": 0,
-      "wall_ms": 81099.139,
+      "wall_ms": 80777.062,
       "summary_present": false,
       "cli_pass": false,
       "summary": null,
@@ -276,11 +276,11 @@
         "Length": 64,
         "Load": 26,
         "TotalPhysical": 33981009920,
-        "AvailablePhysical": 25138896896,
+        "AvailablePhysical": 25137762304,
         "TotalCommit": 156119142400,
-        "AvailableCommit": 147506102272,
+        "AvailableCommit": 147488821248,
         "TotalVirtual": 140737488224256,
-        "AvailableVirtual": 138533469196288,
+        "AvailableVirtual": 138533468659712,
         "AvailableExtendedVirtual": 0
       },
       "after_gpus": [
@@ -306,7 +306,7 @@
   "cases": [
     {
       "name": "q7169-out512",
-      "run_record_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+      "run_record_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
       "spec": {
         "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
         "arguments": [
@@ -322,27 +322,28 @@
           "--expected-prompt-fnv",
           "c900c18703532d6a",
           "--env-file",
-          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\hawkeye-packed-q7169-out512-r1.env",
+          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\wmma-staging-q7169-out512-r1.env",
           "--provider-dll",
-          "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+          "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
         ],
-        "working_directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911",
-        "repo_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-        "command_file": "D:\\projects\\run-native-hawkeye-packed-product-r1.ps1",
-        "command_file_sha256": "bdac1135de4ee064b589a8182151891d50d3f8058f441366b64315abd7f4b310",
+        "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+        "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+        "command_file": "D:\\projects\\run-native-wmma-staging-product-r1.ps1",
+        "command_file_sha256": "91be26ae082c2e4b545e3aa592cfb2d0375bcbba9673028d8fa3024290e4fda2",
         "model": "D:\\models\\Qwen3.6-35B-A3B",
-        "oracle": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle": "D:\\projects\\AIMA-public-wmma-staging-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
         "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
         "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
         "parent_environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
-        "environment_sha256": "bddcffeefd3cb6df9578d36458c80bb54098b719d158115e148ad7dff163884e",
+        "environment_sha256": "b70f94c0fd3e7c82b81f363f80fbaf83c63383ee6359434a5f6fd0f546743440",
         "environment_overrides": {
           "QRT_FLA_GDN_BATCHED_EXACT": "1",
-          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "1",
+          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "0",
+          "QRT_QWEN36_PREFILL_WMMA_LDS": "1",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT": "512",
           "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES": "14682112",
           "QRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL": "0",
-          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q7169-out512-r1\\cache19",
+          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q7169-out512-r1\\cache19",
           "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
           "QRT_QWEN36_Q1_SM121_RCP_TABLE": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
           "QRT_QWEN36_Q1_SM121_FULL": "1",
@@ -350,13 +351,13 @@
           "QRT_QWEN36_Q1_SM121_MOE": "1",
           "QRT_QWEN36_Q1_SM121_ROUTER_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
           "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
-          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q7169-out512-r1\\moe0",
-          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q7169-out512-r1\\full19",
+          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q7169-out512-r1\\moe0",
+          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q7169-out512-r1\\full19",
           "QRT_QWEN36_Q1_SM121_OUTPUT": "1",
           "QRT_QWEN36_Q1_SM121_GDN": "1",
           "QRT_QWEN36_Q1_F32_PROJECTION_SM121": "1",
           "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
-          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q7169-out512-r1\\linear0",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q7169-out512-r1\\linear0",
           "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER": "19",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER": "0",
           "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "4294967295",
@@ -366,7 +367,7 @@
           "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "4294967295",
           "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "7169",
           "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "7277",
-          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q7169-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q7169-out512-r1\\q1",
           "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "7277",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "2450",
@@ -384,20 +385,20 @@
         },
         "components": {
           "whole": {
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-            "directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole",
-            "build_metadata_sha256": "f7920390cd6ce28c1d7fd4c649aa86b0dcedf5606ba4e7583ea57abd0203d53c",
-            "build_run_sha256": "dcf3dfb0d8da6e9d773257efcf4500adcfa2f19591eec363db47ce4a82bd097f",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+            "directory": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole",
+            "build_metadata_sha256": "eea20cb236d038e25db47470bee6be8ba762cf182d4a086e7894c137ecde99bd",
+            "build_run_sha256": "2fdb8032491ccfa219dad48de2558e437561d426b04180afec52cd189c0d9e3a",
             "artifacts": [
               {
                 "name": "qrt_qwen36_whole_provider.dll",
-                "bytes": 11741184,
-                "sha256": "26f569fd4783873bc350ce9ffb935268d04410be51127d6757846041d4fe6fb0"
+                "bytes": 11749888,
+                "sha256": "072032a3bdce8d619fb5022e30d253216f26d3de4623ac8c99c85cceea5e3441"
               },
               {
                 "name": "q1_moe_avx512bf16_host_provider.obj",
                 "bytes": 183170,
-                "sha256": "6a6f36071eb79c6b5805f16fd4a1333da59555b99256369735d8e3feca8c0840"
+                "sha256": "23d36c07837818604f84f0f80dca5a9c310ad42cb7d55843f4723b0d2dd2624f"
               }
             ]
           },
@@ -584,7 +585,7 @@
         "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
         "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
         "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
-        "purpose": "Complete frozen product qualification of exact packed candidate projections with transposed weight scratch; all original strict prefill and exact Q1 arithmetic retained",
+        "purpose": "Complete frozen product qualification of shared-memory WMMA operand reuse, with original K16 arithmetic, wave16 candidate corrections, strict prefill and exact Q1 retained",
         "output_tokens_requested": 512,
         "inference_acceptance": false,
         "native_safety_run_sha256": null,
@@ -819,13 +820,13 @@
         "amd_gpu_ok": true
       },
       "host_checks_pass": true,
-      "wall_ms": 150736.319,
+      "wall_ms": 149473.828,
       "summary": {
         "type": "summary",
         "status": "pass",
         "host": "BAIYING",
         "model_path": "D:\\models\\Qwen3.6-35B-A3B",
-        "provider_dll": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "provider_dll": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
         "first_token_raw_logit_contract_version": 1,
         "first_token_report_available": true,
         "first_token_report_token_emitted": true,
@@ -851,22 +852,22 @@
         "prefix_negative_guard_provider_invoked": 0,
         "prompt_token_ids_fnv1a64": "c900c18703532d6a",
         "output_token_ids_fnv1a64": "554c240683d77bbe",
-        "engine_load_ms": 20031.6968,
-        "provider_preload_ms": 20021.0476,
-        "provider_preload_reported_ms": 20020.4121,
-        "provider_preload_dll_load_ms": 9.4891,
+        "engine_load_ms": 20311.866,
+        "provider_preload_ms": 20300.9529,
+        "provider_preload_reported_ms": 20300.1437,
+        "provider_preload_dll_load_ms": 9.7724,
         "provider_preload_stored_entries": 256,
-        "engine_create_ms": 1.1465,
+        "engine_create_ms": 1.1266,
         "prefix_seed_ms": 0.0,
-        "request_wall_ms": 130242.0395,
-        "ttft_ms": 72740.7119,
-        "provider_ttft_ms": 72736.4063,
-        "prefill_tokens_per_second": 98.555538,
-        "tpot_ms": 112.318219,
-        "decode_tokens_per_second": 8.903275,
+        "request_wall_ms": 128707.0793,
+        "ttft_ms": 71029.3772,
+        "provider_ttft_ms": 71025.185,
+        "prefill_tokens_per_second": 100.93007,
+        "tpot_ms": 112.661672,
+        "decode_tokens_per_second": 8.876133,
         "stream_callback_count": 512,
-        "first_callback_wall_ms": 72740.7119,
-        "last_callback_wall_ms": 130237.4796,
+        "first_callback_wall_ms": 71029.3772,
+        "last_callback_wall_ms": 128703.7349,
         "callbacks_before_return": true,
         "stream_matches_output": true,
         "expected_prompt_match": true,
@@ -1399,14 +1400,14 @@
       },
       "frozen_prompt_first_logit_complete_output_streaming_pass": true,
       "prior_run_record_sha256": "fba97a149f60879137e64a4ab56585ad452825da7f94ca7fa94128fcaffc77d3",
-      "callback_ttft_reduction_ms": -3485.4171999999962,
+      "callback_ttft_reduction_ms": -1774.082500000004,
       "timings": {
-        "source_sha256": "560875cef9e12bb1ad249cbc79044049448fb2176524fa73ec4fb4e80e300e34",
+        "source_sha256": "c114e036caeb7f74cdb2e4340a280a60031e5ea4ad292dc509e678ffae99512c",
         "calls": 170,
         "candidates": 306199284,
-        "correction_completed_wall_ms": 17484.372,
-        "transpose_bytes": 2566389760,
-        "packed_calls": 170,
+        "correction_completed_wall_ms": 13038.104,
+        "transpose_bytes": 0,
+        "packed_calls": 0,
         "groups": [
           {
             "rows": 8192,
@@ -1414,8 +1415,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 140485905,
-            "correction_ms": 7548.0830000000005,
-            "maximum_dispatch_ms": 4.622
+            "correction_ms": 5080.285,
+            "maximum_dispatch_ms": 3.237
           },
           {
             "rows": 4096,
@@ -1423,8 +1424,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 43172211,
-            "correction_ms": 2547.4920000000006,
-            "maximum_dispatch_ms": 5.699
+            "correction_ms": 1521.168,
+            "maximum_dispatch_ms": 3.074
           },
           {
             "rows": 32,
@@ -1432,8 +1433,8 @@
             "k": 2048,
             "calls": 60,
             "candidates": 13764480,
-            "correction_ms": 208.51100000000005,
-            "maximum_dispatch_ms": 1.015
+            "correction_ms": 427.8630000000001,
+            "maximum_dispatch_ms": 2.133
           },
           {
             "rows": 2048,
@@ -1441,8 +1442,8 @@
             "k": 4096,
             "calls": 40,
             "candidates": 71816584,
-            "correction_ms": 4475.195000000001,
-            "maximum_dispatch_ms": 5.565
+            "correction_ms": 4715.478999999999,
+            "maximum_dispatch_ms": 9.392
           },
           {
             "rows": 9216,
@@ -1450,8 +1451,8 @@
             "k": 2048,
             "calls": 10,
             "candidates": 36960104,
-            "correction_ms": 2705.0910000000003,
-            "maximum_dispatch_ms": 5.945
+            "correction_ms": 1293.309,
+            "maximum_dispatch_ms": 2.533
           }
         ],
         "scope": "Host wall time around completed correction sequences, including their submissions and waits; a component total, not GPU-event time or product TTFT."
@@ -1514,7 +1515,7 @@
       },
       "observations": {
         "state-comparison-r2.json": {
-          "record_sha256": "27ddaebf1d3d1ab87df769b35528189b51278a6a2b98329acf340348277116fa",
+          "record_sha256": "702accb0dab379b0251ceaac9bb16016f60af7d6202c90d113b5eab0745ddfc4",
           "data": {
             "case": "q7169-out512",
             "position": 7277,
@@ -1522,7 +1523,7 @@
             "original_target_row": 1,
             "selected_tensor_row": 0,
             "reference_case_sha256": "9281edc059624c37b8361e616110a8fdd653dec81db08a82fe14514a1fccf389",
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "command_file": "compare_q1_continuation_states_r1.py",
             "command_file_sha256": "e5fc7c54ea841b8f97660d1ee24110e8e142487221b4fdf4820a57d747d8cf7d",
             "stages": {
@@ -1642,7 +1643,7 @@
           }
         },
         "boundary-comparison-r1.json": {
-          "record_sha256": "167efef75903427d5a1de2371830af1043508e2836ba9dbf868086e6d3a31f4a",
+          "record_sha256": "33b03b19e6a85c479dd7d0f7266eff81c4c41e72abafad427297437add50ea47",
           "data": {
             "product_completed": true,
             "case": "q7169-out512",
@@ -1650,7 +1651,7 @@
             "transaction": 60,
             "reference_row": 0,
             "reference_case_sha256": "9281edc059624c37b8361e616110a8fdd653dec81db08a82fe14514a1fccf389",
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "stages": [
               {
                 "elements": 2048,
@@ -2036,14 +2037,14 @@
           }
         },
         "state-history-comparison-r2.json": {
-          "record_sha256": "f90a13bb67cbe704a4f3f154a5b60c1ec87720c2cbb8858b875f25f6922e5090",
+          "record_sha256": "3c724606d342cdee3bbfb219300d2f43fdd28f7ff497624bb0ca269f2b9de47c",
           "data": {
             "case": "q7169-out512",
             "layer": 0,
             "host": "BAIYING",
             "model": "D:\\models\\Qwen3.6-35B-A3B",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "reference_case_sha256": "7dcb6f40379ee9fbb94b310809288eff851284c66d84dde98118f0d0058a8640",
             "reference_capture_sha256": "c022d5ac0e779d83568c5029f619af27416fd6f12dfe3cbe700acfe50a822e16",
             "native_state_hash_count": 806,
@@ -2059,17 +2060,17 @@
           }
         },
         "moe-comparison-r1.json": {
-          "record_sha256": "e65886dcc8ec3c05cf9ac933b00559f60de669dc465fff19dd26385ec7a9fe04",
+          "record_sha256": "75426b59b4c486365e948151ab2cc2c2664bbf5dfb2ee56bb4febd16c23bf11a",
           "data": {
             "case": "q7169-out512",
             "host": "baiying",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "product_completed": true,
             "position": 7277,
             "transaction": 60,
             "reference_row": 0,
             "reference_case_sha256": "9281edc059624c37b8361e616110a8fdd653dec81db08a82fe14514a1fccf389",
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "stages": [
               {
                 "elements": 2048,
@@ -2215,18 +2216,18 @@
           }
         },
         "full-comparison-r1.json": {
-          "record_sha256": "38460830c03b052d15265b86fb0375c5edad569f97607ceaefd10a04d240ba24",
+          "record_sha256": "51e45f1ba607dab3a8e4ab8f449d2a92564b5c5bb6a950022f058c94c31b64bd",
           "data": {
             "case": "q7169-out512",
             "host": "baiying",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "position": 7277,
             "transaction": 60,
             "reference_row": 1,
             "selected_tensor_row": 0,
             "full_layer": 19,
             "reference_case_sha256": "9281edc059624c37b8361e616110a8fdd653dec81db08a82fe14514a1fccf389",
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "stages": [
               {
                 "elements": 2048,
@@ -2422,15 +2423,15 @@
           }
         },
         "cache-comparison-r1.json": {
-          "record_sha256": "6e4d2b09e54cc580fe4ef91d3f69b8dfaab137b16e463a67ddf3e24017af0cd8",
+          "record_sha256": "d18f9fcffb2725e42cadca3126d1e899fbc7aafb19ed2ffa9c5564c9831dfa5b",
           "data": {
             "host": "baiying",
             "model": "D:\\models\\Qwen3.6-35B-A3B",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "case": "q7169-out512",
             "position": 7277,
             "layer": 19,
-            "native_run_sha256": "9d5beda63e2da4d8445805c02c38eb81ffdce5090c664e88bd7828aee1cfe30a",
+            "native_run_sha256": "89d778ada6fc47f218fb2b855a4c06ee02b9f3b3c6e6aeea4c6a0bbb1723fd14",
             "reference_case_sha256": "9281edc059624c37b8361e616110a8fdd653dec81db08a82fe14514a1fccf389",
             "reference_cache": {
               "transaction": 60,
@@ -2997,11 +2998,12 @@
           "bytes": 8192,
           "sha256": "b5272afe3f18e1c6c2bdbdb941d1a4435bfa5c83245e2ca5fca27355e4124ac1"
         }
-      ]
+      ],
+      "staging_entry_count": 70
     },
     {
       "name": "q8192-out512",
-      "run_record_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+      "run_record_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
       "spec": {
         "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
         "arguments": [
@@ -3017,27 +3019,28 @@
           "--expected-prompt-fnv",
           "1584e34d56e5d78b",
           "--env-file",
-          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\hawkeye-packed-q8192-out512-r1.env",
+          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\wmma-staging-q8192-out512-r1.env",
           "--provider-dll",
-          "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+          "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
         ],
-        "working_directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911",
-        "repo_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-        "command_file": "D:\\projects\\run-native-hawkeye-packed-product-r1.ps1",
-        "command_file_sha256": "bdac1135de4ee064b589a8182151891d50d3f8058f441366b64315abd7f4b310",
+        "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+        "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+        "command_file": "D:\\projects\\run-native-wmma-staging-product-r1.ps1",
+        "command_file_sha256": "91be26ae082c2e4b545e3aa592cfb2d0375bcbba9673028d8fa3024290e4fda2",
         "model": "D:\\models\\Qwen3.6-35B-A3B",
-        "oracle": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle": "D:\\projects\\AIMA-public-wmma-staging-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
         "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
         "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
         "parent_environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
-        "environment_sha256": "5d531077233106f63b2f147333049668bbc27b76fe8737ffd3da903385d4a29d",
+        "environment_sha256": "ba6a5ff558feaad264bb738fdf837e81788462fd94c73bd3cd53e91a5cdda24a",
         "environment_overrides": {
           "QRT_FLA_GDN_BATCHED_EXACT": "1",
-          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "1",
+          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "0",
+          "QRT_QWEN36_PREFILL_WMMA_LDS": "1",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT": "512",
           "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES": "16777216",
           "QRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL": "0",
-          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8192-out512-r1\\cache19",
+          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8192-out512-r1\\cache19",
           "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
           "QRT_QWEN36_Q1_SM121_RCP_TABLE": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
           "QRT_QWEN36_Q1_SM121_FULL": "1",
@@ -3045,13 +3048,13 @@
           "QRT_QWEN36_Q1_SM121_MOE": "1",
           "QRT_QWEN36_Q1_SM121_ROUTER_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
           "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
-          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8192-out512-r1\\moe0",
-          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8192-out512-r1\\full19",
+          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8192-out512-r1\\moe0",
+          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8192-out512-r1\\full19",
           "QRT_QWEN36_Q1_SM121_OUTPUT": "1",
           "QRT_QWEN36_Q1_SM121_GDN": "1",
           "QRT_QWEN36_Q1_F32_PROJECTION_SM121": "1",
           "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
-          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8192-out512-r1\\linear0",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8192-out512-r1\\linear0",
           "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER": "19",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER": "0",
           "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "4294967295",
@@ -3061,7 +3064,7 @@
           "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "4294967295",
           "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "8192",
           "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8426",
-          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8192-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8192-out512-r1\\q1",
           "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8426",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "488",
@@ -3079,20 +3082,20 @@
         },
         "components": {
           "whole": {
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-            "directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole",
-            "build_metadata_sha256": "f7920390cd6ce28c1d7fd4c649aa86b0dcedf5606ba4e7583ea57abd0203d53c",
-            "build_run_sha256": "dcf3dfb0d8da6e9d773257efcf4500adcfa2f19591eec363db47ce4a82bd097f",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+            "directory": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole",
+            "build_metadata_sha256": "eea20cb236d038e25db47470bee6be8ba762cf182d4a086e7894c137ecde99bd",
+            "build_run_sha256": "2fdb8032491ccfa219dad48de2558e437561d426b04180afec52cd189c0d9e3a",
             "artifacts": [
               {
                 "name": "qrt_qwen36_whole_provider.dll",
-                "bytes": 11741184,
-                "sha256": "26f569fd4783873bc350ce9ffb935268d04410be51127d6757846041d4fe6fb0"
+                "bytes": 11749888,
+                "sha256": "072032a3bdce8d619fb5022e30d253216f26d3de4623ac8c99c85cceea5e3441"
               },
               {
                 "name": "q1_moe_avx512bf16_host_provider.obj",
                 "bytes": 183170,
-                "sha256": "6a6f36071eb79c6b5805f16fd4a1333da59555b99256369735d8e3feca8c0840"
+                "sha256": "23d36c07837818604f84f0f80dca5a9c310ad42cb7d55843f4723b0d2dd2624f"
               }
             ]
           },
@@ -3279,7 +3282,7 @@
         "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
         "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
         "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
-        "purpose": "Complete frozen product qualification of exact packed candidate projections with transposed weight scratch; all original strict prefill and exact Q1 arithmetic retained",
+        "purpose": "Complete frozen product qualification of shared-memory WMMA operand reuse, with original K16 arithmetic, wave16 candidate corrections, strict prefill and exact Q1 retained",
         "output_tokens_requested": 512,
         "inference_acceptance": false,
         "native_safety_run_sha256": null,
@@ -3514,13 +3517,13 @@
         "amd_gpu_ok": true
       },
       "host_checks_pass": true,
-      "wall_ms": 163908.124,
+      "wall_ms": 160667.676,
       "summary": {
         "type": "summary",
         "status": "pass",
         "host": "BAIYING",
         "model_path": "D:\\models\\Qwen3.6-35B-A3B",
-        "provider_dll": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "provider_dll": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
         "first_token_raw_logit_contract_version": 1,
         "first_token_report_available": true,
         "first_token_report_token_emitted": true,
@@ -3546,22 +3549,22 @@
         "prefix_negative_guard_provider_invoked": 0,
         "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
         "output_token_ids_fnv1a64": "ca7c30b242ddf035",
-        "engine_load_ms": 20214.8818,
-        "provider_preload_ms": 20204.1036,
-        "provider_preload_reported_ms": 20203.4679,
-        "provider_preload_dll_load_ms": 9.5557,
+        "engine_load_ms": 19967.9659,
+        "provider_preload_ms": 19956.9608,
+        "provider_preload_reported_ms": 19956.2539,
+        "provider_preload_dll_load_ms": 9.8212,
         "provider_preload_stored_entries": 256,
-        "engine_create_ms": 1.2082,
+        "engine_create_ms": 1.1707,
         "prefix_seed_ms": 0.0,
-        "request_wall_ms": 143227.7017,
-        "ttft_ms": 84055.422,
-        "provider_ttft_ms": 84051.7198,
-        "prefill_tokens_per_second": 97.459507,
-        "tpot_ms": 115.595795,
-        "decode_tokens_per_second": 8.650834,
+        "request_wall_ms": 140230.4438,
+        "ttft_ms": 79974.2864,
+        "provider_ttft_ms": 79969.8389,
+        "prefill_tokens_per_second": 102.432924,
+        "tpot_ms": 117.712941,
+        "decode_tokens_per_second": 8.495243,
         "stream_callback_count": 512,
-        "first_callback_wall_ms": 84055.422,
-        "last_callback_wall_ms": 143224.4299,
+        "first_callback_wall_ms": 79974.2864,
+        "last_callback_wall_ms": 140226.2901,
         "callbacks_before_return": true,
         "stream_matches_output": true,
         "expected_prompt_match": true,
@@ -4094,14 +4097,14 @@
       },
       "frozen_prompt_first_logit_complete_output_streaming_pass": true,
       "prior_run_record_sha256": "8810116783258c09890b733899e61e1e6397d0fe347561bfd48163b0129b298d",
-      "callback_ttft_reduction_ms": -4580.718200000003,
+      "callback_ttft_reduction_ms": -499.5825999999943,
       "timings": {
-        "source_sha256": "cdbca5f95486ad939a864af95d478f7a7226a4e542ad487f46fd15d984103d35",
+        "source_sha256": "c5f5ee316100e676691141e8cc313dfd34174a84155a48df3ec661943b137237",
         "calls": 170,
         "candidates": 350029910,
-        "correction_completed_wall_ms": 19850.035,
-        "transpose_bytes": 2566389760,
-        "packed_calls": 170,
+        "correction_completed_wall_ms": 14914.777,
+        "transpose_bytes": 0,
+        "packed_calls": 0,
         "groups": [
           {
             "rows": 8192,
@@ -4109,8 +4112,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 160628620,
-            "correction_ms": 8534.961,
-            "maximum_dispatch_ms": 4.499
+            "correction_ms": 5803.179000000001,
+            "maximum_dispatch_ms": 3.308
           },
           {
             "rows": 4096,
@@ -4118,8 +4121,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 49267111,
-            "correction_ms": 2885.6530000000002,
-            "maximum_dispatch_ms": 5.558
+            "correction_ms": 1740.484,
+            "maximum_dispatch_ms": 2.718
           },
           {
             "rows": 32,
@@ -4127,8 +4130,8 @@
             "k": 2048,
             "calls": 60,
             "candidates": 15728640,
-            "correction_ms": 231.28300000000002,
-            "maximum_dispatch_ms": 1.062
+            "correction_ms": 497.2060000000001,
+            "maximum_dispatch_ms": 2.163
           },
           {
             "rows": 2048,
@@ -4136,8 +4139,8 @@
             "k": 4096,
             "calls": 40,
             "candidates": 82126034,
-            "correction_ms": 5110.777,
-            "maximum_dispatch_ms": 5.416
+            "correction_ms": 5404.328,
+            "maximum_dispatch_ms": 5.045
           },
           {
             "rows": 9216,
@@ -4145,8 +4148,8 @@
             "k": 2048,
             "calls": 10,
             "candidates": 42279505,
-            "correction_ms": 3087.361,
-            "maximum_dispatch_ms": 6.118
+            "correction_ms": 1469.58,
+            "maximum_dispatch_ms": 2.645
           }
         ],
         "scope": "Host wall time around completed correction sequences, including their submissions and waits; a component total, not GPU-event time or product TTFT."
@@ -4209,7 +4212,7 @@
       },
       "observations": {
         "state-comparison-r2.json": {
-          "record_sha256": "da996cf8d3888e231366434b53b6c3bd42a4c26537ccd6e8c1ec1d3df408ada3",
+          "record_sha256": "08284cbdd373bb7e07f5ecd05c63df4b05d4457a0bb7e913ca1c58eb4acdb97e",
           "data": {
             "case": "q8192-out512",
             "position": 8426,
@@ -4217,7 +4220,7 @@
             "original_target_row": 0,
             "selected_tensor_row": 0,
             "reference_case_sha256": "0d7c32411dd7959c3ad5d8d4dab5e993f749287ad196f6a333fc2b7cae3004dd",
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "command_file": "compare_q1_continuation_states_r1.py",
             "command_file_sha256": "e5fc7c54ea841b8f97660d1ee24110e8e142487221b4fdf4820a57d747d8cf7d",
             "stages": {
@@ -4337,7 +4340,7 @@
           }
         },
         "boundary-comparison-r1.json": {
-          "record_sha256": "c83edcd4bd2fcedb09089ed47576ad0078423050a7e0ee51ad432e0d57a8db6e",
+          "record_sha256": "571b28e364917fc67a05caea3594e4722ef1da71ae41088d15f9bcfd931486d2",
           "data": {
             "product_completed": true,
             "case": "q8192-out512",
@@ -4345,7 +4348,7 @@
             "transaction": 128,
             "reference_row": 0,
             "reference_case_sha256": "0d7c32411dd7959c3ad5d8d4dab5e993f749287ad196f6a333fc2b7cae3004dd",
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "stages": [
               {
                 "elements": 2048,
@@ -4731,14 +4734,14 @@
           }
         },
         "state-history-comparison-r2.json": {
-          "record_sha256": "7bcb31701d74c03d3e7274aac118cd838f2eb486648eddba3d4d86f23a158b35",
+          "record_sha256": "e3df8f0f07a0d235ea28b5a6772183238b3c5a0eeda34739ca4aec2a25ad9ff8",
           "data": {
             "case": "q8192-out512",
             "layer": 0,
             "host": "BAIYING",
             "model": "D:\\models\\Qwen3.6-35B-A3B",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "reference_case_sha256": "29e6259b66f66b35be0df86a96684174bc7bfde69f5bdd1b525f7aeae482cf13",
             "reference_capture_sha256": "c022d5ac0e779d83568c5029f619af27416fd6f12dfe3cbe700acfe50a822e16",
             "native_state_hash_count": 554,
@@ -4754,17 +4757,17 @@
           }
         },
         "moe-comparison-r1.json": {
-          "record_sha256": "fb91a4d06b556449b3992c4f8271f0b19cd7d3b5599f92ffea0236c28dde9dc4",
+          "record_sha256": "f5ec2b82e54d29b45412b5b31c7f5d65d75a2f7331cc01ebc1fb15c7beb08ff9",
           "data": {
             "case": "q8192-out512",
             "host": "baiying",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "product_completed": true,
             "position": 8426,
             "transaction": 128,
             "reference_row": 0,
             "reference_case_sha256": "0d7c32411dd7959c3ad5d8d4dab5e993f749287ad196f6a333fc2b7cae3004dd",
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "stages": [
               {
                 "elements": 2048,
@@ -4910,18 +4913,18 @@
           }
         },
         "full-comparison-r1.json": {
-          "record_sha256": "43230e55a73b279d4793b5e9bf6756a4c60f4717ea65305c5de7fde0c178794e",
+          "record_sha256": "0f117971f5c42e729d28e918046ba1923631e6560d48ce7db85fcb1af8f66f84",
           "data": {
             "case": "q8192-out512",
             "host": "baiying",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "position": 8426,
             "transaction": 128,
             "reference_row": 0,
             "selected_tensor_row": 0,
             "full_layer": 19,
             "reference_case_sha256": "0d7c32411dd7959c3ad5d8d4dab5e993f749287ad196f6a333fc2b7cae3004dd",
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "stages": [
               {
                 "elements": 2048,
@@ -5117,15 +5120,15 @@
           }
         },
         "cache-comparison-r1.json": {
-          "record_sha256": "f3fcd84674a1db8e6a9b2e35b4ad8a3f3b7b4c127c22619a917c3facd0cde4d2",
+          "record_sha256": "65c5762800fbf381844ae3e3852b1857bbcfefcd5860dca983fb9e1935536828",
           "data": {
             "host": "baiying",
             "model": "D:\\models\\Qwen3.6-35B-A3B",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "case": "q8192-out512",
             "position": 8426,
             "layer": 19,
-            "native_run_sha256": "0d60f12e289abb9814773fe2bc058b44783d45ce0c44462544380070af997880",
+            "native_run_sha256": "407399edfb876940350a159fc86754790c54e2c677e9f6be2dd9c1f8acfbaa03",
             "reference_case_sha256": "0d7c32411dd7959c3ad5d8d4dab5e993f749287ad196f6a333fc2b7cae3004dd",
             "reference_cache": {
               "transaction": 128,
@@ -5693,11 +5696,12 @@
           "bytes": 8192,
           "sha256": "467d0d423ec38317368c8bfd82bfde5a30c85f7e229902a110b81f3be27beebc"
         }
-      ]
+      ],
+      "staging_entry_count": 70
     },
     {
       "name": "q8191-out32",
-      "run_record_sha256": "96ed810dc5e0d71264782b091c04dbf3691e49a1062b0c17ee378b0ba205cf2f",
+      "run_record_sha256": "5d2351ef9cc389117aff03804a72237bd375154518418b4b940ab5f8f3666432",
       "spec": {
         "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
         "arguments": [
@@ -5713,27 +5717,28 @@
           "--expected-prompt-fnv",
           "7015b1f272403af6",
           "--env-file",
-          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\hawkeye-packed-q8191-out32-r1.env",
+          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\wmma-staging-q8191-out32-r1.env",
           "--provider-dll",
-          "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+          "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
         ],
-        "working_directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911",
-        "repo_commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-        "command_file": "D:\\projects\\run-native-hawkeye-packed-product-r1.ps1",
-        "command_file_sha256": "bdac1135de4ee064b589a8182151891d50d3f8058f441366b64315abd7f4b310",
+        "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+        "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+        "command_file": "D:\\projects\\run-native-wmma-staging-product-r1.ps1",
+        "command_file_sha256": "91be26ae082c2e4b545e3aa592cfb2d0375bcbba9673028d8fa3024290e4fda2",
         "model": "D:\\models\\Qwen3.6-35B-A3B",
-        "oracle": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle": "D:\\projects\\AIMA-public-wmma-staging-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
         "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
         "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
         "parent_environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
-        "environment_sha256": "54241c2a0ffcec2b600d8e2895b4c60e69ce6eda47571792609ec633ecb88ef2",
+        "environment_sha256": "31550428d33560a6cdec4e1a51faf741388fa19f176a73a53c3ed1f9d1705cb7",
         "environment_overrides": {
           "QRT_FLA_GDN_BATCHED_EXACT": "1",
-          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "1",
+          "QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES": "0",
+          "QRT_QWEN36_PREFILL_WMMA_LDS": "1",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT": "1",
           "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES": "16775168",
           "QRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL": "0",
-          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8191-out32-r1\\cache3",
+          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8191-out32-r1\\cache3",
           "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
           "QRT_QWEN36_Q1_SM121_RCP_TABLE": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
           "QRT_QWEN36_Q1_SM121_FULL": "1",
@@ -5741,13 +5746,13 @@
           "QRT_QWEN36_Q1_SM121_MOE": "1",
           "QRT_QWEN36_Q1_SM121_ROUTER_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
           "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
-          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8191-out32-r1\\moe2",
-          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8191-out32-r1\\full3",
+          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8191-out32-r1\\moe2",
+          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8191-out32-r1\\full3",
           "QRT_QWEN36_Q1_SM121_OUTPUT": "1",
           "QRT_QWEN36_Q1_SM121_GDN": "1",
           "QRT_QWEN36_Q1_F32_PROJECTION_SM121": "1",
           "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
-          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8191-out32-r1\\linear2",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8191-out32-r1\\linear2",
           "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER": "3",
           "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER": "2",
           "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "4294967295",
@@ -5757,7 +5762,7 @@
           "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "4294967295",
           "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "8191",
           "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8196",
-          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\hawkeye-packed-q8191-out32-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-q8191-out32-r1\\q1",
           "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8196",
           "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "82",
@@ -5775,20 +5780,20 @@
         },
         "components": {
           "whole": {
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
-            "directory": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole",
-            "build_metadata_sha256": "f7920390cd6ce28c1d7fd4c649aa86b0dcedf5606ba4e7583ea57abd0203d53c",
-            "build_run_sha256": "dcf3dfb0d8da6e9d773257efcf4500adcfa2f19591eec363db47ce4a82bd097f",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+            "directory": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole",
+            "build_metadata_sha256": "eea20cb236d038e25db47470bee6be8ba762cf182d4a086e7894c137ecde99bd",
+            "build_run_sha256": "2fdb8032491ccfa219dad48de2558e437561d426b04180afec52cd189c0d9e3a",
             "artifacts": [
               {
                 "name": "qrt_qwen36_whole_provider.dll",
-                "bytes": 11741184,
-                "sha256": "26f569fd4783873bc350ce9ffb935268d04410be51127d6757846041d4fe6fb0"
+                "bytes": 11749888,
+                "sha256": "072032a3bdce8d619fb5022e30d253216f26d3de4623ac8c99c85cceea5e3441"
               },
               {
                 "name": "q1_moe_avx512bf16_host_provider.obj",
                 "bytes": 183170,
-                "sha256": "6a6f36071eb79c6b5805f16fd4a1333da59555b99256369735d8e3feca8c0840"
+                "sha256": "23d36c07837818604f84f0f80dca5a9c310ad42cb7d55843f4723b0d2dd2624f"
               }
             ]
           },
@@ -5975,7 +5980,7 @@
         "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
         "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
         "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
-        "purpose": "Complete frozen product qualification of exact packed candidate projections with transposed weight scratch; all original strict prefill and exact Q1 arithmetic retained",
+        "purpose": "Complete frozen product qualification of shared-memory WMMA operand reuse, with original K16 arithmetic, wave16 candidate corrections, strict prefill and exact Q1 retained",
         "output_tokens_requested": 32,
         "inference_acceptance": false,
         "native_safety_run_sha256": null,
@@ -6210,13 +6215,13 @@
         "amd_gpu_ok": true
       },
       "host_checks_pass": true,
-      "wall_ms": 108723.432,
+      "wall_ms": 104805.724,
       "summary": {
         "type": "summary",
         "status": "pass",
         "host": "BAIYING",
         "model_path": "D:\\models\\Qwen3.6-35B-A3B",
-        "provider_dll": "D:\\projects\\AIMA-public-hawkeye-packed-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "provider_dll": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
         "first_token_raw_logit_contract_version": 1,
         "first_token_report_available": true,
         "first_token_report_token_emitted": true,
@@ -6242,22 +6247,22 @@
         "prefix_negative_guard_provider_invoked": 0,
         "prompt_token_ids_fnv1a64": "7015b1f272403af6",
         "output_token_ids_fnv1a64": "c8195e228fda5765",
-        "engine_load_ms": 20028.463,
-        "provider_preload_ms": 20017.7708,
-        "provider_preload_reported_ms": 20016.9572,
-        "provider_preload_dll_load_ms": 9.6038,
+        "engine_load_ms": 19969.3423,
+        "provider_preload_ms": 19959.1442,
+        "provider_preload_reported_ms": 19958.3798,
+        "provider_preload_dll_load_ms": 9.0591,
         "provider_preload_stored_entries": 256,
-        "engine_create_ms": 1.074,
+        "engine_create_ms": 1.1248,
         "prefix_seed_ms": 0.0,
-        "request_wall_ms": 88230.7561,
-        "ttft_ms": 84446.9134,
-        "provider_ttft_ms": 84443.0353,
-        "prefill_tokens_per_second": 96.995848,
-        "tpot_ms": 118.68151,
-        "decode_tokens_per_second": 8.425912,
+        "request_wall_ms": 84392.5415,
+        "ttft_ms": 80540.2278,
+        "provider_ttft_ms": 80536.1745,
+        "prefill_tokens_per_second": 101.70073,
+        "tpot_ms": 120.965152,
+        "decode_tokens_per_second": 8.266844,
         "stream_callback_count": 32,
-        "first_callback_wall_ms": 84446.9134,
-        "last_callback_wall_ms": 88223.0186,
+        "first_callback_wall_ms": 80540.2278,
+        "last_callback_wall_ms": 84385.7283,
         "callbacks_before_return": true,
         "stream_matches_output": true,
         "expected_prompt_match": true,
@@ -6310,14 +6315,14 @@
       },
       "frozen_prompt_first_logit_complete_output_streaming_pass": true,
       "prior_run_record_sha256": "48fcce0d7b33b5f8690784a0f0a9d50417bd29a6c54d3d2785cbe0708259f164",
-      "callback_ttft_reduction_ms": -4681.046200000012,
+      "callback_ttft_reduction_ms": -774.3606,
       "timings": {
-        "source_sha256": "1c6962615e8793fd20e390d104a66dbcd0b5f743955e6e37de4d674be5e9aebe",
+        "source_sha256": "95b91234aa7dd58273909c8633090654e56cdc809fe4acc67ce1ba7bb39cd241",
         "calls": 170,
         "candidates": 349986524,
-        "correction_completed_wall_ms": 20007.236,
-        "transpose_bytes": 2566389760,
-        "packed_calls": 170,
+        "correction_completed_wall_ms": 14990.311,
+        "transpose_bytes": 0,
+        "packed_calls": 0,
         "groups": [
           {
             "rows": 8192,
@@ -6325,8 +6330,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 160608258,
-            "correction_ms": 8608.266000000001,
-            "maximum_dispatch_ms": 4.684
+            "correction_ms": 5827.290000000001,
+            "maximum_dispatch_ms": 2.864
           },
           {
             "rows": 4096,
@@ -6334,8 +6339,8 @@
             "k": 2048,
             "calls": 30,
             "candidates": 49261296,
-            "correction_ms": 2945.247,
-            "maximum_dispatch_ms": 5.366
+            "correction_ms": 1752.411,
+            "maximum_dispatch_ms": 2.636
           },
           {
             "rows": 32,
@@ -6343,8 +6348,8 @@
             "k": 2048,
             "calls": 60,
             "candidates": 15726720,
-            "correction_ms": 232.356,
-            "maximum_dispatch_ms": 1.082
+            "correction_ms": 501.55600000000004,
+            "maximum_dispatch_ms": 2.208
           },
           {
             "rows": 2048,
@@ -6352,8 +6357,8 @@
             "k": 4096,
             "calls": 40,
             "candidates": 82115966,
-            "correction_ms": 5127.033999999999,
-            "maximum_dispatch_ms": 5.62
+            "correction_ms": 5439.145,
+            "maximum_dispatch_ms": 5.103
           },
           {
             "rows": 9216,
@@ -6361,8 +6366,8 @@
             "k": 2048,
             "calls": 10,
             "candidates": 42274284,
-            "correction_ms": 3094.333,
-            "maximum_dispatch_ms": 6.365
+            "correction_ms": 1469.909,
+            "maximum_dispatch_ms": 2.494
           }
         ],
         "scope": "Host wall time around completed correction sequences, including their submissions and waits; a component total, not GPU-event time or product TTFT."
@@ -6425,7 +6430,7 @@
       },
       "observations": {
         "boundary-comparison-r1.json": {
-          "record_sha256": "93cb817660b6dbd689bd63137197b64a0fd2143223e58f4eb812ad4f6b5602fc",
+          "record_sha256": "7db1671f179a2df2b7abbe9306871cd188e4d4c399f2f4aa9d192668ec9dfd32",
           "data": {
             "product_completed": true,
             "case": "q8191-out32",
@@ -6433,7 +6438,7 @@
             "transaction": 6,
             "reference_row": 0,
             "reference_case_sha256": "d99f1e2cec54d9820f2fa02ed69720e32378099d9409c43e9f1c217abf16e865",
-            "native_run_sha256": "96ed810dc5e0d71264782b091c04dbf3691e49a1062b0c17ee378b0ba205cf2f",
+            "native_run_sha256": "5d2351ef9cc389117aff03804a72237bd375154518418b4b940ab5f8f3666432",
             "stages": [
               {
                 "elements": 2048,
@@ -6819,18 +6824,18 @@
           }
         },
         "full-comparison-r1.json": {
-          "record_sha256": "481153e9a233017faf503d75aaa089eaf8d2047234242c4f2b742d3347af5ac8",
+          "record_sha256": "1d0547f24357734cdc2c7c43d758224750560dc5712bab8f50d069e84ab3230b",
           "data": {
             "case": "q8191-out32",
             "host": "baiying",
-            "commit": "25d34e7559691948c59b8e85704882bbeb7894fa",
+            "commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
             "position": 8196,
             "transaction": 6,
             "reference_row": 0,
             "selected_tensor_row": 0,
             "full_layer": 3,
             "reference_case_sha256": "d99f1e2cec54d9820f2fa02ed69720e32378099d9409c43e9f1c217abf16e865",
-            "native_run_sha256": "96ed810dc5e0d71264782b091c04dbf3691e49a1062b0c17ee378b0ba205cf2f",
+            "native_run_sha256": "5d2351ef9cc389117aff03804a72237bd375154518418b4b940ab5f8f3666432",
             "stages": [
               {
                 "elements": 2048,
@@ -7492,20 +7497,332 @@
           "bytes": 8192,
           "sha256": "e5d4533bd6fac32bc88bafa5090439eb43e1effdd59ce69ea553fe6e9445cb00"
         }
-      ]
+      ],
+      "staging_entry_count": 70
     }
   ],
   "performance_qualified": false,
   "release_qualified": false,
+  "native_component_comparison": {
+    "run_record_sha256": "0270de311b5a3723b9209fe4dfe12329736dc12ae683bc0f270bdceb9fce96a9",
+    "run_record": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin\\qrt-projection-safety.exe",
+        "cli_sha256": "b3c7eb68d38cc37497fc66f9f217dbf1a80f609d262ccf14fcf62f382eb05626",
+        "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+        "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+        "command_file": "D:\\projects\\run-native-wmma-staging-probe-r1.ps1",
+        "command_file_sha256": "8b531e239beed4e632aec8cc08cfb4ece966255459f2fb97b2feba57e08dc03f",
+        "model": "none; synthetic BF16 operands, including q8192 x 8192 x K2048",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "source_inputs": [
+          {
+            "sha256": "8aa9e92bbb4e40cbf687d78494f0cbdc0998efaa32be3260471b2b752ac30448",
+            "file": "native\\providers\\whole_provider.cpp"
+          },
+          {
+            "sha256": "66f522c0e29a9528c71a647e38725e03d49bd5a068bee842c050c1664e4bd32f",
+            "file": "tests\\native\\projection_safety_selftest.cpp"
+          },
+          {
+            "sha256": "ceb0c0028835500442f2f3b7f30a631848581b2b72504bc630c976ae2d2a9336",
+            "file": "scripts\\baiying_build_whole_provider.ps1"
+          }
+        ],
+        "purpose": "All raw F32 outputs from shared-memory staging must match the original ordered K16 WMMA kernel; tails, redzones and immutable operands checked",
+        "build_run_sha256": "eb7f6251773bae2189de1452d2dec8bf69ba33ad418ec535fdba1d2ae7c8f1ed",
+        "build_metadata_sha256": "fd1ecb983c418af6ac298b7ef69d01093467415cfcf021dae7df2e5d8ad33bd3",
+        "arguments": [
+          "--wmma-staging"
+        ]
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-11T16:24:07.7091568Z",
+        "command_file": "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin\\qrt-projection-safety.exe",
+          "cli_sha256": "b3c7eb68d38cc37497fc66f9f217dbf1a80f609d262ccf14fcf62f382eb05626",
+          "working_directory": "D:\\projects\\AIMA-public-wmma-staging-20260911",
+          "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+          "command_file": "D:\\projects\\run-native-wmma-staging-probe-r1.ps1",
+          "command_file_sha256": "8b531e239beed4e632aec8cc08cfb4ece966255459f2fb97b2feba57e08dc03f",
+          "model": "none; synthetic BF16 operands, including q8192 x 8192 x K2048",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "source_inputs": [
+            {
+              "sha256": "8aa9e92bbb4e40cbf687d78494f0cbdc0998efaa32be3260471b2b752ac30448",
+              "file": "native\\providers\\whole_provider.cpp"
+            },
+            {
+              "sha256": "66f522c0e29a9528c71a647e38725e03d49bd5a068bee842c050c1664e4bd32f",
+              "file": "tests\\native\\projection_safety_selftest.cpp"
+            },
+            {
+              "sha256": "ceb0c0028835500442f2f3b7f30a631848581b2b72504bc630c976ae2d2a9336",
+              "file": "scripts\\baiying_build_whole_provider.ps1"
+            }
+          ],
+          "purpose": "All raw F32 outputs from shared-memory staging must match the original ordered K16 WMMA kernel; tails, redzones and immutable operands checked",
+          "build_run_sha256": "eb7f6251773bae2189de1452d2dec8bf69ba33ad418ec535fdba1d2ae7c8f1ed",
+          "build_metadata_sha256": "fd1ecb983c418af6ac298b7ef69d01093467415cfcf021dae7df2e5d8ad33bd3",
+          "arguments": [
+            "--wmma-staging"
+          ]
+        },
+        "executable_sha256": "b3c7eb68d38cc37497fc66f9f217dbf1a80f609d262ccf14fcf62f382eb05626",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:03.7810550+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 26,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 25143623680,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147475800064,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533466812416,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 839.178,
+      "summary_present": true,
+      "cli_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "mode": "--wmma-staging",
+        "gpu_cases": 3,
+        "inference_success_claimed": false,
+        "numerical_scope": "synthetic_full_f32_staging_vs_original_wmma"
+      },
+      "after_boot": "2026-09-10T00:41:03.7810550+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:03.7810550+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 26,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 25140654080,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 147464601600,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533468434432,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "build_run_sha256": "eb7f6251773bae2189de1452d2dec8bf69ba33ad418ec535fdba1d2ae7c8f1ed",
+    "build_metadata_sha256": "fd1ecb983c418af6ac298b7ef69d01093467415cfcf021dae7df2e5d8ad33bd3",
+    "build_metadata": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "d59e049e5bc67a3e392faf298c851a89d8e6d3c6",
+      "dirty_tree": false,
+      "command_file": "D:\\projects\\AIMA-public-wmma-staging-20260911\\scripts\\baiying_build_whole_provider.ps1",
+      "offload_arch": "gfx1151",
+      "w8a8_group_size": 128,
+      "q8192_weight_int8_scale_fp16": false,
+      "compile_timeout_seconds": 180,
+      "source_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers\\whole_provider.cpp",
+      "source_sha256": "8aa9e92bbb4e40cbf687d78494f0cbdc0998efaa32be3260471b2b752ac30448",
+      "projection_safety_test": true,
+      "compile_source_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\tests\\native\\projection_safety_selftest.cpp",
+      "compile_source_sha256": "66f522c0e29a9528c71a647e38725e03d49bd5a068bee842c050c1664e4bd32f",
+      "hawkeye_dispatch_policy_sha256": "8fa0dec780c12f0af25cad6d64cbd9a7f5ecf52a74b6c6400043a3696e29ea85",
+      "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+      "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+      "qrt_header_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\src\\qrt.h",
+      "qrt_header_sha256": "e9061f51edaeff629042fdb9040c5fe5a5dfab8412f6c6f45dae49b8f6245ad6",
+      "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+      "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+      "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+      "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+      "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+      "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "sm121_wave16_header_sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+      "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+      "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+      "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+      "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+      "host_compile": {
+        "completed": true,
+        "timed_out": false,
+        "exit_code": 0,
+        "wall_ms": 1451.583
+      },
+      "provider_compile": {
+        "completed": true,
+        "timed_out": false,
+        "exit_code": 0,
+        "wall_ms": 79118.6848
+      },
+      "host_compile_arguments": [
+        "-std=c++17",
+        "-O3",
+        "-mavx512f",
+        "-mavx512bf16",
+        "-ffp-contract=off",
+        "-c",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "-o",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin\\q1_moe_avx512bf16_host_provider.obj"
+      ],
+      "provider_compile_arguments": [
+        "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+        "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+        "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+        "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+        "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+        "-I",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+        "-L",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin",
+        "-I",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+        "-L",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+        "-std=c++17",
+        "-O2",
+        "--offload-arch=gfx1151",
+        "-DQRT_STATIC=1",
+        "-I",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\src",
+        "-I",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\native\\providers",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\tests\\native\\projection_safety_selftest.cpp",
+        "-o",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin\\qrt-projection-safety.exe",
+        "-lrocblas",
+        "-lhipblaslt",
+        "-Xlinker",
+        "D:\\projects\\AIMA-public-wmma-staging-20260911\\build\\wmma-staging-probe-bin\\q1_moe_avx512bf16_host_provider.obj"
+      ],
+      "artifacts": [
+        {
+          "name": "qrt-projection-safety.exe",
+          "bytes": 11821056,
+          "sha256": "b3c7eb68d38cc37497fc66f9f217dbf1a80f609d262ccf14fcf62f382eb05626"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "e3b836d43a3d51d9da1f1032eb21b031d3f2f55e87a6cfe5d9401870da996203"
+        }
+      ]
+    },
+    "reports": [
+      {
+        "type": "wmma_staging_case",
+        "rows": 17,
+        "tokens": 7,
+        "raw_f32_elements": 119,
+        "raw_f32_bit_mismatches": 0,
+        "original_completed_wall_ms": 20.5967,
+        "staged_completed_wall_ms": 0.182,
+        "redzones_pass": true,
+        "input_immutable": true,
+        "inference_acceptance": false
+      },
+      {
+        "type": "wmma_staging_case",
+        "rows": 129,
+        "tokens": 65,
+        "raw_f32_elements": 8385,
+        "raw_f32_bit_mismatches": 0,
+        "original_completed_wall_ms": 0.6033,
+        "staged_completed_wall_ms": 0.2572,
+        "redzones_pass": true,
+        "input_immutable": true,
+        "inference_acceptance": false
+      },
+      {
+        "type": "wmma_staging_case",
+        "rows": 8192,
+        "tokens": 8192,
+        "raw_f32_elements": 67108864,
+        "raw_f32_bit_mismatches": 0,
+        "original_completed_wall_ms": 72.7421,
+        "staged_completed_wall_ms": 51.0145,
+        "redzones_pass": true,
+        "input_immutable": true,
+        "inference_acceptance": false
+      }
+    ],
+    "scope": "Synthetic component equality against the actual original native WMMA kernel. Every raw F32 output is compared; not GB10 real-model evidence. The first small case includes cold launch overhead; component timings are not retained product performance."
+  },
   "all_tested_frozen_cases_pass": true,
   "local_validation": {
     "command": "make check PYTHON=python3.12",
-    "log": "build/check-20260911-hawkeye-packed-r1.log",
-    "python_passed": 298,
+    "log": "build/check-20260911-wmma-staging-r1.log",
+    "python_passed": 299,
     "python_skipped": 2,
     "complete_check": "pass",
-    "targeted_check": "Actual packed dots match the independent original K16 wide scalar; transpose tails and host launch faults pass."
+    "targeted_check": "Actual legacy and LDS kernels issue identical operands in every K16 call; signed operands, absolute mode, endpoints, simultaneous tails and redzones pass under ASan/UBSan."
   },
-  "decision": "Do not select packed candidates as the performance route. All three complete frozen requests and captured boundaries pass, but q8192 callback TTFT regresses by 4580.7182 ms and correction sequences by 4833.274 ms. Keep the prior wave16 profile selected.",
-  "scope": "Only these three complete real-model requests. No performance acceptance or release. Frozen authority and arithmetic endpoints are unchanged. Candidate indices remain identical; independent packed lanes and weight transposition alone change execution. Other prompt lengths, context, prefix and packaged API gates remain open."
+  "decision": "Keep global WMMA operands and wave16 candidate corrections selected. All three complete frozen requests and captured boundaries pass with shared-memory staging, but actual callback TTFT increases by 499.5826 / 1774.0825 / 774.3606 ms for q8192 / q7169 / q8191 in this cohort. Component improvement does not qualify a product performance gain.",
+  "scope": "Only these three complete real-model requests. No performance acceptance or release. Frozen authority and arithmetic endpoints are unchanged. Candidate indices and correction arithmetic remain identical. Seventy QKV/Z or full-attention QKV calls use K64 shared operand slabs with the same ordered K16 WMMA instructions. Other prompt lengths, context, prefix and packaged API gates remain open."
 }

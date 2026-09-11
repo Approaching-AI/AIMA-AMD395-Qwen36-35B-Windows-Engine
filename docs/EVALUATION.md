@@ -122,9 +122,39 @@ q7169 takes 72740.7119 ms and q8191 takes 84446.9134 ms. The same
 350,029,910 q8192 candidate dots take 19850.035 ms versus 15016.761 ms
 in the prior wave16 correction sequences. The new Windows build and all
 298 local Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene
-checks pass. Keep the wave16 profile selected. The next route stages
-matrix operands in shared memory while retaining every WMMA K16 update,
-candidate bound and rounding endpoint.
+checks pass. Keep the wave16 profile selected. These correction totals are
+host wall time around completed submissions, including waits.
+
+The [shared-memory WMMA experiment](../benchmarks/correctness/wmma-staging-product-20260911.json)
+at whole `d59e049e5bc67a3e392faf298c851a89d8e6d3c6` preserves every
+K16 update and shares a K64 operand slab across eight waves. All three
+complete frozen requests, seventy staged projection calls per request,
+captured GB10 boundaries, streaming and host checks pass. A separate
+native component compares every FP32 output, including 67,108,864 cells
+at q8192, with zero differences against the original kernel. Its large
+matrix interval improves from 72.7421 to 51.0145 ms, but actual product
+callback TTFT is 79974.2864 / 71029.3772 / 80540.2278 ms for q8192 out512 /
+q7169 out512 / q8191 out32. All exceed the prior strict baseline in this
+cohort. Local checks pass 299 Python tests (two skips) and the complete
+C/ABI, Rust, Clippy, q16 and hygiene suite. Both Windows builds pass, as
+does the native three-shape comparison. Keep global WMMA operands
+selected; use the existing MoE subphase events to resolve overlapping
+upstream waits before the next structural replacement.
+
+The first [MoE event diagnostic](../benchmarks/correctness/moe-profile-event-failure-20260911.json)
+streams first token 144 but fails at the first decode step with an invalid
+event handle. All forty prefill intervals completed: MoE totals 18299.103 ms,
+including 11344.459 ms in routed gate/up and 4572.362 ms in down; shared
+work overlaps routed work. These incomplete-request timings have no
+continuation or performance acceptance. The exact SM121 router skipped the
+input-end and projection-end events consumed by the legacy profile flag.
+The fix records both boundaries on the router stream, retains event-error
+handling, and also consumes them when SM121 is selected independently of
+the legacy flag. All 300 local Python tests (two skips), C/ABI, Rust, Clippy,
+q16 and hygiene pass. The actual branch, event helper and callback are
+executed with a host HIP recorder across enabled/disabled profiling,
+cached/uncached control, early/terminal layers and launch/event faults.
+Full native profiling and frozen continuation validation remain pending.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.
