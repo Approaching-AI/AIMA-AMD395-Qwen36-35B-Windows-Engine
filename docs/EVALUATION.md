@@ -154,7 +154,24 @@ rounded variance or unrounded numerator fails these controls. The opt-in
 `QRT_QWEN36_Q1_SM121_OUTPUT=1` connects this projection and existing exact
 residual norm to all 30 Q1 linear-attention layers, requiring the exact GDN
 route. It also publishes the optional BF16 MoE input without changing the
-original norm result. Native build and product qualification follow.
+original norm result.
+
+The [native output-boundary tests](../benchmarks/correctness/q1-output-product-20260911.json)
+at whole 2b90db9 qualify every first-decode layer-0 linear-attention boundary
+for q7169 and q8191, including the output projection and post-attention norm.
+The first completed layer still differs after MoE. All three product runs
+complete with successful host checks, but continuation remains incorrect:
+q8191 first differs at index 6, q7169 out512 at 38, and fast q8192 regresses
+to index 1. The last case's callback TTFT of 4174.093001 ms does not qualify
+performance. The original retained benchmark remains unchanged.
+
+The reference observer now copies the original first-layer decode MoE input,
+router, selector, shared expert, routed/shared output tuple and next residual
+inputs while returning every original result unchanged. Native Q1 adds
+bounded optional MoE files using its existing diagnostic reads, plus live
+shared gate/down/activation and next-norm endpoints. It caps files at 128 KiB
+each, 64 files and 4 MiB total per process. These observations will identify
+the remaining arithmetic boundary; they do not qualify a release.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead

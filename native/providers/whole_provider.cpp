@@ -165566,6 +165566,35 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         const uint64_t digest = status == hipSuccess
             ? qrt_fnv1a64_bytes(host_bytes.data(), host_bytes.size())
             : UINT64_C(0);
+        // Reuse the completed diagnostic read for bounded MoE endpoint files.
+        // Saved values are observations only and never feed inference.
+        const char *dump_prefix = std::getenv(
+            "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX"
+        );
+        const bool dump_requested = dump_prefix != nullptr && dump_prefix[0] != '\0';
+        static size_t dumped_files = 0u;
+        static size_t dumped_bytes = 0u;
+        bool dump_ok = false;
+        std::string dump_path;
+        if (dump_requested && status == hipSuccess && bytes <= (128u << 10u) &&
+            dumped_files < 64u && dumped_bytes <= (4u << 20u) - bytes) {
+            std::ostringstream path;
+            path << dump_prefix << ".txn" << q1024_q1_moe_stage_active_transaction
+                 << ".pos" << absolute_position << ".layer" << descriptor.layer_index
+                 << "." << stage << ".bin";
+            dump_path = path.str();
+            if (!std::ifstream(dump_path, std::ios::binary).good()) {
+                std::ofstream output(dump_path, std::ios::binary);
+                if (output) {
+                    output.write(reinterpret_cast<const char *>(host_bytes.data()),
+                                 static_cast<std::streamsize>(bytes));
+                    output.close();
+                    dump_ok = static_cast<bool>(output);
+                    ++dumped_files;
+                    dumped_bytes += bytes;
+                }
+            }
+        }
         std::cerr
             << "BATCH_MARK "
             << (generic_trace
@@ -165579,6 +165608,9 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             << " bytes=" << bytes
             << " digest=" << hex_u64(digest)
             << " hip_status=" << static_cast<int>(status)
+            << " dump_requested=" << (dump_requested ? 1 : 0)
+            << " dump_ok=" << (dump_ok ? 1 : 0)
+            << " dump_path=\"" << json_escape(dump_path) << "\""
             << " diagnostic_only=1"
             << std::endl;
         if (status == hipSuccess &&
@@ -166229,6 +166261,11 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             workspace->device_metadata + kRouterMetadataOffset,
             route_count * (sizeof(uint32_t) + sizeof(float))
         );
+        if (use_q1_moe_rocblas_router && !legacy_early_f32) {
+            emit_q1024_q1_moe_stage_digest("router_logits_bf16", device_router_logits_bf16,
+                QRT_QWEN36_EXPERT_COUNT * sizeof(uint16_t));
+        }
+
     }
     if (!paired_tail_only && use_q1_moe_priority_stream &&
         !use_q1_decode_layer_stack_priority_stream) {
@@ -166575,6 +166612,9 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         const uint16_t *gate_logit_bf16,
         const char *stage
     ) -> bool {
+        emit_q1024_q1_moe_stage_digest("shared_down_bf16", down_projection, hidden_elements * sizeof(uint16_t));
+        emit_q1024_q1_moe_stage_digest("shared_gate_bf16", gate_logit_bf16, sizeof(uint16_t));
+
         bool paired_moe_tail_prepared =
             qwen36_paired_moe_tail_active_for_session(
                 g_qwen36_resident_active_session,
@@ -169516,6 +169556,8 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
             );
         }
 
+        emit_q1024_q1_moe_stage_digest("shared_activated_bf16", activated,
+            QRT_QWEN36_MOE_EXPERT_INTERMEDIATE * sizeof(uint16_t));
         const uint16_t *down_weights = shared_down_weights;
         uint16_t *down_output = device_rocblas_shared_down_output;
         void *down_arguments[] = {
@@ -170173,6 +170215,10 @@ bool run_qwen36_resident_decode_q1_moe_activation_corridor(
         device_output,
         hidden_bytes
     );
+    if (use_q1_moe_next_input_rmsnorm_fused) {
+        emit_q1024_q1_moe_stage_digest("next_input_norm_f32", device_router_logits, hidden_bytes);
+    }
+
     if (!check_hip(
             record_qwen36_resident_decode_coarse_layer_end(
                 workspace,
