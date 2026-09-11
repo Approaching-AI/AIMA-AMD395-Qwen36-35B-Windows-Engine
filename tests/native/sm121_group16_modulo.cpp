@@ -25,6 +25,26 @@ bool check(const std::array<int64_t, 16>& products, int64_t accumulator) {
                      result.magnitude, result.negative);
         return false;
     }
+    // The replicated-carry path reduces products in every lane, then adds the
+    // uniform accumulator once. Every product sign must decode to the same
+    // wide result, including the interval where signed int32 would overflow.
+    std::array<uint32_t, 16> lane_sums{};
+    for (size_t lane = 0u; lane < products.size(); ++lane)
+        lane_sums[lane] = static_cast<uint32_t>(products[lane]);
+    for (size_t offset : {8u, 4u, 2u, 1u}) {
+        const auto previous = lane_sums;
+        for (size_t lane = 0u; lane < products.size(); ++lane)
+            lane_sums[lane] += previous[lane ^ offset];
+    }
+    for (size_t lane = 0u; lane < products.size(); ++lane) {
+        const auto all_lane_result = decode_modulo_sum(
+            lane_sums[lane] + static_cast<uint32_t>(accumulator), products[lane] < 0);
+        if (all_lane_result.magnitude != magnitude ||
+            all_lane_result.negative != (reference < 0)) {
+            std::fprintf(stderr, "replicated lane sum/sign changed at lane %zu\n", lane);
+            return false;
+        }
+    }
     return true;
 }
 

@@ -91,17 +91,17 @@ def wave16_group(accumulator, left, right):
         else (accumulator[0] << INTERNAL_TO_FP32_SHIFT)
         >> accumulator_shift
     )
-    lane_values[0] += (
-        -accumulator_aligned if accumulator[2] else accumulator_aligned
-    )
-    # Mirrors the exact integer __shfl_down tree used by the device helper.
+    # The native replicated-carry helper uses an XOR all-reduction, followed
+    # by one addition of the uniform accumulator in every lane.
     for offset in (8, 4, 2, 1):
         lane_values = [
-            lane_values[index]
-            + (lane_values[index + offset] if index + offset < 16 else 0)
+            lane_values[index] + lane_values[index ^ offset]
             for index in range(16)
         ]
-    return normalize_group(lane_values[0], max_exponent)
+    carried = -accumulator_aligned if accumulator[2] else accumulator_aligned
+    results = [normalize_group(value + carried, max_exponent) for value in lane_values]
+    assert all(value == results[0] for value in results)
+    return results[0]
 
 
 def random_finite_bf16(generator):
