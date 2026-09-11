@@ -33,17 +33,26 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole/CK at cf5da64, MoE at a17a9ed and FLA at
-`bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0`. Each run has zero first-logit error
-at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
-before return. Exit 0 and all host checks pass. CLI and AITER still use
-retained f544cbe components; the two cases retain different arithmetic profiles.
+`D:\models\Qwen3.6-35B-A3B`, whole cf5da64, MoE a17a9ed, FLA bac7b8a and
+CK `ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423`. Each run has zero first-logit
+error at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming
+callbacks before return. Exit 0 and all host checks pass. CLI and AITER still
+use retained f544cbe components; the cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, FLA bac7b8a plus retained components, fast profile | 144 / 10.375 | 20,103.771700 | 4,156.772700 | 32.707490 |
-| q7169, FLA bac7b8a plus retained components, 1000 ppb profile | 82 / 9.25 | 20,102.298900 | 80,154.356200 | 34.439558 |
+| q8192, CK ac0fb7d plus retained components, fast profile | 144 / 10.375 | 20,109.543600 | 4,150.736600 | 32.794584 |
+| q7169, CK ac0fb7d plus retained components, 1000 ppb profile | 82 / 9.25 | 20,119.017701 | 69,094.914901 | 34.430252 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [transposed-QK product records](../benchmarks/correctness/attention-transpose-product-20260911.json)
+qualify an owned 8 MiB key workspace alongside the 4 MiB score slab. All
+80 complete q7169 GB10 norms remain exact. The same-profile actual TTFT
+improves by 11,059.441299 ms. Native build, allocation/cleanup controls and
+full local checks pass, as do same-run actual q8192 retained TTFT, load and
+TPOT. Full-prefix exact attention is disabled in the fast q8192 profile;
+its overall timing change is not isolated to the new QK mapping. A unified
+profile/package and broader product acceptance remain open.
 
 The [FLA segment records](../benchmarks/correctness/fla-sequence-20260911.json)
 qualify ordered batches of at most 32 kernels and failure cleanup. All 80
@@ -75,8 +84,8 @@ All 29,364,224 BF16 endpoints match GB10, with unchanged native FP32
 diagnostics, correct transposed inputs and intact redzones. Eight-query
 batches take 1,288.17 ms including 0.979980 ms of key preparation; same-run
 CK takes 2,409.15 ms. QK falls to 582.884 ms and online softmax/PV takes
-704.307 ms. The 32-query control takes 1,293.53 ms. These complete component
-checks support provider integration; full-model qualification remains required.
+704.307 ms. The 32-query control takes 1,293.53 ms. These component
+checks precede the full-model qualification recorded above.
 
 The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
 qualify 1024-CTA batches with the original selector and dot arithmetic.

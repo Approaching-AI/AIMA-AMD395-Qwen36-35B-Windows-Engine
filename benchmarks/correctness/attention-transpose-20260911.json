@@ -5,7 +5,7 @@
   "host": "BAIYING",
   "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
   "inference_acceptance": false,
-  "decision": "Both complete captured-input runs qualify the transposed-key independent-dot mapping for provider integration. Full-model acceptance is still required.",
+  "decision": "Integrated in CK ac0fb7d and qualified by both full-model frozen GB10 gates in attention-transpose-product-20260911.json. These component intervals remain separate from product TTFT.",
   "local_validation": {
     "command": "make check PYTHON=python3.12",
     "log": "build/check-20260911-attention-transpose-r1.log",
