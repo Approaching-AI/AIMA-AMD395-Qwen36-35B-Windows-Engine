@@ -45,9 +45,43 @@ __device__ __forceinline__ float blackwell_attention_exp(float value, const unsi
 // Its final one-value group only needs to clear any underflowed negative zero;
 // it does not need to repeat integer normalization after QK or each PV K16.
 
+// Materialize a bounded query slab of exact QK scores. Independent key cells
+// expose parallelism across the whole causal history instead of waiting for
+// each query CTA to finish its preceding PV tile. Online softmax/PV below still
+// visits every tile in the original order and consumes the same FP32 scores.
+__global__ void blackwell_exact_scores_kernel(
+    const uint16_t* __restrict__ query, const uint16_t* __restrict__ key,
+    float* __restrict__ scores, unsigned int query_start,
+    unsigned int query_count, unsigned int score_stride) {
+    const unsigned int cell = blockIdx.x * kBlackwellSubgroups +
+        threadIdx.x / kBlackwellMmaGroup;
+    const unsigned int cells = query_count * kQueryHeads * score_stride;
+    if (cell >= cells) return;
+    const unsigned int key_token = cell % score_stride;
+    const unsigned int query_head = (cell / score_stride) % kQueryHeads;
+    const unsigned int token = query_start + cell / (score_stride * kQueryHeads);
+    const unsigned int lane = threadIdx.x % kBlackwellMmaGroup;
+    if (key_token > token) {
+        if (lane == 0u) scores[cell] = -INFINITY;
+        return;
+    }
+    const size_t query_base = (static_cast<size_t>(token) * kQueryHeads + query_head) * kHeadDim;
+    const unsigned int kv_head = query_head / (kQueryHeads / kKvHeads);
+    const size_t key_base = (static_cast<size_t>(key_token) * kKvHeads + kv_head) * kHeadDim;
+    qrt_q1_moe_hawkeye::Value dot{0u, kBlackwellZeroExponent, false};
+    for (unsigned int base = 0u; base < kHeadDim; base += kBlackwellMmaGroup) {
+        dot = qrt_sm121_wave16::accumulate(dot,
+            query[query_base + base + lane], key[key_base + base + lane], lane);
+    }
+    if (lane == 0u) {
+        scores[cell] = qrt_q1_moe_hawkeye::value_to_float(
+            qrt_sm121_group16::finish_accumulator(dot)) * kExactScale;
+    }
+}
+
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
-template <bool SerialValue>
+template <bool SerialValue, bool PrecomputedScores = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -59,7 +93,9 @@ __global__ void blackwell_exact_attention_kernel(
     float* raw_accumulator,
     float* raw_denominator,
     bool vllm_sum,
-    const unsigned char* rcp_table) {
+    const unsigned char* rcp_table,
+    const float* precomputed_scores,
+    unsigned int score_stride) {
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -93,45 +129,55 @@ __global__ void blackwell_exact_attention_kernel(
     const unsigned int tile_count =
         (tokens + kExactTileTokens - 1u) / kExactTileTokens;
     for (unsigned int tile = 0u; tile < tile_count; ++tile) {
-        for (unsigned int key_batch = 0u;
-             key_batch < kExactTileTokens / kBlackwellSubgroups;
-             ++key_batch) {
-            const unsigned int key_item =
-                key_batch * kBlackwellSubgroups + subgroup;
-            const unsigned int key_token =
-                tile * kExactTileTokens + key_item;
-            const bool key_valid = key_token < tokens;
-            qrt_q1_moe_hawkeye::Value dot{
-                0u,
-                kBlackwellZeroExponent,
-                false
-            };
-            for (unsigned int group = 0u;
-                 group < kHeadDim / kBlackwellMmaGroup;
-                 ++group) {
-                const unsigned int element =
-                    group * kBlackwellMmaGroup + subgroup_lane;
-                uint16_t query_value = 0u;
-                uint16_t key_value = 0u;
-                if (key_valid) {
-                    const size_t key_base =
-                        (static_cast<size_t>(key_token) * kKvHeads + kv_head) *
-                        kHeadDim;
-                    query_value = query[query_base + element];
-                    key_value = key[key_base + element];
-                }
-                dot = qrt_sm121_wave16::accumulate(
-                    dot,
-                    query_value,
-                    key_value,
-                    subgroup_lane
-                );
-            }
-            dot = qrt_sm121_group16::finish_accumulator(dot);
-            if (subgroup_lane == 0u) {
-                score[key_item] = key_valid
-                    ? qrt_q1_moe_hawkeye::value_to_float(dot) * kExactScale
+        if constexpr (PrecomputedScores) {
+            if (thread < kExactTileTokens) {
+                const unsigned int key_token = tile * kExactTileTokens + thread;
+                score[thread] = key_token < tokens
+                    ? precomputed_scores[(blockIdx.y * kQueryHeads + query_head) *
+                                             score_stride + key_token]
                     : -INFINITY;
+            }
+        } else {
+            for (unsigned int key_batch = 0u;
+                 key_batch < kExactTileTokens / kBlackwellSubgroups;
+                 ++key_batch) {
+                const unsigned int key_item =
+                    key_batch * kBlackwellSubgroups + subgroup;
+                const unsigned int key_token =
+                    tile * kExactTileTokens + key_item;
+                const bool key_valid = key_token < tokens;
+                qrt_q1_moe_hawkeye::Value dot{
+                    0u,
+                    kBlackwellZeroExponent,
+                    false
+                };
+                for (unsigned int group = 0u;
+                     group < kHeadDim / kBlackwellMmaGroup;
+                     ++group) {
+                    const unsigned int element =
+                        group * kBlackwellMmaGroup + subgroup_lane;
+                    uint16_t query_value = 0u;
+                    uint16_t key_value = 0u;
+                    if (key_valid) {
+                        const size_t key_base =
+                            (static_cast<size_t>(key_token) * kKvHeads + kv_head) *
+                            kHeadDim;
+                        query_value = query[query_base + element];
+                        key_value = key[key_base + element];
+                    }
+                    dot = qrt_sm121_wave16::accumulate(
+                        dot,
+                        query_value,
+                        key_value,
+                        subgroup_lane
+                    );
+                }
+                dot = qrt_sm121_group16::finish_accumulator(dot);
+                if (subgroup_lane == 0u) {
+                    score[key_item] = key_valid
+                        ? qrt_q1_moe_hawkeye::value_to_float(dot) * kExactScale
+                        : -INFINITY;
+                }
             }
         }
         __syncthreads();
@@ -286,22 +332,42 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     unsigned int output_start, const unsigned char* exp2_table = nullptr,
     float* raw_accumulator = nullptr, float* raw_denominator = nullptr,
     bool vllm_sum = false, const unsigned char* rcp_table = nullptr,
-    unsigned int memory_layout = 1u) {
+    unsigned int memory_layout = 1u,
+    float* score_scratch = nullptr, size_t score_scratch_elements = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 1u) return int(hipErrorInvalidValue);
-    if (memory_layout == 1u) {
+    if (memory_layout > 2u) return int(hipErrorInvalidValue);
+    if (memory_layout == 2u) {
+        // The split replay is bounded to the short full-prefix product range.
+        // Long-context terminal calls retain their existing allocation-free path.
+        if (!score_scratch || query_count > 32u || query_start + query_count > 8192u)
+            return int(hipErrorInvalidValue);
+        const unsigned int stride = query_start + query_count;
+        const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
+        if (score_scratch_elements < cells) return int(hipErrorInvalidValue);
+        hipLaunchKernelGGL(blackwell_exact_scores_kernel,
+            dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
+            dim3(kThreads), 0u, stream, q, k, score_scratch,
+            query_start, query_count, stride);
+        const auto status = hipGetLastError();
+        if (status != hipSuccess) return int(status);
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true>),
+            dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+            q, k, v, output, query_start, output_start, exp2_table,
+            raw_accumulator, raw_denominator, vllm_sum, rcp_table,
+            score_scratch, stride);
+    } else if (memory_layout == 1u) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
-            raw_accumulator, raw_denominator, vllm_sum, rcp_table);
+            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u);
     } else {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<false>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
-            raw_accumulator, raw_denominator, vllm_sum, rcp_table);
+            raw_accumulator, raw_denominator, vllm_sum, rcp_table, nullptr, 0u);
     }
     return int(hipGetLastError());
 }

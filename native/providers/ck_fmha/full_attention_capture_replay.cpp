@@ -102,7 +102,8 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"nonfinite\":" << nonfinite << ",\"first_mismatch\":" << (first == size_t(-1) ? -1LL : (long long)first)
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
-              << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0 ? "provider_call" : "kernel_dispatch")
+              << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
+                    ? "provider_call" : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
@@ -118,11 +119,11 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_1]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_2]");
         const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 1) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 2) : 0u;
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
@@ -190,6 +191,9 @@ int main(int argc, char** argv) {
         if (use_rcp) check(hipMemcpy(dr.pointer, rcp_table.data(), rcp_table.size(), hipMemcpyHostToDevice));
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0;
+        const size_t score_elements = memory_layout == 2u
+            ? static_cast<size_t>(batch) * 16u * tokens : 1u;
+        Device scores(score_elements * sizeof(float));
         for (unsigned offset = 0; offset < count; offset += batch) {
             if (std::chrono::duration<double>(Clock::now() - begun).count() > 150.0)
                 throw std::runtime_error("replay aggregate deadline exceeded");
@@ -198,7 +202,8 @@ int main(int argc, char** argv) {
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
                 std::min(batch, count - offset), offset, use_table ? dt.as<unsigned char>() : nullptr,
                 accumulator.as<float>(), denominator.as<float>(), true,
-                use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout)));
+                use_rcp ? dr.as<unsigned char>() : nullptr, memory_layout,
+                scores.as<float>(), score_elements)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
         }
         std::vector<float> host(size_t(count) * 4096u);
