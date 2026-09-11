@@ -13,7 +13,7 @@ import time
 from capture_fla_state_prefix import arm_parent_death, supervise
 from capture_sm121_exp2_table import file_sha
 
-END = 0x2F800000  # Exclusive: 2**-32. Every result must be exactly FP32 one.
+END = 0x33000000  # Exclusive: 2**-25. Every result must be exactly FP32 one.
 BATCH = 1 << 20
 
 
