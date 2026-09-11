@@ -15,6 +15,7 @@ import math
 import os
 from pathlib import Path
 import random
+import re
 import socket
 import struct
 import sys
@@ -79,6 +80,36 @@ def write_json(path, value):
     with path.open("x") as stream:
         json.dump(value, stream, indent=2)
         stream.write("\n")
+
+
+def explicit_cases(path, controls):
+    """Keep both immutable controls before caller-supplied actual token cases."""
+    value = json.loads(path.read_text())
+    if not isinstance(value, list) or not 1 <= len(value) <= 12:
+        raise ValueError("explicit cases must be a nonempty bounded array")
+    result = controls[:2]
+    used = {case["name"] for case in result}
+    for item in value:
+        if not isinstance(item, dict) or set(item) != {
+                "name", "prompt_token_ids", "output_count"}:
+            raise ValueError("unexpected explicit case fields")
+        name = item["name"]
+        tokens = item["prompt_token_ids"]
+        outputs = item["output_count"]
+        if (not isinstance(name, str) or
+                re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) is None or
+                name in used or not isinstance(tokens, list) or
+                not 1 <= len(tokens) <= 16384 or
+                any(type(token) is not int or not 0 <= token < 248320 for token in tokens) or
+                type(outputs) is not int or not 1 <= outputs <= 512):
+            raise ValueError("invalid explicit case name, tokens or output extent")
+        used.add(name)
+        result.append(dict(
+            name=name, prompt_token_ids=tokens,
+            prompt=dict(token_count=len(tokens), generator="explicit_actual_tokens",
+                        **fingerprints(tokens)),
+            output_count=outputs, control=False, family=7169))
+    return result
 
 
 class TokenMatrixCapture:
@@ -274,11 +305,17 @@ def main():
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--runtime-boundaries", action="store_true",
                         help="observe pinned target rows and require the complete frozen matrix")
+    parser.add_argument("--additional-cases", type=Path,
+                        help="JSON actual-token cases, preceded by both immutable controls")
     parser.add_argument("--expected-host")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
+    if args.additional_cases is not None:
+        if args.runtime_boundaries:
+            raise ValueError("explicit cases require the first-logit observer")
+        cases = explicit_cases(args.additional_cases, cases)
     if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 600 or
             len(args.source_commit) != 40 or any(x not in "0123456789abcdef" for x in args.source_commit)):
         raise ValueError("existing output, invalid source or invalid deadline")
@@ -301,6 +338,9 @@ def main():
                   completed=False, controls_qualified=False, windows_acceptance=False,
                   prefix_caching=False, native_tensor_inputs=False,
                   runtime_boundaries=args.runtime_boundaries)
+    if args.additional_cases is not None:
+        record["additional_cases_file"] = str(args.additional_cases)
+        record["additional_cases_sha256"] = file_sha(args.additional_cases)
     write_json(args.output_dir / "preflight.json", record)
     if args.execute:
         try:
