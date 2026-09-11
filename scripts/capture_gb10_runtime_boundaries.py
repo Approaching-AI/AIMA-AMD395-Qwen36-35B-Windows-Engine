@@ -102,6 +102,13 @@ def full_cache_observation_offset(case):
     return offset
 
 
+def full_attention_observation_layer():
+    layer = int(os.environ.get('QRT_GB10_BOUNDARY_FULL_LAYER', '3'))
+    if not 0 <= layer < 40 or layer % 4 != 3:
+        raise ValueError('observation requires one original full-attention layer')
+    return layer
+
+
 def full_cache_observation_row(case):
     if case not in {'q8191-out32', 'q7169-out512', 'q8192-out512'}:
         return 0
@@ -366,10 +373,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         for index in self._qrt_boundary_moe_layers:
             attach_moe(index)
 
-        # Observe the first full-attention layer after the linear/MoE boundary.
+        # Observe one full-attention owner after the selected linear/MoE boundary.
         # Hooks retain original qkv/norm/RoPE/attention/output results, including
         # the BF16 sigmoid-product endpoint at the output projection input.
-        attention = layers[3].self_attn
+        full_layer = full_attention_observation_layer()
+        self._qrt_boundary_full_layer = full_layer
+        attention = layers[full_layer].self_attn
         original_attention_forward = attention.forward
         self._qrt_boundary_restores.append((attention, "forward", original_attention_forward))
         self._qrt_boundary_full_active = False
@@ -408,9 +417,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 raise ValueError("original full-attention block index invalid")
             for label, tensor in zip(("cache-k", "cache-v"), cache.unbind(1)):
                 logical = tensor.index_select(0, blocks).reshape(-1, 2, 256)[:tokens]
-                save("full-03-" + label, logical, transaction)
+                save(f"full-{full_layer:02d}-" + label, logical, transaction)
             self._qrt_boundary_full_cache = dict(transaction=transaction["ordinal"],
-                layer=3, tokens=tokens, decode_offset=full_cache_offset,
+                layer=full_layer, tokens=tokens, decode_offset=full_cache_offset,
                 row=full_cache_row, input_token_id=transaction['input_token_ids'][full_cache_row],
                 block_size=block_size, block_indices=blocks.cpu().tolist(),
                 cache_shape=list(cache.shape), max_query_len=metadata.max_query_len,
@@ -426,7 +435,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             if not 1 <= transaction["token_count"] <= 2:
                 raise ValueError("full-attention decode observation exceeds the original batch")
             value = value.reshape(transaction["token_count"], width)
-            save("full-03-" + label, selected_tensor(value, transaction, width), transaction)
+            save(f"full-{full_layer:02d}-" + label, selected_tensor(value, transaction, width), transaction)
         def full_output(label, width):
             def observe(module, args, output):
                 full_stage(label, output[0] if isinstance(output, tuple) else output, width)
@@ -647,7 +656,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 sha256=file_sha(Path(inspect.getsourcefile(type(first_mlp)))),
                 internal_router=first_mlp.experts.is_internal_router,
                 router_is_original_module=first_mlp.experts.gate is first_mlp.gate),
-            decode_full_attention_layers=[3],
+            decode_full_attention_layers=[full_layer],
             decode_full_attention_cache=capture_full_cache,
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
@@ -682,7 +691,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     if not {f"moe-{layer:02d}-" + label for layer in self._qrt_boundary_moe_layers
                             for label in self._qrt_boundary_moe_labels} <= observed:
                         raise ValueError("incomplete original decode MoE observations")
-                    if not {"full-03-" + label for label in self._qrt_boundary_full_labels} <= observed:
+                    if not {f"full-{self._qrt_boundary_full_layer:02d}-" + label
+                            for label in self._qrt_boundary_full_labels} <= observed:
                         raise ValueError("incomplete original decode full-attention observations")
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,

@@ -43,7 +43,12 @@ restores the correct 82/220 scores of 9.3125/9.375. The preceding
 uses the original compiled 32-lane, four-values-per-lane reduction.
 q7169 out512 completes but still first differs at index 95 (59026 instead
 of 328), with 354 mismatches; its first 95 tokens and first logit 9.25 match.
-Position 7263 is the next comparison target. The earlier
+The [continuation-window evidence](../benchmarks/correctness/q1-continuation-window-20260911.json)
+shows all 40 carriers and every captured operator exact at position 7173,
+the first accepted second MTP row. By position 7200, layers 0–18 are exact
+but layer 19 first differs in 1228 carrier cells. Its full attention, KV
+history and MoE are the next boundaries; the observer now supports any
+single valid full-attention owner. The earlier
 [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
 and its complete first-decode carrier comparisons remain verified.
 Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile

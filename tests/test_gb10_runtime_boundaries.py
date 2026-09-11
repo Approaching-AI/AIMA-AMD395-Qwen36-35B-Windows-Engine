@@ -7,13 +7,25 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
-    full_cache_observation_offset, full_cache_observation_row, full_cache_row_is_qualified,
+    full_attention_observation_layer, full_cache_observation_offset,
+    full_cache_observation_row, full_cache_row_is_qualified,
     observation_positions, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_full_attention_capture_has_one_valid_owner(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(full_attention_observation_layer(), 3)
+        for layer in (3, 7, 19, 39):
+            with patch.dict(os.environ, {'QRT_GB10_BOUNDARY_FULL_LAYER': str(layer)}, clear=True):
+                self.assertEqual(full_attention_observation_layer(), layer)
+        for value in ('-1', '0', '18', '40', '3,19', 'bad'):
+            with patch.dict(os.environ, {'QRT_GB10_BOUNDARY_FULL_LAYER': value}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_attention_observation_layer()
+
     def test_bounded_positions_do_not_guess_the_accepted_mtp_row(self):
         with patch.dict(os.environ, {'QRT_GB10_Q7169_BOUNDARY_OFFSETS': '94'}, clear=True):
             positions = observation_positions('q7169-out512', 7169)
