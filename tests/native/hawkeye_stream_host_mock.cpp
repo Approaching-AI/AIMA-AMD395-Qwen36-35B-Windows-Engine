@@ -19,7 +19,7 @@ constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
 constexpr unsigned int kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit =
     qrt_hawkeye_dispatch::maximum_exact_blocks;
 constexpr unsigned int kThreads = 256u;
-struct dim3 { unsigned int x; explicit dim3(unsigned int value) : x(value) {} };
+struct dim3 { unsigned int x, y; explicit dim3(unsigned int value, unsigned int second = 1u) : x(value), y(second) {} };
 static unsigned int allocations = 0, frees = 0, collections = 0, corrections = 0, rounds = 0;
 static unsigned int reject_collection = 0, fail_sync = 0, syncs = 0;
 static unsigned int exact_blocks = 0;
@@ -45,7 +45,12 @@ hipError_t hipStreamSynchronize(hipStream_t) {
     return ++syncs == fail_sync ? hipErrorUnknown : hipSuccess;
 }
 void grid(const char *name, dim3 blocks, dim3 threads) {
-    const bool exact = std::strstr(name, "midpoint_correction") != nullptr;
+    if (std::strstr(name, "transpose_weights") != nullptr) {
+        if (!blocks.x || !blocks.y || threads.x != 32u || threads.y != 8u) invalid_grid = true;
+        return;
+    }
+    const bool exact = std::strstr(name, "midpoint_correction") != nullptr ||
+        std::strstr(name, "packed_correction") != nullptr;
     const unsigned int limit = exact
         ? (std::min)(requested_blocks, qrt_hawkeye_dispatch::maximum_exact_blocks)
         : qrt_hawkeye_dispatch::maximum_window_elements / 256u;
@@ -93,6 +98,21 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     }
 }
 
+void selected_hawkeye_transpose_weights_kernel(const uint16_t*, uint16_t*, unsigned int, unsigned int) {}
+void selected_bf16_projection_hawkeye_packed_correction_kernel(
+    const uint16_t*, const uint16_t*, float* output, unsigned int rows,
+    unsigned int, const unsigned int* indices, unsigned int offset, unsigned int count
+) {
+    ++corrections;
+    const unsigned int end = (std::min)(count, offset + exact_blocks * 256u);
+    for (unsigned int j = offset; j < end; ++j) {
+        const size_t index = indices[j];
+        if (index >= total_elements) { invalid_range = true; continue; }
+        corrected.push_back(index);
+        output[index] = static_cast<float>((index / rows) * 2u + index % rows);
+    }
+}
+
 // QRT_ACTUAL_LAUNCHER
 
 void count_only(bool enabled) {
@@ -103,12 +123,21 @@ void count_only(bool enabled) {
     else unsetenv("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY");
 #endif
 }
+void packed_mode(bool enabled) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES", enabled ? "1" : "");
+#else
+    if (enabled) setenv("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES", "1", 1);
+    else unsetenv("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES");
+#endif
+}
 void reset() {
     allocations = frees = collections = corrections = rounds = 0;
     reject_collection = fail_sync = syncs = 0;
     invalid_grid = invalid_range = false; corrected.clear();
 }
 int main() {
+    packed_mode(false);
     // Independently validate the native synthetic test's closed-form dot,
     // including zero signs, against the production scalar accumulator.
     for (unsigned int k : {16u, 2048u}) {
@@ -200,5 +229,24 @@ int main() {
             2048u, 512u, 0u, 0u, 8u, nullptr, capacity) != hipErrorInvalidValue ||
             allocations || syncs) return 20;
     }
+    packed_mode(true);
+    for (unsigned int cap : {1u, 8u, 17u, 4096u}) {
+        requested_blocks = cap;
+        reset(); output.assign(total_elements, 1.00390625f);
+        if (invoke(output) != hipSuccess || collections != 3u || rounds != 3u ||
+            corrected.size() != total_elements || invalid_grid || invalid_range ||
+            allocations != 2u || frees != 2u) return 21;
+        for (size_t i = 0; i < total_elements; ++i)
+            if (output[i] != static_cast<float>((i / rows) * 2u + i % rows)) return 22;
+        std::sort(corrected.begin(), corrected.end());
+        if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 23;
+    }
+    reset(); fail_sync = 2u; output = initial;
+    if (invoke(output) != hipErrorUnknown || collections || rounds || corrections ||
+        allocations != 2u || frees != 2u || output != initial) return 24;
+    reset(); count_only(true); output = initial;
+    if (invoke(output) != hipErrorInvalidConfiguration || collections != 3u ||
+        rounds || corrections || output != initial || allocations != 1u || frees != 1u) return 25;
+    count_only(false); packed_mode(false);
     return 0;
 }

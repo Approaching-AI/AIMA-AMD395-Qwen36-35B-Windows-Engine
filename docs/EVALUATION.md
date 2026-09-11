@@ -104,9 +104,16 @@ prefill midpoint corrections with hardware matrix outputs passes q8192's
 differs at index 115 (248046 instead of 271), and q7169 again fails its
 first token. All five requests complete with successful host and streaming
 checks. None supplies a new retained performance result. The arithmetic-preserving
-FLA schedule above is retained as a qualified correctness route. A separate
-complete-continuation experiment now tests the fused CK attention backend
-while retaining every other strict arithmetic boundary.
+FLA schedule above is retained as a qualified correctness route. The
+[fused CK prefix experiment](../benchmarks/correctness/prefill-ck-fused-product-20260911.json)
+takes 59620.999 ms for q8192 but differs at output index 8 (82 instead of
+220); q7169 takes 53133.6612 ms and again emits first token 220 instead of
+82. Both complete with successful host and streaming checks. At q8192's
+first decode step, layers 0–3 and all captured layer-0 operators/state remain
+exact; the first differing completed carrier is layer 4. This attention
+substitution also remains unqualified. The next implementation preserves
+the exact projection arithmetic while transposing weights and assigning
+one packed K16 candidate dot per thread.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.

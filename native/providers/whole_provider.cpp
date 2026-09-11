@@ -37292,6 +37292,61 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     }
 }
 
+// A transposed weight slab lets neighboring independent candidate threads
+// read neighboring output rows. The immutable row-major model matrix stays
+// intact for its ordinary WMMA producer.
+__global__ void selected_hawkeye_transpose_weights_kernel(
+    const uint16_t* weights, uint16_t* transposed,
+    unsigned int rows, unsigned int reduction_size
+) {
+    __shared__ uint16_t tile[32u][33u];
+    const unsigned int column = blockIdx.x * 32u + threadIdx.x;
+    const unsigned int row = blockIdx.y * 32u + threadIdx.y;
+#pragma unroll
+    for (unsigned int part = 0u; part < 32u; part += 8u) {
+        if (row + part < rows && column < reduction_size)
+            tile[threadIdx.y + part][threadIdx.x] =
+                weights[static_cast<size_t>(row + part) * reduction_size + column];
+    }
+    __syncthreads();
+    const unsigned int target_row = blockIdx.y * 32u + threadIdx.x;
+    const unsigned int target_column = blockIdx.x * 32u + threadIdx.y;
+#pragma unroll
+    for (unsigned int part = 0u; part < 32u; part += 8u) {
+        if (target_row < rows && target_column + part < reduction_size)
+            transposed[static_cast<size_t>(target_column + part) * rows + target_row] =
+                tile[threadIdx.x][threadIdx.y + part];
+    }
+}
+
+__global__ __launch_bounds__(256)
+void selected_bf16_projection_hawkeye_packed_correction_kernel(
+    const uint16_t* transposed_weights, const uint16_t* selected_inputs,
+    float* outputs, unsigned int rows, unsigned int reduction_size,
+    const unsigned int* candidate_indices, unsigned int candidate_offset,
+    unsigned int candidate_count
+) {
+    const unsigned int slot = candidate_offset + blockIdx.x * blockDim.x + threadIdx.x;
+    if (slot >= candidate_count) return;
+    const size_t index = candidate_indices[slot];
+    const size_t token = index / rows, row = index - token * rows;
+    const uint16_t* input = selected_inputs + token * reduction_size;
+    qrt_q1_moe_hawkeye::Value dot{0u, -133, false};
+    for (unsigned int base = 0u; base < reduction_size; base += 16u) {
+        uint32_t products[16];
+#pragma unroll
+        for (unsigned int item = 0u; item < 16u; ++item) {
+            products[item] = qrt_sm121_group16::pack_product(
+                qrt_q1_moe_hawkeye::multiply_bf16(input[base + item],
+                    transposed_weights[static_cast<size_t>(base + item) * rows + row], -133));
+        }
+        const auto sum = qrt_sm121_group16::sum_packed(dot, products);
+        dot = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
+    }
+    outputs[index] = device_bf16_round_to_float(qrt_q1_moe_hawkeye::value_to_float(
+        qrt_sm121_group16::finish_accumulator(dot)));
+}
+
 __global__ __launch_bounds__(256)
 void selected_bf16_projection_hawkeye_candidate_count_kernel(
     const float *absolute_product_sums,
@@ -37437,7 +37492,8 @@ hipError_t count_selected_bf16_projection_hawkeye_candidates(
 }
 
 // Stream bounded index windows and independently completed exact-dot dispatches.
-// Scratch is bounded at 64 MiB plus counters and shrinks for short projections.
+// Index scratch is bounded at 64 MiB plus counters and shrinks for short
+// projections. The packed route additionally owns one BF16 weight transpose.
 // Collection uses broad windows while each exact-dot dispatch retains its
 // existing quantum and completed-dispatch/aggregate deadlines.
 hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
@@ -37461,6 +37517,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         rows == 0u || selected_token_count == 0u || reduction_size == 0u ||
         reduction_size % 16u != 0u || requested_window_elements == 0u ||
         requested_window_elements > qrt_hawkeye_dispatch::maximum_window_elements ||
+        static_cast<uint64_t>(rows) * reduction_size > SIZE_MAX / sizeof(uint16_t) ||
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
     }
@@ -37490,6 +37547,15 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         std::getenv("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY");
     const bool count_only = count_only_value != nullptr &&
         std::strcmp(count_only_value, "1") == 0;
+    const char* packed_setting = std::getenv("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES");
+    const bool packed_candidates = !count_only && packed_setting && std::strcmp(packed_setting, "1") == 0;
+    uint16_t* transposed_weights = nullptr;
+    const size_t transpose_bytes = packed_candidates
+        ? static_cast<size_t>(rows) * reduction_size * sizeof(uint16_t) : 0u;
+    if (packed_candidates) {
+        status = hipMalloc(reinterpret_cast<void**>(&transposed_weights), transpose_bytes);
+        if (status != hipSuccess) { (void)hipFree(scratch); return status; }
+    }
     const unsigned int bounded_blocks = (std::max)(1u, (std::min)(
         maximum_blocks_per_launch,
         kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit));
@@ -37525,6 +37591,14 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         return hipSuccess;
     };
     status = [&]() -> hipError_t {
+        if (packed_candidates) {
+            const auto dispatch_start = std::chrono::steady_clock::now();
+            hipLaunchKernelGGL(selected_hawkeye_transpose_weights_kernel,
+                dim3((reduction_size - 1u) / 32u + 1u, (rows - 1u) / 32u + 1u), dim3(32u, 8u),
+                0, stream, weights, transposed_weights, rows, reduction_size);
+            const hipError_t result = synchronize_bounded(dispatch_start);
+            if (result != hipSuccess) return result;
+        }
         for (size_t element_offset = 0u; element_offset < elements;
              element_offset += elements_per_launch) {
             ++windows;
@@ -37549,12 +37623,13 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             if (result != hipSuccess) return result;
             total_candidates += counts[0];
             maximum_block_candidates = (std::max)(maximum_block_candidates, counts[1]);
-            // Source-block density no longer describes exact-dot work after
-            // compaction: every dispatched CTA owns at most 16 candidates.
-            // Apply the work bound to that actual geometry, retaining the
-            // source density only as an observation.
-            if (counts[0] > window_elements || !qrt_hawkeye_dispatch::admitted(counts[0],
-                    (std::min)(counts[0], subgroups_per_block))) {
+            // Admission follows the selected fixed CTA geometry; source-block
+            // density remains diagnostic after index compaction.
+            const unsigned int block_candidates = packed_candidates ? kSelectedHawkeyeCorrectionThreads : subgroups_per_block;
+            const bool geometry_admitted = packed_candidates
+                ? qrt_hawkeye_dispatch::admitted_packed(counts[0], (std::min)(counts[0], block_candidates))
+                : qrt_hawkeye_dispatch::admitted(counts[0], (std::min)(counts[0], block_candidates));
+            if (counts[0] > window_elements || !geometry_admitted) {
                 std::fprintf(stderr,
                     "BATCH_MARK hawkeye_dispatch_admission rows=%u tokens=%u k=%u "
                     "window=%u offset=%zu candidates=%u maximum_block_candidates=%u "
@@ -37564,7 +37639,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     rows, selected_token_count, reduction_size, windows, element_offset,
                     counts[0], counts[1], count_only ? 1u : 0u,
                     window_capacity,
-                    qrt_hawkeye_dispatch::maximum_candidates_per_block);
+                    packed_candidates ? kSelectedHawkeyeCorrectionThreads : qrt_hawkeye_dispatch::maximum_candidates_per_block);
                 std::fflush(stderr);
                 return hipErrorInvalidConfiguration;
             }
@@ -37582,12 +37657,19 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                 const unsigned int launch_candidates = (std::min)(
                     counts[0] - candidate_offset, candidates_per_launch);
                 dispatch_start = std::chrono::steady_clock::now();
-                hipLaunchKernelGGL(
-                    selected_bf16_projection_hawkeye_midpoint_correction_kernel,
-                    dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
-                    dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
-                    weights, selected_inputs, outputs, rows, reduction_size,
-                    scratch + 2u, candidate_offset, counts[0]);
+                if (packed_candidates) {
+                    hipLaunchKernelGGL(selected_bf16_projection_hawkeye_packed_correction_kernel,
+                        dim3((launch_candidates + kSelectedHawkeyeCorrectionThreads - 1u) / kSelectedHawkeyeCorrectionThreads),
+                        dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
+                        transposed_weights, selected_inputs, outputs, rows, reduction_size,
+                        scratch + 2u, candidate_offset, candidate_offset + launch_candidates);
+                } else {
+                    hipLaunchKernelGGL(selected_bf16_projection_hawkeye_midpoint_correction_kernel,
+                        dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
+                        dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
+                        weights, selected_inputs, outputs, rows, reduction_size,
+                        scratch + 2u, candidate_offset, counts[0]);
+                }
                 result = synchronize_bounded(dispatch_start);
                 if (result != hipSuccess) return result;
                 ++dispatches;
@@ -37600,18 +37682,21 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     std::fprintf(stderr,
         "BATCH_MARK hawkeye_dispatch_stream rows=%u tokens=%u k=%u "
         "windows=%u candidates=%llu maximum_source_block_candidates=%u "
-        "compacted_candidates_per_block=16 "
+        "compacted_candidates_per_block=%u packed_candidates=%u transpose_bytes=%zu "
         "exact_dispatches=%u maximum_dispatch_ms=%.3f correction_ms=%.3f "
         "count_only=%u completed=%u scratch_bytes=%zu "
         "diagnostic_only=1 numerical_correctness_claimed=0\n",
         rows, selected_token_count, reduction_size, windows,
         static_cast<unsigned long long>(total_candidates), maximum_block_candidates,
+        packed_candidates ? kSelectedHawkeyeCorrectionThreads : subgroups_per_block,
+        packed_candidates ? 1u : 0u, transpose_bytes,
         dispatches, maximum_dispatch_ms, correction_ms, count_only ? 1u : 0u,
         status == hipSuccess ? 1u : 0u,
         scratch_bytes);
     std::fflush(stderr);
+    const hipError_t transpose_free_status = transposed_weights ? hipFree(transposed_weights) : hipSuccess;
     const hipError_t free_status = hipFree(scratch);
-    return status != hipSuccess ? status : free_status;
+    return status != hipSuccess ? status : transpose_free_status != hipSuccess ? transpose_free_status : free_status;
 }
 
 // GB10's cuBLASLt BF16 BA projection selects an output-type split-K

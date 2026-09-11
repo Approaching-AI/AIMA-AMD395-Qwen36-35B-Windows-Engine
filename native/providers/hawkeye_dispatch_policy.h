@@ -34,6 +34,12 @@ constexpr bool admitted(std::uint32_t candidates, std::uint32_t block_candidates
         block_candidates <= maximum_candidates_per_block;
 }
 
+// Each packed candidate occupies one thread instead of a 16-lane subgroup.
+// Total candidate and completed-time bounds remain unchanged.
+constexpr bool admitted_packed(std::uint32_t candidates, std::uint32_t block_candidates) {
+    return candidates <= maximum_candidates && block_candidates <= 256u;
+}
+
 constexpr bool time_remaining(double dispatch_ms, double correction_ms) {
     return dispatch_ms <= maximum_dispatch_ms &&
         correction_ms <= maximum_correction_ms;

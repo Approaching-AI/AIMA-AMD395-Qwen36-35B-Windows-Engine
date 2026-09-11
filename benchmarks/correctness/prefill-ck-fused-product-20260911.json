@@ -1,0 +1,4218 @@
+{
+  "kind": "fused_ck_prefill_complete_comparison",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "strict_baseline_record_sha256": "4128ba709e8fa1cf2e3e56191c5e31058f866464c8c4317f311b761307486303",
+  "cases": [
+    {
+      "name": "q8192-out512",
+      "run_record_sha256": "591371ee18e810cbc92a468cf2826d99f5673330be095953252007ebabbdefda",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--env-file",
+          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\prefill-ck-fused-q8192-out512-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911",
+        "repo_commit": "0c1467710732ea38dc57275119291fba5e18a057",
+        "command_file": "D:\\projects\\run-native-prefill-ck-fused-product-r1.ps1",
+        "command_file_sha256": "818102d8e50f905470aabd6bf78dd7d2e1155641f3499cbc3de28375f2798683",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "oracle": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+        "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
+        "parent_environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
+        "environment_sha256": "818b88cc79b077485dfd6efe1ab4627bac2068df302934faca976fbbd88e56c5",
+        "environment_overrides": {
+          "QRT_FLA_GDN_BATCHED_EXACT": "1",
+          "QRT_CK_FMHA_SM121_FULL_PREFIX": "0",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT": "512",
+          "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES": "16777216",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL": "0",
+          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q8192-out512-r1\\cache19",
+          "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
+          "QRT_QWEN36_Q1_SM121_RCP_TABLE": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
+          "QRT_QWEN36_Q1_SM121_FULL": "1",
+          "QRT_QWEN36_Q1_SM121_ROPE_TABLE": "D:\\projects\\sm121-rope-20260911-r2\\sm121-rope-bf16.bin",
+          "QRT_QWEN36_Q1_SM121_MOE": "1",
+          "QRT_QWEN36_Q1_SM121_ROUTER_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
+          "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
+          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q8192-out512-r1\\moe0",
+          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q8192-out512-r1\\full19",
+          "QRT_QWEN36_Q1_SM121_OUTPUT": "1",
+          "QRT_QWEN36_Q1_SM121_GDN": "1",
+          "QRT_QWEN36_Q1_F32_PROJECTION_SM121": "1",
+          "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q8192-out512-r1\\linear0",
+          "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER": "19",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER": "0",
+          "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "4294967295",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE": "0",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER": "4294967295",
+          "QRT_QWEN36_FULL_STAGE_DUMP_PREFIX": "",
+          "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "4294967295",
+          "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "8192",
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "8192",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q8192-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "8192",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "488",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "1394",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla",
+          "QRT_QWEN36_Q1_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "QRT_QWEN36_Q1_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+          "QRT_QWEN36_Q1_SM121_BETA_TABLE": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+          "QRT_QWEN36_Q1_SM121_GATE_LUT_DIR": "D:\\projects\\qrt-gating-model-20260910-r1",
+          "QRT_QWEN36_Q1_SM121_SILU_TABLE": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+          "QRT_QWEN36_Q1_SM121_GATED_SILU_TABLE": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gb10-gated-silu-f32-lut-r841\\full-gated-silu-f32-lut-f32.bin",
+          "QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gfx1151-sm121-rsqrt-correction-r854\\gfx1151-sm121-rsqrt-correction-delta2-r854.bin"
+        },
+        "components": {
+          "whole": {
+            "commit": "0c1467710732ea38dc57275119291fba5e18a057",
+            "directory": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole",
+            "build_metadata_sha256": "0c41f809b7bdbf2c0063a46c81031443f9db33997b59d1876f58c8721ea390d7",
+            "build_run_sha256": "dcd071f4dff5aefbc4271e74aee7fcb286942bbb08b423c5471aa9fce592c198",
+            "artifacts": [
+              {
+                "name": "qrt_qwen36_whole_provider.dll",
+                "bytes": 11727360,
+                "sha256": "b2bc2f8c2473e88729b70eaf76bfeda76cf7e1503e54140fc20767a438041e61"
+              },
+              {
+                "name": "q1_moe_avx512bf16_host_provider.obj",
+                "bytes": 183170,
+                "sha256": "99cbf8d3aec5ef126598984fd280000e8478e129d938a8833a9ca4be90b1136b"
+              }
+            ]
+          },
+          "fla": {
+            "commit": "aec3f70d7104a3f1ee4b51741cae5246ac4d0576",
+            "directory": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla",
+            "build_metadata_sha256": "f9c4343b1b2d4bb8fb7d61f11e2b396f5fb06c9f60b491d24dbefb0d1aded32c",
+            "build_run_sha256": "984efaac6c87d577a73dcea9ee4e221ef9fb546985dc77cf4a77c0896a83dc77",
+            "artifacts": [
+              {
+                "file": "fla-output-capture-replay.exe",
+                "bytes": 405504,
+                "sha256": "d66f6d1a2b70de1b175efb5ccc507bd0dcdb1aeeebed54b439ffef2945262790"
+              },
+              {
+                "file": "fla-upstream-capture-replay.exe",
+                "bytes": 487936,
+                "sha256": "6a83e927b3e4ca696c77d2d55a0d543d44ce75980c9ac69641eb3c494642e5cc"
+              },
+              {
+                "file": "metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "file": "q64-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "3978db25905fbd402e89f7e011e1c6cf82aaadc4d153ffa35cbcffae912bcf74"
+              },
+              {
+                "file": "q65-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "7dc1f9308c086cf0173046034706c69cbc071d34a96494d3b574fbf5a1adbf01"
+              },
+              {
+                "file": "q7169-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "9b1458c66a51af32a7198bee11c46719817f64bc32834619998730450d767a74"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "file": "qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 485376,
+                "sha256": "eaf14b7355799cd199dd1427b18298c1f60cb0d89cbc2e38bb054ffdda2a4898"
+              },
+              {
+                "file": "qrt_fla_gdn_kernel_specs.inc",
+                "bytes": 940,
+                "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+              }
+            ]
+          },
+          "moe": {
+            "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+            "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+            "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+            "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+            "artifacts": [
+              {
+                "file": "q8192_selected_moe_route_count.hsaco",
+                "bytes": 4816,
+                "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+              },
+              {
+                "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+                "bytes": 4960,
+                "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+              },
+              {
+                "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+                "bytes": 5040,
+                "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+              },
+              {
+                "file": "q8192_selected_moe_route_scatter.hsaco",
+                "bytes": 5608,
+                "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+              },
+              {
+                "file": "q8192_selected_moe_gate_up_silu.hsaco",
+                "bytes": 17752,
+                "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+              },
+              {
+                "file": "q8192_selected_moe_down.hsaco",
+                "bytes": 11384,
+                "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+              },
+              {
+                "file": "qrt_triton_moe_q8192_provider.dll",
+                "bytes": 507392,
+                "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+              },
+              {
+                "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+                "bytes": 7736,
+                "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+                "bytes": 6824,
+                "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+                "bytes": 6696,
+                "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+              },
+              {
+                "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+                "bytes": 7504,
+                "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+              }
+            ]
+          },
+          "ck": {
+            "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+            "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+            "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+            "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+            "artifacts": [
+              {
+                "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+                "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+                "bytes": 499712
+              }
+            ]
+          }
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+        "purpose": "Product-shape diagnostic: replace the ten exact full-attention prefill prefixes with the fused CK backend while preserving all other strict arithmetic and exact Q1 decode; unchanged complete frozen boundaries",
+        "output_tokens_requested": 512,
+        "inference_acceptance": false,
+        "native_safety_run_sha256": null,
+        "projection_error_bound_ppb": 1000,
+        "oracle_case": "q8192-out512",
+        "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+        "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+        "prior_native_safety_run_sha256": null,
+        "q1_attention_rcp_table": {
+          "path": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "bytes": 8388640
+        },
+        "q1_full_rope_table": {
+          "path": "D:\\projects\\sm121-rope-20260911-r2\\sm121-rope-bf16.bin",
+          "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+          "bytes": 33554432
+        },
+        "q1_moe_table_files": [
+          {
+            "path": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
+            "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+            "bytes": 33554432
+          },
+          {
+            "path": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
+            "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+            "bytes": 131096
+          }
+        ],
+        "q1_table_manifest_sha256": "9b7dc72320fd0331205f9f87f909e3a1d541b7434c5355bf6e1be77759764b2f",
+        "q1_table_files": [
+          {
+            "path": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+            "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+            "bytes": 648036
+          },
+          {
+            "path": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gb10-gated-silu-f32-lut-r841\\full-gated-silu-f32-lut-f32.bin",
+            "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
+            "bytes": 262144
+          },
+          {
+            "path": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gfx1151-sm121-rsqrt-correction-r854\\gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7",
+            "bytes": 4194304
+          },
+          {
+            "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "bytes": 183174448,
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+          },
+          {
+            "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          },
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+            "bytes": 262144,
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\capture.json",
+            "bytes": 37677,
+            "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer1-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer2-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer4-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer5-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer6-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer8-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer9-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer10-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer12-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer13-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer14-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer16-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer17-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer18-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer20-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer21-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer22-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer24-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer25-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer26-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer28-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer29-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer30-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer32-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer33-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer34-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer36-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer37-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer38-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\sigmoid-beta-bf16.bin",
+            "bytes": 131072,
+            "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+          }
+        ]
+      },
+      "summary": {
+        "type": "summary",
+        "status": "fail",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 144,
+        "first_token_report_top1_token_id": 144,
+        "first_token_raw_logit": 10.3125,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8192,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8192,
+        "output_tokens": 512,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "d07bf748690d6238",
+        "engine_load_ms": 19965.0131,
+        "provider_preload_ms": 19953.9452,
+        "provider_preload_reported_ms": 19953.3207,
+        "provider_preload_dll_load_ms": 9.8864,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1678,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 121527.502,
+        "ttft_ms": 59620.999,
+        "provider_ttft_ms": 59617.0038,
+        "prefill_tokens_per_second": 137.401254,
+        "tpot_ms": 120.941487,
+        "decode_tokens_per_second": 8.268461,
+        "stream_callback_count": 512,
+        "first_callback_wall_ms": 59620.999,
+        "last_callback_wall_ms": 121523.223,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          196,
+          82,
+          220,
+          220,
+          248046,
+          198,
+          248045,
+          846,
+          198,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          7701,
+          421,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          47739,
+          466,
+          5435,
+          4927,
+          10845,
+          5787,
+          11,
+          3154,
+          424,
+          58256,
+          470,
+          13,
+          1049,
+          5686,
+          1040,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          83123,
+          4105,
+          421,
+          635,
+          524,
+          1304,
+          53916,
+          22157,
+          466,
+          21716,
+          2144,
+          13,
+          271,
+          2592,
+          488,
+          10287,
+          310,
+          4191,
+          264,
+          3050,
+          1876,
+          11,
+          2128,
+          11,
+          466,
+          3296,
+          11,
+          4338,
+          1380,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          674,
+          63908,
+          321,
+          24147,
+          332,
+          279,
+          1414,
+          494,
+          279,
+          3889,
+          2450,
+          13,
+          198,
+          17,
+          13,
+          2972,
+          3840,
+          279,
+          10845,
+          332,
+          314,
+          279,
+          999,
+          466,
+          2450,
+          413,
+          488,
+          513,
+          14131,
+          440,
+          264,
+          999,
+          13,
+          198,
+          18,
+          13,
+          2972,
+          72240,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          332,
+          303,
+          13983,
+          3992,
+          13,
+          271,
+          40,
+          1044,
+          1532,
+          310,
+          1438,
+          0,
+          5044,
+          3300,
+          279,
+          4252,
+          1414,
+          466,
+          1042,
+          728,
+          1366,
+          1204,
+          353,
+          628,
+          7543,
+          488,
+          13,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248045,
+          846,
+          198,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338,
+          3300,
+          777,
+          3447,
+          466,
+          35932,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          30,
+          353,
+          2688,
+          1532,
+          310,
+          7543,
+          488,
+          0,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338,
+          3300,
+          777,
+          3447,
+          466,
+          35932,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          30,
+          353,
+          2688,
+          1532,
+          310,
+          7543,
+          488,
+          0,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "exit_code": 6,
+      "wall_ms": 141946.174,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "prompt_pass": true,
+      "first_token_logit_pass": true,
+      "complete_continuation_pass": false,
+      "token_mismatches": 455,
+      "first_difference": 8,
+      "first_difference_values": {
+        "native": 82,
+        "reference": 220
+      },
+      "stderr_sha256": "90f5b5c5cb76eabf24e695db594574e6a79be2db7956e6371bac3b29f9042f58",
+      "same_history_diagnostics": {
+        "state-comparison-r2.json": {
+          "sha256": "88feff10e7cc9db434059c983c0b6c0671a0baed0437f691c77ea6ad93228685",
+          "record": {
+            "case": "q8192-out512",
+            "position": 8192,
+            "transaction": 1,
+            "original_target_row": 0,
+            "selected_tensor_row": 0,
+            "reference_case_sha256": "5681d24739fb1381567b626e3eb234ce5e960f8ce0f7ce03cdefb29572f3b086",
+            "native_run_sha256": "591371ee18e810cbc92a468cf2826d99f5673330be095953252007ebabbdefda",
+            "command_file": "compare_q1_continuation_states_r1.py",
+            "command_file_sha256": "e5fc7c54ea841b8f97660d1ee24110e8e142487221b4fdf4820a57d747d8cf7d",
+            "stages": {
+              "state-before": {
+                "elements": 524288,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "14fd25abae2547c134ea844f50980057076f310eb193797bc5320d8cb64bbd16",
+                "reference_sha256": "df7054595e55c391c1a3a4099a7b32d74c8a51cfe233480ec559642f038b3e38",
+                "reference_label": "decode-state-before",
+                "reference_state_row": 0
+              },
+              "state-after": {
+                "elements": 524288,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "6257f652efb162697e08e8ae7e4e2c60cab99424aca12c896451e66d1216e10f",
+                "reference_sha256": "93077dda58f2052c944385b211951e65875720d0bf478dbb570eda6c4c8e2f37",
+                "reference_label": "decode-state-after",
+                "reference_state_row": 0
+              },
+              "conv-history": {
+                "elements": 24576,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": []
+              },
+              "conv-history-bf16-endpoint": {
+                "elements": 24576,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": []
+              },
+              "conv_f32": {
+                "elements": 8192,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "7261abe5144668254f3b268d429b9029df90534e5aedf55ab4c08d23407dff74",
+                "reference_sha256": "0a7eb8c9a36f7c18a64762ea1d820da825b3ad204ffeef8ac77519772b63b164"
+              },
+              "projection_qkv_f32": {
+                "elements": 8192,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "a2b829e28625c57a8fc24dd831d841e95c65611be51303be5e5fabb585044737",
+                "reference_sha256": "86f8e51acec175c221dc288b04d3c1c3806fef5761688881b8bd3f12bcf8f59d"
+              },
+              "projection_z_f32": {
+                "elements": 4096,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "46cc534bd37d6e281b483937d7fa9c7e2df4eb0f6611475e35b56cf57e7b9cd8",
+                "reference_sha256": "765d005484e6e10a0517f61b1380caa330225922ad63572946ee15f47e7de9bc"
+              },
+              "projection_a_f32": {
+                "elements": 32,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "89ec8e9ab0cb909f32dca335e9669fb3b9b7b3dc25c9cea4105248dbdfa322a2",
+                "reference_sha256": "daa698b8d09c7c25a26e7c80c2ba449531a9f2b1b113d8b55732281e23f4c08f"
+              },
+              "projection_b_f32": {
+                "elements": 32,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "b742b74ba50b9eb04e9427d228b35c3a5015526a7cb9fe3a4d9f1acf4b744749",
+                "reference_sha256": "767d46c295226c98820b34142fb5ed0478e859d6418b9163b2e55ccc6b8a6a46"
+              },
+              "recurrent_core_f32": {
+                "elements": 4096,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "b7d4be2815801bef7ba0774b21483df5b56d59680a9786fd87438aa2a1ea1e6b",
+                "reference_sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+              },
+              "gated_rmsnorm_f32": {
+                "elements": 4096,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "07a9d1d54cd6a5dc5385c35a94dad6ceeb4be04eccd120836423b5ebfc5c5618",
+                "reference_sha256": "00354ced121028ca8596a9927d7a717731b7777d877031fce844dc19073ed468"
+              },
+              "output_projection_bf16": {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "native_sha256": "f12a641eeb985cf5284c852e5529fc8d2fb9151b3d1bfc04aeea6f7f1182abf2",
+                "reference_sha256": "f12a641eeb985cf5284c852e5529fc8d2fb9151b3d1bfc04aeea6f7f1182abf2"
+              }
+            },
+            "convolution_history_selection": {
+              "metadata": {
+                "transaction": 1,
+                "layer": 0,
+                "operator": "causal_conv1d_update",
+                "cache_slot": 96,
+                "accepted_tokens": [
+                  1
+                ],
+                "history_token_offset": 0
+              },
+              "source": "txn0001-linear-00-conv-history-before-bf16.bin",
+              "source_sha256": "a9430e3bdd77a82d89005875d9ad7dd74d9e6712f2dc817ef2f065dcc86dc085",
+              "offset": 0,
+              "original_target_row": 0
+            }
+          }
+        },
+        "boundary-comparison-r1.json": {
+          "sha256": "6d972c9c79a62b100cc2c0a632479231b444af2ff2c7ee1f166358ee2922d6a4",
+          "record": {
+            "product_completed": true,
+            "case": "q8192-out512",
+            "position": 8192,
+            "transaction": 1,
+            "reference_row": 0,
+            "reference_case_sha256": "5681d24739fb1381567b626e3eb234ce5e960f8ce0f7ce03cdefb29572f3b086",
+            "native_run_sha256": "591371ee18e810cbc92a468cf2826d99f5673330be095953252007ebabbdefda",
+            "stages": [
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "stage": "input_norm_f32",
+                "native_sha256": "c866aee76fb0f959655a3ab74d4a75a2bbd7bf90f9dfc0054af41e91ad37b1c2",
+                "reference_sha256": "7c09c89bddd2fb9fa4a775cd88e29c1dcf8f5368d34862bf131801568af634b9"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "stage": "post_attention_norm_f32",
+                "native_sha256": "654e036f3933297ad42ee1caa198da5fbcc7333dfa8d6f1c9a445a0b1bfbc39a",
+                "reference_sha256": "a6b55d59ef0a594b4fda96c05a28fcc62d4b281ccf4dae399b581ccb8db4d286"
+              }
+            ],
+            "layers": [
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "layer": 0,
+                "native_sha256": "307776727f5fa675c2176050d6613a1c5ddcc01cbd2c3d90f3f8351ae8f635d2",
+                "reference_sha256": "307776727f5fa675c2176050d6613a1c5ddcc01cbd2c3d90f3f8351ae8f635d2"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "layer": 1,
+                "native_sha256": "56f8ea46c3eb738acabefea5518f1e9d4c09d0e7dea93f07373ef2b327e4e8c5",
+                "reference_sha256": "56f8ea46c3eb738acabefea5518f1e9d4c09d0e7dea93f07373ef2b327e4e8c5"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "layer": 2,
+                "native_sha256": "067a444ae6d018630323b35ac31bd55ff8c783679c1137ddd91114ab46df2079",
+                "reference_sha256": "067a444ae6d018630323b35ac31bd55ff8c783679c1137ddd91114ab46df2079"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 0,
+                "max_abs": 0.0,
+                "first": [],
+                "layer": 3,
+                "native_sha256": "e2c1a8093ee44c39655708d85cb8db2d14e0ec7ac20b50d12bdcb7c9e1b4b5dc",
+                "reference_sha256": "e2c1a8093ee44c39655708d85cb8db2d14e0ec7ac20b50d12bdcb7c9e1b4b5dc"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 1884,
+                "max_abs": 0.001953125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.039154052734375,
+                    "reference": -0.03924560546875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.03533935546875,
+                    "reference": 0.035369873046875
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.004638671875,
+                    "reference": 0.00482177734375
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0240478515625,
+                    "reference": -0.023895263671875
+                  },
+                  {
+                    "index": 4,
+                    "native": 0.037200927734375,
+                    "reference": 0.036956787109375
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.02301025390625,
+                    "reference": -0.02294921875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.007568359375,
+                    "reference": -0.007720947265625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.044689178466796875,
+                    "reference": 0.0447235107421875
+                  }
+                ],
+                "layer": 4,
+                "native_sha256": "d45279f49f52ed0f3dd9ec30bdf9cb4c846ca52913aeb88d27a8d6e64b9d5f0d",
+                "reference_sha256": "6d79252bc0d84bba2276659adf9a8dab124f1793864bc4225c797d474ae5192d"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 1931,
+                "max_abs": 0.00199127197265625,
+                "first": [
+                  {
+                    "index": 1,
+                    "native": 0.02294921875,
+                    "reference": 0.022979736328125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.01922607421875,
+                    "reference": 0.01953125
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0121307373046875,
+                    "reference": -0.0118408203125
+                  },
+                  {
+                    "index": 4,
+                    "native": 0.0323333740234375,
+                    "reference": 0.0324554443359375
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.021514892578125,
+                    "reference": -0.021728515625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0050201416015625,
+                    "reference": -0.00518798828125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.034698486328125,
+                    "reference": 0.0350341796875
+                  },
+                  {
+                    "index": 8,
+                    "native": -0.022705078125,
+                    "reference": -0.022369384765625
+                  }
+                ],
+                "layer": 5,
+                "native_sha256": "77a2f4f126adb1c5f6e7ced9a1e9fa5a5605b0a807bbb8b3f857268168857292",
+                "reference_sha256": "cf8e91edb96ea1d661f334c0e057774dccf2d0894ebad54429d3e4ae1d49b08b"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2032,
+                "max_abs": 0.0066680908203125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.037811279296875,
+                    "reference": -0.0346527099609375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.009542465209960938,
+                    "reference": 0.012786865234375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.005126953125,
+                    "reference": 0.00579833984375
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0174560546875,
+                    "reference": -0.01611328125
+                  },
+                  {
+                    "index": 4,
+                    "native": 0.0294952392578125,
+                    "reference": 0.0291748046875
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.017913818359375,
+                    "reference": -0.0175628662109375
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.01373291015625,
+                    "reference": -0.014984130859375
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0465087890625,
+                    "reference": 0.04547119140625
+                  }
+                ],
+                "layer": 6,
+                "native_sha256": "2580daffc7fea00b70fb6f5af91d201ff3a93b6ae753d6c3a9dfe44295ad293d",
+                "reference_sha256": "f8911d902815e4f9b68af4aff27327a7d23fa4206b75d2302610bfe430db8aa9"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2041,
+                "max_abs": 0.00946044921875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.032989501953125,
+                    "reference": -0.02545166015625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.014739990234375,
+                    "reference": 0.019012451171875
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.0048370361328125,
+                    "reference": -0.0047149658203125
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0195770263671875,
+                    "reference": -0.018768310546875
+                  },
+                  {
+                    "index": 4,
+                    "native": 0.0159912109375,
+                    "reference": 0.017822265625
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.01611328125,
+                    "reference": -0.01739501953125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0068359375,
+                    "reference": -0.005401611328125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0432281494140625,
+                    "reference": 0.0424652099609375
+                  }
+                ],
+                "layer": 7,
+                "native_sha256": "0e3aa541c365a0d3ee147ca339ad13f01620fb0dee813cc7e0eebb2b8674e361",
+                "reference_sha256": "f3d0ac6d01d9fa96c467de1ead38823083603e14163d0d255dd799ee48b01366"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2037,
+                "max_abs": 0.008880615234375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.03631591796875,
+                    "reference": -0.0291748046875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00872802734375,
+                    "reference": 0.0111083984375
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.01544189453125,
+                    "reference": -0.016632080078125
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.020843505859375,
+                    "reference": -0.019287109375
+                  },
+                  {
+                    "index": 4,
+                    "native": 0.009918212890625,
+                    "reference": 0.01043701171875
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.02508544921875,
+                    "reference": -0.0260009765625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0006103515625,
+                    "reference": 6.103515625e-05
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.025146484375,
+                    "reference": 0.02294921875
+                  }
+                ],
+                "layer": 8,
+                "native_sha256": "8f13f220446d34d4e2b2ef5b5836b2de6e9f3d6e8305937152a0633e37c1a797",
+                "reference_sha256": "5a4f65d9631f7a6f67d41388950c26a8efc2482a6e1fcb27a2c6465be2208044"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2036,
+                "max_abs": 0.01042938232421875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0374755859375,
+                    "reference": -0.0344390869140625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.007568359375,
+                    "reference": 0.008941650390625
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.011688232421875,
+                    "reference": -0.01458740234375
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0202178955078125,
+                    "reference": -0.0187225341796875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.008575439453125,
+                    "reference": -0.010406494140625
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.00927734375,
+                    "reference": -0.00634765625
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.0072021484375,
+                    "reference": 0.0101776123046875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0269775390625,
+                    "reference": 0.0315093994140625
+                  }
+                ],
+                "layer": 9,
+                "native_sha256": "161250b6ae6384f340f011b11d3c3da68bcce12d0d37043206bd8c2f4288d8a3",
+                "reference_sha256": "6a179702f0ec16b58a1950d842031680c94fcdf36521f473f64ae95f13ddd182"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2038,
+                "max_abs": 0.014377593994140625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0216064453125,
+                    "reference": -0.01922607421875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.000762939453125,
+                    "reference": -0.0057373046875
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.0069580078125,
+                    "reference": -0.0040283203125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.005615234375,
+                    "reference": 0.0035400390625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0389404296875,
+                    "reference": -0.03778076171875
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.0101776123046875,
+                    "reference": -0.00514984130859375
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.0025634765625,
+                    "reference": 0.00494384765625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.02655029296875,
+                    "reference": 0.02886962890625
+                  }
+                ],
+                "layer": 10,
+                "native_sha256": "89291415a19c90be9ba531e92cf0657f99fdd3bb23f62042e2b829fb2d5a1509",
+                "reference_sha256": "3118df93a965a516655be27982ddbde34ad587e729b36e02bb68bb6db802762c"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2039,
+                "max_abs": 0.018218994140625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0469970703125,
+                    "reference": -0.04168701171875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0099334716796875,
+                    "reference": 0.00469970703125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0091552734375,
+                    "reference": 0.01275634765625
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.01025390625,
+                    "reference": 0.0090484619140625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.03558349609375,
+                    "reference": -0.03173828125
+                  },
+                  {
+                    "index": 5,
+                    "native": -0.010498046875,
+                    "reference": -0.00762939453125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.01904296875,
+                    "reference": -0.01776123046875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.050140380859375,
+                    "reference": 0.05352783203125
+                  }
+                ],
+                "layer": 11,
+                "native_sha256": "48b5226a482d3d7cea4ff4768ebb2fa5a416b7bd5efdf4695a4c13d4acfc391f",
+                "reference_sha256": "b7c983f06bba9209bfbd6c66ca46aebe2ad731b54808e3477b414a445345c623"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2043,
+                "max_abs": 0.02008056640625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.038360595703125,
+                    "reference": -0.03204345703125
+                  },
+                  {
+                    "index": 1,
+                    "native": -0.001495361328125,
+                    "reference": -0.00562286376953125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.00213623046875,
+                    "reference": 0.00396728515625
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.002716064453125,
+                    "reference": 0.00128173828125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0472259521484375,
+                    "reference": -0.044403076171875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.003204345703125,
+                    "reference": 0.00640869140625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.02550506591796875,
+                    "reference": -0.025299072265625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0528564453125,
+                    "reference": 0.052215576171875
+                  }
+                ],
+                "layer": 12,
+                "native_sha256": "199bbba37ed3fa577fb0f64ac4cdb2e6eb44c85e5d839b58b01d44785faf9682",
+                "reference_sha256": "934b167c4eecdbec6e773d68afdc5beb3cdafa94dacb7c11112cbb547d9ee91c"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2044,
+                "max_abs": 0.0372314453125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0286865234375,
+                    "reference": -0.019775390625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.005523681640625,
+                    "reference": 0.002685546875
+                  },
+                  {
+                    "index": 2,
+                    "native": 3.814697265625e-05,
+                    "reference": -0.00035858154296875
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0004425048828125,
+                    "reference": -0.0003204345703125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0377197265625,
+                    "reference": -0.04003143310546875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.01830291748046875,
+                    "reference": 0.022308349609375
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0316162109375,
+                    "reference": -0.030303955078125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0391845703125,
+                    "reference": 0.04571533203125
+                  }
+                ],
+                "layer": 13,
+                "native_sha256": "0cd743043b46b87abea9fb76ef4b7353fc65bb95225df8aefa97ccc625899ecf",
+                "reference_sha256": "313f6367a957e8d9ae3eba784f5c57b2c6886c81fea333bb4745ec178428f576"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2043,
+                "max_abs": 0.020538330078125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.020965576171875,
+                    "reference": -0.01470947265625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00750732421875,
+                    "reference": 0.0068206787109375
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.003993988037109375,
+                    "reference": -0.00571441650390625
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0052947998046875,
+                    "reference": 0.00547027587890625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0475006103515625,
+                    "reference": -0.04752349853515625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0251922607421875,
+                    "reference": 0.025638580322265625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.026397705078125,
+                    "reference": -0.0250396728515625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.042388916015625,
+                    "reference": 0.046794891357421875
+                  }
+                ],
+                "layer": 14,
+                "native_sha256": "d5fac49cc84c83bd81fdbfff1bd8c35ef0a491a868fd121b2405ca443975a826",
+                "reference_sha256": "e271c846773dfbcd0399426a92a990fccb67017ec655404601a58e4601ea75b9"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2048,
+                "max_abs": 0.0400390625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0154571533203125,
+                    "reference": -0.0114898681640625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0016021728515625,
+                    "reference": 0.00524139404296875
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.0018310546875,
+                    "reference": -0.002166748046875
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.001983642578125,
+                    "reference": 0.0064544677734375
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.044708251953125,
+                    "reference": -0.04595947265625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.02923583984375,
+                    "reference": 0.029205322265625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0450439453125,
+                    "reference": -0.0418701171875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.04425048828125,
+                    "reference": 0.04547119140625
+                  }
+                ],
+                "layer": 15,
+                "native_sha256": "0b88aeaa06590af87bacd782aa3b6a02407f3ed4a075b17c48dd2ea5e61a7d8d",
+                "reference_sha256": "40bfdd78f4025d9fbf27070d4963d37614e01b1307624af3a61b9b76790c8736"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2042,
+                "max_abs": 0.0283203125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0042877197265625,
+                    "reference": 0.001987457275390625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00040435791015625,
+                    "reference": 0.00417327880859375
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.001678466796875,
+                    "reference": 0.0039768218994140625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.04046630859375,
+                    "reference": -0.04217529296875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.03269195556640625,
+                    "reference": 0.032550811767578125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.03789520263671875,
+                    "reference": -0.0321044921875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.04638671875,
+                    "reference": 0.048095703125
+                  },
+                  {
+                    "index": 8,
+                    "native": -0.01372528076171875,
+                    "reference": -0.0162200927734375
+                  }
+                ],
+                "layer": 16,
+                "native_sha256": "b2fc0cd38a59422d1b682e452067f8438f59d20a2dcd518f52cc46a813f21305",
+                "reference_sha256": "18bcd516ee80b1dd6117e4728e43bdf0dedadf1f4e6d8f755301df46db3d9074"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2039,
+                "max_abs": 0.0341796875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0144805908203125,
+                    "reference": -0.009033203125
+                  },
+                  {
+                    "index": 1,
+                    "native": -0.0111083984375,
+                    "reference": -0.00604248046875
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.00220489501953125,
+                    "reference": 0.00311279296875
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.002685546875,
+                    "reference": 0.0048828125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.046295166015625,
+                    "reference": -0.04846954345703125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0327301025390625,
+                    "reference": 0.03095245361328125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0247802734375,
+                    "reference": -0.016845703125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.041748046875,
+                    "reference": 0.042572021484375
+                  }
+                ],
+                "layer": 17,
+                "native_sha256": "8479b50fcf62b24a681c9b641dd209203b5230d052ad9b6142d8554b6fa304cd",
+                "reference_sha256": "c0d805bd3327378f54b4071e953e8f8ca517edcbb1631b292d19ac72a8bf9d32"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2042,
+                "max_abs": 0.02156829833984375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.02423095703125,
+                    "reference": -0.0189208984375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00225830078125,
+                    "reference": 0.00604248046875
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.0066680908203125,
+                    "reference": -0.00396728515625
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0045166015625,
+                    "reference": 0.0142822265625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.045562744140625,
+                    "reference": -0.04754638671875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0241546630859375,
+                    "reference": 0.02629852294921875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.029022216796875,
+                    "reference": -0.0244140625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.054901123046875,
+                    "reference": 0.055908203125
+                  }
+                ],
+                "layer": 18,
+                "native_sha256": "1918990dfab7df28eb9e12bb0d5bf660f06e72b19a878e82badb9edd50c64de1",
+                "reference_sha256": "74c933a6dae2791471e68b6ecf6b58aa6e5982b761434d06012d302b5521d05d"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2043,
+                "max_abs": 0.024169921875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.02191162109375,
+                    "reference": -0.0194091796875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00449371337890625,
+                    "reference": 0.00893402099609375
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.00140380859375,
+                    "reference": 0.0008544921875
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.006134033203125,
+                    "reference": 0.005584716796875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.05065155029296875,
+                    "reference": -0.0541839599609375
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.01824951171875,
+                    "reference": 0.01995849609375
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.040283203125,
+                    "reference": -0.0369873046875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.06817626953125,
+                    "reference": 0.06982421875
+                  }
+                ],
+                "layer": 19,
+                "native_sha256": "853a953252ca816ea8cd9a915e7f4d5df20db93f3dde4ea69ba079305cd9576f",
+                "reference_sha256": "851f44401ec883175b85db0c07513f328aec2214519330355af83ff4edc4a8cd"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2047,
+                "max_abs": 0.026458740234375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.02569580078125,
+                    "reference": -0.021942138671875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.01983642578125,
+                    "reference": 0.0242919921875
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.00444793701171875,
+                    "reference": -0.0037384033203125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.00106048583984375,
+                    "reference": 0.010684967041015625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.05271148681640625,
+                    "reference": -0.057403564453125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.017578125,
+                    "reference": 0.019500732421875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0328369140625,
+                    "reference": -0.031890869140625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.081787109375,
+                    "reference": 0.08392333984375
+                  }
+                ],
+                "layer": 20,
+                "native_sha256": "6c8fb8e2061357cc593c310b9b0d6f10d84bd10659347b90e97b4e417da3308c",
+                "reference_sha256": "71407c318994bc30503addf15b5cde0bfdfd8aed9919a7028f2c73ccb9b2af66"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2044,
+                "max_abs": 0.0250244140625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0157470703125,
+                    "reference": -0.0146484375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.024810791015625,
+                    "reference": 0.0264892578125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0015869140625,
+                    "reference": -0.001190185546875
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0050811767578125,
+                    "reference": 0.0149688720703125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.070098876953125,
+                    "reference": -0.077880859375
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.01702880859375,
+                    "reference": 0.01971435546875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0337982177734375,
+                    "reference": -0.033355712890625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.08074951171875,
+                    "reference": 0.08380126953125
+                  }
+                ],
+                "layer": 21,
+                "native_sha256": "55bdb5644063de7c3f9fe3e8440eb3f188e9238f6a262501a9a758e59f0cd66f",
+                "reference_sha256": "fd13e36c6adb63060ac08db00cb496c453be7058dd99ebd36368d26709e74c40"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2045,
+                "max_abs": 0.02816009521484375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.00250244140625,
+                    "reference": 0.00396728515625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.04180908203125,
+                    "reference": 0.037994384765625
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.011486053466796875,
+                    "reference": 0.0063323974609375
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0042266845703125,
+                    "reference": 0.019775390625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.08416748046875,
+                    "reference": -0.07861328125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0229949951171875,
+                    "reference": 0.026611328125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.03765869140625,
+                    "reference": -0.033172607421875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0989990234375,
+                    "reference": 0.09761810302734375
+                  }
+                ],
+                "layer": 22,
+                "native_sha256": "175ab0fcb6ae616f07072c5c12218d6fa2b1fea7843221a340c391017db9b9dd",
+                "reference_sha256": "ddd866baaa09261f56495f4647f01a0e7c8f4f604c9d25451c26586dff80032c"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2046,
+                "max_abs": 0.028900146484375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.006591796875,
+                    "reference": -0.0076141357421875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.054931640625,
+                    "reference": 0.05023193359375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.008544921875,
+                    "reference": 0.00335693359375
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.01409912109375,
+                    "reference": 0.03076171875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.07971954345703125,
+                    "reference": -0.07585906982421875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.00041961669921875,
+                    "reference": 0.001983642578125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0479736328125,
+                    "reference": -0.046173095703125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0728759765625,
+                    "reference": 0.07379150390625
+                  }
+                ],
+                "layer": 23,
+                "native_sha256": "8f27f37e8b3541e60864336867b088f93e5021bba56df98551dbe1bbf600bb83",
+                "reference_sha256": "878fff6e2bc4403bf92ffa44b80c640b77fc9077f72af51eaf4924106b4965f0"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2045,
+                "max_abs": 0.02817535400390625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.00323486328125,
+                    "reference": -0.00726318359375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0390625,
+                    "reference": 0.037872314453125
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.00103759765625,
+                    "reference": -0.0040283203125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0345458984375,
+                    "reference": 0.049072265625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.08586883544921875,
+                    "reference": -0.08267974853515625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.003936767578125,
+                    "reference": 0.00756072998046875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.03399658203125,
+                    "reference": -0.03167724609375
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0676116943359375,
+                    "reference": 0.068572998046875
+                  }
+                ],
+                "layer": 24,
+                "native_sha256": "bc12ea3636614789ccd6777dc56e0d0f5042670f43881f16dc862c1bfb296483",
+                "reference_sha256": "349315bc1730d99e385abc0c4dc829fed10dcd6fd844e25dc532b1839578836b"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2044,
+                "max_abs": 0.0283203125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.00738525390625,
+                    "reference": 0.00335693359375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0393218994140625,
+                    "reference": 0.0399169921875
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.00493621826171875,
+                    "reference": 0.0037841796875
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0231475830078125,
+                    "reference": 0.038543701171875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0806884765625,
+                    "reference": -0.07696533203125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0045013427734375,
+                    "reference": 0.00787353515625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.034748077392578125,
+                    "reference": -0.03106689453125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.0916748046875,
+                    "reference": 0.09130859375
+                  }
+                ],
+                "layer": 25,
+                "native_sha256": "5b1912e89edc29fb6c9dbd0f93ac25f96c521b718a6031bd16b8785fcb6c546b",
+                "reference_sha256": "fe677f46eaf1801b573033a12a9bfbbe9568f5a24c978dbb9cd1988616f5ad33"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2045,
+                "max_abs": 0.02777099609375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.00439453125,
+                    "reference": -0.0074462890625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.030242919921875,
+                    "reference": 0.03216552734375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.008880615234375,
+                    "reference": 0.0048828125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.01678466796875,
+                    "reference": 0.0319366455078125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0784912109375,
+                    "reference": -0.0736083984375
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.00439453125,
+                    "reference": 0.007080078125
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.04913330078125,
+                    "reference": -0.042694091796875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.081695556640625,
+                    "reference": 0.079315185546875
+                  }
+                ],
+                "layer": 26,
+                "native_sha256": "1cf9f5bb0086eec011e7af5e5f24204ab80466a9f0cdf9a08f857be8dccf6a01",
+                "reference_sha256": "e05855de819c73089562d2beebe6a89ed0461de7b0d34dd75093399746dfc13a"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2040,
+                "max_abs": 0.02813720703125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.0146942138671875,
+                    "reference": 0.00908660888671875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0374755859375,
+                    "reference": 0.0388031005859375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0148773193359375,
+                    "reference": 0.012237548828125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0247802734375,
+                    "reference": 0.04034423828125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.10858154296875,
+                    "reference": -0.10223388671875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.01043701171875,
+                    "reference": 0.01470947265625
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.03497314453125,
+                    "reference": -0.02691650390625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.057861328125,
+                    "reference": 0.05865478515625
+                  }
+                ],
+                "layer": 27,
+                "native_sha256": "e2ecd77f5c6786bd13623605bf57a0548c31cd7b854861db94cb4cc225acd026",
+                "reference_sha256": "caad7268d8dffc585bdcad77c24d83b38af56020f79b12d6c5fc7287f612a465"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2046,
+                "max_abs": 0.02845001220703125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.00396728515625,
+                    "reference": -0.0010986328125
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.03155517578125,
+                    "reference": 0.0318603515625
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0147705078125,
+                    "reference": 0.012481689453125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0223388671875,
+                    "reference": 0.035308837890625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0989990234375,
+                    "reference": -0.0899658203125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.013397216796875,
+                    "reference": 0.017913818359375
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.0362701416015625,
+                    "reference": -0.0276031494140625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.06915283203125,
+                    "reference": 0.0694580078125
+                  }
+                ],
+                "layer": 28,
+                "native_sha256": "28fa0e4c34f3b07ac39cb0b3ff1d2e5ff20b021f6f0c32538e5f439c37e21d38",
+                "reference_sha256": "d544961d47215242c2371869341768e04da5dbf9e16bce3cfff3f3ae59e6ed4b"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2044,
+                "max_abs": 0.026885986328125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.0085296630859375,
+                    "reference": 0.003082275390625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.04134368896484375,
+                    "reference": 0.04449462890625
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.01988983154296875,
+                    "reference": -0.01922607421875
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0203399658203125,
+                    "reference": 0.02960205078125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.11688232421875,
+                    "reference": -0.106201171875
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.01153564453125,
+                    "reference": 0.0115966796875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.05419921875,
+                    "reference": -0.047607421875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.062591552734375,
+                    "reference": 0.061798095703125
+                  }
+                ],
+                "layer": 29,
+                "native_sha256": "24b88d1edba1d94f1851664a6585fad24020eac7ff90dd53acb085a398a02a9c",
+                "reference_sha256": "16908ae84c6db58e760c7fd72e670478f2679a7f34571bbddfdbd2bebb0cfacd"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2041,
+                "max_abs": 0.02655029296875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.01788330078125,
+                    "reference": 0.0114288330078125
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0577392578125,
+                    "reference": 0.059722900390625
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.010009765625,
+                    "reference": 0.0089111328125
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.0006103515625,
+                    "reference": 0.0118408203125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.127532958984375,
+                    "reference": -0.117828369140625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.03704833984375,
+                    "reference": 0.03778076171875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.02838134765625,
+                    "reference": -0.0228271484375
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.06793212890625,
+                    "reference": 0.0684814453125
+                  }
+                ],
+                "layer": 30,
+                "native_sha256": "a3165b58e82078d0fa78d83e6a7610bc9e83a1bc8e574d9dd1cfacfedc731a93",
+                "reference_sha256": "9bce251b40ea0eec1e9febae37bfafe3e9716d156049db33881d89b4ee10ec87"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2043,
+                "max_abs": 0.02783203125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0135498046875,
+                    "reference": -0.014404296875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0213623046875,
+                    "reference": 0.033203125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0064697265625,
+                    "reference": 0.01165771484375
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0218505859375,
+                    "reference": 0.0330810546875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.0911865234375,
+                    "reference": -0.0858917236328125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.021514892578125,
+                    "reference": 0.01800537109375
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.02069091796875,
+                    "reference": -0.01171875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.049560546875,
+                    "reference": 0.0458984375
+                  }
+                ],
+                "layer": 31,
+                "native_sha256": "5215c6aa1e2166dc8370d32312bb20f24e4a50c2d27a18c5eb4ed3cf718e70c6",
+                "reference_sha256": "c72ceea0df6a5265cd0d03a02333297f175cc543eedad9940bcd45bfdde82a74"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2043,
+                "max_abs": 0.0556640625,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0338134765625,
+                    "reference": -0.031463623046875
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.00494384765625,
+                    "reference": 0.0166015625
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.00836181640625,
+                    "reference": -0.0009765625
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.037994384765625,
+                    "reference": 0.0494384765625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.1058349609375,
+                    "reference": -0.09893798828125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.02655029296875,
+                    "reference": 0.03076171875
+                  },
+                  {
+                    "index": 6,
+                    "native": -0.06396484375,
+                    "reference": -0.064697265625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.05657958984375,
+                    "reference": 0.0489501953125
+                  }
+                ],
+                "layer": 32,
+                "native_sha256": "27396ed9e83a5cf46d28b0d2d7a41b53abf742d000bb8b534edbfe4e6c5d66bf",
+                "reference_sha256": "13b511e67d208b21c043ad208ee6b3b9ce2eff0afb2044e6c6d86e870203b0a3"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2031,
+                "max_abs": 0.068359375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.1024169921875,
+                    "reference": -0.103759765625
+                  },
+                  {
+                    "index": 1,
+                    "native": -0.014862060546875,
+                    "reference": -0.0072021484375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0023193359375,
+                    "reference": 0.0146484375
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.1611328125,
+                    "reference": 0.173095703125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.15771484375,
+                    "reference": -0.1533203125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0311279296875,
+                    "reference": 0.033843994140625
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.076904296875,
+                    "reference": 0.068603515625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.106689453125,
+                    "reference": 0.101806640625
+                  }
+                ],
+                "layer": 33,
+                "native_sha256": "f11138d1b0d79667e5f690f0bf980dfa030d289c12f86e40b64a0ca511e02513",
+                "reference_sha256": "73f0ed74d59f989049c89e3bb721a15a1c3605329eac7c9ea668b76f2562e4e4"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2037,
+                "max_abs": 0.0859375,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0418701171875,
+                    "reference": -0.044189453125
+                  },
+                  {
+                    "index": 1,
+                    "native": -0.0179443359375,
+                    "reference": -0.009033203125
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.016845703125,
+                    "reference": -0.0069580078125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.13747406005859375,
+                    "reference": 0.14764404296875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.144287109375,
+                    "reference": -0.14361572265625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.082275390625,
+                    "reference": 0.083984375
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.04583740234375,
+                    "reference": 0.04434967041015625
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.1099853515625,
+                    "reference": 0.1090087890625
+                  }
+                ],
+                "layer": 34,
+                "native_sha256": "6b677e6573035479c95b87bd4f7fad1dc3ed7f4efb7f029002b409943d9f240f",
+                "reference_sha256": "2c69d302021600e0cd7b9aad2f982538d9c1d0ce4912b28c8345493659265044"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2035,
+                "max_abs": 0.078125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0516357421875,
+                    "reference": -0.056640625
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.0550537109375,
+                    "reference": 0.0657958984375
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.062744140625,
+                    "reference": -0.0546875
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.08636474609375,
+                    "reference": 0.0933837890625
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.18701171875,
+                    "reference": -0.18798828125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.0804443359375,
+                    "reference": 0.08203125
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.08349609375,
+                    "reference": 0.0789794921875
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.07470703125,
+                    "reference": 0.07373046875
+                  }
+                ],
+                "layer": 35,
+                "native_sha256": "42a1120ea548ea6f8ec3382d48a40f2d0d320b32d41042caefbdd173717b8c63",
+                "reference_sha256": "76ff4b89705e25df58253e84dfd03e713f306a5af6d3d1005dae374c3d3b0b08"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2031,
+                "max_abs": 0.0830078125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.02978515625,
+                    "reference": 0.021484375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.1480712890625,
+                    "reference": 0.1611328125
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.102294921875,
+                    "reference": 0.11474609375
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.0079193115234375,
+                    "reference": 0.0167236328125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.21399307250976562,
+                    "reference": -0.21771240234375
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.124755859375,
+                    "reference": 0.12939453125
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.1865234375,
+                    "reference": 0.18408203125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.1396484375,
+                    "reference": 0.1376953125
+                  }
+                ],
+                "layer": 36,
+                "native_sha256": "4049bc2d5420b326de90ee4dee9f0710fba96b4cdf689c3426fd6f9b7f176df6",
+                "reference_sha256": "6fb835b8e2178da8e2ecdafccb630a048610db5ac481a06bf77f047ec196e5cc"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2023,
+                "max_abs": 0.0703125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.0390625,
+                    "reference": 0.031005859375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.193359375,
+                    "reference": 0.20458984375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.0244140625,
+                    "reference": 0.03564453125
+                  },
+                  {
+                    "index": 3,
+                    "native": -0.09423828125,
+                    "reference": -0.0863037109375
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.197998046875,
+                    "reference": -0.19879150390625
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.06787109375,
+                    "reference": 0.071044921875
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.13916015625,
+                    "reference": 0.14434814453125
+                  },
+                  {
+                    "index": 7,
+                    "native": 0.159149169921875,
+                    "reference": 0.1580810546875
+                  }
+                ],
+                "layer": 37,
+                "native_sha256": "812a973ffcd90fa09b9be9b221280b32a9ae4918530f2ff1711215cffbfc9001",
+                "reference_sha256": "5eea8a8fb033f53a985cb7fcc867e171ac78a49a3257947cbb26edcf3154e9f2"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2018,
+                "max_abs": 0.04296875,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": -0.0888671875,
+                    "reference": -0.0927734375
+                  },
+                  {
+                    "index": 1,
+                    "native": 0.205322265625,
+                    "reference": 0.2181396484375
+                  },
+                  {
+                    "index": 2,
+                    "native": 0.07470703125,
+                    "reference": 0.0870361328125
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.02880859375,
+                    "reference": 0.03466796875
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.148681640625,
+                    "reference": -0.1514892578125
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.134765625,
+                    "reference": 0.13720703125
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.1527099609375,
+                    "reference": 0.151123046875
+                  },
+                  {
+                    "index": 7,
+                    "native": -0.04443359375,
+                    "reference": -0.04931640625
+                  }
+                ],
+                "layer": 38,
+                "native_sha256": "140a4e54dd58d18380772f082ec898d22aff6bacccb9c1f252da153592de2df9",
+                "reference_sha256": "c160f26e6b6666fff91854c1289c7198c16bb3e23685f0a721f20dcfcbcccb4d"
+              },
+              {
+                "elements": 2048,
+                "bit_mismatches": 2006,
+                "max_abs": 0.220703125,
+                "first": [
+                  {
+                    "index": 0,
+                    "native": 0.251708984375,
+                    "reference": 0.24365234375
+                  },
+                  {
+                    "index": 1,
+                    "native": 1.115234375,
+                    "reference": 1.12109375
+                  },
+                  {
+                    "index": 2,
+                    "native": -0.18359375,
+                    "reference": -0.18603515625
+                  },
+                  {
+                    "index": 3,
+                    "native": 0.8935546875,
+                    "reference": 0.9033203125
+                  },
+                  {
+                    "index": 4,
+                    "native": -0.2568359375,
+                    "reference": -0.2724609375
+                  },
+                  {
+                    "index": 5,
+                    "native": 0.109619140625,
+                    "reference": 0.1005859375
+                  },
+                  {
+                    "index": 6,
+                    "native": 0.10858154296875,
+                    "reference": 0.0899658203125
+                  },
+                  {
+                    "index": 7,
+                    "native": -0.555908203125,
+                    "reference": -0.525146484375
+                  }
+                ],
+                "layer": 39,
+                "native_sha256": "7477733568006f95d896a03a37868a9000069c5bd15723b1fda4f7b7eb1cc7ac",
+                "reference_sha256": "2e6db88f62f4b1b2d07e30dccf5d54fea468150d853b789ba5d4fd3a6650f019"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "q7169-out512",
+      "run_record_sha256": "3a6fc19164c39ab4a3779cb1ec7833dc93431a39e92c821d57c21859fd458d76",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\product-cli\\qrt-product.exe",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q7169-out512-expected.json",
+          "--expected-prompt-fnv",
+          "c900c18703532d6a",
+          "--env-file",
+          "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\tail-specs\\prefill-ck-fused-q7169-out512-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911",
+        "repo_commit": "0c1467710732ea38dc57275119291fba5e18a057",
+        "command_file": "D:\\projects\\run-native-prefill-ck-fused-product-r1.ps1",
+        "command_file_sha256": "818102d8e50f905470aabd6bf78dd7d2e1155641f3499cbc3de28375f2798683",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "oracle": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+        "parent_run_sha256": "57334e0896a76e72e927088837641ca69808ffeefec1252c9667b70a1d6b64d3",
+        "parent_environment_sha256": "2ddc1554b5f14d383a57e24124e1f3afb1f23de340b1366393d433a2218c4e89",
+        "environment_sha256": "cfe0da9baf4d36c306780fb8eac7bda48c8ab90253721da41157e4c74b8fc131",
+        "environment_overrides": {
+          "QRT_FLA_GDN_BATCHED_EXACT": "1",
+          "QRT_CK_FMHA_SM121_FULL_PREFIX": "0",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT": "512",
+          "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES": "14682112",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL": "0",
+          "QRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q7169-out512-r1\\cache19",
+          "QRT_QWEN36_Q1_SM121_ATTENTION": "1",
+          "QRT_QWEN36_Q1_SM121_RCP_TABLE": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
+          "QRT_QWEN36_Q1_SM121_FULL": "1",
+          "QRT_QWEN36_Q1_SM121_ROPE_TABLE": "D:\\projects\\sm121-rope-20260911-r2\\sm121-rope-bf16.bin",
+          "QRT_QWEN36_Q1_SM121_MOE": "1",
+          "QRT_QWEN36_Q1_SM121_ROUTER_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
+          "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
+          "QRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q7169-out512-r1\\moe0",
+          "QRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q7169-out512-r1\\full19",
+          "QRT_QWEN36_Q1_SM121_OUTPUT": "1",
+          "QRT_QWEN36_Q1_SM121_GDN": "1",
+          "QRT_QWEN36_Q1_F32_PROJECTION_SM121": "1",
+          "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q7169-out512-r1\\linear0",
+          "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER": "19",
+          "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER": "0",
+          "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER": "4294967295",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE": "0",
+          "QRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER": "4294967295",
+          "QRT_QWEN36_FULL_STAGE_DUMP_PREFIX": "",
+          "QRT_QWEN36_FULL_STAGE_DUMP_LAYER": "4294967295",
+          "QRT_QWEN36_FULL_STAGE_DUMP_TOKENS": "7169",
+          "QRT_QWEN36_Q1_LAYER_TRACE_POSITION": "7169",
+          "QRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\prefill-ck-fused-q7169-out512-r1\\q1",
+          "QRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS": "1",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION": "7169",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0": "2450",
+          "QRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1": "10845",
+          "QRT_QWEN36_ALL_NORM_DUMP_PREFIX": "",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla",
+          "QRT_QWEN36_Q1_SM121_EXP2_TABLE": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "QRT_QWEN36_Q1_SM121_RSQRT_TABLE": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+          "QRT_QWEN36_Q1_SM121_BETA_TABLE": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+          "QRT_QWEN36_Q1_SM121_GATE_LUT_DIR": "D:\\projects\\qrt-gating-model-20260910-r1",
+          "QRT_QWEN36_Q1_SM121_SILU_TABLE": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+          "QRT_QWEN36_Q1_SM121_GATED_SILU_TABLE": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gb10-gated-silu-f32-lut-r841\\full-gated-silu-f32-lut-f32.bin",
+          "QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gfx1151-sm121-rsqrt-correction-r854\\gfx1151-sm121-rsqrt-correction-delta2-r854.bin"
+        },
+        "components": {
+          "whole": {
+            "commit": "0c1467710732ea38dc57275119291fba5e18a057",
+            "directory": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole",
+            "build_metadata_sha256": "0c41f809b7bdbf2c0063a46c81031443f9db33997b59d1876f58c8721ea390d7",
+            "build_run_sha256": "dcd071f4dff5aefbc4271e74aee7fcb286942bbb08b423c5471aa9fce592c198",
+            "artifacts": [
+              {
+                "name": "qrt_qwen36_whole_provider.dll",
+                "bytes": 11727360,
+                "sha256": "b2bc2f8c2473e88729b70eaf76bfeda76cf7e1503e54140fc20767a438041e61"
+              },
+              {
+                "name": "q1_moe_avx512bf16_host_provider.obj",
+                "bytes": 183170,
+                "sha256": "99cbf8d3aec5ef126598984fd280000e8478e129d938a8833a9ca4be90b1136b"
+              }
+            ]
+          },
+          "fla": {
+            "commit": "aec3f70d7104a3f1ee4b51741cae5246ac4d0576",
+            "directory": "D:\\projects\\AIMA-public-fla-batched-exact-20260911\\build\\fla",
+            "build_metadata_sha256": "f9c4343b1b2d4bb8fb7d61f11e2b396f5fb06c9f60b491d24dbefb0d1aded32c",
+            "build_run_sha256": "984efaac6c87d577a73dcea9ee4e221ef9fb546985dc77cf4a77c0896a83dc77",
+            "artifacts": [
+              {
+                "file": "fla-output-capture-replay.exe",
+                "bytes": 405504,
+                "sha256": "d66f6d1a2b70de1b175efb5ccc507bd0dcdb1aeeebed54b439ffef2945262790"
+              },
+              {
+                "file": "fla-upstream-capture-replay.exe",
+                "bytes": 487936,
+                "sha256": "6a83e927b3e4ca696c77d2d55a0d543d44ce75980c9ac69641eb3c494642e5cc"
+              },
+              {
+                "file": "metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "file": "q64-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "3978db25905fbd402e89f7e011e1c6cf82aaadc4d153ffa35cbcffae912bcf74"
+              },
+              {
+                "file": "q65-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "7dc1f9308c086cf0173046034706c69cbc071d34a96494d3b574fbf5a1adbf01"
+              },
+              {
+                "file": "q7169-fla-smoke.exe",
+                "bytes": 328192,
+                "sha256": "9b1458c66a51af32a7198bee11c46719817f64bc32834619998730450d767a74"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "file": "qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 485376,
+                "sha256": "eaf14b7355799cd199dd1427b18298c1f60cb0d89cbc2e38bb054ffdda2a4898"
+              },
+              {
+                "file": "qrt_fla_gdn_kernel_specs.inc",
+                "bytes": 940,
+                "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+              }
+            ]
+          },
+          "moe": {
+            "commit": "a17a9edeb4e93dcf626b19041c700e9e2100ea90",
+            "directory": "D:\\projects\\AIMA-public-moe-batch-20260911-r3\\build\\moe",
+            "build_metadata_sha256": "e220d5b59c32e6d95356b047fc6c7a58126a50be10b0adb35b43c66adc5b8c08",
+            "build_run_sha256": "90e7079fcb9c10a1d2309e90d62000474169db761aa61bdae3c25aff8b803900",
+            "artifacts": [
+              {
+                "file": "q8192_selected_moe_route_count.hsaco",
+                "bytes": 4816,
+                "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+              },
+              {
+                "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+                "bytes": 4960,
+                "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+              },
+              {
+                "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+                "bytes": 5040,
+                "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+              },
+              {
+                "file": "q8192_selected_moe_route_scatter.hsaco",
+                "bytes": 5608,
+                "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+              },
+              {
+                "file": "q8192_selected_moe_gate_up_silu.hsaco",
+                "bytes": 17752,
+                "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+              },
+              {
+                "file": "q8192_selected_moe_down.hsaco",
+                "bytes": 11384,
+                "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+              },
+              {
+                "file": "qrt_triton_moe_q8192_provider.dll",
+                "bytes": 507392,
+                "sha256": "78ab45ed60ba78eaf29d0a230ca7a0702f0421ee621b9c25dc733fbe9e1b8ead"
+              },
+              {
+                "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+                "bytes": 7736,
+                "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+                "bytes": 6824,
+                "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+              },
+              {
+                "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+                "bytes": 6696,
+                "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+              },
+              {
+                "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+                "bytes": 7504,
+                "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+              }
+            ]
+          },
+          "ck": {
+            "commit": "ac0fb7d68ea44c9093d9b4cd90ac3c23912a5423",
+            "directory": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121",
+            "build_metadata_sha256": "1f5502ef7a1cca238148480bb557716160c04184d6b38019768076058252cf45",
+            "build_run_sha256": "e24929009a35cdeeec76d70a975d6f3ea0dd0eda540257c841a35c44aa29a20d",
+            "artifacts": [
+              {
+                "sha256": "de159c30c7697b5100a9c15998664ee283fc30fb0963548bca3611a738d5f6a6",
+                "file": "D:\\projects\\AIMA-public-ck-transpose-20260911\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+                "bytes": 499712
+              }
+            ]
+          }
+        },
+        "cli_commit": "f544cbed7966d027837e24ab4b15e7b2d9ca3973",
+        "cli_sha256": "8fc3f73a678d55a972bdfa4668acd122f0f7edda8c842d4348c792a234f20909",
+        "other_unchanged_components": "same as qualified parent; original pinned AOT and model tables",
+        "purpose": "Product-shape diagnostic: replace the ten exact full-attention prefill prefixes with the fused CK backend while preserving all other strict arithmetic and exact Q1 decode; unchanged complete frozen boundaries",
+        "output_tokens_requested": 512,
+        "inference_acceptance": false,
+        "native_safety_run_sha256": null,
+        "projection_error_bound_ppb": 1000,
+        "oracle_case": "q7169-out512",
+        "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+        "reference_case_sha256": "522e464aeea86ceebb4eed441cfb3790d5aa837c2c2a9d79d81fef01bb11bc67",
+        "prior_native_safety_run_sha256": null,
+        "q1_attention_rcp_table": {
+          "path": "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "bytes": 8388640
+        },
+        "q1_full_rope_table": {
+          "path": "D:\\projects\\sm121-rope-20260911-r2\\sm121-rope-bf16.bin",
+          "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80",
+          "bytes": 33554432
+        },
+        "q1_moe_table_files": [
+          {
+            "path": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-router-ex2-fraction-f32.bin",
+            "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0",
+            "bytes": 33554432
+          },
+          {
+            "path": "D:\\projects\\qrt-moe-tables-20260910-r1\\cuda-vllm-silu-bf16-domain.bin",
+            "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac",
+            "bytes": 131096
+          }
+        ],
+        "q1_table_manifest_sha256": "9b7dc72320fd0331205f9f87f909e3a1d541b7434c5355bf6e1be77759764b2f",
+        "q1_table_files": [
+          {
+            "path": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+            "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+            "bytes": 648036
+          },
+          {
+            "path": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gb10-gated-silu-f32-lut-r841\\full-gated-silu-f32-lut-f32.bin",
+            "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c",
+            "bytes": 262144
+          },
+          {
+            "path": "D:\\projects\\AIMA-dynamic-logical-r1\\build\\gfx1151-sm121-rsqrt-correction-r854\\gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7",
+            "bytes": 4194304
+          },
+          {
+            "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "bytes": 183174448,
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+          },
+          {
+            "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          },
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+            "bytes": 262144,
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\capture.json",
+            "bytes": 37677,
+            "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer1-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer2-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer4-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer5-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer6-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer8-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer9-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer10-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer12-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer13-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer14-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer16-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer17-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer18-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer20-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer21-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer22-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer24-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer25-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer26-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer28-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer29-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer30-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer32-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer33-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer34-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer36-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer37-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer38-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\sigmoid-beta-bf16.bin",
+            "bytes": 131072,
+            "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+          }
+        ]
+      },
+      "summary": {
+        "type": "summary",
+        "status": "fail",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-q1-embedding-prefetch-20260911\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 220,
+        "first_token_report_top1_token_id": 220,
+        "first_token_raw_logit": 9.375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7169,
+        "prefix_tokens": 0,
+        "suffix_tokens": 7169,
+        "output_tokens": 512,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "c900c18703532d6a",
+        "output_token_ids_fnv1a64": "5255d1736088d3b8",
+        "engine_load_ms": 19989.9889,
+        "provider_preload_ms": 19980.1027,
+        "provider_preload_reported_ms": 19979.3949,
+        "provider_preload_dll_load_ms": 8.7119,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1603,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 111667.5547,
+        "ttft_ms": 53133.6612,
+        "provider_ttft_ms": 53129.9377,
+        "prefill_tokens_per_second": 134.923885,
+        "tpot_ms": 114.345394,
+        "decode_tokens_per_second": 8.745433,
+        "stream_callback_count": 512,
+        "first_callback_wall_ms": 53133.6612,
+        "last_callback_wall_ms": 111663.8051,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": false,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          7701,
+          421,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          16421,
+          47739,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          58256,
+          470,
+          13,
+          1049,
+          5686,
+          1040,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          10451,
+          1010,
+          83123,
+          4105,
+          11,
+          694,
+          424,
+          3070,
+          914,
+          1304,
+          53916,
+          22157,
+          466,
+          21716,
+          2144,
+          13,
+          271,
+          2592,
+          488,
+          10287,
+          310,
+          4191,
+          264,
+          3050,
+          1876,
+          11,
+          3296,
+          11,
+          466,
+          2128,
+          11,
+          1362,
+          488,
+          4338,
+          1380,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          674,
+          10289,
+          466,
+          311,
+          63908,
+          279,
+          1414,
+          332,
+          303,
+          264,
+          46767,
+          3443,
+          13,
+          198,
+          17,
+          13,
+          2972,
+          67680,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          14053,
+          11,
+          15673,
+          11,
+          6157,
+          553,
+          198,
+          18,
+          13,
+          2972,
+          3840,
+          413,
+          279,
+          1414,
+          557,
+          21103,
+          12083,
+          332,
+          494,
+          1141,
+          2450,
+          13,
+          271,
+          31835,
+          1845,
+          310,
+          3300,
+          777,
+          2193,
+          466,
+          35932,
+          678,
+          1622,
+          11,
+          321,
+          353,
+          4548,
+          635,
+          821,
+          1786,
+          310,
+          7543,
+          488,
+          0,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          65,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          1990,
+          47739,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          58256,
+          470,
+          13,
+          561,
+          2144,
+          7701,
+          310,
+          381,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          10451,
+          1010,
+          83123,
+          4105,
+          11,
+          694,
+          424,
+          3070,
+          914,
+          1304,
+          53916,
+          22157,
+          466,
+          21716,
+          2144,
+          13,
+          271,
+          2592,
+          488,
+          10287,
+          310,
+          4191,
+          264,
+          3050,
+          1876,
+          11,
+          3296,
+          11,
+          466,
+          2128,
+          11,
+          1362,
+          488,
+          4338,
+          1380,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          674,
+          10289,
+          466,
+          311,
+          63908,
+          279,
+          1414,
+          332,
+          303,
+          264,
+          46767,
+          3443,
+          13,
+          198,
+          17,
+          13,
+          2972,
+          67680,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          14053,
+          11,
+          15673,
+          11,
+          6157,
+          553,
+          198,
+          18,
+          13,
+          2972,
+          3840,
+          413,
+          279,
+          1414,
+          557,
+          21103,
+          12083,
+          332,
+          494,
+          1141,
+          2450,
+          13,
+          271,
+          31835,
+          1845,
+          310,
+          3300,
+          777,
+          2193,
+          466,
+          35932,
+          678,
+          1622,
+          11,
+          321,
+          353,
+          4548,
+          635,
+          821,
+          1786,
+          310,
+          7543,
+          488,
+          0,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          65,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          1990,
+          47739,
+          466,
+          19873,
+          303,
+          264,
+          1560,
+          421,
+          3520,
+          424,
+          58256,
+          470,
+          13,
+          561,
+          2144,
+          7701,
+          310,
+          381,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          10451,
+          1010,
+          83123,
+          4105,
+          11,
+          694,
+          424,
+          3070,
+          914,
+          1304,
+          53916,
+          22157,
+          466,
+          21716,
+          2144,
+          13,
+          271,
+          2592,
+          488,
+          10287,
+          310,
+          4191,
+          264,
+          3050,
+          1876,
+          11,
+          3296,
+          11,
+          466,
+          2128,
+          11,
+          1362,
+          488,
+          4338,
+          1380,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          674,
+          10289,
+          466,
+          311,
+          63908,
+          279,
+          1414,
+          332,
+          303,
+          264,
+          46767,
+          3443,
+          13,
+          198,
+          17,
+          13,
+          2972,
+          67680,
+          1092,
+          488,
+          1144,
+          1438,
+          440,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          14053,
+          11,
+          15673,
+          11,
+          6157,
+          553,
+          198,
+          18,
+          13,
+          2972,
+          3840,
+          413,
+          279,
+          1414,
+          557,
+          21103,
+          12083,
+          332,
+          494
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": []
+      },
+      "exit_code": 6,
+      "wall_ms": 132104.584,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "prompt_pass": true,
+      "first_token_logit_pass": false,
+      "complete_continuation_pass": false,
+      "token_mismatches": 466,
+      "first_difference": 0,
+      "first_difference_values": {
+        "native": 220,
+        "reference": 82
+      },
+      "stderr_sha256": "bc15fb08e5e0a1f2eef9f413c9d7be68976ea92dd9b6cb004510f246b9a3a81a"
+    }
+  ],
+  "performance_qualified": false,
+  "release_qualified": false,
+  "conclusion": "Fused CK prefix arithmetic fails both complete frozen continuations. At the first q8192 decode position, layers 0 through 3 and every captured layer-0 operator/state remain exact; layer 4 is the first different completed carrier. Preserve the exact attention arithmetic while changing its execution or other dominant projection work. No output-token or tolerance changes."
+}
