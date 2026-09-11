@@ -4,10 +4,18 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from capture_gb10_runtime_boundaries import qualify_transaction, target_rows  # noqa: E402
+from capture_gb10_runtime_boundaries import prepared_token_ids, qualify_transaction, target_rows  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_embedded_text_uses_the_prepared_real_token_buffer(self):
+        self.assertEqual(prepared_token_ids(None, [82, 220], 2, [2, 2048]), [82, 220])
+        self.assertEqual(prepared_token_ids([82, 220], [82, 220], 2, None), [82, 220])
+        for arguments in ((None, [82, 220], 2, None), (None, [82, 220], 2, [1, 2048]),
+                          ([82, 196], [82, 220], 2, None), (None, [82], 2, [2, 2048])):
+            with self.assertRaises(ValueError):
+                prepared_token_ids(*arguments)
+
     def test_partial_prefill_and_two_target_rows_keep_actual_logit_indices(self):
         rows = target_rows(list(range(8192)), [32] * 8192, [8191], {8190, 8191})
         self.assertEqual([r["logit_row"] for r in rows], [None, 0])

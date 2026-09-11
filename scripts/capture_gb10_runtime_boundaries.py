@@ -37,6 +37,20 @@ def qualify_transaction(transaction, history):
         for row in transaction["rows"]]
 
 
+def prepared_token_ids(forward_ids, runner_ids, token_count, embedding_shape):
+    # The pinned multimodal runner embeds even text-only requests before
+    # _model_forward. Its input_ids argument is then None; the scheduled IDs
+    # remain in the same runner.input_ids.gpu buffer used by embed_input_ids.
+    if len(runner_ids) != token_count:
+        raise ValueError("prepared token buffer length changed")
+    if forward_ids is None:
+        if embedding_shape != [token_count, 2048]:
+            raise ValueError("embedded target input shape changed")
+    elif forward_ids != runner_ids:
+        raise ValueError("forward IDs differ from the prepared token buffer")
+    return runner_ids
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -96,10 +110,17 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             if positions.ndim != 1:
                 raise ValueError("invalid target position dimensions")
             pos = positions.tolist()
-            ids = kwargs["input_ids"].detach().cpu().tolist()
+            forward_ids = kwargs["input_ids"]
+            embeddings = kwargs["inputs_embeds"]
+            ids = prepared_token_ids(
+                forward_ids.detach().cpu().tolist() if forward_ids is not None else None,
+                runner.input_ids.gpu[:len(pos)].detach().cpu().tolist(), len(pos),
+                list(embeddings.shape) if embeddings is not None else None)
             rows = target_rows(pos, ids, self._qrt_boundary_indices, selected)
             transaction = dict(ordinal=len(self._qrt_boundary_transactions), first_position=pos[0],
                                input_token_ids=ids, logits_indices=self._qrt_boundary_indices,
+                               input_id_source="pinned_runner.input_ids.gpu",
+                               forward_uses_embeddings=forward_ids is None,
                                rows=rows, token_count=len(pos), discarded=bool(runner.discard_request_mask.np[0]))
             self._qrt_boundary_transactions.append(transaction)
             self._qrt_boundary_active = transaction
