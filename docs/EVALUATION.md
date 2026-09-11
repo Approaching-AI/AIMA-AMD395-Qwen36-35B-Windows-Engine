@@ -328,7 +328,18 @@ divisibility without sixteen pair loads. The sampled eligible count rises
 to 176,056, before accounting for actual GPU execution cost. Both original
 and expanded branches pass 400,000 independent host groups each; the expanded
 branch also checks the compensated fallback and 100,000 packed predicates.
-Native qualification of this expanded branch is pending.
+The [expanded native branch](../benchmarks/correctness/attention-integer-units-20260912.json)
+again matches every generated cell and captured BF16/native FP32 output, but
+takes 3439.59 versus 1282.81 ms for layout 4. Better arithmetic eligibility
+does not improve this GPU schedule; it stays diagnostic.
+
+The [RDNA3 ISA guide](https://docs.amd.com/api/khub/documents/UkT_UPQL21KfKAMUBFnZTw/content)
+specifies round-to-nearest-even for floating WMMA, so changing the general
+FP32 rounding mode is not a supported way to obtain the reference arithmetic.
+The native mantissa probe can instead test FP16 matrix instructions with
+exactly representable four-bit parts, separately from the failing BF16
+partial controls. This is an arithmetic experiment, not a model precision
+change or an accepted provider; native results are pending.
 
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain

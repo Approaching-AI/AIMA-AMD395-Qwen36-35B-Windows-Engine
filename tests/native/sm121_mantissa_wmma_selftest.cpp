@@ -4,7 +4,37 @@
 #include <vector>
 
 constexpr unsigned kCases = 64u, kCells = 256u;
-struct Cell { float partials[4]; uint32_t magnitude; int exponent; unsigned negative, accepted; };
+struct Cell { float partials[4]; uint32_t magnitude; int exponent; unsigned negative, accepted, conversion_bad; };
+
+#if defined(QRT_MANTISSA_PROBE_FP16) && QRT_MANTISSA_PROBE_FP16
+// Generated values and both four-bit parts are exactly representable as
+// normal FP16 here (smallest nonzero part is 2^-14). This tests instruction
+// arithmetic only; it does not establish a general BF16-to-FP16 route.
+using ProbeHalf16 = _Float16 __attribute__((ext_vector_type(16)));
+__device__ __forceinline__ qrt_blackwell_attention::MantissaMatrixParts fp16_parts(
+    const uint16_t (&left)[16][18], const uint16_t (&right)[16][18], unsigned lane, unsigned& conversion_bad) {
+    ProbeHalf16 lh{}, ll{}, rh{}, rl{};
+    for (unsigned i = 0; i < 16u; ++i) {
+        const uint16_t a = left[lane % 16u][i], b = right[lane % 16u][i];
+        lh[i] = _Float16(qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::high(a)) << 16u));
+        ll[i] = _Float16(qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::low(a)) << 16u));
+        rh[i] = _Float16(qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::high(b)) << 16u));
+        rl[i] = _Float16(qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::low(b)) << 16u));
+        conversion_bad += unsigned(float(lh[i]) != qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::high(a)) << 16u));
+        conversion_bad += unsigned(float(ll[i]) != qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::low(a)) << 16u));
+        conversion_bad += unsigned(float(rh[i]) != qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::high(b)) << 16u));
+        conversion_bad += unsigned(float(rl[i]) != qrt_sm121_native_product::from_bits(uint32_t(qrt_sm121_mantissa_parts::low(b)) << 16u));
+    }
+    const qrt_blackwell_attention::MantissaF32x8 zero{};
+    return {{__builtin_amdgcn_wmma_f32_16x16x16_f16_w32(lh, rh, zero),
+             __builtin_amdgcn_wmma_f32_16x16x16_f16_w32(lh, rl, zero),
+             __builtin_amdgcn_wmma_f32_16x16x16_f16_w32(ll, rh, zero),
+             __builtin_amdgcn_wmma_f32_16x16x16_f16_w32(ll, rl, zero)}};
+}
+constexpr const char* kProbeKind = "mantissa_fp16_wmma_selftest";
+#else
+constexpr const char* kProbeKind = "mantissa_wmma_selftest";
+#endif
 
 __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* output) {
     __shared__ uint16_t left[16][18], right[16][18];
@@ -16,11 +46,17 @@ __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* 
         }
     }
     __syncthreads();
+    unsigned conversion_bad = 0u;
+#if defined(QRT_MANTISSA_PROBE_FP16) && QRT_MANTISSA_PROBE_FP16
+    const auto matrix = fp16_parts(left, right, lane, conversion_bad);
+#else
     const auto matrix = qrt_blackwell_attention::blackwell_mantissa_products(left, right, lane);
+#endif
     for (unsigned element = 0; element < 8u; ++element) {
         const unsigned row = 2u * element + lane / 16u, column = lane % 16u;
         const unsigned index = blockIdx.x * 256u + row * 16u + column;
         Cell result{};
+        result.conversion_bad = conversion_bad;
         uint32_t pairs[16]; float partials[4];
         for (unsigned i = 0; i < 16u; ++i)
             pairs[i] = uint32_t(left[row][i]) | (uint32_t(right[column][i]) << 16u);
@@ -68,8 +104,9 @@ int main() {
     check(hipGetLastError()); check(hipDeviceSynchronize());
     check(hipMemcpy(output.data(), device_output, output.size() * sizeof(Cell), hipMemcpyDeviceToHost));
     check(hipFree(device_output)); check(hipFree(device_carry)); check(hipFree(device_input));
-    unsigned accepted = 0, partial_bad = 0, host_bad = 0, device_bad = 0, status_bad = 0;
+    unsigned accepted = 0, partial_bad = 0, host_bad = 0, device_bad = 0, status_bad = 0, conversion_bad = 0;
     for (unsigned index = 0; index < output.size(); ++index) {
+        conversion_bad += output[index].conversion_bad;
         const unsigned test = index / kCells, row = index / 16u % 16u, column = index % 16u;
         uint32_t pairs[16], products[16]; float expected_parts[4]{};
         for (unsigned i = 0; i < 16u; ++i) {
@@ -107,7 +144,7 @@ int main() {
             std::printf("\n");
         }
     }
-    std::printf("{\"kind\":\"mantissa_wmma_selftest\",\"cells\":%u,\"accepted\":%u,\"partial_mismatches\":%u,\"host_sum_mismatches\":%u,\"device_sum_mismatches\":%u,\"eligibility_mismatches\":%u,\"inference_acceptance\":false}\n",
-        unsigned(output.size()), accepted, partial_bad, host_bad, device_bad, status_bad);
-    return accepted && !partial_bad && !host_bad && !device_bad && !status_bad ? 0 : 2;
+    std::printf("{\"kind\":\"%s\",\"cells\":%u,\"accepted\":%u,\"partial_mismatches\":%u,\"host_sum_mismatches\":%u,\"device_sum_mismatches\":%u,\"eligibility_mismatches\":%u,\"input_conversion_mismatches\":%u,\"inference_acceptance\":false}\n",
+        kProbeKind, unsigned(output.size()), accepted, partial_bad, host_bad, device_bad, status_bad, conversion_bad);
+    return accepted && !partial_bad && !host_bad && !device_bad && !status_bad && !conversion_bad ? 0 : 2;
 }
