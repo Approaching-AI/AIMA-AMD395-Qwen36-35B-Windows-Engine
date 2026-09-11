@@ -68544,7 +68544,7 @@ bool run_qwen36_resident_full_attention_score_value_step(
             static_cast<unsigned int>(layer.history_tokens), total_tokens,
             workspace_score_scratch_token_capacity);
         if (!checked(hipGetLastError(), "_sm121_scores") ||
-            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace,
+            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
                 Q1LayerProfileBoundary::kScoreEnd, stream), "_sm121_score_event")) return false;
         hipLaunchKernelGGL(HIP_KERNEL_NAME(
             qrt_blackwell_attention::blackwell_exact_attention_kernel<true, true, true>),
@@ -68557,7 +68557,7 @@ bool run_qwen36_resident_full_attention_score_value_step(
             static_cast<const uint16_t *>(layer.device_decode_tail_v),
             static_cast<unsigned int>(layer.history_tokens));
         if (!checked(hipGetLastError(), "_sm121_online_pv") ||
-            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace,
+            !checked(record_qwen36_resident_decode_q1_layer_profile_boundary(&workspace, layer_index,
                 Q1LayerProfileBoundary::kSoftmaxEnd, stream), "_sm121_pv_event")) return false;
         hipLaunchKernelGGL(qwen36_resident_full_attention_grouped_bf16_post_kernel,
             dim3(16u), dim3(256u), 0u, stream, device_rope_values,
