@@ -32,20 +32,33 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Whole `0c1467710732ea38dc57275119291fba5e18a057` passes both complete
+Whole `0c1467710732ea38dc57275119291fba5e18a057` with FLA
+`aec3f70d7104a3f1ee4b51741cae5246ac4d0576` passes both complete
 512-token cold continuations and the q8191 32-token control on `baiying`,
 using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
 first-token/logit, complete output and streaming boundary passes with
 successful host checks. The requests use the same strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/q1-embedding-norm-product-20260911.json)
+[complete product records](../benchmarks/correctness/fla-batched-exact-product-20260911.json)
 bind source, clean Windows build, component hashes, commands and all outputs.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 20,206.4055 | 69,766.0335 | 111.995395 |
-| q8192 out512 | 144 / 10.375 | 20,016.5907 | 80,832.1604 | 117.349153 |
-| q8191 out32 | 168589 / 11.375 | 20,013.2751 | 80,974.1091 | 118.777987 |
+| q7169 out512 | 82 / 9.25 | 19,990.1652 | 69,255.2947 | 112.132950 |
+| q8192 out512 | 144 / 10.375 | 19,989.6132 | 79,474.7038 | 115.433920 |
+| q8191 out32 | 168589 / 11.375 | 20,004.6799 | 79,765.8672 | 121.363674 |
+
+The explicit `QRT_FLA_GDN_BATCHED_EXACT=1` route batches independent
+KKT/WU/output chunks and retains four recurrent value rows per CTA through
+each bounded 1024-token segment. The original K16 arithmetic, BF16
+checkpoints, FP32 carry, logical tails and final FMA are preserved. Native
+q64/q65 and real GB10 q7169 component inputs match every output and final
+state bit against the old exact provider, with exact synchronous/asynchronous
+parity. The new FLA build passes in 32,433.351 ms. Both complete 512-token
+requests retain all captured GB10 operators, carriers, KV and state-boundary
+comparisons. Compared with the [prior strict records](../benchmarks/correctness/q1-embedding-norm-product-20260911.json),
+q8192 improves by 1357.4566 ms; the gain is insufficient for performance
+acceptance.
 
 The [embedding-norm origin](../benchmarks/correctness/q1-embedding-norm-origin-20260911.json)
 locates the remaining long-decode error at positions 7277 and 8426.
@@ -90,9 +103,10 @@ prefill midpoint corrections with hardware matrix outputs passes q8192's
 32-token control in 46864.6811 ms. Its complete q8192 continuation first
 differs at index 115 (248046 instead of 271), and q7169 again fails its
 first token. All five requests complete with successful host and streaming
-checks. None supplies a new retained performance result. The next change
-preserves strict arithmetic while batching independent FLA chunks and
-keeping each recurrent-state tile within its owning CTA across a segment.
+checks. None supplies a new retained performance result. The arithmetic-preserving
+FLA schedule above is retained as a qualified correctness route. A separate
+complete-continuation experiment now tests the fused CK attention backend
+while retaining every other strict arithmetic boundary.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.
