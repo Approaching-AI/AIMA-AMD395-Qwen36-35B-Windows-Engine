@@ -181179,16 +181179,17 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
         !q1_full_attention_triton_0626_pv_requested &&
         !q1_full_attention_triton_qkv_fused_prep_context_requested;
     if (q1_full_attention_terminal_bf16_active &&
+        ((!q1_sm121_full_requested &&
         (!(q1_full_attention_grouped_parallel_core ||
            q1_full_attention_ungrouped_serial_core) ||
         !q1_full_attention_qk_pv_shape_contract ||
-        !use_q1_output_consumer_fused ||
+        !use_q1_output_consumer_fused)) ||
         use_q1_dense_w8a8_full_input ||
         use_q1_dense_w8a8_full_output ||
         use_q1_full_attention_raw_fused)) {
         return fail(
             "qwen36_resident_decode_full_terminal_bf16_contract",
-            "terminal BF16 attention requires either the retained grouped-parallel core or the ungrouped exact-wave serial-order control, a supported QK/PV shape, the exact BF16 output-consumer corridor, and all quantized/raw-fused alternatives disabled"
+            "terminal BF16 attention requires the validated SM121 full corridor or the supported legacy core/output corridor, with quantized/raw-fused alternatives disabled"
         );
     }
     hipFunction_t q1_full_attention_triton_0626_qkv_function = nullptr;
@@ -181282,9 +181283,10 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             UINT_MAX
         );
         const unsigned int generic_layer = env_u32_or_default(
+            "QRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER", env_u32_or_default(
             "QRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER",
             UINT_MAX
-        );
+        ));
         const bool generic_trace =
             generic_position != UINT_MAX && generic_layer != UINT_MAX;
         const unsigned int selected_layer = env_u32_or_default(
@@ -182327,15 +182329,24 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
             << std::endl;
     }
     if (q1_sm121_full_requested) {
+        float *const norm_observation =
+            workspace->full_attention_score_scratch_allocation_bytes >= 4608u * sizeof(float)
+                ? workspace->device_full_attention_score_scratch : nullptr;
         hipLaunchKernelGGL(qrt_sm121_q1_full::prepare_qkv,
             dim3(18u), dim3(256u), 0, q1_decode_layer_stack_stream,
             reinterpret_cast<const uint16_t *>(device_qk_norm), q_norm_weights, k_norm_weights,
             q1_full_tables.rope, q1_full_tables.core.rsqrt,
-            static_cast<unsigned int>(absolute_position), device_attention_rope, device_qkv);
+            static_cast<unsigned int>(absolute_position), device_attention_rope,
+            norm_observation);
         ++kernel_launches;
         if (!check_launch("qwen36_q1_sm121_full_norm_rope")) return false;
-        emit_q1024_q1_full_stage_digest("q_norm_f32", device_qkv, 4096u * sizeof(float));
-        emit_q1024_q1_full_stage_digest("k_norm_f32", device_qkv + 4096u, 512u * sizeof(float));
+        // device_qkv and device_attention_rope share wide[0]. Observations
+        // must use the score scratch before attention consumes it, otherwise
+        // K-norm observation races the live Q-gate writes from other CTAs.
+        emit_q1024_q1_full_stage_digest("q_norm_f32",
+            norm_observation, 4096u * sizeof(float));
+        emit_q1024_q1_full_stage_digest("k_norm_f32",
+            norm_observation ? norm_observation + 4096u : nullptr, 512u * sizeof(float));
     } else if (use_q1_full_attention_raw_fused) {
         hipLaunchKernelGGL(
             q1_full_attention_q_norm_rope_gate_kernel,
