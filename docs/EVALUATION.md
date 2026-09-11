@@ -32,21 +32,28 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Whole `0c1467710732ea38dc57275119291fba5e18a057` with FLA
-`aec3f70d7104a3f1ee4b51741cae5246ac4d0576` passes both complete
+Whole `649f595fc1183ab0bc212e23d4f253e7e3e63545`, MoE
+`5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
+`aec3f70d7104a3f1ee4b51741cae5246ac4d0576` pass both complete
 512-token cold continuations and the q8191 32-token control on `baiying`,
 using real model `D:\models\Qwen3.6-35B-A3B`. Every frozen prompt,
 first-token/logit, complete output and streaming boundary passes with
 successful host checks. The requests use the same strict prefill arithmetic
 profile, with the candidate bound derived from actual prompt length. The
-[complete product records](../benchmarks/correctness/fla-batched-exact-product-20260911.json)
+[complete product records](../benchmarks/correctness/moe-compaction-product-20260911.json)
 bind source, clean Windows build, component hashes, commands and all outputs.
 
 | Complete frozen request | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q7169 out512 | 82 / 9.25 | 19,990.1652 | 69,255.2947 | 112.132950 |
-| q8192 out512 | 144 / 10.375 | 19,989.6132 | 79,474.7038 | 115.433920 |
-| q8191 out32 | 168589 / 11.375 | 20,004.6799 | 79,765.8672 | 121.363674 |
+| q7169 out512 | 82 / 9.25 | 20,051.5878 | 66,773.2396 | 112.314974 |
+| q8192 out512 | 144 / 10.375 | 20,036.9195 | 77,000.9007 | 114.521664 |
+| q8191 out32 | 168589 / 11.375 | 20,038.8771 | 77,914.4339 | 117.050974 |
+
+The optional routed candidate compaction retains every captured GB10 boundary
+and lowers callback TTFT by 2473.8031 / 2482.0551 / 1851.4333 ms for q8192 /
+q7169 / q8191 against the [preceding strict configuration](../benchmarks/correctness/fla-batched-exact-product-20260911.json).
+Keep it selected for further structural experiments. The immutable q8192
+performance gate and release acceptance remain open.
 
 The explicit `QRT_FLA_GDN_BATCHED_EXACT=1` route batches independent
 KKT/WU/output chunks and retains four recurrent value rows per CTA through
@@ -56,8 +63,9 @@ q64/q65 and real GB10 q7169 component inputs match every output and final
 state bit against the old exact provider, with exact synchronous/asynchronous
 parity. The new FLA build passes in 32,433.351 ms. Both complete 512-token
 requests retain all captured GB10 operators, carriers, KV and state-boundary
-comparisons. Compared with the [prior strict records](../benchmarks/correctness/q1-embedding-norm-product-20260911.json),
-q8192 improves by 1357.4566 ms; the gain is insufficient for performance
+comparisons. Before routed compaction, its [full product controls](../benchmarks/correctness/fla-batched-exact-product-20260911.json)
+improve q8192 by 1357.4566 ms against the [prior strict records](../benchmarks/correctness/q1-embedding-norm-product-20260911.json);
+the gain is insufficient for performance
 acceptance.
 
 The [embedding-norm origin](../benchmarks/correctness/q1-embedding-norm-origin-20260911.json)
@@ -163,7 +171,7 @@ gate/up takes 11260.171 ms and down 4571.755 ms. Profiled callback TTFT is
 82523.5147 ms, load 20300.1233 ms and TPOT 116.241378 ms. These diagnostic
 timings do not replace the unprofiled strict result.
 
-The next optional route, `QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE=1`,
+The retained optional route, `QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE=1`,
 compacts routed candidate indices across 262,144-cell windows before
 replaying the original wave16 exact dots. It uses 1,048,580 bytes of scratch,
 with no host counter read or synchronization. Gate, up and down share the
@@ -172,10 +180,17 @@ local schedule remains available in the same binary. All 301 local Python
 tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene pass. The threaded
 execution of actual selectors and scheduling covers dense/sparse/empty
 windows, partial tails, debug outputs, redzones and submission faults under
-ASan/UBSan. Native arithmetic comparison and full product validation are next.
+ASan/UBSan. The Windows MoE build passes in 17944.130 ms; the component
+build passes in 5714.362 ms and all eight native controls complete in
+827.025 ms. All four new routed comparisons have zero raw-bit differences,
+intact redzones and unchanged inputs on a nonblocking stream. The three
+complete product requests and captured GB10 boundaries pass, as summarized
+above. Component sparse timing improves from 7.594600 to 6.139460 ms;
+dense timing is nearly unchanged and is not a product estimate.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
-open. No new performance result or release is qualified.
+open. The observed speedup does not meet the product performance limits or
+qualify a release.
 
 The [reference autotune controls](../benchmarks/correctness/reference-autotune-controls-20260911.json)
 explain why captures r15/r16 are excluded: they fail the first original
