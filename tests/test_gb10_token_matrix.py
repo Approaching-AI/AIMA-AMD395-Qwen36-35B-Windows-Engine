@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from capture_gb10_token_matrix import fingerprints, fixtures  # noqa: E402
+from capture_gb10_token_matrix import fingerprints, fixtures, sampled_prefill_boundary  # noqa: E402
 
 
 ORACLES = {
@@ -20,6 +20,15 @@ ORACLES = {
 
 
 class Gb10TokenMatrixTests(unittest.TestCase):
+    def test_partial_prefill_logits_follow_the_sampler_discard_boundary(self):
+        self.assertFalse(sampled_prefill_boundary(1, 8193, 8192, True, 8193))
+        self.assertTrue(sampled_prefill_boundary(1, 8193, 8193, False, 8193))
+        self.assertTrue(sampled_prefill_boundary(1, 7169, 7169, False, 7169))
+        for arguments in ((1, 8193, 8192, False, 8193), (1, 8193, 8193, True, 8193),
+                          (2, 7169, 7169, False, 7169), (1, 8193, 8193, False, 8192)):
+            with self.assertRaises(ValueError):
+                sampled_prefill_boundary(*arguments)
+
     def test_controls_and_neighbors_preserve_real_token_prefixes(self):
         cases, oracles = fixtures(ORACLES)
         by_name = {case["name"]: case for case in cases}

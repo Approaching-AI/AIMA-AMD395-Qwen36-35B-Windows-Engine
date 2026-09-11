@@ -54,6 +54,14 @@ TPOT. Full-prefix exact attention is disabled in the fast q8192 profile;
 its overall timing change is not isolated to the new QK mapping. A unified
 profile/package and broader product acceptance remain open.
 
+The [first expanded GB10 capture](../benchmarks/correctness/gb10-token-matrix-incomplete-20260911.json)
+passes both original 32-token controls and completes q7168, q7170 and q8191
+reference requests. The batch stops at q8193: its observer saved intermediate
+q8192-prefix logits that vLLM subsequently discards. q8193 and both 512-token
+continuations remain unqualified. The observer now follows the pinned
+runner’s actual discard mask, with CPU boundary checks and a complete rerun
+required. Existing oracles and Windows product qualification are unchanged.
+
 The [MoE phase profile](../benchmarks/correctness/moe-subphases-20260911.json)
 observes 40 physical-q8192 MoE calls for the real q7169 request. Total MoE
 time is 16,283.295993 ms; gate/up accounts for 9,984.341538 ms and down

@@ -1,0 +1,674 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "host": "aitopatom-66c4",
+  "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+  "matrix_completed": false,
+  "windows_acceptance": false,
+  "dispatch": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-token-matrix-20260911-r1",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "/home/qujing/qrt-gb10-token-matrix-20260911-r1:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "620",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--source-commit",
+      "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "590",
+      "--execute"
+    ],
+    "command_file": "/home/qujing/run-qrt-gb10-token-matrix-20260911-r1.py",
+    "command_file_sha256": "8632129468059e322ba3e8e9235d1aa159740be5a9d83fc2128f4f73b0c51c80",
+    "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+    "returncode": 1,
+    "reason": "completed",
+    "wall_seconds": 359.6435312310059,
+    "minimum_host_available_bytes": 17870057472,
+    "container_status": "false 1",
+    "archive_sha256": "aafae83f1b6e73f73c22eed2cc37cfbdc9ad5b8d6c0a9a7dc66ffaa2e22c65f4"
+  },
+  "dispatch_sha256": "db55c9066c324950e057fda741a072ad41abf660d4ecd0522e0b76223f9bbf0d",
+  "preflight": {
+    "kind": "gb10_bf16_token_matrix_capture",
+    "host": "aitopatom-66c4",
+    "command": [
+      "/work/scripts/capture_gb10_token_matrix.py",
+      "--source-commit",
+      "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "590",
+      "--execute",
+      "--worker",
+      "--supervisor-pid",
+      "7"
+    ],
+    "source_commit": "5dca2dee58133f4e2b91c74b6fd0dae31df54330",
+    "source_sha256": "23b23057bc5b0e379f93173a8af054acbdd9f104a1775f72c277b19c075f0c5a",
+    "model": "/models",
+    "oracle_sha256": {
+      "7169": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+      "8192": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+    },
+    "fixtures": [
+      {
+        "name": "q7169-out32",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 32,
+        "control": true,
+        "family": 7169
+      },
+      {
+        "name": "q8192-out32",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 32,
+        "control": true,
+        "family": 8192
+      },
+      {
+        "name": "q7168-out32",
+        "prompt": {
+          "token_count": 7168,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "69ac88b3ab23db63b0dc97ce0ba4f3a1142f6f03a82880d40400d2a147a0808c",
+          "u32le_fnv1a64": "df799e629e63b300"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 7169
+      },
+      {
+        "name": "q7170-out32",
+        "prompt": {
+          "token_count": 7170,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "bec91c975401208667e5a728da9235d8e3f87aa775abd69db0fc556b09a717d6",
+          "u32le_fnv1a64": "fd950cdf1546d98a"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 7169
+      },
+      {
+        "name": "q8191-out32",
+        "prompt": {
+          "token_count": 8191,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "aaf30058b943ba25c4dcabeb2d603dba5e0a63a1e12a96a466e574ee19cfbff5",
+          "u32le_fnv1a64": "7015b1f272403af6"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 8192
+      },
+      {
+        "name": "q8193-out32",
+        "prompt": {
+          "token_count": 8193,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "9ccfb67142cceeba42bf3f3ac62a0a0aea6127b353897512f0ea516c0882160a",
+          "u32le_fnv1a64": "67496c4b22db5cf4"
+        },
+        "output_count": 32,
+        "control": false,
+        "family": 8192
+      },
+      {
+        "name": "q7169-out512",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_count": 512,
+        "control": true,
+        "family": 7169
+      },
+      {
+        "name": "q8192-out512",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_count": 512,
+        "control": true,
+        "family": 8192
+      }
+    ],
+    "completed": false,
+    "controls_qualified": false,
+    "windows_acceptance": false,
+    "prefix_caching": false,
+    "native_tensor_inputs": false
+  },
+  "ready": {
+    "load_seconds": 302.49988751301134
+  },
+  "completed_cases": {
+    "q7169-out32": {
+      "case_sha256": "1d810dae8aa74426510af3c463d5a92ea8867f3d485810ea8d59df870ffe5fcd",
+      "record": {
+        "name": "q7169-out32",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "d8e5090640963e7f07d78fe43a3d79362db5fd7a053b0e4f96fc279edd71a7f6",
+          "u32le_fnv1a64": "7e8c505cfcbfcf2d"
+        },
+        "first_token_id": 82,
+        "first_token_raw_logit": 9.25,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 11.635075729995151,
+        "control": true,
+        "control_pass": true,
+        "control_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 82,
+          "raw_logit": 9.25,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      }
+    },
+    "q8192-out32": {
+      "case_sha256": "08317b8cf0f55f60f27b1f2d0866d6dfc532ce0e667182ecce872825d149a425",
+      "record": {
+        "name": "q8192-out32",
+        "prompt": {
+          "token_count": 8192,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+          "u32le_fnv1a64": "1584e34d56e5d78b"
+        },
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "97d1c7e3ae51a6aa3d55e41d38e410c3995c9dc017a133d8d1533ad3cc3ea9b4",
+          "u32le_fnv1a64": "e60389077f247d2c"
+        },
+        "first_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 3.851443517996813,
+        "control": true,
+        "control_pass": true,
+        "control_oracle_sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 144,
+          "raw_logit": 10.375,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      }
+    },
+    "q7168-out32": {
+      "case_sha256": "b74bd06a32aab7e4c94928777d5607e5e8753e9a2dd4208a7e87a301aab785a0",
+      "record": {
+        "name": "q7168-out32",
+        "prompt": {
+          "token_count": 7168,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "69ac88b3ab23db63b0dc97ce0ba4f3a1142f6f03a82880d40400d2a147a0808c",
+          "u32le_fnv1a64": "df799e629e63b300"
+        },
+        "output_token_ids": [
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "37735a1d2ee4eb98fef57f39dc8e8699a18c8368e53ff7f9ff682ab5bfeca453",
+          "u32le_fnv1a64": "1c9f5d2303ade09b"
+        },
+        "first_token_id": 220,
+        "first_token_raw_logit": 9.5625,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 2.206154091996723,
+        "control": false,
+        "control_pass": true,
+        "control_oracle_sha256": null,
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 220,
+          "raw_logit": 9.5625,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "5cac7f945165a794d8bbca8c77261dce3fd620480e7804551cc64ebf4a9b2a39",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      }
+    },
+    "q7170-out32": {
+      "case_sha256": "d0db24793afb200e8841f15e5af65dd39adf7a7c6a9d78a52a5f3da1d76b7126",
+      "record": {
+        "name": "q7170-out32",
+        "prompt": {
+          "token_count": 7170,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "bec91c975401208667e5a728da9235d8e3f87aa775abd69db0fc556b09a717d6",
+          "u32le_fnv1a64": "fd950cdf1546d98a"
+        },
+        "output_token_ids": [
+          94,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "b513774994cbe67aee623ae23271c7392347692805048157adb4c4250c7cb3c3",
+          "u32le_fnv1a64": "6e50b6eae171c521"
+        },
+        "first_token_id": 94,
+        "first_token_raw_logit": 18.25,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 2.278875520991278,
+        "control": false,
+        "control_pass": true,
+        "control_oracle_sha256": null,
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 94,
+          "raw_logit": 18.25,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "f0e27b896fb0529d0fa14adb4ce36c130c70cbcaf4592dd9e78dd94ee40a0bc5",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      }
+    },
+    "q8191-out32": {
+      "case_sha256": "8f91439a0a0f431a3cc24424b68b1d6672aa999a2b3362b02183699d7461dc5b",
+      "record": {
+        "name": "q8191-out32",
+        "prompt": {
+          "token_count": 8191,
+          "seed": 395518,
+          "first_token_id": 84411,
+          "u32le_sha256": "aaf30058b943ba25c4dcabeb2d603dba5e0a63a1e12a96a466e574ee19cfbff5",
+          "u32le_fnv1a64": "7015b1f272403af6"
+        },
+        "output_token_ids": [
+          168589,
+          57,
+          82,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "37a60a4ba9b0b65ebc767239e8a8809904774c57e20e2cee9a7adf837d96dae3",
+          "u32le_fnv1a64": "c8195e228fda5765"
+        },
+        "first_token_id": 168589,
+        "first_token_raw_logit": 11.375,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 2.548774743001559,
+        "control": false,
+        "control_pass": true,
+        "control_oracle_sha256": null,
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 168589,
+          "raw_logit": 11.375,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "d893f8ab1dc417424b9c85d90543915f8a0c3d4abf0f94dffe10e6969f0d7e20",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      }
+    }
+  },
+  "q8193_unqualified_observer": {
+    "complete": true,
+    "raw_argmax_token": 144,
+    "raw_logit": 10.375,
+    "dtype": "torch.bfloat16",
+    "shape": [
+      1,
+      248320
+    ],
+    "bytes": 496640,
+    "file": "first-logits.bin",
+    "sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+    "negative_infinity_count": 0,
+    "observer_modifies_output": false
+  },
+  "failure": {
+    "error": "generation differs from original greedy logits or requested length"
+  },
+  "uncompleted_cases": [
+    "q8193-out32",
+    "q7169-out512",
+    "q8192-out512"
+  ],
+  "diagnosis": "The first q8193 observer tensor is byte-identical to q8192 first logits. The pinned GPU runner computes logits for incomplete prefill chunks and later discards their sampled outputs via discard_request_mask. The observer must follow that mask. q8193 generation was not saved before the mismatch exception; do not claim its output or correctness.",
+  "inspected_source": {
+    "file": "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_model_runner.py",
+    "sha256": "3afc290d3df1be3df1b89b9b35942695f5896c7729f608d6c44580899212c301",
+    "mask_prepared_at_line": 1927,
+    "mask_used_at_line": 3371
+  },
+  "decision": "Retain partial evidence and repair the observer using the actual sampler discard boundary. Run the complete matrix again; existing frozen oracles and Windows qualification are unchanged."
+}

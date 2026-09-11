@@ -29,6 +29,16 @@ ORACLE_SHAS = {
     7169: "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
     8192: "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
 }
+GPU_MODEL_RUNNER_SHA = "3afc290d3df1be3df1b89b9b35942695f5896c7729f608d6c44580899212c301"
+
+
+def sampled_prefill_boundary(requests, prompt_tokens, processed_tokens, discarded, expected_prompt):
+    """Use the same CPU discard mask as the pinned runner's sampler bookkeeping."""
+    if requests != 1 or prompt_tokens != expected_prompt or processed_tokens < 1:
+        raise ValueError("unexpected first-sample request metadata")
+    if bool(discarded) != (processed_tokens < prompt_tokens):
+        raise ValueError("first-sample discard mask disagrees with prompt progress")
+    return not discarded
 
 
 def fingerprints(tokens):
@@ -74,7 +84,7 @@ def write_json(path, value):
 class TokenMatrixCapture:
     """Read-only first-logit observer in the existing vLLM model worker."""
 
-    def qrt_arm_token_matrix(self, directory):
+    def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import inspect
         import torch
 
@@ -85,12 +95,24 @@ class TokenMatrixCapture:
         model = self.model_runner.model
         original = model.compute_logits
         source = Path(inspect.getsourcefile(original))
-        self._qrt_token_capture = dict(complete=False)
+        runner_source = Path(inspect.getsourcefile(type(self.model_runner)))
+        if file_sha(runner_source) != GPU_MODEL_RUNNER_SHA:
+            raise ValueError("sampler discard-mask source contract changed")
+        self._qrt_token_capture = dict(complete=False, discarded_prefill_calls=0)
         self._qrt_token_owner, self._qrt_token_original = model, original
 
         def observe(*args, **kwargs):
             output = original(*args, **kwargs)
             if not self._qrt_token_capture["complete"]:
+                runner = self.model_runner
+                boundary = dict(requests=runner.input_batch.num_reqs,
+                                prompt_tokens=int(runner.input_batch.num_prompt_tokens[0]),
+                                processed_tokens=int(runner.optimistic_seq_lens_cpu[0]),
+                                discarded=bool(runner.discard_request_mask.np[0]),
+                                expected_prompt=prompt_tokens)
+                if not sampled_prefill_boundary(**boundary):
+                    self._qrt_token_capture["discarded_prefill_calls"] += 1
+                    return output
                 if (output is None or output.ndim != 2 or output.shape[0] != 1 or
                         not 1 <= output.shape[1] <= 262144 or
                         output.dtype not in (torch.bfloat16, torch.float32)):
@@ -109,6 +131,8 @@ class TokenMatrixCapture:
                     stream.write(payload)
                 self._qrt_token_capture = dict(
                     complete=True, raw_argmax_token=selected, raw_logit=raw_logit,
+                    sampling_boundary=boundary,
+                    discarded_prefill_calls=self._qrt_token_capture["discarded_prefill_calls"],
                     dtype=str(copied.dtype), shape=list(copied.shape), bytes=len(payload),
                     file=path.name, sha256=hashlib.sha256(payload).hexdigest(),
                     negative_infinity_count=int(torch.isneginf(values).sum().item()),
@@ -118,6 +142,7 @@ class TokenMatrixCapture:
 
         model.compute_logits = observe
         return dict(compute_logits_source=dict(file=str(source), sha256=file_sha(source)),
+                    model_runner_source=dict(file=str(runner_source), sha256=GPU_MODEL_RUNNER_SHA),
                     model_class=type(model).__name__, observer_modifies_output=False)
 
     def qrt_finish_token_matrix(self):
@@ -152,10 +177,12 @@ def execute(args, cases, oracles):
               speculative_config={"method": "mtp", "num_speculative_tokens": 1},
               worker_extension_cls="capture_gb10_token_matrix.TokenMatrixCapture")
     load_seconds = time.monotonic() - begun
-    write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds))
+    write_json(args.output_dir / "ready.json", dict(load_seconds=load_seconds,
+               torch_version=torch.__version__, model_evidence=evidence))
     results = []
     for case in cases:
-        armed = llm.collective_rpc("qrt_arm_token_matrix", args=(str(args.output_dir / case["name"]),))
+        armed = llm.collective_rpc("qrt_arm_token_matrix", args=(
+            str(args.output_dir / case["name"]), case["prompt"]["token_count"]))
         requested = time.monotonic()
         try:
             outputs = llm.generate([dict(prompt_token_ids=case["prompt_token_ids"])],
@@ -172,6 +199,10 @@ def execute(args, cases, oracles):
         generated = outputs[0].outputs[0]
         tokens = list(generated.token_ids)
         if len(tokens) != case["output_count"] or tokens[0] != worker["raw_argmax_token"]:
+            write_json(args.output_dir / (case["name"] + "-rejected.json"),
+                       dict(prompt=case["prompt"], requested_outputs=case["output_count"],
+                            output_token_ids=tokens, worker=worker, armed=armed,
+                            request_seconds=request_seconds, windows_acceptance=False))
             raise ValueError("generation differs from original greedy logits or requested length")
         expected = oracles[case["family"]]["expected"]
         control_pass = not case["control"] or (
@@ -193,6 +224,12 @@ def execute(args, cases, oracles):
               flush=True)
         if not control_pass:
             raise ValueError("same-engine immutable control failed")
+        if len(results) == 2:
+            write_json(args.output_dir / "controls-qualified.json", dict(
+                controls_qualified=True, oracle_sha256=ORACLE_SHAS,
+                cases=[dict(name=item["name"], sha256=file_sha(args.output_dir / (item["name"] + ".json")))
+                       for item in results], model_evidence=evidence, torch_version=torch.__version__,
+                windows_acceptance=False))
     return dict(completed=True, controls_qualified=True, cases=results, load_seconds=load_seconds,
                 model_evidence=evidence, torch_version=torch.__version__,
                 raw_logit_method="observer of original GPU model.compute_logits output; returned unchanged")
