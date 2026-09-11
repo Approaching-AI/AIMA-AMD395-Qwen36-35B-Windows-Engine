@@ -125560,7 +125560,7 @@ uint16_t host_full_attention_bf16_rne(float value) {
     return static_cast<uint16_t>(rounded >> 16u);
 }
 
-bool full_attention_output_projection_bf16(
+bool full_attention_output_projection_bf16_tile(
     const uint16_t *weights,
     const uint16_t *inputs,
     uint16_t *outputs,
@@ -125652,6 +125652,50 @@ bool full_attention_output_projection_bf16(
                   << std::endl;
     }
     return ok;
+}
+
+bool full_attention_output_projection_bf16(
+    const uint16_t *weights,
+    const uint16_t *inputs,
+    uint16_t *outputs,
+    unsigned int rows,
+    unsigned int reduction_size,
+    unsigned int tokens,
+    hipStream_t stream,
+    const std::string &stage,
+    std::string *failure_stage,
+    std::string *failure
+) {
+    const bool correction = env_u32_or_default(
+        "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS", 0u) != 0u ||
+        env_u32_or_default(
+            "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB", 0u) != 0u;
+    // Preserve the existing fast path and every qualified single-tile launch.
+    if (!correction || tokens <= 8192u) {
+        return full_attention_output_projection_bf16_tile(
+            weights, inputs, outputs, rows, reduction_size, tokens, stream,
+            stage, failure_stage, failure);
+    }
+    if (weights == nullptr || inputs == nullptr || outputs == nullptr ||
+        tokens > QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+        failure_stage == nullptr || failure == nullptr) {
+        if (failure_stage != nullptr) *failure_stage = stage + "_correction_shape";
+        if (failure != nullptr) *failure = "full-attention correction requires valid model-context rows";
+        return false;
+    }
+    // Input and output are token-major. Each tile owns the same bounded F32
+    // scratch and completes before the next tile reuses the correction path.
+    for (unsigned int offset = 0u; offset < tokens;) {
+        const unsigned int count = (std::min)(8192u, tokens - offset);
+        if (!full_attention_output_projection_bf16_tile(
+                weights, inputs + static_cast<size_t>(offset) * reduction_size,
+                outputs + static_cast<size_t>(offset) * rows,
+                rows, reduction_size, count, stream, stage, failure_stage, failure)) {
+            return false;
+        }
+        offset += count;
+    }
+    return true;
 }
 
 bool emit_full_attention_gb10_full_compare(
