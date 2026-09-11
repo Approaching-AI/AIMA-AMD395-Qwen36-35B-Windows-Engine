@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "kind": "lossless_sm121_exp2_table_reencoding",
+  "host": "JiaweiMnideMini.lan",
+  "original_bytes": 183174448,
+  "packed_bytes": 38909480,
+  "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+  "packed_sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+  "encoding": "256-cell pages; FP32 bit-pattern integer chord and exact packed signed residual; no floating approximation",
+  "repack": {
+    "kind": "lossless_exp2_repack",
+    "verify_only": false,
+    "input_bytes": 183174448,
+    "output_bytes": 38909480,
+    "exact_cells": 328728576,
+    "random_domain_inputs": 100000,
+    "bit_mismatches": 0,
+    "page_kinds": [
+      756246,
+      236097,
+      237,
+      253752,
+      37764,
+      0,
+      0,
+      0
+    ],
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "verification": {
+    "host": "JiaweiMnideMini.lan",
+    "command": [
+      "build/recovery-20260910/exp2-interpolated-r1/repack-final",
+      "--verify",
+      "build/recovery-20260910/qrt-ex2-table-20260910-r1/table/sm121-ex2-negative.bin",
+      "build/recovery-20260910/exp2-interpolated-r1/sm121-exp2-interpolated.bin"
+    ],
+    "stdout": {
+      "kind": "lossless_exp2_repack",
+      "verify_only": true,
+      "input_bytes": 183174448,
+      "output_bytes": 38909480,
+      "exact_cells": 328728576,
+      "random_domain_inputs": 100000,
+      "bit_mismatches": 0,
+      "page_kinds": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "source_sha256": "8ba546cd1731f76cc09d03e7905e59ac2ff850b74183d0979d7b6a6a39228d51",
+    "header_sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+    "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+    "output_sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec"
+  },
+  "local_checks": {
+    "python_tests": 305,
+    "skips": 2,
+    "c_abi_rust_clippy_q16_hygiene": "pass",
+    "log_sha256": "2643931be0780081886892f21dd78cbc60a9257f411c63741105215eeebbb2a7"
+  },
+  "source_files": [
+    {
+      "file": "native/providers/gdn/sm121_exp2_interpolated.h",
+      "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8"
+    },
+    {
+      "file": "tools/repack_sm121_exp2_table.cpp",
+      "sha256": "8ba546cd1731f76cc09d03e7905e59ac2ff850b74183d0979d7b6a6a39228d51"
+    },
+    {
+      "file": "tests/native/sm121_exp2_interpolated_selftest.cpp",
+      "sha256": "d849aaab30dc5e9eb5cb8524e47bbdb72d81bc9ab62eeda16131224412c1938a"
+    }
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "decision": "optional compile-time CK backend; full domain CPU equivalence established; native replay and product timing pending"
+}

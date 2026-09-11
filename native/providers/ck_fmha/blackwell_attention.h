@@ -10,8 +10,14 @@
 #include "../moe_accumulator/sm121_mantissa_parts.h"
 #include "../moe_accumulator/sm121_integer_parts.h"
 #include "../gdn/sm121_exp2_table.h"
+#include "../gdn/sm121_exp2_interpolated.h"
 #include "../gdn/sm121_attention_rcp.h"
 namespace qrt_blackwell_attention {
+#if defined(QRT_CK_SM121_INTERPOLATED_EXP2) && QRT_CK_SM121_INTERPOLATED_EXP2
+namespace exp2_backend = qrt_sm121_exp2_interpolated;
+#else
+namespace exp2_backend = qrt_sm121_exp2;
+#endif
 constexpr unsigned int kQueryHeads = 16u, kKvHeads = 2u;
 constexpr unsigned int kHeadDim = 256u, kThreads = 256u;
 __device__ uint16_t f32_to_bf16(float value) {
@@ -39,7 +45,7 @@ static_assert(kHeadDim % kBlackwellSubgroups == 0u);
 
 __device__ __forceinline__ float blackwell_attention_exp(float value, const unsigned char* exp2_table) {
     const float argument = value * kExactLog2e;
-    return exp2_table ? qrt_sm121_exp2::evaluate(exp2_table, argument)
+    return exp2_table ? exp2_backend::evaluate(exp2_table, argument)
                       : exp2f(argument);
 }
 

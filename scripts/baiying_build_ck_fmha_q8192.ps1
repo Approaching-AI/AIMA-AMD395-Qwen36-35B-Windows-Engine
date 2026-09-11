@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory = $false)][string]$OutPath = "",
     [Parameter(Mandatory = $false)][string]$OffloadArch = "gfx1151",
     [Parameter(Mandatory = $false)][string]$HipccPath = "",
+    [Parameter(Mandatory = $false)][switch]$Sm121InterpolatedExp2,
     [Parameter(Mandatory = $false)][int]$RunDirectSmoke = 0,
     [Parameter(Mandatory = $false)][string]$DirectSmokePath = "",
     [Parameter(Mandatory = $false)][ValidateRange(1, 100)][int]$DirectSmokeRepetitions = 5,
@@ -65,6 +66,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "..\moe_accumulator\sm121_mantissa_parts.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_integer_parts.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
+    (Join-Path $sourceDir "..\gdn\sm121_exp2_interpolated.h"),
     (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
     (Join-Path $sourceDir "fmha_fwd_gfx1151_d256_bf16_f32out.cpp"),
@@ -104,6 +106,7 @@ $arguments = @(
     "-o", $OutPath
 )
 
+if ($Sm121InterpolatedExp2) { $arguments += "-DQRT_CK_SM121_INTERPOLATED_EXP2=1" }
 & $HipccPath @arguments
 if ($LASTEXITCODE -ne 0) {
     throw "hipcc exited $LASTEXITCODE while building the q8192 CK-Tile provider"
@@ -243,6 +246,9 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_integer_parts.h')).Hash.ToLowerInvariant()
     sm121_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h")).Hash.ToLowerInvariant()
+    sm121_interpolated_exp2 = [bool]$Sm121InterpolatedExp2
+    sm121_interpolated_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_interpolated.h")).Hash.ToLowerInvariant()
     sm121_rcp_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h")).Hash.ToLowerInvariant()
     direct_smoke_ran = ($RunDirectSmoke -ne 0)

@@ -232,9 +232,24 @@ The component remains slower: 4467.32 versus 1367.34 ms. Keep the selected
 packed scalar route. [Earlier fast CK output analysis](../benchmarks/correctness/attention-fast-error-distribution-20260911.json)
 finds 65,059 BF16 differences across 33,681 query/head rows. A 256-ppm
 head-peak midpoint window selects 20,654,619 outputs yet misses 67 differences.
-These windows are diagnostics, not correctness thresholds. The next replay
+These windows are diagnostics, not correctness thresholds. Replay
 layouts 6/7 preserve the reference K32 online-softmax ordering and isolate
-native PV with either exact or native QK; neither is a product route.
+native PV with either exact or native QK. The [full q7169 native matrix
+replays](../benchmarks/correctness/attention-native-mma-20260912.json)
+at `809c0ca5f6e602390c7c25f743404aa76e8d557c` still differ at 29,491 /
+64,959 BF16 cells. Batch 32 reduces their component times to 967.4 / 500.782 ms,
+with the same numerical differences as batch 8. Reference online-softmax
+ordering alone does not repair native matrix rounding. Neither layout has a
+qualified product result.
+
+The optional CK build switch `-Sm121InterpolatedExp2` selects a lossless
+re-encoding of the original SM121 exp2 table: 183,174,448 to 38,909,480 bytes.
+An integer chord plus packed residual reconstructs every original FP32 bit.
+The [exhaustive repack record](../benchmarks/correctness/exp2-interpolated-20260912.json)
+checks all 328,728,576 table cells and 100,000 random argument bit patterns,
+with zero differences. Each backend validates its own layout and SHA before
+upload, and the default CK build keeps the original format. Native replay
+and product timing of the compact format remain open.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or

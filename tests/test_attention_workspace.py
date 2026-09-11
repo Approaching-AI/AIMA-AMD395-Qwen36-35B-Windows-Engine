@@ -82,6 +82,7 @@ hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Val
     return hipMalloc(reinterpret_cast<void**>(output), bytes);
 }
 namespace qrt_blackwell_attention {
+namespace exp2_backend = qrt_sm121_exp2;
 int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
                    unsigned tokens, hipStream_t) {
     ++transposes;

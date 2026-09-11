@@ -213,15 +213,15 @@ int main(int argc, char** argv) {
         const bool use_table = std::string(argv[11]) != "-";
         std::vector<unsigned char> table;
         if (use_table) {
-            table = read<unsigned char>(argv[11], qrt_sm121_exp2::table_bytes);
-            if (!qrt_sm121_exp2::valid_layout(table.data(), table.size()))
+            table = read<unsigned char>(argv[11], qrt_blackwell_attention::exp2_backend::table_bytes);
+            if (!qrt_blackwell_attention::exp2_backend::valid_layout(table.data(), table.size()))
                 throw std::runtime_error("invalid exponent table layout");
             BCRYPT_ALG_HANDLE algorithm = nullptr; unsigned char digest[32]{};
             if (BCryptOpenAlgorithmProvider(&algorithm, BCRYPT_SHA256_ALGORITHM, nullptr, 0) < 0)
                 throw std::runtime_error("SHA256 provider unavailable");
             const auto status = BCryptHash(algorithm, nullptr, 0, table.data(), ULONG(table.size()), digest, sizeof(digest));
             BCryptCloseAlgorithmProvider(algorithm, 0);
-            if (status < 0 || std::memcmp(digest, qrt_sm121_exp2::sha256, 32))
+            if (status < 0 || std::memcmp(digest, qrt_blackwell_attention::exp2_backend::sha256, 32))
                 throw std::runtime_error("exponent table fingerprint mismatch");
         }
         Device dt(use_table ? table.size() : 4u), output(size_t(count) * 4096u * 4u);

@@ -236,8 +236,8 @@ int prepare_sm121_attention_locked() {
     unsigned char* exp2 = nullptr; unsigned char* rcp = nullptr;
     float* scores = nullptr;
     uint16_t* transposed_keys = nullptr;
-    auto status = load_sm121_table("QRT_CK_FMHA_SM121_EXP2_TABLE", qrt_sm121_exp2::table_bytes,
-        qrt_sm121_exp2::sha256, qrt_sm121_exp2::valid_layout, &exp2);
+    auto status = load_sm121_table("QRT_CK_FMHA_SM121_EXP2_TABLE", qrt_blackwell_attention::exp2_backend::table_bytes,
+        qrt_blackwell_attention::exp2_backend::sha256, qrt_blackwell_attention::exp2_backend::valid_layout, &exp2);
     if (status == hipSuccess)
         status = load_sm121_table("QRT_CK_FMHA_SM121_RCP_TABLE", qrt_sm121_attention_rcp::table_bytes,
             qrt_sm121_attention_rcp::sha256, qrt_sm121_attention_rcp::valid_layout, &rcp);
@@ -252,7 +252,7 @@ int prepare_sm121_attention_locked() {
     g_sm121_exp2 = exp2; g_sm121_rcp = rcp; g_sm121_scores = scores;
     g_sm121_transposed_keys = transposed_keys;
     std::fprintf(stderr, "SM121_FULL_ATTENTION_TABLES exp2_bytes=%zu rcp_bytes=%zu score_scratch_bytes=%zu key_scratch_bytes=%zu model_independent=1\n",
-        size_t(qrt_sm121_exp2::table_bytes), qrt_sm121_attention_rcp::table_bytes,
+        size_t(qrt_blackwell_attention::exp2_backend::table_bytes), qrt_sm121_attention_rcp::table_bytes,
         kSm121ScoreElements * sizeof(float), kSm121KeyElements * sizeof(uint16_t));
     return int(hipSuccess);
 }
