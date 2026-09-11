@@ -123,6 +123,27 @@ def full_cache_row_is_qualified(cache, transactions):
         for transaction in transactions)
 
 
+def observation_positions(case, prompt_tokens):
+    selected = {prompt_tokens - 1, prompt_tokens,
+                prompt_tokens + full_cache_observation_offset(case)}
+    defaults = {
+        'q8191-out32': (32, (1, 5)),
+        'q7169-out512': (512, (30, 31, 32, 118, 119, 120)),
+        'q8192-out512': (512, (107, 108, 109)),
+    }
+    if case in defaults:
+        continuation, offsets = defaults[case]
+        name = 'QRT_GB10_' + case.split('-')[0].upper() + '_BOUNDARY_OFFSETS'
+        value = os.environ.get(name)
+        if value is not None:
+            offsets = [int(item) for item in value.split(',')]
+            if (not 1 <= len(offsets) <= 3 or len(set(offsets)) != len(offsets) or
+                    any(not 0 <= offset < continuation for offset in offsets)):
+                raise ValueError('invalid bounded continuation observation offsets')
+        selected.update(prompt_tokens + offset for offset in offsets)
+    return selected
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -135,17 +156,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         case = root.name
         full_cache_offset = full_cache_observation_offset(case)
         full_cache_row = full_cache_observation_row(case)
-        selected = {prompt_tokens - 1, prompt_tokens}
-        selected.add(prompt_tokens + full_cache_offset)
-        if case == "q8191-out32":
-            # The preceding r3 capture already owns the repaired 64-row
-            # prefill tail. Keep this capture focused on decode so accepted
-            # recurrent state snapshots fit the same artifact ceiling.
-            selected.update((8192, 8196))
-        elif case == "q7169-out512":
-            selected.update((7199, 7200, 7201, 7287, 7288, 7289))
-        elif case == "q8192-out512":
-            selected.update((8299, 8300, 8301))
+        # Position selection is separate from the cache's actual MTP row.
+        # Capture both scheduled identities, then qualify against real tokens.
+        selected = observation_positions(case, prompt_tokens)
         self._qrt_boundary_handles = []
         self._qrt_boundary_transactions = []
         self._qrt_boundary_files = {}

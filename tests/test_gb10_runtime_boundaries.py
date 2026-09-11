@@ -8,12 +8,31 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_cache_observation_offset, full_cache_observation_row, full_cache_row_is_qualified,
-    prepared_token_ids, qualify_transaction,
+    observation_positions, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_bounded_positions_do_not_guess_the_accepted_mtp_row(self):
+        with patch.dict(os.environ, {'QRT_GB10_Q7169_BOUNDARY_OFFSETS': '94'}, clear=True):
+            positions = observation_positions('q7169-out512', 7169)
+            self.assertEqual(positions, {7168, 7169, 7263})
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            # The target can occur as an accepted second row or as a first
+            # row after a rejected draft. Selection retains either identity.
+            self.assertEqual(target_rows([7262, 7263], [100, 200], [0, 1], positions),
+                             [dict(row=1, position=7263, input_token_id=200, logit_row=1)])
+            self.assertEqual(target_rows([7263, 7264], [200, 300], [0, 1], positions),
+                             [dict(row=0, position=7263, input_token_id=200, logit_row=0)])
+        for value in ('-1', '512', '1,1', '1,2,3,4', '', 'bad'):
+            with patch.dict(os.environ, {'QRT_GB10_Q7169_BOUNDARY_OFFSETS': value}, clear=True):
+                with self.assertRaises(ValueError):
+                    observation_positions('q7169-out512', 7169)
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(observation_positions('q7169-out512', 7169),
+                             {7168, 7169, 7199, 7200, 7201, 7287, 7288, 7289})
+
     def test_cache_can_bind_an_accepted_second_target_row(self):
         with patch.dict(os.environ, {'QRT_GB10_Q7169_FULL_CACHE_OFFSET': '37',
                                     'QRT_GB10_Q7169_FULL_CACHE_ROW': '1'}, clear=True):

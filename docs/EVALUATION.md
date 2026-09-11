@@ -32,26 +32,32 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Current work is recorded in the
-[continuation origin evidence](../benchmarks/correctness/q1-continuation-origin-20260911.json).
-Whole df05a32 repairs short-decode gated normalization using the original
-compiled 32-lane, four-values-per-lane reduction. At q8191 positions 8194
-and 8196, every captured operator and all 40 complete layer carriers now
-match GB10 bit-for-bit. Both q8191 out32 and q7169 out512 complete with
-successful host/streaming checks. q7169's first difference moves from output
-index 38 to 95, with all first 95 tokens correct. q8191 still differs at index
-6: its direct final norm retained the old unrounded numerator. CPU replay
-finds 351 differing BF16 norm values with that formula and zero with the
-original fused formula, which restores the correct 82/220 logit ordering.
-Current source connects the original final norm to serial and paired Q1
-output; native product validation is pending. New GB10 captures r15/r16 fail
-the first frozen q7169 control and are excluded from numerical authority.
-The earlier
+Whole 3d7e265 passes the complete frozen q8191 out32 request on baiying:
+all 32 tokens, exact first logit 11.375, matching streaming callbacks and
+all host checks. The [Q1 final-norm product evidence](../benchmarks/correctness/q1-final-norm-product-20260911.json)
+binds that result to the real model and Windows build. At position 8196,
+all 40 layer carriers, every captured full-attention operator and all 2048
+final-norm values match GB10 bit-for-bit. The original fused final norm
+restores the correct 82/220 scores of 9.3125/9.375. The preceding
+[short gated-norm repair](../benchmarks/correctness/q1-continuation-origin-20260911.json)
+uses the original compiled 32-lane, four-values-per-lane reduction.
+q7169 out512 completes but still first differs at index 95 (59026 instead
+of 328), with 354 mismatches; its first 95 tokens and first logit 9.25 match.
+Position 7263 is the next comparison target. The earlier
 [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
 and its complete first-decode carrier comparisons remain verified.
 Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile
 still has incorrect prefill recurrent state. This work does not qualify a
 new performance result or release; the retained results below are unchanged.
+
+The [reference autotune controls](../benchmarks/correctness/reference-autotune-controls-20260911.json)
+explain why captures r15/r16 are excluded: they fail the first original
+q7169 control and select different autotune configurations in three prefill
+kernels. Reusing all eight byte-identical timing records from qualified r13
+restores all eight complete frozen cases in r17, with unchanged cache hashes.
+No oracle or model math changes. The observer can now select up to three
+continuation offsets independently of the actual accepted MTP cache row;
+the final generated history still qualifies every selected row.
 
 Both frozen 32-token cold requests pass on baiying with the real
 `D:\models\Qwen3.6-35B-A3B`, whole 8d8af14, MoE a17a9ed, FLA 7698db3 and
