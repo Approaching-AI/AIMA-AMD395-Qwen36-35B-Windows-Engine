@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/sm121_wave16.h"
+#include "../moe_accumulator/sm121_native_product.h"
 #include "../gdn/sm121_exp2_table.h"
 #include "../gdn/sm121_attention_rcp.h"
 namespace qrt_blackwell_attention {
@@ -104,6 +105,7 @@ __global__ void blackwell_transpose_keys_kernel(
     }
 }
 
+template<bool NativeProducts = false>
 __global__ void blackwell_transposed_scores_kernel(
     const uint16_t* __restrict__ query, const uint16_t* __restrict__ transposed_key,
     float* __restrict__ scores, unsigned int query_start,
@@ -122,13 +124,14 @@ __global__ void blackwell_transposed_scores_kernel(
         uint32_t products[kBlackwellMmaGroup];
 #pragma unroll
         for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
-            products[item] = qrt_sm121_group16::pack_product(
-                qrt_q1_moe_hawkeye::multiply_bf16(
-                    query[query_base + base + item],
-                    transposed_key[(static_cast<size_t>(kv_head) * kHeadDim + base + item) *
-                                       key_stride + key_token], kBlackwellZeroExponent));
+            const uint16_t q = query[query_base + base + item];
+            const uint16_t k = transposed_key[(static_cast<size_t>(kv_head) * kHeadDim + base + item) *
+                                                key_stride + key_token];
+            products[item] = NativeProducts ? qrt_sm121_native_product::pack(q, k) :
+                qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(q, k, kBlackwellZeroExponent));
         }
-        const auto sum = qrt_sm121_group16::sum_packed(dot, products);
+        const auto sum = NativeProducts ? qrt_sm121_native_product::sum(dot, products) :
+            qrt_sm121_group16::sum_packed(dot, products);
         dot = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
     }
     scores[cell] = qrt_q1_moe_hawkeye::value_to_float(
@@ -137,7 +140,8 @@ __global__ void blackwell_transposed_scores_kernel(
 
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
-template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false>
+template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
+          bool NativeProducts = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -308,11 +312,12 @@ __global__ void blackwell_exact_attention_kernel(
                         const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
                         v = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
                     }
-                    products[item] = qrt_sm121_group16::pack_product(
-                        qrt_q1_moe_hawkeye::multiply_bf16(
+                    products[item] = NativeProducts ? qrt_sm121_native_product::pack(probability_bf16[begin + item], v) :
+                        qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
                             probability_bf16[begin + item], v, kBlackwellZeroExponent));
                 }
-                const auto sum = qrt_sm121_group16::sum_packed(partial, products);
+                const auto sum = NativeProducts ? qrt_sm121_native_product::sum(partial, products) :
+                    qrt_sm121_group16::sum_packed(partial, products);
                 partial = qrt_sm121_wave16::normalize(
                     sum.value.magnitude, sum.value.negative, sum.max_exponent);
                 partial = qrt_sm121_group16::finish_accumulator(partial);
@@ -511,12 +516,14 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     unsigned int memory_layout = 1u,
     float* score_scratch = nullptr, size_t score_scratch_elements = 0u,
     hipEvent_t scores_done = nullptr, hipEvent_t probabilities_done = nullptr,
-    const uint16_t* transposed_key = nullptr, unsigned int key_stride = 0u) {
+    const uint16_t* transposed_key = nullptr, unsigned int key_stride = 0u,
+    bool native_products = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
     if (memory_layout > 4u) return int(hipErrorInvalidValue);
+    if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
         // The split replay includes a bounded continuation of the captured prefix.
         // Long-context terminal calls retain their existing allocation-free path.
@@ -529,9 +536,15 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
         if (memory_layout == 4u) {
-            hipLaunchKernelGGL(blackwell_transposed_scores_kernel,
+            if (native_products) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_transposed_scores_kernel<true>),
+                    dim3((cells + kThreads - 1u) / kThreads), dim3(kThreads), 0u, stream,
+                    q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
+            } else {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_transposed_scores_kernel<false>),
                 dim3((cells + kThreads - 1u) / kThreads), dim3(kThreads), 0u, stream,
                 q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
+            }
         } else {
             hipLaunchKernelGGL(blackwell_exact_scores_kernel,
                 dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
@@ -562,11 +575,19 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 rcp_table, raw_accumulator, raw_denominator);
             return int(hipGetLastError());
         }
+        if (native_products) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, true>),
+                dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+                q, k, v, output, query_start, output_start, exp2_table,
+                raw_accumulator, raw_denominator, vllm_sum, rcp_table,
+                score_scratch, stride, nullptr, 0u);
+        } else {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,
             raw_accumulator, raw_denominator, vllm_sum, rcp_table,
             score_scratch, stride, nullptr, 0u);
+        }
     } else if (memory_layout == 1u) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,

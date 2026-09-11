@@ -92,7 +92,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned start, unsigned count, unsigned, const unsigned char*,
                    float*, float*, bool, const unsigned char*, unsigned layout,
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
-                   unsigned key_stride) {
+                   unsigned key_stride, bool = false) {
     ++queries;
     if (!count || count > 8u || scores != g_sm121_scores ||
         elements < size_t(count) * 16u * (start + count)) std::abort();

@@ -271,6 +271,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (status != int(hipSuccess)) return status;
     const auto begin = std::chrono::steady_clock::now();
     const bool independent_dots = query_count > 1u;
+    const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
+    const bool native_products = independent_dots && native_product_option &&
+        native_product_option[0] != '\0' && std::strcmp(native_product_option, "0") != 0;
     const unsigned int key_stride = query_start + query_count;
     if (independent_dots) {
         status = qrt_blackwell_attention::transpose_keys(
@@ -285,7 +288,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start + offset, std::min(kSm121QueryBatch, query_count - offset), output_start + offset,
             g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, independent_dots ? 4u : 2u,
             g_sm121_scores, kSm121ScoreElements, nullptr, nullptr,
-            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride);
+            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -296,8 +299,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
             return int(hipErrorLaunchTimeOut);
     }
-    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u diagnostic_only=1\n",
-        query_start, query_count, kSm121QueryBatch, unsigned(independent_dots));
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u diagnostic_only=1\n",
+        query_start, query_count, kSm121QueryBatch, unsigned(independent_dots), unsigned(native_products));
     return int(hipSuccess);
 }
 

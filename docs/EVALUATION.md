@@ -187,6 +187,18 @@ intact redzones and unchanged inputs on a nonblocking stream. The three
 complete product requests and captured GB10 boundaries pass, as summarized
 above. Component sparse timing improves from 7.594600 to 6.139460 ms;
 dense timing is nearly unchanged and is not a product estimate.
+
+The next attention experiment is `QRT_CK_SM121_NATIVE_PRODUCTS=1`,
+restricted to the existing transposed split QK/PV path. Normal BF16 products
+are represented exactly with FP32 multiplication; exponent edits and signed
+integer truncation preserve the original K16/26-bit alignment. Subnormal,
+exceptional and extreme-exponent products use the original integer path.
+The original ordered normalization and all softmax/PV boundaries remain.
+All 200,000 host K16 groups and 3,200,000 products match the original integer
+representation and aligned sum, including every BF16 operand encoding and
+random carries. All 302 Python tests (two skips), C/ABI, Rust, Clippy, q16
+and hygiene pass. Native captured-Q/K/V comparison and product measurement
+must follow before retaining this option.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or

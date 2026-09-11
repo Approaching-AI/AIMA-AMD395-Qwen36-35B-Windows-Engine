@@ -29,10 +29,11 @@ constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kExactTileTokens = 32;
 void blackwell_exact_scores_kernel() {}
 void blackwell_transpose_keys_kernel() {}
-void blackwell_transposed_scores_kernel() {}
+template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
-template<bool SerialValue, bool PrecomputedScores = false>
+template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
+         bool NativeProducts = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
 bool fail_scores = false, fail_probability = false;
@@ -122,6 +123,20 @@ int main() {
     if (split(16383, 1, &scratch, 16u * 16384u) != hipSuccess || launches != 2u)
         return 25;
     if (split_scratch_elements(1u, 16385u, 2u) != 0u) return 26;
+    launches = error_queries = 0u;
+    if (launch_queries(&operand, &operand, &operand, &output, nullptr,
+        0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 2, &scratch, 1024,
+        nullptr, nullptr, &operand, 8u, true) != hipErrorInvalidValue || launches)
+        return 27;
+    if (launch_queries(&operand, &operand, &operand, &output, nullptr,
+        0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 4, &scratch, 1024,
+        nullptr, nullptr, &operand, 8u, true) != hipSuccess || launches != 2u)
+        return 28;
+    launches = error_queries = 0u; fail_scores = true;
+    if (launch_queries(&operand, &operand, &operand, &output, nullptr,
+        0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 4, &scratch, 1024,
+        nullptr, nullptr, &operand, 8u, true) != hipErrorUnknown || launches != 1u)
+        return 29;
     return 0;
 }
 '''

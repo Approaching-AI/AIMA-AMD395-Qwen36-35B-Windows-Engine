@@ -79,7 +79,7 @@ bool report(const char* route, const std::vector<float>& output,
             const std::string& prefix, float total_ms, float max_ms,
             unsigned memory_layout = 0u, float scores_ms = 0.0f,
             float probabilities_ms = 0.0f, float value_ms = 0.0f,
-            float preparation_ms = 0.0f) {
+            float preparation_ms = 0.0f, bool native_products = false) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -110,6 +110,7 @@ bool report(const char* route, const std::vector<float>& output,
                             : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
+              << ",\"native_products\":" << (native_products ? "true" : "false")
               << ",\"stage_timing_enabled\":" << (memory_layout >= 2u ? "true" : "false")
               << ",\"scores_ms\":" << scores_ms
               << ",\"probabilities_ms\":" << probabilities_ms
@@ -135,6 +136,10 @@ int main(int argc, char** argv) {
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 4) : 0u;
+        const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
+        const bool native_products = native_product_option && native_product_option[0] != '\0' &&
+            std::strcmp(native_product_option, "0") != 0;
+        if (native_products && memory_layout != 4u) throw std::runtime_error("native products require transposed split attention");
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
@@ -231,7 +236,7 @@ int main(int argc, char** argv) {
                 scores.as<float>(), score_elements,
                 memory_layout >= 2u ? scores_done.value : nullptr,
                 memory_layout == 3u ? probabilities_done.value : nullptr,
-                transposed_data, tokens)));
+                transposed_data, tokens, native_products)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
@@ -268,7 +273,7 @@ int main(int argc, char** argv) {
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
-                          scores_total, probabilities_total, value_total, preparation_ms);
+                          scores_total, probabilities_total, value_total, preparation_ms, native_products);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);
