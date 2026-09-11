@@ -33,17 +33,25 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 11)
 
 Both frozen 32-token cold requests pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B`, whole/FLA/CK at cf5da64 and MoE at
-`a17a9edeb4e93dcf626b19041c700e9e2100ea90`. Each run has zero first-logit error
+`D:\models\Qwen3.6-35B-A3B`, whole/CK at cf5da64, MoE at a17a9ed and FLA at
+`bac7b8a94b9347e36ddfd7df5c0cb97856fc15c0`. Each run has zero first-logit error
 at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
 before return. Exit 0 and all host checks pass. CLI and AITER still use
 retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, MoE a17a9ed plus cf5da64 providers, fast profile | 144 / 10.375 | 20,089.114100 | 4,151.751100 | 32.966542 |
-| q7169, MoE a17a9ed plus cf5da64 providers, 1000 ppb profile | 82 / 9.25 | 20,084.471300 | 80,887.015401 | 34.618123 |
+| q8192, FLA bac7b8a plus retained components, fast profile | 144 / 10.375 | 20,103.771700 | 4,156.772700 | 32.707490 |
+| q7169, FLA bac7b8a plus retained components, 1000 ppb profile | 82 / 9.25 | 20,102.298900 | 80,154.356200 | 34.439558 |
 | Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [FLA segment records](../benchmarks/correctness/fla-sequence-20260911.json)
+qualify ordered batches of at most 32 kernels and failure cleanup. All 80
+complete q7169 GB10 norm files remain exact; each measured sequence is below
+100 ms (maximum 25.895800 ms). The one-run TTFT difference is 732.659201 ms,
+so per-operation CPU synchronization was not the dominant remaining wall.
+The four logged stage intervals total 11,334.771059 ms and exclude other work.
+Full local and Windows checks pass, as do same-run q8192 retained targets.
 
 The [MoE submission records](../benchmarks/correctness/moe-dispatch-batch-20260911.json)
 qualify 1024-CTA batches with the original selector and dot arithmetic.
