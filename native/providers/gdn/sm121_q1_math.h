@@ -79,8 +79,10 @@ QRT_Q1_INLINE float inverse_norm(const float *values, const unsigned char *rsqrt
 }
 
 // The recurrent matrix layout gives four adjacent K values to each lane.
-// The last four V rows in each BV=32 block use the paired-FP32 lowering
-// (product 0, then FMA 1/2/3); other rows use product 1, FMA 0/2/3.
+// In the decayed K projection, the last four V rows in each BV=32 block
+// use the paired-FP32 lowering (product 0, then FMA 1/2/3); other rows use
+// product 1, FMA 0/2/3. The updated-state Q output uses the latter order
+// for every V row, as in original runtime PTX 52baed3b... lines 1146-1196.
 // This is a fixed layout rule, independent of tensor values and token IDs.
 QRT_Q1_INLINE float state_dot(const float *state, unsigned int stride,
                              float decay, const float *right,
@@ -88,7 +90,7 @@ QRT_Q1_INLINE float state_dot(const float *state, unsigned int stride,
     float partial[32];
     for (unsigned int lane = 0; lane < 32; ++lane) {
         const unsigned int base = lane * 4;
-        const unsigned int first = (value_dim % 32 >= 28) ? 0 : 1;
+        const unsigned int first = (apply_decay && value_dim % 32 >= 28) ? 0 : 1;
         const unsigned int second = first ^ 1u;
         float x = state[(base + first) * stride];
         if (apply_decay) x = multiply(x, decay);
