@@ -30,7 +30,8 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t = void*;
 using hipEvent_t = void*;
-struct dim3 { explicit dim3(unsigned, unsigned = 1u, unsigned = 1u) {} };
+struct dim3 { unsigned x, y, z; explicit dim3(unsigned a, unsigned b = 1u, unsigned c = 1u):x(a),y(b),z(c) {} };
+namespace qrt_sm121_strided_pair { constexpr unsigned kCellsPer256Threads=128u; }
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
@@ -41,6 +42,7 @@ void blackwell_exact_scores_kernel() {}
 void blackwell_cooperative_scores_kernel() {}
 void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
+void blackwell_strided_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
@@ -48,7 +50,7 @@ template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa
 template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
-         bool NativeProducts = false>
+         bool NativeProducts = false, bool StridedValue = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
 unsigned fail_launch = 0;
@@ -60,7 +62,10 @@ hipError_t hipEventRecord(hipEvent_t, hipStream_t) {
     return fail_event ? hipErrorUnknown : hipSuccess;
 }
 const char* launch_names[64]{};
-template<class... T> void record_launch(const char* name, T...) { launch_names[launches++] = name; }
+unsigned launch_threads[64]{};
+template<class Kernel, class... T> void record_launch(const char* name, Kernel, dim3, dim3 threads, T...) {
+    launch_threads[launches]=threads.x; launch_names[launches++] = name;
+}
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
 #define hipLaunchKernelGGL(kernel, ...) record_launch(#kernel, kernel, __VA_ARGS__)
 hipError_t hipGetLastError() {
@@ -222,6 +227,35 @@ int main() {
         launches=error_queries=0;fail_launch=failed;
         if(prepacked(&prepared,matrix_elements)!=hipErrorUnknown || launches!=failed || error_queries!=failed) return 45;
     }
+    fail_launch=0;
+    for (unsigned layout : {10u,11u,12u}) {
+        launches=error_queries=0;
+        const size_t elements=16u*16u*17u;
+        if (split_scratch_elements(16u,17u,layout)!=elements || !split_transposed_keys(layout) ||
+            split_separate_probability(layout)) return 46;
+        auto strided=[&](const uint16_t* key, unsigned stride, size_t span) {
+            return launch_queries(&operand,&operand,&operand,&output,nullptr,1,16,0,
+                nullptr,nullptr,nullptr,true,nullptr,layout,&scratch,span,nullptr,nullptr,key,stride);
+        };
+        if (strided(nullptr,17,elements)!=hipErrorInvalidValue ||
+            strided(&operand,16,elements)!=hipErrorInvalidValue ||
+            strided(&operand,16385,elements)!=hipErrorInvalidValue ||
+            strided(&operand,17,elements-1u)!=hipErrorInvalidValue || launches) return 47;
+        if (strided(&operand,17,elements)!=hipSuccess || launches!=2u || error_queries!=2u ||
+            launch_threads[0]!=256u || launch_threads[1]!=(layout==11u ? 256u : 512u)) return 48;
+        const char* score=layout==12u ? "blackwell_transposed_scores_kernel<false>" : "blackwell_strided_scores_kernel";
+        const char* value=layout==11u ? "blackwell_exact_attention_kernel<true, true>" :
+            "blackwell_exact_attention_kernel<true, true, false, false, true>";
+        if (!std::strstr(launch_names[0],score) || !std::strstr(launch_names[1],value)) return 49;
+        for (unsigned failed=1;failed<=2;++failed) {
+            launches=error_queries=0;fail_launch=failed;
+            if(strided(&operand,17,elements)!=hipErrorUnknown || launches!=failed || error_queries!=failed) return 50;
+        }
+        fail_launch=0;
+    }
+    launches=error_queries=0;
+    if (split(0,8,&scratch,SIZE_MAX,13u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,13u)!=0u) return 51;
     return 0;
 }
 '''

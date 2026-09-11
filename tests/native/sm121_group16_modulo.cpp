@@ -1,4 +1,5 @@
 #include "native/providers/moe_accumulator/sm121_group16_modulo.h"
+#include "native/providers/moe_accumulator/sm121_strided_pair.h"
 #include "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 
 #include <array>
@@ -87,6 +88,25 @@ bool check_packed_products(const std::array<uint16_t, 16>& left,
         std::fprintf(stderr, "packed product alignment/sum changed\n");
         return false;
     }
+    uint32_t half[2][8];
+    for (unsigned lane = 0; lane < 2; ++lane)
+        for (unsigned i = 0; i < 8; ++i) half[lane][i] = packed[lane * 8u + i];
+    const int first_max = qrt_sm121_strided_pair::maximum(accumulator, half[0]);
+    const int second_max = qrt_sm121_strided_pair::maximum(accumulator, half[1]);
+    const int shared_max = first_max > second_max ? first_max : second_max;
+    const unsigned shift = unsigned(shared_max - accumulator.exponent);
+    const uint32_t carry = shift >= 32u ? 0u : (accumulator.significand << 2u) >> shift;
+    const uint32_t combined = qrt_sm121_strided_pair::modulo_products(shared_max, half[0]) +
+        qrt_sm121_strided_pair::modulo_products(shared_max, half[1]) +
+        (accumulator.negative ? 0u - carry : carry);
+    for (unsigned lane = 0; lane < 2; ++lane) {
+        const auto paired = decode_modulo_sum(combined, (half[lane][0] & 0x80000000u) != 0u);
+        if (shared_max != max_exponent || paired.magnitude != magnitude ||
+            paired.negative != (exact_sum < 0)) {
+            std::fprintf(stderr, "strided pair product alignment/sum changed\n");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -102,6 +122,18 @@ int main() {
     using namespace qrt_sm121_group16;
     std::array<int64_t, 16> products{};
     std::array<uint16_t, 16> left{}, right{};
+    // Both score and value CTAs have exactly two owners per output; partners
+    // are XOR-16 within the same wave, including a partial last score CTA.
+    for (unsigned threads : {256u, 512u}) {
+        std::array<unsigned, 256> seen{};
+        for (unsigned thread = 0; thread < threads; ++thread) {
+            const unsigned cell = qrt_sm121_strided_pair::cell(thread);
+            if (cell >= threads / 2u || cell != qrt_sm121_strided_pair::cell(thread ^ 16u) ||
+                qrt_sm121_strided_pair::part(thread) == qrt_sm121_strided_pair::part(thread ^ 16u)) return 8;
+            seen[cell] |= 1u << qrt_sm121_strided_pair::part(thread);
+        }
+        for (unsigned cell = 0; cell < threads / 2u; ++cell) if (seen[cell] != 3u) return 8;
+    }
     if (!check(products, 0)) return 1;
     if (!check_final_group_endpoint({0u, -133, false})) return 6;
     if (!check_final_group_endpoint({0u, -133, true})) return 6;
@@ -171,6 +203,6 @@ int main() {
         if (!check_packed_products(left, right, {significand, exponent, (bits & 1u) != 0u}))
             return 7;
     }
-    std::puts("sm121_group16_modulo=pass groups=1000000 signed_overflow_edges=pass packed_product_groups=1000000");
+    std::puts("sm121_group16_modulo=pass groups=1000000 signed_overflow_edges=pass packed_product_groups=1000000 strided_pair_groups=1000000");
     return 0;
 }
