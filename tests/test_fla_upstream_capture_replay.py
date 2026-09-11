@@ -24,7 +24,7 @@ class FlaUpstreamIntegrationContractTests(unittest.TestCase):
 
     def test_native_state_uses_compiler_owned_launches_and_explicit_runtime_opt_in(self) -> None:
         source = (ROOT / "native/providers/gdn/blackwell_state.cpp").read_text()
-        self.assertEqual(source.count("hipLaunchKernelGGL("), 2)
+        self.assertEqual(source.count("hipLaunchKernelGGL("), 3)
         self.assertNotIn("hipModuleLaunchKernel", source)
         self.assertIn("fmaf(initial[index]", source)
         self.assertIn("if (token == 0) h[state_index] = state", source)
@@ -36,7 +36,7 @@ class FlaUpstreamIntegrationContractTests(unittest.TestCase):
         self.assertIn('setting && std::strcmp(setting, "1") == 0', runtime)
         self.assertIn('if (blackwell_state_enabled())', runtime)
         self.assertIn('if (initial != state)', runtime)
-        self.assertIn('kBlackwellStateScratchBytes', runtime)
+        self.assertIn('blackwell_state_scratch_bytes()', runtime)
 
 
 @unittest.skipUnless(shutil.which("c++"), "requires the portable C++ compiler")

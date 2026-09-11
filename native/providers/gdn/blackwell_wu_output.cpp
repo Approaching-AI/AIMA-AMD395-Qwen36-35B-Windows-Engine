@@ -20,6 +20,11 @@ __device__ __forceinline__ float finish(qrt_q1_moe_hawkeye::Value sum) {
 __global__ void wu_kernel(const uint16_t* k, const uint16_t* v, const uint16_t* beta,
                           const uint16_t* inverse, const float* g, uint16_t* w,
                           uint16_t* u, unsigned count, const unsigned char* table) {
+    const unsigned offset = blockIdx.z * 64u;
+    k += size_t(offset) * 2048u; v += size_t(offset) * 4096u;
+    beta += size_t(offset) * 32u; inverse += size_t(offset) * 2048u;
+    g += size_t(offset) * 32u; w += size_t(offset) * 4096u; u += size_t(offset) * 4096u;
+    count = count - offset < 64u ? count - offset : 64u;
     __shared__ uint16_t keys[64u * 8u], values[64u * 8u];
     const unsigned head = blockIdx.y, column_base = blockIdx.x * 8u;
     const unsigned lane = threadIdx.x % kGroup, group = threadIdx.x / kGroup;
@@ -53,6 +58,10 @@ __global__ void wu_kernel(const uint16_t* k, const uint16_t* v, const uint16_t* 
 
 __global__ void score_kernel(const uint16_t* q, const uint16_t* k, const float* g,
                              uint16_t* scores, unsigned count, const unsigned char* table) {
+    const unsigned offset = blockIdx.z * 64u;
+    q += size_t(offset) * 2048u; k += size_t(offset) * 2048u;
+    g += size_t(offset) * 32u; scores += size_t(offset) * 2048u;
+    count = count - offset < 64u ? count - offset : 64u;
     const unsigned cell = blockIdx.x * (kThreads / kGroup) + threadIdx.x / kGroup;
     const unsigned token = cell / 64u, source = cell % 64u, head = blockIdx.y, lane = threadIdx.x % kGroup;
     if (token >= 64u) return;
@@ -70,6 +79,11 @@ __global__ void score_kernel(const uint16_t* q, const uint16_t* k, const float* 
 __global__ void output_kernel(const uint16_t* q, const uint16_t* v, const uint16_t* h,
                               const float* g, const uint16_t* scores, float* output,
                               unsigned count, const unsigned char* table) {
+    const unsigned offset = blockIdx.z * 64u;
+    q += size_t(offset) * 2048u; v += size_t(offset) * 4096u;
+    h += size_t(blockIdx.z) * 524288u; g += size_t(offset) * 32u;
+    scores += size_t(offset) * 2048u; output += size_t(offset) * 4096u;
+    count = count - offset < 64u ? count - offset : 64u;
     const unsigned cell = blockIdx.x * (kThreads / kGroup) + threadIdx.x / kGroup;
     const unsigned token = cell / 128u, column = cell % 128u, head = blockIdx.y, lane = threadIdx.x % kGroup;
     if (token >= count) return;
@@ -116,6 +130,35 @@ hipError_t output_values(const uint16_t* q, const uint16_t* v, const uint16_t* h
     const void* inputs[] = {q, v, h, g, scores};
     for (const void* input : inputs) if (static_cast<void*>(output) == input) return hipErrorInvalidValue;
     hipLaunchKernelGGL(output_kernel, dim3(512u, 32u), dim3(256u), 0, stream, q, v, h, g, scores, output, count, table);
+    return hipGetLastError();
+}
+hipError_t recompute_wu_segment(const uint16_t* k, const uint16_t* v,
+                                const uint16_t* beta, const uint16_t* inverse,
+                                const float* g, uint16_t* w, uint16_t* u,
+                                unsigned count, hipStream_t stream) {
+    const auto* table = qrt_fla_blackwell_state::exp2_table_device();
+    if (!table || !valid_wu(k, v, beta, inverse, g, w, u, count, 1024u)) return hipErrorInvalidValue;
+    hipLaunchKernelGGL(wu_kernel, dim3(16u, 32u, (count + 63u) / 64u), dim3(256u),
+                       0, stream, k, v, beta, inverse, g, w, u, count, table);
+    return hipGetLastError();
+}
+hipError_t output_segment(const uint16_t* q, const uint16_t* k, const uint16_t* v,
+                           const uint16_t* h, const float* g, uint16_t* scores,
+                           float* output, unsigned count, hipStream_t stream) {
+    const auto* table = qrt_fla_blackwell_state::exp2_table_device();
+    if (!table || !q || !k || !v || !h || !g || !scores || !output || !count || count > 1024u)
+        return hipErrorInvalidValue;
+    const void* inputs[] = {q, k, v, h, g};
+    for (const void* input : inputs) if (static_cast<void*>(scores) == input || static_cast<void*>(output) == input)
+        return hipErrorInvalidValue;
+    if (static_cast<void*>(scores) == output) return hipErrorInvalidValue;
+    const unsigned chunks = (count + 63u) / 64u;
+    hipLaunchKernelGGL(score_kernel, dim3(256u, 32u, chunks), dim3(256u),
+                       0, stream, q, k, g, scores, count, table);
+    const hipError_t status = hipGetLastError();
+    if (status != hipSuccess) return status;
+    hipLaunchKernelGGL(output_kernel, dim3(512u, 32u, chunks), dim3(256u),
+                       0, stream, q, v, h, g, scores, output, count, table);
     return hipGetLastError();
 }
 }

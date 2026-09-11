@@ -13,8 +13,9 @@ inline bool overlaps(const void* a, size_t an, const void* b, size_t bn) {
 // The W/U kernel captures each complete V column tile before writing it.
 inline bool valid_wu(const uint16_t* k, const uint16_t* v, const uint16_t* beta,
                      const uint16_t* inverse, const float* g, uint16_t* w,
-                     uint16_t* u, unsigned count) {
-    if (!k || !v || !beta || !inverse || !g || !w || !u || !count || count > 64 || w == u) return false;
+                     uint16_t* u, unsigned count, unsigned maximum_count = 64u) {
+    if (!k || !v || !beta || !inverse || !g || !w || !u || !count ||
+        count > maximum_count || maximum_count > 1024u || w == u) return false;
     const size_t output_bytes = size_t(count) * 4096u * 2u;
     if (overlaps(w, output_bytes, u, output_bytes)) return false;
     const void* inputs[] = {k, v, beta, inverse, g};
@@ -34,5 +35,12 @@ hipError_t output_scores(const uint16_t* q, const uint16_t* k, const float* g,
 hipError_t output_values(const uint16_t* q, const uint16_t* v, const uint16_t* h,
                           const float* g, const uint16_t* scores, float* output,
                           unsigned count, hipStream_t stream);
+hipError_t recompute_wu_segment(const uint16_t* k, const uint16_t* v,
+                                const uint16_t* beta, const uint16_t* inverse,
+                                const float* g, uint16_t* w, uint16_t* u,
+                                unsigned count, hipStream_t stream);
+hipError_t output_segment(const uint16_t* q, const uint16_t* k, const uint16_t* v,
+                           const uint16_t* h, const float* g, uint16_t* scores,
+                           float* output, unsigned count, hipStream_t stream);
 }
 #endif

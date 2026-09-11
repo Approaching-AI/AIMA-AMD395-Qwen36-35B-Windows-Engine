@@ -81,9 +81,19 @@ remain active. Before the embedding repair, daa054d first differed at
 q7169 output index 148 and q8192 index 255; both now pass all 512 outputs.
 
 These strict timings remain above the immutable performance limits.
-The retained fast prefill profile is being tested with the repaired decode
-against complete continuations. Its different internal state hashes alone
-cannot reject a valid product result. Other prompt lengths, longer context
+The [prefill arithmetic comparison](../benchmarks/correctness/prefill-arithmetic-comparison-20260911.json)
+rejects both attempted matrix/backend substitutions on actual token errors.
+The old fast AITER profile takes 4204.9695 ms for q8192 but differs at output
+index 1 (244 instead of 255); q7169 takes 3958.422 ms and emits first token
+220 instead of 82. Keeping original FLA/scalar endpoints while replacing
+prefill midpoint corrections with hardware matrix outputs passes q8192's
+32-token control in 46864.6811 ms. Its complete q8192 continuation first
+differs at index 115 (248046 instead of 271), and q7169 again fails its
+first token. All five requests complete with successful host and streaming
+checks. None supplies a new retained performance result. The next change
+preserves strict arithmetic while batching independent FLA chunks and
+keeping each recurrent-state tile within its owning CTA across a segment.
+Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.
 

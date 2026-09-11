@@ -321,6 +321,12 @@ int main(int argc, char **argv) {
     }
 
     ProviderApi api;
+    const char* exact_setting = std::getenv("QRT_FLA_GDN_SMOKE_REQUIRE_REFERENCE_EXACT");
+    const bool require_reference_exact = exact_setting && std::strcmp(exact_setting, "1") == 0;
+    if (require_reference_exact && argc != 5) {
+        std::cerr << "exact component comparison requires a reference provider" << std::endl;
+        return 2;
+    }
     if (!load_provider(argv[2], &api)) {
         std::cerr << "q64_fla_chunk_gdn_smoke provider_symbols=missing"
                   << std::endl;
@@ -593,6 +599,7 @@ int main(int argc, char **argv) {
     size_t state_max_error_index = 0u;
     double output_candidate_square = 0.0;
     double state_candidate_square = 0.0;
+    size_t output_reference_bit_mismatches = 0u, state_reference_bit_mismatches = 0u;
     if (ok) {
         for (float value : sync_output) {
             output_nonfinite += !std::isfinite(value) ? 1u : 0u;
@@ -603,6 +610,7 @@ int main(int argc, char **argv) {
         }
         if (compare_reference) {
             for (size_t index = 0u; index < sync_output.size(); ++index) {
+                output_reference_bit_mismatches += std::memcmp(&sync_output[index], &reference_output[index], sizeof(float)) != 0;
                 const double delta = static_cast<double>(sync_output[index]) -
                     static_cast<double>(reference_output[index]);
                 output_square_error += delta * delta;
@@ -620,6 +628,7 @@ int main(int argc, char **argv) {
                 }
             }
             for (size_t index = 0u; index < sync_state.size(); ++index) {
+                state_reference_bit_mismatches += std::memcmp(&sync_state[index], &reference_state[index], sizeof(float)) != 0;
                 const double delta = static_cast<double>(sync_state[index]) -
                     static_cast<double>(reference_state[index]);
                 state_square_error += delta * delta;
@@ -642,7 +651,9 @@ int main(int argc, char **argv) {
             state_nonfinite == 0u &&
             output_nonzero > output_elements / 2u &&
             sync_output == async_output &&
-            sync_state == async_state;
+            sync_state == async_state &&
+            (!require_reference_exact ||
+             (output_reference_bit_mismatches == 0u && state_reference_bit_mismatches == 0u));
     }
 
     const char *dump_prefix = std::getenv("QRT_FLA_GDN_SMOKE_DUMP_PREFIX");
@@ -692,6 +703,9 @@ int main(int argc, char **argv) {
               << " scratch_bytes=" << api.scratch_bytes(kTokens)
               << " fixture=" << (use_capture_fixture ? "gb10_capture" : "synthetic")
               << " reference_compared=" << (compare_reference ? 1 : 0);
+    std::cout << " reference_exact_required=" << (require_reference_exact ? 1 : 0)
+              << " output_reference_bit_mismatches=" << output_reference_bit_mismatches
+              << " state_reference_bit_mismatches=" << state_reference_bit_mismatches;
     if (compare_reference) {
         std::cout
               << " output_reference_relative_l2="

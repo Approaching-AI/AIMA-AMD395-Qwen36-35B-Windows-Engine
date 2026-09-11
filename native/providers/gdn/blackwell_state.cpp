@@ -76,6 +76,74 @@ __global__ void update_kernel(const uint16_t* k, const uint16_t* residual, const
         final[index] = fmaf(initial[index], gate_exp(g[(count - 1u) * 32u + head], table), finish(accumulator));
     }
 }
+
+// Preserve each original K128 projection, K64 update and final IEEE FMA,
+// while carrying a disjoint state tile through up to sixteen chunks. No CTA
+// reads a state cell owned by another CTA and no cross-CTA barrier is needed.
+__global__ void segment_kernel(const uint16_t* k, const uint16_t* u,
+                               const uint16_t* w, const float* g, uint16_t* h,
+                               uint16_t* v_new, float* state, unsigned count,
+                               const unsigned char* table) {
+    constexpr unsigned columns = 4u;
+    __shared__ float current_state[columns * 128u];
+    __shared__ uint16_t rounded_state[columns * 128u];
+    __shared__ uint16_t residual[64u * columns];
+    const unsigned head = blockIdx.y, column_base = blockIdx.x * columns;
+    const unsigned lane = threadIdx.x % kGroup, group = threadIdx.x / kGroup;
+    for (unsigned cell = threadIdx.x; cell < columns * 128u; cell += kThreads) {
+        const unsigned index = (head * 128u + column_base + cell / 128u) * 128u + cell % 128u;
+        current_state[cell] = state[index];
+    }
+    __syncthreads();
+    for (unsigned offset = 0u; offset < count; offset += 64u) {
+        const unsigned valid = count - offset < 64u ? count - offset : 64u;
+        const float* gate = g + size_t(offset) * 32u;
+        for (unsigned cell = threadIdx.x; cell < columns * 128u; cell += kThreads) {
+            const uint16_t rounded = to_bf16(current_state[cell]);
+            rounded_state[cell] = rounded;
+            const size_t checkpoint = size_t(offset / 64u) * 524288u +
+                (head * 128u + column_base + cell / 128u) * 128u + cell % 128u;
+            h[checkpoint] = rounded;
+        }
+        __syncthreads();
+        for (unsigned cell = group; cell < 64u * columns; cell += kThreads / kGroup) {
+            const unsigned token = cell / columns, column = cell % columns;
+            if (token >= valid) { if (lane == 0u) residual[cell] = 0u; continue; }
+            qrt_q1_moe_hawkeye::Value sum{0u, kZeroExponent, false};
+            for (unsigned base = 0u; base < 128u; base += kGroup) {
+                const unsigned key = base + lane;
+                sum = accumulate(sum, w[(size_t(offset + token) * 32u + head) * 128u + key],
+                                 rounded_state[column * 128u + key], lane);
+            }
+            if (lane == 0u) {
+                const size_t index = (size_t(offset + token) * 32u + head) * 128u + column_base + column;
+                const float value = from_bf16(u[index]) - finish(sum);
+                v_new[index] = to_bf16(value);
+                residual[cell] = to_bf16(value * gate_exp(
+                    gate[(valid - 1u) * 32u + head] - gate[token * 32u + head], table));
+            }
+        }
+        __syncthreads();
+        for (unsigned cell = group; cell < columns * 128u; cell += kThreads / kGroup) {
+            const unsigned column = cell / 128u, key = cell % 128u;
+            qrt_q1_moe_hawkeye::Value sum{0u, kZeroExponent, false};
+            for (unsigned base = 0u; base < 64u; base += kGroup) {
+                const unsigned token = base + lane;
+                const uint16_t left = token < valid
+                    ? k[(size_t(offset + token) * 16u + head / 2u) * 128u + key] : 0u;
+                const uint16_t right = token < valid ? residual[token * columns + column] : 0u;
+                sum = accumulate(sum, left, right, lane);
+            }
+            if (lane == 0u) current_state[cell] = fmaf(current_state[cell],
+                gate_exp(gate[(valid - 1u) * 32u + head], table), finish(sum));
+        }
+        __syncthreads();
+    }
+    for (unsigned cell = threadIdx.x; cell < columns * 128u; cell += kThreads) {
+        const unsigned index = (head * 128u + column_base + cell / 128u) * 128u + cell % 128u;
+        state[index] = current_state[cell];
+    }
+}
 }
 
 hipError_t prepare_exp2_table() {
@@ -126,6 +194,20 @@ hipError_t update(const uint16_t* k, const uint16_t* residual, const float* g,
     if (!valid_update(k, residual, g, initial, final, count)) return hipErrorInvalidValue;
     hipLaunchKernelGGL(update_kernel, dim3(1024u, 32u), dim3(256u), 0, stream,
                        k, residual, g, initial, final, count, exp2_table);
+    return hipGetLastError();
+}
+hipError_t segment(const uint16_t* k, const uint16_t* u, const uint16_t* w,
+                   const float* g, uint16_t* h, uint16_t* v_new, float* state,
+                   unsigned count, hipStream_t stream) {
+    if (!k || !u || !w || !g || !h || !v_new || !state ||
+        !count || count > 1024u || !exp2_table) return hipErrorInvalidValue;
+    const void* inputs[] = {k, u, w, g, state};
+    for (const void* input : inputs) if (static_cast<void*>(h) == input || static_cast<void*>(v_new) == input)
+        return hipErrorInvalidValue;
+    if (h == v_new || static_cast<void*>(state) == k || static_cast<void*>(state) == u ||
+        static_cast<void*>(state) == w || state == g) return hipErrorInvalidValue;
+    hipLaunchKernelGGL(segment_kernel, dim3(32u, 32u), dim3(256u), 0, stream,
+                       k, u, w, g, h, v_new, state, count, exp2_table);
     return hipGetLastError();
 }
 }

@@ -37,7 +37,6 @@ constexpr uint32_t kGateRows = 64u;
 constexpr uint32_t kQkvRows = 8192u;
 constexpr uint32_t kValueFeatures = kValueHeads * kValueDim;
 constexpr uint32_t kStateElements = kValueFeatures * kKeyDim;
-constexpr size_t kBlackwellStateScratchBytes = kStateElements * sizeof(float) + kChunk * kValueFeatures * sizeof(uint16_t);
 // Bound every recurrent dispatch to 16 chunks on WDDM. All segment boundaries
 // are chunk boundaries and carry the unrounded F32 state on the same stream.
 constexpr int32_t kSegmentTokens = 1024;
@@ -106,6 +105,7 @@ struct ProviderState {
     uint16_t *chunk_state = nullptr;
     float *blackwell_temporary_state = nullptr;
     uint16_t *blackwell_residual = nullptr;
+    size_t blackwell_residual_bytes = 0u;
     float *padded_postconv = nullptr;
     float *padded_gate = nullptr;
     float *padded_output = nullptr;
@@ -122,6 +122,23 @@ ProviderState g_state;
 bool blackwell_state_enabled() {
     const char* setting = std::getenv("QRT_FLA_GDN_STATE_BLACKWELL");
     return setting && std::strcmp(setting, "1") == 0;
+}
+
+bool blackwell_batched_enabled() {
+    const char* setting = std::getenv("QRT_FLA_GDN_BATCHED_EXACT");
+    return setting && std::strcmp(setting, "1") == 0;
+}
+
+size_t blackwell_residual_bytes() {
+    // The batch output owns one score tile per chunk. Legacy launches reuse
+    // one residual/score tile and retain their original allocation size.
+    return blackwell_batched_enabled()
+        ? size_t(kSegmentTokens) * kValueHeads * kChunk * sizeof(uint16_t)
+        : size_t(kChunk) * kValueFeatures * sizeof(uint16_t);
+}
+
+size_t blackwell_state_scratch_bytes() {
+    return kStateElements * sizeof(float) + blackwell_residual_bytes();
 }
 
 size_t kernel_slot(KernelIndex index) {
@@ -217,6 +234,13 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
     }
     float sequence_ms = 0.0f;
     if (!launch_blackwell_math("blackwell_kkt_chunks", stream, [&] {
+        if (blackwell_batched_enabled()) {
+            hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
+                dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup),
+                     kValueHeads, static_cast<unsigned>(tokens) / kChunk),
+                dim3(qrt_fla_blackwell::kThreads), 0, stream, k, beta, a, 0u);
+            return hipGetLastError();
+        }
         for (unsigned int chunk = 0; chunk < static_cast<unsigned int>(tokens) / kChunk; ++chunk) {
             hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
                 dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup), kValueHeads),
@@ -245,6 +269,7 @@ void release_scratch() {
     if (g_state.blackwell_residual) (void)hipFree(g_state.blackwell_residual);
     g_state.blackwell_temporary_state = nullptr;
     g_state.blackwell_residual = nullptr;
+    g_state.blackwell_residual_bytes = 0u;
     if (g_state.padded_output != nullptr) {
         (void)hipFree(g_state.padded_output);
     }
@@ -443,16 +468,30 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
         size_t available = 0, total = 0;
         hipError_t status = hipMemGetInfo(&available, &total);
         if (status != hipSuccess) { set_error("hipMemGetInfo(blackwell_state)", status); return false; }
-        if (available < kBlackwellStateScratchBytes + 512u * 1024u * 1024u) {
+        if (available < blackwell_state_scratch_bytes() + 512u * 1024u * 1024u) {
             set_error_text("Blackwell state device memory reserve failed"); return false;
         }
         if (!g_state.blackwell_temporary_state)
             status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_temporary_state), kStateElements * sizeof(float));
-        if (status == hipSuccess && !g_state.blackwell_residual)
-            status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_residual), kChunk * kValueFeatures * sizeof(uint16_t));
+        if (status == hipSuccess && !g_state.blackwell_residual) {
+            status = hipMalloc(reinterpret_cast<void**>(&g_state.blackwell_residual), blackwell_residual_bytes());
+            if (status == hipSuccess) g_state.blackwell_residual_bytes = blackwell_residual_bytes();
+        }
         if (status != hipSuccess) { set_error("hipMalloc(blackwell_state)", status); return false; }
     }
+    if (g_state.blackwell_residual_bytes < blackwell_residual_bytes()) {
+        set_error_text("Blackwell batch mode changed without releasing its scratch"); return false;
+    }
     float sequence_ms = 0.0f;
+    if (blackwell_batched_enabled()) {
+        if (!launch_blackwell_math("blackwell_state_segment", stream, [&] {
+            return qrt_fla_blackwell_state::segment(k, u, w, g, h, v_new, state,
+                static_cast<unsigned>(valid_tokens), stream);
+        }, &sequence_ms)) return false;
+        std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100\n",
+            tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(sequence_ms));
+        return true;
+    }
     float* initial = state; float* final = g_state.blackwell_temporary_state;
     if (!launch_blackwell_math("blackwell_state_chunks", stream, [&] {
         for (int32_t offset = 0; offset < tokens; offset += kChunk) {
@@ -846,7 +885,16 @@ int launch_segment_async(
         &inverse_pointer, &g_pointer, &launch_tokens,
         &global_scratch, &profile_scratch,
     };
-    if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
+    if (blackwell_batched_enabled()) {
+        float sequence_ms = 0.0f;
+        if (!launch_blackwell_math("blackwell_wu_segment", stream, [&] {
+            return qrt_fla_blackwell_aux::recompute_wu_segment(k_pointer, v_pointer,
+                beta_pointer, inverse_pointer, g_pointer, w_pointer, u_pointer,
+                static_cast<unsigned>(valid_tokens), stream);
+        }, &sequence_ms)) return 0;
+        std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100\n",
+            tokens, chunks, static_cast<double>(sequence_ms));
+    } else if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
         if (!launch_blackwell_aux("wu", tokens, 1u, stream, [&](unsigned offset, unsigned) {
                 const unsigned count = (std::min)(kChunk, static_cast<unsigned>(valid_tokens) - offset);
                 return qrt_fla_blackwell_aux::recompute_wu(k_pointer + size_t(offset) * 2048u,
@@ -890,7 +938,20 @@ int launch_segment_async(
         &g_pointer, &output_pointer, &launch_tokens,
         &global_scratch, &profile_scratch,
     };
-    if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
+    if (blackwell_batched_enabled()) {
+        if (!g_state.blackwell_residual ||
+            g_state.blackwell_residual_bytes < size_t(tokens) * kValueHeads * kChunk * sizeof(uint16_t)) {
+            set_error_text("Blackwell batch score scratch is unavailable"); return 0;
+        }
+        float sequence_ms = 0.0f;
+        if (!launch_blackwell_math("blackwell_output_segment", stream, [&] {
+            return qrt_fla_blackwell_aux::output_segment(q_pointer, k_pointer, v_new_pointer,
+                chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_pointer,
+                static_cast<unsigned>(valid_tokens), stream);
+        }, &sequence_ms)) return 0;
+        std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100\n",
+            tokens, chunks, static_cast<double>(sequence_ms));
+    } else if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
         // The recurrence completed on this stream. Its private residual
         // buffer is dead and is large enough for one BF16 QK score chunk.
         if (!g_state.blackwell_residual) { set_error_text("Blackwell output score scratch is unavailable"); return 0; }
@@ -1151,6 +1212,15 @@ int launch_pipeline_synchronous(
 QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_prepare(
     const char *kernel_dir
 ) {
+    if (blackwell_batched_enabled()) {
+        for (const char* setting : {"QRT_FLA_GDN_STATE_BLACKWELL", "QRT_FLA_GDN_KKT_BLACKWELL",
+                                   "QRT_FLA_GDN_WU_BLACKWELL", "QRT_FLA_GDN_OUTPUT_BLACKWELL"}) {
+            if (!blackwell_aux_enabled(setting)) {
+                set_error_text("Batched exact GDN requires Blackwell KKT, W/U, state and output arithmetic");
+                return 0;
+            }
+        }
+    }
     if (kernel_dir == nullptr || kernel_dir[0] == '\0') {
         set_error_text("FLA chunk-GDN kernel directory is empty");
         return 0;
@@ -1277,7 +1347,7 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
               kMainScratchBytesPerToken +
               kTailPaddingBytes +
               ((blackwell_state_enabled() || g_state.blackwell_temporary_state || g_state.blackwell_residual)
-                  ? kBlackwellStateScratchBytes : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
+                  ? blackwell_state_scratch_bytes() : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
                   + qrt_fla_blackwell_norm::table_storage_bytes()
         : 0u;
 }

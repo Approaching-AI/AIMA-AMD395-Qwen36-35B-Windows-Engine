@@ -6,6 +6,7 @@ namespace qrt_fla_blackwell {
 
 __global__ void dot_kernel(const uint16_t* k, const uint16_t* beta, float* a,
                            unsigned int chunk_index) {
+    chunk_index += blockIdx.z;
     const unsigned int cell = blockIdx.x * (kThreads / kGroup) + threadIdx.x / kGroup;
     const unsigned int row = cell / kChunk, column = cell % kChunk;
     const unsigned int head = blockIdx.y, lane = threadIdx.x % kGroup;

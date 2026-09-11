@@ -30,5 +30,11 @@ hipError_t project(const uint16_t* w, const uint16_t* u, const float* g,
                    uint16_t* residual, unsigned count, hipStream_t stream);
 hipError_t update(const uint16_t* k, const uint16_t* residual, const float* g,
                   const float* initial, float* final, unsigned count, hipStream_t stream);
+// One CTA owns four complete value rows for all chunks in a bounded segment.
+// The in-place FP32 state is private to that CTA; checkpoints retain the same
+// BF16 layout consumed by the separate output operation.
+hipError_t segment(const uint16_t* k, const uint16_t* u, const uint16_t* w,
+                   const float* g, uint16_t* h, uint16_t* v_new, float* state,
+                   unsigned count, hipStream_t stream);
 }
 #endif
