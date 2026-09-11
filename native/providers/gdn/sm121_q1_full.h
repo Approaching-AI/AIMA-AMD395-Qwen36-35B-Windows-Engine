@@ -4,8 +4,8 @@
 #include "sm121_q1_math.h"
 
 namespace qrt_sm121_q1_full {
-// One CTA owns a Q or K head. The original compiled head-256 norm uses
-// two stride-64 warps, followed by the original BF16 MRoPE instructions.
+// One CTA owns a Q or K head. Preserve each original compiled head-256
+// reduction layout, followed by the original BF16 MRoPE instructions.
 // Cache coefficients cover all positions and are independent of prompt IDs.
 __global__ void prepare_qkv(
     const uint16_t *qkv, const uint16_t *q_weight, const uint16_t *k_weight,
@@ -13,7 +13,7 @@ __global__ void prepare_qkv(
     unsigned int position, float *rope, float *norm_observation) {
     using namespace qrt_sm121_q1;
     __shared__ float normalized[256];
-    __shared__ float warp_sum[2];
+    __shared__ float warp_sum[4];
     __shared__ float inverse;
     const unsigned int head = blockIdx.x, dim = threadIdx.x;
     const bool is_key = head >= 16u;
@@ -22,12 +22,8 @@ __global__ void prepare_qkv(
     const uint16_t *weight = is_key ? k_weight : q_weight;
     normalized[dim] = widen(qkv[source + dim]);
     __syncthreads();
-    if (dim < 64u) {
-        float sum = 0.0f;
-        for (unsigned int item = 0u; item < 4u; ++item) {
-            const float x = normalized[dim + item * 64u];
-            sum = add(sum, multiply(x, x));
-        }
+    if (dim < head_norm_warps(is_key) * 32u) {
+        float sum = head_norm_lane_sumsq(normalized, dim, is_key);
         for (unsigned int offset = 16u; offset; offset >>= 1u)
             sum = add(sum, __shfl_xor(sum, offset, 32));
         if ((dim & 31u) == 0u) warp_sum[dim / 32u] = sum;
@@ -35,7 +31,8 @@ __global__ void prepare_qkv(
     __syncthreads();
     if (dim == 0u) {
         inverse = qrt_sm121_rsqrt::evaluate(rsqrt_table,
-            add(multiply(add(warp_sum[0], warp_sum[1]), 1.0f / 256.0f), 1.0e-6f));
+            add(multiply(head_norm_warp_sum(warp_sum, is_key), 1.0f / 256.0f),
+                1.0e-6f));
     }
     __syncthreads();
     normalized[dim] = widen(bf16(multiply(multiply(normalized[dim], inverse),

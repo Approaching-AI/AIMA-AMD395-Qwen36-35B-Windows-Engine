@@ -38,6 +38,26 @@ QRT_Q1_INLINE float widen(uint16_t value) {
     return qrt_sm121_exp2::value(static_cast<uint32_t>(value) << 16u);
 }
 
+// The original Gemma head-256 kernels have different layouts: contiguous Q
+// uses two stride-64 warps; the strided K view uses four stride-128 warps.
+QRT_Q1_INLINE unsigned int head_norm_warps(bool is_key) {
+    return is_key ? 4u : 2u;
+}
+QRT_Q1_INLINE float head_norm_lane_sumsq(const float *values,
+                                        unsigned int lane, bool is_key) {
+    const unsigned int stride = head_norm_warps(is_key) * 32u;
+    float sum = multiply(values[lane], values[lane]);
+    for (unsigned int item = stride; item < 256u; item += stride) {
+        const float x = values[lane + item];
+        sum = add(sum, multiply(x, x));
+    }
+    return sum;
+}
+QRT_Q1_INLINE float head_norm_warp_sum(const float *warp, bool is_key) {
+    return is_key ? add(add(warp[0], warp[2]), add(warp[1], warp[3]))
+                  : add(warp[0], warp[1]);
+}
+
 // Original SM121 PTX 24dc1d6e... uses one K element per lane for
 // normalization, XOR 16/8/4/2/1 inside each warp, then XOR 2/1 across warps.
 QRT_Q1_INLINE float inverse_norm(const float *values, const unsigned char *rsqrt) {

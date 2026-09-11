@@ -46,9 +46,17 @@ of 328), with 354 mismatches; its first 95 tokens and first logit 9.25 match.
 The [continuation-window evidence](../benchmarks/correctness/q1-continuation-window-20260911.json)
 shows all 40 carriers and every captured operator exact at position 7173,
 the first accepted second MTP row. By position 7200, layers 0–18 are exact
-but layer 19 first differs in 1228 carrier cells. Its full attention, KV
-history and MoE are the next boundaries; the observer now supports any
-single valid full-attention owner. The earlier
+but layer 19 first differs in 1228 carrier cells. The subsequent
+[K-normalization isolation](../benchmarks/correctness/q1-key-normalization-20260911.json)
+finds exact layers 0–2 and QKV at position 7221, followed by one wrong K
+normalization value at head 1, feature 226. The original compiled strided K
+kernel uses four stride-128 warps; the native implementation reused Q's two
+stride-64 warps. That single value is the only K difference in the entire
+7264-row layer-3 history, and all V values match. Native-input attention
+replay reproduces the engine's 25 context differences at position 7263;
+original-input replay has zero. The general K reduction repair has a real
+tensor regression fixture; its Windows build and complete requests are pending.
+The observer now supports any single valid full-attention owner. The earlier
 [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
 and its complete first-decode carrier comparisons remain verified.
 Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile
