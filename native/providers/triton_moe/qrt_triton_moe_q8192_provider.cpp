@@ -19,6 +19,7 @@
 
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/sm121_wave16.h"
+#include "../moe_accumulator/sm121_subgroup.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
 
@@ -67,6 +68,10 @@
 #ifndef QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
 #define QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG 0
 #endif
+#ifndef QRT_MOE_ROUTED_REPLAY_LANES
+#define QRT_MOE_ROUTED_REPLAY_LANES 16
+#endif
+static_assert(QRT_MOE_ROUTED_REPLAY_LANES == 4 || QRT_MOE_ROUTED_REPLAY_LANES == 8 || QRT_MOE_ROUTED_REPLAY_LANES == 16);
 #ifndef QRT_TRITON_MOE_BATCHED_HAWKEYE
 #define QRT_TRITON_MOE_BATCHED_HAWKEYE 0
 #endif
@@ -5661,8 +5666,8 @@ void routed_gate_batched_hawkeye_correction_kernel(
 #endif
     , MoeCorrectionBounds bounds
 ) {
-    constexpr uint32_t kWave16 = 16u;
-    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    constexpr uint32_t kReplayLanes = Phase == MoeCorrectionPhase::Replay ? QRT_MOE_ROUTED_REPLAY_LANES : 16u;
+    constexpr uint32_t kReplaySubgroups = kNativeThreads / kReplayLanes;
     const size_t projection_elements =
         static_cast<size_t>(route_count) * kIntermediate;
     const size_t index =
@@ -5755,14 +5760,14 @@ void routed_gate_batched_hawkeye_correction_kernel(
 
     if constexpr (Phase == MoeCorrectionPhase::Local ||
                   Phase == MoeCorrectionPhase::Replay) {
-        const uint32_t subgroup = threadIdx.x / kWave16;
-        const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+        const uint32_t subgroup = threadIdx.x / kReplayLanes;
+        const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
             ? *bounds.compacted_count : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
-            ? blockIdx.x * kWave16Subgroups + subgroup : subgroup;
+            ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
-            ? gridDim.x * kWave16Subgroups : kWave16Subgroups;
+            ? gridDim.x * kReplaySubgroups : kReplaySubgroups;
         for (uint32_t slot = first_slot;
              slot < replay_count;
              slot += slot_stride) {
@@ -5774,7 +5779,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
             const int32_t expert = topk_ids[route];
             const size_t weight_row =
                 static_cast<size_t>(expert) * (2u * kIntermediate) + row;
-            const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
                 input_bf16 + static_cast<size_t>(token) * kHidden,
                 gate_up_bf16 + weight_row * kHidden,
                 kHidden
@@ -5834,8 +5839,8 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
 #endif
     , MoeCorrectionBounds bounds
 ) {
-    constexpr uint32_t kWave16 = 16u;
-    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    constexpr uint32_t kReplayLanes = Phase == MoeCorrectionPhase::Replay ? QRT_MOE_ROUTED_REPLAY_LANES : 16u;
+    constexpr uint32_t kReplaySubgroups = kNativeThreads / kReplayLanes;
     const size_t projection_elements =
         static_cast<size_t>(route_count) * kIntermediate;
     const size_t index =
@@ -5914,14 +5919,14 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
 
     if constexpr (Phase == MoeCorrectionPhase::Local ||
                   Phase == MoeCorrectionPhase::Replay) {
-        const uint32_t subgroup = threadIdx.x / kWave16;
-        const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+        const uint32_t subgroup = threadIdx.x / kReplayLanes;
+        const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
             ? *bounds.compacted_count : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
-            ? blockIdx.x * kWave16Subgroups + subgroup : subgroup;
+            ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
-            ? gridDim.x * kWave16Subgroups : kWave16Subgroups;
+            ? gridDim.x * kReplaySubgroups : kReplaySubgroups;
         for (uint32_t slot = first_slot;
              slot < replay_count;
              slot += slot_stride) {
@@ -5934,7 +5939,7 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
             const size_t weight_row =
                 static_cast<size_t>(expert) * (2u * kIntermediate) +
                 kIntermediate + row;
-            const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
                 input_bf16 + static_cast<size_t>(token) * kHidden,
                 gate_up_bf16 + weight_row * kHidden,
                 kHidden
@@ -11082,8 +11087,8 @@ void routed_down_batched_hawkeye_correction_kernel(
     uint32_t low_exponent_threshold,
     MoeCorrectionBounds bounds
 ) {
-    constexpr uint32_t kWave16 = 16u;
-    constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
+    constexpr uint32_t kReplayLanes = Phase == MoeCorrectionPhase::Replay ? QRT_MOE_ROUTED_REPLAY_LANES : 16u;
+    constexpr uint32_t kReplaySubgroups = kNativeThreads / kReplayLanes;
     const size_t output_elements =
         static_cast<size_t>(route_count) * kHidden;
     const size_t index =
@@ -11140,14 +11145,14 @@ void routed_down_batched_hawkeye_correction_kernel(
 
     if constexpr (Phase == MoeCorrectionPhase::Local ||
                   Phase == MoeCorrectionPhase::Replay) {
-        const uint32_t subgroup = threadIdx.x / kWave16;
-        const uint32_t lane = threadIdx.x & (kWave16 - 1u);
+        const uint32_t subgroup = threadIdx.x / kReplayLanes;
+        const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
             ? *bounds.compacted_count : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
-            ? blockIdx.x * kWave16Subgroups + subgroup : subgroup;
+            ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
-            ? gridDim.x * kWave16Subgroups : kWave16Subgroups;
+            ? gridDim.x * kReplaySubgroups : kReplaySubgroups;
         for (uint32_t slot = first_slot;
              slot < replay_count;
              slot += slot_stride) {
@@ -11156,7 +11161,7 @@ void routed_down_batched_hawkeye_correction_kernel(
             const uint32_t route = candidate / kHidden;
             const uint32_t column = candidate - route * kHidden;
             const int32_t expert = topk_ids[route];
-            const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
+            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
                 routed_activated + static_cast<size_t>(route) * kIntermediate,
                 routed_down_weights +
                     (static_cast<size_t>(expert) * kHidden + column) *
@@ -16551,9 +16556,10 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         std::fprintf(stderr,
             "BATCH_MARK q8192_triton_selected_moe_routed_compaction "
             "enabled=1 window_candidates=%u scratch_bytes=%zu "
-            "host_count_reads=0 exact_dot_order_unchanged=1\n",
+            "host_count_reads=0 exact_dot_order_unchanged=1 replay_lanes=%u\n",
             kMoeCompactionCapacity,
-            (static_cast<size_t>(kMoeCompactionCapacity) + 1u) * sizeof(uint32_t));
+            (static_cast<size_t>(kMoeCompactionCapacity) + 1u) * sizeof(uint32_t),
+            unsigned(QRT_MOE_ROUTED_REPLAY_LANES));
     }
     g_state.error[0] = '\0';
     return 1;

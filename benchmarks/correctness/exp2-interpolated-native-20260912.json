@@ -1,0 +1,1331 @@
+{
+  "schema_version": 1,
+  "kind": "lossless_exp2_native_captured_q7169_attention",
+  "source": {
+    "sha": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+    "bundle": "attention-exp2-interpolated-2b4e00f.bundle",
+    "bundle_sha256": "5ba8921187cfff8ddb7ce0d67cee088674b8d8bfe4fbbd08be3dafcb8c49a1d9",
+    "repo": "D:/projects/AIMA-public-exp2-interpolated-20260912"
+  },
+  "host": "baiying",
+  "model_reference": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "decision": "retain optional lossless format and packaging evidence; 24-43 ms attention component improvement alone does not address the 77-second q8192 wall; selected product components remain unchanged",
+  "runs": [
+    {
+      "name": "build-original-r1",
+      "record_sha256": "73493d065f65d680749128af00c84cc2b7255029468485c9ec2d3047cb2454af",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+          "-lbcrypt",
+          "-o",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-original\\full-attention-capture-replay.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "none; native attention replay build",
+        "purpose": "build",
+        "memory_layout": 0,
+        "exp2_backend": "original",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "file": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "bytes": 183174448
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78"
+      },
+      "wall_ms": 5644.503,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5add6706a83cd183fc807b8c104a61a3f8313faf5da7da406e5f38433a0416b2",
+      "build-provenance.json": {
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "host": "BAIYING",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+          "-lbcrypt",
+          "-o",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-original\\full-attention-capture-replay.exe"
+        ],
+        "run_record_sha256": "73493d065f65d680749128af00c84cc2b7255029468485c9ec2d3047cb2454af",
+        "executable": {
+          "sha256": "86a0925e6ff580ba1de9a5440fd9abbd49f15f8d218aad1ac9310238fdaa2fc7",
+          "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-original\\full-attention-capture-replay.exe",
+          "bytes": 671232
+        }
+      }
+    },
+    {
+      "name": "build-compact-r1",
+      "record_sha256": "cc230dba1f0da15d834d543d18fdd6de76d9247c2dba73d3f29458866677ab54",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+          "-lbcrypt",
+          "-o",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "none; native attention replay build",
+        "purpose": "build",
+        "memory_layout": 0,
+        "exp2_backend": "compact",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+          "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "bytes": 38909480
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78"
+      },
+      "wall_ms": 5610.256,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [],
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "5add6706a83cd183fc807b8c104a61a3f8313faf5da7da406e5f38433a0416b2",
+      "build-provenance.json": {
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "host": "BAIYING",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp",
+          "-lbcrypt",
+          "-o",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1"
+        ],
+        "run_record_sha256": "cc230dba1f0da15d834d543d18fdd6de76d9247c2dba73d3f29458866677ab54",
+        "executable": {
+          "sha256": "e6ab2bd67c9ff12f7741d6f0fc1670b6480dc0ba3b2ea75cac8599f14963fc43",
+          "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+          "bytes": 676864
+        }
+      }
+    },
+    {
+      "name": "tail-compact-r1",
+      "record_sha256": "045ee8edce86b75c39269098221a78c9ca52250d53b2f196ab728a322734b102",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+          "D:\\projects\\full-attention-context-gb10-08734309.bin",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-tail-compact-r1\\attention",
+          "7169",
+          "1",
+          "65",
+          "32",
+          "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "0",
+          "4"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+        "purpose": "replay",
+        "memory_layout": 4,
+        "exp2_backend": "compact",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+          "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "bytes": 38909480
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+        "reciprocal_table": {
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+          "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+          },
+          {
+            "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+            "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+          },
+          {
+            "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+            "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+          }
+        ],
+        "reference_host": "aitopatom-66c4",
+        "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "reference_is_compute_input": false
+      },
+      "wall_ms": 535.807,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 1,
+          "elements": 266240,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "key_transpose_and_qk_pv_pairs",
+          "interval_total_ms": 0.33264,
+          "maximum_interval_ms": 0.14144,
+          "memory_layout": 4,
+          "native_products": false,
+          "mantissa_wmma": false,
+          "integer_wmma": false,
+          "native_mma_pv": false,
+          "native_mma_qk": false,
+          "score_probability_redzones_checked": true,
+          "stage_timing_enabled": true,
+          "scores_ms": 0.09664,
+          "probabilities_ms": 0,
+          "value_ms": 0.1471,
+          "preparation_ms": 0.0889,
+          "key_transpose_and_redzones_checked": true,
+          "affected_query_heads": 0,
+          "candidate_bounds_are_diagnostics": true,
+          "head_peak_margin_sweep": [],
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "stdout_sha256": "188ff483eb81178218503ee0e34cc9bed45c31663f564d741d49a787d25d549b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file-manifest.json": [
+        {
+          "sha256": "46af1b573bee92eac1ae6eb41ec96c32db7552d806f4295664207dd3c7f3831d",
+          "file": "attention-accumulator-f32.bin",
+          "bytes": 1064960
+        },
+        {
+          "sha256": "316cc3442af87309634bc3491af4f5d856619899edb3e38d6ae79456c0927817",
+          "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+          "bytes": 532480
+        },
+        {
+          "sha256": "c5cf9026dd132f8da30b37347d9858b3afe104b6127738c19e3f109a07ac5870",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 1064960
+        },
+        {
+          "sha256": "bb088b79d001731acb65491b6a41e7960417e5389522ee2996ab5450962f43d3",
+          "file": "attention-denominator-f32.bin",
+          "bytes": 4160
+        }
+      ]
+    },
+    {
+      "name": "full-original8-r1",
+      "record_sha256": "a3c559e8fe292624619eb66982e90cb5cb4d3798ba0b3716865f75eb9e7f7ee9",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-original\\full-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+          "D:\\projects\\full-attention-context-gb10-08734309.bin",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-full-original8-r1\\attention",
+          "7169",
+          "0",
+          "7169",
+          "8",
+          "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "0",
+          "4"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+        "purpose": "replay",
+        "memory_layout": 4,
+        "exp2_backend": "original",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "file": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "bytes": 183174448
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+        "reciprocal_table": {
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+          "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+          },
+          {
+            "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+            "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+          },
+          {
+            "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+            "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+          }
+        ],
+        "reference_host": "aitopatom-66c4",
+        "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "reference_is_compute_input": false
+      },
+      "wall_ms": 2189.088,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "key_transpose_and_qk_pv_pairs",
+          "interval_total_ms": 1368.57,
+          "maximum_interval_ms": 3.17554,
+          "memory_layout": 4,
+          "native_products": false,
+          "mantissa_wmma": false,
+          "integer_wmma": false,
+          "native_mma_pv": false,
+          "native_mma_qk": false,
+          "score_probability_redzones_checked": true,
+          "stage_timing_enabled": true,
+          "scores_ms": 574.036,
+          "probabilities_ms": 0,
+          "value_ms": 794.444,
+          "preparation_ms": 0.0875,
+          "key_transpose_and_redzones_checked": true,
+          "affected_query_heads": 0,
+          "candidate_bounds_are_diagnostics": true,
+          "head_peak_margin_sweep": [],
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "stdout_sha256": "133b6096ddda74bc77f1bde1bbf2c87aaab93ed78835350a9c4e176d1171a012",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file-manifest.json": [
+        {
+          "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+          "file": "attention-accumulator-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+          "bytes": 58728448
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+          "file": "attention-denominator-f32.bin",
+          "bytes": 458816
+        }
+      ]
+    },
+    {
+      "name": "full-compact8-r1",
+      "record_sha256": "2793dc0b93655b2b2a5cce3540bd8a3b76b379533984bb633ec0033cc27aeac8",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+          "D:\\projects\\full-attention-context-gb10-08734309.bin",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-full-compact8-r1\\attention",
+          "7169",
+          "0",
+          "7169",
+          "8",
+          "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "0",
+          "4"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+        "purpose": "replay",
+        "memory_layout": 4,
+        "exp2_backend": "compact",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+          "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "bytes": 38909480
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+        "reciprocal_table": {
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+          "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+          },
+          {
+            "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+            "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+          },
+          {
+            "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+            "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+          }
+        ],
+        "reference_host": "aitopatom-66c4",
+        "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "reference_is_compute_input": false
+      },
+      "wall_ms": 1952.916,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "key_transpose_and_qk_pv_pairs",
+          "interval_total_ms": 1344.57,
+          "maximum_interval_ms": 3.0766,
+          "memory_layout": 4,
+          "native_products": false,
+          "mantissa_wmma": false,
+          "integer_wmma": false,
+          "native_mma_pv": false,
+          "native_mma_qk": false,
+          "score_probability_redzones_checked": true,
+          "stage_timing_enabled": true,
+          "scores_ms": 573.251,
+          "probabilities_ms": 0,
+          "value_ms": 771.228,
+          "preparation_ms": 0.0958,
+          "key_transpose_and_redzones_checked": true,
+          "affected_query_heads": 0,
+          "candidate_bounds_are_diagnostics": true,
+          "head_peak_margin_sweep": [],
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "stdout_sha256": "fd04d54f0220d7f57a9b3c54ac63d01b88d51e40d8eb77c7aef6470ef04d24ec",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file-manifest.json": [
+        {
+          "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+          "file": "attention-accumulator-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+          "bytes": 58728448
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+          "file": "attention-denominator-f32.bin",
+          "bytes": 458816
+        }
+      ]
+    },
+    {
+      "name": "full-original32-r1",
+      "record_sha256": "ee15a8b345e47d86c0c6fe9f40d789f1cc0512505df08d03da9cbc4e4b16d8f3",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-original\\full-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+          "D:\\projects\\full-attention-context-gb10-08734309.bin",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-full-original32-r1\\attention",
+          "7169",
+          "0",
+          "7169",
+          "32",
+          "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "0",
+          "4"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+        "purpose": "replay",
+        "memory_layout": 4,
+        "exp2_backend": "original",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "file": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "bytes": 183174448
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+        "reciprocal_table": {
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+          "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+          },
+          {
+            "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+            "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+          },
+          {
+            "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+            "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+          }
+        ],
+        "reference_host": "aitopatom-66c4",
+        "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "reference_is_compute_input": false
+      },
+      "wall_ms": 2039.223,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "key_transpose_and_qk_pv_pairs",
+          "interval_total_ms": 1283.23,
+          "maximum_interval_ms": 11.5301,
+          "memory_layout": 4,
+          "native_products": false,
+          "mantissa_wmma": false,
+          "integer_wmma": false,
+          "native_mma_pv": false,
+          "native_mma_qk": false,
+          "score_probability_redzones_checked": true,
+          "stage_timing_enabled": true,
+          "scores_ms": 578.343,
+          "probabilities_ms": 0,
+          "value_ms": 704.804,
+          "preparation_ms": 0.0856,
+          "key_transpose_and_redzones_checked": true,
+          "affected_query_heads": 0,
+          "candidate_bounds_are_diagnostics": true,
+          "head_peak_margin_sweep": [],
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "stdout_sha256": "1431187dc7624d9e44d99023e641f481ff2df94b4bae775cb442cef39f14637a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file-manifest.json": [
+        {
+          "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+          "file": "attention-accumulator-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+          "bytes": 58728448
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+          "file": "attention-denominator-f32.bin",
+          "bytes": 458816
+        }
+      ]
+    },
+    {
+      "name": "full-compact32-r1",
+      "record_sha256": "1d1e1a666212b9e34dda7f04372bba151eafe475cd04f393578fc3879575cb39",
+      "host": "BAIYING",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-replay-compact\\full-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin",
+          "D:\\projects\\full-attention-context-gb10-08734309.bin",
+          "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\build\\attention-full-compact32-r1\\attention",
+          "7169",
+          "0",
+          "7169",
+          "32",
+          "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "0",
+          "4"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-exp2-interpolated-20260912",
+        "repo_commit": "2b4e00fa51d2c3cb091b35e5fa7d1ebdc4f505aa",
+        "source_inputs": [
+          {
+            "sha256": "943e41554df03ab8caee30f6ab416f47b4b275aeb874db501911819c84da0325",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "9b34b643af9256184892b8ca27a0a5eb10c6c71699b1497f4c71263ddabd2868",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "5248d3049b850410755d7721639b8358a0c0bb2e51993bb0ffe677911e4d38b3",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-exp2-interpolated-20260912\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-attention-exp2-interpolated-r1.ps1",
+        "command_file_sha256": "701bd4cbc50ce8c4a2c715817d8f1001ec6f6d7bd9bd123c855b5ff24feabff2",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer-3 Q/K/V",
+        "purpose": "replay",
+        "memory_layout": 4,
+        "exp2_backend": "compact",
+        "exp2_table": {
+          "original_sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+          "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+          "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin",
+          "bytes": 38909480
+        },
+        "native_products": false,
+        "mantissa_wmma": false,
+        "integer_wmma": false,
+        "native_mma_pv": false,
+        "native_mma_qk": false,
+        "environment_overrides": {
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0"
+        },
+        "ck_provider_commit": "cf5da6481b13278212d102b2050bd54180b773dc",
+        "ck_provider_sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+        "reciprocal_table": {
+          "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+          "capture_sha256": "0d5c590a4078c9fe6f6c90186d7cfb4c815b8a38225903e914cb868f9a3a1fe0",
+          "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+        },
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "bd95f94c94ea0606c94b6d98548a672e78479bf6df2d7ace08f3797a85907e80",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_v_projection-bf16.bin"
+          },
+          {
+            "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+            "file": "D:\\projects\\full-attention-context-gb10-08734309.bin"
+          },
+          {
+            "sha256": "b6619750cb9bd397c0f8c3f79cdf0ab96d7f929374e16fa4ad8d0b543b39af78",
+            "file": "D:\\projects\\AIMA-public-replicated-carry-20260911\\build\\ck\\qrt_ck_fmha_sm121.dll"
+          }
+        ],
+        "reference_host": "aitopatom-66c4",
+        "reference_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "reference_is_compute_input": false
+      },
+      "wall_ms": 1796.432,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "reports": [
+        {
+          "kind": "full_attention_capture_replay",
+          "route": "blackwell-sm121-exp-rcp",
+          "query_start": 0,
+          "elements": 29364224,
+          "bf16_mismatches": 0,
+          "affected_tokens": 0,
+          "nonfinite": 0,
+          "first_mismatch": -1,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0,
+          "interval_kind": "key_transpose_and_qk_pv_pairs",
+          "interval_total_ms": 1240.41,
+          "maximum_interval_ms": 11.3489,
+          "memory_layout": 4,
+          "native_products": false,
+          "mantissa_wmma": false,
+          "integer_wmma": false,
+          "native_mma_pv": false,
+          "native_mma_qk": false,
+          "score_probability_redzones_checked": true,
+          "stage_timing_enabled": true,
+          "scores_ms": 581.388,
+          "probabilities_ms": 0,
+          "value_ms": 658.938,
+          "preparation_ms": 0.0877,
+          "key_transpose_and_redzones_checked": true,
+          "affected_query_heads": 0,
+          "candidate_bounds_are_diagnostics": true,
+          "head_peak_margin_sweep": [],
+          "reference_is_compute_input": false,
+          "inference_acceptance": false
+        }
+      ],
+      "stdout_sha256": "67154bc9c6efb2d6e814e915b4fa755c3c7050284270667e2d3fb5614a3d4dee",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "file-manifest.json": [
+        {
+          "sha256": "f698b712253349f694ca515775dd3bce9780df0f6308df8d64e51596de3ffdd0",
+          "file": "attention-accumulator-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "f3d9b30a1e70f97a5510a0242006e91e0754207bb8e437cdf46d777bfb6fed33",
+          "file": "attention-blackwell-sm121-exp-rcp-bf16.bin",
+          "bytes": 58728448
+        },
+        {
+          "sha256": "71b486111bd9d21a3f3b09e9aa8966321aaa73df9873395bdb6ebf220ee141f4",
+          "file": "attention-blackwell-sm121-exp-rcp-f32.bin",
+          "bytes": 117456896
+        },
+        {
+          "sha256": "b7201ab1ea7cedb5a45c695183a30b6b60f3238d3e9e413680f5b785208a77c2",
+          "file": "attention-denominator-f32.bin",
+          "bytes": 458816
+        }
+      ]
+    }
+  ]
+}

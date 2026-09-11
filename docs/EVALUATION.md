@@ -248,8 +248,20 @@ An integer chord plus packed residual reconstructs every original FP32 bit.
 The [exhaustive repack record](../benchmarks/correctness/exp2-interpolated-20260912.json)
 checks all 328,728,576 table cells and 100,000 random argument bit patterns,
 with zero differences. Each backend validates its own layout and SHA before
-upload, and the default CK build keeps the original format. Native replay
-and product timing of the compact format remain open.
+upload, and the default CK build keeps the original format. [Native q7169
+replays](../benchmarks/correctness/exp2-interpolated-native-20260912.json)
+at `2b4e00f` match all 29,364,224 GB10 BF16 outputs and the original native
+FP32 bytes for both formats and query batches 8/32. Batch 8 changes from
+1368.57 to 1344.57 ms, batch 32 from 1283.23 to 1240.41 ms. This establishes
+exact native reconstruction and reduced table storage, but is insufficient
+to address the dominant product wall; no compact-table product is qualified.
+
+The next optional MoE build parameter `-RoutedReplayLanes 4` or `8` groups
+multiple BF16 products per lane while preserving every K16 carry and the
+original candidate selectors. It changes only compacted routed replay; the
+local control and default build retain 16 lanes. This exposes more independent
+dots per wave and reduces subgroup reductions. Native arithmetic, routed
+phase controls and complete frozen products remain required evidence.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or

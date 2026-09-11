@@ -50,6 +50,7 @@ constexpr uint32_t kRoutes=64, kActivatedElements=kRoutes*kIntermediate;
 constexpr uint32_t kMaximumMoeCorrectionBlocks=4, kMoeCompactionBlocks=4;
 constexpr uint32_t kMoeCompactionCapacity=kMoeCompactionBlocks*kNativeThreads;
 #define QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG 1
+#define QRT_MOE_ROUTED_REPLAY_LANES 4
 #define __shared__ static
 struct dim3 { unsigned x; explicit dim3(unsigned v=1):x(v){} };
 thread_local dim3 blockIdx, threadIdx, blockDim, gridDim;
@@ -69,10 +70,13 @@ void __syncthreads() {
     else barrier_changed.wait(l,[&]{return generation!=old;});
 }
 std::atomic<unsigned> dots{0};
-float batched_hawkeye_wave16_dot_bf16_hopper(const uint16_t *a,const uint16_t *b,unsigned k) {
-    if ((threadIdx.x&15u)==0) ++dots;
+namespace qrt_sm121_subgroup {
+template<unsigned Lanes>
+float dot(const uint16_t *a,const uint16_t *b,unsigned k) {
+    if ((threadIdx.x&(Lanes-1u))==0) ++dots;
     float value=0; for(unsigned i=0;i<k;++i) value+=bf16_to_float(a[i])*bf16_to_float(b[i]);
     return value;
+}
 }
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };

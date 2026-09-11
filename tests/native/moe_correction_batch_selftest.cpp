@@ -255,8 +255,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
     g_state.compact_routed_hawkeye = false;
     std::printf("{\"kind\":\"routed_compaction_comparison\",\"tokens\":%u,\"mode\":%u,\"projection_elements\":%zu,"
                 "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
-                "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1]);
+                "\"replay_lanes\":%u,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+                tokens, mode, elements, down_elements, times[0], times[1], unsigned(QRT_MOE_ROUTED_REPLAY_LANES));
 }
 }
 

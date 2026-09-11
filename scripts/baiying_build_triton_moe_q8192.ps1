@@ -28,6 +28,7 @@ param(
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$NativeWmmaRouted = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$RoutedProjectionDebug = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$BatchedHawkeye = 0,
+    [Parameter(Mandatory = $false)][ValidateSet(4, 8, 16)][int]$RoutedReplayLanes = 16,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$FullSharedHawkeye = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ExactShared = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ConditionalExactGate = 0,
@@ -849,6 +850,7 @@ $variantDefines = @(
     "-DQRT_TRITON_MOE_ROUTER_TOKEN_TILE=$RouterTokenTile",
     "-DQRT_TRITON_MOE_FUSED_COMBINE_WIDTH=$FusedCombineWidth",
     "-DQRT_TRITON_MOE_FULL_V3_EVENT_SLOTS=$FullV3EventSlots",
+    "-DQRT_MOE_ROUTED_REPLAY_LANES=$RoutedReplayLanes",
     "-DQRT_TRITON_MOE_NATIVE_WMMA_K_STAGE=$NativeWmmaKStage"
 )
 if ($NativeWmmaGate -ne 0) { $variantDefines += "-DQRT_TRITON_MOE_NATIVE_WMMA_GATE=1" }
@@ -1372,6 +1374,9 @@ $record = [ordered]@{
     native_wmma_routed = ($NativeWmmaRouted -ne 0)
     routed_projection_debug = ($RoutedProjectionDebug -ne 0)
     batched_hawkeye = ($BatchedHawkeye -ne 0)
+    routed_replay_lanes = $RoutedReplayLanes
+    sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h')).Hash.ToLowerInvariant()
     full_shared_hawkeye = ($FullSharedHawkeye -ne 0)
     native_wmma_gate = ($NativeWmmaGate -ne 0)
     native_wmma_down = ($NativeWmmaDown -ne 0)
