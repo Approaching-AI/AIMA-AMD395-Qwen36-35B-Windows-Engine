@@ -32,17 +32,28 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Both frozen 32-token cold requests now pass on baiying with the real
-`D:\models\Qwen3.6-35B-A3B` and whole source
-`7c2f170bd40f09b808c89e4b3eac324bbe728e1f`. q7169 additionally uses optimized
-exact CK attention at `5345630ebdcc4fc982eab3742e04ae14c7e94db6`. Each run has
-zero first-logit error at tolerance 0.125, all 32 oracle tokens, and 32 matching
-streaming callbacks before return. Exit 0 and all host checks pass.
+Both frozen 32-token cold requests pass on baiying with the real
+`D:\models\Qwen3.6-35B-A3B` and all four rebuilt providers at
+`7c09aaf14240b923b50ffd04ca3559981f4ad874`. Each run has zero first-logit error
+at tolerance 0.125, all 32 oracle tokens, and 32 matching streaming callbacks
+before return. Exit 0 and all host checks pass. CLI and AITER still use
+retained f544cbe components; the two cases retain different arithmetic profiles.
 
 | Frozen prompt / configuration | First token / logit | Load ms | Actual callback TTFT ms | TPOT ms |
 |---|---|---:|---:|---:|
-| q8192, f544cbe components plus whole 7c2f170 and BF16 argmax | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
-| q7169, optimized exact CK attention with 1000 ppb compatibility profile | 82 / 9.25 | 20,060.197800 | 147,808.401800 | 34.736235 |
+| q8192, four providers at 7c09aaf, fast profile | 144 / 10.375 | 20,063.167500 | 4,195.258200 | 33.079400 |
+| q7169, four providers at 7c09aaf, 1000 ppb compatibility profile | 82 / 9.25 | 20,070.665000 | 135,951.305400 | 34.738623 |
+| Earlier retained q8192: f544cbe components plus whole 7c2f170 | 144 / 10.375 | 20,254.383200 | 4,163.038700 | 33.007665 |
+
+The [shared-arithmetic records](../benchmarks/correctness/shared-wave16-20260911.json)
+bind four successful Windows builds and both full-model runs to the common
+K16 implementation, including its final negative-zero canonicalization.
+q7169 improves by 11,857.096400 ms from the 147,808.401800 ms control; all
+80 complete norm files still match qualified GB10 capture f17592ae. The latest
+q8192 run misses the immutable retained TTFT target by 7.842595 ms. Neither
+provider-only time nor the earlier mixed-stack result qualifies this newer
+combination's retained performance. Native CPU wide-sum/endpoint controls,
+UBSan, 270 Python tests, 45 Rust tests and the complete local check suite pass.
 
 The [q8192 preload records](../benchmarks/correctness/q8192-preload-buffer-20260911.json)
 bind actual callback TTFT **4,163.038700 ms**, below the unchanged
@@ -62,7 +73,7 @@ The [resident-decode and ablation records](../benchmarks/correctness/decode-bf16
 bind commands, source/artifact identities, profile changes, prompt hashes and
 complete output to each run.
 
-The latest [q7169 whole-model record](../benchmarks/correctness/q7169-attention-canonical-20260911.json)
+The preceding [q7169 whole-model record](../benchmarks/correctness/q7169-attention-canonical-20260911.json)
 passes all 32 tokens and all 80 complete layer norms with the optimized CK
 provider. Command `run-q7169-attention-canonical-r1.ps1` has SHA
 `358bcf1cd4da622e9939d133f56c9cf596a2b44681915a3efc8f29022ff71a2b`;
@@ -82,7 +93,7 @@ f17592ae. Its four whole-provider projection bounds decrease from 10000 to
 TTFT by 76,555.146600 ms from the
 [preceding 378b0c3 control](../benchmarks/correctness/q7169-output-boundary-20260911.json),
 which also matched all 40 terminal BF16 residuals and the final norm. Those
-additional observers were not repeated in the latest run.
+additional terminal/final observers were not repeated in the subsequent runs.
 
 Faster q7169 ablations fail the frozen token gate. They retain the
 final-norm/BF16-argmax repairs and MoE 023e5dc; fast CK/AITER components are
