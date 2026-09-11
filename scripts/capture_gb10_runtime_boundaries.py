@@ -51,6 +51,30 @@ def prepared_token_ids(forward_ids, runner_ids, token_count, embedding_shape):
     return runner_ids
 
 
+def recurrent_state_selection(indices, accepted, token_count, cache_slots):
+    """Resolve the pinned fused kernel's batch-one input and output slots."""
+    if not 1 <= token_count <= 2 or not indices:
+        raise ValueError("unsupported recurrent observation batch")
+    if isinstance(indices[0], list):
+        if len(indices) != 1:
+            raise ValueError("recurrent observation is batch one")
+        slots = indices[0]
+    else:
+        if token_count != 1:
+            raise ValueError("non-speculative recurrent observation is singleton")
+        slots = indices
+    previous = 0
+    if accepted is not None:
+        if len(accepted) != 1 or type(accepted[0]) is not int or accepted[0] < 1:
+            raise ValueError("invalid accepted-token count")
+        previous = accepted[0] - 1
+    if (previous >= len(slots) or token_count > len(slots) or
+            any(type(i) is not int or not 0 <= i < cache_slots for i in slots)):
+        raise ValueError("invalid recurrent cache slot")
+    return dict(initial_slot=slots[previous], final_slots=slots[:token_count],
+                accepted_tokens=accepted, state_indices=indices)
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -64,9 +88,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         selected = {prompt_tokens - 1, prompt_tokens}
         if case == "q8191-out32":
             selected.update(range(prompt_tokens - 64, prompt_tokens))
-            selected.add(8196)
+            selected.update((8192, 8196))
         elif case == "q7169-out512":
-            selected.update((7287, 7288, 7289))
+            selected.update((7199, 7200, 7201, 7287, 7288, 7289))
         elif case == "q8192-out512":
             selected.update((8299, 8300, 8301))
         self._qrt_boundary_handles = []
@@ -74,10 +98,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_files = {}
         self._qrt_boundary_norms = {}
         self._qrt_boundary_stages = {}
+        self._qrt_boundary_decode_states = []
         self._qrt_boundary_bytes = 0
         self._qrt_boundary_started = time.monotonic()
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
+        self._qrt_boundary_prompt_tokens = prompt_tokens
         self._qrt_boundary_linear_layers = [0, 4] if case == "q8191-out32" else [0]
         self._qrt_boundary_current = None
         self._qrt_boundary_indices = None
@@ -225,6 +251,14 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     for label, width in (("q", 2048), ("k", 2048), ("v", 4096), ("g", 32), ("beta", 32)):
                         linear_stage(index, label + "-core-input", kwargs[label], width)
 
+            def prefill_state(module, args, output):
+                transaction = self._qrt_boundary_active
+                if transaction is not None and transaction["rows"]:
+                    state = output[1]
+                    if state.shape != (1, 32, 128, 128):
+                        raise ValueError("prefill final recurrent state shape changed")
+                    save(f"linear-{index:02d}-prefill-state-after", state, transaction)
+
             def gated_inputs(module, args):
                 linear_stage(index, "core", args[0], 4096)
                 linear_stage(index, "z", args[1], 4096)
@@ -240,6 +274,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 linear.in_proj_qkvz.register_forward_hook(projection),
                 linear.in_proj_ba.register_forward_hook(ba),
                 linear.chunk_gated_delta_rule.register_forward_pre_hook(core_inputs, with_kwargs=True),
+                linear.chunk_gated_delta_rule.register_forward_hook(prefill_state),
                 linear.norm.register_forward_pre_hook(gated_inputs),
                 linear.out_proj.register_forward_pre_hook(gated),
                 linear.out_proj.register_forward_hook(out)))
@@ -247,6 +282,98 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         attach_linear(0)
         if case == "q8191-out32":
             attach_linear(4)
+
+        # Observe the actual cache slots selected by the original fused decode
+        # call. MTP may accept either one or two tokens from its previous call;
+        # slot zero is therefore not always the recurrent input state.
+        active_linear = []
+        core_module = inspect.getmodule(layers[0].linear_attn._forward_core)
+        observed_sources = set()
+
+        def selected_decode():
+            transaction = self._qrt_boundary_active
+            if (not active_linear or transaction is None or not transaction["rows"] or
+                    transaction["first_position"] < prompt_tokens):
+                return None
+            if not 1 <= transaction["token_count"] <= 2:
+                raise ValueError("decode observation token count changed")
+            return active_linear[-1], transaction
+
+        def wrap_core(index):
+            linear = layers[index].linear_attn
+            original = linear._forward_core
+            if inspect.getmodule(original) is not core_module:
+                raise ValueError("selected recurrent implementations differ")
+            self._qrt_boundary_restores.append((linear, "_forward_core", original))
+
+            def core(*args, **kwargs):
+                active_linear.append(index)
+                try:
+                    return original(*args, **kwargs)
+                finally:
+                    active_linear.pop()
+            linear._forward_core = core
+
+        def wrap_operator(name):
+            original = getattr(core_module, name)
+            observed_sources.add(Path(inspect.getsourcefile(original)))
+            signature = inspect.signature(original)
+            self._qrt_boundary_restores.append((core_module, name, original))
+
+            def operator(*args, **kwargs):
+                selected = selected_decode()
+                if selected is None:
+                    return original(*args, **kwargs)
+                index, transaction = selected
+                values = signature.bind(*args, **kwargs)
+                values.apply_defaults()
+                values = values.arguments
+                prefix = f"linear-{index:02d}"
+                if name == "causal_conv1d_update":
+                    state = values["conv_state"]
+                    slots = values["conv_state_indices"].detach().cpu().tolist()
+                    accepted = values["num_accepted_tokens"]
+                    accepted = accepted.detach().cpu().tolist() if accepted is not None else None
+                    if (len(slots) != 1 or type(slots[0]) is not int or
+                            not 0 <= slots[0] < state.shape[0] or state.ndim != 3 or
+                            state.shape[1] != 8192 or not 3 <= state.shape[2] <= 5):
+                        raise ValueError("convolution cache observation shape changed")
+                    slot = slots[0]
+                    save(prefix + "-conv-history-before", state[slot:slot + 1], transaction)
+                    result = original(*args, **kwargs)
+                    linear_stage(index, "conv-decode-output", result, 8192)
+                    save(prefix + "-conv-history-after", state[slot:slot + 1], transaction)
+                    self._qrt_boundary_decode_states.append(dict(transaction=transaction["ordinal"],
+                        layer=index, operator=name, cache_slot=slot, accepted_tokens=accepted,
+                        history_token_offset=accepted[0] - 1 if accepted is not None else 0))
+                    return result
+                state = values["initial_state"]
+                slots = values["ssm_state_indices"].detach().cpu().tolist()
+                accepted = values.get("num_accepted_tokens")
+                accepted = accepted.detach().cpu().tolist() if accepted is not None else None
+                if state.ndim != 4 or tuple(state.shape[1:]) != (32, 128, 128):
+                    raise ValueError("decode recurrent state shape changed")
+                selection = recurrent_state_selection(slots, accepted,
+                    transaction["token_count"], state.shape[0])
+                slot = selection["initial_slot"]
+                save(prefix + "-decode-state-before", state[slot:slot + 1], transaction)
+                if name == "fused_sigmoid_gating_delta_rule_update":
+                    for label, width in (("q", 2048), ("k", 2048), ("v", 4096)):
+                        linear_stage(index, label + "-decode-input", values[label], width)
+                result = original(*args, **kwargs)
+                save(prefix + "-decode-state-after",
+                     torch.cat([state[i:i + 1] for i in selection["final_slots"]]), transaction)
+                self._qrt_boundary_decode_states.append(dict(transaction=transaction["ordinal"],
+                    layer=index, operator=name, **selection))
+                return result
+            setattr(core_module, name, operator)
+
+        for index in self._qrt_boundary_linear_layers:
+            wrap_core(index)
+        for name in ("causal_conv1d_update", "fused_sigmoid_gating_delta_rule_update",
+                     "fused_recurrent_gated_delta_rule_packed_decode"):
+            wrap_operator(name)
+        observed_sources.add(Path(inspect.getsourcefile(core_module)))
 
         def logits(*args, **kwargs):
             output = original_logits(*args, **kwargs)
@@ -277,6 +404,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 Path(inspect.getsourcefile(layers[0].forward)),
                 Path(inspect.getsourcefile(type(layers[0].input_layernorm)))})],
             maximum_saved_bytes=128 << 20, maximum_observation_seconds=180,
+            decode_operator_sources=[dict(file=str(path), sha256=file_sha(path))
+                                     for path in sorted(observed_sources)],
             linear_stage_layers=[0, 4] if case == "q8191-out32" else [0],
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
@@ -299,9 +428,17 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                             if value["transaction"] == transaction["ordinal"]}
                 if not required <= observed:
                     raise ValueError("incomplete selected target layer observations")
+                if transaction["first_position"] >= self._qrt_boundary_prompt_tokens:
+                    decode_required = {f"linear-{layer:02d}-{stage}"
+                        for layer in self._qrt_boundary_linear_layers
+                        for stage in ("conv-history-before", "conv-history-after", "conv-decode-output",
+                                      "decode-state-before", "decode-state-after")}
+                    if not decode_required <= observed:
+                        raise ValueError("incomplete original decode state observations")
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,
+            decode_state_selections=self._qrt_boundary_decode_states,
             selected_positions=sorted(self._qrt_boundary_selected),
             original_methods_returned_unchanged=True, diagnostic_only=True)
         record["runtime_boundaries"] = boundaries

@@ -4,10 +4,24 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from capture_gb10_runtime_boundaries import prepared_token_ids, qualify_transaction, target_rows  # noqa: E402
+from capture_gb10_runtime_boundaries import (  # noqa: E402
+    prepared_token_ids, qualify_transaction, recurrent_state_selection, target_rows,
+)
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_recurrent_input_uses_the_previous_accepted_slot(self):
+        for accepted, initial in (([1], 7), ([2], 11)):
+            selection = recurrent_state_selection([[7, 11]], accepted, 2, 20)
+            self.assertEqual(selection["initial_slot"], initial)
+            self.assertEqual(selection["final_slots"], [7, 11])
+        self.assertEqual(recurrent_state_selection([7], None, 1, 20)["initial_slot"], 7)
+        for arguments in (([[7, 11]], [0], 2, 20), ([[7, 11]], [3], 2, 20),
+                          ([[7, -1]], [1], 2, 20), ([[7, 20]], [1], 2, 20),
+                          ([[7, 11], [9, 10]], [1], 2, 20), ([7, 11], None, 2, 20)):
+            with self.assertRaises(ValueError):
+                recurrent_state_selection(*arguments)
+
     def test_embedded_text_uses_the_prepared_real_token_buffer(self):
         self.assertEqual(prepared_token_ids(None, [82, 220], 2, [2, 2048]), [82, 220])
         self.assertEqual(prepared_token_ids([82, 220], [82, 220], 2, None), [82, 220])
