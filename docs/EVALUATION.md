@@ -107,6 +107,15 @@ KV preparation outside repeated matrix tiles, but total GPU time remains
 takes 0.6574 ms. Keep this replay mode outside the product path; the next
 attention experiment changes the exact product reduction mapping.
 
+The [strided pair attention trial](../benchmarks/correctness/attention-strided-pair-20260912.json)
+at `681167c` splits each K16 dot across two XOR-16 lanes while retaining
+coalesced key/value reads. All 29,364,224 full q7169 BF16 outputs match in
+three combinations, and the sparse tail and buffer/input guards pass. QK
+alone takes 765.893 ms versus 578.045 ms; PV alone takes 1017.52 ms versus
+705.237 ms. The combined route costs 1769.12 ms versus 1283.37 ms. None is
+enabled. Local C/ABI, Rust, Clippy, q16, 311 Python tests (two skips) and
+hygiene pass; the native replay build takes 8153.577 ms.
+
 The preceding [cooperative FLA configuration](../benchmarks/correctness/fla-cooperative-product-20260912.json)
 reduces actual callback TTFT by 5819.2376 / 5071.3091 /
 6058.9563 ms for q8192 / q7169 / q8191 against the [preceding dense-replay
