@@ -111,9 +111,20 @@ takes 59620.999 ms for q8192 but differs at output index 8 (82 instead of
 82. Both complete with successful host and streaming checks. At q8192's
 first decode step, layers 0–3 and all captured layer-0 operators/state remain
 exact; the first differing completed carrier is layer 4. This attention
-substitution also remains unqualified. The next implementation preserves
-the exact projection arithmetic while transposing weights and assigning
-one packed K16 candidate dot per thread.
+substitution also remains unqualified.
+
+The [packed projection experiment](../benchmarks/correctness/hawkeye-packed-product-20260911.json)
+uses whole `25d34e7559691948c59b8e85704882bbeb7894fa` with the same
+batched FLA and strict arithmetic profile. Independent packed K16 lanes and
+transposed weights retain all three complete frozen outputs and captured
+GB10 boundaries. q8192 callback TTFT nevertheless rises to 84055.422 ms;
+q7169 takes 72740.7119 ms and q8191 takes 84446.9134 ms. The same
+350,029,910 q8192 candidate dots take 19850.035 ms versus 15016.761 ms
+in the prior wave16 correction sequences. The new Windows build and all
+298 local Python tests (two skips), C/ABI, Rust, Clippy, q16 and hygiene
+checks pass. Keep the wave16 profile selected. The next route stages
+matrix operands in shared memory while retaining every WMMA K16 update,
+candidate bound and rounding endpoint.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. No new performance result or release is qualified.
