@@ -326,6 +326,104 @@ __global__ void blackwell_exact_attention_kernel(
         raw_denominator[static_cast<size_t>(output_token) * kQueryHeads + query_head] = running_sum;
 }
 
+// One wave materializes the same online probabilities, rescaling factors and
+// denominator. The PV lanes can then advance without CTA-wide softmax barriers.
+__global__ void blackwell_online_probability_kernel(
+    const float* scores, uint16_t* probabilities, float* scales,
+    unsigned int query_start, unsigned int score_stride,
+    const unsigned char* exp2_table, bool vllm_sum) {
+    const unsigned int lane = threadIdx.x;
+    const unsigned int row = blockIdx.y * kQueryHeads + blockIdx.x;
+    const unsigned int tokens = query_start + blockIdx.y + 1u;
+    const unsigned int tile_stride = (score_stride + kExactTileTokens - 1u) / kExactTileTokens;
+    const unsigned int tile_count = (tokens + kExactTileTokens - 1u) / kExactTileTokens;
+    float running_max = -INFINITY, running_sum = 1.0f;
+    for (unsigned int tile = 0u; tile < tile_count; ++tile) {
+        const unsigned int key = tile * kExactTileTokens + lane;
+        const float score = key < tokens ? scores[static_cast<size_t>(row) * score_stride + key] : -INFINITY;
+        float next_max = fmaxf(running_max, score);
+        for (unsigned int mask = 16u; mask; mask >>= 1u)
+            next_max = fmaxf(next_max, __shfl_xor(next_max, mask, 32u));
+        const float alpha = blackwell_attention_exp(running_max - next_max, exp2_table);
+        const float probability = key < tokens ? blackwell_attention_exp(score - next_max, exp2_table) : 0.0f;
+        if (key < score_stride)
+            probabilities[static_cast<size_t>(row) * score_stride + key] = f32_to_bf16(probability);
+        float sum = probability;
+        if (vllm_sum) {
+            constexpr unsigned int order[] = {1u, 4u, 2u, 16u, 8u};
+#pragma unroll
+            for (unsigned int step = 0u; step < 5u; ++step)
+                sum += __shfl_xor(sum, order[step], 32u);
+        } else {
+            for (unsigned int mask = 16u; mask; mask >>= 1u)
+                sum += __shfl_xor(sum, mask, 32u);
+        }
+        running_sum = running_sum * alpha + sum;
+        running_max = next_max;
+        if (lane == 0u) scales[static_cast<size_t>(row) * (tile_stride + 1u) + tile] = alpha;
+    }
+    if (lane == 0u)
+        scales[static_cast<size_t>(row) * (tile_stride + 1u) + tile_stride] = running_sum;
+}
+
+__global__ void blackwell_probability_value_kernel(
+    const uint16_t* value, const uint16_t* probabilities, const float* scales,
+    float* output, unsigned int query_start, unsigned int output_start,
+    unsigned int score_stride, const unsigned char* rcp_table,
+    float* raw_accumulator, float* raw_denominator) {
+    const unsigned int head = blockIdx.x, column = threadIdx.x;
+    const unsigned int kv_head = head / (kQueryHeads / kKvHeads);
+    const unsigned int row = blockIdx.y * kQueryHeads + head;
+    const unsigned int tokens = query_start + blockIdx.y + 1u;
+    const unsigned int tile_stride = (score_stride + kExactTileTokens - 1u) / kExactTileTokens;
+    const unsigned int tile_count = (tokens + kExactTileTokens - 1u) / kExactTileTokens;
+    float accumulator = 0.0f;
+    for (unsigned int tile = 0u; tile < tile_count; ++tile) {
+        const float alpha = scales[static_cast<size_t>(row) * (tile_stride + 1u) + tile];
+        volatile float rounded = accumulator * alpha;
+        auto partial = qrt_q1_moe_hawkeye::value_from_float(rounded, kBlackwellZeroExponent);
+        for (unsigned int begin = 0u; begin < kExactTileTokens; begin += kBlackwellMmaGroup) {
+            uint32_t products[kBlackwellMmaGroup];
+#pragma unroll
+            for (unsigned int item = 0u; item < kBlackwellMmaGroup; ++item) {
+                const unsigned int key = tile * kExactTileTokens + begin + item;
+                const uint16_t p = key < tokens
+                    ? probabilities[static_cast<size_t>(row) * score_stride + key] : uint16_t(0u);
+                const uint16_t v = key < tokens
+                    ? value[(static_cast<size_t>(key) * kKvHeads + kv_head) * kHeadDim + column] : uint16_t(0u);
+                products[item] = qrt_sm121_group16::pack_product(
+                    qrt_q1_moe_hawkeye::multiply_bf16(p, v, kBlackwellZeroExponent));
+            }
+            const auto sum = qrt_sm121_group16::sum_packed(partial, products);
+            partial = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
+            partial = qrt_sm121_group16::finish_accumulator(partial);
+            partial = qrt_q1_moe_hawkeye::value_from_float(
+                qrt_q1_moe_hawkeye::value_to_float(partial), kBlackwellZeroExponent);
+        }
+        accumulator = qrt_q1_moe_hawkeye::value_to_float(partial);
+    }
+    const float denominator = scales[static_cast<size_t>(row) * (tile_stride + 1u) + tile_stride];
+    const size_t output_index =
+        (static_cast<size_t>(output_start + blockIdx.y) * kQueryHeads + head) * kHeadDim + column;
+    output[output_index] = rcp_table
+        ? accumulator * qrt_sm121_attention_rcp::evaluate(rcp_table, denominator) : accumulator / denominator;
+    if (raw_accumulator) raw_accumulator[output_index] = accumulator;
+    if (raw_denominator && column == 0u)
+        raw_denominator[static_cast<size_t>(output_start + blockIdx.y) * kQueryHeads + head] = denominator;
+}
+
+inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
+                                     unsigned int memory_layout) {
+    if (!queries || queries > 32u || stride < queries || stride > 8192u ||
+        memory_layout < 2u || memory_layout > 3u) return 0u;
+    const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
+    const size_t cells = rows * stride;
+    // Every row count is a multiple of sixteen, so the BF16 slab ends on a
+    // float boundary. The final float of each scale row stores its denominator.
+    return memory_layout == 2u ? cells : cells + cells / 2u +
+        rows * ((stride + kExactTileTokens - 1u) / kExactTileTokens + 1u);
+}
+
 inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
     unsigned int query_start, unsigned int query_count,
@@ -338,21 +436,36 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 2u) return int(hipErrorInvalidValue);
-    if (memory_layout == 2u) {
+    if (memory_layout > 3u) return int(hipErrorInvalidValue);
+    if (memory_layout >= 2u) {
         // The split replay is bounded to the short full-prefix product range.
         // Long-context terminal calls retain their existing allocation-free path.
         if (!score_scratch || query_count > 32u || query_start + query_count > 8192u)
             return int(hipErrorInvalidValue);
         const unsigned int stride = query_start + query_count;
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
-        if (score_scratch_elements < cells) return int(hipErrorInvalidValue);
+        if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
+            return int(hipErrorInvalidValue);
         hipLaunchKernelGGL(blackwell_exact_scores_kernel,
             dim3((cells + kBlackwellSubgroups - 1u) / kBlackwellSubgroups),
             dim3(kThreads), 0u, stream, q, k, score_scratch,
             query_start, query_count, stride);
         const auto status = hipGetLastError();
         if (status != hipSuccess) return int(status);
+        if (memory_layout == 3u) {
+            auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
+            auto* scales = reinterpret_cast<float*>(probabilities + cells);
+            hipLaunchKernelGGL(blackwell_online_probability_kernel,
+                dim3(kQueryHeads, query_count), dim3(32u), 0u, stream,
+                score_scratch, probabilities, scales, query_start, stride, exp2_table, vllm_sum);
+            const auto probability_status = hipGetLastError();
+            if (probability_status != hipSuccess) return int(probability_status);
+            hipLaunchKernelGGL(blackwell_probability_value_kernel,
+                dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+                v, probabilities, scales, output, query_start, output_start, stride,
+                rcp_table, raw_accumulator, raw_denominator);
+            return int(hipGetLastError());
+        }
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true>),
             dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
             q, k, v, output, query_start, output_start, exp2_table,

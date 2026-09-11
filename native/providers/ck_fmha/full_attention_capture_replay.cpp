@@ -103,7 +103,8 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"maximum_absolute_error\":" << maximum_error
               << ",\"relative_l2\":" << std::sqrt(error2 / std::max(norm2, 1e-300))
               << ",\"interval_kind\":\"" << (std::strcmp(route, "ck") == 0
-                    ? "provider_call" : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch"))
+                    ? "provider_call" : (memory_layout == 3u ? "qk_probability_pv_dispatch_triplet"
+                        : (memory_layout == 2u ? "qk_pv_dispatch_pair" : "kernel_dispatch")))
               << "\",\"interval_total_ms\":" << total_ms << ",\"maximum_interval_ms\":" << max_ms
               << ",\"memory_layout\":" << memory_layout
               << ",\"reference_is_compute_input\":false,\"inference_acceptance\":false}" << std::endl;
@@ -119,11 +120,11 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_2]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_3]");
         const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 2) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 3) : 0u;
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
@@ -191,8 +192,8 @@ int main(int argc, char** argv) {
         if (use_rcp) check(hipMemcpy(dr.pointer, rcp_table.data(), rcp_table.size(), hipMemcpyHostToDevice));
         if (use_table) check(hipMemcpy(dt.pointer, table.data(), table.size(), hipMemcpyHostToDevice));
         float total = 0, maximum = 0;
-        const size_t score_elements = memory_layout == 2u
-            ? static_cast<size_t>(batch) * 16u * tokens : 1u;
+        const size_t score_elements = memory_layout >= 2u
+            ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores(score_elements * sizeof(float));
         for (unsigned offset = 0; offset < count; offset += batch) {
             if (std::chrono::duration<double>(Clock::now() - begun).count() > 150.0)
