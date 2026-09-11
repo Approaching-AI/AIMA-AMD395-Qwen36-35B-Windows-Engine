@@ -89,9 +89,25 @@ differ in exactly that head. The native stage request stops at its aggregate
 capture limit, so these saved tensors do not qualify a completed model run.
 Native post-convolution Q/K diagnostic rows are already normalized; the
 reference core-input rows are raw BF16 and cannot be compared directly.
-At the first divergent q7169/q8192 decode positions, layer-0 input norm
-and A/B projection digests match the reference widened to FP32. QKV/Z
-FP32 digests differ; their BF16 endpoint still needs direct comparison.
+The subsequent [raw Q1 comparison](../benchmarks/correctness/q1-projection-boundary-20260911.json)
+confirms genuine BF16 QKV/Z projection differences. The same model weights
+and input norms replay exactly against all 37,056 GB10 QKV/Z/A/B values
+with the K16 width-26 accumulator.
+
+The [native Q1 projection tests](../benchmarks/correctness/q1-sm121-product-20260911.json)
+use whole aab009d and the opt-in `QRT_QWEN36_Q1_F32_PROJECTION_SM121=1`.
+Layer-0 input norm and all projections match GB10 at the first q8191/q8192
+decode steps and the q8192 first divergent extended position. Recurrent
+core output still differs. q8192 passes all 32 tokens; q8191 first diverges
+at output index 2, q7169 out512 at 32, and q8192 out512 at 109. The first
+two diverge earlier than the previous route. The q7169 saved position 7288
+is excluded from operator comparisons because its preceding input history
+is already different. All requests complete and host checks pass; this
+route remains diagnostic. The q8192 32-token callback TTFT is 4162.961901 ms
+with selected decode tracing enabled; it does not replace the retained
+unprofiled result. Original decode convolution history and accepted
+recurrent input/output state slots are being captured to resolve the next
+arithmetic boundary.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead

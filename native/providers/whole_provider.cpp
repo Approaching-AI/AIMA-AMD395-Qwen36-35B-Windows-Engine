@@ -160840,7 +160840,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         static size_t dumped_bytes = 0u;
         bool dump_ok = false;
         std::string dump_path;
-        if (dump_requested && status == hipSuccess && bytes <= (1u << 20u) &&
+        if (dump_requested && status == hipSuccess && bytes <= (2u << 20u) &&
             dumped_files < 64u && dumped_bytes <= (16u << 20u) - bytes) {
             std::ostringstream path;
             path << dump_prefix << ".txn" << q1024_q1_linear_stage_active_transaction
@@ -161926,6 +161926,15 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
                 ? device_gated
                 : device_postconv
         );
+    const Qwen36ResidentSessionLinearLayer &diagnostic_recurrent_layer =
+        g_qwen36_resident_session.linear_layers[descriptor.layer_index];
+    emit_q1024_q1_linear_stage_digest(
+        diagnostic_recurrent_layer.recurrent_state_key_major
+            ? "recurrent_state_key_major_before_f32"
+            : "recurrent_state_value_major_before_f32",
+        diagnostic_recurrent_layer.device_recurrent_state,
+        diagnostic_recurrent_layer.recurrent_state_bytes
+    );
     if (use_q1_linear_keyhead_fused_post) {
         if (!record_profile_boundary(
                 Q1LayerProfileBoundary::kCoreBegin,
@@ -162188,7 +162197,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     emit_q1024_q1_linear_stage_digest(
         "gate_f32",
         device_gate,
-        static_cast<size_t>(kGateRows) * sizeof(float)
+        static_cast<size_t>(kGateOutputRows) * sizeof(float)
     );
     if (!record_profile_boundary(
             Q1LayerProfileBoundary::kCoreBegin,
@@ -162253,6 +162262,14 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         static_cast<size_t>(kValueFeatures) * sizeof(float)
     );
     }
+
+    emit_q1024_q1_linear_stage_digest(
+        diagnostic_recurrent_layer.recurrent_state_key_major
+            ? "recurrent_state_key_major_after_f32"
+            : "recurrent_state_value_major_after_f32",
+        diagnostic_recurrent_layer.device_recurrent_state,
+        diagnostic_recurrent_layer.recurrent_state_bytes
+    );
 
     if (use_q1_linear_device_chain) {
         uint16_t *const device_update_bf16 = device_norm_bf16;
