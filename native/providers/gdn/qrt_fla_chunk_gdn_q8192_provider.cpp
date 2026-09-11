@@ -5,6 +5,7 @@
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
 #include "first_call_capture.h"
+#include <algorithm>
 
 #include <array>
 #include <cstdint>
@@ -208,8 +209,9 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
 
 bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
                           const float* g, float* a, int32_t tokens,
-                          hipStream_t stream, bool dump) {
-    if (!k || !beta || !g || !a || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk) {
+                          hipStream_t stream, bool dump, int32_t valid_tokens) {
+    if (!k || !beta || !g || !a || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
+        valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
         set_error_text("Blackwell KKT requires checked chunk-aligned segment pointers");
         return false;
     }
@@ -228,7 +230,8 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
     const unsigned int elements = static_cast<unsigned int>(tokens) * kValueHeads * kChunk;
     hipLaunchKernelGGL(qrt_fla_blackwell::gate_kernel,
         dim3((elements + 255u) / 256u), dim3(256u), 0, stream,
-        a, g, static_cast<unsigned int>(tokens), qrt_fla_blackwell_state::exp2_table_device());
+        a, g, static_cast<unsigned int>(tokens), static_cast<unsigned int>(valid_tokens),
+        qrt_fla_blackwell_state::exp2_table_device());
     hipError_t status = hipGetLastError();
     if (status == hipSuccess) status = hipStreamSynchronize(stream);
     if (status != hipSuccess) { set_error("blackwell_kkt_gate", status); return false; }
@@ -430,8 +433,10 @@ bool ensure_scratch(int32_t tokens) {
 
 bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t* w,
                             const float* g, uint16_t* h, uint16_t* v_new,
-                            float* state, int32_t tokens, hipStream_t stream) {
-    if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk) {
+                            float* state, int32_t tokens, hipStream_t stream,
+                            int32_t valid_tokens) {
+    if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
+        valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
         set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
     }
     if (!g_state.blackwell_temporary_state || !g_state.blackwell_residual) {
@@ -451,16 +456,18 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
     float* initial = state; float* final = g_state.blackwell_temporary_state;
     if (!launch_blackwell_math("blackwell_state_chunks", stream, [&] {
         for (int32_t offset = 0; offset < tokens; offset += kChunk) {
+            const unsigned count = static_cast<unsigned>((std::min)(
+                static_cast<int32_t>(kChunk), valid_tokens - offset));
             const size_t value_offset = static_cast<size_t>(offset) * kValueFeatures;
             const float* gate = g + static_cast<size_t>(offset) * kValueHeads;
             hipError_t status = qrt_fla_blackwell_state::project(
                 w + value_offset, u + value_offset, gate, initial,
                 h + static_cast<size_t>(offset / kChunk) * kStateElements, v_new + value_offset,
-                g_state.blackwell_residual, kChunk, stream);
+                g_state.blackwell_residual, count, stream);
             if (status != hipSuccess) return status;
             status = qrt_fla_blackwell_state::update(
                 k + static_cast<size_t>(offset) * kQkHeads * kKeyDim,
-                g_state.blackwell_residual, gate, initial, final, kChunk, stream);
+                g_state.blackwell_residual, gate, initial, final, count, stream);
             if (status != hipSuccess) return status;
             float* swap = initial; initial = final; final = swap;
         }
@@ -632,8 +639,18 @@ int launch_segment_async(
     float *final_state_f32,
     void *stream_pointer,
     int32_t tokens,
-    bool reset_state
+    bool reset_state,
+    int32_t valid_tokens = 0
 ) {
+    if (valid_tokens == 0) valid_tokens = tokens;
+    if (tokens <= 0 || tokens % static_cast<int32_t>(kChunk) ||
+        valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
+        set_error_text("FLA segment requires an aligned allocation and one bounded logical tail");
+        return 0;
+    }
+    if (valid_tokens != tokens) {
+        std::fprintf(stderr, "FLA_LOGICAL_TAIL padded_tokens=%d valid_tokens=%d\n", tokens, valid_tokens);
+    }
     const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
     const bool dump = dump_directory != nullptr && dump_directory[0] != '\0' &&
         !g_state.q64_dumped && reset_state && tokens == kSmokeTokens;
@@ -767,7 +784,7 @@ int launch_segment_async(
     const char* blackwell_kkt = std::getenv("QRT_FLA_GDN_KKT_BLACKWELL");
     if (blackwell_kkt != nullptr && std::strcmp(blackwell_kkt, "1") == 0) {
         if (!launch_blackwell_kkt(k_pointer, beta_pointer, g_pointer, a_pointer,
-                                 tokens, stream, dump)) return 0;
+                                 tokens, stream, dump, valid_tokens)) return 0;
     } else if (!launch(
             KernelIndex::kScaledDotKkt,
             chunks,
@@ -805,7 +822,7 @@ int launch_segment_async(
     };
     if (blackwell_aux_enabled("QRT_FLA_GDN_INVERSE_BLACKWELL")) {
         if (!launch_blackwell_math("blackwell_inverse", stream, [&] {
-            return qrt_fla_blackwell_inverse::solve(a_pointer, inverse_pointer, tokens, stream);
+            return qrt_fla_blackwell_inverse::solve(a_pointer, inverse_pointer, valid_tokens, stream);
         })) return 0;
     } else if (!launch(
             KernelIndex::kSolveTril64,
@@ -831,10 +848,11 @@ int launch_segment_async(
     };
     if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
         if (!launch_blackwell_aux("wu", tokens, 1u, stream, [&](unsigned offset, unsigned) {
+                const unsigned count = (std::min)(kChunk, static_cast<unsigned>(valid_tokens) - offset);
                 return qrt_fla_blackwell_aux::recompute_wu(k_pointer + size_t(offset) * 2048u,
                     v_pointer + size_t(offset) * 4096u, beta_pointer + size_t(offset) * 32u,
                     inverse_pointer + size_t(offset) * 2048u, g_pointer + size_t(offset) * 32u,
-                    w_pointer + size_t(offset) * 4096u, u_pointer + size_t(offset) * 4096u, 64u, stream);
+                    w_pointer + size_t(offset) * 4096u, u_pointer + size_t(offset) * 4096u, count, stream);
             })) return 0;
     } else if (!launch(
             KernelIndex::kRecomputeWU, chunks, kValueHeads, 1u,
@@ -856,7 +874,7 @@ int launch_segment_async(
     };
     if (blackwell_state_enabled()) {
         if (!launch_blackwell_state(k_pointer, u_pointer, w_pointer, g_pointer, chunk_state_pointer,
-                                    v_new_pointer, final_state_f32, tokens, stream)) return 0;
+                                    v_new_pointer, final_state_f32, tokens, stream, valid_tokens)) return 0;
     } else if (!launch(
             KernelIndex::kChunkState, kStateValueTiles, kValueHeads, 1u,
             stream, state_arguments
@@ -877,13 +895,14 @@ int launch_segment_async(
         // buffer is dead and is large enough for one BF16 QK score chunk.
         if (!g_state.blackwell_residual) { set_error_text("Blackwell output score scratch is unavailable"); return 0; }
         if (!launch_blackwell_aux("output", tokens, 2u, stream, [&](unsigned offset, unsigned call) {
+                const unsigned count = (std::min)(kChunk, static_cast<unsigned>(valid_tokens) - offset);
                 const auto* q = q_pointer + size_t(offset) * 2048u;
                 const auto* g = g_pointer + size_t(offset) * 32u;
                 if (call == 0u) return qrt_fla_blackwell_aux::output_scores(q, k_pointer + size_t(offset) * 2048u,
-                    g, g_state.blackwell_residual, 64u, stream);
+                    g, g_state.blackwell_residual, count, stream);
                 return qrt_fla_blackwell_aux::output_values(q, v_new_pointer + size_t(offset) * 4096u,
                     chunk_state_pointer + size_t(offset / kChunk) * kStateElements,
-                    g, g_state.blackwell_residual, output_pointer + size_t(offset) * 4096u, 64u, stream);
+                    g, g_state.blackwell_residual, output_pointer + size_t(offset) * 4096u, count, stream);
             })) return 0;
     } else if (!launch(
             KernelIndex::kChunkOutput, kOutputValueTiles, chunks, kValueHeads,
@@ -1016,7 +1035,8 @@ int launch_pipeline_async_impl(
                 final_state_f32,
                 stream_pointer,
                 static_cast<int32_t>(kChunk),
-                prefix_tokens == 0
+                prefix_tokens == 0,
+                tail_tokens
             ) == 0) {
             return 0;
         }

@@ -28,10 +28,15 @@ __global__ void dot_kernel(const uint16_t* k, const uint16_t* beta, float* a,
     }
 }
 
-__global__ void gate_kernel(float* a, const float* g, unsigned int tokens, const unsigned char* table) {
+__global__ void gate_kernel(float* a, const float* g, unsigned int tokens,
+                            unsigned int valid_tokens, const unsigned char* table) {
     const unsigned int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index >= tokens * 32 * kChunk) return;
     const unsigned int token = index / (32 * kChunk);
+    // A padded scan endpoint can round above the last real prefix sum. Its
+    // positive exponent is outside the negative lookup domain, even though
+    // the padded dot is zero. Do not let 0 * NaN enter the triangular solve.
+    if (token >= valid_tokens) { a[index] = 0.0f; return; }
     const unsigned int head = index / kChunk % 32, column = index % kChunk;
     if (column >= token % kChunk) return;  // Upper triangle is already zero.
     const float difference = g[token * 32 + head] - g[(token / kChunk * kChunk + column) * 32 + head];
