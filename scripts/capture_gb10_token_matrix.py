@@ -226,7 +226,7 @@ def execute(args, cases, oracles):
                       worker=worker, armed=armed[0], prefix_caching=False,
                       native_tensor_inputs=False, windows_acceptance=False)
         if matrix is not None:
-            from capture_gb10_runtime_boundaries import qualify_transaction
+            from capture_gb10_runtime_boundaries import full_cache_row_is_qualified, qualify_transaction
 
             frozen = matrix[case["name"]]["expected"]
             record["full_matrix_case_pass"] = (tokens == frozen["output_token_ids"] and
@@ -239,6 +239,10 @@ def execute(args, cases, oracles):
                                            if row["matches_generated_history"])
             if qualified_positions != set(worker["runtime_boundaries"]["selected_positions"]):
                 raise ValueError("selected boundaries lack matching generated histories")
+            if not full_cache_row_is_qualified(
+                    worker['runtime_boundaries']['full_attention_cache'],
+                    worker['runtime_boundaries']['transactions']):
+                raise ValueError('full-attention cache lacks a matching generated history')
         write_json(args.output_dir / (case["name"] + ".json"), record)
         results.append(record)
         print(json.dumps(dict(case=case["name"], first_token=tokens[0], raw_logit=worker["raw_logit"],

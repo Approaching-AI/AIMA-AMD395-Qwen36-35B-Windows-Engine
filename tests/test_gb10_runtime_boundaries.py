@@ -7,12 +7,34 @@ from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
-    full_cache_observation_offset, prepared_token_ids, qualify_transaction,
+    full_cache_observation_offset, full_cache_observation_row, full_cache_row_is_qualified,
+    prepared_token_ids, qualify_transaction,
     recurrent_state_selection, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_cache_can_bind_an_accepted_second_target_row(self):
+        with patch.dict(os.environ, {'QRT_GB10_Q7169_FULL_CACHE_OFFSET': '37',
+                                    'QRT_GB10_Q7169_FULL_CACHE_ROW': '1'}, clear=True):
+            self.assertEqual(full_cache_observation_row('q7169-out512'), 1)
+            self.assertEqual(full_cache_observation_row('q7169-out32'), 0)
+        for offset, row in (('0', '1'), ('37', '2'), ('37', '-1')):
+            with patch.dict(os.environ, {'QRT_GB10_Q7169_FULL_CACHE_OFFSET': offset,
+                                        'QRT_GB10_Q7169_FULL_CACHE_ROW': row}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_cache_observation_row('q7169-out512')
+        transaction = dict(ordinal=1, first_position=2, input_token_ids=[30, 40],
+                           rows=target_rows([2, 3], [30, 40], [0, 1], {3}))
+        cache = dict(transaction=1, row=1, tokens=4, input_token_id=40)
+        for history, expected in (([10, 20, 30, 40], True), ([10, 20, 30, 99], False),
+                                  ([10, 20, 99, 40], False)):
+            transaction['qualified_rows'] = qualify_transaction(transaction, history)
+            self.assertEqual(full_cache_row_is_qualified(cache, [transaction]), expected)
+        transaction['qualified_rows'] = qualify_transaction(transaction, [10, 20, 30, 40])
+        for field, value in (('transaction', 2), ('row', 0), ('tokens', 5), ('input_token_id', 99)):
+            self.assertFalse(full_cache_row_is_qualified(dict(cache, **{field: value}), [transaction]))
+
     def test_cache_position_is_scoped_to_its_frozen_case(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(full_cache_observation_offset('q8191-out32'), 0)

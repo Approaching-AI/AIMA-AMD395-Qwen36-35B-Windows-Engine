@@ -102,6 +102,27 @@ def full_cache_observation_offset(case):
     return offset
 
 
+def full_cache_observation_row(case):
+    if case not in {'q8191-out32', 'q7169-out512', 'q8192-out512'}:
+        return 0
+    name = 'QRT_GB10_' + case.split('-')[0].upper() + '_FULL_CACHE_ROW'
+    row = int(os.environ.get(name, '0'))
+    if row not in (0, 1) or row > full_cache_observation_offset(case):
+        raise ValueError('invalid original full-attention observation row')
+    return row
+
+
+def full_cache_row_is_qualified(cache, transactions):
+    if cache is None:
+        return True
+    return any(
+        transaction['ordinal'] == cache['transaction'] and
+        any(row['row'] == cache['row'] and row['position'] + 1 == cache['tokens'] and
+            row['input_token_id'] == cache['input_token_id'] and row['matches_generated_history']
+            for row in transaction['qualified_rows'])
+        for transaction in transactions)
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -113,6 +134,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         root = Path(directory)
         case = root.name
         full_cache_offset = full_cache_observation_offset(case)
+        full_cache_row = full_cache_observation_row(case)
         selected = {prompt_tokens - 1, prompt_tokens}
         selected.add(prompt_tokens + full_cache_offset)
         if case == "q8191-out32":
@@ -355,8 +377,10 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             transaction = self._qrt_boundary_active
             if (not capture_full_cache or self._qrt_boundary_full_cache is not None or
                     not self._qrt_boundary_full_active or transaction is None or
-                    transaction["first_position"] != prompt_tokens + full_cache_offset):
+                    transaction["first_position"] + full_cache_row != prompt_tokens + full_cache_offset):
                 return
+            if transaction['token_count'] <= full_cache_row:
+                raise ValueError('original full-attention observation row missing')
             from vllm.model_executor.layers.attention.attention import get_attention_context
             metadata, owner, cache, _ = get_attention_context(attention.attn.layer_name)
             if (owner is not attention.attn or cache.dtype != torch.bfloat16 or
@@ -374,7 +398,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 save("full-03-" + label, logical, transaction)
             self._qrt_boundary_full_cache = dict(transaction=transaction["ordinal"],
                 layer=3, tokens=tokens, decode_offset=full_cache_offset,
-                row=0, input_token_id=transaction['input_token_ids'][0],
+                row=full_cache_row, input_token_id=transaction['input_token_ids'][full_cache_row],
                 block_size=block_size, block_indices=blocks.cpu().tolist(),
                 cache_shape=list(cache.shape), max_query_len=metadata.max_query_len,
                 seq_lens=metadata.seq_lens.cpu().tolist())
