@@ -130,13 +130,16 @@ int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
             "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_4]");
-        const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
+        const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
+        const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 4) : 0u;
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
+        if (baseline && tokens > 8192u)
+            throw std::runtime_error("CK baseline is bounded to 8192 tokens");
         hipDeviceProp_t properties{}; check(hipGetDeviceProperties(&properties, 0));
         if (std::string(properties.gcnArchName).find("gfx1151") != 0)
             throw std::runtime_error("requires gfx1151");

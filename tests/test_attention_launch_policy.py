@@ -13,8 +13,8 @@ ROOT = Path(__file__).resolve().parents[1]
 class AttentionLaunchPolicyTests(unittest.TestCase):
     def test_scratch_span_is_checked_and_failed_scores_do_not_submit_pv(self):
         header = (ROOT / "native/providers/ck_fmha/blackwell_attention.h").read_text()
-        launch = "inline int transpose_keys(" + header.split(
-            "inline int transpose_keys(", 1
+        launch = "constexpr unsigned int kSplitMaxTokens" + header.split(
+            "constexpr unsigned int kSplitMaxTokens", 1
         )[1].split("} // namespace qrt_blackwell_attention", 1)[0]
         source = r'''
 #include <cstddef>
@@ -62,7 +62,7 @@ int main() {
     if (split(0, 8, nullptr, 1024) != hipErrorInvalidValue) return 1;
     if (split(0, 8, &scratch, 1023) != hipErrorInvalidValue) return 2;
     if (split(7160, 8, &scratch, 8u * 16u * 8u) != hipErrorInvalidValue) return 3;
-    if (split(8191, 2, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 4;
+    if (split(16383, 2, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 4;
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
@@ -93,10 +93,10 @@ int main() {
     launches = error_queries = events = 0u; fail_event = false;
     if (transpose_keys(nullptr, &operand, 512u, 1u, nullptr) != hipErrorInvalidValue ||
         transpose_keys(&operand, &operand, 511u, 1u, nullptr) != hipErrorInvalidValue ||
-        transpose_keys(&operand, &operand, SIZE_MAX, 8193u, nullptr) != hipErrorInvalidValue ||
+        transpose_keys(&operand, &operand, SIZE_MAX, 16385u, nullptr) != hipErrorInvalidValue ||
         transpose_keys(&operand, &operand, SIZE_MAX, 0u, nullptr) != hipErrorInvalidValue || launches)
         return 18;
-    if (transpose_keys(&operand, &operand, 8192u * 512u, 8192u, nullptr) != hipSuccess ||
+    if (transpose_keys(&operand, &operand, 16384u * 512u, 16384u, nullptr) != hipSuccess ||
         launches != 1u || error_queries != 1u) return 19;
     launches = error_queries = 0u;
     auto transposed = [&](const uint16_t* prepared, unsigned stride) {
@@ -106,12 +106,22 @@ int main() {
     };
     if (transposed(nullptr, 7168u) != hipErrorInvalidValue ||
         transposed(&operand, 7167u) != hipErrorInvalidValue ||
-        transposed(&operand, 8193u) != hipErrorInvalidValue || launches) return 20;
+        transposed(&operand, 16385u) != hipErrorInvalidValue || launches) return 20;
     if (transposed(&operand, 7169u) != hipSuccess || launches != 2u || error_queries != 2u)
         return 21;
     launches = error_queries = 0u; fail_scores = true;
     if (transposed(&operand, 7169u) != hipErrorUnknown || launches != 1u || error_queries != 1u)
         return 22;
+    launches = error_queries = 0u; fail_scores = false;
+    const size_t continuation_cells = 16u * 8197u;
+    if (split(8196, 1, &scratch, continuation_cells - 1u) != hipErrorInvalidValue || launches)
+        return 23;
+    if (split(8196, 1, &scratch, continuation_cells) != hipSuccess || launches != 2u)
+        return 24;
+    launches = error_queries = 0u;
+    if (split(16383, 1, &scratch, 16u * 16384u) != hipSuccess || launches != 2u)
+        return 25;
+    if (split_scratch_elements(1u, 16385u, 2u) != 0u) return 26;
     return 0;
 }
 '''

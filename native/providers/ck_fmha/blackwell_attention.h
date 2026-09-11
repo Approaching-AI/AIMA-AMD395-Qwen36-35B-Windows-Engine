@@ -475,9 +475,13 @@ __global__ void blackwell_probability_value_kernel(
         raw_denominator[static_cast<size_t>(output_start + blockIdx.y) * kQueryHeads + head] = denominator;
 }
 
+// Bounded captured-prefix replay includes continuation beyond an 8192-token
+// prompt. This diagnostic workspace bound does not change product contracts.
+constexpr unsigned int kSplitMaxTokens = 16384u;
+
 inline int transpose_keys(const uint16_t* key, uint16_t* transposed,
                           size_t elements, unsigned int tokens, hipStream_t stream) {
-    if (!key || !transposed || !tokens || tokens > 8192u ||
+    if (!key || !transposed || !tokens || tokens > kSplitMaxTokens ||
         elements < static_cast<size_t>(tokens) * kKvHeads * kHeadDim)
         return int(hipErrorInvalidValue);
     hipLaunchKernelGGL(blackwell_transpose_keys_kernel,
@@ -488,7 +492,7 @@ inline int transpose_keys(const uint16_t* key, uint16_t* transposed,
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
-    if (!queries || queries > 32u || stride < queries || stride > 8192u ||
+    if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
         memory_layout < 2u || memory_layout > 4u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
@@ -514,12 +518,12 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
     if (memory_layout > 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
-        // The split replay is bounded to the short full-prefix product range.
+        // The split replay includes a bounded continuation of the captured prefix.
         // Long-context terminal calls retain their existing allocation-free path.
-        if (!score_scratch || query_count > 32u || query_start + query_count > 8192u)
+        if (!score_scratch || query_count > 32u || query_start + query_count > kSplitMaxTokens)
             return int(hipErrorInvalidValue);
         const unsigned int stride = query_start + query_count;
-        if (memory_layout == 4u && (!transposed_key || key_stride < stride || key_stride > 8192u))
+        if (memory_layout == 4u && (!transposed_key || key_stride < stride || key_stride > kSplitMaxTokens))
             return int(hipErrorInvalidValue);
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
