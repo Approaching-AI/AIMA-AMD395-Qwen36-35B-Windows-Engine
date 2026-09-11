@@ -32,48 +32,57 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 11)
 
-Whole b92e8d8 passes the complete frozen q8191 out32 request on baiying:
-all 32 tokens, exact first logit 11.375, matching streaming callbacks and
-all host checks. The [K-normalization product evidence](../benchmarks/correctness/q1-key-normalization-product-20260911.json)
-binds that result to the real model and Windows build. At position 8196,
-all 40 layer carriers, every captured full-attention operator and all 2048
-final-norm values match GB10 bit-for-bit. The [original fused final norm](../benchmarks/correctness/q1-final-norm-product-20260911.json)
-restores the correct 82/220 scores of 9.3125/9.375. The preceding
-[short gated-norm repair](../benchmarks/correctness/q1-continuation-origin-20260911.json)
-uses the original compiled 32-lane, four-values-per-lane reduction.
-q7169 out512 completes but still first differs at index 148 (2450 instead
-of 10845), with 287 mismatches; its first 148 tokens and first logit 9.25 match.
-The [continuation-window evidence](../benchmarks/correctness/q1-continuation-window-20260911.json)
-shows all 40 carriers and every captured operator exact at position 7173,
-the first accepted second MTP row. By position 7200, layers 0–18 are exact
-but layer 19 first differs in 1228 carrier cells. The subsequent
-[K-normalization isolation](../benchmarks/correctness/q1-key-normalization-20260911.json)
-finds exact layers 0–2 and QKV at position 7221, followed by one wrong K
-normalization value at head 1, feature 226. The original compiled strided K
-kernel uses four stride-128 warps; the native implementation reused Q's two
-stride-64 warps. That single value is the only K difference in the entire
-7264-row layer-3 history, and all V values match. Native-input attention
-replay reproduces the engine's 25 context differences at position 7263;
-original-input replay has zero. The general K reduction repair passes its
-Windows build and real tensor regression fixture. In the complete q7169
-request it makes every layer-3 operator and all K/V through position 7221
-exact, and moves the first token difference from index 95 to 148. Layers
-0–18 match at position 7221; layer 19 is the first remaining differing carrier.
-The [full-19 historical-row comparison](../benchmarks/correctness/q1-full19-continuation-20260911.json)
-finds exact current QKV, Q/K normalization and RoPE at position 7200.
-Its KV cache differs only at position 7184: 183 K and 205 V values. Every
-prompt KV value and every other observed decode row match. The remaining
-investigation follows that earlier row's input through the preceding layers.
-The same strict prefill profile on q8192 completes 512 outputs with the
-first 115 tokens correct and exact first logit 10.375. Its first decode
-step has exact layer-0 state/operators and all forty layer carriers, but
-the later continuation still fails. Actual TTFT is 80,453.8138 ms.
-The observer now supports any single valid full-attention owner. The earlier
-[pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
-and its complete first-decode carrier comparisons remain verified.
-Strict callback TTFT remains about 70–80 seconds, and the fast q8192 profile
-still has incorrect prefill recurrent state. This work does not qualify a
-new performance result or release; the retained results below are unchanged.
+Whole daa054d extends the strict q8192 request from 115 to 255 consecutive
+exact outputs. Its complete 512-token request still first differs at index
+255 (488 instead of 1394), with 236 mismatches. q7169 out512 still first
+differs at index 148 (2450 instead of 10845), with 287 mismatches. Both
+first-token logits remain exact, every output is streamed before return,
+and all host checks pass. q8191 out32 continues to pass its entire frozen
+request with exact first logit 11.375. The
+[recurrent-output product evidence](../benchmarks/correctness/q1-recurrent-output-product-20260911.json)
+binds these runs to the real model, clean Windows build and unchanged
+oracle. Actual callback TTFT remains 69,774.3355 ms for q7169 and
+80,869.4488 ms for q8192; these are diagnostic timings, not retained wins.
+
+The [recurrent-output isolation](../benchmarks/correctness/q1-recurrent-output-order-20260911.json)
+finds one wrong core value at q7169 position 7184, layer 18, head 16,
+value 62. Every FP32 recurrent state cell before and after update, input
+norm, projection and convolution is exact. Original runtime PTX applies
+the special last-four-row paired reduction only to the decayed K
+projection. Updated-state Q output uses product 1 followed by FMA 0/2/3
+for every row. Separating these orders makes all 4096 replayed outputs
+exact while preserving the original state-update regressions. The Windows
+request now has exact layer-18 operators, MoE, all forty carriers and all
+3,678,720 layer-19 K values and V values through position 7184. The earlier
+[full-19 historical-row comparison](../benchmarks/correctness/q1-full19-continuation-20260911.json)
+had found 183 K and 205 V differences confined to that row.
+
+At q8192 position 8300, the same repair restores exact layer-1 state
+before/after, all captured operators and all forty carriers. The previous
+strict run had 240,536 differing incoming state cells there, despite an
+exact first decode step. q8191's forty carriers and full-attention stages
+at 8196 remain exact. Local C/ABI, Rust, Clippy, q16, 295 Python tests
+(two skips) and public hygiene pass; the native build passes in
+80,973.532 ms. The next observations follow the two remaining first
+continuation differences under their matching generated histories.
+
+The preceding [K-normalization product repair](../benchmarks/correctness/q1-key-normalization-product-20260911.json)
+uses the original four stride-128 warps for the strided K head view;
+Q retains two stride-64 warps. Its
+[real tensor and causal attention replay](../benchmarks/correctness/q1-key-normalization-20260911.json)
+locate a single wrong K value at position 7221. Correcting it makes the
+entire observed layer-3 KV history and all current operators exact and
+moves q7169's first token difference from index 95 to 148. The
+[original final-norm repair](../benchmarks/correctness/q1-final-norm-product-20260911.json)
+and [short gated-norm repair](../benchmarks/correctness/q1-continuation-origin-20260911.json)
+also remain active. The observer supports any single full-attention owner,
+and the [pool ownership repair](../benchmarks/correctness/q1-full-product-20260911.json)
+retains independently owned state snapshots.
+
+Long decode, true partial-prefix restore and product performance remain
+open. The fast q8192 profile still has incorrect prefill recurrent state.
+No new performance result or release is qualified; retained results below
+and all numerical tolerances remain unchanged.
 
 The [reference autotune controls](../benchmarks/correctness/reference-autotune-controls-20260911.json)
 explain why captures r15/r16 are excluded: they fail the first original
