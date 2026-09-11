@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import os
 from pathlib import Path
 import time
 
@@ -75,6 +76,17 @@ def recurrent_state_selection(indices, accepted, token_count, cache_slots):
                 accepted_tokens=accepted, state_indices=indices)
 
 
+def observation_layers(name, default, *, linear=False):
+    value = os.environ.get(name)
+    if value is None:
+        return list(default)
+    layers = [int(item) for item in value.split(',')]
+    if (not 1 <= len(layers) <= 3 or len(set(layers)) != len(layers) or
+            any(not 0 <= index < 40 or (linear and index % 4 == 3) for index in layers)):
+        raise ValueError('invalid bounded observation layers: ' + name)
+    return layers
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -106,7 +118,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
         self._qrt_boundary_prompt_tokens = prompt_tokens
-        self._qrt_boundary_linear_layers = [0, 2, 4] if case == "q8191-out32" else [0, 2]
+        self._qrt_boundary_linear_layers = observation_layers(
+            'QRT_GB10_BOUNDARY_LINEAR_LAYERS',
+            [0, 2, 4] if case == "q8191-out32" else [0, 2], linear=True)
         self._qrt_boundary_current = None
         self._qrt_boundary_indices = None
         model = runner.model
@@ -222,7 +236,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Preserve the original first-layer MoE call and selector. These
         # small decode-only endpoints distinguish projection, routing and
         # shared/routed rounding after the now-qualified GDN boundary.
-        self._qrt_boundary_moe_layers = [0, 2]
+        self._qrt_boundary_moe_layers = observation_layers(
+            'QRT_GB10_BOUNDARY_MOE_LAYERS', [0, 2])
         def attach_moe(index):
             mlp = layers[index].mlp
             if mlp.tp_size != 1 or mlp.shared_expert is None:
