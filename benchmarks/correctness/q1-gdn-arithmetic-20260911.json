@@ -1,0 +1,1959 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-11",
+  "kind": "matched_history_original_decode_state_and_arithmetic",
+  "release_acceptance": false,
+  "original_oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "reference": {
+    "source_commit": "46760757ee78416897afd8d1facfd875d0740277",
+    "capture_sha256": "9a31e8c09d96ac0d5bcbe77d39c0ed742d48009a1e597749badeb37249b95e2c",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-runtime-decode-states-20260911-r5",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "108g",
+        "--shm-size",
+        "8g",
+        "--cpus",
+        "8",
+        "-e",
+        "PYTHONPATH=/work/scripts",
+        "-e",
+        "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+        "-e",
+        "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+        "-v",
+        "${GB10_WORKSPACE}/qrt-gb10-runtime-decode-states-20260911-r5:/work",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=10",
+        "620",
+        "python3",
+        "scripts/capture_gb10_token_matrix.py",
+        "--source-commit",
+        "46760757ee78416897afd8d1facfd875d0740277",
+        "--oracle-q7169",
+        "contracts/arbitrary_q7169_gb10_oracle.json",
+        "--oracle-q8192",
+        "contracts/hprefill_q8192_gb10_oracle.json",
+        "--output-dir",
+        "capture",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--timeout-seconds",
+        "590",
+        "--runtime-boundaries",
+        "--execute"
+      ],
+      "command_file": "${GB10_WORKSPACE}/run-qrt-gb10-runtime-decode-states-20260911-r5.py",
+      "command_file_sha256": "8ee5beb3aa54724c6b71a06b139b1ade1e8843fc51c6ad5604196139ff4fd8ad",
+      "source_commit": "46760757ee78416897afd8d1facfd875d0740277",
+      "returncode": 0,
+      "reason": "completed",
+      "wall_seconds": 407.32371050798974,
+      "minimum_host_available_bytes": 14314352640,
+      "container_status": "false 0",
+      "archive_sha256": "f2790b094e233b001ca020524446afea51819892524474b46e8eee3c75640829"
+    },
+    "selected_artifact_archive_sha256": "33fb412f8f9e284dd89748091968deffc7431961bd8e8390b048ed41b0e0740f",
+    "load_seconds": 311.3909776070068,
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "first_token": 82,
+        "raw_logit": 9.25,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "83488bbc6dc6d5518ae5287ac8621f8d109c83ebbc97112fd2cea2ffadeefeec",
+        "boundary_bytes": 11643328
+      },
+      {
+        "name": "q8192-out32",
+        "first_token": 144,
+        "raw_logit": 10.375,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "401e306c0aa07fa36894fb985f20546c509a813dc8495f9ae0565ad1241b26eb",
+        "boundary_bytes": 11643328
+      },
+      {
+        "name": "q7168-out32",
+        "first_token": 220,
+        "raw_logit": 9.5625,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "007ddf10c7e4c6330939b0e0c543c6fa9963c2b101ba3f01be4ad7830c2fabe4",
+        "boundary_bytes": 11643328
+      },
+      {
+        "name": "q7170-out32",
+        "first_token": 94,
+        "raw_logit": 18.25,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "f98cee49c0a844ecbd2ffd7e5d5dcea2a4d322d662f16a0c0d0b968d3a3c5fd1",
+        "boundary_bytes": 11643328
+      },
+      {
+        "name": "q8191-out32",
+        "first_token": 168589,
+        "raw_logit": 11.375,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "e533b344709ad1fdeb1205817b9233ab36e96a15d20521755aef2c7768f486b2",
+        "boundary_bytes": 65478528
+      },
+      {
+        "name": "q8193-out32",
+        "first_token": 220,
+        "raw_logit": 9.75,
+        "outputs": 32,
+        "full_matrix_case_pass": true,
+        "case_sha256": "247ccbfd69e624d23e6e9d9921f5d8fed61ebb36d14b3ece9b83c8e1db6cefc3",
+        "boundary_bytes": 9529600
+      },
+      {
+        "name": "q7169-out512",
+        "first_token": 82,
+        "raw_logit": 9.25,
+        "outputs": 512,
+        "full_matrix_case_pass": true,
+        "case_sha256": "6ad4b7c803b20c66b151f02958adbe0b338d205f08e51d6c61c4c487a83e27e9",
+        "boundary_bytes": 54745408
+      },
+      {
+        "name": "q8192-out512",
+        "first_token": 144,
+        "raw_logit": 10.375,
+        "outputs": 512,
+        "full_matrix_case_pass": true,
+        "case_sha256": "5681d24739fb1381567b626e3eb234ce5e960f8ce0f7ce03cdefb29572f3b086",
+        "boundary_bytes": 29198144
+      }
+    ]
+  },
+  "previous_observer_attempt": {
+    "source_commit": "ed9fa68e5cc0044a495e45377ef832ad3460250d",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-runtime-decode-states-20260911-r4",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "108g",
+        "--shm-size",
+        "8g",
+        "--cpus",
+        "8",
+        "-e",
+        "PYTHONPATH=/work/scripts",
+        "-e",
+        "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+        "-e",
+        "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+        "-v",
+        "${GB10_WORKSPACE}/qrt-gb10-runtime-decode-states-20260911-r4:/work",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=10",
+        "620",
+        "python3",
+        "scripts/capture_gb10_token_matrix.py",
+        "--source-commit",
+        "ed9fa68e5cc0044a495e45377ef832ad3460250d",
+        "--oracle-q7169",
+        "contracts/arbitrary_q7169_gb10_oracle.json",
+        "--oracle-q8192",
+        "contracts/hprefill_q8192_gb10_oracle.json",
+        "--output-dir",
+        "capture",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--timeout-seconds",
+        "590",
+        "--runtime-boundaries",
+        "--execute"
+      ],
+      "command_file": "${GB10_WORKSPACE}/run-qrt-gb10-runtime-decode-states-20260911-r4.py",
+      "command_file_sha256": "124163518352fa4a89a2d4800354cd4df762fb1801f61f486fcb2b0c36b49f96",
+      "source_commit": "ed9fa68e5cc0044a495e45377ef832ad3460250d",
+      "returncode": 1,
+      "reason": "completed",
+      "wall_seconds": 367.11284271201293,
+      "minimum_host_available_bytes": 13426032640,
+      "container_status": "false 1",
+      "archive_sha256": "740daa4848b80e6cb40926b95db33d3d756be46fb278435de0b2ded9451376fc"
+    },
+    "failure": "q8191 exceeded the 128 MiB per-case artifact ceiling after the first four cases passed; the repaired prefill-tail row capture was omitted on the next attempt while retaining the same byte ceiling",
+    "partial_control_archive_sha256": "ffdbde460dfc4e05664eec8793929ab0e8d7a6d2f07426fc3ce32e4360da6e6e",
+    "complete_matrix_acceptance": false
+  },
+  "native_baselines": [
+    {
+      "name": "q7169-out32",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "source_commit": "5e358d38ed33d906d0283b0c304b850eb40082be",
+      "command_file": "D:\\projects\\run-native-q1-state-product-r1.ps1",
+      "command_sha256": "b3a37c8ace4986a78aee3a115d9ced99f0e5b706c85241a945207a105530f150",
+      "run_sha256": "6e1217fe76add136d6cf43fe8e8f183fd04becaca390d065c0a046486dffce11",
+      "exit_code": 0,
+      "reason": "completed",
+      "host_checks_pass": true,
+      "first_token_raw_logit": 9.25,
+      "output_token_ids": [
+        82,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "state_comparison": {
+        "case": "q7169-out32",
+        "position": 7169,
+        "reference_case_sha256": "83488bbc6dc6d5518ae5287ac8621f8d109c83ebbc97112fd2cea2ffadeefeec",
+        "native_run_sha256": "6e1217fe76add136d6cf43fe8e8f183fd04becaca390d065c0a046486dffce11",
+        "stages": {
+          "state-before": {
+            "elements": 524288,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": [],
+            "native_sha256": "3a2ea717674a97c3ac832b31bc198ea40ccb1cc713ab35320eebb9da0f410888",
+            "native_layout": "key_major",
+            "reference_file_sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2",
+            "reference_shape": [
+              1,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "state-after": {
+            "elements": 524288,
+            "mismatches": 509754,
+            "max_abs": 0.04451274871826172,
+            "mean_abs": 1.037532345980971e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.0005196579149924219,
+                "reference": 0.0005193590186536312
+              },
+              {
+                "index": 1,
+                "native": -0.0002569005300756544,
+                "reference": -0.00025786421610973775
+              },
+              {
+                "index": 2,
+                "native": 0.0006128696841187775,
+                "reference": 0.0006144051440060139
+              },
+              {
+                "index": 3,
+                "native": 0.0015369757311418653,
+                "reference": 0.0015367651358246803
+              },
+              {
+                "index": 4,
+                "native": -0.004026372916996479,
+                "reference": -0.004026647657155991
+              }
+            ],
+            "native_sha256": "c5d663f61007380b57e0a5233e28fdcc9d3368a528d40ff1e5ff8ec64a45d535",
+            "native_layout": "key_major",
+            "reference_file_sha256": "5aa6fc8290cfbd15b692250f07e2334c6baeab57825f8d47ed9b67184a7b81d0",
+            "reference_shape": [
+              2,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "conv-history": {
+            "elements": 24576,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "conv-history-bf16-endpoint": {
+            "elements": 24576,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "conv_f32": {
+            "elements": 8192,
+            "mismatches": 3124,
+            "max_abs": 0.0625,
+            "mean_abs": 0.00010622854234654255,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.02197265625,
+                "reference": -0.0218505859375
+              },
+              {
+                "index": 1,
+                "native": 0.021728515625,
+                "reference": 0.0216064453125
+              },
+              {
+                "index": 4,
+                "native": -0.00469970703125,
+                "reference": -0.004730224609375
+              },
+              {
+                "index": 5,
+                "native": 0.00107574462890625,
+                "reference": 0.00109100341796875
+              },
+              {
+                "index": 8,
+                "native": 0.00112152099609375,
+                "reference": 0.00113677978515625
+              }
+            ]
+          },
+          "projection_qkv_f32": {
+            "elements": 8192,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_z_f32": {
+            "elements": 4096,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_a_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_b_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "recurrent_core_f32": {
+            "elements": 4096,
+            "mismatches": 1946,
+            "max_abs": 0.015625,
+            "mean_abs": 9.383360659143136e-06,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.0012359619140625,
+                "reference": 0.00122833251953125
+              },
+              {
+                "index": 3,
+                "native": -0.0002384185791015625,
+                "reference": -0.000240325927734375
+              },
+              {
+                "index": 4,
+                "native": 0.000644683837890625,
+                "reference": 0.000640869140625
+              },
+              {
+                "index": 5,
+                "native": 9.894371032714844e-06,
+                "reference": 7.510185241699219e-06
+              },
+              {
+                "index": 9,
+                "native": 0.0006256103515625,
+                "reference": 0.000621795654296875
+              }
+            ]
+          }
+        }
+      },
+      "cpu_convolution": {
+        "case": "q7169-out32",
+        "position": 7169,
+        "output_mismatches": 0,
+        "first": [],
+        "native_run_sha256": "6e1217fe76add136d6cf43fe8e8f183fd04becaca390d065c0a046486dffce11",
+        "reference_case_sha256": "83488bbc6dc6d5518ae5287ac8621f8d109c83ebbc97112fd2cea2ffadeefeec",
+        "weights_sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+        "silu_table_sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+        "source_sha256": "d4eca7c01f4c5ec8476b59c131e73cd1cde816254f2f7e27e3d2bbc2869e28b3",
+        "inference_acceptance": false
+      },
+      "inference_acceptance": true,
+      "retained_performance_acceptance": false
+    },
+    {
+      "name": "q8191-out32",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "source_commit": "5e358d38ed33d906d0283b0c304b850eb40082be",
+      "command_file": "D:\\projects\\run-native-q1-state-product-r1.ps1",
+      "command_sha256": "b3a37c8ace4986a78aee3a115d9ced99f0e5b706c85241a945207a105530f150",
+      "run_sha256": "9915dccca9d640da4a2bf03769837229385c95152f925d028cd57c9c18994662",
+      "exit_code": 6,
+      "reason": "completed",
+      "host_checks_pass": true,
+      "first_token_raw_logit": 11.375,
+      "output_token_ids": [
+        168589,
+        57,
+        220,
+        220,
+        196,
+        82,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220
+      ],
+      "state_comparison": {
+        "case": "q8191-out32",
+        "position": 8191,
+        "reference_case_sha256": "e533b344709ad1fdeb1205817b9233ab36e96a15d20521755aef2c7768f486b2",
+        "native_run_sha256": "9915dccca9d640da4a2bf03769837229385c95152f925d028cd57c9c18994662",
+        "stages": {
+          "state-before": {
+            "elements": 524288,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": [],
+            "native_sha256": "e9c56b73028375fd276c62cfce3ad63f8f034ae6f904ec1944ca12edf0d83e6b",
+            "native_layout": "key_major",
+            "reference_file_sha256": "754fb45444994b2deba36899f1a41f763a1c020dd671105f991813e07d2fd118",
+            "reference_shape": [
+              1,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "state-after": {
+            "elements": 524288,
+            "mismatches": 509730,
+            "max_abs": 0.021604180335998535,
+            "mean_abs": 4.985842788968936e-06,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.0004985956475138664,
+                "reference": -0.0004982349346391857
+              },
+              {
+                "index": 1,
+                "native": 0.0005744138034060597,
+                "reference": 0.0005744131631217897
+              },
+              {
+                "index": 2,
+                "native": -0.0009970410028472543,
+                "reference": -0.0009965902427211404
+              },
+              {
+                "index": 3,
+                "native": 0.0014169313944876194,
+                "reference": 0.0014169069472700357
+              },
+              {
+                "index": 4,
+                "native": -0.0028876971919089556,
+                "reference": -0.0028878632001578808
+              }
+            ],
+            "native_sha256": "55b335b50a3f9d2f1729d741e11869f4abe69c457d9fceb511b8ceefe3130a36",
+            "native_layout": "key_major",
+            "reference_file_sha256": "3ab676cf811d0e0c0c7e1637fd051cb17a31114dbcac38e2f43993e003a5954a",
+            "reference_shape": [
+              2,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "conv-history": {
+            "elements": 24576,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "conv-history-bf16-endpoint": {
+            "elements": 24576,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "conv_f32": {
+            "elements": 8192,
+            "mismatches": 3198,
+            "max_abs": 0.03125,
+            "mean_abs": 5.896396169680074e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.036376953125,
+                "reference": 0.0361328125
+              },
+              {
+                "index": 7,
+                "native": 0.0284423828125,
+                "reference": 0.028564453125
+              },
+              {
+                "index": 10,
+                "native": -0.00191497802734375,
+                "reference": -0.0019378662109375
+              },
+              {
+                "index": 11,
+                "native": 0.0078125,
+                "reference": 0.00787353515625
+              },
+              {
+                "index": 13,
+                "native": 0.0274658203125,
+                "reference": 0.027587890625
+              }
+            ]
+          },
+          "projection_qkv_f32": {
+            "elements": 8192,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_z_f32": {
+            "elements": 4096,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_a_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_b_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "recurrent_core_f32": {
+            "elements": 4096,
+            "mismatches": 1783,
+            "max_abs": 0.00048828125,
+            "mean_abs": 1.8564971568935107e-06,
+            "first": [
+              {
+                "index": 3,
+                "native": -0.0003833770751953125,
+                "reference": -0.000385284423828125
+              },
+              {
+                "index": 5,
+                "native": -1.609325408935547e-05,
+                "reference": -1.621246337890625e-05
+              },
+              {
+                "index": 17,
+                "native": 0.00093841552734375,
+                "reference": 0.000934600830078125
+              },
+              {
+                "index": 23,
+                "native": 0.000972747802734375,
+                "reference": 0.00096893310546875
+              },
+              {
+                "index": 24,
+                "native": 0.0008392333984375,
+                "reference": 0.000835418701171875
+              }
+            ]
+          }
+        }
+      },
+      "cpu_convolution": {
+        "case": "q8191-out32",
+        "position": 8191,
+        "output_mismatches": 0,
+        "first": [],
+        "native_run_sha256": "9915dccca9d640da4a2bf03769837229385c95152f925d028cd57c9c18994662",
+        "reference_case_sha256": "e533b344709ad1fdeb1205817b9233ab36e96a15d20521755aef2c7768f486b2",
+        "weights_sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+        "silu_table_sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+        "source_sha256": "d4eca7c01f4c5ec8476b59c131e73cd1cde816254f2f7e27e3d2bbc2869e28b3",
+        "inference_acceptance": false
+      },
+      "inference_acceptance": false,
+      "retained_performance_acceptance": false
+    },
+    {
+      "name": "q8192-out32",
+      "host": "BAIYING",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "source_commit": "5e358d38ed33d906d0283b0c304b850eb40082be",
+      "command_file": "D:\\projects\\run-native-q1-state-product-r1.ps1",
+      "command_sha256": "b3a37c8ace4986a78aee3a115d9ced99f0e5b706c85241a945207a105530f150",
+      "run_sha256": "0562499ac34b9f9468d02d8c25f7ed3c92f3f63f4c3e082e1b9d463665cabb9e",
+      "exit_code": 0,
+      "reason": "completed",
+      "host_checks_pass": true,
+      "first_token_raw_logit": 10.375,
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196
+      ],
+      "state_comparison": {
+        "case": "q8192-out32",
+        "position": 8192,
+        "reference_case_sha256": "401e306c0aa07fa36894fb985f20546c509a813dc8495f9ae0565ad1241b26eb",
+        "native_run_sha256": "0562499ac34b9f9468d02d8c25f7ed3c92f3f63f4c3e082e1b9d463665cabb9e",
+        "stages": {
+          "state-before": {
+            "elements": 524288,
+            "mismatches": 508846,
+            "max_abs": 0.07632730901241302,
+            "mean_abs": 4.945997558100394e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.0006105139036662877,
+                "reference": -0.0006324306596070528
+              },
+              {
+                "index": 1,
+                "native": 0.0005445152055472136,
+                "reference": 0.0005415717605501413
+              },
+              {
+                "index": 2,
+                "native": -0.0011355680180713534,
+                "reference": -0.0011339409975335002
+              },
+              {
+                "index": 3,
+                "native": 0.0014311359263956547,
+                "reference": 0.0014285427751019597
+              },
+              {
+                "index": 4,
+                "native": -0.002848963951691985,
+                "reference": -0.002845468232408166
+              }
+            ],
+            "native_sha256": "de642232bdb3486f552327810e04b98b86db25bd25202b52ed09009d183028fb",
+            "native_layout": "key_major",
+            "reference_file_sha256": "df7054595e55c391c1a3a4099a7b32d74c8a51cfe233480ec559642f038b3e38",
+            "reference_shape": [
+              1,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "state-after": {
+            "elements": 524288,
+            "mismatches": 509947,
+            "max_abs": 0.07384419813752174,
+            "mean_abs": 5.1733970311337986e-05,
+            "first": [
+              {
+                "index": 0,
+                "native": -0.0006239956710487604,
+                "reference": -0.0006455763359554112
+              },
+              {
+                "index": 1,
+                "native": 0.0005044328281655908,
+                "reference": 0.0005022446857765317
+              },
+              {
+                "index": 2,
+                "native": -0.001138634397648275,
+                "reference": -0.0011369327548891306
+              },
+              {
+                "index": 3,
+                "native": 0.0014153496595099568,
+                "reference": 0.0014130749041214585
+              },
+              {
+                "index": 4,
+                "native": -0.002838259795680642,
+                "reference": -0.002835041843354702
+              }
+            ],
+            "native_sha256": "5ecd6e0d7a9eaded74331287a3417ee7163d097b11f50851e8c312ee8b24df3d",
+            "native_layout": "key_major",
+            "reference_file_sha256": "93077dda58f2052c944385b211951e65875720d0bf478dbb570eda6c4c8e2f37",
+            "reference_shape": [
+              2,
+              32,
+              128,
+              128
+            ],
+            "reference_row": 0
+          },
+          "conv-history": {
+            "elements": 24576,
+            "mismatches": 24576,
+            "max_abs": 0.06172370910644531,
+            "mean_abs": 0.001252402544338634,
+            "first": [
+              {
+                "index": 0,
+                "native": -2.986295223236084,
+                "reference": -2.984375
+              },
+              {
+                "index": 1,
+                "native": -1.3107646703720093,
+                "reference": -1.3125
+              },
+              {
+                "index": 2,
+                "native": -0.5652013421058655,
+                "reference": -0.56640625
+              },
+              {
+                "index": 3,
+                "native": 0.6133556365966797,
+                "reference": 0.61328125
+              },
+              {
+                "index": 4,
+                "native": -0.4644022583961487,
+                "reference": -0.46484375
+              }
+            ]
+          },
+          "conv-history-bf16-endpoint": {
+            "elements": 24576,
+            "mismatches": 163,
+            "max_abs": 0.00390625,
+            "mean_abs": 3.4482460857058567e-07,
+            "first": [
+              {
+                "index": 430,
+                "native": 9.639053676742758e-37,
+                "reference": 9.521504241660529e-37
+              },
+              {
+                "index": 431,
+                "native": -1.3459410316915192e-36,
+                "reference": -1.357695975199742e-36
+              },
+              {
+                "index": 438,
+                "native": 8.46355932592047e-37,
+                "reference": 8.404784608379356e-37
+              },
+              {
+                "index": 439,
+                "native": 3.408933617384634e-36,
+                "reference": 3.385423730368188e-36
+              },
+              {
+                "index": 457,
+                "native": -1.7514865827252084e-36,
+                "reference": -1.7632415262334313e-36
+              }
+            ]
+          },
+          "conv_f32": {
+            "elements": 8192,
+            "mismatches": 3129,
+            "max_abs": 0.0625,
+            "mean_abs": 0.00011005504165950697,
+            "first": [
+              {
+                "index": 0,
+                "native": 0.012939453125,
+                "reference": 0.01287841796875
+              },
+              {
+                "index": 2,
+                "native": -0.007476806640625,
+                "reference": -0.007415771484375
+              },
+              {
+                "index": 5,
+                "native": -0.0184326171875,
+                "reference": -0.018310546875
+              },
+              {
+                "index": 6,
+                "native": -0.004180908203125,
+                "reference": -0.00421142578125
+              },
+              {
+                "index": 9,
+                "native": -0.002532958984375,
+                "reference": -0.0025177001953125
+              }
+            ]
+          },
+          "projection_qkv_f32": {
+            "elements": 8192,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_z_f32": {
+            "elements": 4096,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_a_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "projection_b_f32": {
+            "elements": 32,
+            "mismatches": 0,
+            "max_abs": 0.0,
+            "mean_abs": 0.0,
+            "first": []
+          },
+          "recurrent_core_f32": {
+            "elements": 4096,
+            "mismatches": 1844,
+            "max_abs": 0.0078125,
+            "mean_abs": 8.25576632684788e-06,
+            "first": [
+              {
+                "index": 3,
+                "native": 9.059906005859375e-05,
+                "reference": 8.821487426757812e-05
+              },
+              {
+                "index": 4,
+                "native": 0.0011749267578125,
+                "reference": 0.00118255615234375
+              },
+              {
+                "index": 5,
+                "native": -0.000164031982421875,
+                "reference": -0.00016498565673828125
+              },
+              {
+                "index": 8,
+                "native": 0.00054168701171875,
+                "reference": 0.000545501708984375
+              },
+              {
+                "index": 11,
+                "native": 0.001373291015625,
+                "reference": 0.00138092041015625
+              }
+            ]
+          }
+        }
+      },
+      "cpu_convolution": {
+        "case": "q8192-out32",
+        "position": 8192,
+        "output_mismatches": 3,
+        "first": [
+          {
+            "index": 2758,
+            "actual_bits": 47644,
+            "expected_bits": 47636
+          },
+          {
+            "index": 3436,
+            "actual_bits": 48157,
+            "expected_bits": 48156
+          },
+          {
+            "index": 7923,
+            "actual_bits": 14341,
+            "expected_bits": 14340
+          }
+        ],
+        "native_run_sha256": "0562499ac34b9f9468d02d8c25f7ed3c92f3f63f4c3e082e1b9d463665cabb9e",
+        "reference_case_sha256": "401e306c0aa07fa36894fb985f20546c509a813dc8495f9ae0565ad1241b26eb",
+        "weights_sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+        "silu_table_sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+        "source_sha256": "d4eca7c01f4c5ec8476b59c131e73cd1cde816254f2f7e27e3d2bbc2869e28b3",
+        "inference_acceptance": false
+      },
+      "inference_acceptance": true,
+      "retained_performance_acceptance": false
+    }
+  ],
+  "original_operator_replay": {
+    "capture": {
+      "kind": "original_fused_decode_same_input_replay",
+      "host": "aitopatom-66c4",
+      "command": [
+        "/work/scripts/capture_gb10_decode_replay.py",
+        "--source-commit",
+        "b0278c39f4fe70021a57924714cc7b37038709a5",
+        "--reference-dir",
+        "/references",
+        "--parameter-dir",
+        "parameters",
+        "--manifest",
+        "manifest.json",
+        "--manifest-sha256",
+        "05c52cbaac5a2043bd420875a2af74201d673ac7cdbe44f471ca436235103a38",
+        "--output-dir",
+        "output",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--timeout-seconds",
+        "60",
+        "--execute",
+        "--worker",
+        "--supervisor-pid",
+        "7"
+      ],
+      "command_source_sha256": "a4fa3b8521ee606d8a42a173eff1accc1589de534b7dca11a3e1a449358e795c",
+      "source_commit": "b0278c39f4fe70021a57924714cc7b37038709a5",
+      "original_source_sha256": "2df5092c250c2046e070af9e219046e9bc97e2ebf8ca82eb0e7c4201d4b771e7",
+      "manifest_sha256": "05c52cbaac5a2043bd420875a2af74201d673ac7cdbe44f471ca436235103a38",
+      "cases": [
+        {
+          "name": "q7169-out32",
+          "reference_case_sha256": "923ad8a327b70f081b4ff82570200caf0e2148c40f24771e197bb494c1b4d280",
+          "original_replay_exact": true,
+          "instrumented_replay_exact": true,
+          "core": {
+            "file": "q7169-out32-core-bf16.bin",
+            "shape": [
+              1,
+              1,
+              32,
+              128
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 8192,
+            "sha256": "ae2bc0b6c92d77d49d495af6c06df555c4541a451e51338883acba60241ed88f"
+          },
+          "state": {
+            "file": "q7169-out32-state-f32.bin",
+            "shape": [
+              1,
+              32,
+              128,
+              128
+            ],
+            "dtype": "torch.float32",
+            "bytes": 2097152,
+            "sha256": "bf36dcf3a3a58503ed2299411e2ff468ccccfa79e88d16d319c511e1d3bf8e2c"
+          },
+          "diagnostic": {
+            "file": "q7169-out32-diagnostic-f32.bin",
+            "shape": [
+              32,
+              515
+            ],
+            "dtype": "torch.float32",
+            "bytes": 65920,
+            "sha256": "f310c3f0efcaeb79800f0986db339119303d1e0f7e92158d9aaeda9fcc91465f"
+          }
+        },
+        {
+          "name": "q8192-out32",
+          "reference_case_sha256": "cedf0403f8a0345582caca22df02caf9e805dd1b6650f8bb77fe451f7865458f",
+          "original_replay_exact": true,
+          "instrumented_replay_exact": true,
+          "core": {
+            "file": "q8192-out32-core-bf16.bin",
+            "shape": [
+              1,
+              1,
+              32,
+              128
+            ],
+            "dtype": "torch.bfloat16",
+            "bytes": 8192,
+            "sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+          },
+          "state": {
+            "file": "q8192-out32-state-f32.bin",
+            "shape": [
+              1,
+              32,
+              128,
+              128
+            ],
+            "dtype": "torch.float32",
+            "bytes": 2097152,
+            "sha256": "fd44e26856d8bfbf72dc3e83d47e0e132adc9b1e34f9a5478f816a8dad649065"
+          },
+          "diagnostic": {
+            "file": "q8192-out32-diagnostic-f32.bin",
+            "shape": [
+              32,
+              515
+            ],
+            "dtype": "torch.float32",
+            "bytes": 65920,
+            "sha256": "5239b7d09e9ea041428a90b6375a3b6a29baa2abe49a11fd061e23e32438d0a6"
+          }
+        }
+      ],
+      "diagnostic_layout": "per value head: Q128, K128, projected128, residual128, g, decay, beta",
+      "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+      "triton_version": "3.6.0",
+      "model_loaded": false,
+      "reference_service_forward": false,
+      "inference_acceptance": false,
+      "beta_domain": {
+        "input_encodings": 65536,
+        "original_internal_controls": 64,
+        "controls_exact": true,
+        "artifact": {
+          "file": "sigmoid-beta-f32.bin",
+          "shape": [
+            65536
+          ],
+          "dtype": "torch.float32",
+          "bytes": 262144,
+          "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+        }
+      },
+      "files": [
+        {
+          "file": "beta-domain.ptx",
+          "bytes": 7920,
+          "sha256": "47de10c5dc6a9d0c93bb1e674d4c0c5c588e51df616af9f4667d218af910f5c7"
+        },
+        {
+          "file": "beta_domain.py",
+          "bytes": 227,
+          "sha256": "1a85fc1524b3e9ce14015fc6ad894bde2e38cb11d39da0458be9552b4d68ddfe"
+        },
+        {
+          "file": "observed_decode.py",
+          "bytes": 9728,
+          "sha256": "890b07c08867a4d9754fd802e509de2471b5548f901592307c46b687857a3fe6"
+        },
+        {
+          "file": "q7169-out32-core-bf16.bin",
+          "bytes": 8192,
+          "sha256": "ae2bc0b6c92d77d49d495af6c06df555c4541a451e51338883acba60241ed88f"
+        },
+        {
+          "file": "q7169-out32-diagnostic-f32.bin",
+          "bytes": 65920,
+          "sha256": "f310c3f0efcaeb79800f0986db339119303d1e0f7e92158d9aaeda9fcc91465f"
+        },
+        {
+          "file": "q7169-out32-observed.ptx",
+          "bytes": 78494,
+          "sha256": "ecf46ee072e9b1b59395a8fea242bfea2b18bd9038562e150e5bd1257ebacd56"
+        },
+        {
+          "file": "q7169-out32-observed.ttgir",
+          "bytes": 40601,
+          "sha256": "de7973d5a463aef3c341f4b69823a2b6b14635809f9eced02cd34256ac7cc434"
+        },
+        {
+          "file": "q7169-out32-observed.ttir",
+          "bytes": 34857,
+          "sha256": "9eb294491e2b18481955bfb426a9b3cd93c748d043169558422593ae4c2b0e33"
+        },
+        {
+          "file": "q7169-out32-original.ptx",
+          "bytes": 77242,
+          "sha256": "24dc1d6ee31db9657d9e7b572148ad4f99eb3d22f75fffa0e4ceefcd6bf5ac3f"
+        },
+        {
+          "file": "q7169-out32-original.ttgir",
+          "bytes": 44818,
+          "sha256": "1f33613d77e9ade270e453e035f390a201e77565bcfd97c783d6309169c21040"
+        },
+        {
+          "file": "q7169-out32-original.ttir",
+          "bytes": 40036,
+          "sha256": "57698dd34f55c2321782b3aa328e065cff0e04a917b4b4422ace3a91816f45f0"
+        },
+        {
+          "file": "q7169-out32-state-f32.bin",
+          "bytes": 2097152,
+          "sha256": "bf36dcf3a3a58503ed2299411e2ff468ccccfa79e88d16d319c511e1d3bf8e2c"
+        },
+        {
+          "file": "q8192-out32-core-bf16.bin",
+          "bytes": 8192,
+          "sha256": "80a090e346dad25e5809b666f6724328223e19e88a8026845afd8a09a59fc08b"
+        },
+        {
+          "file": "q8192-out32-diagnostic-f32.bin",
+          "bytes": 65920,
+          "sha256": "5239b7d09e9ea041428a90b6375a3b6a29baa2abe49a11fd061e23e32438d0a6"
+        },
+        {
+          "file": "q8192-out32-observed.ptx",
+          "bytes": 78494,
+          "sha256": "ecf46ee072e9b1b59395a8fea242bfea2b18bd9038562e150e5bd1257ebacd56"
+        },
+        {
+          "file": "q8192-out32-observed.ttgir",
+          "bytes": 40601,
+          "sha256": "de7973d5a463aef3c341f4b69823a2b6b14635809f9eced02cd34256ac7cc434"
+        },
+        {
+          "file": "q8192-out32-observed.ttir",
+          "bytes": 34857,
+          "sha256": "9eb294491e2b18481955bfb426a9b3cd93c748d043169558422593ae4c2b0e33"
+        },
+        {
+          "file": "q8192-out32-original.ptx",
+          "bytes": 77242,
+          "sha256": "24dc1d6ee31db9657d9e7b572148ad4f99eb3d22f75fffa0e4ceefcd6bf5ac3f"
+        },
+        {
+          "file": "q8192-out32-original.ttgir",
+          "bytes": 44818,
+          "sha256": "1f33613d77e9ade270e453e035f390a201e77565bcfd97c783d6309169c21040"
+        },
+        {
+          "file": "q8192-out32-original.ttir",
+          "bytes": 40036,
+          "sha256": "57698dd34f55c2321782b3aa328e065cff0e04a917b4b4422ace3a91816f45f0"
+        },
+        {
+          "file": "q8192-out32-state-f32.bin",
+          "bytes": 2097152,
+          "sha256": "fd44e26856d8bfbf72dc3e83d47e0e132adc9b1e34f9a5478f816a8dad649065"
+        },
+        {
+          "file": "sigmoid-beta-f32.bin",
+          "bytes": 262144,
+          "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+        }
+      ]
+    },
+    "capture_sha256": "d3e4db2613b4c53102b371ad8d06d158689b15c2279d68d53b94abc65a654561",
+    "dispatch": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-decode-replay-20260911-r1",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "4g",
+        "--shm-size",
+        "1g",
+        "--cpus",
+        "4",
+        "-e",
+        "PYTHONPATH=/work/scripts",
+        "-v",
+        "${GB10_WORKSPACE}/qrt-gb10-decode-replay-20260911-r1:/work",
+        "-v",
+        "${GB10_WORKSPACE}/qrt-gb10-runtime-decode-states-20260911-r4/capture:/references:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "80",
+        "python3",
+        "scripts/capture_gb10_decode_replay.py",
+        "--source-commit",
+        "b0278c39f4fe70021a57924714cc7b37038709a5",
+        "--reference-dir",
+        "/references",
+        "--parameter-dir",
+        "parameters",
+        "--manifest",
+        "manifest.json",
+        "--manifest-sha256",
+        "05c52cbaac5a2043bd420875a2af74201d673ac7cdbe44f471ca436235103a38",
+        "--output-dir",
+        "output",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--timeout-seconds",
+        "60",
+        "--execute"
+      ],
+      "command_file": "${GB10_WORKSPACE}/run-qrt-gb10-decode-replay-20260911-r1.py",
+      "command_file_sha256": "31589bc88671b225f0e46f9341389cf92b19527f7d20a423948ed9a41bbd8188",
+      "source_commit": "b0278c39f4fe70021a57924714cc7b37038709a5",
+      "returncode": 0,
+      "wall_seconds": 5.685140449000755,
+      "container_status": "false 0",
+      "gpu_processes_after": "",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "archive_sha256": "3cc4b9d22a62b6b959342862ac71c3be9e753a554ce2a1f70ece83bf88336d3c"
+    },
+    "cpu_shared_math": [
+      {
+        "name": "q7169-out32",
+        "result": {
+          "mode": 0,
+          "diff_q_k_projected_residual_g_decay_beta": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "bf16_core_mismatches": 0,
+          "state_mismatches": 0,
+          "projection_by_v_mod32": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "header_sha256": "9a53bcf222f20db910b5322163c48ee6602accc6e4b594b8366b9ba947f7738c"
+      },
+      {
+        "name": "q8192-out32",
+        "result": {
+          "mode": 0,
+          "diff_q_k_projected_residual_g_decay_beta": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "bf16_core_mismatches": 0,
+          "state_mismatches": 0,
+          "projection_by_v_mod32": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "header_sha256": "9a53bcf222f20db910b5322163c48ee6602accc6e4b594b8366b9ba947f7738c"
+      }
+    ]
+  },
+  "native_operator": {
+    "source_commit": "af744045a56af44876affdf26475bb179da5d7da",
+    "build": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O2",
+          "-ffp-contract=off",
+          "--offload-arch=gfx1151",
+          "-I",
+          "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+          "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\tools\\q1_gdn_hip_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\q1-gdn-probe.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+        "repo_commit": "af744045a56af44876affdf26475bb179da5d7da",
+        "command_file": "D:\\projects\\run-native-q1-gdn-probe-r1.ps1",
+        "command_file_sha256": "bad7138ff5b7ec8112a6a19694ff9997578d2c70072281b1f38bf20b59811c93",
+        "model": "none; compile standalone HIP operator",
+        "model_loaded": false,
+        "inference_acceptance": false
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-11T06:43:53.0890667Z",
+        "command_file": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O2",
+            "-ffp-contract=off",
+            "--offload-arch=gfx1151",
+            "-I",
+            "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+            "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\tools\\q1_gdn_hip_probe.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\q1-gdn-probe.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+          "repo_commit": "af744045a56af44876affdf26475bb179da5d7da",
+          "command_file": "D:\\projects\\run-native-q1-gdn-probe-r1.ps1",
+          "command_file_sha256": "bad7138ff5b7ec8112a6a19694ff9997578d2c70072281b1f38bf20b59811c93",
+          "model": "none; compile standalone HIP operator",
+          "model_loaded": false,
+          "inference_acceptance": false
+        },
+        "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:07.9620640+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:07.9620640+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 25,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 25243410432,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147575939072,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533463883776,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2157.703,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:07.9620640+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:07.9620640+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 25,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 25212772352,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 147544240128,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533456089088,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "run": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\q1-gdn-probe.exe",
+        "executable_sha256": "d696d5432e85b37054c64a837f4f301e80649f85136d4d9ffa2bc771d1834a8b",
+        "arguments": [
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_ring_before.bin",
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_qkv_f32.bin",
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_a_f32.bin",
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_b_f32.bin",
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.recurrent_state_key_major_before_f32.bin",
+          "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_weights_bf16.bin",
+          "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+          "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+          "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+          "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+          "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+          "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-core-bf16.bin",
+          "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-state-f32.bin",
+          "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-diagnostic-f32.bin",
+          "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\actual",
+          "7169"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+        "repo_commit": "af744045a56af44876affdf26475bb179da5d7da",
+        "command_file": "D:\\projects\\run-native-q1-gdn-probe-r1.ps1",
+        "command_file_sha256": "bad7138ff5b7ec8112a6a19694ff9997578d2c70072281b1f38bf20b59811c93",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; captured native layer-0 q7169 first decode inputs",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "input_manifest": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\manifest.json",
+        "input_manifest_sha256": "c9063ceb08cf251edf8d79b1ad47126fd9f1b94c1353a1f61add46e6cb51599b",
+        "native_input_run_sha256": "6e1217fe76add136d6cf43fe8e8f183fd04becaca390d065c0a046486dffce11",
+        "reference_replay_capture_sha256": "d3e4db2613b4c53102b371ad8d06d158689b15c2279d68d53b94abc65a654561",
+        "comparison_only_reference_files": [
+          "q7169-out32-core-bf16.bin",
+          "q7169-out32-state-f32.bin",
+          "q7169-out32-diagnostic-f32.bin"
+        ],
+        "input_artifacts": [
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5",
+            "bytes": 262144,
+            "role": "model_independent_sigmoid"
+          },
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-core-bf16.bin",
+            "sha256": "ae2bc0b6c92d77d49d495af6c06df555c4541a451e51338883acba60241ed88f",
+            "bytes": 8192,
+            "role": "comparison_only"
+          },
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-state-f32.bin",
+            "sha256": "bf36dcf3a3a58503ed2299411e2ff468ccccfa79e88d16d319c511e1d3bf8e2c",
+            "bytes": 2097152,
+            "role": "comparison_only"
+          },
+          {
+            "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-diagnostic-f32.bin",
+            "sha256": "f310c3f0efcaeb79800f0986db339119303d1e0f7e92158d9aaeda9fcc91465f",
+            "bytes": 65920,
+            "role": "comparison_only"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_ring_before.bin",
+            "sha256": "ad81cacd715462043564c4b2c548b3b2fc1cbdedc9b90e3dc20139a8ffbe231f",
+            "bytes": 131072,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_qkv_f32.bin",
+            "sha256": "67016d75add1cf647532da12b074566ed4c9a2fec20d3867bb7f21b60dd28580",
+            "bytes": 32768,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_a_f32.bin",
+            "sha256": "e0263fa110b663c126439d07938493c5ef5aa79da4407ea08c41c5082b82d250",
+            "bytes": 128,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_b_f32.bin",
+            "sha256": "f9b4e9e444d81272e4ca03908ee22701318a9aab1a3a745632bfc8a1331c135e",
+            "bytes": 128,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.recurrent_state_key_major_before_f32.bin",
+            "sha256": "3a2ea717674a97c3ac832b31bc198ea40ccb1cc713ab35320eebb9da0f410888",
+            "bytes": 2097152,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_weights_bf16.bin",
+            "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+            "bytes": 65536,
+            "role": "native_real_model_input"
+          },
+          {
+            "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4",
+            "bytes": 8388608,
+            "role": "arithmetic_table"
+          },
+          {
+            "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+            "bytes": 183174448,
+            "role": "arithmetic_table"
+          },
+          {
+            "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+            "bytes": 17301808,
+            "role": "arithmetic_table"
+          },
+          {
+            "path": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+            "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+            "bytes": 648036,
+            "role": "arithmetic_table"
+          }
+        ]
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-11T06:43:55.5678843Z",
+        "command_file": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\q1-gdn-probe.exe",
+          "executable_sha256": "d696d5432e85b37054c64a837f4f301e80649f85136d4d9ffa2bc771d1834a8b",
+          "arguments": [
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_ring_before.bin",
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_qkv_f32.bin",
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_a_f32.bin",
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_b_f32.bin",
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.recurrent_state_key_major_before_f32.bin",
+            "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_weights_bf16.bin",
+            "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+            "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+            "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+            "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+            "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+            "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-core-bf16.bin",
+            "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-state-f32.bin",
+            "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-diagnostic-f32.bin",
+            "D:\\projects\\AIMA-public-q1-gdn-probe-20260911\\build\\probe\\actual",
+            "7169"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-q1-gdn-probe-20260911",
+          "repo_commit": "af744045a56af44876affdf26475bb179da5d7da",
+          "command_file": "D:\\projects\\run-native-q1-gdn-probe-r1.ps1",
+          "command_file_sha256": "bad7138ff5b7ec8112a6a19694ff9997578d2c70072281b1f38bf20b59811c93",
+          "model": "D:\\models\\Qwen3.6-35B-A3B; captured native layer-0 q7169 first decode inputs",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "input_manifest": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\manifest.json",
+          "input_manifest_sha256": "c9063ceb08cf251edf8d79b1ad47126fd9f1b94c1353a1f61add46e6cb51599b",
+          "native_input_run_sha256": "6e1217fe76add136d6cf43fe8e8f183fd04becaca390d065c0a046486dffce11",
+          "reference_replay_capture_sha256": "d3e4db2613b4c53102b371ad8d06d158689b15c2279d68d53b94abc65a654561",
+          "comparison_only_reference_files": [
+            "q7169-out32-core-bf16.bin",
+            "q7169-out32-state-f32.bin",
+            "q7169-out32-diagnostic-f32.bin"
+          ],
+          "input_artifacts": [
+            {
+              "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\sigmoid-beta-f32.bin",
+              "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5",
+              "bytes": 262144,
+              "role": "model_independent_sigmoid"
+            },
+            {
+              "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-core-bf16.bin",
+              "sha256": "ae2bc0b6c92d77d49d495af6c06df555c4541a451e51338883acba60241ed88f",
+              "bytes": 8192,
+              "role": "comparison_only"
+            },
+            {
+              "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-state-f32.bin",
+              "sha256": "bf36dcf3a3a58503ed2299411e2ff468ccccfa79e88d16d319c511e1d3bf8e2c",
+              "bytes": 2097152,
+              "role": "comparison_only"
+            },
+            {
+              "path": "D:\\projects\\qrt-q1-gdn-probe-inputs-20260911-r1\\q7169-out32-diagnostic-f32.bin",
+              "sha256": "f310c3f0efcaeb79800f0986db339119303d1e0f7e92158d9aaeda9fcc91465f",
+              "bytes": 65920,
+              "role": "comparison_only"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_ring_before.bin",
+              "sha256": "ad81cacd715462043564c4b2c548b3b2fc1cbdedc9b90e3dc20139a8ffbe231f",
+              "bytes": 131072,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_qkv_f32.bin",
+              "sha256": "67016d75add1cf647532da12b074566ed4c9a2fec20d3867bb7f21b60dd28580",
+              "bytes": 32768,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_a_f32.bin",
+              "sha256": "e0263fa110b663c126439d07938493c5ef5aa79da4407ea08c41c5082b82d250",
+              "bytes": 128,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.projection_b_f32.bin",
+              "sha256": "f9b4e9e444d81272e4ca03908ee22701318a9aab1a3a745632bfc8a1331c135e",
+              "bytes": 128,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.recurrent_state_key_major_before_f32.bin",
+              "sha256": "3a2ea717674a97c3ac832b31bc198ea40ccb1cc713ab35320eebb9da0f410888",
+              "bytes": 2097152,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\AIMA-public-q1-state-20260911\\build\\q1-state-q7169-out32-r1\\linear0.txn1.pos7169.layer0.conv_weights_bf16.bin",
+              "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+              "bytes": 65536,
+              "role": "native_real_model_input"
+            },
+            {
+              "path": "D:\\projects\\qrt-gating-model-20260910-r1\\layer0-g-f32-head-major.bin",
+              "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4",
+              "bytes": 8388608,
+              "role": "arithmetic_table"
+            },
+            {
+              "path": "D:\\projects\\sm121-exp2-negative-f490940d.bin",
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b",
+              "bytes": 183174448,
+              "role": "arithmetic_table"
+            },
+            {
+              "path": "D:\\projects\\sm121-rsqrt-positive-ca0230a8.bin",
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850",
+              "bytes": 17301808,
+              "role": "arithmetic_table"
+            },
+            {
+              "path": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin",
+              "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+              "bytes": 648036,
+              "role": "arithmetic_table"
+            }
+          ]
+        },
+        "executable_sha256": "d696d5432e85b37054c64a837f4f301e80649f85136d4d9ffa2bc771d1834a8b",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:07.9620640+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:07.9620640+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 25,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 25199702016,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147538710528,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533455585280,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 524.323,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:07.9620640+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:07.9620640+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 25,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 25186807808,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 147529502720,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533454848000,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "run_sha256": "ecf2e7cb693fe3a17f87a933d2a6b64eda064f21cf19169e16d62490bfd57630",
+    "result": {
+      "kind": "q1_sm121_native_conv_recurrent_replay",
+      "passed": true,
+      "core_mismatches": 0,
+      "state_mismatches": 0,
+      "diagnostic_mismatches": 0,
+      "inference_acceptance": false
+    },
+    "artifacts": [
+      {
+        "file": "actual-conv-f32.bin",
+        "sha256": "b37ae8ac014ba9416cd00bfaa7041ca5092919638adc1f8de83c7b366bce8e30",
+        "bytes": 32768
+      },
+      {
+        "file": "actual-core-f32.bin",
+        "sha256": "c5c40e8716b6820d233cd4278562419bfeee164364767c7990fbea197224a604",
+        "bytes": 16384
+      },
+      {
+        "file": "actual-diagnostic-f32.bin",
+        "sha256": "f310c3f0efcaeb79800f0986db339119303d1e0f7e92158d9aaeda9fcc91465f",
+        "bytes": 65920
+      },
+      {
+        "file": "actual-state-key-major-f32.bin",
+        "sha256": "4bd7c0e40cde7ff0413a9665bbed458cf589555994589c6d8ec99d77bbf63ec5",
+        "bytes": 2097152
+      }
+    ]
+  },
+  "conclusion": "The complete eight-case GB10 observer remains token-exact. q7169/q8191 native first-decode recurrent input states and convolution histories are exact; the legacy Q1 update changes them. Actual native q7169 inputs through the new convolution/recurrent HIP kernels match the original core, all 524288 final-state values and 16480 diagnostic values exactly. q8192 fast-prefill recurrent state and 163 BF16 ring history values already differ. Full-model integration and release qualification remain open.",
+  "public_path_redaction": {
+    "private_record_sha256": "e36434c75c44cd6f6669097d84f190706254d40d65db7b11351c050b41b0159f",
+    "note": "Private GB10 workspace prefixes redacted; the exact invocations remain in the hashed command and dispatch records."
+  }
+}

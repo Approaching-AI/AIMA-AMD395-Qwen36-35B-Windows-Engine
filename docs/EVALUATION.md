@@ -105,9 +105,35 @@ is excluded from operator comparisons because its preceding input history
 is already different. All requests complete and host checks pass; this
 route remains diagnostic. The q8192 32-token callback TTFT is 4162.961901 ms
 with selected decode tracing enabled; it does not replace the retained
-unprofiled result. Original decode convolution history and accepted
-recurrent input/output state slots are being captured to resolve the next
-arithmetic boundary.
+unprofiled result.
+
+The [original decode state and arithmetic evidence](../benchmarks/correctness/q1-gdn-arithmetic-20260911.json)
+qualifies all eight frozen GB10 cases with convolution history and the actual
+accepted recurrent state slots. At the first decode step, native q7169 and
+q8191 have exact initial recurrent states and BF16 convolution history.
+Their old convolution and recurrent updates differ. The fast q8192 profile
+already differs in 508,846 initial FP32 state values and 163 BF16 history
+values; fixing decode alone cannot qualify that prefill state.
+
+Replaying the original SM121 operator establishes FP32 sigmoid beta and
+normalized Q/K, BF16 convolution products, and the original four-K reduction
+and FMA order. The portable implementation matches all core outputs, next
+states and internal observations for two independently captured cases. The
+actual AMD HIP probe also matches all 4,096 core outputs, 524,288 state
+values and 16,480 internal FP32 observations using baiying's real q7169
+inputs. Host baiying, source `af744045a56af44876affdf26475bb179da5d7da`,
+model `D:\models\Qwen3.6-35B-A3B`, command
+`run-native-q1-gdn-probe-r1.ps1` (SHA
+`bad7138ff5b7ec8112a6a19694ff9997578d2c70072281b1f38bf20b59811c93`);
+build and probe complete with all host checks passing. These are operator
+checks, not token-loop or performance acceptance.
+
+The opt-in `QRT_QWEN36_Q1_SM121_GDN=1` now connects that convolution and
+recurrent implementation, plus exact gated normalization, to resident Q1
+decode. Its table paths use separate `QRT_QWEN36_Q1_SM121_*` variables so
+enabling it does not change prefill arithmetic. It preserves cache-frontier
+checks and supports both existing recurrent layouts. Full-model build and
+continuation qualification are pending; the retained profile is unchanged.
 
 The [bounded attention-output product tests](../benchmarks/correctness/attention-output-tiles-product-20260911.json)
 remove the q8193 layer-3 K4096 tile guard, but the request emits 64 instead

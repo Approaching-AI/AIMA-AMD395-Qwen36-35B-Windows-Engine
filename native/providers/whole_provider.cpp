@@ -25,6 +25,7 @@
 #include "projection_output_policy.h"
 #include "gate_input_capture.h"
 #include "sm121_silu_runtime.h"
+#include "sm121_q1_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
@@ -40497,6 +40498,7 @@ struct Gb10GateLutLayer {
     std::vector<uint16_t> beta_bf16_bits;
     std::string directory;
     bool loaded = false;
+    float *q1_device_g = nullptr;
 };
 
 struct Gb10GateLutStore {
@@ -40548,14 +40550,15 @@ bool read_exact_binary_vector(
 bool load_gb10_gate_lut_layer(
     unsigned int layer_index,
     const Gb10GateLutLayer **output,
-    std::string *failure
+    std::string *failure,
+    const char *path_override = nullptr
 ) {
     if (output == nullptr || failure == nullptr ||
         layer_index >= QRT_QWEN36_LAYER_COUNT) {
         return false;
     }
     *output = nullptr;
-    const char *directory_env =
+    const char *directory_env = path_override ? path_override :
         std::getenv("QRT_QWEN36_GB10_GATE_LUT_DIR");
     if (directory_env == nullptr || directory_env[0] == '\0') {
         *failure = "QRT_QWEN36_GB10_GATE_LUT_DIR is empty";
@@ -40612,6 +40615,32 @@ bool load_gb10_gate_lut_layer(
             1000000.0)
         << " authority=gb10_triton_fused_gdn_gating"
         << std::endl;
+    return true;
+}
+
+bool load_q1_sm121_gate_table(unsigned int layer_index, const float **output, std::string *failure) {
+    if (!output || !failure) return false;
+    *output = nullptr;
+    const Gb10GateLutLayer *loaded = nullptr;
+    if (!load_gb10_gate_lut_layer(layer_index, &loaded, failure,
+            std::getenv("QRT_QWEN36_Q1_SM121_GATE_LUT_DIR"))) return false;
+    Gb10GateLutStore &store = gb10_gate_lut_store();
+    std::lock_guard<std::mutex> lock(store.mutex);
+    Gb10GateLutLayer &layer = store.layers[layer_index];
+    if (!layer.q1_device_g) {
+        const size_t bytes = kGb10GateLutGEntries * sizeof(float);
+        float *device = nullptr;
+        hipError_t status = hipMalloc(reinterpret_cast<void **>(&device), bytes);
+        if (status == hipSuccess)
+            status = hipMemcpy(device, layer.g_f32_bits.data(), bytes, hipMemcpyHostToDevice);
+        if (status != hipSuccess) {
+            if (device) (void)hipFree(device);
+            *failure = std::string("Q1 model gate upload: ") + hipGetErrorString(status);
+            return false;
+        }
+        layer.q1_device_g = device;
+    }
+    *output = layer.q1_device_g;
     return true;
 }
 
@@ -40954,13 +40983,14 @@ Gb10GatedSiluF32LutStore &gb10_gated_silu_f32_lut_store() {
 
 bool load_gb10_gated_silu_f32_lut(
     const float **device_values,
-    std::string *failure
+    std::string *failure,
+    const char *path_override = nullptr
 ) {
     if (device_values == nullptr || failure == nullptr) {
         return false;
     }
     *device_values = nullptr;
-    const char *path_env = std::getenv(
+    const char *path_env = path_override ? path_override : std::getenv(
         "QRT_QWEN36_GB10_GATED_SILU_F32_LUT_PATH"
     );
     if (path_env == nullptr || path_env[0] == '\0') {
@@ -41064,13 +41094,14 @@ gfx1151_sm121_rsqrt_correction_store() {
 
 bool load_gfx1151_sm121_rsqrt_correction(
     const uint8_t **device_packed_deltas,
-    std::string *failure
+    std::string *failure,
+    const char *path_override = nullptr
 ) {
     if (device_packed_deltas == nullptr || failure == nullptr) {
         return false;
     }
     *device_packed_deltas = nullptr;
-    const char *path_env = std::getenv(
+    const char *path_env = path_override ? path_override : std::getenv(
         "QRT_QWEN36_GFX1151_SM121_RSQRT_CORRECTION_PATH"
     );
     if (path_env == nullptr || path_env[0] == '\0') {
@@ -67899,9 +67930,28 @@ bool run_qwen36_resident_linear_conv_cache_step(
         (q65536_early_conv_f32_silu_layer_mask &
          (1u << layer_index)) != 0u;
 
+    const bool sm121_q1 = env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN");
+    qrt_sm121_q1_runtime::Tables tables;
+    if (sm121_q1) {
+        const hipError_t prepared = qrt_sm121_q1_runtime::prepare(&tables);
+        if (prepared != hipSuccess)
+            return qwen36_resident_decode_set_failure(stage,
+                std::string("SM121 Q1 table preparation: ") + hipGetErrorString(prepared),
+                failure_stage, failure);
+    }
     const dim3 block(kThreads);
     const dim3 grid((kQkvRows + kThreads - 1u) / kThreads);
-    if (expected_kind == Qwen36ResidentSessionElementKind::kF32) {
+    if (sm121_q1) {
+        if (expected_kind == Qwen36ResidentSessionElementKind::kF32) {
+            hipLaunchKernelGGL(qrt_sm121_q1::convolution<float>, grid, block, 0, stream,
+                device_current_qkv, static_cast<float *>(layer.device_qkv_ring),
+                device_conv_weights, device_conv_output, absolute_position, tables.silu);
+        } else {
+            hipLaunchKernelGGL(qrt_sm121_q1::convolution<uint16_t>, grid, block, 0, stream,
+                device_current_qkv, static_cast<uint16_t *>(layer.device_qkv_ring),
+                device_conv_weights, device_conv_output, absolute_position, tables.silu);
+        }
+    } else if (expected_kind == Qwen36ResidentSessionElementKind::kF32) {
         hipLaunchKernelGGL(
             qwen36_resident_linear_conv_cache_kernel<float>,
             grid,
@@ -67957,6 +68007,42 @@ bool run_qwen36_resident_linear_conv_cache_step(
             << std::endl;
     }
     ++layer.decode_qkv_token_count;
+    lease->mark_work_submitted();
+    return true;
+}
+
+bool run_qwen36_resident_linear_sm121_core_step(
+    ScopedQwen36ResidentSessionDecode *lease, unsigned int layer_index,
+    size_t position, const float *conv, const float *a, const float *b,
+    float *postconv, float *gates, float *output,
+    std::string *failure_stage, std::string *failure, hipStream_t stream
+) {
+    const std::string stage = "qwen36_resident_linear_sm121_core";
+    if (!lease || !lease->ready() || layer_index >= QRT_QWEN36_LAYER_COUNT ||
+        layer_index % 4u == 3u || !conv || !a || !b || !postconv || !gates || !output)
+        return qwen36_resident_decode_set_failure(stage, "invalid SM121 Q1 frontier", failure_stage, failure);
+    Qwen36ResidentSessionLinearLayer &layer = g_qwen36_resident_session.linear_layers[layer_index];
+    if (!layer.valid || !layer.device_recurrent_state || layer.recurrent_state_bytes != 524288u * sizeof(float) ||
+        layer.decode_recurrent_token_count != g_qwen36_resident_session.committed_decode_token_count ||
+        position != layer.prefix_tokens + layer.decode_recurrent_token_count ||
+        layer.decode_qkv_token_count != layer.decode_recurrent_token_count + 1u)
+        return qwen36_resident_decode_set_failure(stage, "SM121 Q1 cache does not follow the completed convolution", failure_stage, failure);
+    qrt_sm121_q1_runtime::Tables tables;
+    const hipError_t prepared = qrt_sm121_q1_runtime::prepare(&tables);
+    const float *g_table = nullptr;
+    if (prepared != hipSuccess)
+        return qwen36_resident_decode_set_failure(stage, hipGetErrorString(prepared), failure_stage, failure);
+    if (!load_q1_sm121_gate_table(layer_index, &g_table, failure)) {
+        *failure_stage = stage;
+        return false;
+    }
+    hipLaunchKernelGGL(qrt_sm121_q1::recurrent, dim3(32), dim3(128), 0, stream,
+        conv, a, b, layer.device_recurrent_state, layer.recurrent_state_key_major,
+        output, postconv, gates, nullptr, g_table, tables.beta, tables.exp2, tables.rsqrt);
+    const hipError_t launched = hipGetLastError();
+    if (launched != hipSuccess)
+        return qwen36_resident_decode_set_failure(stage, hipGetErrorString(launched), failure_stage, failure);
+    ++layer.decode_recurrent_token_count;
     lease->mark_work_submitted();
     return true;
 }
@@ -160262,6 +160348,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     const bool projection_input_bf16 = descriptor.layer_index >= 2u ||
         (q1_decode_early_layer_bf16_projection_requested &&
          q1_decode_early_layer_bf16_projection_layer_selected);
+    const bool q1_sm121_gdn_requested = env_flag_enabled("QRT_QWEN36_Q1_SM121_GDN");
     const bool q1_w8a8_fused_bf16_quantize_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_W8A8_FUSED_BF16_QUANTIZE"
     );
@@ -160289,7 +160376,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     const bool q1_linear_persistent_direct_f32_requested = env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_DIRECT_F32"
     );
-    const bool q1_linear_persistent_fused_conv_requested = env_flag_enabled(
+    const bool q1_linear_persistent_fused_conv_requested = !q1_sm121_gdn_requested && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_FUSED_CONV"
     );
     const bool q1_linear_triton_0626_qkvz_ab_globally_requested =
@@ -160457,6 +160544,17 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
     );
     const bool use_q1_linear_device_chain =
         q1_linear_device_chain_requested;
+    const float *q1_sm121_gated_silu = nullptr;
+    const uint8_t *q1_sm121_rsqrt_correction = nullptr;
+    if (q1_sm121_gdn_requested &&
+        (!use_q1_linear_device_chain ||
+         !load_gb10_gated_silu_f32_lut(&q1_sm121_gated_silu, &run->failure,
+             std::getenv("QRT_QWEN36_Q1_SM121_GATED_SILU_TABLE")) ||
+         !load_gfx1151_sm121_rsqrt_correction(&q1_sm121_rsqrt_correction, &run->failure,
+             std::getenv("QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION")))) {
+        return fail("qwen36_q1_sm121_gated_norm_tables",
+                    run->failure.empty() ? "SM121 Q1 requires the device chain and exact gated-norm tables" : run->failure);
+    }
     const bool use_q1_linear_persistent_fused_conv =
         q1_linear_persistent_fused_conv_requested &&
         use_q1_linear_persistent_direct_f32 &&
@@ -160554,7 +160652,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_KEYHEAD_FUSED_POST"
         );
     const bool q1_linear_keyhead_fused_post_requested =
-        q1_linear_keyhead_fused_post_globally_requested &&
+        !q1_sm121_gdn_requested && q1_linear_keyhead_fused_post_globally_requested &&
         q1_linear_triton_0626_layer_selected;
     const bool use_q1_linear_keyhead_fused_post =
         projection_input_bf16 &&
@@ -162080,6 +162178,20 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         );
     }
 
+    if (q1_sm121_gdn_requested) {
+        if (!record_profile_boundary(Q1LayerProfileBoundary::kCoreBegin,
+                "qwen36_resident_decode_linear_profile_core_begin")) return false;
+        if (!run_qwen36_resident_linear_sm121_core_step(lease, descriptor.layer_index,
+                absolute_position, device_conv, device_a, device_b, device_postconv,
+                device_gate, device_core, &run->failure_stage, &run->failure,
+                q1_decode_layer_stack_stream)) {
+            lease->invalidate();
+            return false;
+        }
+        ++kernel_launches;
+        emit_q1024_q1_linear_stage_digest("postconv_f32", device_postconv, kQkvRows * sizeof(float));
+        emit_q1024_q1_linear_stage_digest("gate_f32", device_gate, kGateOutputRows * sizeof(float));
+    } else {
     if (use_q1_linear_device_chain) {
         run->conv_window.gpu_output.clear();
         run->postconv_window.gpu_output.clear();
@@ -162223,6 +162335,7 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         return false;
     }
     ++kernel_launches;
+    }
     emit_q1024_q1_linear_stage_digest(
         "recurrent_core_f32",
         device_core,
@@ -162240,9 +162353,9 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
         gated_norm_weights,
         device_gated,
         1u,
-        0u,
-        nullptr,
-        nullptr
+        q1_sm121_gdn_requested ? 3u : 0u,
+        q1_sm121_gated_silu,
+        q1_sm121_rsqrt_correction
     );
     ++kernel_launches;
     if (!check_launch(

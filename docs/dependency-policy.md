@@ -68,14 +68,33 @@ execution both reproduce all 32 G and beta control values bit for bit.
 
 The existing optional `QRT_QWEN36_GB10_GATE_LUT_DIR` diagnostic uses host
 lookups. Its current per-layer cache retains 8 MiB plus a 128 KiB sigmoid
-copy. Extending to all 30 linear-attention layers would add 240 MiB plus a
-shared 128 KiB file on disk; the current loader would also duplicate the
+copy. All 30 linear-attention layers have now been constructed, using 240 MiB
+plus a shared 128 KiB file on disk; the current loader duplicates the
 sigmoid cache per layer. The offline dependencies are the same pinned
 Torch/NumPy/Triton image; no CUDA/Python dependency enters Windows inference.
-Only layer zero has been constructed in this control. Diagnostic commands
-must pin its fingerprint and parameter provenance because the existing raw
+Diagnostic commands must pin fingerprints and parameter provenance because the existing raw
 loader validates size, not model identity. Release use remains contingent on
 model binding, artifact verification, load time and real-model qualification.
+
+The optional Q1 decode implementation reuses those 30 model gate files and
+the existing exponent, reciprocal-root, SiLU and gated-normalization tables.
+It adds a 262,144-byte model-independent FP32 sigmoid file, SHA-256
+`cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5`,
+enumerated over all BF16 inputs using the pinned original decode expression.
+The benefit is preserving FP32 beta and normalized Q/K through the recurrent
+update; the former BF16 beta route changes real captured states. Native HIP
+replay matches every saved output and state in the q7169 operator control.
+
+The Q1 loader validates the three common files with Windows CNG SHA-256 and
+layout checks, allocating 200,738,400 bytes (191.44 MiB) on the device. It
+also uploads 8 MiB per model gate layer, up to another 240 MiB, retaining the
+existing host cache. SiLU and gated-normalization tables share their existing
+process caches. Common exponent/root tables can duplicate allocations owned
+by the separate prefill provider. The incremental offline artifact is the
+256 KiB FP32 sigmoid file; Windows inference gains no CUDA, Python or new
+third-party runtime dependency. Q1-specific path variables isolate this
+choice from prefill. Model-file binding, total load cost and full-model
+qualification remain release requirements.
 
 ## Optional model embedding inverse scales
 
