@@ -1,5 +1,6 @@
 param(
     [Parameter(Mandatory = $false)][string]$OutDir = "",
+    [Parameter(Mandatory = $false)][ValidateSet(4, 8, 16)][int]$HawkeyeReplayLanes = 16,
     [Parameter(Mandatory = $false)]
         [ValidateRange(1, 600)]
         [int]$CompileTimeoutSeconds = 300,
@@ -150,6 +151,7 @@ if (-not $hostRun.completed -or $hostRun.exit_code -ne 0) {
 }
 
 $providerArguments = @(
+    ("-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=" + $HawkeyeReplayLanes),
     ("-DQRT_QWEN36_W8A8_GROUP_SIZE=" + $W8A8GroupSize),
     ("-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=" + $W8A8ScaleFp16),
     "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
@@ -242,6 +244,9 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_mantissa_parts.h')).Hash.ToLowerInvariant()
     sm121_integer_parts_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_integer_parts.h')).Hash.ToLowerInvariant()
+    hawkeye_replay_lanes = $HawkeyeReplayLanes
+    sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h')).Hash.ToLowerInvariant()
     hipcc = $hipcc
     clang = $clang
     rocm_root = $RocmRoot

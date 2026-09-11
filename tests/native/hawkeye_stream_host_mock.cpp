@@ -16,6 +16,10 @@ enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorInvalidConfiguration
 using hipStream_t = void *;
 constexpr int hipMemcpyDeviceToHost = 0;
 constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
+#ifndef QRT_PREFILL_HAWKEYE_REPLAY_LANES
+#define QRT_PREFILL_HAWKEYE_REPLAY_LANES 16
+#endif
+constexpr unsigned int kSelectedHawkeyeReplayLanes = QRT_PREFILL_HAWKEYE_REPLAY_LANES;
 constexpr unsigned int kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit =
     qrt_hawkeye_dispatch::maximum_exact_blocks;
 constexpr unsigned int kThreads = 256u;
@@ -89,7 +93,7 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     unsigned int, const unsigned int *indices, unsigned int offset, unsigned int count
 ) {
     ++corrections;
-    const unsigned int end = (std::min)(count, offset + exact_blocks * 16u);
+    const unsigned int end = (std::min)(count, offset + exact_blocks * (256u / kSelectedHawkeyeReplayLanes));
     for (unsigned int j = offset; j < end; ++j) {
         const size_t index = indices[j];
         if (index >= total_elements) { invalid_range = true; continue; }
@@ -178,7 +182,7 @@ int main() {
     if (invalid_grid || invalid_range || allocations != 1u || frees != 1u ||
         scratch_bytes != (65536u + 2u) * sizeof(unsigned int)) return 4;
     // Fully dense source blocks remain bounded after compaction. The actual
-    // kernel has only 16 candidate subgroups per CTA, under the configured cap.
+    // kernel has at most 64 candidate subgroups per CTA, within the cap.
     for (unsigned int cap : {8u, 64u, 999u, 4096u, UINT32_MAX}) {
         requested_blocks = cap;
         reset(); output.assign(total_elements, 1.00390625f);

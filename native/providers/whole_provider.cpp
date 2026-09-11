@@ -31,6 +31,7 @@
 #include "sm121_q1_attention_runtime.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
+#include "moe_accumulator/sm121_subgroup.h"
 #include "moe_accumulator/sm121_q1_moe.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
 #include "q1_moe_avx512bf16_host_provider.h"
@@ -72,11 +73,17 @@ namespace {
 
 constexpr int kThreads = 256;
 constexpr unsigned int kSelectedHawkeyeCorrectionThreads = 256u;
+#ifndef QRT_PREFILL_HAWKEYE_REPLAY_LANES
+#define QRT_PREFILL_HAWKEYE_REPLAY_LANES 16
+#endif
+constexpr unsigned int kSelectedHawkeyeReplayLanes = QRT_PREFILL_HAWKEYE_REPLAY_LANES;
+static_assert(kSelectedHawkeyeReplayLanes == 4u || kSelectedHawkeyeReplayLanes == 8u ||
+              kSelectedHawkeyeReplayLanes == 16u);
 // gfx1151 runs under WDDM on the Windows acceptance host.  A single
 // product-shape Hawkeye correction grid can otherwise occupy the GPU for
 // long enough to take the host off the LAN without leaving a watchdog dump.
 // The earlier source-block correction could give one CTA unbounded candidate
-// work. The compacted kernel now assigns exactly one dot to each of its 16
+// work. The compacted kernel assigns exactly one dot to each of its bounded
 // subgroups. Real q7169 evidence has bounded single-dispatch time but substantial
 // serial launch overhead. Keep eight CTAs as the default and allow explicit
 // complete-window compacted batches under the same dispatch and total deadlines.
@@ -37343,7 +37350,7 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     }
 }
 
-// One wave16 subgroup computes one compacted candidate. Absolute indices keep
+// One subgroup computes one compacted candidate. Absolute indices keep
 // row, token, full-prefix, and optional error-bound addressing unchanged across
 // windows. The existing group-16/K-continuous arithmetic is unchanged.
 __global__ __launch_bounds__(256)
@@ -37357,19 +37364,19 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     unsigned int candidate_offset,
     unsigned int candidate_count
 ) {
-    constexpr unsigned int kWave16 = 16u;
-    constexpr unsigned int kWave16Subgroups =
-        kSelectedHawkeyeCorrectionThreads / kWave16;
+    constexpr unsigned int kReplayLanes = kSelectedHawkeyeReplayLanes;
+    constexpr unsigned int kReplaySubgroups =
+        kSelectedHawkeyeCorrectionThreads / kReplayLanes;
     const unsigned int candidate_slot = candidate_offset +
-        blockIdx.x * kWave16Subgroups + threadIdx.x / kWave16;
+        blockIdx.x * kReplaySubgroups + threadIdx.x / kReplayLanes;
     if (candidate_slot >= candidate_count) return;
     const size_t index = candidate_indices[candidate_slot];
     const size_t token = index / rows;
     const size_t row = index - token * rows;
-    const float corrected = selected_hawkeye_wave16_dot_bf16_hopper(
+    const float corrected = qrt_sm121_subgroup::dot<kReplayLanes>(
         selected_inputs + token * static_cast<size_t>(reduction_size),
         weights + row * static_cast<size_t>(reduction_size), reduction_size);
-    if ((threadIdx.x & (kWave16 - 1u)) == 0u) {
+    if ((threadIdx.x & (kReplayLanes - 1u)) == 0u) {
         outputs[index] = device_bf16_round_to_float(corrected);
     }
 }
@@ -37642,7 +37649,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         maximum_blocks_per_launch,
         kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit));
     constexpr unsigned int subgroups_per_block =
-        kSelectedHawkeyeCorrectionThreads / 16u;
+        kSelectedHawkeyeCorrectionThreads / kSelectedHawkeyeReplayLanes;
     const unsigned int candidates_per_launch = bounded_blocks * subgroups_per_block;
     const size_t elements_per_launch = window_capacity;
     const auto correction_start = std::chrono::steady_clock::now();

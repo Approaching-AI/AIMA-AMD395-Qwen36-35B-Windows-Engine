@@ -83,14 +83,15 @@ int main() {
         source = (ROOT / "tests/native/hawkeye_stream_host_mock.cpp").read_text()
         source = source.replace("// QRT_ACTUAL_LAUNCHER", provider[begin:end])
         with tempfile.TemporaryDirectory(prefix="qrt-hawkeye-stream-") as tmp:
-            exe = str(Path(tmp) / "stream-test")
-            subprocess.run(
-                [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
-                 "-Werror", "-I", str(ROOT / "native/providers"), "-x", "c++",
-                 "-", "-o", exe],
-                input=source, text=True, check=True, timeout=30,
-            )
-            subprocess.run([exe], check=True, timeout=5, capture_output=True, text=True)
+            for lanes in (16, 8, 4):
+                exe = str(Path(tmp) / f"stream-test-{lanes}")
+                subprocess.run(
+                    [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
+                     "-Werror", f"-DQRT_PREFILL_HAWKEYE_REPLAY_LANES={lanes}",
+                     "-I", str(ROOT / "native/providers"), "-x", "c++", "-", "-o", exe],
+                    input=source, text=True, check=True, timeout=30,
+                )
+                subprocess.run([exe], check=True, timeout=5, capture_output=True, text=True)
 
     def test_dense_work_and_exhausted_time_are_rejected(self):
         source = r'''

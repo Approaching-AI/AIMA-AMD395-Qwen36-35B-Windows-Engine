@@ -256,12 +256,26 @@ FP32 bytes for both formats and query batches 8/32. Batch 8 changes from
 exact native reconstruction and reduced table storage, but is insufficient
 to address the dominant product wall; no compact-table product is qualified.
 
-The next optional MoE build parameter `-RoutedReplayLanes 4` or `8` groups
+The optional MoE build parameter `-RoutedReplayLanes 4` or `8` groups
 multiple BF16 products per lane while preserving every K16 carry and the
 original candidate selectors. It changes only compacted routed replay; the
 local control and default build retain 16 lanes. This exposes more independent
-dots per wave and reduces subgroup reductions. Native arithmetic, routed
-phase controls and complete frozen products remain required evidence.
+dots per wave and reduces subgroup reductions. [Native arithmetic and routed
+controls](../benchmarks/correctness/moe-subgroup-20260912.json) at `254f0a1`
+pass, including signed/subnormal values, unaligned rows, tails and immutable
+inputs. The 4-lane complete q8192/512 request matches every frozen token and
+first logit, streaming and captured GB10 state/KV boundaries, but callback TTFT
+is 87643.8764 ms versus the selected 77000.9007 ms. Keep the selected product
+components. A correctness-attached profile locates the added time before
+gate, in an interval that also contains input/weight L2 work. Those kernels
+and native route-layout machine code are unchanged; a current 16-lane control
+is needed before attributing the interval to the new replay arithmetic.
+
+The same proven subgroup helper is now optional for dense prefill projection
+correction via `-HawkeyeReplayLanes 4` or `8`. Its host launcher derives both
+candidate capacity and grid geometry from the selected subgroup size. All
+three sizes pass index transport, partial windows, dense selection and failure
+cleanup tests. Native dense replay and complete products remain open.
 Other prompt lengths, longer context
 targets, true partial-prefix restore and packaged API acceptance remain
 open. The observed speedup does not meet the product performance limits or
