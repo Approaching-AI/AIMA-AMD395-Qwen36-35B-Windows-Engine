@@ -39,6 +39,37 @@ bool check_final_group_endpoint(qrt_q1_moe_hawkeye::Value value) {
     return true;
 }
 
+bool check_packed_products(const std::array<uint16_t, 16>& left,
+                          const std::array<uint16_t, 16>& right,
+                          qrt_q1_moe_hawkeye::Value accumulator) {
+    std::array<qrt_q1_moe_hawkeye::Value, 17> values{};
+    uint32_t packed[16];
+    int max_exponent = -133;
+    for (size_t i = 0u; i < left.size(); ++i) {
+        values[i] = qrt_q1_moe_hawkeye::multiply_bf16(left[i], right[i], -133);
+        packed[i] = pack_product(values[i]);
+    }
+    values[16] = accumulator;
+    for (const auto value : values)
+        if (value.exponent > max_exponent) max_exponent = value.exponent;
+    int64_t exact_sum = 0;
+    for (const auto value : values) {
+        const unsigned int shift = static_cast<unsigned int>(max_exponent - value.exponent);
+        const uint64_t aligned = shift >= 32u
+            ? 0u : (uint64_t{value.significand} << 2u) >> shift;
+        exact_sum += value.negative ? -static_cast<int64_t>(aligned)
+                                   : static_cast<int64_t>(aligned);
+    }
+    const auto result = sum_packed(accumulator, packed);
+    const uint64_t magnitude = static_cast<uint64_t>(exact_sum < 0 ? -exact_sum : exact_sum);
+    if (result.max_exponent != max_exponent || result.value.magnitude != magnitude ||
+        result.value.negative != (exact_sum < 0)) {
+        std::fprintf(stderr, "packed product alignment/sum changed\n");
+        return false;
+    }
+    return true;
+}
+
 uint32_t next(uint32_t& state) {
     state ^= state << 13;
     state ^= state >> 17;
@@ -50,6 +81,7 @@ uint32_t next(uint32_t& state) {
 int main() {
     using namespace qrt_sm121_group16;
     std::array<int64_t, 16> products{};
+    std::array<uint16_t, 16> left{}, right{};
     if (!check(products, 0)) return 1;
     if (!check_final_group_endpoint({0u, -133, false})) return 6;
     if (!check_final_group_endpoint({0u, -133, true})) return 6;
@@ -60,6 +92,16 @@ int main() {
     }
     // Exercise both signed-overflow directions and every mixed-sign position.
     for (int sign : {-1, 1}) {
+        left.fill(sign < 0 ? 0xbfffu : 0x3fffu);
+        right.fill(0x3fffu);
+        for (bool negative : {false, true}) {
+            if (!check_packed_products(left, right, {0x00ffffffu, 0, negative})) return 7;
+            for (size_t lane = 0; lane < left.size(); ++lane) {
+                left[lane] ^= 0x8000u;
+                if (!check_packed_products(left, right, {0x00ffffffu, 0, negative})) return 7;
+                left[lane] ^= 0x8000u;
+            }
+        }
         products.fill(sign * static_cast<int64_t>(kMaxAlignedProduct));
         for (int64_t accumulator : {
                  -static_cast<int64_t>(kMaxAlignedAccumulator), int64_t{0},
@@ -98,7 +140,17 @@ int main() {
             ? fraction : fraction | 0x00800000u;
         if (!check_final_group_endpoint({significand, exponent, (bits & 1u) != 0u}))
             return 6;
+        for (size_t lane = 0; lane < left.size(); ++lane) {
+            // Full BF16 encodings include zeros/subnormals, maximal exponent
+            // gaps and both signs. Dense equal-exponent controls cover the
+            // overlapping positive/negative modulo interval independently.
+            const auto sample = next(state);
+            left[lane] = static_cast<uint16_t>(sample);
+            right[lane] = static_cast<uint16_t>(sample >> 16u);
+        }
+        if (!check_packed_products(left, right, {significand, exponent, (bits & 1u) != 0u}))
+            return 7;
     }
-    std::puts("sm121_group16_modulo=pass groups=1000000 signed_overflow_edges=pass");
+    std::puts("sm121_group16_modulo=pass groups=1000000 signed_overflow_edges=pass packed_product_groups=1000000");
     return 0;
 }

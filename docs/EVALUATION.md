@@ -132,6 +132,15 @@ normalization: kernel intervals total 4,707.43 ms, maximum 10.8648 ms, with
 all BF16 and raw FP32 values unchanged. The full-model result above qualifies
 that change on the frozen q7169 gate. These component intervals are not TTFT.
 
+A subsequent [shared-memory layout replay](../benchmarks/correctness/attention-layout-20260911.json)
+at source 6399c3f keeps all 29,364,224 GB10 BF16 endpoints and the prior
+qualified native FP32 boundary exact. Direct-load kernel intervals total
+4,670.41 ms; staging Q/V takes 8,077.02 ms and staging Q/K/V takes 9,726.89 ms.
+Both staged layouts are rejected for performance and remain absent from the
+production default. The replay now returns nonzero for numerical mismatch,
+while preserving output artifacts for diagnosis. These component intervals
+are not product TTFT.
+
 The preceding edcbe6f run (SHA
 `ec42c758962a2c67c24de8895180a8fa1da3567a049009d7a7ebf2dbaafcbd2f`)
 already matched all 80 layer norms and all 40 terminal residuals, but emitted

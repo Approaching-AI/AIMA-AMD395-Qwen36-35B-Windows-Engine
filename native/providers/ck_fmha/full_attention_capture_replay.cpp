@@ -118,11 +118,11 @@ unsigned parse(const char* text, unsigned maximum) {
 int main(int argc, char** argv) {
     try {
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_2]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_1]");
         const unsigned tokens = parse(argv[7], 8192), start = parse(argv[8], 8191);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 2) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 1) : 0u;
         bool matched = true;
         if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");

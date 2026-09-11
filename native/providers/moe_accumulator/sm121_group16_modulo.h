@@ -52,6 +52,56 @@ QRT_SM121_GROUP16_INLINE SignedMagnitude decode_modulo_sum(
     };
 }
 
+// BF16 products carry sixteen significant product bits and nine zero bits.
+// Retain the product, its biased exponent and sign in one register per K cell
+// while a lane computes sixteen independent products before their common
+// exponent is known. The input must come from multiply_bf16(..., -133).
+QRT_SM121_GROUP16_INLINE uint32_t pack_product(qrt_q1_moe_hawkeye::Value product) {
+    return (product.significand >> 9u) |
+        (static_cast<uint32_t>(static_cast<int>(product.exponent) + 254) << 16u) |
+        (product.negative ? 0x80000000u : 0u);
+}
+
+QRT_SM121_GROUP16_INLINE int packed_exponent(uint32_t product) {
+    return static_cast<int>((product >> 16u) & 0x01ffu) - 254;
+}
+
+struct AlignedSum {
+    SignedMagnitude value;
+    int max_exponent;
+};
+
+QRT_SM121_GROUP16_INLINE AlignedSum sum_packed(
+    qrt_q1_moe_hawkeye::Value accumulator, const uint32_t (&products)[16]
+) {
+    int max_exponent = accumulator.exponent > -133 ? accumulator.exponent : -133;
+#if defined(__HIP_DEVICE_COMPILE__) || defined(__CUDA_ARCH__)
+#pragma unroll
+#endif
+    for (unsigned int item = 0u; item < 16u; ++item) {
+        const int exponent = packed_exponent(products[item]);
+        max_exponent = exponent > max_exponent ? exponent : max_exponent;
+    }
+    const unsigned int accumulator_shift = static_cast<unsigned int>(
+        max_exponent - accumulator.exponent);
+    const uint32_t aligned = accumulator_shift >= 32u
+        ? 0u : (accumulator.significand << 2u) >> accumulator_shift;
+    uint32_t modulo_sum = accumulator.negative ? 0u - aligned : aligned;
+#if defined(__HIP_DEVICE_COMPILE__) || defined(__CUDA_ARCH__)
+#pragma unroll
+#endif
+    for (unsigned int item = 0u; item < 16u; ++item) {
+        const uint32_t product = products[item];
+        const unsigned int shift = static_cast<unsigned int>(
+            max_exponent - packed_exponent(product));
+        const uint32_t magnitude = shift >= 32u
+            ? 0u : ((product & 0xffffu) << 11u) >> shift;
+        modulo_sum += (product & 0x80000000u) ? 0u - magnitude : magnitude;
+    }
+    return {decode_modulo_sum(modulo_sum, (products[0] & 0x80000000u) != 0u),
+            max_exponent};
+}
+
 // A final one-value group preserves an already normalized FP32 accumulator,
 // except that its integer zero sum clears a negative zero produced by
 // underflow. Keep that endpoint without repeating exponent normalization.
