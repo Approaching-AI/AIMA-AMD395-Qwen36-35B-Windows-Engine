@@ -25,6 +25,7 @@
 typedef struct qrt_product_options_t {
     const char *model_path;
     const char *tokens_path;
+    const char *checkpoint_owner_path;
     const char *expected_output_path;
     const char *env_path;
     const char *provider_dll;
@@ -66,6 +67,7 @@ static void qrt_product_usage(const char *program) {
         stderr,
         "usage: %s run --model PATH --tokens FILE --output-tokens N "
         "[--prefix-tokens N] [--prefix-hits N] "
+        "[--checkpoint-owner FILE] "
         "[--prefix-negative-guard] [--expected-output FILE] "
         "[--expected-prompt-fnv HEX] [--expected-output-fnv HEX] "
         "[--env-file FILE] [--provider-dll FILE] [--ignore-eos]\n",
@@ -296,6 +298,8 @@ static int qrt_product_parse_options(
             options.model_path = value;
         } else if (strcmp(name, "--tokens") == 0) {
             options.tokens_path = value;
+        } else if (strcmp(name, "--checkpoint-owner") == 0) {
+            options.checkpoint_owner_path = value;
         } else if (strcmp(name, "--expected-output") == 0) {
             options.expected_output_path = value;
         } else if (strcmp(name, "--env-file") == 0) {
@@ -353,7 +357,8 @@ static int qrt_product_parse_options(
         options.output_token_capacity == 0u ||
         (options.prefix_token_count == 0u &&
          (options.prefix_hit_count != 1u ||
-          options.prefix_negative_guard))) {
+          options.prefix_negative_guard ||
+          options.checkpoint_owner_path != NULL))) {
         return 0;
     }
     *out_options = options;
@@ -712,6 +717,11 @@ static void qrt_product_print_fnv1a64_array(
 static int qrt_product_run(const qrt_product_options_t *options) {
     uint32_t *input_tokens = NULL;
     size_t input_token_count = 0u;
+    uint32_t *checkpoint_owner_tokens = NULL;
+    size_t checkpoint_owner_count = 0u;
+    uint32_t checkpoint_owner_first_token = UINT32_MAX;
+    float checkpoint_owner_first_logit = 0.0f;
+    int checkpoint_owner_logit_valid = 0;
     uint32_t *expected_output_tokens = NULL;
     size_t expected_output_token_count = 0u;
     uint32_t output_tokens[QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS];
@@ -848,9 +858,23 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         return 6;
     }
 
+    if (options->checkpoint_owner_path != NULL &&
+        (!qrt_product_parse_token_array(
+            options->checkpoint_owner_path, &checkpoint_owner_tokens,
+            &checkpoint_owner_count) ||
+         checkpoint_owner_count <= options->prefix_token_count ||
+         memcmp(checkpoint_owner_tokens, input_tokens,
+                options->prefix_token_count * sizeof(*input_tokens)) != 0)) {
+        fputs("checkpoint owner must extend the declared actual prefix\n", stderr);
+        free(checkpoint_owner_tokens);
+        free(expected_output_tokens);
+        free(input_tokens);
+        return 3;
+    }
     memset(&config, 0, sizeof(config));
     config.model_path = options->model_path;
-    config.context_tokens = input_token_count;
+    config.context_tokens = checkpoint_owner_count > input_token_count
+        ? checkpoint_owner_count : input_token_count;
     config.batch_size = 1u;
     load_start_ns = qrt_product_now_ns();
     if (!qrt_product_preload_provider(
@@ -858,6 +882,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             options->model_path,
             &preload
         )) {
+        free(checkpoint_owner_tokens);
         free(expected_output_tokens);
         free(input_tokens);
         return 4;
@@ -873,6 +898,7 @@ static int qrt_product_run(const qrt_product_options_t *options) {
             qrt_strerror(status)
         );
         qrt_product_release_preload(&preload);
+        free(checkpoint_owner_tokens);
         free(expected_output_tokens);
         free(input_tokens);
         return 4;
@@ -896,7 +922,41 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         goto cleanup;
     }
 
-    if (options->prefix_token_count != 0u) {
+    if (checkpoint_owner_tokens != NULL) {
+        size_t owner_output_count = 0u;
+        size_t matched_prefix = 0u;
+        const uint64_t seed_start_ns = qrt_product_now_ns();
+        status = qrt_engine_request_tokens(
+            engine, checkpoint_owner_tokens, checkpoint_owner_count,
+            &checkpoint_owner_first_token, 1u, &owner_output_count
+        );
+        seed_wall_ns = qrt_product_elapsed_ns(seed_start_ns);
+        if (status == QRT_STATUS_OK && owner_output_count == 1u &&
+            qrt_engine_report(engine, report) == QRT_STATUS_OK) {
+            checkpoint_owner_first_logit = report->baseline_output_head_topk_logits[0];
+            checkpoint_owner_logit_valid =
+                report->baseline_output_head_token_emitted &&
+                report->baseline_output_head_sampled_token_id == checkpoint_owner_first_token &&
+                report->baseline_output_head_topk_token_ids[0] == checkpoint_owner_first_token &&
+                isfinite((double)checkpoint_owner_first_logit);
+            status = qrt_engine_prefix_checkpoint_match_v1(
+                engine, input_tokens, input_token_count,
+                options->output_token_capacity, &matched_prefix
+            );
+        }
+        fprintf(stderr,
+            "QRT_PRODUCT_MARK checkpoint_owner tokens=%zu first_token=%u logit_valid=%d first_logit=%.9g prefix_match=%zu cold_owner_ms=%.6f\n",
+            checkpoint_owner_count, checkpoint_owner_first_token,
+            checkpoint_owner_logit_valid, (double)checkpoint_owner_first_logit,
+            matched_prefix, (double)seed_wall_ns / 1000000.0);
+        if (status != QRT_STATUS_OK || owner_output_count != 1u ||
+            !checkpoint_owner_logit_valid ||
+            matched_prefix != options->prefix_token_count) {
+            fputs("complete checkpoint owner/query failed\n", stderr);
+            exit_code = 5;
+            goto cleanup;
+        }
+    } else if (options->prefix_token_count != 0u) {
         const uint64_t seed_start_ns = qrt_product_now_ns();
         status = qrt_engine_request_tokens_prefix_fallback_v1(
             engine,
@@ -1312,6 +1372,16 @@ static int qrt_product_run(const qrt_product_options_t *options) {
         prefix_hit_teacher_fnv1a64,
         options->prefix_token_count != 0u ? request_count : 0u
     );
+    fprintf(stdout,
+        ",\"checkpoint_owner_tokens\":%zu,\"checkpoint_owner_first_token\":%u,"
+        "\"checkpoint_owner_logit_valid\":%s,\"checkpoint_owner_first_logit\":",
+        checkpoint_owner_count, checkpoint_owner_first_token,
+        checkpoint_owner_logit_valid ? "true" : "false");
+    if (checkpoint_owner_logit_valid) {
+        fprintf(stdout, "%.9g", (double)checkpoint_owner_first_logit);
+    } else {
+        fputs("null", stdout);
+    }
     fputs("}\n", stdout);
     fflush(stdout);
 
@@ -1328,6 +1398,7 @@ cleanup:
     free(prefix_seed_result);
     free(prefix_result);
     free(expected_output_tokens);
+    free(checkpoint_owner_tokens);
     free(input_tokens);
     return exit_code;
 }

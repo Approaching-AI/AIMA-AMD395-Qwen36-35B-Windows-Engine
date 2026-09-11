@@ -35,7 +35,13 @@ fn main() {
     for c_file in &c_files {
         println!("cargo:rerun-if-changed={}", c_file.display());
     }
-    for header in ["qrt.h", "qwen36_baseline.h", "qrt_server_bridge.h"] {
+    for header in [
+        "qrt.h",
+        "qwen36_baseline.h",
+        "qrt_server_bridge.h",
+        "qrt_prefix_logit.h",
+        "qrt_prefix_checkpoint.h",
+    ] {
         println!("cargo:rerun-if-changed={}", c_dir.join(header).display());
     }
 

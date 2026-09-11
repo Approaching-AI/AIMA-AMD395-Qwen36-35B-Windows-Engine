@@ -15,13 +15,13 @@ and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 
 | Area | Windows action and remaining boundary |
 |---|---|
-| Variable cold lengths / serial tails (Linux #1/#5) | Preserve acceleration and logical token counts; validate both sides of every optimized boundary with output 1 and ordinary multi-token requests. The frozen q7169 32-token numerical gate now passes with a slow compatibility profile; neighboring-length performance and the unified configuration remain open. |
+| Variable cold lengths / serial tails (Linux #1/#5) | The eight frozen cold requests now pass all 1,216 output tokens and the GB10 first-token/logit boundary under one selected component configuration. q8192 actual callback TTFT is still 62.837 s; retained performance, new prompts and the wider length matrix remain open. See the bounded-prefill product record. |
 | Logical GEMM/FLA extents | Audit logical sequence lengths separately from padded allocation/launch extents. Linux `3d284a3` and `e402b3a` are useful arithmetic references, not portable Windows binaries or authority to loosen token/logit gates. |
 | Thinking (Linux #6, .5) | Add the validated top-level object, legacy-alias conflict handling, tokenizer parity and live no-tools reasoning streaming. Explicitly preserve the Windows disabled default and repair empty-kwargs inconsistency. |
 | Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and explicit conservative no-progress metadata now have CPU/HTTP regressions. Semantic retry strategy and side-effect authorization remain with the caller. |
 | Control-plane responsiveness (.5) | Existing bounded FIFO retained; a gated backend test proves health/shutdown and the first reasoning delta arrive before generation completes. Native packaged-server validation is still required. |
 | Default VL reasoning (.6) | Windows remains text-only; no vision implementation or inherited VL result is claimed. |
-| Partial shared prefixes (.7 / closed Linux #12) | Port safe saved checkpoints spanning KV, recurrent, convolution and hidden state. Windows currently can recompute a matched seed; it must demonstrate actual restoration, suffix-only work, restored bytes/time, and divergent/unrelated-prefix isolation. |
+| Partial shared prefixes (.7 / closed Linux #12) | An opt-in Windows implementation now captures up to three K64 boundaries: unrounded FP32 recurrence, convolution rings, terminal hidden and owner-bound full-attention KV. Query and shadow restoration have host allocation-failure/ownership tests. Complete-model native capture, GB10 continuation, divergent requests and packaged-server qualification remain open. |
 
 The GitHub latest-release endpoint was rechecked on September 11 and still
 selects `.7`; no newer stable release is inferred from local branch commits.

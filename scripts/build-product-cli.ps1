@@ -135,6 +135,7 @@ if (-not (Test-Path -LiteralPath $executable -PathType Leaf)) {
 $sourceRecords = foreach ($source in @($sources) + @(
         (Join-Path $sourceDir "qrt.h"),
         (Join-Path $sourceDir "qrt_prefix_logit.h"),
+        (Join-Path $sourceDir "qrt_prefix_checkpoint.h"),
         (Join-Path $sourceDir "qwen36_baseline.h")
     )) {
     [ordered]@{

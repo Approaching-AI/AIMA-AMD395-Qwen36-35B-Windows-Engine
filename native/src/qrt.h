@@ -5570,6 +5570,15 @@ QRT_API qrt_status_t qrt_engine_request_tokens_prefix_v1(
     size_t output_token_capacity,
     qrt_qwen36_resident_prefix_cache_result_v1_t *out_result
 );
+/* Read-only query of complete resident checkpoints. A supported miss, or an
+ * older provider without this optional capability, returns OK and zero. */
+QRT_API qrt_status_t qrt_engine_prefix_checkpoint_match_v1(
+    qrt_engine_t *engine,
+    const uint32_t *input_tokens,
+    size_t input_token_count,
+    size_t output_token_capacity,
+    size_t *out_prefix_token_count
+);
 QRT_API qrt_status_t qrt_engine_request_tokens_prefix_stream_v1(
     qrt_engine_t *engine,
     const uint32_t *input_tokens,

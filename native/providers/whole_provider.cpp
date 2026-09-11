@@ -21,6 +21,9 @@
 
 #include "qrt.h"
 #include "qrt_prefix_logit.h"
+#include "qrt_prefix_checkpoint.h"
+#include "prefix_checkpoint_policy.h"
+#include "gdn/fla_checkpoint.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
@@ -7498,6 +7501,10 @@ bool capture_qwen36_prefill_mtp_target_hidden_if_requested(
     size_t prefill_tokens,
     std::string *failure_stage,
     std::string *failure
+);
+void capture_qwen36_prefix_checkpoint_hidden(
+    const PrefillLinearAttentionDescriptorBatchRun &batch,
+    size_t prefill_tokens
 );
 
 bool tensor_name_for_layer_kind(
@@ -45181,6 +45188,7 @@ struct FlaChunkGdnDynamicProviderState {
     HMODULE module = NULL;
     AiterFusedGdnPrepareFn prepare = nullptr;
     AiterFusedGdnDynamicLaunchFn dynamic_launch = nullptr;
+    qrt_fla_checkpoint::Launch checkpoint_launch = nullptr;
     AiterFusedGdnLastErrorFn last_error = nullptr;
     std::string dll_path;
     std::string kernel_dir;
@@ -45258,6 +45266,9 @@ bool load_fla_chunk_gdn_dynamic_provider(
     state.last_error = reinterpret_cast<AiterFusedGdnLastErrorFn>(
         GetProcAddress(state.module, "qrt_aiter_fused_gdn_q8192_last_error")
     );
+    state.checkpoint_launch = reinterpret_cast<qrt_fla_checkpoint::Launch>(
+        GetProcAddress(state.module, "qrt_fla_gdn_launch_async_checkpoints_v1")
+    );
     if (state.prepare == nullptr || state.dynamic_launch == nullptr ||
         state.last_error == nullptr) {
         *failure_stage = "fla_chunk_gdn_dynamic_provider_symbol";
@@ -45265,6 +45276,7 @@ bool load_fla_chunk_gdn_dynamic_provider(
             "secondary FLA chunk-GDN DLL is missing a required dynamic export";
         state.prepare = nullptr;
         state.dynamic_launch = nullptr;
+        state.checkpoint_launch = nullptr;
         state.last_error = nullptr;
         (void)FreeLibrary(state.module);
         state.module = NULL;
@@ -45278,6 +45290,7 @@ bool load_fla_chunk_gdn_dynamic_provider(
             : "secondary FLA chunk-GDN provider prepare failed";
         state.prepare = nullptr;
         state.dynamic_launch = nullptr;
+        state.checkpoint_launch = nullptr;
         state.last_error = nullptr;
         (void)FreeLibrary(state.module);
         state.module = NULL;
@@ -58577,6 +58590,65 @@ constexpr size_t kQwen36DflashStateCommitTokenCount = 22u;
 constexpr size_t kQwen36DflashMultiStateCommitTokenCount = 54u;
 constexpr size_t kQwen36DflashPrefetchedQueueCapacity = 64u;
 
+struct Qwen36ResidentPrefixCheckpoint {
+    std::array<Qwen36ResidentSessionLinearLayer, QRT_QWEN36_LAYER_COUNT>
+        linear_layers{};
+    std::array<float *, QRT_QWEN36_LAYER_COUNT> raw_states{};
+    std::array<float, QRT_QWEN36_HIDDEN_SIZE> terminal_hidden{};
+    uint64_t linear_mask = UINT64_C(0);
+    uint64_t raw_ready_mask = UINT64_C(0);
+    uint64_t prompt_digest = UINT64_C(0);
+    size_t prefix_tokens = 0u;
+    bool hidden_valid = false;
+    bool valid = false;
+};
+
+// Session metadata is copied by shadow transactions. Shared ownership keeps
+// immutable checkpoints alive through rollback and failed-stream quarantine.
+// Full-attention prefix K/V stays owned by the original session.
+struct Qwen36ResidentPrefixCheckpointStore {
+    std::array<Qwen36ResidentPrefixCheckpoint, qrt_prefix_checkpoint::kCapacity>
+        checkpoints{};
+    std::vector<uint32_t> owner_tokens;
+    const qrt_engine_t *owner_engine = nullptr;
+    uint64_t owner_generation = UINT64_C(0);
+    uint64_t owner_digest = UINT64_C(0);
+    size_t count = 0u;
+    bool failed = false;
+
+    uint64_t owned_bytes() const {
+        uint64_t bytes = UINT64_C(0);
+        for (const auto &checkpoint : checkpoints) {
+            for (size_t layer = 0u; layer < QRT_QWEN36_LAYER_COUNT; ++layer) {
+                if (checkpoint.raw_states[layer] != nullptr) {
+                    bytes += qrt_fla_checkpoint::kStateBytes;
+                }
+                const auto &state = checkpoint.linear_layers[layer];
+                if (state.device_allocation != nullptr) {
+                    bytes += state.recurrent_state_bytes + state.qkv_ring_bytes;
+                }
+            }
+        }
+        return bytes;
+    }
+
+    ~Qwen36ResidentPrefixCheckpointStore() {
+        // The owning session is retired only after its stream cleanup fence.
+        for (auto &checkpoint : checkpoints) {
+            for (size_t layer = 0u; layer < QRT_QWEN36_LAYER_COUNT; ++layer) {
+                if (checkpoint.raw_states[layer] != nullptr) {
+                    (void)hipFree(checkpoint.raw_states[layer]);
+                }
+                if (checkpoint.linear_layers[layer].device_allocation != nullptr) {
+                    (void)hipFree(
+                        checkpoint.linear_layers[layer].device_allocation
+                    );
+                }
+            }
+        }
+    }
+};
+
 struct Qwen36ResidentSessionState {
     std::array<
         Qwen36ResidentSessionLinearLayer,
@@ -58587,6 +58659,7 @@ struct Qwen36ResidentSessionState {
         QRT_QWEN36_LAYER_COUNT
     > full_attention_layers{};
     Qwen36ResidentDecodeActivationWorkspace activation_workspace;
+    std::shared_ptr<Qwen36ResidentPrefixCheckpointStore> prefix_checkpoints;
     size_t prefix_tokens = 0u;
     const qrt_engine_t *owner_engine = nullptr;
     std::string model_dir;
@@ -62335,7 +62408,10 @@ bool release_qwen36_resident_session_locked() {
 uint64_t qwen36_resident_session_owned_bytes_locked() {
     const Qwen36ResidentDecodeActivationWorkspace &workspace =
         g_qwen36_resident_session.activation_workspace;
-    return g_qwen36_resident_session.linear_recurrent_state_bytes +
+    return (g_qwen36_resident_session.prefix_checkpoints != nullptr
+            ? g_qwen36_resident_session.prefix_checkpoints->owned_bytes()
+            : UINT64_C(0)) +
+        g_qwen36_resident_session.linear_recurrent_state_bytes +
         g_qwen36_resident_session.linear_qkv_ring_bytes +
         g_qwen36_resident_session.full_attention_kv_bytes +
         g_qwen36_resident_session.full_attention_decode_tail_bytes +
@@ -62364,6 +62440,150 @@ void qwen36_resident_session_record_capture_failure(hipError_t status) {
     if (g_qwen36_resident_session.first_hip_failure == 0u) {
         g_qwen36_resident_session.first_hip_failure =
             static_cast<uint32_t>(status);
+    }
+}
+
+std::vector<unsigned int> begin_qwen36_prefix_checkpoints(
+    const uint32_t *tokens, size_t token_count
+) {
+    std::vector<unsigned int> final_rows;
+    if (!qwen36_resident_session_capture_is_active() ||
+        !raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") ||
+        g_qwen36_direct_final_target_tokens_override != nullptr) {
+        return final_rows;
+    }
+    const auto positions = qrt_prefix_checkpoint::select(tokens, token_count);
+    if (positions.count == 0u) {
+        return final_rows;
+    }
+    auto store = std::make_shared<Qwen36ResidentPrefixCheckpointStore>();
+    store->owner_tokens.assign(tokens, tokens + token_count);
+    store->owner_engine = g_qwen36_resident_session.owner_engine;
+    store->owner_generation = g_qwen36_resident_session.generation;
+    store->owner_digest = qrt_fnv1a64_bytes(tokens, token_count * sizeof(*tokens));
+    store->count = positions.count;
+    for (size_t i = 0u; i < positions.count; ++i) {
+        auto &checkpoint = store->checkpoints[i];
+        checkpoint.prefix_tokens = positions.tokens[i];
+        checkpoint.prompt_digest = qrt_fnv1a64_bytes(
+            tokens, checkpoint.prefix_tokens * sizeof(*tokens)
+        );
+        final_rows.push_back(positions.tokens[i] - 1u);
+    }
+    // Token-loop validation samples the final row. Keep the request's actual
+    // last position last; the additional rows only retain checkpoint hidden.
+    final_rows.push_back(static_cast<unsigned int>(token_count - 1u));
+    g_qwen36_resident_session.prefix_checkpoints = std::move(store);
+    return final_rows;
+}
+
+int launch_qwen36_fla_with_checkpoints(
+    AiterFusedGdnDynamicLaunchFn fallback,
+    unsigned int layer_index, const float *raw, const float *gate,
+    float *output, float *state, int decay_flag, int32_t tokens
+) {
+    auto store = g_qwen36_resident_session.prefix_checkpoints;
+    qrt_fla_checkpoint::Launch launch = nullptr;
+#ifdef _WIN32
+    {
+        auto &provider = fla_chunk_gdn_dynamic_provider_state();
+        std::lock_guard<std::mutex> lock(provider.mutex);
+        launch = provider.checkpoint_launch;
+    }
+#endif
+    auto ordinary = [&]() {
+        return fallback != nullptr
+            ? fallback(raw, gate, output, state, decay_flag, nullptr, tokens)
+            : 0;
+    };
+    if (!qwen36_resident_session_capture_is_active() || store == nullptr ||
+        store->failed) {
+        return ordinary();
+    }
+    if (launch == nullptr || layer_index >= QRT_QWEN36_LAYER_COUNT ||
+        tokens <= 0 || static_cast<size_t>(tokens) != store->owner_tokens.size()) {
+        store->failed = true;
+        return ordinary();
+    }
+    qrt_fla_checkpoint::Plan plan{};
+    plan.struct_size = sizeof(plan);
+    plan.abi_version = qrt_fla_checkpoint::kVersion;
+    plan.count = static_cast<uint32_t>(store->count);
+    for (size_t i = 0u; i < store->count; ++i) {
+        auto &checkpoint = store->checkpoints[i];
+        if (checkpoint.raw_states[layer_index] != nullptr ||
+            hipMalloc(
+                reinterpret_cast<void **>(&checkpoint.raw_states[layer_index]),
+                qrt_fla_checkpoint::kStateBytes
+            ) != hipSuccess) {
+            store->failed = true;
+            return ordinary();
+        }
+        plan.prefix_tokens[i] = static_cast<uint32_t>(checkpoint.prefix_tokens);
+        plan.states[i] = checkpoint.raw_states[layer_index];
+        plan.state_bytes[i] = qrt_fla_checkpoint::kStateBytes;
+    }
+    const int status = launch(
+        raw, gate, output, state, decay_flag, nullptr, tokens, &plan
+    );
+    if (status != 0) {
+        for (size_t i = 0u; i < store->count; ++i) {
+            store->checkpoints[i].raw_ready_mask |= UINT64_C(1) << layer_index;
+        }
+    } else {
+        store->failed = true;
+    }
+    // A failed enqueued producer is never retried with the ordinary launcher.
+    return status;
+}
+
+void finalize_qwen36_prefix_checkpoints() {
+    auto store = g_qwen36_resident_session.prefix_checkpoints;
+    if (store == nullptr) {
+        return;
+    }
+    const auto &session = g_qwen36_resident_session;
+    bool owner_valid = session.valid && session.provider_completed &&
+        !store->failed && store->owner_engine == session.owner_engine &&
+        store->owner_generation == session.generation &&
+        store->owner_digest == session.prompt_token_ids_fnv1a64 &&
+        store->owner_tokens.size() == session.prefix_tokens;
+    if (owner_valid) {
+        owner_valid = hipStreamSynchronize(nullptr) == hipSuccess;
+    }
+    for (size_t i = 0u; i < store->count; ++i) {
+        auto &checkpoint = store->checkpoints[i];
+        bool complete = owner_valid && checkpoint.hidden_valid &&
+            checkpoint.linear_mask == qwen36_resident_session_linear_layer_mask();
+        for (size_t layer = 0u; layer < QRT_QWEN36_LAYER_COUNT; ++layer) {
+            if ((qwen36_resident_session_linear_layer_mask() &
+                 (UINT64_C(1) << layer)) != 0u) {
+                const auto &linear = checkpoint.linear_layers[layer];
+                complete = complete && linear.valid &&
+                    linear.device_allocation != nullptr &&
+                    linear.prefix_tokens == checkpoint.prefix_tokens &&
+                    linear.decode_qkv_token_count == 0u &&
+                    linear.decode_recurrent_token_count == 0u;
+            } else {
+                const auto &kv = session.full_attention_layers[layer];
+                complete = complete && kv.valid && kv.device_k != nullptr &&
+                    kv.device_v != nullptr &&
+                    kv.history_tokens == session.prefix_tokens &&
+                    kv.history_tokens >= checkpoint.prefix_tokens &&
+                    kv.k_bytes % kv.history_tokens == 0u &&
+                    kv.v_bytes % kv.history_tokens == 0u;
+            }
+        }
+        checkpoint.valid = complete;
+        std::cerr << "BATCH_MARK qwen36_prefix_checkpoint_capture"
+                  << " prefix_tokens=" << checkpoint.prefix_tokens
+                  << " owner_tokens=" << session.prefix_tokens
+                  << " generation=" << session.generation
+                  << " linear_mask=" << hex_u64(checkpoint.linear_mask)
+                  << " hidden_valid=" << (checkpoint.hidden_valid ? 1 : 0)
+                  << " complete=" << (complete ? 1 : 0)
+                  << " cold_replay=0 numerical_correctness_claimed=0"
+                  << std::endl;
     }
 }
 
@@ -62587,6 +62807,49 @@ void capture_qwen36_resident_session_linear_layer(
         static_cast<uint64_t>(recurrent_state_bytes);
     g_qwen36_resident_session.linear_qkv_ring_bytes +=
         static_cast<uint64_t>(qkv_ring_bytes);
+
+    auto store = g_qwen36_resident_session.prefix_checkpoints;
+    if (store == nullptr || store->failed) {
+        return;
+    }
+    if (qkv_source_is_ring_only || store->owner_tokens.size() != prefix_tokens) {
+        store->failed = true;
+        return;
+    }
+    for (size_t i = 0u; i < store->count; ++i) {
+        auto &checkpoint = store->checkpoints[i];
+        if ((checkpoint.raw_ready_mask & layer_bit) == 0u ||
+            checkpoint.raw_states[layer_index] == nullptr) {
+            store->failed = true;
+            break;
+        }
+        // Reuse the established state transpose and absolute-position QKV
+        // ring capture. This temporary session has no checkpoint store, so
+        // the common capture function does not recurse again.
+        auto temporary = std::make_unique<Qwen36ResidentSessionState>();
+        {
+            ScopedQwen36ResidentActiveSession temporary_scope(temporary.get());
+            capture_qwen36_resident_session_linear_layer(
+                layer_index, checkpoint.prefix_tokens,
+                checkpoint.raw_states[layer_index],
+                device_qkv_bf16, device_qkv_f32, false
+            );
+        }
+        auto &captured = temporary->linear_layers[layer_index];
+        checkpoint.linear_layers[layer_index] = captured;
+        const hipError_t capture_status = hipStreamSynchronize(nullptr);
+        if (!captured.valid || temporary->capture_failure_count != 0u ||
+            capture_status != hipSuccess) {
+            store->failed = true;
+            break;
+        }
+        checkpoint.linear_mask |= layer_bit;
+        if (hipFree(checkpoint.raw_states[layer_index]) != hipSuccess) {
+            store->failed = true;
+            break;
+        }
+        checkpoint.raw_states[layer_index] = nullptr;
+    }
 }
 
 void capture_qwen36_resident_session_full_attention_layer(
@@ -63976,6 +64239,7 @@ public:
         g_qwen36_resident_session.prompt_token_ids_fnv1a64 =
             prompt_token_ids_fnv1a64;
         g_qwen36_resident_session.valid = valid;
+        finalize_qwen36_prefix_checkpoints();
         const uint64_t captured_bytes =
             g_qwen36_resident_session.linear_recurrent_state_bytes +
             g_qwen36_resident_session.linear_qkv_ring_bytes +
@@ -67350,13 +67614,42 @@ bool refresh_qwen36_resident_session_immutable_weight_views(
     return true;
 }
 
+const Qwen36ResidentPrefixCheckpoint *find_qwen36_prefix_checkpoint(
+    const Qwen36ResidentSessionState &session,
+    size_t prefix_tokens, const uint32_t *input_tokens, uint64_t digest
+) {
+    const auto &store = session.prefix_checkpoints;
+    if (!session.valid || !session.provider_completed || store == nullptr ||
+        store->failed || input_tokens == nullptr || prefix_tokens == 0u ||
+        prefix_tokens >= session.prefix_tokens ||
+        session.committed_decode_token_count != 0u ||
+        store->owner_engine != session.owner_engine ||
+        store->owner_generation != session.generation ||
+        store->owner_digest != session.prompt_token_ids_fnv1a64 ||
+        store->owner_tokens.size() != session.prefix_tokens ||
+        std::memcmp(store->owner_tokens.data(), input_tokens,
+                    prefix_tokens * sizeof(*input_tokens)) != 0) {
+        return nullptr;
+    }
+    for (size_t i = 0u; i < store->count; ++i) {
+        const auto &checkpoint = store->checkpoints[i];
+        if (checkpoint.valid && checkpoint.prefix_tokens == prefix_tokens &&
+            checkpoint.prompt_digest == digest) {
+            return &checkpoint;
+        }
+    }
+    return nullptr;
+}
+
 class ScopedQwen36ResidentSessionShadowTransaction final {
 public:
     explicit ScopedQwen36ResidentSessionShadowTransaction(
         uint64_t expected_generation,
         uint64_t expected_prompt_token_ids_fnv1a64,
         std::string *failure_stage,
-        std::string *failure
+        std::string *failure,
+        size_t expected_prefix_tokens = 0u,
+        const uint32_t *input_prefix_tokens = nullptr
     ) : lock_(g_qwen36_resident_session_mutex) {
         if (!release_qwen36_resident_dual_attention_state_locked()) {
             set_failure(
@@ -67369,11 +67662,20 @@ public:
         }
         original_ = g_qwen36_resident_session;
         original_captured_ = true;
+        const bool partial_requested = expected_prefix_tokens != 0u &&
+            expected_prefix_tokens != original_.prefix_tokens;
+        const auto *checkpoint = partial_requested
+            ? find_qwen36_prefix_checkpoint(
+                  original_, expected_prefix_tokens, input_prefix_tokens,
+                  expected_prompt_token_ids_fnv1a64
+              )
+            : nullptr;
         if (!original_.valid || !original_.provider_completed ||
             original_.generation == UINT64_C(0) ||
             original_.generation != expected_generation ||
-            original_.prompt_token_ids_fnv1a64 !=
-                expected_prompt_token_ids_fnv1a64 ||
+            (partial_requested ? checkpoint == nullptr
+                : original_.prompt_token_ids_fnv1a64 !=
+                    expected_prompt_token_ids_fnv1a64) ||
             original_.activation_workspace.in_use ||
             original_.activation_workspace.phase !=
                 Qwen36ResidentDecodeActivationWorkspacePhase::kIdle) {
@@ -67384,6 +67686,32 @@ public:
                 failure
             );
             return;
+        }
+        if (checkpoint != nullptr) {
+            partial_checkpoint_ = true;
+            auto &session = g_qwen36_resident_session;
+            session.prefix_tokens = checkpoint->prefix_tokens;
+            session.prompt_token_ids_fnv1a64 = checkpoint->prompt_digest;
+            session.committed_decode_token_count = 0u;
+            session.current_token_id = 0u;
+            session.current_token_valid = false;
+            session.last_decode_top2_valid = false;
+            session.last_decode_top2_position =
+                (std::numeric_limits<size_t>::max)();
+            session.q2_prefetched_valid = false;
+            session.q2_prefetched_output_token_count = 0u;
+            session.q2_prefetched_output_token_cursor = 0u;
+            session.dflash_prefetched_valid = false;
+            session.dflash_prefetched_output_token_count = 0u;
+            session.dflash_decode_transaction_pending = false;
+            for (size_t h = 0u; h < QRT_QWEN36_HIDDEN_SIZE; ++h) {
+                session.mtp_target_hidden_bf16[h] =
+                    qrt_float_to_bf16(checkpoint->terminal_hidden[h]);
+            }
+            session.mtp_target_hidden_position = checkpoint->prefix_tokens - 1u;
+            session.mtp_target_hidden_output_token_id = UINT_MAX;
+            session.mtp_target_hidden_valid = true;
+            session.mtp_target_hidden_device_only = false;
         }
 
         hipError_t status = hipSuccess;
@@ -67409,7 +67737,9 @@ public:
              layer_index < QRT_QWEN36_LAYER_COUNT && status == hipSuccess;
              ++layer_index) {
             const Qwen36ResidentSessionLinearLayer &source =
-                original_.linear_layers[layer_index];
+                checkpoint != nullptr
+                    ? checkpoint->linear_layers[layer_index]
+                    : original_.linear_layers[layer_index];
             if (!source.valid) {
                 continue;
             }
@@ -67435,6 +67765,7 @@ public:
             shadow_bytes_ += allocation_bytes;
             Qwen36ResidentSessionLinearLayer &destination =
                 g_qwen36_resident_session.linear_layers[layer_index];
+            destination = source;
             destination.device_allocation = allocation;
             destination.device_recurrent_state = static_cast<float *>(allocation);
             destination.device_qkv_ring =
@@ -67450,13 +67781,38 @@ public:
             if (!source.valid) {
                 continue;
             }
+            Qwen36ResidentSessionFullAttentionLayer &destination =
+                g_qwen36_resident_session.full_attention_layers[layer_index];
+            if (checkpoint != nullptr) {
+                destination.k_bytes =
+                    source.k_bytes / source.history_tokens * checkpoint->prefix_tokens;
+                destination.v_bytes =
+                    source.v_bytes / source.history_tokens * checkpoint->prefix_tokens;
+                destination.history_tokens = checkpoint->prefix_tokens;
+                destination.decode_tail_token_count = 0u;
+            }
             const size_t allocation_bytes = source.decode_tail_contiguous
-                ? source.k_bytes + source.decode_tail_k_bytes +
-                    source.v_bytes + source.decode_tail_v_bytes
+                ? destination.k_bytes + source.decode_tail_k_bytes +
+                    destination.v_bytes + source.decode_tail_v_bytes
                 : source.decode_tail_k_bytes + source.decode_tail_v_bytes;
             void *allocation = nullptr;
             status = hipMalloc(&allocation, allocation_bytes);
-            if (status == hipSuccess) {
+            if (status == hipSuccess && checkpoint != nullptr &&
+                source.decode_tail_contiguous) {
+                // Preserve the contiguous decoder layout, but copy only the
+                // saved prefix. V begins at the owner's original V pointer,
+                // never at a shortened offset inside the original K buffer.
+                status = hipMemcpy(allocation, source.device_k,
+                    destination.k_bytes, hipMemcpyDeviceToDevice);
+                if (status == hipSuccess) {
+                    status = hipMemcpy(
+                        static_cast<unsigned char *>(allocation) +
+                            destination.k_bytes + source.decode_tail_k_bytes,
+                        source.device_v, destination.v_bytes,
+                        hipMemcpyDeviceToDevice
+                    );
+                }
+            } else if (status == hipSuccess) {
                 status = hipMemcpy(
                     allocation,
                     source.decode_tail_contiguous
@@ -67473,21 +67829,19 @@ public:
                 break;
             }
             shadow_bytes_ += allocation_bytes;
-            Qwen36ResidentSessionFullAttentionLayer &destination =
-                g_qwen36_resident_session.full_attention_layers[layer_index];
             if (source.decode_tail_contiguous) {
                 shadow_full_attention_allocations_[layer_index] = allocation;
                 destination.device_allocation = allocation;
                 destination.device_k = allocation;
                 destination.device_v =
                     static_cast<unsigned char *>(allocation) +
-                    source.k_bytes + source.decode_tail_k_bytes;
+                    destination.k_bytes + source.decode_tail_k_bytes;
                 destination.device_decode_tail_allocation = nullptr;
                 destination.device_decode_tail_k =
-                    static_cast<unsigned char *>(allocation) + source.k_bytes;
+                    static_cast<unsigned char *>(allocation) + destination.k_bytes;
                 destination.device_decode_tail_v =
                     static_cast<unsigned char *>(destination.device_v) +
-                    source.v_bytes;
+                    destination.v_bytes;
             } else {
                 shadow_full_attention_tail_allocations_[layer_index] =
                     allocation;
@@ -67555,6 +67909,8 @@ public:
         std::cerr
             << "BATCH_MARK qwen36_resident_shadow_transaction_begin"
             << " generation=" << original_.generation
+            << " partial_checkpoint=" << (partial_checkpoint_ ? 1 : 0)
+            << " restored_prefix_tokens=" << g_qwen36_resident_session.prefix_tokens
             << " committed_decode_tokens="
             << original_.committed_decode_token_count
             << " shadow_bytes=" << shadow_bytes_
@@ -67631,6 +67987,14 @@ public:
     }
 
     bool commit(std::string *failure_stage, std::string *failure) {
+        if (partial_checkpoint_) {
+            set_failure(
+                "qwen36_resident_shadow_checkpoint_commit",
+                "a partial-prefix branch must restore its original owner",
+                failure_stage, failure
+            );
+            return false;
+        }
         if (!ready()) {
             set_failure(
                 "qwen36_resident_shadow_transaction_commit",
@@ -67843,6 +68207,7 @@ private:
         shadow_full_attention_tail_allocations_{};
     uint64_t shadow_bytes_ = UINT64_C(0);
     bool original_captured_ = false;
+    bool partial_checkpoint_ = false;
     bool ready_ = false;
     bool committed_ = false;
 };
@@ -120815,8 +121180,14 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             const int gdn_decay_flag =
                 early_gate_values_are_decay ? 1 : 0;
             const int gdn_launch_status =
-                (use_secondary_fla_chunk_gdn_provider ||
-                 use_exact_arbitrary_dynamic_aiter_fused_gdn)
+                use_secondary_fla_chunk_gdn_provider
+                ? launch_qwen36_fla_with_checkpoints(
+                      aiter_fused_gdn_dynamic_launch, descriptor.layer_index,
+                      gdn_postconv, device_gate, gdn_output,
+                      device_core_final_state, gdn_decay_flag,
+                      static_cast<int32_t>(target_token_count)
+                  )
+                : use_exact_arbitrary_dynamic_aiter_fused_gdn
                 ? (aiter_fused_gdn_dynamic_launch != nullptr
                     ? aiter_fused_gdn_dynamic_launch(
                           gdn_postconv,
@@ -139819,6 +140190,7 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         run->routed_expert_gpu_output_contract,
         run->routed_expert_gpu_downstream_contract
     );
+    capture_qwen36_prefix_checkpoint_hidden(*run, prefill_tokens);
     if (!capture_qwen36_prefill_mtp_target_hidden_if_requested(
             *run,
             prefill_tokens,
@@ -139929,6 +140301,52 @@ bool build_frontier_output_residual_from_export(
         run->failure = *failure;
     }
     return run->correctness_pass;
+}
+
+void capture_qwen36_prefix_checkpoint_hidden(
+    const PrefillLinearAttentionDescriptorBatchRun &batch,
+    size_t prefill_tokens
+) {
+    auto store = g_qwen36_resident_session.prefix_checkpoints;
+    if (!qwen36_resident_session_capture_is_active() ||
+        store == nullptr || store->failed) {
+        return;
+    }
+    const auto &norm = batch.final_norm;
+    constexpr size_t hidden_size = QRT_QWEN36_HIDDEN_SIZE;
+    if (store->owner_tokens.size() != prefill_tokens ||
+        !batch.final_norm_attempted || !norm.correctness_pass ||
+        !batch.token_loop_validation_attempted ||
+        !batch.token_loop_validation.correctness_pass ||
+        !batch.token_loop_validation.first_generated_token_valid ||
+        norm.selected_token_count != norm.selected_token_ids.size() ||
+        norm.gpu_output.size() != norm.selected_token_count * hidden_size) {
+        store->failed = true;
+        return;
+    }
+    for (size_t i = 0u; i < store->count; ++i) {
+        auto &checkpoint = store->checkpoints[i];
+        const auto row_it = std::find(
+            norm.selected_token_ids.begin(), norm.selected_token_ids.end(),
+            static_cast<unsigned int>(checkpoint.prefix_tokens - 1u)
+        );
+        if (row_it == norm.selected_token_ids.end()) {
+            store->failed = true;
+            return;
+        }
+        const size_t offset = static_cast<size_t>(
+            row_it - norm.selected_token_ids.begin()
+        ) * hidden_size;
+        for (size_t h = 0u; h < hidden_size; ++h) {
+            const float value = norm.gpu_output[offset + h];
+            if (!std::isfinite(value)) {
+                store->failed = true;
+                return;
+            }
+            checkpoint.terminal_hidden[h] = value;
+        }
+        checkpoint.hidden_valid = true;
+    }
 }
 
 bool capture_qwen36_prefill_mtp_target_hidden_if_requested(
@@ -157756,7 +158174,8 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     // has a live identity and state transaction.
     const bool resident_session_has_decode_consumer =
         request->output_token_capacity > 1u ||
-        prefix_seed_capture_requested;
+        prefix_seed_capture_requested ||
+        raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS");
     const bool resident_session_requested =
         resident_session_has_decode_consumer &&
         !g_qwen36_exact_prefill_verifier_active && env_flag_enabled(
@@ -157774,6 +158193,15 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         request->input_token_count,
         request->resident_engine,
         request->model_dir
+    );
+    const std::vector<unsigned int> checkpoint_final_rows =
+        begin_qwen36_prefix_checkpoints(
+            request->input_tokens, request->input_token_count
+        );
+    ScopedQwen36DirectFinalTargetTokens checkpoint_final_rows_scope(
+        checkpoint_final_rows.empty()
+            ? g_qwen36_direct_final_target_tokens_override
+            : &checkpoint_final_rows
     );
 
     prompt_digest = qrt_fnv1a64_bytes(
@@ -219475,6 +219903,82 @@ qrt_qwen36_whole_provider_exact_first_token_v1(
 }
 
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
+QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query_v1(
+    const qrt_prefix_checkpoint_query_v1_t *request,
+    qrt_prefix_checkpoint_match_v1_t *result
+) {
+    if (result == nullptr) {
+        return 0;
+    }
+    *result = qrt_prefix_checkpoint_match_v1_t{};
+    result->struct_size = sizeof(*result);
+    result->abi_version = QRT_PREFIX_CHECKPOINT_QUERY_VERSION;
+    if (request == nullptr || request->struct_size != sizeof(*request) ||
+        request->abi_version != QRT_PREFIX_CHECKPOINT_QUERY_VERSION ||
+        request->reserved != 0u || request->owner_engine == nullptr ||
+        request->owner_generation == 0u || request->owner_token_count == 0u ||
+        request->input_tokens == nullptr || request->input_token_count == 0u ||
+        request->output_token_capacity == 0u ||
+        request->output_token_capacity > QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS) {
+        return 0;
+    }
+    std::lock_guard<std::recursive_mutex> lock(g_qwen36_resident_session_mutex);
+    const auto &session = g_qwen36_resident_root_session;
+    const auto &store = session.prefix_checkpoints;
+    if (!session.valid || !session.provider_completed ||
+        session.owner_engine != request->owner_engine ||
+        session.generation != request->owner_generation ||
+        session.prefix_tokens != request->owner_token_count ||
+        session.prompt_token_ids_fnv1a64 != request->owner_prompt_digest ||
+        session.committed_decode_token_count != 0u ||
+        session.activation_workspace.in_use ||
+        session.activation_workspace.phase != Qwen36ResidentDecodeActivationWorkspacePhase::kIdle ||
+        store == nullptr || store->failed ||
+        store->owner_engine != session.owner_engine ||
+        store->owner_generation != session.generation ||
+        store->owner_digest != session.prompt_token_ids_fnv1a64 ||
+        store->owner_tokens.size() != session.prefix_tokens) {
+        return 1;
+    }
+    for (size_t i = 0u; i < request->input_token_count; ++i) {
+        if (request->input_tokens[i] >= QRT_QWEN36_VOCAB_SIZE) {
+            return 0;
+        }
+    }
+    const size_t common = qrt_prefix_checkpoint::common_prefix(
+        store->owner_tokens.data(), store->owner_tokens.size(),
+        request->input_tokens, request->input_token_count
+    );
+    auto eligible = [&](size_t position) {
+        if (position == 0u || position > common ||
+            position >= request->input_token_count ||
+            (request->maximum_prefix_tokens != 0u &&
+             position > request->maximum_prefix_tokens)) {
+            return false;
+        }
+        const size_t suffix = request->input_token_count - position;
+        return suffix <= QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_SUFFIX_TOKENS &&
+            suffix + request->output_token_capacity - 1u <=
+                kQwen36ResidentDecodeTailCapacityTokens;
+    };
+    if (eligible(session.prefix_tokens)) {
+        result->prefix_token_count = static_cast<uint32_t>(session.prefix_tokens);
+        result->prefix_digest = session.prompt_token_ids_fnv1a64;
+    }
+    for (size_t i = 0u; i < store->count; ++i) {
+        const auto &checkpoint = store->checkpoints[i];
+        if (checkpoint.valid && eligible(checkpoint.prefix_tokens) &&
+            checkpoint.prefix_tokens > result->prefix_token_count) {
+            result->prefix_token_count =
+                static_cast<uint32_t>(checkpoint.prefix_tokens);
+            result->prefix_digest = checkpoint.prompt_digest;
+        }
+    }
+    result->owner_generation = session.generation;
+    return 1;
+}
+
+QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     const qrt_qwen36_whole_provider_prefix_request_v1_t *request,
     qrt_qwen36_resident_prefix_cache_result_v1_t *out_result
@@ -219661,7 +220165,9 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
         request->expected_session_generation,
         request->expected_prompt_token_ids_fnv1a64,
         &failure_stage,
-        &failure
+        &failure,
+        request->expected_prefix_token_count,
+        request->input_tokens
     );
     out_result->clone_elapsed_ns =
         qrt_elapsed_ns(clone_start_ns, qrt_now_ns());

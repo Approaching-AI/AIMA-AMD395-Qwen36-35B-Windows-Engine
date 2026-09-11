@@ -224,6 +224,12 @@ $record = [ordered]@{
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()
     prefix_logit_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\src\qrt_prefix_logit.h')).Hash.ToLowerInvariant()
+    prefix_checkpoint_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\src\qrt_prefix_checkpoint.h')).Hash.ToLowerInvariant()
+    prefix_checkpoint_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\prefix_checkpoint_policy.h')).Hash.ToLowerInvariant()
+    fla_checkpoint_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\gdn\fla_checkpoint.h')).Hash.ToLowerInvariant()
     q1_moe_avx512bf16_host_provider_source_path = $hostSource
     q1_moe_avx512bf16_host_provider_source_sha256 = `
         (Get-FileHash -Algorithm SHA256 `

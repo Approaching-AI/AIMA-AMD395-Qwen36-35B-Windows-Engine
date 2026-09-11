@@ -1,5 +1,6 @@
 #include "qrt.h"
 #include "qrt_prefix_logit.h"
+#include "qrt_prefix_checkpoint.h"
 
 #include <limits.h>
 #include <math.h>
@@ -1231,6 +1232,7 @@ struct qrt_engine {
         qwen36_whole_provider_decode;
     qrt_win32_qwen36_whole_provider_prefix_fn_t
         qwen36_whole_provider_prefix;
+    qrt_prefix_checkpoint_query_fn qwen36_whole_provider_checkpoint_query;
     qrt_win32_qwen36_whole_provider_prefix_reset_fn_t
         qwen36_whole_provider_prefix_reset;
     qrt_win32_qwen36_whole_provider_engine_lifecycle_fn_t
@@ -26940,6 +26942,7 @@ static void qrt_win32_qwen36_whole_provider_backend_unload(
     engine->qwen36_whole_provider_capacity_snapshot = NULL;
     engine->qwen36_whole_provider_prefix_reset = NULL;
     engine->qwen36_whole_provider_prefix = NULL;
+    engine->qwen36_whole_provider_checkpoint_query = NULL;
     engine->qwen36_whole_provider_decode = NULL;
     engine->qwen36_whole_provider_prefill = NULL;
     if (engine->qwen36_whole_provider_module != NULL) {
@@ -27054,6 +27057,11 @@ static int qrt_win32_qwen36_whole_provider_backend_load(
         (qrt_win32_qwen36_whole_provider_decode_fn_t)decode_proc;
     engine->qwen36_whole_provider_prefix =
         (qrt_win32_qwen36_whole_provider_prefix_fn_t)prefix_proc;
+    engine->qwen36_whole_provider_checkpoint_query =
+        (qrt_prefix_checkpoint_query_fn)GetProcAddress(
+            engine->qwen36_whole_provider_module,
+            "qrt_qwen36_whole_provider_checkpoint_query_v1"
+        );
     engine->qwen36_whole_provider_prefix_reset =
         (qrt_win32_qwen36_whole_provider_prefix_reset_fn_t)
             prefix_reset_proc;
@@ -27115,6 +27123,7 @@ static int qrt_win32_qwen36_whole_provider_backend_load(
             engine->qwen36_whole_provider_release = NULL;
             engine->qwen36_whole_provider_prefix_reset = NULL;
             engine->qwen36_whole_provider_prefix = NULL;
+            engine->qwen36_whole_provider_checkpoint_query = NULL;
             engine->qwen36_whole_provider_decode = NULL;
             engine->qwen36_whole_provider_prefill = NULL;
             FreeLibrary(engine->qwen36_whole_provider_module);
@@ -82121,6 +82130,125 @@ static void qrt_engine_clear_resident_prefix_cache_identity(
 }
 #endif
 
+static qrt_status_t qrt_engine_prefix_checkpoint_match_v1_unlocked(
+    qrt_engine_t *engine, const uint32_t *input_tokens,
+    size_t input_token_count, size_t output_token_capacity,
+    size_t maximum_prefix_tokens, size_t *out_prefix_token_count
+) {
+    size_t i;
+    if (out_prefix_token_count == NULL) {
+        return QRT_STATUS_INVALID_ARGUMENT;
+    }
+    *out_prefix_token_count = 0u;
+    if (engine == NULL || input_tokens == NULL || input_token_count == 0u ||
+        input_token_count > UINT32_MAX || maximum_prefix_tokens > UINT32_MAX ||
+        output_token_capacity == 0u ||
+        output_token_capacity > QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS) {
+        return QRT_STATUS_INVALID_ARGUMENT;
+    }
+    for (i = 0u; i < input_token_count; ++i) {
+        if (input_tokens[i] >= QRT_QWEN36_VOCAB_SIZE) {
+            return QRT_STATUS_INVALID_ARGUMENT;
+        }
+    }
+    if (!engine->ready || !engine->manifest_loaded) {
+        return QRT_STATUS_UNSUPPORTED;
+    }
+    if (!engine->resident_prefix_cache_session_valid ||
+        engine->resident_prefix_cache_tokens == NULL ||
+        engine->resident_prefix_cache_token_count == 0u ||
+        engine->resident_prefix_cache_token_count > UINT32_MAX ||
+        engine->resident_prefix_cache_session_generation == UINT64_C(0)) {
+        return QRT_STATUS_OK;
+    }
+#ifdef _WIN32
+    {
+        qrt_prefix_checkpoint_query_v1_t query;
+        qrt_prefix_checkpoint_match_v1_t match;
+        size_t common = 0u;
+        size_t prefix;
+        if (!qrt_win32_qwen36_whole_provider_backend_load(engine) ||
+            engine->qwen36_whole_provider_checkpoint_query == NULL) {
+            return QRT_STATUS_OK;
+        }
+        while (common < input_token_count &&
+               common < engine->resident_prefix_cache_token_count &&
+               input_tokens[common] == engine->resident_prefix_cache_tokens[common]) {
+            ++common;
+        }
+        if (common == 0u) {
+            return QRT_STATUS_OK;
+        }
+        memset(&query, 0, sizeof(query));
+        memset(&match, 0, sizeof(match));
+        query.struct_size = sizeof(query);
+        query.abi_version = QRT_PREFIX_CHECKPOINT_QUERY_VERSION;
+        query.owner_token_count =
+            (uint32_t)engine->resident_prefix_cache_token_count;
+        query.input_token_count = (uint32_t)input_token_count;
+        query.output_token_capacity = (uint32_t)output_token_capacity;
+        query.maximum_prefix_tokens = (uint32_t)maximum_prefix_tokens;
+        query.owner_generation = engine->resident_prefix_cache_session_generation;
+        query.owner_prompt_digest = engine->resident_prefix_cache_prompt_token_ids_fnv1a64;
+        query.owner_engine = engine;
+        query.input_tokens = input_tokens;
+        if (!engine->qwen36_whole_provider_checkpoint_query(&query, &match) ||
+            match.struct_size != sizeof(match) ||
+            match.abi_version != QRT_PREFIX_CHECKPOINT_QUERY_VERSION ||
+            match.reserved != 0u) {
+            return QRT_STATUS_UNSUPPORTED;
+        }
+        prefix = match.prefix_token_count;
+        if (prefix == 0u) {
+            return QRT_STATUS_OK;
+        }
+        if (prefix > common || prefix >= input_token_count ||
+            (maximum_prefix_tokens != 0u && prefix > maximum_prefix_tokens) ||
+            input_token_count - prefix > QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_SUFFIX_TOKENS ||
+            input_token_count - prefix + output_token_capacity - 1u > 1536u ||
+            match.owner_generation != engine->resident_prefix_cache_session_generation ||
+            match.prefix_digest != qrt_fnv1a64_bytes(
+                input_tokens, prefix * sizeof(*input_tokens))) {
+            return QRT_STATUS_UNSUPPORTED;
+        }
+        *out_prefix_token_count = prefix;
+    }
+#endif
+    return QRT_STATUS_OK;
+}
+
+qrt_status_t qrt_engine_prefix_checkpoint_match_v1(
+    qrt_engine_t *engine, const uint32_t *input_tokens,
+    size_t input_token_count, size_t output_token_capacity,
+    size_t *out_prefix_token_count
+) {
+#ifdef _WIN32
+    qrt_engine_request_serialization_guard_t guard;
+    qrt_status_t status;
+    if (out_prefix_token_count != NULL) {
+        *out_prefix_token_count = 0u;
+    }
+    if (engine == NULL) {
+        return QRT_STATUS_INVALID_ARGUMENT;
+    }
+    if (!qrt_engine_request_serialization_acquire(
+            engine, QRT_QWEN36_REQUEST_SERIALIZATION_OPERATION_PREFIX, &guard)) {
+        return QRT_STATUS_UNSUPPORTED;
+    }
+    status = qrt_engine_prefix_checkpoint_match_v1_unlocked(
+        engine, input_tokens, input_token_count, output_token_capacity,
+        0u, out_prefix_token_count
+    );
+    qrt_engine_request_serialization_release(&guard);
+    return status;
+#else
+    return qrt_engine_prefix_checkpoint_match_v1_unlocked(
+        engine, input_tokens, input_token_count, output_token_capacity,
+        0u, out_prefix_token_count
+    );
+#endif
+}
+
 static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
     qrt_engine_t *engine,
     const uint32_t *input_tokens,
@@ -82203,7 +82331,7 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
     if (!engine->ready || !engine->manifest_loaded ||
         !engine->resident_prefix_cache_session_valid ||
         engine->resident_prefix_cache_tokens == NULL ||
-        engine->resident_prefix_cache_token_count !=
+        engine->resident_prefix_cache_token_count <
             prefix_hit_token_count ||
         memcmp(
             engine->resident_prefix_cache_tokens,
@@ -82222,6 +82350,21 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
     out_result->exact_prefix_match = 1u;
     out_result->session_generation =
         engine->resident_prefix_cache_session_generation;
+    if (prefix_hit_token_count < engine->resident_prefix_cache_token_count) {
+        size_t saved_prefix = 0u;
+        const qrt_status_t query_status =
+            qrt_engine_prefix_checkpoint_match_v1_unlocked(
+                engine, input_tokens, input_token_count, output_token_capacity,
+                prefix_hit_token_count, &saved_prefix
+            );
+        if (query_status != QRT_STATUS_OK || saved_prefix != prefix_hit_token_count) {
+            return qrt_resident_prefix_cache_result_failure(
+                engine, out_result, QRT_STATUS_UNSUPPORTED,
+                "resident_prefix_cache_checkpoint",
+                "the requested partial prefix has no complete saved checkpoint"
+            );
+        }
+    }
 
 #ifndef _WIN32
     return qrt_resident_prefix_cache_result_failure(
@@ -82280,7 +82423,7 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
         provider_request.expected_session_generation =
             engine->resident_prefix_cache_session_generation;
         provider_request.expected_prompt_token_ids_fnv1a64 =
-            engine->resident_prefix_cache_prompt_token_ids_fnv1a64;
+            prefix_digest;
         provider_request.expected_suffix_token_ids_fnv1a64 =
             suffix_digest;
         provider_request.suffix_tokens =

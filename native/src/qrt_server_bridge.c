@@ -891,7 +891,20 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
     }
     }
 #endif
-    if (qrt_server_prefix_cache_enabled() &&
+    if (qrt_server_prefix_cache_enabled()) {
+        size_t saved_prefix = 0u;
+        const qrt_status_t query_status = qrt_engine_prefix_checkpoint_match_v1(
+            engine->engine, input_tokens, input_token_count,
+            output_token_capacity, &saved_prefix
+        );
+        if (query_status == QRT_STATUS_OK &&
+            saved_prefix >= qrt_server_prefix_cache_min_tokens() &&
+            qrt_server_prefix_shape_supported(
+                input_token_count, saved_prefix, output_token_capacity)) {
+            prefix_hit_token_count = saved_prefix;
+        }
+    }
+    if (prefix_hit_token_count == 0u && qrt_server_prefix_cache_enabled() &&
         input_token_count <
             (size_t)QRT_SERVER_RETAINED_Q8192_TOKENS) {
         const size_t minimum_prefix_tokens =

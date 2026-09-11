@@ -4,7 +4,7 @@ LDLIBS ?= -lm
 PYTHON ?= python3
 BUILD_DIR ?= build
 QRT_C_SRCS := native/src/qrt.c native/src/qwen36_baseline.c
-QRT_C_HDRS := native/src/qrt.h native/src/qwen36_baseline.h native/src/qrt_prefix_logit.h
+QRT_C_HDRS := native/src/qrt.h native/src/qwen36_baseline.h native/src/qrt_prefix_logit.h native/src/qrt_prefix_checkpoint.h
 
 .PHONY: all check c-smoke rust-test python-test public-hygiene clean
 
