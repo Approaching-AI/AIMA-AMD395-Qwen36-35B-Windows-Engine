@@ -73,10 +73,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_transactions = []
         self._qrt_boundary_files = {}
         self._qrt_boundary_norms = {}
+        self._qrt_boundary_stages = {}
         self._qrt_boundary_bytes = 0
         self._qrt_boundary_started = time.monotonic()
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
+        self._qrt_boundary_linear_layers = [0, 4] if case == "q8191-out32" else [0]
         self._qrt_boundary_current = None
         self._qrt_boundary_indices = None
         model = runner.model
@@ -149,8 +151,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 shape=list(value.shape), bytes=len(payload), sha256=hashlib.sha256(payload).hexdigest(),
                 transaction=transaction["ordinal"], label=label)
 
-        def selected_tensor(value, transaction):
-            if (value.ndim != 2 or value.shape != (transaction["token_count"], 2048)):
+        def selected_tensor(value, transaction, width=2048):
+            if (value.ndim != 2 or value.shape != (transaction["token_count"], width)):
                 raise ValueError("target hidden boundary shape changed")
             indices = [row["row"] for row in transaction["rows"]]
             if indices == list(range(indices[0], indices[-1] + 1)):
@@ -189,6 +191,63 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 self._qrt_boundary_handles.append(module.register_forward_hook(hook))
         self._qrt_boundary_handles.append(parent.norm.register_forward_hook(norm_hook("final-norm")))
 
+        def linear_stage(index, label, value, width):
+            transaction = self._qrt_boundary_active
+            if transaction is None or not transaction["rows"]:
+                return
+            if value.numel() != transaction["token_count"] * width:
+                raise ValueError("linear boundary element count changed: " + label)
+            value = value.reshape(transaction["token_count"], width)
+            name = f"linear-{index:02d}-{label}"
+            if case == "q8191-out32" and index == 4 and transaction["first_position"] == 0:
+                payload = value.detach().contiguous().view(torch.uint8).cpu().numpy().tobytes()
+                self._qrt_boundary_stages[name] = dict(shape=list(value.shape), dtype=str(value.dtype),
+                    bytes=len(payload), sha256=hashlib.sha256(payload).hexdigest())
+            save(name, selected_tensor(value, transaction, width), transaction)
+
+        def attach_linear(index):
+            linear = layers[index].linear_attn
+            if linear.gqa_interleaved_layout or linear.tp_size != 1:
+                raise ValueError("linear observation requires the original single-device layout")
+
+            def projection(module, args, output):
+                value = output[0] if isinstance(output, tuple) else output
+                linear_stage(index, "qkv", value[:, :8192], 8192)
+                linear_stage(index, "z-projection", value[:, 8192:], 4096)
+
+            def ba(module, args, output):
+                value = output[0] if isinstance(output, tuple) else output
+                linear_stage(index, "b-projection", value[:, :32], 32)
+                linear_stage(index, "a-projection", value[:, 32:], 32)
+
+            def core_inputs(module, args, kwargs):
+                if kwargs.get("q") is not None:
+                    for label, width in (("q", 2048), ("k", 2048), ("v", 4096), ("g", 32), ("beta", 32)):
+                        linear_stage(index, label + "-core-input", kwargs[label], width)
+
+            def gated_inputs(module, args):
+                linear_stage(index, "core", args[0], 4096)
+                linear_stage(index, "z", args[1], 4096)
+
+            def gated(module, args):
+                linear_stage(index, "gated", args[0], 4096)
+
+            def out(module, args, output):
+                linear_stage(index, "output-projection",
+                             output[0] if isinstance(output, tuple) else output, 2048)
+
+            self._qrt_boundary_handles.extend((
+                linear.in_proj_qkvz.register_forward_hook(projection),
+                linear.in_proj_ba.register_forward_hook(ba),
+                linear.chunk_gated_delta_rule.register_forward_pre_hook(core_inputs, with_kwargs=True),
+                linear.norm.register_forward_pre_hook(gated_inputs),
+                linear.out_proj.register_forward_pre_hook(gated),
+                linear.out_proj.register_forward_hook(out)))
+
+        attach_linear(0)
+        if case == "q8191-out32":
+            attach_linear(4)
+
         def logits(*args, **kwargs):
             output = original_logits(*args, **kwargs)
             transaction = self._qrt_boundary_current
@@ -218,6 +277,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 Path(inspect.getsourcefile(layers[0].forward)),
                 Path(inspect.getsourcefile(type(layers[0].input_layernorm)))})],
             maximum_saved_bytes=128 << 20, maximum_observation_seconds=180,
+            linear_stage_layers=[0, 4] if case == "q8191-out32" else [0],
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
 
@@ -230,6 +290,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         required = {f"layer-{i:02d}-{surface}" for i in range(40)
                     for surface in ("hidden", "residual", "combined", "input-rmsnorm", "post-attention-rmsnorm")}
         required.add("final-norm")
+        required.update(f"linear-{layer:02d}-{stage}" for layer in self._qrt_boundary_linear_layers
+                        for stage in ("qkv", "z-projection", "b-projection", "a-projection",
+                                      "core", "z", "gated", "output-projection"))
         for transaction in self._qrt_boundary_transactions:
             if transaction["rows"]:
                 observed = {value["label"] for value in self._qrt_boundary_files.values()
@@ -238,6 +301,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     raise ValueError("incomplete selected target layer observations")
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
+            full_prefill_linear_stages=self._qrt_boundary_stages,
             selected_positions=sorted(self._qrt_boundary_selected),
             original_methods_returned_unchanged=True, diagnostic_only=True)
         record["runtime_boundaries"] = boundaries
