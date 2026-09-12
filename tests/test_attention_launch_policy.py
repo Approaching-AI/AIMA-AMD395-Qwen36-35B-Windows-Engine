@@ -33,6 +33,7 @@ using hipStream_t = void*;
 using hipEvent_t = void*;
 struct dim3 { unsigned x, y, z; explicit dim3(unsigned a, unsigned b = 1u, unsigned c = 1u):x(a),y(b),z(c) {} };
 namespace qrt_sm121_strided_pair { constexpr unsigned kCellsPer256Threads=128u; }
+namespace qrt_sm121_integer_core { struct Row {}; }
 constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
@@ -54,6 +55,7 @@ void blackwell_probability_value_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
+template<IntegerRowKind Kind> void blackwell_prepare_integer_core_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
          bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false,
          bool PreparedValue = false>
@@ -268,8 +270,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,21u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,21u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,22u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,22u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -387,8 +389,31 @@ int main() {
         }
     }
     launches=error_queries=fail_launch=0u;
-    if(split_scratch_elements(32u,7142u,21u)!=0u ||
-       cells(tiled_cells,&wide_value,21u)!=hipErrorInvalidValue || launches) return 75;
+    if(split_scratch_elements(32u,7142u,22u)!=0u ||
+       cells(tiled_cells,&wide_value,22u)!=hipErrorInvalidValue || launches) return 75;
+    qrt_sm121_integer_core::Row core_row;
+    CoreIntegerWorkspace core{&core_row,&core_row,7169u,32u};
+    auto core_call=[&](const CoreIntegerWorkspace* rows,size_t span) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
+            nullptr,nullptr,nullptr,true,rcp,21u,&scratch,span,nullptr,nullptr,nullptr,0u,
+            false,nullptr,&wide_value,7169u,rows);
+    };
+    if(split_scratch_elements(32u,7142u,21u)!=tiled_cells || split_separate_probability(21u) ||
+       split_transposed_keys(21u) || core_call(nullptr,tiled_cells)!=hipErrorInvalidValue ||
+       core_call(&core,tiled_cells-1u)!=hipErrorInvalidValue || launches) return 76;
+    core.tokens=7141u;if(core_call(&core,tiled_cells)!=hipErrorInvalidValue || launches) return 77;
+    core.tokens=7169u;core.queries=31u;if(core_call(&core,tiled_cells)!=hipErrorInvalidValue || launches) return 78;
+    core.queries=32u;core.key=nullptr;if(core_call(&core,tiled_cells)!=hipErrorInvalidValue || launches) return 79;
+    core.key=&core_row;core.query=nullptr;if(core_call(&core,tiled_cells)!=hipErrorInvalidValue || launches) return 80;
+    core.query=&core_row;
+    if(core_call(&core,tiled_cells)!=hipSuccess || launches!=3u ||
+       !std::strstr(launch_names[0],"blackwell_prepare_integer_core_rows_kernel") ||
+       !std::strstr(launch_names[1],"blackwell_mantissa_scores_kernel<false, true, true>") ||
+       !std::strstr(launch_names[2],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 81;
+    for(unsigned failed=1;failed<=3;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(core_call(&core,tiled_cells)!=hipErrorUnknown || launches!=failed || error_queries!=failed) return 82;
+    }
     return 0;
 }
 '''

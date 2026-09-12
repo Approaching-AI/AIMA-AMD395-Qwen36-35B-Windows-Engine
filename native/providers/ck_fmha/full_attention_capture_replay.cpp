@@ -130,6 +130,7 @@ bool report(const char* route, const std::vector<float>& output,
     else if (memory_layout == 18u) interval_kind = "cell_parallel_integer_qk_prepared_exact_pv";
     else if (memory_layout == 19u) interval_kind = "sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 20u) interval_kind = "cell_parallel_sparse_integer_core_qk_prepared_exact_pv";
+    else if (memory_layout == 21u) interval_kind = "prepacked_sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
     else if (memory_layout >= 10u) interval_kind = "key_transpose_and_strided_pair_qk_pv";
@@ -153,14 +154,15 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"paired_products\":" << (std::strcmp(route, "ck") && qrt_blackwell_attention::kPairedProducts &&
                   !native_products && (memory_layout == 4u || memory_layout == 8u) ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
-              << ",\"integer_wmma\":" << ((memory_layout == 5u || memory_layout == 9u || (memory_layout >= 18u && memory_layout <= 20u)) ? "true" : "false")
+              << ",\"integer_wmma\":" << ((memory_layout == 5u || memory_layout == 9u || (memory_layout >= 18u && memory_layout <= 21u)) ? "true" : "false")
               << ",\"cell_parallel_integer_qk\":" << (memory_layout == 18u || memory_layout == 20u ? "true" : "false")
-              << ",\"sparse_integer_core_qk\":" << (memory_layout == 19u || memory_layout == 20u ? "true" : "false")
+              << ",\"sparse_integer_core_qk\":" << (memory_layout >= 19u && memory_layout <= 21u ? "true" : "false")
+              << ",\"prepacked_integer_core\":" << (memory_layout == 21u ? "true" : "false")
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
               << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u) ? "true" : "false")
               << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u ? "true" : "false")
               << ",\"tiled_exact_qk\":" << (memory_layout >= 15u && memory_layout <= 17u ? "true" : "false")
-              << ",\"prepared_value_encoding\":" << (memory_layout >= 17u && memory_layout <= 20u ? "true" : "false")
+              << ",\"prepared_value_encoding\":" << (memory_layout >= 17u && memory_layout <= 21u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
               << ",\"strided_pair_pv\":" << ((memory_layout == 10u || memory_layout == 12u) ? "true" : "false")
@@ -277,12 +279,12 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_20]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_21]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 20) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 21) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -396,7 +398,23 @@ int main(int argc, char** argv) {
             preparation_ms = finish(begin, end, 100.0f);
             total = maximum = preparation_ms;
         }
-        const bool prepare_values = memory_layout >= 17u && memory_layout <= 20u;
+        using CoreRow = qrt_sm121_integer_core::Row;
+        const bool prepacked_core = memory_layout == 21u;
+        const size_t core_key_rows = prepacked_core ? qrt_blackwell_attention::integer_row_count(PackedKind::Key, tokens, batch) : 0u;
+        const size_t core_query_rows = prepacked_core ? qrt_blackwell_attention::integer_row_count(PackedKind::Query, tokens, batch) : 0u;
+        Device core_key((core_key_rows + 2u) * sizeof(CoreRow)), core_query((core_query_rows + 2u) * sizeof(CoreRow));
+        qrt_blackwell_attention::CoreIntegerWorkspace core_prepared;
+        if (prepacked_core) {
+            core_prepared = {core_key.as<CoreRow>() + 1u, core_query.as<CoreRow>() + 1u, tokens, batch};
+            check(hipMemset(core_key.pointer, 0xa5, (core_key_rows + 2u) * sizeof(CoreRow)));
+            check(hipMemset(core_query.pointer, 0xa5, (core_query_rows + 2u) * sizeof(CoreRow)));
+            check(hipEventRecord(begin.value));
+            check(hipError_t(qrt_blackwell_attention::prepare_integer_core_rows<PackedKind::Key>(
+                dk.as<uint16_t>(), core_prepared.key, tokens, 0u, 0u, nullptr)));
+            const float ms = finish(begin, end, 100.0f);
+            preparation_ms += ms; total += ms; maximum = std::max(maximum, ms);
+        }
+        const bool prepare_values = memory_layout >= 17u && memory_layout <= 21u;
         Device prepared_values(prepare_values ? (v.size() + 128u) * sizeof(uint32_t) : 4u);
         auto* prepared_value_data = prepare_values ? prepared_values.as<uint32_t>() + 64u : nullptr;
         if (prepare_values) {
@@ -425,7 +443,8 @@ int main(int argc, char** argv) {
                 memory_layout >= 2u ? scores_done.value : nullptr,
                 (qrt_blackwell_attention::split_separate_probability(memory_layout)) ? probabilities_done.value : nullptr,
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
-                prepared_value_data, prepare_values ? tokens : 0u)));
+                prepared_value_data, prepare_values ? tokens : 0u,
+                prepacked_core ? &core_prepared : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
@@ -459,6 +478,44 @@ int main(int argc, char** argv) {
             if (original != v) throw std::runtime_error("original value input changed");
             std::cerr << "PREPARED_VALUE cells_checked=" << v.size() << " redzones=pass input_immutable=pass"
                 << " workspace_bytes=" << checked.size() * sizeof(uint32_t)
+                << " preparation_included_in_total=1\n";
+        }
+        if (prepacked_core) {
+            auto validate_rows = [&](Device& storage, size_t capacity, PackedKind kind,
+                const std::vector<uint16_t>& input, unsigned stride, unsigned first, unsigned queries) {
+                std::vector<CoreRow> rows(capacity + 2u);
+                check(hipMemcpy(rows.data(), storage.pointer, rows.size() * sizeof(CoreRow), hipMemcpyDeviceToHost));
+                const auto* raw = reinterpret_cast<const unsigned char*>(rows.data());
+                for (size_t i = 0u; i < sizeof(CoreRow); ++i)
+                    if (raw[i] != 0xa5u || raw[(capacity + 1u) * sizeof(CoreRow) + i] != 0xa5u)
+                        throw std::runtime_error("integer core workspace redzone changed");
+                const size_t active = qrt_blackwell_attention::integer_row_count(kind, stride, queries);
+                if (active > capacity) throw std::runtime_error("integer core capacity exceeded");
+                for (size_t row = 0u; row < active; ++row) {
+                    CoreRow expected{};
+                    for (unsigned column = 0u; column < 16u; ++column) {
+                        const size_t index = qrt_blackwell_attention::integer_row_input_index(kind, row, column, stride, first, queries);
+                        if (index != static_cast<size_t>(-1) && index >= input.size())
+                            throw std::runtime_error("integer core input outside captured extent");
+                        expected.original[column] = index == static_cast<size_t>(-1) ? 0u : input[index];
+                    }
+                    qrt_sm121_integer_core::prepare(expected);
+                    if (std::memcmp(&expected, &rows[row + 1u], sizeof(expected)))
+                        throw std::runtime_error("integer core operand or encoding mismatch");
+                }
+                return active;
+            };
+            const unsigned last_count = (count - 1u) % batch + 1u;
+            const unsigned last_start = start + count - last_count, stride = start + count;
+            const size_t checked = validate_rows(core_key, core_key_rows, PackedKind::Key, k, tokens, 0u, 0u) +
+                validate_rows(core_query, core_query_rows, PackedKind::Query, q, stride, last_start, last_count);
+            for (const auto& input : {std::make_pair(&dq, &q), std::make_pair(&dk, &k)}) {
+                std::vector<uint16_t> after(input.second->size());
+                check(hipMemcpy(after.data(), input.first->pointer, after.size() * sizeof(uint16_t), hipMemcpyDeviceToHost));
+                if (after != *input.second) throw std::runtime_error("immutable Q/K core input changed");
+            }
+            std::cerr << "PREPACKED_INTEGER_CORE rows_checked=" << checked << " redzones=pass inputs_immutable=pass"
+                << " workspace_bytes=" << (core_key_rows + core_query_rows + 4u) * sizeof(CoreRow)
                 << " preparation_included_in_total=1\n";
         }
         if (prepacked) {
