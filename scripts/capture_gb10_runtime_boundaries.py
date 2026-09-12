@@ -484,6 +484,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         full_layer = (full_attention_window['layer'] if full_attention_window else
                       full_attention_observation_layer())
         full_attention_labels = set()
+        prefill_attention_selected_rows = os.environ.get('QRT_GB10_PREFILL_ATTENTION_SELECTED_ROWS') == '1'
+        self._qrt_boundary_prefill_attention_selected_rows = prefill_attention_selected_rows
         self._qrt_boundary_full_attention_window = (dict(plan=full_attention_window,
             transaction=None, labels=[], cache=None) if full_attention_window else None)
         self._qrt_boundary_full_layer = full_layer
@@ -562,9 +564,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 save_full_attention(label, value.reshape(transaction['token_count'], width), transaction)
             if (not self._qrt_boundary_full_active or
                     transaction is None or not transaction["rows"] or
-                    transaction["first_position"] < prompt_tokens):
+                    (transaction["first_position"] < prompt_tokens and not prefill_attention_selected_rows)):
                 return
-            if not 1 <= transaction["token_count"] <= 2:
+            if transaction['first_position'] >= prompt_tokens and not 1 <= transaction["token_count"] <= 2:
                 raise ValueError("full-attention decode observation exceeds the original batch")
             value = value.reshape(transaction["token_count"], width)
             save(f"full-{full_layer:02d}-" + label, selected_tensor(value, transaction, width), transaction)
@@ -810,6 +812,22 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         runner._model_forward = forward
         model.compute_logits = logits
         first_mlp = layers[self._qrt_boundary_moe_layers[0]].mlp
+        flashinfer_autotuner = None
+        if os.environ.get('QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER') == '1':
+            from flashinfer.autotuner import AutoTuner
+            source_path = Path(inspect.getsourcefile(AutoTuner))
+            if file_sha(source_path) != '028b8257b5daa45a35f83e2a0c418d341e9b3f3378cd51377717d81868989c5f':
+                raise ValueError('observed FlashInfer autotuner source changed')
+            instance = AutoTuner._instance
+            entries = []
+            if instance is not None:
+                if len(instance.profiling_cache) > 4096:
+                    raise ValueError('FlashInfer observation cache exceeds bound')
+                for key, value in instance.profiling_cache.items():
+                    entries.append(dict(key=repr(key),runner_id=value[0],tactic=repr(value[1])))
+            flashinfer_autotuner = dict(source_sha256=file_sha(source_path),
+                instance_present=instance is not None,entries=sorted(entries,key=lambda row:row['key']),
+                cache_modified=False,tactics_overridden=False)
         record["runtime_boundaries"] = dict(layer_container=layer_container, selected_positions=sorted(selected),
             model_sources=[dict(file=str(path), sha256=file_sha(path)) for path in sorted({
                 Path(inspect.getsourcefile(type(layers[0]))),
@@ -828,6 +846,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 router_is_original_module=first_mlp.experts.gate is first_mlp.gate),
             decode_full_attention_layers=[full_layer],
             decode_full_attention_cache=capture_full_cache,
+            prefill_attention_selected_rows=prefill_attention_selected_rows,
+            flashinfer_autotuner=flashinfer_autotuner,
             all_prefill_norm_hashes=case == "q8191-out32", original_methods_returned_unchanged=True)
         return record
 
@@ -872,6 +892,10 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     if not {f"full-{self._qrt_boundary_full_layer:02d}-" + label
                             for label in self._qrt_boundary_full_labels} <= observed:
                         raise ValueError("incomplete original decode full-attention observations")
+                elif self._qrt_boundary_prefill_attention_selected_rows:
+                    if not {f"full-{self._qrt_boundary_full_layer:02d}-" + label
+                            for label in self._qrt_boundary_full_labels} <= observed:
+                        raise ValueError('incomplete original selected prefill attention observations')
         window = self._qrt_boundary_full_linear_window
         if window is not None:
             layer = window['plan']['layer']
