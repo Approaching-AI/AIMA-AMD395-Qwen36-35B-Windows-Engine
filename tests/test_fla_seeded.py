@@ -35,7 +35,7 @@ bool ensure_scratch(int n){assert(n>0&&n<=1024&&n%64==0);return true;}
 int hipMemsetAsync(void*,int,size_t,void*){return 0;}
 int hipMemcpyAsync(void*,const void*,size_t,int,void*){return 0;}
 unsigned calls=0,resets=0;int processed=0;
-int launch_segment_async(const float*,const float*,float*,float* state,void*,int count,bool reset,
+int launch_guarded_segment_async(const float*,const float*,float*,float* state,void*,int count,bool reset,
                          int valid,qrt_fla_checkpoint::Segment plan){
  assert(count&&count<=1024&&count%64==0&&!plan.count);if(!valid)valid=count;
  assert(valid>count-64&&valid<=count);++calls;processed+=valid;if(reset){++resets;*state=0;}*state+=float(valid);return 1;

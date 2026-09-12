@@ -32,6 +32,20 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [current q8192 phase profile](../benchmarks/correctness/q8192-phase-profile-20260912.json)
+retains all512 outputs and exact144/logit10.375 on whole337644f. Synchronized
+host totals are8681.408 ms for linear projections,12122.941 ms for linear
+cores and20727.5 ms for full-attention cores. Forty synchronized MoE calls
+total15574.948 ms. Raw GPU phase events contain1228 negative intervals;
+the proof records their distribution and keeps the original log fingerprint.
+Those invalid durations are excluded from conclusions, and positive event
+intervals may still include scheduling/overlap. Instrumented callback61708.296499
+ms does not replace the unobserved58918.8349 ms measurement. A new opt-in FLA
+trial retains the same1024-token segments and kernels while checking one
+complete segment instead of waiting after each math stage. Its CPU tests
+cover ordered completion, tails, preserved errors and partial-submission drain;
+native numerical and performance qualification remains pending.
+
 The [batch suffix diagnostic-hash removal](../benchmarks/correctness/prefix-batch-logit-hash-20260912.json)
 at whole337644f retains all actual vocabulary projections and top-k results,
 and skips only a one-thread FNV over254279680 FP32 logits. The suffix head

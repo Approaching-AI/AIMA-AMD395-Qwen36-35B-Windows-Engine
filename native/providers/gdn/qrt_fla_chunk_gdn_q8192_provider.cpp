@@ -195,12 +195,36 @@ bool dump_q64_stage(bool enabled, const char *name, const void *device, size_t b
     return true;
 }
 
+struct BlackwellSegmentGuard {
+    inline static thread_local BlackwellSegmentGuard* active = nullptr;
+    BlackwellSegmentGuard* previous;
+    hipStream_t stream;
+    unsigned operations = 0u, gate_syncs = 0u;
+    explicit BlackwellSegmentGuard(hipStream_t value)
+        : previous(active), stream(value) { active = this; }
+    ~BlackwellSegmentGuard() { active = previous; }
+};
+
 // A segment contains at most sixteen q64 chunks. The callers below enqueue
 // no more than 32 ordered kernels before this completion check. Applying the
 // 100 ms guard to the entire sequence also bounds each kernel within it.
 template<class Operation>
 bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation,
                            float* completed_ms = nullptr) {
+    if (auto* segment = BlackwellSegmentGuard::active) {
+        if (segment->stream != stream) {
+            set_error_text("Blackwell deferred stage escaped its guarded stream"); return false;
+        }
+        ++segment->operations;
+        const hipError_t status = operation();
+        if (status != hipSuccess) {
+            (void)hipStreamSynchronize(stream);
+            set_error(name, status); return false;
+        }
+        // No per-stage measurement is available before the outer completion.
+        if (completed_ms) *completed_ms = -1.0f;
+        return true;
+    }
     struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
     hipError_t status = hipEventCreate(&begin.handle);
     if (status == hipSuccess) status = hipEventCreate(&end.handle);
@@ -260,9 +284,12 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
         a, g, static_cast<unsigned int>(tokens), static_cast<unsigned int>(valid_tokens),
         qrt_fla_blackwell_state::exp2_table_device());
     hipError_t status = hipGetLastError();
-    if (status == hipSuccess) status = hipStreamSynchronize(stream);
+    if (status == hipSuccess && !BlackwellSegmentGuard::active)
+        status = hipStreamSynchronize(stream);
+    else if (status == hipSuccess)
+        ++BlackwellSegmentGuard::active->gate_syncs;
     if (status != hipSuccess) { set_error("blackwell_kkt_gate", status); return false; }
-    std::fprintf(stderr, "FLA_KKT route=blackwell_group16_width26_k128 tokens=%d chunks=%u sequence_ms=%.6f guard_ms=100\n",
+    if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_KKT route=blackwell_group16_width26_k128 tokens=%d chunks=%u sequence_ms=%.6f guard_ms=100\n",
         tokens, static_cast<unsigned int>(tokens) / kChunk, static_cast<double>(sequence_ms));
     return true;
 }
@@ -496,7 +523,7 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
             return qrt_fla_blackwell_state::segment(k, u, w, g, h, v_new, state,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return false;
-        std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+        if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_STATE route=blackwell_persistent_value_rows tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, static_cast<unsigned>(tokens / kChunk), static_cast<double>(sequence_ms),
             qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
         return true;
@@ -902,7 +929,7 @@ int launch_segment_async(
                 beta_pointer, inverse_pointer, g_pointer, w_pointer, u_pointer,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return 0;
-        std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+        if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, chunks, static_cast<double>(sequence_ms),
             qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
@@ -960,7 +987,7 @@ int launch_segment_async(
                 chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_pointer,
                 static_cast<unsigned>(valid_tokens), stream);
         }, &sequence_ms)) return 0;
-        std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
+        if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, chunks, static_cast<double>(sequence_ms),
             qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
@@ -986,6 +1013,51 @@ int launch_segment_async(
     if (dump) g_state.q64_dumped = true;
 
     g_state.error[0] = '\0';
+    return 1;
+}
+
+// The complete batched segment has the same bounded kernels and stream order
+// as the legacy path. One completion check covers all of them, including the
+// KKT gate and state/output aliases, before another segment may reuse scratch.
+int launch_guarded_segment_async(
+    const float* raw, const float* gates, float* output, float* state,
+    void* stream_pointer, int32_t tokens, bool reset_state,
+    int32_t valid_tokens = 0, qrt_fla_checkpoint::Segment checkpoints = {}
+) {
+    const char* setting = std::getenv("QRT_FLA_GDN_SEGMENT_GUARD");
+    const char* dump = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    const char* debug = std::getenv("QRT_FLA_GDN_SYNC_EACH_STAGE");
+    const bool enabled = setting && std::strcmp(setting, "1") == 0 &&
+        blackwell_batched_enabled() && !(dump && *dump) &&
+        !(debug && *debug && *debug != '0');
+    if (!enabled || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
+        (valid_tokens && (valid_tokens <= tokens - int32_t(kChunk) || valid_tokens > tokens)))
+        return launch_segment_async(raw, gates, output, state, stream_pointer,
+            tokens, reset_state, valid_tokens, checkpoints);
+    if (BlackwellSegmentGuard::active) {
+        set_error_text("Blackwell segment guards cannot be nested"); return 0;
+    }
+    if (!ensure_scratch(tokens)) return 0;
+    const auto stream = static_cast<hipStream_t>(stream_pointer);
+    float milliseconds = 0.0f;
+    unsigned operations = 0u, gate_syncs = 0u;
+    std::string underlying_error;
+    const bool completed = launch_blackwell_math("blackwell_complete_segment", stream, [&] {
+        BlackwellSegmentGuard segment(stream);
+        const int ok = launch_segment_async(raw, gates, output, state, stream_pointer,
+            tokens, reset_state, valid_tokens, checkpoints);
+        operations = segment.operations;
+        gate_syncs = segment.gate_syncs;
+        if (!ok) underlying_error = g_state.error;
+        return ok ? hipSuccess : hipErrorUnknown;
+    }, &milliseconds);
+    if (!completed) {
+        if (!underlying_error.empty()) set_error_text(underlying_error.c_str());
+        return 0;
+    }
+    std::fprintf(stderr, "FLA_SEGMENT tokens=%d valid_tokens=%d stage_guards_deferred=%u gate_syncs_deferred=%u sequence_ms=%.6f guard_ms=100 completed=1\n",
+        tokens, valid_tokens ? valid_tokens : tokens, operations, gate_syncs,
+        static_cast<double>(milliseconds));
     return 1;
 }
 
@@ -1034,7 +1106,7 @@ int launch_pipeline_async_impl(
             const int32_t remaining = prefix_tokens - offset;
             const int32_t count = remaining > kSegmentTokens
                 ? kSegmentTokens : remaining;
-            if (launch_segment_async(
+            if (launch_guarded_segment_async(
                     postconv_raw_f32 + static_cast<size_t>(offset) * kQkvRows,
                     gate_f32 + static_cast<size_t>(offset) * kGateRows,
                     output_f32 + static_cast<size_t>(offset) * kValueFeatures,
@@ -1105,7 +1177,7 @@ int launch_pipeline_async_impl(
             set_error("hipMemcpyAsync(padded_gate)", status);
             return 0;
         }
-        if (launch_segment_async(
+        if (launch_guarded_segment_async(
                 g_state.padded_postconv,
                 g_state.padded_gate,
                 g_state.padded_output,
@@ -1138,7 +1210,7 @@ int launch_pipeline_async_impl(
         const int32_t remaining = tokens - token_offset;
         const int32_t segment_tokens = remaining > kSegmentTokens
             ? kSegmentTokens : remaining;
-        if (launch_segment_async(
+        if (launch_guarded_segment_async(
                 postconv_raw_f32 +
                     static_cast<size_t>(token_offset) * kQkvRows,
                 gate_f32 +

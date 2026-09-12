@@ -13,6 +13,9 @@ ROOT = Path(__file__).resolve().parents[1]
 class FlaSequenceLaunchTests(unittest.TestCase):
     def test_bounded_ordered_submission_and_partial_failure_drain(self):
         provider = (ROOT / "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp").read_text()
+        scope = "struct BlackwellSegmentGuard {" + provider.split(
+            "struct BlackwellSegmentGuard {", 1
+        )[1].split("// A segment contains", 1)[0]
         timing = "template<class Operation>\nbool launch_blackwell_math(" + provider.split(
             "template<class Operation>\nbool launch_blackwell_math(", 1
         )[1].split("bool launch_blackwell_kkt(", 1)[0]
@@ -54,7 +57,7 @@ const unsigned char* exp2_table_device() {
     return table ? reinterpret_cast<const unsigned char*>(uintptr_t(1)) : nullptr;
 }
 }
-''' + timing + auxiliary + r'''
+''' + scope + timing + auxiliary + r'''
 void reset() {
     creates = records = waits = drains = destroys = operations = 0u;
     fail_create = fail_record = fail_operation = UINT32_MAX;
