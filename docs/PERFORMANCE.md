@@ -33,7 +33,7 @@ persistent replay save 2883.694401 ms in this measured pair, using 15 MiB more
 scratch; both complete GB10 boundaries pass. This is one paired measurement,
 with no statistical repeatability claim. The default remains 1024 blocks;
 16384 is retained for further experiments. Its separate synchronized profile
-also passes all 512 outputs and callbacks, with 13785.066 ms across 40 MoE host
+also passes all 512 outputs and callbacks, with 13997.512 ms across 40 MoE host
 calls. Raw GPU intervals include invalid negative values and do not support
 an additive kernel breakdown. See
 `benchmarks/correctness/moe-wide-compaction-20260913.json`.
@@ -114,6 +114,19 @@ Use whole 584588a with `QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER=1`, qualified
 shipped producer default remains disabled. This adds no dependency and does
 not qualify immutable performance or the pending broader release matrix.
 Evidence: `benchmarks/correctness/hipblaslt-producer-20260913.json`.
+
+A fresh instrumented q8192 run on that configuration passes the same full
+GB10 boundary. Completed host clocks show 21470.5 ms for the attention pipeline,
+11298.44 ms for linear core including output projection, 10792.946 ms for MoE
+and 7340.268 ms for linear projection. Its 53787.850699 ms callback includes
+profiling and does not replace the uninstrumented result.
+
+The profile also corrects earlier MoE timing labels. The prior 16546.228 and
+13785.066 ms values came from synchronized GPU events; the corresponding host
+clocks are 16764.390 and 13997.512 ms. Original callback comparisons and GB10
+acceptance remain valid. Canonical historical records are preserved, with the
+field correction and current signed event anomalies documented in
+`benchmarks/correctness/hipblaslt-producer-wall-profile-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical
