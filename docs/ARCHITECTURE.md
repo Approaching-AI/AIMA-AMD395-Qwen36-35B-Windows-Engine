@@ -53,6 +53,14 @@ metrics describe the last chunk; the provider wall and actual callback clock
 include all chunks and KV promotion. This mode does not change the1024-input
 prefix API's complete teacher-prediction contract.
 
+The standalone attention replay also exposes experimental layouts 19–21.
+They reconstruct K16 dots from four integer matrix products and sparse
+corrections for operand decomposition and product alignment. Preencoded Q/K
+rows can be shared across matrix tiles. Seven complete original-input runs
+preserve the BF16 reference and all qualified replay surfaces, but the best
+candidate still trails the exact tiled QK control. Product dispatch does not
+select these layouts. See `benchmarks/correctness/attention-integer-core-20260913.json`.
+
 ## Prefix cache
 
 Snapshots are owned by the resident provider. A compatible extension borrows

@@ -20,6 +20,13 @@ controls, both 16k prefix transactions, callbacks and state restoration.
 Neither record passes the retained performance targets or qualifies a release.
 See [current measurements](../docs/PERFORMANCE.md).
 
+`correctness/attention-integer-core-20260913.json` records a separate exact
+integer attention experiment: independent host arithmetic checks, original
+Q/K coverage, three native builds and seven complete operator replays. All
+declared numerical comparisons pass, but the new schedules remain slower than
+the control. These are component results; product dispatch keeps its existing
+attention route.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
