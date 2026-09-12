@@ -10,6 +10,58 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class PrefixBatchSuffixTests(unittest.TestCase):
+    def test_bf16_export_without_legacy_f32_prepare_and_submit_failures(self):
+        header = (ROOT/'native/providers/prefix_batch_suffix.h').read_text()
+        method = function(header, '    hipError_t attention(')
+        source = r'''
+#include <array>
+#include <cassert>
+#include <cstdint>
+#include <cstring>
+#include <mutex>
+#include <string>
+#define _WIN32 1
+enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorNotSupported,hipErrorUnknown};
+constexpr int hipMemcpyDeviceToDevice=1;
+unsigned copies=0,syncs=0,calls=0,fail_copy=0;bool fail_launch=false,missing_symbol=false;
+hipError_t hipStreamSynchronize(void*){++syncs;return hipSuccess;}
+hipError_t hipMemcpyAsync(void*,const void*,size_t bytes,int kind,void*){
+ assert(bytes==1024u*1024u&&kind==1);return ++copies==fail_copy?hipErrorUnknown:hipSuccess;
+}
+int launch(const uint16_t*,const uint16_t*,const uint16_t*,const uint16_t*,const uint16_t*,float*,void*,unsigned prefix,unsigned tokens){
+ ++calls;assert(copies==2&&prefix==16384&&tokens==1024);return fail_launch?hipErrorUnknown:hipSuccess;
+}
+struct Provider {std::mutex mutex;void* module=this;bool prepared=false;} provider;
+Provider& ck_fmha_provider_state(){return provider;}
+void* GetProcAddress(void* module,const char* name){assert(module==&provider&&std::strcmp(name,"qrt_ck_fmha_sm121_suffix_bf16_v1")==0);return missing_symbol?nullptr:reinterpret_cast<void*>(&launch);}
+struct Layer {void* device_k=nullptr;void* device_v=nullptr;void* device_decode_tail_k=nullptr;void* device_decode_tail_v=nullptr;unsigned decode_tail_token_count=0;};
+struct Session {std::array<Layer,40> full_attention_layers;};
+struct Scope {Session* session;unsigned tokens=1024,prefix=16384;uint64_t attention_layers=0;std::string failure;
+ bool reject(const char* s){failure=s;return false;}bool check(hipError_t s){return s==hipSuccess;}
+''' + method + r'''
+};
+int main(){
+ Session session{};uint16_t input[16]{};float output[16]{};
+ auto call=[&](){copies=syncs=calls=0;session.full_attention_layers[3].decode_tail_token_count=0;
+  Scope scope{&session,1024,16384,0,{}};auto status=scope.attention(3,input,input,input,output,1024);
+  if(status==hipSuccess)assert(scope.attention_layers==8&&session.full_attention_layers[3].decode_tail_token_count==1024);
+  else assert(!scope.attention_layers&&!session.full_attention_layers[3].decode_tail_token_count);
+  return status;};
+ assert(!provider.prepared&&call()==hipSuccess&&copies==2&&calls==1);
+ provider.module=nullptr;assert(call()==hipErrorNotSupported&&!copies&&!calls);provider.module=&provider;
+ missing_symbol=true;assert(call()==hipErrorNotSupported&&!copies&&!calls);missing_symbol=false;
+ for(unsigned i=1;i<=2;++i){fail_copy=i;assert(call()==hipErrorUnknown&&copies==i&&!calls&&syncs==1);}
+ fail_copy=0;fail_launch=true;assert(call()==hipErrorUnknown&&copies==2&&calls==1&&syncs==1);
+ fail_launch=false;assert(call()==hipSuccess);
+}
+'''
+        with tempfile.TemporaryDirectory() as tmp:
+            exe = str(Path(tmp)/'attention')
+            subprocess.run(['c++','-std=c++17','-O2','-Wall','-Wextra','-Werror',
+                '-fsanitize=undefined','-fno-sanitize-recover=all','-x','c++','-','-o',exe],
+                input=source,text=True,check=True,timeout=30)
+            subprocess.run([exe],check=True,timeout=15,capture_output=True)
+
     def test_original_ring_layouts_and_canonical_state(self):
         header = (ROOT/'native/providers/prefix_batch_suffix.h').read_text()
         whole = (ROOT/'native/providers/whole_provider.cpp').read_text()

@@ -182,7 +182,9 @@ struct ScopedQwen36PrefixBatchSuffix {
         {
             auto &provider = ck_fmha_provider_state();
             std::lock_guard<std::mutex> lock(provider.mutex);
-            if (provider.module && provider.prepared)
+            // Direct BF16 exports prepare their own exact workspace. The
+            // loader's prepared flag belongs to the packed F32 q8192 route.
+            if (provider.module)
                 launch = reinterpret_cast<Launch>(GetProcAddress(provider.module, "qrt_ck_fmha_sm121_suffix_bf16_v1"));
         }
         if (!launch) { reject("CK provider lacks exact compact suffix attention"); return hipErrorNotSupported; }
