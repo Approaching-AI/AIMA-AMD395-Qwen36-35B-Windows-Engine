@@ -210,8 +210,22 @@ class BoundedHttpTests(unittest.TestCase):
         self.assertEqual(command[1], "serve")
         self.assertEqual(command[command.index("--host") + 1], "127.0.0.1")
         self.assertEqual(command[command.index("--max-queue-depth") + 1], "1")
-        self.assertIn("QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH=8", command)
+        self.assertEqual(command[command.index("--env-file") + 1], "/runtime/env")
+        self.assertFalse(any("QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH=" in
+                             arg for arg in command))
         self.assertNotIn("--allow-unauthenticated", command)
+
+    def test_diagnostic_limits_are_explicit_bounded_and_allow_cleanup(self):
+        self.assertEqual(subject.execution_limits({}), {"readiness_seconds": 35,
+                         "request_seconds": 15, "controller_seconds": 75})
+        valid = {"readiness_seconds": 35, "request_seconds": 120, "controller_seconds": 360}
+        self.assertEqual(subject.execution_limits({"execution_limits": valid}), valid)
+        for name, value in (("request_seconds", 0), ("request_seconds", 601),
+                             ("request_seconds", True), ("readiness_seconds", 301),
+                             ("controller_seconds", 1801), ("controller_seconds", 200),
+                             ("controller_seconds", float("inf"))):
+            with self.subTest(name=name, value=value), self.assertRaises(ValueError):
+                subject.execution_limits({"execution_limits": {**valid, name: value}})
 
 
 if __name__ == "__main__":

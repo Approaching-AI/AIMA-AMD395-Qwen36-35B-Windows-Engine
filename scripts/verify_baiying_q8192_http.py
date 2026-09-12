@@ -88,7 +88,24 @@ def verify_inventory(manifest_path):
     return len(artifacts)
 
 
+def execution_limits(config):
+    # These bound the diagnostic controller, not the immutable TTFT/load gates.
+    limits = {}
+    for name, default, maximum in (("readiness_seconds", 35, 300),
+                                   ("request_seconds", 15, 600),
+                                   ("controller_seconds", 75, 1800)):
+        value = config.get("execution_limits", {}).get(name, default)
+        require(type(value) is int and 1 <= value <= maximum,
+                f"invalid execution limit: {name}")
+        limits[name] = value
+    require(limits["controller_seconds"] >= limits["readiness_seconds"] +
+            2 * limits["request_seconds"] + 10,
+            "controller limit must cover readiness, both requests and cleanup")
+    return limits
+
+
 def preflight(config):
+    limits = execution_limits(config)
     files = config["files"]
     for name in ("server", "provider", "env", "prompt", "oracle", "runtime_manifest"):
         require(fingerprint(files[name]["path"]) == files[name]["sha256"],
@@ -105,7 +122,8 @@ def preflight(config):
                            capture_output=True, text=True, check=True, timeout=5).stdout.strip()
     require(not dirty, "server source checkout is dirty")
     return prompt, expected, {"pass": True, "runtime_artifacts_verified": count,
-                              "files": files, "server_checkout_commit": source}
+                              "files": files, "server_checkout_commit": source,
+                              "execution_limits": limits}
 
 
 def require_windows_job():
@@ -304,7 +322,6 @@ def server_command(config, output):
             "--arbitrary-moe-provider", str(runtime / "q1024-moe" / "qrt_triton_moe_q1024_exact_provider_slots64.dll"),
             "--arbitrary-moe-kernel-dir", str(runtime / "q1024-moe" / "moe-kernels"),
             "--smooth-tail-moe-root", str(runtime / "smooth-tail"),
-            "--set-env", "QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH=8",
             "--model-id", config["model_id"], "--host", "127.0.0.1", "--port", str(config["port"]),
             "--max-model-len", "262144", "--max-queue-depth", "1", "--queue-timeout-seconds", "15",
             "--state-file", str(output / "service.json")]
@@ -315,12 +332,14 @@ def server_command(config, output):
 
 def execute(config, output, prompt, expected, report):
     require_windows_job()
+    limits = execution_limits(config)
     with socket.socket() as probe:
         probe.bind(("127.0.0.1", config["port"]))
     command = server_command(config, output)
     environment = {k: v for k, v in os.environ.items() if not k.upper().startswith("QRT_")}
     report.update(command=command, inherited_qrt_environment_removed=True,
-                  host=platform.node(), model=config["model"], server_commit=config["server_commit"])
+                  host=platform.node(), model=config["model"], server_commit=config["server_commit"],
+                  execution_limits=limits, hashed_runtime_profile_preserved=True)
     save_json(output / "launch.json", report.copy())
     stop = threading.Event()
     deadline_failure = []
@@ -339,8 +358,8 @@ def execute(config, output, prompt, expected, report):
         def watchdog():
             while not stop.wait(0.25):
                 reason = None
-                if time.monotonic() - started > 75:
-                    reason = "75-second controller wall limit"
+                if time.monotonic() - started > limits["controller_seconds"]:
+                    reason = f"{limits['controller_seconds']}-second controller wall limit"
                 elif sum(p.stat().st_size for p in log_paths) > 32 * 1024 * 1024:
                     reason = "32-MiB server log limit"
                 if reason:
@@ -355,7 +374,8 @@ def execute(config, output, prompt, expected, report):
         try:
             while True:
                 require(process.poll() is None, "server exited before readiness")
-                require(time.monotonic() - started < 35, "35-second readiness limit")
+                require(time.monotonic() - started < limits["readiness_seconds"],
+                        f"{limits['readiness_seconds']}-second readiness limit")
                 try:
                     health = client.json("/health", timeout=0.5)
                 except (OSError, ValueError):
@@ -387,7 +407,8 @@ def execute(config, output, prompt, expected, report):
             report["negative_checks_without_inference"] = 3
             request = {"model": model, "prompt": prompt, "max_tokens": 32,
                        "temperature": 0, "top_p": 1, "ignore_eos": True}
-            completion = client.json("/v1/completions", {**request, "stream": False})
+            completion = client.json("/v1/completions", {**request, "stream": False},
+                                     timeout=limits["request_seconds"])
             save_json(output / "completion.json", completion)
             check_completion(completion, expected, expected_text)
             report["nonstream_exact_32_tokens"] = True
@@ -395,7 +416,8 @@ def execute(config, output, prompt, expected, report):
             stream_started = time.monotonic()
             events = []
             with client.open("/v1/completions", {**request, "stream": True,
-                             "stream_options": {"include_usage": True}}) as response:
+                             "stream_options": {"include_usage": True}},
+                             timeout=limits["request_seconds"]) as response:
                 require(response.status == 200, f"SSE HTTP {response.status}")
                 require("text/event-stream" in response.headers.get("Content-Type", ""), "SSE type differs")
                 during = client.json("/health", timeout=2)
