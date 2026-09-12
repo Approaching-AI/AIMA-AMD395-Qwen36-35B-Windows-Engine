@@ -19,6 +19,7 @@ verify their fallback transaction and complete owner-state restoration.
 | MoE 25c3693, DPP integer reductions | cold 8192, ordinary path | 58243.9345 | 112.070807 | 20050.7749 |
 | whole/CK/FLA 930955a, same DPP MoE | cold 8192, ordinary path | 57617.9907 | 107.136582 | 20077.7027 |
 | CK d028182, globally compacted PV replay | cold 8192, ordinary path | 56604.0518 | 106.860717 | 20074.636 |
+| MoE 8a7a8dc, staged K64 operands | cold 8192, ordinary path | 55453.937 | 105.957922 | 20116.758099 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -53,6 +54,16 @@ per-query replay control. Twenty native safety cases preserve raw outputs,
 inputs and redzones. This becomes the next experimental baseline through
 `QRT_CK_SM121_COMPACT_PV_REPLAY=1`; its default remains disabled. Evidence:
 `benchmarks/correctness/attention-compact-pv-20260913.json`.
+
+Staging four K16 operand groups before routed correction preserves the original
+16-lane arithmetic and admission rules. The complete q8192/out512 boundary
+passes with exact first token/logit at 55453.937 ms callback TTFT, an observed
+1150.1148 ms reduction from the compact-PV baseline. All 73,782 native dot
+comparisons, including partial tiles, match independent CPU arithmetic.
+Emitted code confirms K64 operand loads without scratch spills. One negative
+microtiming remains invalid; the product comparison contains one run each.
+Use four staged groups in subsequent experiments; the build default remains
+one. See `benchmarks/correctness/moe-staged-dot-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical

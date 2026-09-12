@@ -74,6 +74,13 @@ Eight-wave probability generation preserves every checked bit and external
 BF16 endpoint. Its 5.39 ms observed operator difference is too small to retain;
 no full-model trial selects the new mode.
 
+`correctness/moe-staged-dot-20260913.json` records K64 operand staging ahead
+of ordered routed correction, 73,782 independent CPU/native dot comparisons,
+emitted GPU instructions and a complete q8192/out512 GB10 boundary. Actual
+callback TTFT is 55453.937 ms; all tokens, callbacks and the first logit match.
+The measured 1150.1148 ms reduction supports further experiments, while
+retained performance and release acceptance remain open.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
