@@ -32,6 +32,24 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [batch suffix diagnostic-hash removal](../benchmarks/correctness/prefix-batch-logit-hash-20260912.json)
+at whole337644f retains all actual vocabulary projections and top-k results,
+and skips only a one-thread FNV over254279680 FP32 logits. The suffix head
+falls from12280.5029 ms to139.8888/143.8936 ms in two measured warm hits.
+Both hits retain every512 output tokens, exact3709/logit5.6875 and complete
+owner rollback; the fallback seed does too. All1024 measured callbacks match.
+Actual warm TTFT is16760.7429/16807.479699 ms, averaging16784.111299 ms,
+12149.623202 ms below the correctness-qualified3d7f41b baseline. The same new
+DLL passes q8192/out512 with exact144/logit10.375, callback58918.8349 ms,
+TPOT108.149002 ms and load20053.3147 ms. Performance targets remain unmet.
+
+The original two-hit controller falsely compared1024 total callbacks to512;
+the native process exited0 with all host checks. Independent per-request raw
+validation checks all1024 callbacks and1536 generated transaction outputs.
+The proof retains that wrapper error and the corrected future count check.
+`QRT_QWEN36_PREFIX_BATCH_SUFFIX_HASH_LOGITS=1` restores the diagnostic hash.
+Complete package renewal, larger contexts, soak and release remain open.
+
 The [complete batch-suffix model check](../benchmarks/correctness/prefix-batch-suffix-product-20260912.json)
 at whole 3d7f41b, CK 37914ed, MoE bc082a5 and FLA 6042803 passes the original
 16384-token prefix plus 1024-token suffix on baiying with the real model.
