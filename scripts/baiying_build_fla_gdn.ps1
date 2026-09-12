@@ -4,6 +4,7 @@ param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')][string]$WslDistribution = 'Ubuntu-24.04',
     [string]$TritonPython = '/opt/qwen36-vllm/bin/python',
     [string]$AotDir = '',
+    [ValidateSet(0, 1)][int]$DppReduction = 0,
     [ValidateSet('wmma','ieee')][string]$StateDot = 'wmma'
 )
 
@@ -59,6 +60,7 @@ $blackwellWave16 = Join-Path $repo 'native\providers\gdn\blackwell_accumulator.h
 $blackwellKkt = Join-Path $repo 'native\providers\gdn\blackwell_kkt.h'
 $blackwellAccumulator = Join-Path $repo 'native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h'
 $sm121Wave16Header = Join-Path $repo 'native\providers\moe_accumulator\sm121_wave16.h'
+$sm121LaneReduceHeader = Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h'
 $sm121Group16ModuloHeader = Join-Path $repo 'native\providers\moe_accumulator\sm121_group16_modulo.h'
 if ($AotDir) {
     if (-not [IO.Path]::IsPathRooted($AotDir)) { $AotDir = Join-Path $repo $AotDir }
@@ -104,7 +106,7 @@ if (-not $AotDir) {
 }
 $lines += @(
     "if not exist $(Quote-Arg (Join-Path $OutDir 'qrt_fla_gdn_kernel_specs.inc')) exit /b 26",
-    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $dll)",
+    "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=$DppReduction -I$(Quote-Arg $OutDir) -shared $(Quote-Arg $provider) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $dll)",
     'if not "%errorlevel%"=="0" exit /b 23'
 )
 foreach ($tokens in @(64, 65, 7169)) {
@@ -113,10 +115,10 @@ foreach ($tokens in @(64, 65, 7169)) {
     $lines += 'if not "%errorlevel%"=="0" exit /b 24'
 }
 $replayExe = Join-Path $OutDir 'fla-output-capture-replay.exe'
-$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $outputReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) -o $(Quote-Arg $replayExe)"
+$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=$DppReduction $(Quote-Arg $outputReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) -o $(Quote-Arg $replayExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 27'
 $upstreamExe = Join-Path $OutDir 'fla-upstream-capture-replay.exe'
-$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $upstreamExe)"
+$lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=$DppReduction $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $upstreamExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 28'
 [IO.File]::WriteAllText($batch, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8)
 $stdout = Join-Path $OutDir 'build.stdout.log'
@@ -160,6 +162,8 @@ $record = [ordered]@{
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
     native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
+    sm121_dpp_reduction=($DppReduction -ne 0)
+    sm121_lane_reduce_header_sha256=(Get-FileHash $sm121LaneReduceHeader -Algorithm SHA256).Hash.ToLowerInvariant()
     sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121SubgroupHeader, $sm121PairedHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $flaCheckpointHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
