@@ -67632,7 +67632,6 @@ const Qwen36ResidentPrefixCheckpoint *find_qwen36_prefix_checkpoint(
     if (!session.valid || !session.provider_completed || store == nullptr ||
         store->failed || input_tokens == nullptr || prefix_tokens == 0u ||
         prefix_tokens >= session.prefix_tokens ||
-        session.committed_decode_token_count != 0u ||
         store->owner_engine != session.owner_engine ||
         store->owner_generation != session.generation ||
         store->owner_digest != session.prompt_token_ids_fnv1a64 ||
@@ -220001,7 +220000,6 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query
         session.generation != request->owner_generation ||
         session.prefix_tokens != request->owner_token_count ||
         session.prompt_token_ids_fnv1a64 != request->owner_prompt_digest ||
-        session.committed_decode_token_count != 0u ||
         session.activation_workspace.in_use ||
         session.activation_workspace.phase != Qwen36ResidentDecodeActivationWorkspacePhase::kIdle ||
         store == nullptr || store->failed ||
@@ -220032,7 +220030,11 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_checkpoint_query
             suffix + request->output_token_capacity - 1u <=
                 kQwen36ResidentDecodeTailCapacityTokens;
     };
-    if (eligible(session.prefix_tokens)) {
+    // Ordinary decode advances the live frontier, while saved checkpoints
+    // keep their own recurrence/conv/hidden state and immutable prefix KV.
+    // Only the untouched live frontier can serve as an exact owner hit.
+    if (session.committed_decode_token_count == 0u &&
+        eligible(session.prefix_tokens)) {
         result->prefix_token_count = static_cast<uint32_t>(session.prefix_tokens);
         result->prefix_digest = session.prompt_token_ids_fnv1a64;
     }
@@ -220104,7 +220106,6 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
         request->output_token_capacity == 0u ||
         request->output_token_capacity >
             QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS ||
-        request->expected_base_committed_token_count != 0u ||
         request->expected_session_generation == UINT64_C(0) ||
         request->expected_prompt_token_ids_fnv1a64 == UINT64_C(0) ||
         request->expected_suffix_token_ids_fnv1a64 == UINT64_C(0) ||
@@ -220245,14 +220246,15 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     out_result->shadow_bytes = transaction.shadow_bytes();
     if (!transaction.ready() ||
         transaction.base_committed_decode_token_count() !=
-            request->expected_base_committed_token_count) {
+            request->expected_base_committed_token_count ||
+        g_qwen36_resident_session.committed_decode_token_count != 0u) {
         return set_failure(
             QRT_STATUS_UNSUPPORTED,
             failure_stage.empty()
                 ? "qwen36_resident_prefix_shadow"
                 : failure_stage,
             failure.empty()
-                ? "resident prefix request could not create an untouched copy-on-write shadow"
+                ? "resident prefix request requires the expected owner count and an untouched checkpoint shadow"
                 : failure
         );
     }

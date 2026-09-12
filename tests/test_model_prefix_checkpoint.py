@@ -143,8 +143,12 @@ int main(){
   for(size_t i=0;i<p.count;++i)assert(p.tokens[i]&&p.tokens[i]%64==0&&p.tokens[i]<n&&(i==0||p.tokens[i]>p.tokens[i-1]));}
  plain[79]=248046;plain[159]=248046;plain[160]=248045;plain[161]=74455;plain[162]=198;
  auto selected=qrt_prefix_checkpoint::select(plain.data(),257);assert(selected.tokens[0]==64&&selected.tokens[1]==128);
- for(bool contiguous:{false,true}){
+ for(bool contiguous:{false,true})for(size_t committed:{0u,3u}){
   setup(contiguous);auto& s=g_qwen36_resident_session;auto store=s.prefix_checkpoints;
+  // Generated-token state differs from the saved checkpoint. Restoring a
+  // branch must preserve both the immutable KV prefix and the advanced owner.
+  s.committed_decode_token_count=committed;
+  for(auto& layer:s.full_attention_layers)if(layer.valid)layer.decode_tail_token_count=committed;
   PrefillLinearAttentionDescriptorBatchRun batch;
   for(auto& cp:store->checkpoints)cp.hidden_valid=false;
   capture_qwen36_prefix_checkpoint_hidden(batch,129);
@@ -162,6 +166,9 @@ int main(){
   q.owner_generation=s.generation;q.owner_prompt_digest=s.prompt_token_ids_fnv1a64;
   qrt_prefix_checkpoint_match_v1_t result{};
   assert(qrt_qwen36_whole_provider_checkpoint_query_v1(&q,&result)&&result.prefix_token_count==128);
+  {auto full=q;std::vector<uint32_t> extended(130,42);full.input_tokens=extended.data();full.input_token_count=130;
+   assert(qrt_qwen36_whole_provider_checkpoint_query_v1(&full,&result));
+   assert(result.prefix_token_count==(committed==0?129u:128u));}
   q.maximum_prefix_tokens=64;assert(qrt_qwen36_whole_provider_checkpoint_query_v1(&q,&result)&&result.prefix_token_count==64);q.maximum_prefix_tokens=0;
   for(unsigned layer=0;layer<40;++layer){auto& cp=store->checkpoints[1];
    if(layer%4!=3){cp.linear_layers[layer].valid=false;finalize_qwen36_prefix_checkpoints();assert(!cp.valid);cp.linear_layers[layer].valid=true;}
@@ -174,6 +181,7 @@ int main(){
    const auto digest=qrt_fnv1a64_bytes(input.data(),prefix*4);std::string stage,error;
    {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,prefix,input.data());
     assert(tx.ready()&&s.prefix_tokens==prefix&&s.prompt_token_ids_fnv1a64==digest&&!s.current_token_valid);
+    assert(tx.base_committed_decode_token_count()==committed&&s.committed_decode_token_count==0u);
     for(unsigned l=0;l<40;++l)if(l%4!=3){auto& v=s.linear_layers[l];
      assert(v.prefix_tokens==prefix&&((unsigned char*)v.device_allocation)[0]==(prefix==64?10:20)+l);
      assert(v.device_allocation!=original.linear_layers[l].device_allocation);std::memset(v.device_allocation,222,96);
@@ -181,13 +189,13 @@ int main(){
      assert(((unsigned char*)v.device_k)[prefix*8-1]==11&&((unsigned char*)v.device_v)[prefix*8-1]==29);
      if(!contiguous)assert(v.device_v==original.full_attention_layers[l].device_v);
      std::memset(v.device_decode_tail_k,202,128);}
-    assert(!tx.commit(&stage,&error));assert(tx.rollback("test"));assert(s.prefix_tokens==129&&s.current_token_id==77);
+    assert(!tx.commit(&stage,&error));assert(tx.rollback("test"));assert(s.prefix_tokens==129&&s.current_token_id==77&&s.committed_decode_token_count==committed);
    }
    assert(allocations.size()==base_count);
    // Every allocation failure restores owner metadata and pointers.
    for(unsigned at=1;at<=40;++at){fail_alloc=alloc_calls+at;
     {ScopedQwen36ResidentSessionShadowTransaction tx(17,digest,&stage,&error,prefix,input.data());assert(!tx.ready());}
-    fail_alloc=0;assert(allocations.size()==base_count&&s.prefix_tokens==129&&s.valid);}
+    fail_alloc=0;assert(allocations.size()==base_count&&s.prefix_tokens==129&&s.valid&&s.committed_decode_token_count==committed);}
   }
   assert(s.prefix_checkpoints==store);
   original.prefix_checkpoints.reset();store.reset();teardown();

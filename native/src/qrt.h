@@ -5044,6 +5044,9 @@ typedef struct qrt_qwen36_whole_provider_prefix_request_v1_t {
     uint32_t expected_prefix_token_count;
     uint32_t suffix_token_count;
     uint32_t output_token_capacity;
+    /* Owner's committed decode count, restored after the transaction. A
+     * complete partial checkpoint starts its private suffix state at zero
+     * even when the owner has already generated tokens. */
     uint32_t expected_base_committed_token_count;
     uint64_t expected_session_generation;
     uint64_t expected_prompt_token_ids_fnv1a64;

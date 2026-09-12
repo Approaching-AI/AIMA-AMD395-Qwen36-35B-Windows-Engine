@@ -756,6 +756,7 @@ struct qrt_engine {
     uint64_t request_serialization_stream_request_count;
 #endif
     int resident_prefix_cache_session_valid;
+    uint32_t resident_prefix_cache_owner_committed_token_count;
     uint32_t *resident_prefix_cache_tokens;
     size_t resident_prefix_cache_token_count;
     size_t resident_prefix_cache_token_capacity;
@@ -27717,6 +27718,7 @@ static qrt_status_t qrt_qwen36_try_whole_provider_prefill_request(
 
     engine->resident_prefix_cache_session_valid = 0;
     engine->resident_prefix_cache_token_count = 0u;
+    engine->resident_prefix_cache_owner_committed_token_count = 0u;
     engine->resident_prefix_cache_session_generation = UINT64_C(0);
     engine->resident_prefix_cache_prompt_token_ids_fnv1a64 = UINT64_C(0);
 
@@ -28236,6 +28238,8 @@ static qrt_status_t qrt_qwen36_try_whole_provider_prefill_request(
             qrt_elapsed_ns(decode_phase_start_ns, qrt_now_ns());
         *out_output_token_count = decoded_output_token_count;
         engine->last_request_output_token_count = decoded_output_token_count;
+        engine->resident_prefix_cache_owner_committed_token_count =
+            (uint32_t)(decoded_output_token_count - 1u);
         engine->last_request_tpot_elapsed_ns = decode_phase_elapsed_ns;
         engine->last_request_tpot_sample_count =
             decoded_output_token_count - 1u;
@@ -82120,6 +82124,7 @@ static void qrt_engine_clear_resident_prefix_cache_identity(
     }
     engine->resident_prefix_cache_session_valid = 0;
     engine->resident_prefix_cache_token_count = 0u;
+    engine->resident_prefix_cache_owner_committed_token_count = 0u;
     engine->resident_prefix_cache_session_generation = UINT64_C(0);
     engine->resident_prefix_cache_prompt_token_ids_fnv1a64 = UINT64_C(0);
     if (release_token_storage) {
@@ -82419,7 +82424,8 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
             (uint32_t)(input_token_count - prefix_hit_token_count);
         provider_request.output_token_capacity =
             (uint32_t)output_token_capacity;
-        provider_request.expected_base_committed_token_count = 0u;
+        provider_request.expected_base_committed_token_count =
+            engine->resident_prefix_cache_owner_committed_token_count;
         provider_request.expected_session_generation =
             engine->resident_prefix_cache_session_generation;
         provider_request.expected_prompt_token_ids_fnv1a64 =
@@ -82515,11 +82521,13 @@ static qrt_status_t qrt_engine_request_tokens_prefix_v1_unlocked(
                 (uint32_t)output_token_capacity ||
             provider_result.teacher_forced_prediction_count !=
                 provider_result.suffix_token_count ||
-            provider_result.base_committed_token_count != 0u ||
+            provider_result.base_committed_token_count !=
+                provider_request.expected_base_committed_token_count ||
             provider_result.mutated_committed_token_count !=
                 provider_result.suffix_token_count +
                     provider_result.output_token_count - 1u ||
-            provider_result.restored_committed_token_count != 0u ||
+            provider_result.restored_committed_token_count !=
+                provider_request.expected_base_committed_token_count ||
             provider_result.session_generation !=
                 engine->resident_prefix_cache_session_generation ||
             provider_result.shadow_bytes == UINT64_C(0) ||

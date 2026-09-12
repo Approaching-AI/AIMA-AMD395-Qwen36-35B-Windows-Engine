@@ -1,0 +1,692 @@
+{
+  "schema_version": 1,
+  "kind": "native_http_complete_checkpoints_hidden_after_owner_decode",
+  "host": "baiying",
+  "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+  "source": {
+    "sha256": "74bc3f83f6c923cbaa3628801024e0a0e902f2a51f763ca6fcf056965be66c6a",
+    "value": {
+      "sha": "29a04c9b312644319709747b626281478e39b756",
+      "repo": "D:/projects/AIMA-public-prefix-http-20260912",
+      "bundle": "prefix-http-29a04c9.bundle",
+      "bundle_sha256": "7c6beb6a160fe8b6919a65462e22c3f5f56a1c262a947410451c0857188f6d0c"
+    }
+  },
+  "server_build": {
+    "sha256": "f2a2a24bb5ddd311e9d0fa90f70a96ab7f078f9cfb4648cdcd694a69e1ea9a4a",
+    "value": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "working_directory": "D:\\projects\\AIMA-public-prefix-http-20260912",
+        "repo_commit": "29a04c9b312644319709747b626281478e39b756",
+        "command_file": "D:\\projects\\run-native-prefix-http-build-r1.ps1",
+        "command_file_sha256": "284587a217b9875341bba906313f4780f3eb523e013b38452322a3f4a273720f",
+        "model": "none; native server MSVC/Rust build",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "purpose": "Build current server with native tests before strict real-token HTTP qualification",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_build_qrt_server.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1",
+          "-TimeoutSeconds",
+          "840"
+        ]
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T04:47:29.3261376Z",
+        "command_file": "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "working_directory": "D:\\projects\\AIMA-public-prefix-http-20260912",
+          "repo_commit": "29a04c9b312644319709747b626281478e39b756",
+          "command_file": "D:\\projects\\run-native-prefix-http-build-r1.ps1",
+          "command_file_sha256": "284587a217b9875341bba906313f4780f3eb523e013b38452322a3f4a273720f",
+          "model": "none; native server MSVC/Rust build",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "purpose": "Build current server with native tests before strict real-token HTTP qualification",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_build_qrt_server.ps1",
+            "-OutDir",
+            "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1",
+            "-TimeoutSeconds",
+            "840"
+          ]
+        },
+        "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 27,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24607756288,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147059425280,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533469597696,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 48922.188,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24137551872,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146945863680,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533467598848,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    }
+  },
+  "server_build_metadata": {
+    "sha256": "4a9c148fbef7b16ef0afbdb6691638a59bac6397850ca281d539c5eeacbd27d3",
+    "value": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "29a04c9b312644319709747b626281478e39b756",
+      "dirty_tree": false,
+      "command_file": "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_build_qrt_server.ps1",
+      "timeout_seconds": 840,
+      "validate_only": false,
+      "tests_run": true,
+      "wall_ms": 48355.1572,
+      "cargo": "C:\\Users\\sshuser\\.cargo\\bin\\cargo.exe",
+      "rustc_version": "rustc 1.95.0 (59807616e 2026-04-14)",
+      "executable": "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1\\qrt.exe",
+      "executable_sha256": "ac7461403ededb139baface30c677bfb11fc0be363b0bb03a9001b05847c6c41"
+    }
+  },
+  "config": {
+    "sha256": "a691839981d8e02a0810271db52eea4209208801df9f0cb79275dbb310de26d4",
+    "value": {
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1\\qrt.exe",
+          "sha256": "ac7461403ededb139baface30c677bfb11fc0be363b0bb03a9001b05847c6c41"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "52b07b683267bf2e81d726e53d7c4bdd7a247ec0908aaf6c8e54076808f30d20"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\runtime.env",
+          "sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-prefix-http-20260912\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\runtime-manifest.json",
+          "sha256": "8dd83bdff187bc961c13b029f680b938a045b91cedbf7e04879d2e9911de0f39"
+        }
+      },
+      "port": 18143,
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "model_id": "qwen3.6-35b-a3b",
+      "server_commit": "29a04c9b312644319709747b626281478e39b756",
+      "working_directory": "D:\\projects\\AIMA-public-prefix-http-20260912",
+      "require_first_token_logit": true,
+      "execution_limits": {
+        "readiness_seconds": 35,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    }
+  },
+  "controller_result": {
+    "sha256": "e0d00fafce02aeb886074aee1a85f63541046e9c34634beba0ca27f98530c999",
+    "value": {
+      "schema_version": 1,
+      "status": "failed",
+      "host": "baiying",
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "server_commit": "29a04c9b312644319709747b626281478e39b756",
+      "controller_sha256": "9c47e231322b439e374e8d14b34453bcf83bca981433cf7808d6a3ed2a2cd6ad",
+      "numerical_acceptance_for_chat_claimed": false,
+      "performance_qualified": false,
+      "release_qualified": false,
+      "preflight": {
+        "pass": true,
+        "runtime_artifacts_verified": 267,
+        "files": {
+          "server": {
+            "path": "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1\\qrt.exe",
+            "sha256": "ac7461403ededb139baface30c677bfb11fc0be363b0bb03a9001b05847c6c41"
+          },
+          "provider": {
+            "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\whole-provider\\qrt_qwen36_whole_provider.dll",
+            "sha256": "52b07b683267bf2e81d726e53d7c4bdd7a247ec0908aaf6c8e54076808f30d20"
+          },
+          "env": {
+            "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\runtime.env",
+            "sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d"
+          },
+          "prompt": {
+            "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+            "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+          },
+          "oracle": {
+            "path": "D:\\projects\\AIMA-public-prefix-http-20260912\\contracts\\hprefill_q8192_gb10_oracle.json",
+            "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+          },
+          "runtime_manifest": {
+            "path": "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\runtime-manifest.json",
+            "sha256": "8dd83bdff187bc961c13b029f680b938a045b91cedbf7e04879d2e9911de0f39"
+          }
+        },
+        "server_checkout_commit": "29a04c9b312644319709747b626281478e39b756",
+        "execution_limits": {
+          "readiness_seconds": 35,
+          "request_seconds": 120,
+          "controller_seconds": 360
+        }
+      },
+      "command": [
+        "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-server-r1\\qrt.exe",
+        "serve",
+        "--model",
+        "D:/models/Qwen3.6-35B-A3B",
+        "--provider",
+        "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\whole-provider\\qrt_qwen36_whole_provider.dll",
+        "--env-file",
+        "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\runtime.env",
+        "--arbitrary-moe-provider",
+        "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+        "--arbitrary-moe-kernel-dir",
+        "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\q1024-moe\\moe-kernels",
+        "--smooth-tail-moe-root",
+        "D:\\projects\\AIMA-public-http-routing-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r2\\smooth-tail",
+        "--model-id",
+        "qwen3.6-35b-a3b",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18143",
+        "--max-model-len",
+        "262144",
+        "--max-queue-depth",
+        "2",
+        "--queue-timeout-seconds",
+        "15",
+        "--state-file",
+        "D:\\projects\\AIMA-public-prefix-http-20260912\\build\\prefix-http-requests-r1\\service.json",
+        "--set-env",
+        "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1",
+        "--set-env",
+        "QRT_QWEN36_PREFIX_CHECKPOINTS=1"
+      ],
+      "runtime_role": "new diagnostic server with hash-verified extracted b619793 archive components; not a newly qualified archive",
+      "pid": 9028,
+      "health_before": {
+        "capabilities": {
+          "batch_size": 1,
+          "bounded_fifo_queue": true,
+          "continuous_prompt_lengths": true,
+          "prefix_cache": true,
+          "streaming": true,
+          "tool_calls": true
+        },
+        "load": {
+          "engine_create_ms": 1.0435,
+          "provider_dll_ms": 8.7444,
+          "provider_preload_reported_ms": 20072.8283,
+          "provider_preload_stored_entries": 256,
+          "provider_preload_wall_ms": 20073.4205,
+          "total_ms": 20083.2214
+        },
+        "max_model_len": 262144,
+        "max_output_tokens": 512,
+        "model": "qwen3.6-35b-a3b",
+        "pid": 9028,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 0,
+          "max_waiting_requests": 2,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 0,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        },
+        "ready": true,
+        "started_at": "1789188615",
+        "status": "ok"
+      },
+      "ready_wall_ms": 20646.303299989086,
+      "reference": {
+        "path": "D:\\projects\\AIMA-public-prefix-http-20260912\\contracts\\gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+        "sha256": "240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7",
+        "owner_file_sha256": "5ad0b0c5be46c031dda62966d0866a796d8494b7b1386808900be160c9beaf6b"
+      },
+      "owner": {
+        "prompt_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "metrics": {
+          "decode_total_ms": 3440.2844,
+          "queue_wait_ms": 0.0,
+          "request_ms": 51279.1431,
+          "timing_contract_version": 2,
+          "tpot_ms": 110.97691612903226,
+          "tpot_samples": 31,
+          "ttft_ms": 47764.3032
+        }
+      },
+      "branches": [],
+      "error": "AssertionError: request did not reuse a complete checkpoint",
+      "checks": [],
+      "cleanup_shutdown_response": {
+        "pid": 9028,
+        "status": "stopping"
+      },
+      "server_exit_code": 0,
+      "deadline_failures": [],
+      "wall_ms": 115651.88240000862,
+      "captured_http_requests": 2
+    }
+  },
+  "guard": {
+    "sha256": "fc464bcc20fff46ec0d859399738e6787ad5af798c2f21c39b1fac0ab469e756",
+    "value": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\Python313\\python.exe",
+        "arguments": [
+          "D:\\projects\\verify_native_prefix_http_r1.py"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-prefix-http-20260912",
+        "repo_commit": "29a04c9b312644319709747b626281478e39b756",
+        "command_file": "D:\\projects\\run-native-prefix-http-r1.ps1",
+        "command_file_sha256": "990b0a6e1e634c05af38a1d34fa2233115d096795ceab18627acca2a5e468ced",
+        "controller_file": "D:\\projects\\verify_native_prefix_http_r1.py",
+        "controller_sha256": "9c47e231322b439e374e8d14b34453bcf83bca981433cf7808d6a3ed2a2cd6ad",
+        "config_sha256": "a691839981d8e02a0810271db52eea4209208801df9f0cb79275dbb310de26d4",
+        "model": "D:/models/Qwen3.6-35B-A3B",
+        "inference_acceptance": false,
+        "purpose": "Complete saved-prefix HTTP query, two exact GB10 token continuations per branch, SSE and token-bound first logits, followed by unrelated-owner replacement and normal cold fallback"
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T04:49:54.8013129Z",
+        "command_file": "D:\\projects\\AIMA-public-prefix-http-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Program Files\\Python313\\python.exe",
+          "arguments": [
+            "D:\\projects\\verify_native_prefix_http_r1.py"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-prefix-http-20260912",
+          "repo_commit": "29a04c9b312644319709747b626281478e39b756",
+          "command_file": "D:\\projects\\run-native-prefix-http-r1.ps1",
+          "command_file_sha256": "990b0a6e1e634c05af38a1d34fa2233115d096795ceab18627acca2a5e468ced",
+          "controller_file": "D:\\projects\\verify_native_prefix_http_r1.py",
+          "controller_sha256": "9c47e231322b439e374e8d14b34453bcf83bca981433cf7808d6a3ed2a2cd6ad",
+          "config_sha256": "a691839981d8e02a0810271db52eea4209208801df9f0cb79275dbb310de26d4",
+          "model": "D:/models/Qwen3.6-35B-A3B",
+          "inference_acceptance": false,
+          "purpose": "Complete saved-prefix HTTP query, two exact GB10 token continuations per branch, SSE and token-bound first logits, followed by unrelated-owner replacement and normal cold fallback"
+        },
+        "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 27,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24583577600,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146958086144,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533471182848,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 2,
+      "wall_ms": 116244.359,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24390090752,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146787328000,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533469184000,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    }
+  },
+  "command_file": "D:/projects/run-native-prefix-http-r1.ps1",
+  "command_file_sha256": "990b0a6e1e634c05af38a1d34fa2233115d096795ceab18627acca2a5e468ced",
+  "controller_sha256": "9c47e231322b439e374e8d14b34453bcf83bca981433cf7808d6a3ed2a2cd6ad",
+  "owner_response": {
+    "sha256": "5a22626989808b3bc6654ddbe39b999600772e3698e6943480028b6c3e5ff710",
+    "value": {
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "logprobs": null,
+          "stop_reason": null,
+          "text": "s \b  \b  \b  \b  \b  \b  \b  \b  \b  \b  ",
+          "token_ids": [
+            82,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220,
+            196,
+            220,
+            220
+          ]
+        }
+      ],
+      "created": 1789188667,
+      "id": "cmpl-18d4799118e042cc-1",
+      "model": "qwen3.6-35b-a3b",
+      "object": "text_completion",
+      "qrt_metrics": {
+        "decode_total_ms": 3440.2844,
+        "queue_wait_ms": 0.0,
+        "request_ms": 51279.1431,
+        "timing_contract_version": 2,
+        "tpot_ms": 110.97691612903226,
+        "tpot_samples": 31,
+        "ttft_ms": 47764.3032
+      },
+      "system_fingerprint": "fp_qrt_native_qwen36",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 7169,
+        "total_tokens": 7201
+      }
+    }
+  },
+  "branch_cold_response": {
+    "sha256": "3768d160b272732b6263724dd3c854630ce48522d2c4b407eb4f0ac7ff077554",
+    "value": {
+      "choices": [
+        {
+          "finish_reason": "length",
+          "index": 0,
+          "logprobs": null,
+          "stop_reason": null,
+          "text": "s \bs \bs \bs \bs \bs \bs \bs \bs \bs \bs ",
+          "token_ids": [
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220,
+            196,
+            82,
+            220
+          ]
+        }
+      ],
+      "created": 1789188710,
+      "id": "cmpl-18d4799d0ef42e0c-2",
+      "model": "qwen3.6-35b-a3b",
+      "object": "text_completion",
+      "qrt_metrics": {
+        "decode_total_ms": 3095.5632,
+        "queue_wait_ms": 0.0,
+        "request_ms": 43112.9721,
+        "timing_contract_version": 2,
+        "tpot_ms": 99.85687741935484,
+        "tpot_samples": 31,
+        "ttft_ms": 39987.3088
+      },
+      "system_fingerprint": "fp_qrt_native_qwen36",
+      "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 6209,
+        "total_tokens": 6241
+      }
+    }
+  },
+  "checkpoint_capture_markers": [
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=6208 owner_tokens=7169 generation=1 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=6656 owner_tokens=7169 generation=1 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=7168 owner_tokens=7169 generation=1 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=5248 owner_tokens=6209 generation=2 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=5696 owner_tokens=6209 generation=2 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_prefix_checkpoint_capture prefix_tokens=6208 owner_tokens=6209 generation=2 linear_mask=0000007777777777 hidden_valid=1 complete=1 cold_replay=0 numerical_correctness_claimed=0"
+  ],
+  "logs": {
+    "server.stdout.log": {
+      "sha256": "260705ffdc0be318b2b3bde44342d8aa25a9f1a79f3a0f8cc6842009ce610579",
+      "bytes": 505
+    },
+    "server.stderr.log": {
+      "sha256": "4f37a65e2b2598e311c7d8680a24bdde6d5bdc87fa60cce4a68fb0a37dc19da0",
+      "bytes": 1205705
+    }
+  },
+  "actual_prefix_reuse": false,
+  "cold_outputs_match_64_tokens": true,
+  "cold_first_logit_observed": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "interpretation": "The 29a04c9 server and b619793 whole provider create three complete checkpoints at 6208/6656/7168 during the real q7169 owner request. After its 31 decode steps, the native query rejects the owner solely because committed_decode_token_count is nonzero. The next real q6209 branch therefore cold-prefills: both sets of 32 tokens still match GB10, but no prefix hit or prefix-logit observation occurs. The controller rejects missing reuse; the process exits 0 and all host checks pass. The repair must preserve immutable checkpoint access after decode and bind rollback to the original advanced owner count, while retaining a zero-state suffix shadow. No output or tolerance is changed."
+}

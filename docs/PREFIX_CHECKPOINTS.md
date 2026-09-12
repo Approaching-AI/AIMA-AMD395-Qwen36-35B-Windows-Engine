@@ -59,6 +59,18 @@ The branch always rolls back to the original owner; it cannot commit over it.
 Cancellation, stream/clone failures and owner replacement remain subject to
 the existing request serialization and cleanup contracts.
 
+The first real HTTP owner/out32 check exposes a limitation in the earlier
+saved-prefix proof: complete checkpoints exist, but lookup rejects an owner
+after any generated token. The next branch cold-prefills and still returns
+its 32 GB10 tokens. See
+`benchmarks/correctness/http-prefix-owner-decode-gap-20260912.json`.
+The pending repair retains partial checkpoint access after successful decode.
+The core tracks the owner's actual committed count; the private checkpoint
+shadow starts at zero, and rollback must restore that original count. An
+advanced live frontier remains ineligible as an exact whole-owner hit. Host
+tests exercise both KV layouts, advanced owner state and allocation failures;
+native qualification of the repaired route remains pending.
+
 For native qualification, qrt-product run accepts --checkpoint-owner FILE
 together with --prefix-tokens N. It first runs the complete owner prompt,
 reports its first token/logit and time, requires a query hit at N, and then
