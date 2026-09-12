@@ -65,6 +65,7 @@ struct ProviderApi {
     DynamicLaunchFunction launch_async_dynamic = nullptr;
     qrt_fla_checkpoint::Launch launch_checkpoints = nullptr;
     qrt_fla_checkpoint::SeededLaunch launch_seeded = nullptr;
+    qrt_fla_checkpoint::SeededLaunch launch_seeded_key_major = nullptr;
     ScratchBytesFunction scratch_bytes = nullptr;
     LastErrorFunction last_error = nullptr;
     ReleaseFunction release = nullptr;
@@ -138,6 +139,9 @@ bool load_provider(const char *path, ProviderApi *api) {
     );
     api->launch_seeded = reinterpret_cast<qrt_fla_checkpoint::SeededLaunch>(
         GetProcAddress(api->module, "qrt_fla_gdn_launch_async_seeded_f32_v1")
+    );
+    api->launch_seeded_key_major = reinterpret_cast<qrt_fla_checkpoint::SeededLaunch>(
+        GetProcAddress(api->module, "qrt_fla_gdn_launch_async_seeded_key_major_f32_v1")
     );
     api->last_error = reinterpret_cast<LastErrorFunction>(
         GetProcAddress(api->module, "qrt_aiter_fused_gdn_q8192_last_error")
@@ -430,9 +434,21 @@ bool check_fp32_checkpoints(const ProviderApi& api, const ProviderApi& reference
             // The seed above came from an independent old-provider prefix
             // execution. Continue it with the new provider and compare every
             // suffix output/final state bit to the original full execution.
+            const auto independent_state = state;
+            for (unsigned layout = 0u; ok && layout < 2u; ++layout) {
+            const auto launch = layout ? api.launch_seeded_key_major : api.launch_seeded;
+            state = independent_state;
+            if (layout) {
+                // Host bit transpose is independent of the provider kernel.
+                for (unsigned head = 0; head < 32u; ++head)
+                    for (unsigned value = 0; value < 128u; ++value)
+                        for (unsigned key = 0; key < 128u; ++key)
+                            std::memcpy(&state[guard + head * 16384u + key * 128u + value],
+                                &independent_state[guard + head * 16384u + value * 128u + key], sizeof(float));
+            }
             std::fill(output.begin(), output.end(), sentinel);
-            ok = api.launch_seeded != nullptr && upload(out_allocation, output);
-            if (ok) ok = api.launch_seeded(
+            ok = launch != nullptr && upload(out_allocation, output) && upload(state_allocation, state);
+            if (ok) ok = launch(
                 device_raw + size_t(prefix) * kQkvRows,
                 device_gate + size_t(prefix) * kGateRows,
                 out_allocation + guard + size_t(prefix) * kValueFeatures,
@@ -443,18 +459,23 @@ bool check_fp32_checkpoints(const ProviderApi& api, const ProviderApi& reference
             if (ok) {
                 for (size_t i = size_t(prefix) * kValueFeatures; i < expected_output.size(); ++i)
                     suffix_errors += std::memcmp(&output[i + guard], &expected_output[i], sizeof(float)) != 0;
-                for (size_t i = 0u; i < kStateElements; ++i)
-                    final_errors += std::memcmp(&state[i + guard], &expected_state[i], sizeof(float)) != 0;
+                for (size_t i = 0u; i < kStateElements; ++i) {
+                    const size_t expected_index = layout
+                        ? i / 16384u * 16384u + (i % 128u) * 128u + (i % 16384u) / 128u : i;
+                    final_errors += std::memcmp(&state[i + guard], &expected_state[expected_index], sizeof(float)) != 0;
+                }
                 ok = guards(state) && guards(output) && suffix_errors == 0u && final_errors == 0u &&
                     std::all_of(output.begin(), output.begin() + guard + size_t(prefix) * kValueFeatures,
                                 [&](float x){return x == sentinel;});
             }
-            std::cout << "{\"kind\":\"fla_seeded_fp32_suffix\",\"tokens\":" << kTokens
+            std::cout << "{\"kind\":\"" << (layout ? "fla_seeded_key_major_fp32_suffix" : "fla_seeded_fp32_suffix")
+                      << "\",\"tokens\":" << kTokens
                       << ",\"prefix_tokens\":" << prefix << ",\"suffix_tokens\":" << (kTokens - prefix)
                       << ",\"output_bit_mismatches\":" << suffix_errors
                       << ",\"final_state_bit_mismatches\":" << final_errors
                       << ",\"independent_seed_full_run_parity\":" << (ok ? "true" : "false")
                       << ",\"model_checkpoint_qualified\":false}" << std::endl;
+            }
         }
     }
     // Repeated shorter calls cannot mutate any saved checkpoint or input.

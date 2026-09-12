@@ -76,6 +76,8 @@ using Launch = int (*)(const float*, const float*, float*, float*, int, void*, i
 // The FP32 state is both the initial state and final destination, in
 // [value_head][value][key] order. A model owner must supply a real K64
 // checkpoint; this operator does not infer or reset its prefix.
+// The optional seeded_key_major_f32_v1 export has the same signature and
+// uses [value_head][key][value] instead, transposing the FP32 bits privately.
 using SeededLaunch = int (*)(const float*, const float*, float*, float*, int, void*, int32_t);
 inline bool valid_seeded(const float* raw, const float* gate, float* output,
                          float* state, int32_t tokens) {

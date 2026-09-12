@@ -105,6 +105,8 @@ struct ProviderState {
     void *ai_or_v_new = nullptr;
     uint16_t *chunk_state = nullptr;
     float *blackwell_temporary_state = nullptr;
+    // Independent of segment scratch: ensure_scratch may resize during a seeded call.
+    float *seeded_row_state = nullptr;
     uint16_t *blackwell_residual = nullptr;
     size_t blackwell_residual_bytes = 0u;
     float *padded_postconv = nullptr;
@@ -307,6 +309,8 @@ void release_scratch() {
 }
 
 void release_state() {
+    if (g_state.seeded_row_state) (void)hipFree(g_state.seeded_row_state);
+    g_state.seeded_row_state = nullptr;
     release_scratch();
     qrt_fla_blackwell_norm::release_table();
     for (size_t index = 0u; index < g_state.modules.size(); ++index) {
@@ -1395,6 +1399,64 @@ QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_seeded_f32_v1(
     );
 }
 
+// Transpose bits only. The state has 32 independent 128 by 128 matrices;
+// the same operation converts key-major to row-major and back without a cast.
+__global__ void transpose_seeded_state_bits(const uint32_t* input, uint32_t* output) {
+    const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
+    if (i < kStateElements) {
+        const unsigned base = i / 16384u * 16384u;
+        output[i] = input[base + (i % 128u) * 128u + (i % 16384u) / 128u];
+    }
+}
+
+QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_seeded_key_major_f32_v1(
+    const float* raw, const float* gate, float* output, float* state,
+    int gate_values_are_decay, void* stream_pointer, int32_t tokens
+) {
+    const char* capture = std::getenv("QRT_FLA_GDN_CAPTURE_FIRST_DIR");
+    const char* dump = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    if (!g_state.prepared || !qrt_fla_checkpoint::valid_seeded(raw, gate, output, state, tokens) ||
+        gate_values_are_decay != 0 || !blackwell_state_enabled() ||
+        !blackwell_batched_enabled() || !qrt_fla_blackwell_cooperative::enabled() ||
+        (capture && *capture) || (dump && *dump)) {
+        set_error_text("Key-major seeded FP32 prefill requires prepared exact FLA and disjoint surfaces without zero-seed capture hooks");
+        return 0;
+    }
+    if (!g_state.seeded_row_state) {
+        size_t available = 0, total = 0;
+        hipError_t status = hipMemGetInfo(&available, &total);
+        if (status == hipSuccess && available < qrt_fla_checkpoint::kStateBytes + (512u << 20)) {
+            set_error_text("Key-major seeded FP32 state memory reserve failed");
+            return 0;
+        }
+        if (status == hipSuccess) status = hipMalloc(
+            reinterpret_cast<void**>(&g_state.seeded_row_state), qrt_fla_checkpoint::kStateBytes);
+        if (status != hipSuccess) { set_error("seeded_row_state_allocate", status); return 0; }
+    }
+    const auto stream = static_cast<hipStream_t>(stream_pointer);
+    hipLaunchKernelGGL(transpose_seeded_state_bits, dim3(kStateElements / 256u), dim3(256), 0, stream,
+        reinterpret_cast<const uint32_t*>(state), reinterpret_cast<uint32_t*>(g_state.seeded_row_state));
+    hipError_t status = hipGetLastError();
+    if (status != hipSuccess) {
+        (void)hipStreamSynchronize(stream);
+        set_error("seeded_key_to_row", status); return 0;
+    }
+    if (!launch_pipeline_async_impl(raw, gate, output, g_state.seeded_row_state,
+            gate_values_are_decay, stream_pointer, tokens, nullptr, false)) {
+        // The caller may discard its transaction immediately after failure.
+        // Drain any queued input reads before those buffers can be released.
+        (void)hipStreamSynchronize(stream); return 0;
+    }
+    hipLaunchKernelGGL(transpose_seeded_state_bits, dim3(kStateElements / 256u), dim3(256), 0, stream,
+        reinterpret_cast<const uint32_t*>(g_state.seeded_row_state), reinterpret_cast<uint32_t*>(state));
+    status = hipGetLastError();
+    if (status != hipSuccess) {
+        (void)hipStreamSynchronize(stream);
+        set_error("seeded_row_to_key", status); return 0;
+    }
+    return 1;
+}
+
 QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
     int32_t tokens
 ) {
@@ -1407,6 +1469,7 @@ QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
               ((blackwell_state_enabled() || g_state.blackwell_temporary_state || g_state.blackwell_residual)
                   ? blackwell_state_scratch_bytes() : 0u) + qrt_fla_blackwell_state::exp2_table_storage_bytes()
                   + qrt_fla_blackwell_norm::table_storage_bytes()
+                  + (g_state.seeded_row_state ? qrt_fla_checkpoint::kStateBytes : 0u)
         : 0u;
 }
 

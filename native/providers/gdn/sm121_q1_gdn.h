@@ -28,6 +28,19 @@ __global__ void convolution(const float *current, Element *ring,
     ring_store(ring + (position % 4) * 8192 + feature, current[feature]);
 }
 
+// Prepare raw prefill inputs without invoking the decode recurrence. The FLA
+// provider owns Q/K normalization, BF16 chunk boundaries and FP32 state update.
+__global__ void prepare_fla_suffix(const float* conv, const float* a, const float* b,
+                                  float* raw_copy, float* gates,
+                                  const float* g_table, const float* beta_table) {
+    const unsigned feature = blockIdx.x * blockDim.x + threadIdx.x;
+    if (feature < 8192u) raw_copy[feature] = conv[feature];
+    if (feature < 32u) {
+        gates[feature] = g_table[feature * 65536u + bf16(a[feature])];
+        gates[32u + feature] = beta_table[bf16(b[feature])];
+    }
+}
+
 // Each thread owns one V row of the recurrent state, reads the entire old
 // row before updating it, and emits the BF16 core endpoint in an F32 carrier.
 __global__ void recurrent(const float *conv, const float *a, const float *b,

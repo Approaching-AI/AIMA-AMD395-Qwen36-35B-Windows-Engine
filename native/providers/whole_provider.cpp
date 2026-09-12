@@ -45189,6 +45189,8 @@ struct FlaChunkGdnDynamicProviderState {
     AiterFusedGdnPrepareFn prepare = nullptr;
     AiterFusedGdnDynamicLaunchFn dynamic_launch = nullptr;
     qrt_fla_checkpoint::Launch checkpoint_launch = nullptr;
+    qrt_fla_checkpoint::SeededLaunch seeded_launch = nullptr;
+    qrt_fla_checkpoint::SeededLaunch seeded_key_major_launch = nullptr;
     AiterFusedGdnLastErrorFn last_error = nullptr;
     std::string dll_path;
     std::string kernel_dir;
@@ -45269,6 +45271,10 @@ bool load_fla_chunk_gdn_dynamic_provider(
     state.checkpoint_launch = reinterpret_cast<qrt_fla_checkpoint::Launch>(
         GetProcAddress(state.module, "qrt_fla_gdn_launch_async_checkpoints_v1")
     );
+    state.seeded_launch = reinterpret_cast<qrt_fla_checkpoint::SeededLaunch>(
+        GetProcAddress(state.module, "qrt_fla_gdn_launch_async_seeded_f32_v1"));
+    state.seeded_key_major_launch = reinterpret_cast<qrt_fla_checkpoint::SeededLaunch>(
+        GetProcAddress(state.module, "qrt_fla_gdn_launch_async_seeded_key_major_f32_v1"));
     if (state.prepare == nullptr || state.dynamic_launch == nullptr ||
         state.last_error == nullptr) {
         *failure_stage = "fla_chunk_gdn_dynamic_provider_symbol";
@@ -45277,6 +45283,8 @@ bool load_fla_chunk_gdn_dynamic_provider(
         state.prepare = nullptr;
         state.dynamic_launch = nullptr;
         state.checkpoint_launch = nullptr;
+        state.seeded_launch = nullptr;
+        state.seeded_key_major_launch = nullptr;
         state.last_error = nullptr;
         (void)FreeLibrary(state.module);
         state.module = NULL;
@@ -45291,6 +45299,8 @@ bool load_fla_chunk_gdn_dynamic_provider(
         state.prepare = nullptr;
         state.dynamic_launch = nullptr;
         state.checkpoint_launch = nullptr;
+        state.seeded_launch = nullptr;
+        state.seeded_key_major_launch = nullptr;
         state.last_error = nullptr;
         (void)FreeLibrary(state.module);
         state.module = NULL;
@@ -68690,6 +68700,28 @@ bool run_qwen36_resident_linear_conv_cache_step(
     return true;
 }
 
+// Bound the alternate arithmetic to one real input at a K64 boundary. This
+// scope ends before any generated output token is decoded, including errors.
+struct ScopedQwen36PrefixFlaSingleSuffix {
+    inline static thread_local ScopedQwen36PrefixFlaSingleSuffix* active = nullptr;
+    ScopedQwen36PrefixFlaSingleSuffix* previous;
+    bool enabled;
+    size_t position;
+    uint64_t layers = 0u;
+    ScopedQwen36PrefixFlaSingleSuffix(bool requested, size_t prefix, size_t suffix)
+        : previous(active), enabled(requested && prefix && prefix % 64u == 0u && suffix == 1u),
+          position(prefix) { active = this; }
+    ~ScopedQwen36PrefixFlaSingleSuffix() { active = previous; }
+    ScopedQwen36PrefixFlaSingleSuffix(const ScopedQwen36PrefixFlaSingleSuffix&) = delete;
+    ScopedQwen36PrefixFlaSingleSuffix& operator=(const ScopedQwen36PrefixFlaSingleSuffix&) = delete;
+    bool claim(unsigned layer, size_t actual_position) {
+        if (!enabled || actual_position != position || layer >= 40u || layer % 4u == 3u ||
+            (layers & (UINT64_C(1) << layer))) return false;
+        layers |= UINT64_C(1) << layer; return true;
+    }
+    bool complete() const { return !enabled || layers == UINT64_C(0x7777777777); }
+};
+
 bool run_qwen36_resident_linear_sm121_core_step(
     ScopedQwen36ResidentSessionDecode *lease, unsigned int layer_index,
     size_t position, const float *conv, const float *a, const float *b,
@@ -68715,12 +68747,40 @@ bool run_qwen36_resident_linear_sm121_core_step(
         *failure_stage = stage;
         return false;
     }
-    hipLaunchKernelGGL(qrt_sm121_q1::recurrent, dim3(32), dim3(128), 0, stream,
-        conv, a, b, layer.device_recurrent_state, layer.recurrent_state_key_major,
-        output, postconv, gates, nullptr, g_table, tables.beta, tables.exp2, tables.rsqrt);
-    const hipError_t launched = hipGetLastError();
-    if (launched != hipSuccess)
-        return qwen36_resident_decode_set_failure(stage, hipGetErrorString(launched), failure_stage, failure);
+    auto* suffix = ScopedQwen36PrefixFlaSingleSuffix::active;
+    if (suffix && suffix->enabled) {
+        if (!suffix->claim(layer_index, position))
+            return qwen36_resident_decode_set_failure(stage, "FLA suffix layer or position is outside its single input scope", failure_stage, failure);
+#ifndef _WIN32
+        return qwen36_resident_decode_set_failure(stage, "FLA suffix provider requires Windows", failure_stage, failure);
+#else
+        AiterFusedGdnDynamicLaunchFn unused = nullptr;
+        if (!load_fla_chunk_gdn_dynamic_provider(&unused, failure_stage, failure)) return false;
+        auto& provider = fla_chunk_gdn_dynamic_provider_state();
+        const auto launch = layer.recurrent_state_key_major
+            ? provider.seeded_key_major_launch : provider.seeded_launch;
+        if (!launch)
+            return qwen36_resident_decode_set_failure(stage, "FLA provider lacks the required FP32 seeded state layout", failure_stage, failure);
+        hipLaunchKernelGGL(qrt_sm121_q1::prepare_fla_suffix, dim3(32), dim3(256), 0, stream,
+            conv, a, b, postconv, gates, g_table, tables.beta);
+        const hipError_t prepared_inputs = hipGetLastError();
+        if (prepared_inputs != hipSuccess)
+            return qwen36_resident_decode_set_failure(stage, hipGetErrorString(prepared_inputs), failure_stage, failure);
+        lease->mark_work_submitted();
+        if (!launch(conv, gates, output, layer.device_recurrent_state, 0, stream, 1))
+            return qwen36_resident_decode_set_failure(stage, fla_chunk_gdn_dynamic_provider_last_error(), failure_stage, failure);
+        std::cerr << "BATCH_MARK qwen36_prefix_fla_single_suffix layer=" << layer_index
+                  << " position=" << position << " state_key_major=" << layer.recurrent_state_key_major
+                  << " input_tokens=1 fp32_seed=1" << std::endl;
+#endif
+    } else {
+        hipLaunchKernelGGL(qrt_sm121_q1::recurrent, dim3(32), dim3(128), 0, stream,
+            conv, a, b, layer.device_recurrent_state, layer.recurrent_state_key_major,
+            output, postconv, gates, nullptr, g_table, tables.beta, tables.exp2, tables.rsqrt);
+        const hipError_t launched = hipGetLastError();
+        if (launched != hipSuccess)
+            return qwen36_resident_decode_set_failure(stage, hipGetErrorString(launched), failure_stage, failure);
+    }
     ++layer.decode_recurrent_token_count;
     lease->mark_work_submitted();
     return true;
@@ -163046,7 +163106,9 @@ bool run_qwen36_resident_decode_linear_activation_corridor(
             return false;
         }
         ++kernel_launches;
-        emit_q1024_q1_linear_stage_digest("postconv_f32", device_postconv, kQkvRows * sizeof(float));
+        emit_q1024_q1_linear_stage_digest(
+            ScopedQwen36PrefixFlaSingleSuffix::active && ScopedQwen36PrefixFlaSingleSuffix::active->enabled
+                ? "fla_prefill_raw_f32" : "postconv_f32", device_postconv, kQkvRows * sizeof(float));
         emit_q1024_q1_linear_stage_digest("gate_f32", device_gate, kGateOutputRows * sizeof(float));
     } else {
     if (use_q1_linear_device_chain) {
@@ -220346,10 +220408,18 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
                 request->expected_session_generation;
             decode_request.expected_prompt_token_ids_fnv1a64 =
                 request->expected_prompt_token_ids_fnv1a64;
-            const int decode_ok = qrt_qwen36_whole_provider_decode_v1(
-                &decode_request,
-                &decode_result
-            );
+            bool suffix_fla_complete = false;
+            const int decode_ok = [&] {
+                ScopedQwen36PrefixFlaSingleSuffix suffix_math(
+                    raw_env_flag_enabled("QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX"),
+                    request->expected_prefix_token_count, request->suffix_token_count);
+                const int ok = qrt_qwen36_whole_provider_decode_v1(&decode_request, &decode_result);
+                suffix_fla_complete = suffix_math.complete();
+                return ok;
+            }();
+            if (decode_ok && !suffix_fla_complete)
+                return rollback_failure(QRT_STATUS_UNSUPPORTED, "qwen36_prefix_fla_single_suffix_incomplete",
+                    "single input FLA prefill did not visit all 30 recurrent layers");
             if (!decode_ok || decode_result.completed == 0u ||
                 decode_result.status !=
                     static_cast<int32_t>(QRT_STATUS_OK) ||

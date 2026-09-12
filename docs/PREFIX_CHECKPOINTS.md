@@ -59,3 +59,11 @@ q65 at prefix 64 and real GB10 q7169 at prefixes 64, 1024, and 7168 have zero
 suffix output or final-state bit mismatches. This is operator evidence only;
 whole-model suffix integration and key-major state conversion remain pending.
 See `benchmarks/correctness/fla-seeded-fp32-20260912.json`.
+
+A separate opt-in probe, QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX=1, uses seeded
+FLA for one actual suffix input at a 64-token boundary. The scope must visit
+all 30 recurrent layers and ends before generated-token decode. Key-major
+FP32 state is transposed as bits into a private 2 MiB FLA workspace and back.
+The original zero-seed capture hooks are rejected on this entry point.
+This probe does not establish multi-token suffix or whole-model correctness;
+native operator and GB10 model verification are pending.

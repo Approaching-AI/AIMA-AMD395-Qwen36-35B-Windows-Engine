@@ -230,6 +230,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\prefix_checkpoint_policy.h')).Hash.ToLowerInvariant()
     fla_checkpoint_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\gdn\fla_checkpoint.h')).Hash.ToLowerInvariant()
+    sm121_q1_gdn_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\gdn\sm121_q1_gdn.h')).Hash.ToLowerInvariant()
     q1_moe_avx512bf16_host_provider_source_path = $hostSource
     q1_moe_avx512bf16_host_provider_source_sha256 = `
         (Get-FileHash -Algorithm SHA256 `
