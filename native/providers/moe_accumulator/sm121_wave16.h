@@ -5,6 +5,7 @@
 #include "q1_moe_hawkeye_bf16_accumulator.h"
 #include "sm121_group16_modulo.h"
 #include "sm121_lane_reduce.h"
+#include "sm121_canonical_normalize.h"
 
 // Shared exact K16 / internal-width-26 arithmetic for attention, projection,
 // routed MoE and recurrent-state kernels. Every subgroup lane owns the same
@@ -19,6 +20,8 @@ normalize(
     bool negative,
     int max_exponent
 ) {
+    if constexpr (QRT_SM121_COMPACT_NORMALIZE)
+        return qrt_sm121_canonical::normalize(magnitude, negative, max_exponent);
     constexpr int kInternalSignificandWidth = 26;
     constexpr int kInternalToFp32Shift =
         kInternalSignificandWidth - 24;

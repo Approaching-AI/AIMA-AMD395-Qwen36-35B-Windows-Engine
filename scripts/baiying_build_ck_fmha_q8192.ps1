@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory = $false)][string]$OffloadArch = "gfx1151",
     [Parameter(Mandatory = $false)][string]$HipccPath = "",
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
+    [ValidateSet(0, 1)][int]$CompactNormalize = 0,
     [Parameter(Mandatory = $false)][switch]$Sm121InterpolatedExp2,
     [Parameter(Mandatory = $false)][int]$RunDirectSmoke = 0,
     [Parameter(Mandatory = $false)][string]$DirectSmokePath = "",
@@ -95,6 +96,7 @@ if ($ckArchSource -match "struct\s+gfx115_t") {
 $arguments = @(
     "-std=c++17",
     "-DQRT_SM121_DPP_REDUCTION=$DppReduction",
+    "-DQRT_SM121_COMPACT_NORMALIZE=$CompactNormalize",
     "-O3",
     "--offload-arch=$OffloadArch",
     "-DCK_TILE_FMHA_FWD_FAST_EXP2=0",
@@ -238,6 +240,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     ck_tile_n = 32
     blackwell_exact_terminal = $true
     sm121_dpp_reduction = ($DppReduction -ne 0)
+    sm121_compact_normalize = ($CompactNormalize -ne 0)
+    sm121_canonical_normalize_header_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_canonical_normalize.h')).Hash.ToLowerInvariant()
     sm121_lane_reduce_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     attention_capacity_header_sha256 = (Get-FileHash -Algorithm SHA256 `

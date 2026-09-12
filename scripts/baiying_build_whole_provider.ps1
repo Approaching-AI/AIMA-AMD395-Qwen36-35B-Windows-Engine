@@ -2,6 +2,7 @@ param(
     [Parameter(Mandatory = $false)][string]$OutDir = "",
     [Parameter(Mandatory = $false)][ValidateSet(4, 8, 16)][int]$HawkeyeReplayLanes = 16,
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
+    [ValidateSet(0, 1)][int]$CompactNormalize = 0,
     [Parameter(Mandatory = $false)]
         [ValidateRange(1, 600)]
         [int]$CompileTimeoutSeconds = 300,
@@ -161,6 +162,7 @@ if (-not $hostRun.completed -or $hostRun.exit_code -ne 0) {
 $providerArguments = @(
     ("-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=" + $HawkeyeReplayLanes),
     ("-DQRT_SM121_DPP_REDUCTION=" + $DppReduction),
+    ("-DQRT_SM121_COMPACT_NORMALIZE=" + $CompactNormalize),
     ("-DQRT_QWEN36_W8A8_GROUP_SIZE=" + $W8A8GroupSize),
     ("-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=" + $W8A8ScaleFp16),
     "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
@@ -272,6 +274,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_integer_parts.h')).Hash.ToLowerInvariant()
     hawkeye_replay_lanes = $HawkeyeReplayLanes
     sm121_dpp_reduction = ($DppReduction -ne 0)
+    sm121_compact_normalize = ($CompactNormalize -ne 0)
+    sm121_canonical_normalize_header_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_canonical_normalize.h')).Hash.ToLowerInvariant()
     sm121_lane_reduce_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     sm121_prefill_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
