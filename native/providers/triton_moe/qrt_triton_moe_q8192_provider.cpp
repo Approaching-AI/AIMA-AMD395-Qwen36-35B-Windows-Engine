@@ -24,6 +24,7 @@
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
+#include "routed_parallel_gate.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -1806,6 +1807,7 @@ struct ProviderState {
     uint16_t *cuda_vllm_silu_bf16_domain_lut = nullptr;
     bool sm121_routed_hawkeye = false;
     bool compact_routed_hawkeye = false;
+    bool parallel_routed_gate = false;
     uint32_t moe_compaction_blocks = kMoeCompactionBlocks;
     uint32_t *moe_compacted_indices = nullptr;
     uint32_t *moe_compacted_count = nullptr;
@@ -13703,6 +13705,17 @@ bool launch_routed_matrices_after_input_conversion(
     }
 #endif
     if (status == hipSuccess) {
+        if (g_state.parallel_routed_gate) {
+            if (gate_up_bf16 == nullptr) {
+                set_error_text("parallel gate requires the original BF16 weight surface");
+                return false;
+            }
+            hipLaunchKernelGGL(qrt_routed_parallel_gate::matrix,
+                dim3(routed_grid_blocks * qrt_routed_parallel_gate::kColumnBlocks), dim3(256),
+                0, stream, g_state.input_bf16, gate_up_bf16, g_state.sorted_routes,
+                g_state.block_experts, g_state.total_post_pad, g_state.route_outputs, token_count * kTopK);
+            status = hipGetLastError();
+        } else {
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128
         status = launch_all_adaptive_m128_gate(
             gate_up_bf16,
@@ -13785,6 +13798,7 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
         status = hipGetLastError();
 #endif
+        }
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_GROUPED_SOLE_M16
         if (status == hipSuccess) {
             hipLaunchKernelGGL(
@@ -16423,6 +16437,20 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     const char *compact_routed = std::getenv("QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE");
     g_state.compact_routed_hawkeye = compact_routed != nullptr &&
         compact_routed[0] != '\0' && std::strcmp(compact_routed, "0") != 0;
+    const char *parallel_gate = std::getenv("QRT_QWEN36_MOE_PARALLEL_GATE");
+    if (parallel_gate != nullptr && parallel_gate[0] != '\0' &&
+        std::strcmp(parallel_gate, "0") != 0 && std::strcmp(parallel_gate, "1") != 0) {
+        set_error_text("QRT_QWEN36_MOE_PARALLEL_GATE must be 0 or 1");
+        return 0;
+    }
+    g_state.parallel_routed_gate = parallel_gate != nullptr && std::strcmp(parallel_gate, "1") == 0;
+    if (g_state.parallel_routed_gate && (!QRT_TRITON_MOE_BATCHED_HAWKEYE ||
+        !QRT_TRITON_MOE_NATIVE_WMMA_GATE || !QRT_TRITON_MOE_NATIVE_WMMA_DOWN ||
+        !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 ||
+        QRT_TRITON_MOE_BLOCK_M != 64 || !g_state.sm121_routed_hawkeye)) {
+        set_error_text("parallel gate requires the SM121 batched M64 overflow32 provider");
+        return 0;
+    }
     if (g_state.compact_routed_hawkeye && !g_state.sm121_routed_hawkeye) {
         set_error_text("routed correction compaction requires SM121 routed Hawkeye");
         return 0;
@@ -16838,6 +16866,11 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             (static_cast<size_t>(g_state.moe_compaction_blocks) * kNativeThreads + 1u) * sizeof(uint32_t),
             unsigned(QRT_MOE_ROUTED_REPLAY_LANES), g_state.moe_compaction_blocks,
             kMoeCompactionBlocks);
+    }
+    if (g_state.parallel_routed_gate) {
+        std::fprintf(stderr, "BATCH_MARK q8192_triton_selected_moe_parallel_gate "
+            "enabled=1 tile_m=64 tile_n=64 tile_k=64 threads=256 "
+            "input=original_bf16 weights=original_bf16 exact_correction_preserved=1\n");
     }
     g_state.error[0] = '\0';
     return 1;

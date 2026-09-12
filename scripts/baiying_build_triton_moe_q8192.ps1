@@ -1380,6 +1380,8 @@ $record = [ordered]@{
     routed_projection_debug = ($RoutedProjectionDebug -ne 0)
     batched_hawkeye = ($BatchedHawkeye -ne 0)
     routed_replay_lanes = $RoutedReplayLanes
+    parallel_gate_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\triton_moe\routed_parallel_gate.h')).Hash.ToLowerInvariant()
     sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h')).Hash.ToLowerInvariant()
     sm121_paired_products_header_sha256 = (Get-FileHash -Algorithm SHA256 `
