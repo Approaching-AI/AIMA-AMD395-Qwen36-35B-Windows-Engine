@@ -129,9 +129,17 @@ The same-build component is 1,146.19 versus 1,155.03 ms, while actual
 q8192/out512 callback TTFT is 58,673.08 ms, essentially unchanged from
 58,662.0706 ms for the selected configuration. No product gain is retained.
 All 325 local tests (2 skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
-The flag remains off by default. A separate native MoE build will remove
-inactive palette branches from the raw-BF16 matrix kernels; the selected
-runtime currently uses raw BF16 operands.
+The flag remains off by default.
+
+The [raw-BF16 MoE build at `ea7682a`](../benchmarks/correctness/moe-native-bf16-20260912.json)
+disables both compiled lossless-palette variants while retaining the selected
+raw operands, correction thresholds and 16-lane replay. All ten native safety
+checks and both complete GB10 continuations pass (544 tokens). The main matrix
+kernel uses 62 instead of 70 VGPRs, with the same 10,640-byte LDS and no spills;
+the exact correction kernels are unchanged. This resource reduction produces
+no measured product gain: actual callback TTFT is 51,224.5413 ms at q7169/out32
+and 58,825.8359 ms at q8192/out512. The selected complete eight-case tiled-QK
+configuration remains the comparison point; this build is not promoted.
 
 The preceding whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
@@ -511,6 +519,14 @@ The [expanded native branch](../benchmarks/correctness/attention-integer-units-2
 again matches every generated cell and captured BF16/native FP32 output, but
 takes 3439.59 versus 1282.81 ms for layout 4. Better arithmetic eligibility
 does not improve this GPU schedule; it stays diagnostic.
+
+The [real-operand coverage analysis](../benchmarks/correctness/attention-integer-coverage-20260912.json)
+checks every captured q7169 Q/K/V row and 1,048,576 sampled causal QK groups.
+Signed-16 rows cover 849,464 pairs (81.01%); signed-24 would cover 1,047,800
+(99.93%). The existing bound already accepts 838,749 with zero carry.
+This local arithmetic analysis does not measure a wider GPU kernel or
+qualify inference. More coverage alone does not resolve the preceding
+integer schedule's measured performance deficit.
 
 The [RDNA3 ISA guide](https://docs.amd.com/api/khub/documents/UkT_UPQL21KfKAMUBFnZTw/content)
 specifies round-to-nearest-even for floating WMMA, so changing the general
