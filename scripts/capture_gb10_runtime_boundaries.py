@@ -185,8 +185,29 @@ def short_prefill_moe_observation(prompt_tokens, first_position, token_count):
             token_count == prompt_tokens)
 
 
+def full_prefill_linear_core_only():
+    value = os.environ.get('QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY', '0')
+    if value not in ('0', '1'):
+        raise ValueError('full linear core observation requires 0 or 1')
+    return value == '1'
+
+
+def full_prefill_linear_labels(layer, core_only):
+    names = {'q-core-input', 'k-core-input', 'v-core-input', 'g-core-input',
+             'beta-core-input', 'initial-state', 'final-state', 'core'}
+    if not core_only:
+        names.update(('qkv', 'z-projection', 'a-projection', 'b-projection',
+                      'z', 'gated', 'output-projection'))
+    labels = {f'linear-{layer:02d}-' + name for name in names}
+    if not core_only:
+        labels.update(f'layer-{layer:02d}-' + name for name in (
+            'input-rmsnorm', 'post-attention-rmsnorm'))
+    return labels
+
+
 def full_prefill_linear_window(case, prompt_tokens):
     """Select one original prefill transaction for a bounded seeded replay."""
+    core_only = full_prefill_linear_core_only()
     value = os.environ.get('QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS')
     if value is None:
         return None
@@ -198,7 +219,8 @@ def full_prefill_linear_window(case, prompt_tokens):
                 not isinstance(plan, dict) or set(plan) != {'layer', 'first_position', 'tokens'} or
                 any(type(item) is not int for item in plan.values()) or
                 not 0 <= plan['layer'] < 40 or plan['layer'] % 4 == 3 or
-                not 1 <= plan['first_position'] < 263168 or not 1 <= plan['tokens'] <= 1024 or
+                not 1 <= plan['first_position'] < 263168 or
+                not 1 <= plan['tokens'] <= (8192 if core_only else 1024) or
                 plan['first_position'] + plan['tokens'] > 263168):
             raise ValueError('invalid bounded original linear transaction')
         if name == case and plan['first_position'] + plan['tokens'] > prompt_tokens:
@@ -265,9 +287,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             'QRT_GB10_BOUNDARY_LINEAR_LAYERS',
             [0, 2, 4] if case == "q8191-out32" else [0, 2], linear=True)
         full_linear_window = full_prefill_linear_window(case, prompt_tokens)
+        full_linear_core_only = full_prefill_linear_core_only()
+        full_linear_required = (full_prefill_linear_labels(
+            full_linear_window['layer'], full_linear_core_only) if full_linear_window else set())
         full_linear_labels = set()
         self._qrt_boundary_full_linear_window = (dict(plan=full_linear_window, transaction=None,
-                                                     labels=[]) if full_linear_window else None)
+            core_only=full_linear_core_only, labels=[]) if full_linear_window else None)
         if full_linear_window is not None:
             self._qrt_boundary_linear_layers = sorted(set(self._qrt_boundary_linear_layers) |
                                                        {full_linear_window['layer']})
@@ -352,7 +377,8 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             return torch.cat([value[index:index + 1].detach().cpu() for index in indices])
 
         def save_full_linear(label, value, transaction, layer):
-            if matches_linear_window(full_linear_window, layer, transaction):
+            if (label in full_linear_required and
+                    matches_linear_window(full_linear_window, layer, transaction)):
                 save('full-prefill-' + label, value, transaction)
                 full_linear_labels.add(label)
                 self._qrt_boundary_full_linear_window['transaction'] = transaction['ordinal']
@@ -898,14 +924,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                         raise ValueError('incomplete original selected prefill attention observations')
         window = self._qrt_boundary_full_linear_window
         if window is not None:
-            layer = window['plan']['layer']
-            required = {f'linear-{layer:02d}-' + name for name in (
-                'qkv', 'z-projection', 'a-projection', 'b-projection',
-                'q-core-input', 'k-core-input', 'v-core-input', 'g-core-input',
-                'beta-core-input', 'initial-state', 'final-state', 'core', 'z',
-                'gated', 'output-projection')}
-            required.update(f'layer-{layer:02d}-' + name for name in (
-                'input-rmsnorm', 'post-attention-rmsnorm'))
+            required = full_prefill_linear_labels(window['plan']['layer'], window['core_only'])
             if window['transaction'] is None or set(window['labels']) != required:
                 raise ValueError('selected full prefill linear transaction was not completely observed')
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,

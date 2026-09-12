@@ -11,6 +11,7 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_attention_observation_layer, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
+    full_prefill_linear_core_only, full_prefill_linear_labels,
     observation_positions, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, short_prefill_moe_observation, target_rows,
 )
@@ -66,6 +67,46 @@ class RuntimeBoundaryTests(unittest.TestCase):
                             clear=True):
                 with self.assertRaises(ValueError):
                     full_prefill_linear_window(case, 17408)
+
+    def test_original_8192_core_window_keeps_seed_and_output_without_large_projections(self):
+        case = 'long-prefix32768-owner-out32'
+        plan = dict(layer=12, first_position=24576, tokens=8192)
+        environment = {'QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS': json.dumps({case: plan}),
+                       'QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY': '1'}
+        with patch.dict(os.environ, environment, clear=True):
+            self.assertTrue(full_prefill_linear_core_only())
+            window = full_prefill_linear_window(case, 32768)
+            self.assertEqual(window, plan)
+            self.assertTrue(matches_linear_window(window, 12,
+                dict(first_position=24576, token_count=8192)))
+            self.assertFalse(matches_linear_window(window, 12,
+                dict(first_position=24576, token_count=1024)))
+            self.assertIsNone(full_prefill_linear_window('q8192-out32', 8192))
+            self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192})
+            labels = full_prefill_linear_labels(12, full_prefill_linear_core_only())
+            self.assertEqual(labels, {'linear-12-' + name for name in (
+                'q-core-input', 'k-core-input', 'v-core-input', 'g-core-input',
+                'beta-core-input', 'initial-state', 'final-state', 'core')})
+            with self.assertRaises(ValueError):
+                full_prefill_linear_window(case, 32767)
+        with patch.dict(os.environ, dict(environment,
+                QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY='0'), clear=True):
+            with self.assertRaises(ValueError):
+                full_prefill_linear_window(case, 32768)
+            labels = full_prefill_linear_labels(0, full_prefill_linear_core_only())
+            self.assertEqual(len(labels), 17)
+            self.assertIn('linear-00-qkv', labels)
+            self.assertIn('layer-00-post-attention-rmsnorm', labels)
+        for value in ('', 'true', '-1', '2'):
+            with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY': value},
+                            clear=True):
+                with self.assertRaises(ValueError):
+                    full_prefill_linear_window('q8192-out32', 8192)
+        with patch.dict(os.environ, dict(environment,
+                QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS=json.dumps({case: dict(plan, tokens=8193)})),
+                clear=True):
+            with self.assertRaises(ValueError):
+                full_prefill_linear_window(case, 32769)
 
     def test_short_moe_capture_requires_the_complete_original_prefill(self):
         with patch.dict(os.environ, {}, clear=True):

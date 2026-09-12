@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
         if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos || text.size() > 4)
             throw std::runtime_error("invalid token count");
         const unsigned tokens = std::stoul(text);
-        if (!tokens || tokens > 1024) throw std::runtime_error("replay requires 1..1024 original inputs");
+        if (!tokens || tokens > 8192) throw std::runtime_error("replay requires 1..8192 original inputs");
         char hostname[256]{}; DWORD length = sizeof(hostname);
         if (!GetComputerNameA(hostname, &length) || _stricmp(hostname, "baiying") != 0)
             throw std::runtime_error("requires baiying");
