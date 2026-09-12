@@ -18,6 +18,26 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_interior_prefill_positions_bind_real_unsampled_rows_and_preserve_controls(self):
+        case = 'long-prefix32768-owner-out32'
+        setting = 'QRT_GB10_CASE_PREFILL_POSITIONS'
+        with patch.dict(os.environ, {setting: json.dumps({case: [18553, 18554, 18555]})}, clear=True):
+            selected = observation_positions(case, 32768)
+            self.assertEqual(selected, {18553, 18554, 18555, 32767, 32768})
+            rows = target_rows(list(range(16384, 24576)), [16602]*8192, [], selected)
+            self.assertEqual([row['row'] for row in rows], [2169, 2170, 2171])
+            self.assertTrue(all(row['logit_row'] is None for row in rows))
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            self.assertEqual(observation_positions('q8192-out32', 8192), {8191, 8192})
+            with self.assertRaises(ValueError):
+                observation_positions(case, 18555)
+        for plan in ([], {}, {case: []}, {case: [0, 1, 2, 3]}, {case: [1, 1]},
+                     {case: [-1]}, {case: [263168]}, {case: [True]}, {case: '18554'},
+                     {'undeclared': [1]}, {'case-out513': [1]}):
+            with patch.dict(os.environ, {setting: json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    observation_positions(case, 32768)
+
     def test_suffix_attention_window_binds_original_extent_and_leaves_controls_unselected(self):
         case = 'long-prefix16384-suffix1024-out512'
         plan = dict(layer=3, first_position=16384, tokens=1024)

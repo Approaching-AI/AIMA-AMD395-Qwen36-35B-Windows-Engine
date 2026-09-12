@@ -132,6 +132,25 @@ def full_cache_row_is_qualified(cache, transactions):
         for transaction in transactions)
 
 
+def extra_prefill_positions(case, prompt_tokens):
+    value = os.environ.get('QRT_GB10_CASE_PREFILL_POSITIONS')
+    if value is None:
+        return set()
+    plan = json.loads(value)
+    if not isinstance(plan, dict) or not 1 <= len(plan) <= 12:
+        raise ValueError('invalid case-specific prefill position plan')
+    for name, positions in plan.items():
+        match = re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out([1-9][0-9]*)', name)
+        if (match is None or not 2 <= int(match.group(1)) <= 512 or
+                not isinstance(positions, list) or not 1 <= len(positions) <= 3 or
+                any(type(position) is not int or not 0 <= position < 263168 for position in positions) or
+                len(set(positions)) != len(positions)):
+            raise ValueError('prefill positions require at most three distinct original rows')
+        if name == case and any(position >= prompt_tokens for position in positions):
+            raise ValueError('prefill observation extends beyond the original prompt')
+    return set(plan.get(case, []))
+
+
 def observation_positions(case, prompt_tokens):
     selected = {prompt_tokens - 1, prompt_tokens,
                 prompt_tokens + full_cache_observation_offset(case)}
@@ -181,6 +200,7 @@ def observation_positions(case, prompt_tokens):
         # A middle original transaction has no sampled logit row. Select its
         # real final position so the same hooks observe its complete operands.
         selected.add(window['first_position'] + window['tokens'] - 1)
+    selected.update(extra_prefill_positions(case, prompt_tokens))
     return selected
 
 
