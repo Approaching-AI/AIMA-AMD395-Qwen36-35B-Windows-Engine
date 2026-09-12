@@ -1,6 +1,19 @@
 # Unreleased native HTTP stability qualification
 
-Updated 2026-09-12. The strict runtime passes all eight cold CLI cases and
+Updated 2026-09-12. Whole provider 405d653, MoE bc082a5 and the original
+dynamic-width embedding inverse table now pass all five actual short HTTP
+prompt fixtures on baiying: 640 raw output tokens and all five first logits
+match GB10 exactly. Actual callbacks and host checks pass. The complete q19
+prefill has 80 exact normalization tensors across all 40 layers; q294's ten
+downloaded normalization tensors and both cases' layer0 projections and
+residual/combined carriers also match. See
+`benchmarks/correctness/http-short-dense-product-20260912.json`.
+The eight main cold cases are being renewed with these components. Their
+first q8192/out512 run passes all outputs and logit10.375, with actual callback
+TTFT58838.9266ms and load20045.2444ms. Combined archive, long contexts, soak
+and retained performance remain open; no release is qualified.
+
+The preceding strict runtime passes all eight cold CLI cases and
 1216 GB10 outputs, plus q8192 HTTP from the extracted portable archive. The
 archive loads in 20206.2284 ms and returns all 32 frozen nonstream tokens;
 both requests report first token144/logit10.375. SSE text/usage, health, queue
@@ -112,7 +125,15 @@ against the prior profile. The frozen full-output requirements remain active.
 All native processes and actual callback checks pass. These short timings do
 not qualify q8192 performance. See
 `benchmarks/correctness/http-short-projection-product-20260912.json`.
-The two remaining numerical cases, combined archive and release remain open.
+The later whole-provider repair resolves both remaining short cases. q19's
+attention output uses serial BF16 split-K carriers, while B/A projections
+follow the reference shape's split traversal and accumulator merge. q294 also
+needs the original dynamic-width norm inverse: preserving the i64 width
+argument reproduces every vocabulary norm output. The table alone still
+failed its last raw token; the combined repairs pass the complete contract.
+All 26 CPU projection matrices (843136 values) match, including representative
+three/four-accumulator and serial/parallel BF16 partitions. The compiled plans
+match 20490 profiled configurations. These fixes add no runtime dependency.
 
 The same a797b62 archive components pass both renewed main cold512 cases,
 all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,

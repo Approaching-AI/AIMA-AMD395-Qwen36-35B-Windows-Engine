@@ -32,6 +32,26 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [dense projection and norm repair](../benchmarks/correctness/http-short-dense-product-20260912.json)
+at whole405d653 with MoEbc082a5 now passes all five short actual-token cases:
+640 complete raw tokens and five exact first logits, including q19/out512
+and q294/out32. Native callbacks, host checks and the Windows build pass.
+q19's 80 complete prefill norm tensors are exact; q294's downloaded norms
+cover layers0–4 and are exact. Both layer0 projection/recurrence/gating and
+residual/combined carriers match. The 26 CPU matrices cover843136 values;
+20490 compiled plans match the exhaustive projection profile.
+
+The repair preserves serial BF16 split-K output carriers and physical
+accumulator merge order. Its model embedding inverse table comes from the
+original dynamic-width norm with an i64 width argument; all248320 original
+vocabulary norm outputs remain unchanged during observation. The isolated
+table still failed q294's last raw token, so its accepted short boundary binds
+the dense and MoE repairs together. No runtime dependency is added.
+The initial renewed q8192/out512 case also passes all512 tokens and logit10.375;
+actual callback58838.9266ms, TPOT109.084727ms and load20045.2444ms do not qualify
+retained performance. The remaining cold matrix, combined archive, long
+contexts and soak are still being evaluated. No release is qualified.
+
 The [strict native HTTP check](../benchmarks/correctness/http-strict-q8192-20260912.json)
 at server `8c59848` uses the selected whole/FLA/CK/MoE DLLs in a verified
 267-artifact runtime. The real model loads in 20,068.8737 ms. Nonstream HTTP
