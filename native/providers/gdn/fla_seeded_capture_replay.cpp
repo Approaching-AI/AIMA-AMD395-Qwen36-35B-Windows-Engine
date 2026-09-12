@@ -31,6 +31,17 @@ uint16_t bf16(float x) {
     uint32_t bits; std::memcpy(&bits, &x, 4);
     return uint16_t((bits + 0x7fffu + ((bits >> 16) & 1u)) >> 16);
 }
+// Original FLA captures use [head][value][key]. The optional key-major ABI
+// needs a bitwise transpose at the fixture boundary, in both directions.
+std::vector<float> transpose_state(const std::vector<float>& source) {
+    if (source.size() != kStateElements) throw std::runtime_error("invalid state size");
+    std::vector<float> result(source.size());
+    for (size_t i = 0; i < source.size(); ++i) {
+        const size_t j = i / 16384u * 16384u + (i % 128u) * 128u + (i % 16384u) / 128u;
+        std::memcpy(&result[i], &source[j], sizeof(float));
+    }
+    return result;
+}
 template<class T> std::vector<T> read(const std::filesystem::path& path, size_t count) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file || file.tellg() != static_cast<std::streamoff>(count * sizeof(T)))
@@ -70,11 +81,13 @@ struct Provider {
     const char* (*error)() = nullptr;
     void (*release)() = nullptr;
     ~Provider() { if (release) release(); if (module) FreeLibrary(module); }
-    void load(const char* dll, const char* kernels) {
+    void load(const char* dll, const char* kernels, bool key_major) {
         module = LoadLibraryA(dll);
         if (!module) throw std::runtime_error("cannot load selected FLA provider");
         prepare = reinterpret_cast<decltype(prepare)>(GetProcAddress(module, "qrt_aiter_fused_gdn_q8192_prepare"));
-        launch = reinterpret_cast<decltype(launch)>(GetProcAddress(module, "qrt_fla_gdn_launch_async_seeded_key_major_f32_v1"));
+        launch = reinterpret_cast<decltype(launch)>(GetProcAddress(module, key_major
+            ? "qrt_fla_gdn_launch_async_seeded_key_major_f32_v1"
+            : "qrt_fla_gdn_launch_async_seeded_f32_v1"));
         error = reinterpret_cast<decltype(error)>(GetProcAddress(module, "qrt_aiter_fused_gdn_q8192_last_error"));
         release = reinterpret_cast<decltype(release)>(GetProcAddress(module, "qrt_aiter_fused_gdn_q8192_release"));
         if (!prepare || !launch || !error || !release) throw std::runtime_error("incomplete seeded FLA ABI");
@@ -109,7 +122,10 @@ struct Stats {
 
 int main(int argc, char** argv) {
     try {
-        if (argc != 6) throw std::runtime_error("usage: fla_seeded_capture_replay kernels provider.dll inputs outputs tokens");
+        if (argc != 7) throw std::runtime_error("usage: fla_seeded_capture_replay kernels provider.dll inputs outputs tokens value-major|key-major");
+        const std::string layout(argv[6]);
+        if (layout != "value-major" && layout != "key-major") throw std::runtime_error("explicit state layout required");
+        const bool key_major = layout == "key-major";
         const std::string text(argv[5]);
         if (text.empty() || text.find_first_not_of("0123456789") != std::string::npos || text.size() > 4)
             throw std::runtime_error("invalid token count");
@@ -122,12 +138,13 @@ int main(int argc, char** argv) {
         if (!std::filesystem::create_directory(output)) throw std::runtime_error("output directory must be new");
         const auto raw = read<float>(input / "raw-f32.bin", size_t(tokens) * 8192u);
         const auto gates = read<float>(input / "gates-f32.bin", size_t(tokens) * 64u);
-        const auto initial = read<float>(input / "initial-key-major-f32.bin", kStateElements);
+        const auto original_initial = read<float>(input / "initial-value-major-f32.bin", kStateElements);
+        const auto initial = key_major ? transpose_state(original_initial) : original_initial;
         const auto expected_output = read<uint16_t>(input / "expected-output-bf16.bin", size_t(tokens) * 4096u);
-        const auto expected_state = read<float>(input / "expected-key-major-f32.bin", kStateElements);
+        const auto expected_state = read<float>(input / "expected-value-major-f32.bin", kStateElements);
         check(hipSetDevice(0)); hipDeviceProp_t device{}; check(hipGetDeviceProperties(&device, 0));
         if (std::string(device.gcnArchName).find("gfx1151") != 0) throw std::runtime_error("requires gfx1151");
-        Provider provider; provider.load(argv[2], argv[1]);
+        Provider provider; provider.load(argv[2], argv[1], key_major);
         Buffer d_raw(raw.size()), d_gates(gates.size()), d_output(expected_output.size()), d_state(kStateElements);
         d_raw.upload(raw); d_gates.upload(gates);
         Event begin, end;
@@ -145,6 +162,7 @@ int main(int argc, char** argv) {
             check(hipEventRecord(end.value, nullptr)); check(hipEventSynchronize(end.value));
             check(hipEventElapsedTime(&timings[run], begin.value, end.value));
             auto state = d_state.download(kStateElements);
+            if (key_major) state = transpose_state(state);
             const auto values = d_output.download(expected_output.size());
             std::vector<uint16_t> rounded(values.size());
             std::transform(values.begin(), values.end(), rounded.begin(), bf16);
@@ -162,9 +180,11 @@ int main(int argc, char** argv) {
         const bool pass = output_stats.bit_mismatches == 0 && state_stats.maximum <= state_tolerance &&
             state_stats.relative_l2() <= state_tolerance && repeated && inputs_unchanged && zero_control.bit_mismatches != 0;
         write(output / "native-output-bf16.bin", first_output);
-        write(output / "native-key-major-f32.bin", first_state);
+        write(output / "native-value-major-f32.bin", first_state);
         std::ofstream record(output / "result.json"); record << std::setprecision(17);
         record << "{\"kind\":\"original_seeded_fla_capture_replay\",\"host\":\"baiying\",\"tokens\":" << tokens
+            << ",\"capture_state_layout\":\"value_head_value_key_fp32\",\"interface_state_layout\":\"" << layout << '"'
+            << ",\"fixture_state_transpose\":" << (key_major ? "true" : "false")
             << ",\"diagnostic_only\":true,\"product_acceptance\":false,\"component_pass\":" << (pass ? "true" : "false")
             << ",\"output_bf16\":"; output_stats.json(record);
         record << ",\"state_f32\":"; state_stats.json(record);
