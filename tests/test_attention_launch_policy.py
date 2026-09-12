@@ -470,6 +470,21 @@ int main() {
         if(split_scratch_elements(129u,8192u,layout) || split_scratch_elements(33u,8193u,layout)) return 93;
     }
     if(split_scratch_elements(33u,8192u,23u) || split_scratch_elements(33u,8192u,15u)) return 94;
+    struct Observed { unsigned next=0u, fail=5u; } observed;
+    SplitCompletionObserver observer{&observed, [](void* state, unsigned stage, hipStream_t)->int {
+        auto& o=*static_cast<Observed*>(state);
+        if(stage!=o.next++) return int(hipErrorInvalidValue);
+        return stage==o.fail ? int(hipErrorUnknown) : int(hipSuccess);
+    }};
+    const size_t observed_span=split_scratch_elements(16u,17u,22u);
+    for(unsigned failure=0u;failure<=5u;++failure) {
+        observed={0u,failure};launches=error_queries=memsets=fail_launch=0u;
+        const int status=launch_queries(&operand,&operand,&operand,&output,nullptr,1u,16u,0u,
+            nullptr,nullptr,nullptr,true,rcp,22u,&scratch,observed_span,nullptr,nullptr,&operand,17u,
+            false,nullptr,nullptr,0u,nullptr,&observer);
+        if(status!=(failure==5u ? hipSuccess : hipErrorUnknown) ||
+           launches!=(failure==5u ? 5u : failure+1u) || observed.next!=launches) return 95;
+    }
     return 0;
 }
 '''

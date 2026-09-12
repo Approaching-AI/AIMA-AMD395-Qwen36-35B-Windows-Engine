@@ -284,6 +284,25 @@ int tiled_qk_safety() {
 }
 }
 
+// Host clocks after explicit stream completion avoid device-event attribution
+// anomalies. Instrumentation adds synchronizations and is diagnostic only.
+struct CompletedAttentionPhases {
+    double milliseconds[5]{};
+    unsigned samples[5]{};
+    Clock::time_point previous;
+    static int observe(void* state, unsigned stage, hipStream_t stream) {
+        auto& timing = *static_cast<CompletedAttentionPhases*>(state);
+        if (stage >= 5u) return int(hipErrorInvalidValue);
+        const auto status = hipStreamSynchronize(stream);
+        if (status != hipSuccess) return int(status);
+        const auto now = Clock::now();
+        timing.milliseconds[stage] += std::chrono::duration<double, std::milli>(now - timing.previous).count();
+        ++timing.samples[stage];
+        timing.previous = now;
+        return int(hipSuccess);
+    }
+};
+
 int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
@@ -295,6 +314,14 @@ int main(int argc, char** argv) {
         const bool baseline = parse(argv[12], 1) != 0;
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 24) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
+        const char* host_phase_option = std::getenv("QRT_ATTENTION_REPLAY_HOST_PHASES");
+        if (host_phase_option && *host_phase_option && std::strcmp(host_phase_option, "0") &&
+            std::strcmp(host_phase_option, "1")) throw std::runtime_error("invalid host phase option");
+        const bool host_phases = host_phase_option && std::strcmp(host_phase_option, "1") == 0;
+        if (host_phases && memory_layout != 22u && memory_layout != 24u)
+            throw std::runtime_error("host phase profile requires global selective PV replay");
+        CompletedAttentionPhases completed_phases;
+        qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
         if (native_products && memory_layout != 4u) throw std::runtime_error("native products require transposed split attention");
@@ -446,6 +473,7 @@ int main(int argc, char** argv) {
             if (std::chrono::duration<double>(Clock::now() - begun).count() > 150.0)
                 throw std::runtime_error("replay aggregate deadline exceeded");
             const auto host_begin = Clock::now();
+            completed_phases.previous = host_begin;
             check(hipEventRecord(begin.value));
             check(hipError_t(qrt_blackwell_attention::launch_queries(dq.as<uint16_t>(), dk.as<uint16_t>(),
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
@@ -457,7 +485,7 @@ int main(int argc, char** argv) {
                 (qrt_blackwell_attention::split_separate_probability(memory_layout)) ? probabilities_done.value : nullptr,
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
-                prepacked_core ? &core_prepared : nullptr)));
+                prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {
@@ -483,6 +511,19 @@ int main(int argc, char** argv) {
                     (qrt_blackwell_attention::split_separate_probability(memory_layout)) ? probabilities_done.value : scores_done.value, end.value));
                 value_total += stage_ms;
             }
+        }
+        if (host_phases) {
+            for (unsigned stage = 0u; stage < 5u; ++stage)
+                if (completed_phases.samples[stage] != (count + batch - 1u) / batch ||
+                    !std::isfinite(completed_phases.milliseconds[stage]) || completed_phases.milliseconds[stage] < 0.0)
+                    throw std::runtime_error("incomplete host phase profile");
+            std::fprintf(stderr,
+                "COMPLETED_ATTENTION_PHASES query_start=%u query_count=%u batch=%u samples=%u "
+                "qk_ms=%.9f probability_ms=%.9f approximate_pv_ms=%.9f collect_ms=%.9f exact_pv_ms=%.9f "
+                "completed_query_host_ms=%.9f stream_synchronized=1 instrumentation_enabled=1 performance_acceptance=0\n",
+                start, count, batch, completed_phases.samples[0], completed_phases.milliseconds[0],
+                completed_phases.milliseconds[1], completed_phases.milliseconds[2], completed_phases.milliseconds[3],
+                completed_phases.milliseconds[4], completed_host_ms);
         }
         uint32_t score_guards[128];
         check(hipMemcpy(score_guards, scores.pointer, 64u * sizeof(uint32_t), hipMemcpyDeviceToHost));

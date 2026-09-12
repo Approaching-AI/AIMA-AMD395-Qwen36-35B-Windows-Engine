@@ -1547,6 +1547,17 @@ constexpr unsigned split_query_limit(unsigned layout, unsigned stride) {
     return (layout == 22u || layout == 24u) && stride <= 8192u ? 128u : 32u;
 }
 
+// Optional component observer. A checkpoint must complete this stream before
+// returning; failures stop dependent work. Production callers leave it null.
+// Stages: exact QK, online probabilities, approximate PV, collect, exact PV.
+struct SplitCompletionObserver {
+    void* state;
+    int (*observe)(void*, unsigned, hipStream_t);
+};
+inline int observe_split_stage(SplitCompletionObserver* observer, unsigned stage, hipStream_t stream) {
+    return observer && observer->observe ? observer->observe(observer->state, stage, stream) : int(hipSuccess);
+}
+
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > split_query_limit(memory_layout, stride) || stride < queries || stride > kSplitMaxTokens ||
@@ -1566,7 +1577,7 @@ inline int launch_compacted_pv_replay(
     float* output, unsigned query_start, unsigned query_count, unsigned output_start,
     unsigned score_stride, const unsigned char* rcp_table, float* raw_accumulator,
     float* raw_denominator, const float* errors, unsigned* indices, unsigned* count,
-    hipStream_t stream) {
+    hipStream_t stream, SplitCompletionObserver* observer = nullptr) {
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
         !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
@@ -1580,13 +1591,17 @@ inline int launch_compacted_pv_replay(
         output, errors, output_start, cells, indices, count);
     status = hipGetLastError();
     if (status != hipSuccess) return int(status);
+    const int collect_status = observe_split_stage(observer, 3u, stream);
+    if (collect_status != int(hipSuccess)) return collect_status;
     const unsigned maximum_blocks = (cells + kThreads / 4u - 1u) / (kThreads / 4u);
     const unsigned blocks = maximum_blocks < 1024u ? maximum_blocks : 1024u;
     hipLaunchKernelGGL(blackwell_compacted_pv_replay_kernel,
         dim3(blocks), dim3(kThreads), 0u, stream,
         value, probabilities, scales, output, query_start, output_start, score_stride,
         rcp_table, raw_accumulator, raw_denominator, indices, count);
-    return int(hipGetLastError());
+    status = hipGetLastError();
+    if (status != hipSuccess) return int(status);
+    return observe_split_stage(observer, 4u, stream);
 }
 
 inline int launch_queries(const uint16_t* q, const uint16_t* k,
@@ -1601,7 +1616,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* transposed_key = nullptr, unsigned int key_stride = 0u,
     bool native_products = false, const PrepackedIntegerWorkspace* prepared = nullptr,
     const uint32_t* prepared_values = nullptr, unsigned prepared_value_tokens = 0u,
-    const CoreIntegerWorkspace* core_prepared = nullptr) {
+    const CoreIntegerWorkspace* core_prepared = nullptr,
+    SplitCompletionObserver* observer = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -1703,6 +1719,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             const auto event_status = hipEventRecord(scores_done, stream);
             if (event_status != hipSuccess) return int(event_status);
         }
+        const int scores_status = observe_split_stage(observer, 0u, stream);
+        if (scores_status != int(hipSuccess)) return scores_status;
         if (split_separate_probability(memory_layout)) {
             auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
             auto* scales = reinterpret_cast<float*>(probabilities + cells);
@@ -1721,6 +1739,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 const auto event_status = hipEventRecord(probabilities_done, stream);
                 if (event_status != hipSuccess) return int(event_status);
             }
+            const int completed_probability_status = observe_split_stage(observer, 1u, stream);
+            if (completed_probability_status != int(hipSuccess)) return completed_probability_status;
             if (memory_layout == 9u) {
                 const int pack_status = prepare_integer_rows<IntegerRowKind::Probability>(
                     probabilities, prepared->probability, stride, query_start, query_count, stream);
@@ -1743,12 +1763,14 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                     rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
                 const auto approximate_status = hipGetLastError();
                 if (approximate_status != hipSuccess) return int(approximate_status);
+                const int completed_approximate_status = observe_split_stage(observer, 2u, stream);
+                if (completed_approximate_status != int(hipSuccess)) return completed_approximate_status;
                 if (memory_layout == 22u || memory_layout == 24u) {
                     auto* indices = reinterpret_cast<unsigned*>(errors + size_t(query_count) * kQueryHeads * kHeadDim);
                     auto* count = indices + size_t(query_count) * kQueryHeads * kHeadDim;
                     return launch_compacted_pv_replay(v, probabilities, scales, output,
                         query_start, query_count, output_start, stride, rcp_table,
-                        raw_accumulator, raw_denominator, errors, indices, count, stream);
+                        raw_accumulator, raw_denominator, errors, indices, count, stream, observer);
                 }
                 hipLaunchKernelGGL(blackwell_probability_value_kernel,
                     dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
