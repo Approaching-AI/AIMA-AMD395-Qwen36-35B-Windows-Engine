@@ -3,6 +3,7 @@
 #endif
 
 #include "qrt_server_bridge.h"
+#include "qrt_prefix_logit.h"
 
 #include <inttypes.h>
 #include <math.h>
@@ -100,6 +101,51 @@ static const char *qrt_server_environment_value(
     (void)buffer_capacity;
     return name != NULL ? getenv(name) : NULL;
 #endif
+}
+
+/* The saved-prefix frontier has its own token-bound logit extension. The
+ * ordinary engine report can still describe the owner's cold prefill. */
+static void qrt_server_write_prefix_first_token_observation(
+    FILE *destination,
+    const qrt_qwen36_resident_prefix_cache_result_v1_t *result,
+    const uint32_t *input_tokens,
+    size_t input_count,
+    const uint32_t *output_tokens,
+    size_t output_count
+) {
+    uint64_t prompt_fnv = UINT64_C(14695981039346656037);
+    size_t index;
+    float logit = 0.0f;
+    const int available = result != NULL && input_tokens != NULL &&
+        result->completed && result->state_restored && result->exact_prefix_match &&
+        output_tokens != NULL && output_count != 0u &&
+        result->output_token_count == output_count &&
+        result->output_tokens[0] == output_tokens[0] &&
+        qrt_prefix_first_logit_read(result->reserved, output_tokens[0], &logit);
+    for (index = 0u; input_tokens != NULL && index < input_count; ++index) {
+        unsigned int byte;
+        for (byte = 0u; byte < 4u; ++byte) {
+            prompt_fnv ^= (input_tokens[index] >> (8u * byte)) & UINT32_C(255);
+            prompt_fnv *= UINT64_C(1099511628211);
+        }
+    }
+    fprintf(destination,
+        "{\"type\":\"qrt_server_prefix_first_token_observation\",\"contract_version\":1,"
+        "\"input_tokens\":%zu,\"output_tokens\":%zu,\"prefix_tokens\":%" PRIu32 ","
+        "\"prompt_token_ids_fnv1a64\":\"%016" PRIx64 "\",\"available\":%s,"
+        "\"output_token_id\":",
+        input_count, output_count, result != NULL ? result->prefix_token_count : 0u,
+        prompt_fnv, available ? "true" : "false");
+    if (output_tokens != NULL && output_count != 0u) {
+        fprintf(destination, "%" PRIu32, output_tokens[0]);
+    } else {
+        fputs("null", destination);
+    }
+    fputs(",\"first_token_raw_logit\":", destination);
+    if (available) fprintf(destination, "%.9g", (double)logit);
+    else fputs("null", destination);
+    fputs(",\"source\":\"qrt_prefix_first_logit_v1\"}\n", destination);
+    fflush(destination);
 }
 
 static size_t qrt_server_prefix_cache_min_tokens(void) {
@@ -881,8 +927,17 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
             prefix_result, qrt_server_forward_prefix_callback, &callback_guard
         );
         if (status == QRT_STATUS_OK) {
+            char observation_env[16];
+            const char *observation = qrt_server_environment_value(
+                "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC",
+                observation_env, sizeof(observation_env));
             *out_output_token_count = (size_t)prefix_result->output_token_count;
             prefix_route_used = 1;
+            if (observation != NULL && strcmp(observation, "1") == 0) {
+                qrt_server_write_prefix_first_token_observation(
+                    stderr, prefix_result, input_tokens, input_token_count,
+                    output_tokens, *out_output_token_count);
+            }
             fprintf(stderr,
                 "QRT_SERVER_MARK prefix_cache_hit prefix_tokens=%zu suffix_tokens=%zu output_tokens=%zu seed=0 ttft_ms=%.4f tpot_ms=%.4f\n",
                 prefix_hit_token_count, input_token_count - prefix_hit_token_count,

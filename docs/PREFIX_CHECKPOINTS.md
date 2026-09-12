@@ -45,6 +45,13 @@ the server does not infer resident state from token overlap or an out1 seed.
 An unsupported checkpoint attempt falls back only before any callback or
 output. Cancellation, partial output and other failures are not retried.
 
+With QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1, successful HTTP prefix hits
+also emit qrt_server_prefix_first_token_observation. Its optional raw logit
+comes from the result's token-bound qrt-prefix-logit-v1 extension, captured
+before decode or rollback. Completed/restored state, actual output token and
+extension tag must agree. Older providers and missing/stale/nonfinite values
+are reported as unavailable; the owner's ordinary prefill report is not used.
+
 Restoration clones the saved linear state and mutable KV tail. Separate KV
 storage borrows only the owner's immutable prefix. Contiguous KV storage copies
 the shortened K and V from their original pointers into a private layout.
