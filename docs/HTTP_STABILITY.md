@@ -12,8 +12,21 @@ The same components now pass all eight main cold cases, all 1216 outputs and
 eight exact first logits. The q8192/out512 actual callback TTFT is 58838.9266 ms,
 TPOT 109.084727 ms and load 20045.2444 ms. See
 `benchmarks/correctness/dense-norm-complete-cold-20260912.json`.
-Combined archive HTTP, long contexts, soak and retained performance remain
-open; no release is qualified.
+The same components now pass HTTP and prefix qualification from the relocated
+r4 archive. All 280 release files and 267 runtime assets verify after the
+original staging directory is moved away. One fresh server process passes
+all seventeen positive protocol checks and thirty captured requests, including
+tools, thinking, SSE, queue timeout/overflow and shutdown while q8192 completes
+all 32 frozen outputs and its exact first logit. A separate prefix process
+passes 256 branch tokens, twelve first logits, four SSE comparisons and twelve
+complete owner-state rollbacks, followed by owner replacement and cold fallback.
+All processes exit normally and host checks pass. See
+`benchmarks/correctness/dense-norm-portable-http-20260912.json`.
+The initial post-package CPU preflight used the wrong server checkout; its
+failure is preserved. Correcting that config qualifies the same archive.
+Prefix checkpoints remain opt-in. Long contexts, soak and retained performance
+remain open; no release is qualified. The following records retain the earlier
+failures and intermediate repairs for provenance.
 
 The preceding strict runtime passes all eight cold CLI cases and
 1216 GB10 outputs, plus q8192 HTTP from the extracted portable archive. The

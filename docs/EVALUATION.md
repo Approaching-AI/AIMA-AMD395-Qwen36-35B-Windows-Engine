@@ -50,8 +50,24 @@ the dense and MoE repairs together. No runtime dependency is added.
 The [complete renewed cold matrix](../benchmarks/correctness/dense-norm-complete-cold-20260912.json)
 passes all eight cases, 1216 output tokens and eight exact first logits.
 q8192/out512 has actual callback 58838.9266 ms, TPOT 109.084727 ms and load
-20045.2444 ms. Combined archive, long contexts, soak and retained performance
-remain unqualified. No release is qualified.
+20045.2444 ms. Long contexts, soak and retained performance remain unqualified.
+No release is qualified.
+
+The [combined r4 archive](../benchmarks/correctness/dense-norm-portable-http-20260912.json)
+also passes native relocation, q8192 HTTP, all seventeen positive protocol
+checks in one fresh process and the four saved-prefix branches after owner
+decode. All 280 release files and 267 runtime assets verify. The thirty
+protocol requests cover tools, thinking, SSE, queue timeout/overflow and
+shutdown; the active q8192 request retains all 32 reference tokens and exact
+first logit. Prefix testing verifies 256 raw branch tokens, twelve first
+logits, four SSE comparisons, complete rollback and owner replacement/cold
+fallback. All three owned server processes exit normally with healthy host
+checks. The five short prompt identities are also recaptured unchanged; their
+complete numerical boundaries come from the matching component cold runs.
+The initial post-package CPU preflight rejected a mismatched server checkout.
+Its recorded correction changes the config working directory, preserving the
+same archive and runtime profile. HTTP and warm prefix timings do not replace
+the cold actual-callback gate; checkpoints remain opt-in.
 
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
