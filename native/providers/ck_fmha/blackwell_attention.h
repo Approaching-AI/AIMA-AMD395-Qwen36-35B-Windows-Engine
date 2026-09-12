@@ -834,11 +834,15 @@ __global__ void blackwell_collect_pv_replay_kernel(
         indices[atomicAdd(count, 1u)] = cell;
 }
 
+// An optional lossless V transpose makes each cooperative subgroup read
+// contiguous K positions. Candidate ownership and the ordered dot are shared.
+template<bool TransposedValue = false>
 __global__ void blackwell_compacted_pv_replay_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned query_start, unsigned output_start, unsigned score_stride,
     const unsigned char* rcp_table, float* raw_accumulator, float* raw_denominator,
-    const unsigned* indices, const unsigned* count) {
+    const unsigned* indices, const unsigned* count,
+    const uint16_t* transposed_value, unsigned value_stride) {
     constexpr unsigned lanes = 4u, items = kBlackwellMmaGroup / lanes;
     const unsigned lane = threadIdx.x & (lanes - 1u);
     const unsigned stride = gridDim.x * blockDim.x / lanes;
@@ -861,7 +865,9 @@ __global__ void blackwell_compacted_pv_replay_kernel(
                 for (unsigned item = 0u; item < items; ++item) {
                     const unsigned key = tile * kExactTileTokens + begin + lane * items + item;
                     const uint16_t p = key < tokens ? probabilities[size_t(row) * score_stride + key] : 0u;
-                    const uint16_t v = key < tokens ? value[(size_t(key) * kKvHeads + kv_head) * kHeadDim + column] : 0u;
+                    const uint16_t v = key < tokens ? (TransposedValue
+                        ? transposed_value[(size_t(kv_head) * kHeadDim + column) * value_stride + key]
+                        : value[(size_t(key) * kKvHeads + kv_head) * kHeadDim + column]) : 0u;
                     products[item] = qrt_sm121_group16::pack_product(
                         qrt_q1_moe_hawkeye::multiply_bf16(p, v, kBlackwellZeroExponent));
                 }
@@ -1577,11 +1583,14 @@ inline int launch_compacted_pv_replay(
     float* output, unsigned query_start, unsigned query_count, unsigned output_start,
     unsigned score_stride, const unsigned char* rcp_table, float* raw_accumulator,
     float* raw_denominator, const float* errors, unsigned* indices, unsigned* count,
-    hipStream_t stream, SplitCompletionObserver* observer = nullptr) {
+    hipStream_t stream, SplitCompletionObserver* observer = nullptr,
+    const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u) {
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
         !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
         output_start >= 262144u || query_count > 262144u - output_start)
+        return int(hipErrorInvalidValue);
+    if (transposed_value ? value_stride < score_stride || value_stride > kSplitMaxTokens : value_stride != 0u)
         return int(hipErrorInvalidValue);
     const unsigned cells = query_count * kQueryHeads * kHeadDim;
     auto status = hipMemsetAsync(count, 0, sizeof(unsigned), stream);
@@ -1595,10 +1604,17 @@ inline int launch_compacted_pv_replay(
     if (collect_status != int(hipSuccess)) return collect_status;
     const unsigned maximum_blocks = (cells + kThreads / 4u - 1u) / (kThreads / 4u);
     const unsigned blocks = maximum_blocks < 1024u ? maximum_blocks : 1024u;
-    hipLaunchKernelGGL(blackwell_compacted_pv_replay_kernel,
-        dim3(blocks), dim3(kThreads), 0u, stream,
-        value, probabilities, scales, output, query_start, output_start, score_stride,
-        rcp_table, raw_accumulator, raw_denominator, indices, count);
+    if (transposed_value) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_compacted_pv_replay_kernel<true>),
+            dim3(blocks), dim3(kThreads), 0u, stream,
+            value, probabilities, scales, output, query_start, output_start, score_stride,
+            rcp_table, raw_accumulator, raw_denominator, indices, count, transposed_value, value_stride);
+    } else {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_compacted_pv_replay_kernel<false>),
+            dim3(blocks), dim3(kThreads), 0u, stream,
+            value, probabilities, scales, output, query_start, output_start, score_stride,
+            rcp_table, raw_accumulator, raw_denominator, indices, count, nullptr, 0u);
+    }
     status = hipGetLastError();
     if (status != hipSuccess) return int(status);
     return observe_split_stage(observer, 4u, stream);
@@ -1617,7 +1633,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool native_products = false, const PrepackedIntegerWorkspace* prepared = nullptr,
     const uint32_t* prepared_values = nullptr, unsigned prepared_value_tokens = 0u,
     const CoreIntegerWorkspace* core_prepared = nullptr,
-    SplitCompletionObserver* observer = nullptr) {
+    SplitCompletionObserver* observer = nullptr,
+    const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -1627,6 +1644,9 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
+    if (transposed_value ? (memory_layout != 22u && memory_layout != 24u) ||
+            value_stride < query_start + query_count || value_stride > kSplitMaxTokens : value_stride != 0u)
+        return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
         // The split replay includes a bounded continuation of the captured prefix.
         // Long-context terminal calls retain their existing allocation-free path.
@@ -1770,7 +1790,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                     auto* count = indices + size_t(query_count) * kQueryHeads * kHeadDim;
                     return launch_compacted_pv_replay(v, probabilities, scales, output,
                         query_start, query_count, output_start, stride, rcp_table,
-                        raw_accumulator, raw_denominator, errors, indices, count, stream, observer);
+                        raw_accumulator, raw_denominator, errors, indices, count, stream, observer,
+                        transposed_value, value_stride);
                 }
                 hipLaunchKernelGGL(blackwell_probability_value_kernel,
                     dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,

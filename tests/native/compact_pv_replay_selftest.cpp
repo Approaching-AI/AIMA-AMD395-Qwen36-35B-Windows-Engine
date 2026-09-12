@@ -38,7 +38,7 @@ template<class T> void immutable(Device& d, const std::vector<T>& expected) {
     auto actual = download<T>(d, expected.size());
     if (std::memcmp(actual.data(), expected.data(), actual.size() * sizeof(T))) throw std::runtime_error("input changed");
 }
-void run(unsigned start, unsigned queries, unsigned mode) {
+void run(unsigned start, unsigned queries, unsigned mode, bool transposed_value) {
     constexpr unsigned guard = 64u, output_start = 3u;
     const unsigned tokens = start + queries, rows = queries * kQueryHeads, cells = rows * kHeadDim;
     const unsigned tiles = (tokens + 31u) / 32u;
@@ -62,14 +62,25 @@ void run(unsigned start, unsigned queries, unsigned mode) {
         errors[guard + cell] = active ? qrt_sm121_pv_bound::infinity() : 0.0f;
         selected += active;
     }
+    std::vector<uint16_t> transposed(value.size(), 0x5a5au);
+    for (unsigned token=0u;token<tokens;++token)
+        for (unsigned feature=0u;feature<kKvHeads*kHeadDim;++feature)
+            transposed[guard+size_t(feature)*tokens+token]=value[guard+size_t(token)*kKvHeads*kHeadDim+feature];
     const size_t output_cells = size_t(output_start + queries) * kQueryHeads * kHeadDim + 2u * guard;
     const size_t denominator_cells = size_t(output_start + queries) * kQueryHeads + 2u * guard;
     std::vector<float> initial(output_cells, 12345.0f), acc(initial), den(denominator_cells, 12345.0f);
     std::fill(initial.begin() + guard + output_start * kQueryHeads * kHeadDim, initial.begin() + guard + output_start * kQueryHeads * kHeadDim + cells, 0.75f);
     std::vector<unsigned> scratch(cells + 1u + 2u * guard, 0xa5a5a5a5u);
     Device dv(value.size()*2u), dp(probability.size()*2u), ds(scales.size()*4u), de(errors.size()*4u);
+    Device dtv(transposed.size()*2u);
     Device dout(initial.size()*4u), da(acc.size()*4u), dd(den.size()*4u), di(scratch.size()*4u);
     upload(dv,value); upload(dp,probability); upload(ds,scales); upload(de,errors);
+    std::vector<uint16_t> transposed_initial(transposed.size(), 0x5a5au); upload(dtv,transposed_initial);
+    if (transposed_value) {
+        check(hipError_t(transpose_keys(dv.as<uint16_t>()+guard,dtv.as<uint16_t>()+guard,
+            size_t(tokens)*kKvHeads*kHeadDim,tokens,nullptr)));
+        finish(); immutable(dtv,transposed);
+    }
     upload(dout,initial); upload(da,acc); upload(dd,den);
     hipLaunchKernelGGL(blackwell_probability_value_kernel, dim3(kQueryHeads,queries), dim3(kHeadDim), 0u, nullptr,
         dv.as<uint16_t>()+guard, dp.as<uint16_t>()+guard, ds.as<float>()+guard, dout.as<float>()+guard,
@@ -79,7 +90,8 @@ void run(unsigned start, unsigned queries, unsigned mode) {
     upload(dout,initial); upload(da,acc); upload(dd,den); upload(di,scratch);
     check(hipError_t(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
         dout.as<float>()+guard,start,queries,output_start,tokens,nullptr,da.as<float>()+guard,dd.as<float>()+guard,
-        de.as<float>()+guard,di.as<unsigned>()+guard,di.as<unsigned>()+guard+cells,nullptr)));
+        de.as<float>()+guard,di.as<unsigned>()+guard,di.as<unsigned>()+guard+cells,nullptr,nullptr,
+        transposed_value ? dtv.as<uint16_t>()+guard : nullptr,transposed_value ? tokens : 0u)));
     finish();
     const auto actual=download<float>(dout,initial.size()), actual_acc=download<float>(da,acc.size()), actual_den=download<float>(dd,den.size());
     auto indices=download<unsigned>(di,scratch.size());
@@ -102,17 +114,20 @@ void run(unsigned start, unsigned queries, unsigned mode) {
     }
     for(size_t i=0;i<actual_den.size();++i) bad += std::memcmp(&actual_den[i],&control_den[i],4u)!=0;
     immutable(dv,value); immutable(dp,probability); immutable(ds,scales); immutable(de,errors);
-    std::printf("{\"kind\":\"compact_pv_replay\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"selected_cells\":%u,\"raw_bit_mismatches\":%u,\"redzones_pass\":true,\"immutable_inputs\":true,\"unique_candidates\":true,\"inference_acceptance\":false}\n",start,queries,mode,cells,selected,bad);
+    immutable(dtv,transposed_value ? transposed : transposed_initial);
+    std::printf("{\"kind\":\"compact_pv_replay\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"transposed_value\":%u,\"cells\":%u,\"selected_cells\":%u,\"raw_bit_mismatches\":%u,\"redzones_pass\":true,\"immutable_inputs\":true,\"unique_candidates\":true,\"inference_acceptance\":false}\n",start,queries,mode,unsigned(transposed_value),cells,selected,bad);
     if(bad) throw std::runtime_error("compact PV differs from original per-query replay");
 }
 }
 int main() try {
     hipDeviceProp_t properties{};check(hipGetDeviceProperties(&properties,0));
     if(std::strncmp(properties.gcnArchName,"gfx1151",7u)) throw std::runtime_error("requires gfx1151");
+    for(bool transposed_value : {false,true}) {
     for (auto shape : {std::pair<unsigned,unsigned>{0,1},{31,2},{17,32},{64,3},{8191,1}})
-        for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode);
+        for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode,transposed_value);
     for (auto shape : {std::pair<unsigned,unsigned>{17,65},{31,128}})
-        for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode);
-    run(8064u,128u,2u);  // Long K, every query, sparse candidates across all slabs.
+        for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode,transposed_value);
+    run(8064u,128u,2u,transposed_value);  // Long K, every query, sparse candidates across all slabs.
+    }
     return 0;
 } catch(const std::exception& e) { std::fprintf(stderr,"compact_pv_selftest_error=%s\n",e.what());return 2; }

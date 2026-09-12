@@ -54,7 +54,7 @@ void blackwell_online_probability_kernel() {}
 void blackwell_parallel_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
-void blackwell_compacted_pv_replay_kernel() {}
+template<bool TransposedValue = false> void blackwell_compacted_pv_replay_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
@@ -484,6 +484,21 @@ int main() {
             false,nullptr,nullptr,0u,nullptr,&observer);
         if(status!=(failure==5u ? hipSuccess : hipErrorUnknown) ||
            launches!=(failure==5u ? 5u : failure+1u) || observed.next!=launches) return 95;
+    }
+    auto transposed_pv=[&](const uint16_t* values,unsigned stride,unsigned layout=22u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,16u,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,observed_span,nullptr,nullptr,&operand,17u,
+            false,nullptr,nullptr,0u,nullptr,nullptr,values,stride);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    if(transposed_pv(nullptr,17u)!=hipErrorInvalidValue || transposed_pv(&operand,16u)!=hipErrorInvalidValue ||
+       transposed_pv(&operand,kSplitMaxTokens+1u)!=hipErrorInvalidValue ||
+       transposed_pv(&operand,17u,23u)!=hipErrorInvalidValue || launches || memsets) return 96;
+    if(transposed_pv(&operand,19u)!=hipSuccess || launches!=5u ||
+       !std::strstr(launch_names[4],"blackwell_compacted_pv_replay_kernel<true>")) return 97;
+    for(unsigned failure=1u;failure<=5u;++failure) {
+        launches=error_queries=memsets=0u;fail_launch=failure;
+        if(transposed_pv(&operand,17u)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 98;
     }
     return 0;
 }

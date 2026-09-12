@@ -320,6 +320,12 @@ int main(int argc, char** argv) {
         const bool host_phases = host_phase_option && std::strcmp(host_phase_option, "1") == 0;
         if (host_phases && memory_layout != 22u && memory_layout != 24u)
             throw std::runtime_error("host phase profile requires global selective PV replay");
+        const char* transpose_option = std::getenv("QRT_ATTENTION_REPLAY_TRANSPOSE_V");
+        if (transpose_option && *transpose_option && std::strcmp(transpose_option,"0") && std::strcmp(transpose_option,"1"))
+            throw std::runtime_error("invalid V transpose option");
+        const bool transpose_value = transpose_option && std::strcmp(transpose_option,"1")==0;
+        if (transpose_value && memory_layout!=22u && memory_layout!=24u)
+            throw std::runtime_error("transposed V requires global PV replay");
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
@@ -462,6 +468,18 @@ int main(int argc, char** argv) {
             const float ms = finish(begin, end, 100.0f);
             preparation_ms += ms; total += ms; maximum = std::max(maximum, ms);
         }
+        Device transposed_values(transpose_value ? (v.size()+128u)*sizeof(uint16_t) : 4u);
+        auto* transposed_value_data=transpose_value ? transposed_values.as<uint16_t>()+64u : nullptr;
+        double value_transpose_host_ms=0.0;
+        if(transpose_value) {
+            check(hipMemset(transposed_values.pointer,0xa5,(v.size()+128u)*sizeof(uint16_t)));
+            const auto transpose_begin=Clock::now();
+            check(hipEventRecord(begin.value));
+            check(hipError_t(qrt_blackwell_attention::transpose_keys(dv.as<uint16_t>(),transposed_value_data,v.size(),tokens,nullptr)));
+            const float ms=finish(begin,end,100.0f);
+            value_transpose_host_ms=std::chrono::duration<double,std::milli>(Clock::now()-transpose_begin).count();
+            preparation_ms+=ms;total+=ms;maximum=std::max(maximum,ms);
+        }
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores((score_elements + 128u) * sizeof(float));
@@ -485,7 +503,8 @@ int main(int argc, char** argv) {
                 (qrt_blackwell_attention::split_separate_probability(memory_layout)) ? probabilities_done.value : nullptr,
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
-                prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr)));
+                prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
+                transposed_value_data, transpose_value ? tokens : 0u)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {
@@ -525,6 +544,20 @@ int main(int argc, char** argv) {
                 completed_phases.milliseconds[1], completed_phases.milliseconds[2], completed_phases.milliseconds[3],
                 completed_phases.milliseconds[4], completed_host_ms);
         }
+        if(transpose_value) {
+            std::vector<uint16_t> actual(v.size()+128u),original(v.size());
+            check(hipMemcpy(actual.data(),transposed_values.pointer,actual.size()*2u,hipMemcpyDeviceToHost));
+            for(size_t i=0u;i<64u;++i)
+                if(actual[i]!=0xa5a5u || actual[64u+v.size()+i]!=0xa5a5u) throw std::runtime_error("V transpose redzone");
+            for(unsigned token=0u;token<tokens;++token)
+                for(unsigned feature=0u;feature<512u;++feature)
+                    if(actual[64u+size_t(feature)*tokens+token]!=v[size_t(token)*512u+feature])
+                        throw std::runtime_error("V transpose cell mismatch");
+            check(hipMemcpy(original.data(),dv.pointer,v.size()*2u,hipMemcpyDeviceToHost));
+            if(original!=v) throw std::runtime_error("V input changed");
+        }
+        std::fprintf(stderr,"TRANSPOSED_PV_VALUE enabled=%u cells=%zu preparation_host_ms=%.9f completed_with_preparation_ms=%.9f transpose_safety_checked=%u\n",
+            unsigned(transpose_value),transpose_value ? v.size() : size_t(0),value_transpose_host_ms,completed_host_ms+value_transpose_host_ms,unsigned(transpose_value));
         uint32_t score_guards[128];
         check(hipMemcpy(score_guards, scores.pointer, 64u * sizeof(uint32_t), hipMemcpyDeviceToHost));
         check(hipMemcpy(score_guards + 64u, score_data + score_elements, 64u * sizeof(uint32_t), hipMemcpyDeviceToHost));
