@@ -47,11 +47,11 @@ void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
 void blackwell_prepare_value_encoding_kernel() {}
-void blackwell_cell_parallel_integer_scores_kernel() {}
+template<bool SparseCore = false> void blackwell_cell_parallel_integer_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
-template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_scores_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
@@ -268,8 +268,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,19u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,19u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,21u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,21u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -365,20 +365,30 @@ int main() {
     launches=error_queries=0u;fail_launch=1u;
     if(prepare_value_encoding(&operand,&wide_value,512u,1u,nullptr)!=hipErrorUnknown || launches!=1u) return 70;
     launches=error_queries=fail_launch=0u;
-    auto cells=[&](size_t span,const uint32_t* values) {
+    auto cells=[&](size_t span,const uint32_t* values,unsigned layout) {
         return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
-            nullptr,nullptr,nullptr,true,rcp,18u,&scratch,span,nullptr,nullptr,&operand,7169u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,span,nullptr,nullptr,&operand,7169u,
             false,nullptr,values,7169u);
     };
-    if(split_scratch_elements(32u,7142u,18u)!=tiled_cells || split_separate_probability(18u) ||
-       cells(tiled_cells-1u,&wide_value)!=hipErrorInvalidValue || cells(tiled_cells,nullptr)!=hipErrorInvalidValue || launches) return 71;
-    if(cells(tiled_cells,&wide_value)!=hipSuccess || launches!=2u ||
-       !std::strstr(launch_names[0],"blackwell_cell_parallel_integer_scores_kernel") ||
-       !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 72;
-    for(unsigned failed=1;failed<=2;++failed) {
-        launches=error_queries=0;fail_launch=failed;
-        if(cells(tiled_cells,&wide_value)!=hipErrorUnknown || launches!=failed) return 73;
+    for(unsigned layout:{18u,19u,20u}) {
+        launches=error_queries=fail_launch=0u;
+        if(split_scratch_elements(32u,7142u,layout)!=tiled_cells || split_separate_probability(layout) ||
+           cells(tiled_cells-1u,&wide_value,layout)!=hipErrorInvalidValue ||
+           cells(tiled_cells,nullptr,layout)!=hipErrorInvalidValue || launches) return 71;
+        const char* expected=layout==18u ? "blackwell_cell_parallel_integer_scores_kernel<false>" :
+            layout==19u ? "blackwell_mantissa_scores_kernel<false, false, true>" :
+                         "blackwell_cell_parallel_integer_scores_kernel<true>";
+        if(cells(tiled_cells,&wide_value,layout)!=hipSuccess || launches!=2u ||
+           !std::strstr(launch_names[0],expected) ||
+           !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 72;
+        for(unsigned failed=1;failed<=2;++failed) {
+            launches=error_queries=0;fail_launch=failed;
+            if(cells(tiled_cells,&wide_value,layout)!=hipErrorUnknown || launches!=failed) return 73;
+        }
     }
+    launches=error_queries=fail_launch=0u;
+    if(split_scratch_elements(32u,7142u,21u)!=0u ||
+       cells(tiled_cells,&wide_value,21u)!=hipErrorInvalidValue || launches) return 75;
     return 0;
 }
 '''

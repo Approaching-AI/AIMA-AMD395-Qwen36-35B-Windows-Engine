@@ -12,6 +12,7 @@
 #include "../moe_accumulator/sm121_native_product.h"
 #include "../moe_accumulator/sm121_mantissa_parts.h"
 #include "../moe_accumulator/sm121_integer_parts.h"
+#include "../moe_accumulator/sm121_integer_core.h"
 #include "../moe_accumulator/sm121_pv_error_bound.h"
 #include "../moe_accumulator/sm121_prepared_bf16.h"
 #include "../gdn/sm121_exp2_table.h"
@@ -889,6 +890,10 @@ __device__ __forceinline__ void blackwell_prepare_integer_row(IntegerOperandRow&
     }
 }
 
+__device__ __forceinline__ void blackwell_prepare_integer_row(qrt_sm121_integer_core::Row& row) {
+    qrt_sm121_integer_core::prepare(row);
+}
+
 // Reuse the lossless K16 operand encoding across the many QK/PV cells that
 // consume the same row. KV is prepared once per attention call; query and
 // probability rows are prepared once per bounded query slab.
@@ -952,8 +957,9 @@ __global__ void blackwell_prepare_integer_rows_kernel(
 // Signedness and packed vectors follow LLVM's IU8 contract:
 // https://github.com/llvm/llvm-project/blob/main/clang/include/clang/Basic/BuiltinsAMDGPU.td
 // One preparation of the query rows is shared by eight N16 matrix waves.
+template<class OperandRow>
 __device__ __forceinline__ IntegerMatrixParts blackwell_integer_prepared_products(
-    const IntegerOperandRow& left, const IntegerOperandRow& right) {
+    const OperandRow& left, const OperandRow& right) {
     MantissaI32x4 lh{}, ll{}, rh{}, rl{};
 #pragma unroll
     for (unsigned word = 0u; word < 4u; ++word) {
@@ -996,17 +1002,36 @@ __device__ __forceinline__ float blackwell_integer_accumulate(
         qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent)));
 }
 
+__device__ __forceinline__ float blackwell_integer_accumulate(
+    float accumulator, const qrt_sm121_integer_core::Row& left,
+    const qrt_sm121_integer_core::Row& right, const int32_t (&partials)[4]) {
+    const auto carry = qrt_q1_moe_hawkeye::value_from_float(accumulator, kBlackwellZeroExponent);
+    qrt_sm121_group16::AlignedSum sum;
+    if (!qrt_sm121_integer_core::sum(carry, left, right, partials, &sum)) {
+        uint32_t products[16];
+#pragma unroll
+        for (unsigned i = 0u; i < 16u; ++i)
+            products[i] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                left.original[i], right.original[i], kBlackwellZeroExponent));
+        sum = qrt_sm121_group16::sum_packed(carry, products);
+    }
+    return qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
+        qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent)));
+}
+
 struct NativeOperandRow { uint16_t original[18]; };
 
 // One wave produces four exact IU8 matrix partials, then all eight waves
 // process one output cell per lane. The original schedule assigns eight
 // independent carry/fallback paths to every lane; shared partials let this
 // schedule distribute those paths without changing a K16 rounding boundary.
+template<bool SparseCore = false>
 __global__ void blackwell_cell_parallel_integer_scores_kernel(
     const uint16_t* query, const uint16_t* transposed_key, float* scores,
     unsigned query_start, unsigned query_count, unsigned score_stride,
     unsigned key_stride) {
-    __shared__ IntegerOperandRow left[16], right[16];
+    using OperandRow = std::conditional_t<SparseCore, qrt_sm121_integer_core::Row, IntegerOperandRow>;
+    __shared__ OperandRow left[16], right[16];
     __shared__ int32_t matrix_partials[4][256];
     const unsigned thread = threadIdx.x, head = blockIdx.y;
     const unsigned query_tile = blockIdx.z * 16u, key_tile = blockIdx.x * 16u;
@@ -1018,7 +1043,7 @@ __global__ void blackwell_cell_parallel_integer_scores_kernel(
     if (key_tile <= last_query) {
         for (unsigned base = 0u; base < kHeadDim; base += 16u) {
             if (thread < 32u) {
-                IntegerOperandRow operand{};
+                OperandRow operand{};
                 const unsigned index = thread % 16u;
 #pragma unroll
                 for (unsigned item = 0u; item < 16u; ++item) {
@@ -1072,13 +1097,15 @@ __device__ __forceinline__ MantissaF32x8 blackwell_native_mma(
     return __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a, b, carry);
 }
 
-template<bool NativeMma = false, bool Prepacked = false>
+template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false>
 __global__ void blackwell_mantissa_scores_kernel(
     const uint16_t* query, const uint16_t* transposed_key, float* scores,
     unsigned int query_start, unsigned int query_count, unsigned int score_stride,
     unsigned int key_stride,
     const IntegerOperandRow* prepared_query, const IntegerOperandRow* prepared_key) {
-    using OperandRow = std::conditional_t<NativeMma, NativeOperandRow, IntegerOperandRow>;
+    static_assert(!SparseCore || (!NativeMma && !Prepacked));
+    using OperandRow = std::conditional_t<SparseCore, qrt_sm121_integer_core::Row,
+        std::conditional_t<NativeMma, NativeOperandRow, IntegerOperandRow>>;
     __shared__ OperandRow left[16], right[kIntegerMatrixColumns];
     const unsigned int lane = threadIdx.x % 32u, wave = threadIdx.x / 32u, head = blockIdx.y;
     const unsigned int query_tile = blockIdx.z * 16u, key_tile = blockIdx.x * kIntegerMatrixColumns;
@@ -1322,13 +1349,13 @@ constexpr bool split_separate_probability(unsigned layout) {
     return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u || layout == 14u;
 }
 constexpr bool split_transposed_keys(unsigned layout) {
-    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 18u);
+    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 20u);
 }
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
-        memory_layout < 2u || memory_layout > 18u) return 0u;
+        memory_layout < 2u || memory_layout > 20u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
@@ -1354,9 +1381,9 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 18u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
+    if (memory_layout > 20u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
-    if ((memory_layout == 17u || memory_layout == 18u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
+    if ((memory_layout >= 17u && memory_layout <= 20u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
@@ -1370,8 +1397,16 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
-        if (memory_layout == 18u) {
-            hipLaunchKernelGGL(blackwell_cell_parallel_integer_scores_kernel,
+        if (memory_layout == 20u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_cell_parallel_integer_scores_kernel<true>),
+                dim3((stride + 15u) / 16u, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
+        } else if (memory_layout == 19u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_scores_kernel<false, false, true>),
+                dim3((stride + kIntegerMatrixColumns - 1u) / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                q, transposed_key, score_scratch, query_start, query_count, stride, key_stride, nullptr, nullptr);
+        } else if (memory_layout == 18u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_cell_parallel_integer_scores_kernel<false>),
                 dim3((stride + 15u) / 16u, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                 q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
         } else if (memory_layout == 15u || memory_layout == 16u || memory_layout == 17u) {
@@ -1491,7 +1526,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             }
             return int(hipGetLastError());
         }
-        if (memory_layout == 17u || memory_layout == 18u) {
+        if (memory_layout >= 17u && memory_layout <= 20u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, false, false, false, true>),
                 dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
                 q, k, v, output, query_start, output_start, exp2_table,
