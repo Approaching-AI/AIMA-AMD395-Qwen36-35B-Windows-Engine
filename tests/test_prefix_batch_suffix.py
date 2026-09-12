@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import function
+from test_attention_workspace import attention_capacity, function
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -84,7 +84,7 @@ struct Dim {unsigned x=0;}; Dim blockIdx,threadIdx,blockDim{256};
 float device_bf16_to_float(uint16_t value){uint32_t bits=uint32_t(value)<<16;float out;std::memcpy(&out,&bits,4);return out;}
 uint16_t device_float_to_bf16(float value){uint32_t bits;std::memcpy(&bits,&value,4);return uint16_t((bits+0x7fff+((bits>>16)&1))>>16);}
 template<class F> void cells(size_t n,F fn){for(size_t i=0;i<n;++i){blockIdx.x=unsigned(i/256);threadIdx.x=unsigned(i%256);fn();}}
-''' + kernels + structures + r'''
+''' + attention_capacity() + kernels + structures + r'''
 struct Session {
  bool valid=true; void* owner_engine=this; size_t prefix_tokens=16384,committed_decode_token_count=0;
  std::array<Qwen36ResidentSessionLinearLayer,40> linear_layers{};
@@ -143,6 +143,20 @@ int main(){
    l.element_kind=Qwen36ResidentSessionElementKind::kF32;assert(!v.validate());l.element_kind=Qwen36ResidentSessionElementKind::kBf16;
    l.decode_tail_capacity_tokens=1023;assert(!v.validate());l.decode_tail_capacity_tokens=1536;}
  }
+ // Change all owner metadata together, including the previously rejected 32k
+ // owner. Guard memory capacity independently of alignment and state layout.
+ for(unsigned prefix:{8192u,16384u,24576u,32768u,57344u,65536u,UINT32_MAX}){
+  session.prefix_tokens=v.prefix=prefix;
+  for(unsigned i=0;i<40;++i){
+   session.linear_layers[i].prefix_tokens=prefix;
+   auto& l=session.full_attention_layers[i];l.history_tokens=prefix;
+   l.k_bytes=l.v_bytes=size_t(prefix)*1024;
+  }
+  assert(v.validate()==(prefix<=qrt_sm121_attention_capacity::kTokens-1024u && prefix%8192u==0u));
+ }
+ session.prefix_tokens=v.prefix=16384;
+ for(unsigned i=0;i<40;++i){session.linear_layers[i].prefix_tokens=16384;
+  auto& l=session.full_attention_layers[i];l.history_tokens=16384;l.k_bytes=l.v_bytes=16384u*1024u;}
  v.tokens=1025;assert(!v.validate());v.tokens=1024;v.prefix=16383;assert(!v.validate());v.prefix=16384;
  v.previous=&v;assert(!v.validate());v.previous=nullptr;session.committed_decode_token_count=1;assert(!v.validate());
 }

@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
+from test_attention_workspace import attention_capacity
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,7 +39,7 @@ constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kCooperativeColumns = 64;
 constexpr unsigned kTiledExactQueries = 8, kTiledExactKeys = 32;
 constexpr unsigned kExactTileTokens = 32;
-''' + row + packed + r'''
+''' + attention_capacity() + row + packed + r'''
 void blackwell_exact_scores_kernel() {}
 void blackwell_cooperative_scores_kernel() {}
 void blackwell_cooperative_value_kernel() {}

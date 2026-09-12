@@ -10,6 +10,10 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def attention_capacity():
+    return (ROOT / "native/providers/sm121_attention_capacity.h").read_text().replace("#pragma once", "")
+
+
 def function(source, signature):
     begin = source.index(signature)
     opening = source.index("{", begin)
@@ -50,7 +54,7 @@ using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
 namespace qrt_blackwell_attention {
-''' + maximum + r'''
+''' + attention_capacity() + maximum + r'''
 }
 std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
@@ -190,7 +194,8 @@ int main() {
         return 13;
     reset(); unsetenv("QRT_CK_SM121_MANTISSA_WMMA");
     for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u,
-                                 16385u, 17408u, 17920u, kSm121MaxTokens}) {
+                                 16385u, 17408u, 17920u, 32768u, 33792u, 34304u,
+                                 kSm121MaxTokens}) {
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "0", 1);
         if (sm121_attention_enabled(tokens)) return 14;
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "1", 1);

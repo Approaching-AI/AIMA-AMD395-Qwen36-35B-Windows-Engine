@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import function
+from test_attention_workspace import attention_capacity, function
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -26,7 +26,8 @@ class AttentionSuffixTests(unittest.TestCase):
 #include <utility>
 using hipStream_t=void*;
 enum hipError_t {hipSuccess,hipErrorInvalidValue,hipErrorNotSupported,hipErrorUnknown};
-constexpr unsigned kQueryFeatures=4096,kKvFeatures=512,kSm121MaxTokens=32768;
+''' + attention_capacity() + r'''
+constexpr unsigned kQueryFeatures=4096,kKvFeatures=512,kSm121MaxTokens=qrt_sm121_attention_capacity::kTokens;
 constexpr int hipMemcpyDeviceToDevice=1;
 ''' + workspace + r'''
 Sm121SuffixWorkspace g_sm121_suffix;
@@ -37,7 +38,7 @@ const void* expected_inputs[5]{};
 float* expected_output=nullptr;
 hipStream_t expected_stream=reinterpret_cast<void*>(uintptr_t(16));
 std::set<void*> live;
-bool sm121_attention_enabled(unsigned n){assert(n<=32768);return enabled;}
+bool sm121_attention_enabled(unsigned n){assert(n<=kSm121MaxTokens);return enabled;}
 hipError_t hipMalloc(void** p,size_t bytes){
  ++allocations;
  if(fail_allocate){*p=nullptr;return hipErrorUnknown;}
@@ -66,7 +67,7 @@ int launch_sm121_attention(const uint16_t* q,const uint16_t* k,const uint16_t* v
 ''' + implementation + r'''
 int main(){
  // Only mock transport inspects these allocations; no data pages need touching.
- for(unsigned i=0;i<5;++i){expected_inputs[i]=std::malloc(i?32768u*1024u:1024u*8192u);assert(expected_inputs[i]);}
+ for(unsigned i=0;i<5;++i){expected_inputs[i]=std::malloc(i?size_t(kSm121MaxTokens)*1024u:1024u*8192u);assert(expected_inputs[i]);}
  expected_output=static_cast<float*>(std::malloc(1024u*4096u*4u));assert(expected_output);
  auto call=[&](unsigned prefix,unsigned suffix){
   copies=launches=syncs=0;expected_prefix=prefix;expected_suffix=suffix;
@@ -74,7 +75,8 @@ int main(){
    (const uint16_t*)expected_inputs[2],(const uint16_t*)expected_inputs[3],(const uint16_t*)expected_inputs[4],
    expected_output,expected_stream,prefix,suffix);
  };
- for(auto shape:{std::pair<unsigned,unsigned>{0,1024},{16384,0},{16384,1025},{32768,1},{32700,69}}){
+ for(auto shape:{std::pair<unsigned,unsigned>{0,1024},{16384,0},{16384,1025},
+                 {kSm121MaxTokens,1},{kSm121MaxTokens-68,69},{UINT32_MAX,1024}}){
   assert(call(shape.first,shape.second)==hipErrorInvalidValue&&allocations==0&&copies==0&&launches==0);
  }
  const auto original=expected_inputs[0];
@@ -98,8 +100,11 @@ int main(){
  fail_copy=0;fail_launch=true;
  assert(call(16384,1024)==hipErrorUnknown&&copies==5&&launches==1&&syncs==1);
  fail_launch=false;fail_allocate=true;
- assert(call(31744,1024)==hipErrorUnknown&&copies==0&&g_sm121_suffix.cells==retained&&live.size()==1);
- fail_allocate=false;assert(call(31744,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==32768&&live.size()==1);
+ assert(call(32768,1024)==hipErrorUnknown&&copies==0&&g_sm121_suffix.cells==retained&&live.size()==1);
+ fail_allocate=false;assert(call(32768,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==33792&&live.size()==1);
+ assert(call(32768,1)==hipSuccess&&copies==5);
+ assert(call(32700,69)==hipSuccess&&copies==5);
+ assert(call(kSm121MaxTokens-1024,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==kSm121MaxTokens&&live.size()==1);
  assert(call(16384,1024)==hipSuccess&&copies==5);
  hipFree(g_sm121_suffix.cells);assert(live.empty());
  for(auto p:expected_inputs)std::free(const_cast<void*>(p));std::free(expected_output);

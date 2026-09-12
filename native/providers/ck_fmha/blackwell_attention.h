@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include "../sm121_attention_capacity.h"
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
@@ -1279,7 +1280,7 @@ __global__ void blackwell_prepare_value_encoding_kernel(
 // extent. A 16k-only bound selected ordinary CK for the combined prompt,
 // although the owner itself used exact QK/PV. Keep all split buffers and
 // dispatch checks on this same bound; this is not long-context acceptance.
-constexpr unsigned int kSplitMaxTokens = 32768u;
+constexpr unsigned int kSplitMaxTokens = qrt_sm121_attention_capacity::kTokens;
 
 inline int prepare_value_encoding(const uint16_t* input, uint32_t* output,
     size_t output_elements, unsigned tokens, hipStream_t stream) {

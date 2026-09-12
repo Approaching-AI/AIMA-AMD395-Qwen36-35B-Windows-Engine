@@ -2,6 +2,7 @@
 // borrows only the transaction's mutable shadow; the resident owner is never
 // replaced by the temporary prefill session used for suffix orchestration.
 #pragma once
+#include "sm121_attention_capacity.h"
 
 __global__ void qwen36_prefix_suffix_halo_kernel(
     const float *qkv, const float *ring_f32, const uint16_t *ring_bf16,
@@ -73,7 +74,8 @@ struct ScopedQwen36PrefixBatchSuffix {
     bool validate() {
         if (previous || !session || !session->valid || !session->owner_engine ||
             session->prefix_tokens != prefix || session->committed_decode_token_count ||
-            prefix < 8192u || prefix % 8192u || prefix > 31744u || tokens != 1024u)
+            prefix < 8192u || prefix % 8192u || tokens != 1024u ||
+            prefix > qrt_sm121_attention_capacity::kTokens - tokens)
             return reject("batch suffix requires an untouched aligned prefix shadow and 1024 actual inputs");
         for (unsigned i = 0; i < 40u; ++i) {
             if (i % 4u != 3u) {
