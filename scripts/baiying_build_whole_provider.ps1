@@ -15,10 +15,14 @@ param(
     [Parameter(Mandatory = $false)]
         [ValidatePattern('^gfx[0-9a-f]+$')]
         [string]$OffloadArch = "gfx1151",
-    [switch]$ProjectionSafetyTest
+    [switch]$ProjectionSafetyTest,
+    [switch]$AttentionAdmissionReplay
 )
 
 $ErrorActionPreference = "Stop"
+if ($ProjectionSafetyTest -and $AttentionAdmissionReplay) {
+    throw "Select only one standalone projection test"
+}
 $repo = Split-Path -Parent $PSScriptRoot
 $utf8 = New-Object System.Text.UTF8Encoding -ArgumentList $false
 
@@ -108,6 +112,9 @@ $compileSource = $source
 if ($ProjectionSafetyTest) {
     $compileSource = Join-Path $repo 'tests\native\projection_safety_selftest.cpp'
     $providerDll = Join-Path $OutDir 'qrt-projection-safety.exe'
+} elseif ($AttentionAdmissionReplay) {
+    $compileSource = Join-Path $repo 'tests\native\full_attention_projection_admission_replay.cpp'
+    $providerDll = Join-Path $OutDir 'qrt-attention-admission-replay.exe'
 }
 
 foreach ($required in @(
@@ -179,7 +186,7 @@ $providerArguments = @(
     "-lhipblaslt",
     "-Xlinker", $hostObject
 )
-if (-not $ProjectionSafetyTest) { $providerArguments += '-shared' }
+if (-not $ProjectionSafetyTest -and -not $AttentionAdmissionReplay) { $providerArguments += '-shared' }
 $providerRun = Invoke-BoundedProcess -FilePath $hipcc `
     -Arguments $providerArguments -WorkingDirectory $repo `
     -StdOutPath (Join-Path $OutDir "compile-provider.stdout.txt") `
@@ -210,6 +217,7 @@ $record = [ordered]@{
     source_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $source).Hash.ToLowerInvariant()
     projection_safety_test = [bool]$ProjectionSafetyTest
+    attention_admission_replay = [bool]$AttentionAdmissionReplay
     compile_source_path = $compileSource
     compile_source_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $compileSource).Hash.ToLowerInvariant()

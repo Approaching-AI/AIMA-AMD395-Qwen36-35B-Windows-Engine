@@ -1,0 +1,58 @@
+{
+  "kind": "original_gb10_selected_attention_output_rows",
+  "source_commit": "6fd6821a113450be3634a5655eb00c8fe797fc7a",
+  "authority_host": "aitopatom-66c4",
+  "model": "Qwen3.6-35B-A3B-BF16",
+  "case": "long-prefix32768-owner-out32",
+  "prompt_tokens": 32768,
+  "reference_transaction": 2,
+  "reference_first_position": 16384,
+  "positions": [
+    18553,
+    18554,
+    18555
+  ],
+  "reference_case_sha256": "309b27368a969b7ec07ce03aa2a5d1474406a85beefdb2bb2ff0469027d63e25",
+  "canonical_oracle_sha256": "b4f7497fb4c991b81e35d6537e805bac5c84e8c55619a8c5bc6457fcef16f5ba",
+  "weights": {
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "key": "model.language_model.layers.11.self_attn.o_proj.weight",
+    "shard": "model-00008-of-00026.safetensors",
+    "offset": 1075840920,
+    "shape": [
+      2048,
+      4096
+    ],
+    "dtype": "bf16",
+    "bytes": 16777216,
+    "sha256": "23a176d613a5948518ccb553061a648cf4f80d9acf6d9668a6ccf228bd2dd5c7"
+  },
+  "files": {
+    "gated-bf16.bin": {
+      "file": "txn0002-full-11-gated-bf16.bin",
+      "dtype": "bf16",
+      "shape": [
+        3,
+        4096
+      ],
+      "bytes": 24576,
+      "sha256": "70ba69742ae236b85d02b32e29b7dac333c39676c5c20965ff924e2a63c555f0",
+      "transaction": 2,
+      "label": "full-11-gated"
+    },
+    "expected-bf16.bin": {
+      "file": "txn0002-full-11-output-bf16.bin",
+      "dtype": "bf16",
+      "shape": [
+        3,
+        2048
+      ],
+      "bytes": 12288,
+      "sha256": "f3338b5b6f9dd2936cf30b59f870a2165508d2010a84da957d6ee4496e0fb009",
+      "transaction": 2,
+      "label": "full-11-output"
+    }
+  },
+  "diagnostic_only": true,
+  "inference_acceptance": false
+}
