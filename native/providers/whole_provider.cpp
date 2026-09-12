@@ -105152,8 +105152,17 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
         return false;
     }
     std::array<float, QRT_QWEN36_HIDDEN_SIZE> terminal_hidden{};
+    const unsigned int trace_position = env_u32_or_default(
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION",
+        prefill_tokens - 1u
+    );
+    if (trace_position >= prefill_tokens) {
+        *failure_stage = "exact_arbitrary_layer_boundary_trace_position";
+        *failure = "selected trace position exceeds the active prefill shape";
+        return false;
+    }
     const size_t terminal_offset =
-        static_cast<size_t>(prefill_tokens - 1u) *
+        static_cast<size_t>(trace_position) *
         static_cast<size_t>(QRT_QWEN36_HIDDEN_SIZE);
     const hipError_t copy_status = hipMemcpy(
         terminal_hidden.data(),
@@ -105193,7 +105202,8 @@ bool emit_qwen36_exact_arbitrary_layer_boundary_trace(
            << " layer=" << layer_index
            << " surface=" << surface
            << " prefill_tokens=" << prefill_tokens
-           << " terminal_position=" << (prefill_tokens - 1u)
+           << " terminal_position=" << trace_position
+           << " trace_position=" << trace_position
            << " hidden_size=" << terminal_hidden.size()
            << " min=" << minimum
            << " max=" << maximum
@@ -105334,8 +105344,17 @@ bool emit_qwen36_exact_arbitrary_linear_stage_trace(
         return false;
     }
     std::vector<float> terminal(row_width, 0.0f);
+    const unsigned int trace_position = env_u32_or_default(
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION",
+        prefill_tokens - 1u
+    );
+    if (trace_position >= prefill_tokens) {
+        *failure_stage = "exact_arbitrary_linear_stage_trace_position";
+        *failure = "selected trace position exceeds the active prefill shape";
+        return false;
+    }
     const size_t terminal_offset =
-        static_cast<size_t>(prefill_tokens - 1u) * row_width;
+        static_cast<size_t>(trace_position) * row_width;
     const hipError_t copy_status = hipMemcpy(
         terminal.data(),
         device_output + terminal_offset,
@@ -105352,7 +105371,8 @@ bool emit_qwen36_exact_arbitrary_linear_stage_trace(
            << " layer=" << layer_index
            << " surface=" << surface
            << " prefill_tokens=" << prefill_tokens
-           << " terminal_position=" << (prefill_tokens - 1u)
+           << " terminal_position=" << trace_position
+           << " trace_position=" << trace_position
            << " row_width=" << row_width
            << " f32_bits=" << std::hex << std::setfill('0');
     for (size_t index = 0u; index < terminal.size(); ++index) {
@@ -105416,8 +105436,17 @@ bool emit_qwen36_exact_arbitrary_linear_stage_bf16_trace(
         return false;
     }
     std::vector<uint16_t> terminal(row_width, 0u);
+    const unsigned int trace_position = env_u32_or_default(
+        "QRT_QWEN36_EXACT_ARBITRARY_LAYER_OUTPUT_TRACE_POSITION",
+        prefill_tokens - 1u
+    );
+    if (trace_position >= prefill_tokens) {
+        *failure_stage = "exact_arbitrary_linear_stage_bf16_trace_position";
+        *failure = "selected trace position exceeds the active prefill shape";
+        return false;
+    }
     const size_t terminal_offset =
-        static_cast<size_t>(prefill_tokens - 1u) * row_width;
+        static_cast<size_t>(trace_position) * row_width;
     const hipError_t copy_status = hipMemcpy(
         terminal.data(),
         device_output + terminal_offset,
@@ -105434,7 +105463,8 @@ bool emit_qwen36_exact_arbitrary_linear_stage_bf16_trace(
            << " layer=" << layer_index
            << " surface=" << surface
            << " prefill_tokens=" << prefill_tokens
-           << " terminal_position=" << (prefill_tokens - 1u)
+           << " terminal_position=" << trace_position
+           << " trace_position=" << trace_position
            << " row_width=" << row_width
            << " source_dtype=bf16"
            << " f32_bits=" << std::hex << std::setfill('0');
