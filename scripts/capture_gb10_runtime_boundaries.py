@@ -212,6 +212,27 @@ def matches_linear_window(window, layer, transaction):
             window['first_position'], window['tokens'])
 
 
+def full_prefill_attention_window(case, prompt_tokens):
+    """Observe one original suffix and its complete logical KV history."""
+    value = os.environ.get('QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS')
+    if value is None:
+        return None
+    plans = json.loads(value)
+    if not isinstance(plans, dict) or not 1 <= len(plans) <= 12:
+        raise ValueError('invalid full attention prefill observation plan')
+    for name, plan in plans.items():
+        if (not isinstance(name, str) or re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out[1-9][0-9]*', name) is None or
+                not isinstance(plan, dict) or set(plan) != {'layer', 'first_position', 'tokens'} or
+                any(type(item) is not int for item in plan.values()) or
+                not 0 <= plan['layer'] < 40 or plan['layer'] % 4 != 3 or
+                not 1 <= plan['first_position'] < 32768 or not 1 <= plan['tokens'] <= 1024 or
+                plan['first_position'] + plan['tokens'] > 32768):
+            raise ValueError('invalid bounded original attention transaction')
+        if name == case and plan['first_position'] + plan['tokens'] > prompt_tokens:
+            raise ValueError('attention observation extends beyond the original prompt')
+    return plans.get(case)
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -459,7 +480,12 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         # Observe one full-attention owner after the selected linear/MoE boundary.
         # Hooks retain original qkv/norm/RoPE/attention/output results, including
         # the BF16 sigmoid-product endpoint at the output projection input.
-        full_layer = full_attention_observation_layer()
+        full_attention_window = full_prefill_attention_window(case, prompt_tokens)
+        full_layer = (full_attention_window['layer'] if full_attention_window else
+                      full_attention_observation_layer())
+        full_attention_labels = set()
+        self._qrt_boundary_full_attention_window = (dict(plan=full_attention_window,
+            transaction=None, labels=[], cache=None) if full_attention_window else None)
         self._qrt_boundary_full_layer = full_layer
         attention = layers[full_layer].self_attn
         original_attention_forward = attention.forward
@@ -478,11 +504,21 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_full_cache = None
         capture_full_cache = case in {"q8191-out32", "q7169-out512", "q8192-out512"}
         self._qrt_boundary_full_cache_required = capture_full_cache
+        def save_full_attention(label, value, transaction):
+            save(f'full-prefill-full-{full_layer:02d}-' + label, value, transaction)
+            full_attention_labels.add(label)
+            self._qrt_boundary_full_attention_window['transaction'] = transaction['ordinal']
+            self._qrt_boundary_full_attention_window['labels'] = sorted(full_attention_labels)
+
         def full_cache():
             transaction = self._qrt_boundary_active
-            if (not capture_full_cache or self._qrt_boundary_full_cache is not None or
+            prefill_window = matches_linear_window(full_attention_window, full_layer, transaction)
+            decode_window = (capture_full_cache and self._qrt_boundary_full_cache is None and
+                             transaction is not None and
+                             transaction["first_position"] + full_cache_row == prompt_tokens + full_cache_offset)
+            if (not (prefill_window or decode_window) or
                     not self._qrt_boundary_full_active or transaction is None or
-                    transaction["first_position"] + full_cache_row != prompt_tokens + full_cache_offset):
+                    (prefill_window and self._qrt_boundary_full_attention_window['cache'] is not None)):
                 return
             if transaction['token_count'] <= full_cache_row:
                 raise ValueError('original full-attention observation row missing')
@@ -491,8 +527,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             if (owner is not attention.attn or cache.dtype != torch.bfloat16 or
                     cache.ndim != 5 or cache.shape[1] != 2 or tuple(cache.shape[3:]) != (2, 256)):
                 raise ValueError("original full-attention cache layout changed")
-            tokens = prompt_tokens + full_cache_offset + 1
-            if not tokens <= int(metadata.seq_lens[0].item()) <= tokens + 1:
+            tokens = (transaction['first_position'] + transaction['token_count'] if prefill_window else
+                      prompt_tokens + full_cache_offset + 1)
+            if not tokens <= int(metadata.seq_lens[0].item()) <= tokens + (0 if prefill_window else 1):
                 raise ValueError("original full-attention cache length changed")
             block_size = cache.shape[2]
             blocks = metadata.block_table[0, :(tokens + block_size - 1) // block_size].long()
@@ -500,7 +537,16 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 raise ValueError("original full-attention block index invalid")
             for label, tensor in zip(("cache-k", "cache-v"), cache.unbind(1)):
                 logical = tensor.index_select(0, blocks).reshape(-1, 2, 256)[:tokens]
-                save(f"full-{full_layer:02d}-" + label, logical, transaction)
+                if prefill_window:
+                    save_full_attention(label, logical, transaction)
+                else:
+                    save(f"full-{full_layer:02d}-" + label, logical, transaction)
+            if prefill_window:
+                self._qrt_boundary_full_attention_window['cache'] = dict(tokens=tokens,
+                    block_size=block_size, block_indices=blocks.cpu().tolist(),
+                    cache_shape=list(cache.shape), max_query_len=metadata.max_query_len,
+                    seq_lens=metadata.seq_lens.cpu().tolist())
+                return
             self._qrt_boundary_full_cache = dict(transaction=transaction["ordinal"],
                 layer=full_layer, tokens=tokens, decode_offset=full_cache_offset,
                 row=full_cache_row, input_token_id=transaction['input_token_ids'][full_cache_row],
@@ -511,6 +557,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             "qkv", "q-norm", "k-norm", "q-rope", "k-rope", "context", "gated", "output"}
         def full_stage(label, value, width):
             transaction = self._qrt_boundary_active
+            if (self._qrt_boundary_full_active and
+                    matches_linear_window(full_attention_window, full_layer, transaction)):
+                save_full_attention(label, value.reshape(transaction['token_count'], width), transaction)
             if (not self._qrt_boundary_full_active or
                     transaction is None or not transaction["rows"] or
                     transaction["first_position"] < prompt_tokens):
@@ -845,5 +894,11 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             original_methods_returned_unchanged=True, diagnostic_only=True)
         if window is not None:
             boundaries['full_prefill_linear_window'] = window
+        attention_window = self._qrt_boundary_full_attention_window
+        if attention_window is not None:
+            if (attention_window['transaction'] is None or attention_window['cache'] is None or
+                    set(attention_window['labels']) != self._qrt_boundary_full_labels | {'cache-k', 'cache-v'}):
+                raise ValueError('selected full prefill attention transaction was not completely observed')
+            boundaries['full_prefill_attention_window'] = attention_window
         record["runtime_boundaries"] = boundaries
         return record

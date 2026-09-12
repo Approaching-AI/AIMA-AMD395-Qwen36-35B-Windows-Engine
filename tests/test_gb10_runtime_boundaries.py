@@ -10,13 +10,35 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_attention_observation_layer, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
-    full_prefill_linear_window, matches_linear_window,
+    full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
     observation_positions, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, short_prefill_moe_observation, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_suffix_attention_window_binds_original_extent_and_leaves_controls_unselected(self):
+        case = 'long-prefix16384-suffix1024-out512'
+        plan = dict(layer=3, first_position=16384, tokens=1024)
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(full_prefill_attention_window(case, 17408))
+        with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS':
+                                    json.dumps({case: plan})}, clear=True):
+            self.assertEqual(full_prefill_attention_window(case, 17408), plan)
+            self.assertIsNone(full_prefill_attention_window('q8192-out32', 8192))
+            self.assertTrue(matches_linear_window(plan, 3, dict(first_position=16384, token_count=1024)))
+            self.assertFalse(matches_linear_window(plan, 3, dict(first_position=17408, token_count=2)))
+            with self.assertRaises(ValueError):
+                full_prefill_attention_window(case, 17407)
+        for value in ([], {}, {case: dict(plan, layer=2)}, {case: dict(plan, layer=43)},
+                      {case: dict(plan, first_position=0)}, {case: dict(plan, tokens=1025)},
+                      {case: dict(plan, first_position=32700)}, {case: dict(plan, tokens=True)},
+                      {case: dict(plan, extra=1)}, {'undeclared-extent': plan}):
+            with patch.dict(os.environ, {'QRT_GB10_FULL_PREFILL_ATTENTION_WINDOWS':
+                                        json.dumps(value)}, clear=True):
+                with self.assertRaises(ValueError):
+                    full_prefill_attention_window(case, 17408)
+
     def test_seeded_prefill_window_matches_original_batch_and_preserves_controls(self):
         case = 'long-prefix16384-suffix1024-out512'
         plan = dict(layer=0, first_position=16384, tokens=1024)

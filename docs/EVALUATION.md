@@ -32,6 +32,23 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [seeded FLA state-layout replay](../benchmarks/correctness/seeded-fla-state-layout-20260912.json)
+at tool source d009c8a verifies the retained 6042803 FLA provider against the
+original layer0 transaction after 16384 prefix tokens. Both value-major and
+key-major interfaces preserve all 4194304 BF16 output cells and all 524288
+FP32 final-state bits for the 1024 actual suffix inputs. Reset-and-repeat is
+bitwise stable, inputs stay unchanged and a zero-state negative control differs.
+The fresh GB10 capture reproduces both controls, all 512 combined outputs and
+the complete first-logit vocabulary. Its initial state also matches the
+independently captured 16384-token owner's final prefill state.
+
+The preceding failed replay mislabeled original `[head,value,key]` bytes as
+`[head,key,value]`. The corrected fixture retains the original state bytes;
+the replay explicitly transposes them only at the key-major interface.
+The failed record is retained. No runtime arithmetic or reference output is
+changed by this correction. This is component evidence; whole-model batched
+suffix continuation, retained performance and release qualification remain open.
+
 The [dense projection and norm repair](../benchmarks/correctness/http-short-dense-product-20260912.json)
 at whole 405d653 with MoE bc082a5 now passes all five short actual-token cases:
 640 complete raw tokens and five exact first logits, including q19/out512
