@@ -138,8 +138,8 @@ def observation_positions(case, prompt_tokens):
     full_short = os.environ.get('QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS')
     if full_short is not None:
         limit = int(full_short)
-        if not 1 <= limit <= 128:
-            raise ValueError('full short-prefill observation is bounded to128 rows')
+        if not 1 <= limit <= 384:
+            raise ValueError('full short-prefill observation is bounded to384 rows')
         if prompt_tokens <= limit:
             selected.update(range(prompt_tokens))
     defaults = {
@@ -181,7 +181,7 @@ def observation_positions(case, prompt_tokens):
 
 def short_prefill_moe_observation(prompt_tokens, first_position, token_count):
     return (os.environ.get('QRT_GB10_SHORT_PREFILL_MOE') == '1' and
-            1 <= prompt_tokens <= 128 and first_position == 0 and
+            1 <= prompt_tokens <= 384 and first_position == 0 and
             token_count == prompt_tokens)
 
 
@@ -276,7 +276,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 raise ValueError("boundary dtype changed")
             value = value.detach().contiguous().cpu()
             payload = value.view(torch.uint8).numpy().tobytes()
-            if self._qrt_boundary_bytes + len(payload) > 128 << 20:
+            if self._qrt_boundary_bytes + len(payload) > 512 << 20:
                 raise ValueError("boundary artifact ceiling exceeded")
             suffix = {torch.bfloat16: "bf16", torch.float32: "f32", torch.int32: "i32"}[value.dtype]
             key = f'txn{transaction["ordinal"]:04d}-{label}-{suffix}'
@@ -713,7 +713,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 Path(inspect.getsourcefile(type(layers[0]))),
                 Path(inspect.getsourcefile(layers[0].forward)),
                 Path(inspect.getsourcefile(type(layers[0].input_layernorm)))})],
-            maximum_saved_bytes=128 << 20, maximum_observation_seconds=180,
+            maximum_saved_bytes=512 << 20, maximum_observation_seconds=180,
             all_decode_state_hashes=state_hashes_enabled,
             maximum_state_hash_transactions=1024 * len(self._qrt_boundary_linear_layers),
             decode_operator_sources=[dict(file=str(path), sha256=file_sha(path))

@@ -20,9 +20,9 @@ class RuntimeBoundaryTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             self.assertFalse(short_prefill_moe_observation(5, 0, 5))
         with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_MOE': '1'}, clear=True):
-            for length in (1, 5, 85, 128):
+            for length in (1, 5, 85, 128, 294, 384):
                 self.assertTrue(short_prefill_moe_observation(length, 0, length))
-            for args in ((0, 0, 0), (129, 0, 129), (7169, 0, 7169),
+            for args in ((0, 0, 0), (385, 0, 385), (7169, 0, 7169),
                          (5, 0, 4), (5, 1, 5), (5, 5, 2)):
                 self.assertFalse(short_prefill_moe_observation(*args))
 
@@ -33,7 +33,12 @@ class RuntimeBoundaryTests(unittest.TestCase):
             self.assertEqual(observation_positions('http-tool-continuation-q85-out32', 85),
                              set(range(86)))
             self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
-        for value in ('0', '-1', '129', 'bad'):
+        with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': '294'},
+                        clear=True):
+            self.assertEqual(observation_positions('http-tool-call-q294-out32', 294),
+                             set(range(295)))
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+        for value in ('0', '-1', '385', 'bad'):
             with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': value},
                             clear=True):
                 with self.assertRaises(ValueError):
