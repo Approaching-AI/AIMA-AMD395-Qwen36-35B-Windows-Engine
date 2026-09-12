@@ -118,6 +118,20 @@ workspace, failure-cleanup and tile-output checks, including 17408/17920 and
 the new upper boundary. Native qualification of this change is still required;
 prefix-hit, performance and release acceptance remain open.
 
+The [long-prefix reuse check](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json)
+also rejects the existing sequential-suffix route. One measured hit emits all
+512 callback tokens but differs at index102 (71 instead of 1908); its 0.03125
+first-logit error is within tolerance. Both the fallback-seed transaction and
+the measured hit restore all original allocations and the untouched owner
+after 1535 committed inputs. The unrelated-prefix guard invokes no provider.
+Actual warm callback is 166585.9243 ms and TPOT 167.077105 ms; no performance
+is accepted. A new GB10 boundary capture at 894e87b reproduces both complete
+long references and their full first-logit vocabularies. Both original controls
+also pass, the model/container exits 0, and the frozen autotune profile has no
+new cache misses. All 2012 compact download files verify; larger state tensors
+remain on the reference host. These observations support replacing the suffix
+execution with a batch path while retaining complete owner rollback.
+
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
 Its pinned original reduction configuration and i64 width reproduce the same
