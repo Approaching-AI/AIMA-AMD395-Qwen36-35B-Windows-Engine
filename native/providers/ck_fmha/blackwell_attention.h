@@ -1137,6 +1137,30 @@ __global__ void blackwell_mantissa_scores_kernel(
     MantissaF32x8 accumulator{};
     if (key_tile <= last_query) {
         for (unsigned int base = 0u; base < kHeadDim; base += 16u) {
+            if constexpr (Prepacked && SparseCore) {
+                // Stage contiguous words with all waves. A per-row aggregate
+                // assignment generated a104-byte private temporary per lane;
+                // byte-copying one word also respects C++ object aliasing.
+                constexpr unsigned words = sizeof(OperandRow) / sizeof(uint32_t);
+                for (unsigned item = threadIdx.x; item < 16u * words; item += kThreads) {
+                    const unsigned row = query_tile + item / words, word = item % words;
+                    uint32_t value = 0u;
+                    if (row < query_count) {
+                        const auto* source = prepared_query + (size_t(row) * kQueryHeads + head) * 16u + base / 16u;
+                        __builtin_memcpy(&value, reinterpret_cast<const unsigned char*>(source) + word * 4u, 4u);
+                    }
+                    __builtin_memcpy(reinterpret_cast<unsigned char*>(left) + item * 4u, &value, 4u);
+                }
+                for (unsigned item = threadIdx.x; item < kIntegerMatrixColumns * words; item += kThreads) {
+                    const unsigned key = key_tile + item / words, word = item % words;
+                    uint32_t value = 0u;
+                    if (key < score_stride) {
+                        const auto* source = prepared_key + (size_t(kv_head) * 16u + base / 16u) * key_stride + key;
+                        __builtin_memcpy(&value, reinterpret_cast<const unsigned char*>(source) + word * 4u, 4u);
+                    }
+                    __builtin_memcpy(reinterpret_cast<unsigned char*>(right) + item * 4u, &value, 4u);
+                }
+            } else {
             if (wave == 0u && lane < 16u) {
                 const unsigned int row = query_tile + lane;
                 if constexpr (Prepacked) {
@@ -1164,6 +1188,7 @@ __global__ void blackwell_mantissa_scores_kernel(
                         ? transposed_key[(static_cast<size_t>(kv_head) * kHeadDim + base + i) * key_stride + key] : 0u;
                 if constexpr (!NativeMma) blackwell_prepare_integer_row(right[row]);
                 }
+            }
             }
             __syncthreads();
             if constexpr (NativeMma) {
