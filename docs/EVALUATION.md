@@ -32,6 +32,25 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [complete batch-suffix model check](../benchmarks/correctness/prefix-batch-suffix-product-20260912.json)
+at whole 3d7f41b, CK 37914ed, MoE bc082a5 and FLA 6042803 passes the original
+16384-token prefix plus 1024-token suffix on baiying with the real model.
+All 512 raw outputs match GB10 and the first token3709/logit5.6875 is exact.
+The fallback seed and the measured warm hit each generate all 512 outputs
+and restore every owner allocation and its committed count from1535 to0.
+All 512 actual callbacks, the prefix identity guard and host checks pass.
+Warm callback TTFT is28933.734501 ms, TPOT162.157469 ms and load20058.5979 ms.
+The same DLL/profile retains all q8192/out512 tokens with exact144/logit10.375;
+its callback is58862.806999 ms, TPOT108.861417 ms and load20036.306 ms.
+The opt-in batch suffix fixes the earlier sequential-suffix numerical gap.
+Two separately measured warm hits, complete short/cold/archive/HTTP renewal,
+larger contexts, soak and immutable performance targets remain open.
+
+The accepted batch build also fixes the final carrier handoff: the existing
+cache may return GPU-only multirow output, so the suffix path materializes it
+before final normalization. The preceding loader and handoff failures remain
+in the proof with successful owner rollback and no accepted model output.
+
 The [original suffix attention replay](../benchmarks/correctness/suffix-attention-original-input-20260912.json)
 at CK 37914ed preserves all 4194304 BF16 context cells for the actual layer3
 1024-query transaction after 16384 prefix tokens. Repetition and restoration
@@ -54,8 +73,8 @@ new check incorrectly required the packed-F32 preparation flag, which direct
 BF16 loading leaves unset. All owner allocations/state roll back and host
 checks pass; no model output was accepted. Source 044a5b5 checks the loaded
 suffix symbol directly. Its native build and both CPU regression tests pass,
-including the unset F32 flag and failed submissions. Model continuation and
-release acceptance remain open.
+including the unset F32 flag and failed submissions. The later 3d7f41b model
+check above supersedes this failed implementation; release remains open.
 
 The [seeded FLA state-layout replay](../benchmarks/correctness/seeded-fla-state-layout-20260912.json)
 at tool source d009c8a verifies the retained 6042803 FLA provider against the
@@ -181,8 +200,9 @@ are diagnostics, not grounds to reject these passing token results. The
 general prefix route, complete short/cold/archive renewal, long-context
 matrix, soak and retained performance remain unqualified.
 
-The [long-prefix reuse check](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json)
-also rejects the existing sequential-suffix route. One measured hit emits all
+The historical [long-prefix reuse check](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json)
+rejects the sequential-suffix route, superseded by the passing batch path
+above. One measured hit emits all
 512 callback tokens but differs at index102 (71 instead of 1908); its 0.03125
 first-logit error is within tolerance. Both the fallback-seed transaction and
 the measured hit restore all original allocations and the untouched owner
