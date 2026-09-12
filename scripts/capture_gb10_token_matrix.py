@@ -31,6 +31,7 @@ ORACLE_SHAS = {
     8192: "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
 }
 GPU_MODEL_RUNNER_SHA = "3afc290d3df1be3df1b89b9b35942695f5896c7729f608d6c44580899212c301"
+MAX_REFERENCE_PROMPT_TOKENS = 263168  # 256k saved prefix plus a 1024-token suffix.
 
 
 def sampled_prefill_boundary(requests, prompt_tokens, processed_tokens, discarded, expected_prompt):
@@ -82,8 +83,11 @@ def write_json(path, value):
         stream.write("\n")
 
 
-def explicit_cases(path, controls):
+def explicit_cases(path, controls, maximum_prompt_tokens=16384):
     """Keep both immutable controls before caller-supplied actual token cases."""
+    if (type(maximum_prompt_tokens) is not int or
+            not 1 <= maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS):
+        raise ValueError("invalid explicit prompt-token bound")
     value = json.loads(path.read_text())
     if not isinstance(value, list) or not 1 <= len(value) <= 12:
         raise ValueError("explicit cases must be a nonempty bounded array")
@@ -99,7 +103,7 @@ def explicit_cases(path, controls):
         if (not isinstance(name, str) or
                 re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", name) is None or
                 name in used or not isinstance(tokens, list) or
-                not 1 <= len(tokens) <= 16384 or
+                not 1 <= len(tokens) <= maximum_prompt_tokens or
                 any(type(token) is not int or not 0 <= token < 248320 for token in tokens) or
                 type(outputs) is not int or not 1 <= outputs <= 512):
             raise ValueError("invalid explicit case name, tokens or output extent")
@@ -315,13 +319,17 @@ def main():
                         help="observe pinned target rows and require the complete frozen matrix")
     parser.add_argument("--additional-cases", type=Path,
                         help="JSON actual-token cases, preceded by both immutable controls")
+    parser.add_argument("--maximum-prompt-tokens", type=int, default=16384,
+                        help="explicit additional-case bound, at most 263168; default 16384")
     parser.add_argument("--expected-host")
     parser.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--supervisor-pid", type=int, default=0, help=argparse.SUPPRESS)
     args = parser.parse_args()
+    if not 1 <= args.maximum_prompt_tokens <= MAX_REFERENCE_PROMPT_TOKENS:
+        raise ValueError("invalid explicit prompt-token bound")
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
     if args.additional_cases is not None:
-        cases = explicit_cases(args.additional_cases, cases)
+        cases = explicit_cases(args.additional_cases, cases, args.maximum_prompt_tokens)
         if args.runtime_boundaries and any(case["output_count"] < 2 for case in cases):
             raise ValueError("runtime boundaries require the first generated input to execute")
     if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 600 or
@@ -345,7 +353,8 @@ def main():
                   fixtures=[{k: v for k, v in case.items() if k != "prompt_token_ids"} for case in cases],
                   completed=False, controls_qualified=False, windows_acceptance=False,
                   prefix_caching=False, native_tensor_inputs=False,
-                  runtime_boundaries=args.runtime_boundaries)
+                  runtime_boundaries=args.runtime_boundaries,
+                  maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:
         record["additional_cases_file"] = str(args.additional_cases)
         record["additional_cases_sha256"] = file_sha(args.additional_cases)

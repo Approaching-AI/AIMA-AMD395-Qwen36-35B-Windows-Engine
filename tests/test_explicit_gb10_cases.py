@@ -16,6 +16,28 @@ spec.loader.exec_module(capture)
 
 
 class ExplicitGb10CasesTests(unittest.TestCase):
+    def test_long_prefix_suffix_requires_an_explicit_bounded_extent(self):
+        controls = [{"name": "q7169-out32"}, {"name": "q8192-out32"}]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "cases.json"
+            for count in [17408, 263168]:
+                item = {"name": f"prefix-{count-1024}-suffix1024", "prompt_token_ids": [42] * count,
+                        "output_count": 512}
+                path.write_text(json.dumps([item]))
+                with self.assertRaises(ValueError):
+                    capture.explicit_cases(path, controls)
+                result = capture.explicit_cases(path, controls, count)
+                self.assertEqual(result[:2], controls)
+                self.assertEqual(result[2]["prompt_token_ids"], item["prompt_token_ids"])
+                self.assertEqual(result[2]["output_count"], 512)
+                self.assertEqual(result[2]["prompt"]["u32le_sha256"],
+                                 capture.fingerprints(item["prompt_token_ids"])["u32le_sha256"])
+                with self.assertRaises(ValueError):
+                    capture.explicit_cases(path, controls, count - 1)
+            for limit in [0, -1, True, 17408.0, 263169]:
+                with self.assertRaisesRegex(ValueError, "prompt-token bound"):
+                    capture.explicit_cases(path, controls, limit)
+
     def test_runtime_branch_preflight_preserves_controls_without_gpu_execution(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
