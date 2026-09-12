@@ -40,6 +40,7 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "int launch_sm121_attention(",
             "QRT_CK_EXPORT int qrt_ck_fmha_q8192_release()",
         ))
+        actual = actual.replace("std::chrono::steady_clock::now()", "mock_now()")
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -75,6 +76,10 @@ unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, sync
 unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned preparations = 0;
+unsigned clock_ms = 0, sync_ms = 0;
+std::chrono::steady_clock::time_point mock_now() {
+    return std::chrono::steady_clock::time_point(std::chrono::milliseconds(clock_ms));
+}
 bool fail_preparation = false;
 bool fail_transpose = false;
 std::set<void*> live;
@@ -89,7 +94,7 @@ hipError_t hipFree(void* pointer) {
     if (pointer && live.erase(pointer) != 1u) std::abort();
     return hipSuccess;
 }
-hipError_t hipStreamSynchronize(hipStream_t) { ++syncs; return hipSuccess; }
+hipError_t hipStreamSynchronize(hipStream_t) { ++syncs; clock_ms += sync_ms; return hipSuccess; }
 template<class Validate>
 hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Validate,
                            unsigned char** output) {
@@ -149,6 +154,7 @@ void reset() {
     observed_layout = largest_batch = 0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
+    clock_ms = sync_ms = 0;
 }
 int main() {
     for (unsigned failure = 1; failure <= 4; ++failure) {
@@ -318,6 +324,23 @@ int main() {
         if(launch(0,65)!=hipErrorInvalidValue || allocations || preparations || queries) return 48;
     }
     reset();unsetenv("QRT_CK_SM121_PREPARED_VALUE");unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
+    setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    // A healthy 32k call can exceed twenty seconds in total, while every
+    // completed 8192-query window remains bounded. No real waiting here.
+    reset();sync_ms=35;
+    if(launch(0,32768)!=hipSuccess || clock_ms!=35840 || queries!=1024u || syncs!=queries) return 49;
+    reset();sync_ms=80;
+    if(launch(0,8192)!=hipErrorLaunchTimeOut || queries!=251u || syncs!=queries) return 50;
+    // A larger total allowance must not mask stalled first-window progress.
+    reset();sync_ms=80;
+    if(launch(0,32768)!=hipErrorLaunchTimeOut || queries!=251u || syncs!=queries) return 51;
+    reset();sync_ms=20000;
+    if(launch(32768,1)!=hipSuccess || queries!=1u || syncs!=1u) return 52;
+    reset();sync_ms=20001;
+    if(launch(32768,1)!=hipErrorLaunchTimeOut || queries!=1u || syncs!=1u) return 53;
+    reset();
+    if(launch(32768,1024)!=hipSuccess || queries!=32u || syncs!=queries) return 54;
+    reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
     return 0;
 }
 '''

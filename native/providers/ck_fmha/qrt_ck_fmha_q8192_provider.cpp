@@ -317,6 +317,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
     const auto begin = std::chrono::steady_clock::now();
+    // Bound progress in 8192-query windows. A complete 32k prefill comprises
+    // four such windows; applying the old single-window deadline to the entire
+    // call rejected healthy, synchronized work before any output could finish.
+    constexpr unsigned deadline_window_queries = 8192u;
+    const double call_deadline_seconds = 20.0 *
+        ((query_count + deadline_window_queries - 1u) / deadline_window_queries);
+    auto window_begin = begin;
     const bool independent_dots = query_count > 1u;
     const char* mantissa_option = std::getenv("QRT_CK_SM121_MANTISSA_WMMA");
     const bool mantissa_wmma = independent_dots && mantissa_option &&
@@ -374,8 +381,16 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         }
         status = int(hipStreamSynchronize(stream));
         if (status != int(hipSuccess)) return status;
-        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
+        const auto now = std::chrono::steady_clock::now();
+        const double call_seconds = std::chrono::duration<double>(now - begin).count();
+        const double window_seconds = std::chrono::duration<double>(now - window_begin).count();
+        const unsigned completed_queries = offset + std::min(query_batch, query_count - offset);
+        if (call_seconds > call_deadline_seconds || window_seconds > 20.0) {
+            std::fprintf(stderr, "SM121_FULL_ATTENTION_DEADLINE query_start=%u query_count=%u completed_queries=%u call_seconds=%.6f call_limit_seconds=%.1f window_seconds=%.6f window_limit_seconds=20 application_deadline=1 stream_drained=1\n",
+                query_start, query_count, completed_queries, call_seconds, call_deadline_seconds, window_seconds);
             return int(hipErrorLaunchTimeOut);
+        }
+        if (completed_queries % deadline_window_queries == 0u) window_begin = now;
     }
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
