@@ -15,15 +15,15 @@ and [.7](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releas
 
 | Area | Windows action and remaining boundary |
 |---|---|
-| Variable cold lengths / serial tails (Linux #1/#5) | The eight frozen cold requests now pass all 1,216 output tokens and the GB10 first-token/logit boundary under one selected component configuration. q8192 actual callback TTFT is still 62.837 s; retained performance, new prompts and the wider length matrix remain open. See the bounded-prefill product record. |
+| Variable cold lengths / serial tails (Linux #1/#5) | The strict r4 components pass all eight cold cases, 1,216 raw outputs and eight exact first logits. q8192 actual callback TTFT is 58.839 s; retained performance and the wider length matrix remain open. See the [complete cold record](../benchmarks/correctness/dense-norm-complete-cold-20260912.json). |
 | Logical GEMM/FLA extents | Audit logical sequence lengths separately from padded allocation/launch extents. Linux `3d284a3` and `e402b3a` are useful arithmetic references, not portable Windows binaries or authority to loosen token/logit gates. |
-| Thinking (Linux #6, .5) | Add the validated top-level object, legacy-alias conflict handling, tokenizer parity and live no-tools reasoning streaming. Explicitly preserve the Windows disabled default and repair empty-kwargs inconsistency. |
-| Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and explicit conservative no-progress metadata now have CPU/HTTP regressions. Semantic retry strategy and side-effect authorization remain with the caller. |
-| Control-plane responsiveness (.5) | Existing bounded FIFO retained; a gated backend test proves health/shutdown and the first reasoning delta arrive before generation completes. Native packaged-server validation is still required. |
+| Thinking (Linux #6, .5) | The top-level object, legacy-alias conflicts, tokenizer parity and live reasoning streaming pass in the relocated r4 archive. The Windows disabled default and explicit thinking both pass; empty-kwargs behavior is consistent. |
+| Repeated tools (Linux #7, .5) | Canonical deduplication, declared-function admission, one-call mode and conservative no-progress metadata have CPU regressions. Native packaged HTTP also passes tool output and continuation. Semantic retry strategy and side-effect authorization remain with the caller. |
+| Control-plane responsiveness (.5) | The relocated r4 archive passes all seventeen positive protocol checks across thirty requests: FIFO, timeout503, overflow429, health and shutdown, with the active q8192 retaining all32 tokens and exact first logit. All owned processes exit normally. See the [portable HTTP record](../benchmarks/correctness/dense-norm-portable-http-20260912.json). |
 | Default VL reasoning (.6) | Windows remains text-only; no vision implementation or inherited VL result is claimed. |
-| Partial shared prefixes (.7 / closed Linux #12) | Native q7169 captures three complete K64 model checkpoints. Seeded FP32 FLA repairs the single-input continuation: saved and independently computed 7168 prefixes match all 32 GB10 outputs, first token82/logit9.25, all 40 F32 layer carriers and final norm. Divergent requests, multi-token suffixes and packaged-server qualification remain open. |
+| Partial shared prefixes (.7 / closed Linux #12) | Complete K64 checkpoints and seeded FP32 FLA qualify the saved7168 single-input continuation. Relocated r4 HTTP also passes four actual divergent branches, 256 raw tokens, twelve first logits, four SSE comparisons and twelve complete owner rollbacks after decode. General long-prefix batch suffixes remain open: the registered16384+1024 sequential route still fails raw output102 despite an in-tolerance first logit. See the [long-prefix gap](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json). |
 
-The GitHub release list was rechecked on September 12 and still
+The GitHub release list was rechecked again on September 12 and still
 starts with `.7`; no newer stable release is inferred from local branch commits.
 
 The `.7` release was published on September 9 at 13:36:02 UTC, immutable tag
@@ -38,11 +38,12 @@ one-hour soak are sibling qualification, not Windows acceptance.
 
 The protocol changes are independently implemented in the existing Rust server;
 no new runtime dependency, GPU binary, arithmetic threshold or model weights
-were introduced. Source tests are not real-model acceptance. The next release
-still requires a clean all-component Windows build, exact archive/inventory
-binding, crash-safety regression, GB10 numerical and continuation gates,
-correctness-attached retained performance, prefix/stream/API tests and the
-issue's randomized neighboring-length continuity matrix. Linux's looser/different
+were introduced by those protocol changes. The r4 archive's native build,
+inventory, relocation, API and short-prefix checks are now recorded; later
+GPU changes need matching qualification. The next release still requires
+correctness-attached retained performance, general long-prefix and context
+coverage, the issue's neighboring-length continuity matrix and a resident
+soak. Linux's looser/different
 quality metrics cannot replace the Windows contract. Any inherited evidence
 must explicitly identify unchanged components; immutable release tags must not
 be moved to cover later source changes.

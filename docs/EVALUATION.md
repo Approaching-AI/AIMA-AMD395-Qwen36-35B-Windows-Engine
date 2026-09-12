@@ -123,6 +123,22 @@ TPOT 163.734468 ms and load 20258.5559 ms. Both runs finish with healthy host
 checks. This fixes a dispatch gap; it does not qualify the long input, renew
 the complete short/cold/archive matrix, or meet performance/release gates.
 
+The [long-tail projection repair](../benchmarks/correctness/long-tail-projection-20260912.json)
+at whole1975367 resolves the combined cold prompt's raw-token failure. GB10's
+original scheduler admits8192+8192+1024 inputs; the last1024 BA projection
+requires three physical accumulators. The native launcher now applies that
+tail plan and rebases its inputs, outputs and optional error-bound arrays.
+Three actual-launcher CPU tests and the native build pass. Both observed and
+unobserved native runs retain all512 raw outputs and exact first token/logit
+3709/5.6875. Unobserved callback is151362.7507 ms, TPOT159.393184 ms and
+load20072.0193 ms. The renewed q8192 control retains all512 outputs and exact
+144/10.375, with callback59066.3563 ms and load20067.601599 ms. Host checks
+pass. At sampled position17407, layer0 FLA inputs/output and the first39
+rounded layer carriers match GB10. Remaining layer39/final-norm differences
+are diagnostics, not grounds to reject these passing token results. The
+general prefix route, complete short/cold/archive renewal, long-context
+matrix, soak and retained performance remain unqualified.
+
 The [long-prefix reuse check](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json)
 also rejects the existing sequential-suffix route. One measured hit emits all
 512 callback tokens but differs at index102 (71 instead of 1908); its 0.03125

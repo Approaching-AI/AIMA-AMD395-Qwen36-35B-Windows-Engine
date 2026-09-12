@@ -185,6 +185,33 @@ def short_prefill_moe_observation(prompt_tokens, first_position, token_count):
             token_count == prompt_tokens)
 
 
+def full_prefill_linear_window(case, prompt_tokens):
+    """Select one original prefill transaction for a bounded seeded replay."""
+    value = os.environ.get('QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS')
+    if value is None:
+        return None
+    plans = json.loads(value)
+    if not isinstance(plans, dict) or not 1 <= len(plans) <= 12:
+        raise ValueError('invalid full linear prefill observation plan')
+    for name, plan in plans.items():
+        if (not isinstance(name, str) or re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out[1-9][0-9]*', name) is None or
+                not isinstance(plan, dict) or set(plan) != {'layer', 'first_position', 'tokens'} or
+                any(type(item) is not int for item in plan.values()) or
+                not 0 <= plan['layer'] < 40 or plan['layer'] % 4 == 3 or
+                not 1 <= plan['first_position'] < 263168 or not 1 <= plan['tokens'] <= 1024 or
+                plan['first_position'] + plan['tokens'] > 263168):
+            raise ValueError('invalid bounded original linear transaction')
+        if name == case and plan['first_position'] + plan['tokens'] > prompt_tokens:
+            raise ValueError('linear observation extends beyond the original prompt')
+    return plans.get(case)
+
+
+def matches_linear_window(window, layer, transaction):
+    return window is not None and transaction is not None and layer == window['layer'] and (
+        transaction['first_position'], transaction['token_count']) == (
+            window['first_position'], window['tokens'])
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -216,6 +243,13 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         self._qrt_boundary_linear_layers = observation_layers(
             'QRT_GB10_BOUNDARY_LINEAR_LAYERS',
             [0, 2, 4] if case == "q8191-out32" else [0, 2], linear=True)
+        full_linear_window = full_prefill_linear_window(case, prompt_tokens)
+        full_linear_labels = set()
+        self._qrt_boundary_full_linear_window = (dict(plan=full_linear_window, transaction=None,
+                                                     labels=[]) if full_linear_window else None)
+        if full_linear_window is not None:
+            self._qrt_boundary_linear_layers = sorted(set(self._qrt_boundary_linear_layers) |
+                                                       {full_linear_window['layer']})
         self._qrt_boundary_current = None
         self._qrt_boundary_indices = None
         model = runner.model
@@ -296,6 +330,13 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 return value[indices[0]:indices[-1] + 1].detach().cpu()
             return torch.cat([value[index:index + 1].detach().cpu() for index in indices])
 
+        def save_full_linear(label, value, transaction, layer):
+            if matches_linear_window(full_linear_window, layer, transaction):
+                save('full-prefill-' + label, value, transaction)
+                full_linear_labels.add(label)
+                self._qrt_boundary_full_linear_window['transaction'] = transaction['ordinal']
+                self._qrt_boundary_full_linear_window['labels'] = sorted(full_linear_labels)
+
         def norm_hook(label):
             def observe(module, args, output):
                 transaction = self._qrt_boundary_active
@@ -308,6 +349,9 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     self._qrt_boundary_norms[label] = dict(shape=list(value.shape), dtype=str(value.dtype),
                         bytes=len(payload), sha256=hashlib.sha256(payload).hexdigest())
                 save(label, selected_tensor(value, transaction), transaction)
+                if full_linear_window is not None and label.startswith(
+                        f"layer-{full_linear_window['layer']:02d}-"):
+                    save_full_linear(label, value, transaction, full_linear_window['layer'])
             return observe
 
         def layer_hook(index):
@@ -511,6 +555,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 self._qrt_boundary_stages[name] = dict(shape=list(value.shape), dtype=str(value.dtype),
                     bytes=len(payload), sha256=hashlib.sha256(payload).hexdigest())
             save(name, selected_tensor(value, transaction, width), transaction)
+            save_full_linear(name, value, transaction, index)
 
         def attach_linear(index):
             linear = layers[index].linear_attn
@@ -531,6 +576,13 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 if kwargs.get("q") is not None:
                     for label, width in (("q", 2048), ("k", 2048), ("v", 4096), ("g", 32), ("beta", 32)):
                         linear_stage(index, label + "-core-input", kwargs[label], width)
+                    transaction = self._qrt_boundary_active
+                    if matches_linear_window(full_linear_window, index, transaction):
+                        initial = kwargs.get('initial_state')
+                        if (initial is None or initial.dtype != torch.float32 or
+                                tuple(initial.shape) != (1, 32, 128, 128)):
+                            raise ValueError('selected seeded prefill lacks its original initial state')
+                        save_full_linear(f'linear-{index:02d}-initial-state', initial, transaction, index)
 
             def prefill_state(module, args, output):
                 transaction = self._qrt_boundary_active
@@ -539,6 +591,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     if state.shape != (1, 32, 128, 128):
                         raise ValueError("prefill final recurrent state shape changed")
                     save(f"linear-{index:02d}-prefill-state-after", state, transaction)
+                    save_full_linear(f'linear-{index:02d}-final-state', state, transaction, index)
 
             def gated_inputs(module, args):
                 linear_stage(index, "core", args[0], 4096)
@@ -770,6 +823,18 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                     if not {f"full-{self._qrt_boundary_full_layer:02d}-" + label
                             for label in self._qrt_boundary_full_labels} <= observed:
                         raise ValueError("incomplete original decode full-attention observations")
+        window = self._qrt_boundary_full_linear_window
+        if window is not None:
+            layer = window['plan']['layer']
+            required = {f'linear-{layer:02d}-' + name for name in (
+                'qkv', 'z-projection', 'a-projection', 'b-projection',
+                'q-core-input', 'k-core-input', 'v-core-input', 'g-core-input',
+                'beta-core-input', 'initial-state', 'final-state', 'core', 'z',
+                'gated', 'output-projection')}
+            required.update(f'layer-{layer:02d}-' + name for name in (
+                'input-rmsnorm', 'post-attention-rmsnorm'))
+            if window['transaction'] is None or set(window['labels']) != required:
+                raise ValueError('selected full prefill linear transaction was not completely observed')
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,
@@ -778,5 +843,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             full_attention_cache=self._qrt_boundary_full_cache,
             selected_positions=sorted(self._qrt_boundary_selected),
             original_methods_returned_unchanged=True, diagnostic_only=True)
+        if window is not None:
+            boundaries['full_prefill_linear_window'] = window
         record["runtime_boundaries"] = boundaries
         return record
