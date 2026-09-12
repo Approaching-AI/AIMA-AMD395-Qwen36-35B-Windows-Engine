@@ -1,0 +1,742 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-12",
+  "kind": "reproducible_dynamic_embedding_inverse_tool",
+  "source_commit": "5f13f4e567f8c1233751071f404c12566bac203b",
+  "source_bundle": {
+    "file": "dynamic-embedding-capture-source-r3.json",
+    "sha256": "668c5d6b5209a7014de2623bb3a44e670ffd01344675f22a3af1d7775dac63f3",
+    "data": {
+      "source_commit": "5f13f4e567f8c1233751071f404c12566bac203b",
+      "archive": "dynamic-embedding-capture-source-5f13f4e.tar",
+      "archive_sha256": "963e788fcdba5f3df455ede04e14cb409708f8069c3874a821b9c14e98b8bc04",
+      "files": [
+        {
+          "file": "scripts/audit_fla_reference_state_ir.py",
+          "sha256": "08def574a4a72c5a82d711508337321e6a5d150333326021d9f8e25296c1ab31"
+        },
+        {
+          "file": "scripts/capture_fla_state_prefix.py",
+          "sha256": "a1227a0926a4d0562b8d7dd5e79346b2f58973df6123b22ead5f47ec231b128a"
+        },
+        {
+          "file": "scripts/capture_sm121_dynamic_embedding_scales.py",
+          "sha256": "0dfc32e66bfe339fdf61843cd994b114d032c4ef968b19a42988a20cbb884ee7"
+        },
+        {
+          "file": "scripts/capture_sm121_embedding_scales.py",
+          "sha256": "8926ebdc3a56d84192b34ed2863c43c9fe8de5fc07d16ff606f74b37b6d96d15"
+        },
+        {
+          "file": "scripts/capture_sm121_exp2_table.py",
+          "sha256": "ddd0296d8c146ff8fe8f79da37d4cabba93a1738e1473dadbe2f4fd2c85733fc"
+        },
+        {
+          "file": "scripts/capture_sm121_qkv_convolution.py",
+          "sha256": "2342792b9c04c3a84a91dd4593915e0da7293646bc133f33b9bef3adcaf473ab"
+        },
+        {
+          "file": "scripts/fla_state_exponent_capture.py",
+          "sha256": "fa4b28496f183a513e2b21d3ddd534b1f782b5218784c84bf6dab96394775a33"
+        },
+        {
+          "file": "scripts/prepare_fla_state_prefix.py",
+          "sha256": "dc5fc9043a0d83f1d51bc953989561a0725222be2b51676d4b0fee1ff1feef6d"
+        }
+      ]
+    }
+  },
+  "capture": {
+    "file": "qrt-gb10-dynamic-embedding-tool-20260912-r3/output/capture.json",
+    "sha256": "bdec1ae037e0564d0bb5da093b897e02276f08fbe50a8d2327af4302c1465118",
+    "data": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "/work/source/scripts/capture_sm121_dynamic_embedding_scales.py",
+        "--model-dir",
+        "/models",
+        "--norm-module",
+        "/work/original-dynamic-norm.py",
+        "--reference-capture",
+        "/inputs/capture/capture.json",
+        "--reference-capture-sha256",
+        "58043647a88978cceb6a0a8276b6b135ca1c58e42aff7c324c9bed1d190cf197",
+        "--prompt-cases",
+        "/inputs/additional-cases.json",
+        "--output-dir",
+        "/work/output",
+        "--expected-host",
+        "aitopatom-66c4",
+        "--source-commit",
+        "5f13f4e567f8c1233751071f404c12566bac203b",
+        "--execute",
+        "--timeout-seconds",
+        "120",
+        "--worker",
+        "--supervisor-pid",
+        "8"
+      ],
+      "source_commit": "5f13f4e567f8c1233751071f404c12566bac203b",
+      "source_sha256": "0dfc32e66bfe339fdf61843cd994b114d032c4ef968b19a42988a20cbb884ee7",
+      "original_norm_module_sha256": "2a871a26924143ed071e3546647c796cf9b81f3f2f546a585a5ee3e18211ba87",
+      "reference_capture_sha256": "58043647a88978cceb6a0a8276b6b135ca1c58e42aff7c324c9bed1d190cf197",
+      "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+      "model_path": "/models",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "completed": true,
+      "entries": 248320,
+      "all_original_vocabulary_norm_outputs_unchanged": true,
+      "model_tensors": [
+        {
+          "name": "model.language_model.embed_tokens.weight",
+          "shard": "model-00001-of-00026.safetensors",
+          "offset": 2848,
+          "bytes": 1017118720,
+          "dtype": "bf16",
+          "shape": [
+            248320,
+            2048
+          ],
+          "sha256": "fa0611f12cdb3827ce18c6e008645584fcd16156579011f6c63be499d2443b0f"
+        },
+        {
+          "name": "model.language_model.layers.0.input_layernorm.weight",
+          "shard": "model-00002-of-00026.safetensors",
+          "offset": 39376,
+          "bytes": 4096,
+          "dtype": "bf16",
+          "shape": [
+            2048
+          ],
+          "sha256": "4c37281866d6d60f72ac43ddb662b6191ee5005ec281008a47093ca41b536673"
+        }
+      ],
+      "controls": [
+        {
+          "name": "http-thinking-q19-out512",
+          "elements": 38912,
+          "reference_sha256": "d87b38bbf64f754372e6808dc151e7ffafb79179ebee77dcd37108180fe740be",
+          "mismatches": 0
+        },
+        {
+          "name": "http-tool-call-q294-out32",
+          "elements": 602112,
+          "reference_sha256": "f59a34fb498d82ad45498b003cb3d90ed7e566b2416aa60090adbeb28a13fc1e",
+          "mismatches": 0
+        }
+      ],
+      "table_file": "layer0-embedding-dynamic-inverse-f32.bin",
+      "table_bytes": 993280,
+      "table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+      "observer_source_sha256": "833ff59b45568558e1287322b4e728d1445bb801709f62b2697072587412155f",
+      "observer_signature": {
+        "in_ptr0": "*bf16",
+        "in_ptr1": "*bf16",
+        "out_ptr1": "*bf16",
+        "inverse_ptr": "*fp32",
+        "ks0": "i64",
+        "xnumel": "i32",
+        "r0_numel": "i32"
+      },
+      "options": {
+        "num_warps": 16,
+        "num_stages": 1,
+        "enable_fp_fusion": true,
+        "enable_reflect_ftz": true
+      },
+      "original_signature": {
+        "in_ptr0": "*bf16",
+        "in_ptr1": "*bf16",
+        "out_ptr1": "*bf16",
+        "ks0": "i64",
+        "xnumel": "i32",
+        "r0_numel": "i32"
+      },
+      "original_configuration": {
+        "XBLOCK": 2,
+        "R0_BLOCK": 2048,
+        "num_warps": 16,
+        "num_stages": 1
+      },
+      "original_ptx_sha256": "d880f540583dc4ccb3625dc5ec281126f4e8f781d3e06bfd4b7d893d92361d89",
+      "observer_ptx_sha256": "0707a9ae342fc4247a523214bfa3ba9fb5b170ca7d33c3a9981850b9e1ea278e",
+      "launches": 33,
+      "maximum_dispatch_ms": 0.6233279705047607,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912,
+      "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+      "triton_version": "3.6.0"
+    }
+  },
+  "dispatch": {
+    "file": "qrt-gb10-dynamic-embedding-tool-20260912-r3/dispatch.json",
+    "sha256": "8b6735b140148d44bb72ef74e8892b95d1aae7643c55112696389df59f56cc67",
+    "data": {
+      "host": "aitopatom-66c4",
+      "command": [
+        "docker",
+        "run",
+        "--rm",
+        "--name",
+        "qrt-gb10-dynamic-embedding-tool-20260912-r3",
+        "--hostname",
+        "aitopatom-66c4",
+        "--network",
+        "none",
+        "--gpus",
+        "all",
+        "--memory",
+        "6g",
+        "--cpus",
+        "2",
+        "--shm-size",
+        "1g",
+        "-v",
+        "${REFERENCE_WORK_ROOT}/qrt-gb10-short-remaining-20260912-r1:/inputs:ro",
+        "-v",
+        "${REFERENCE_WORK_ROOT}/qrt-gb10-dynamic-embedding-tool-20260912-r3:/work",
+        "-v",
+        "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "150",
+        "python3",
+        "run.py"
+      ],
+      "command_file": "${REFERENCE_WORK_ROOT}/run-qrt-gb10-dynamic-embedding-tool-20260912-r3.py",
+      "command_file_sha256": "7a6139eb87a15fcc42c2242b06088e5bacc713657203959805f2c705b1340a56",
+      "source_commit": "5f13f4e567f8c1233751071f404c12566bac203b",
+      "reason": "completed",
+      "returncode": 0,
+      "minimum_host_available_bytes": 121431343104,
+      "seconds": 7.025475799979176,
+      "after_compute_processes": "",
+      "after_compute_query_returncode": 0
+    }
+  },
+  "package_manifest": {
+    "file": "qrt-gb10-dynamic-embedding-tool-20260912-r3.capture-package.json",
+    "sha256": "efe2a38f3dd79f42a2524d0654ec3cc63272a3a2e9f63757e75fea2a83e91858",
+    "data": {
+      "archive": "${REFERENCE_WORK_ROOT}/qrt-gb10-dynamic-embedding-tool-20260912-r3.capture.tar.gz",
+      "archive_bytes": 935947,
+      "archive_sha256": "0fcdb4aac8c7df923efaf757dc0a01ed3b32d4322a8b84f75229e76c4a7f8f12",
+      "files": {
+        "__pycache__/original-dynamic-norm.cpython-312.pyc": {
+          "bytes": 9520,
+          "sha256": "91ad055d1c249379d645cdc251574d9f40ad7521ebfce5ef1ca87963f8e64c7d"
+        },
+        "dispatch.json": {
+          "bytes": 1199,
+          "sha256": "8b6735b140148d44bb72ef74e8892b95d1aae7643c55112696389df59f56cc67"
+        },
+        "original-dynamic-norm.py": {
+          "bytes": 9825,
+          "sha256": "2a871a26924143ed071e3546647c796cf9b81f3f2f546a585a5ee3e18211ba87"
+        },
+        "output/__pycache__/dynamic-norm-with-inverse.cpython-312.pyc": {
+          "bytes": 3428,
+          "sha256": "98068bbfaa7a85a52ff44738680186cd27a88ef643f2cb85f370b45c25796d59"
+        },
+        "output/capture.json": {
+          "bytes": 3699,
+          "sha256": "bdec1ae037e0564d0bb5da093b897e02276f08fbe50a8d2327af4302c1465118"
+        },
+        "output/dispatches.jsonl": {
+          "bytes": 4109,
+          "sha256": "1475bbc7cd5d8b6e6b27cfaaeba5ef9d924027df761e1a44de7bfb918dd49ed5"
+        },
+        "output/dynamic-norm-with-inverse.py": {
+          "bytes": 2126,
+          "sha256": "833ff59b45568558e1287322b4e728d1445bb801709f62b2697072587412155f"
+        },
+        "output/layer0-embedding-dynamic-inverse-f32.bin": {
+          "bytes": 993280,
+          "sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9"
+        },
+        "output/observer.ptx": {
+          "bytes": 33313,
+          "sha256": "0707a9ae342fc4247a523214bfa3ba9fb5b170ca7d33c3a9981850b9e1ea278e"
+        },
+        "output/original.ptx": {
+          "bytes": 34496,
+          "sha256": "d880f540583dc4ccb3625dc5ec281126f4e8f781d3e06bfd4b7d893d92361d89"
+        },
+        "output/preflight.json": {
+          "bytes": 1225,
+          "sha256": "515e2959b72a726be363e012f5b7f7af61c080e849092ddea55d85877c80707d"
+        },
+        "output/progress.jsonl": {
+          "bytes": 1134,
+          "sha256": "e8eabf3bf0b944700b838812c7ee60cb4ca5ec816306ce0a1143d5c211e173ed"
+        },
+        "run.py": {
+          "bytes": 861,
+          "sha256": "bbec49326e1e25cb46fdde44132c1fc433fd8ffdcc4f0c4d4aec86102d59b7e5"
+        },
+        "source/scripts/__pycache__/audit_fla_reference_state_ir.cpython-312.pyc": {
+          "bytes": 7493,
+          "sha256": "69b5a02bb5a5b6e085e34becfe2e7ab212bb3d920d91316457a6e2e3464e7e8e"
+        },
+        "source/scripts/__pycache__/capture_fla_state_prefix.cpython-312.pyc": {
+          "bytes": 29692,
+          "sha256": "a13f5896d919f866d5bd3d69313dcd9028f1b3b92f08a900d23a0bf83b02267e"
+        },
+        "source/scripts/__pycache__/capture_sm121_embedding_scales.cpython-312.pyc": {
+          "bytes": 25094,
+          "sha256": "9e96c2542d83c30565dcfe92ff2554605b5b8fa1265839b81292c2fc74ca5f2c"
+        },
+        "source/scripts/__pycache__/capture_sm121_exp2_table.cpython-312.pyc": {
+          "bytes": 16776,
+          "sha256": "c3371515ca0a8b206500940e9d6ff0bd297c0822176705a2242ba1e9463f5d8a"
+        },
+        "source/scripts/__pycache__/capture_sm121_qkv_convolution.cpython-312.pyc": {
+          "bytes": 29867,
+          "sha256": "0db6c695734159d4b540eec51e49e1641dd824e1abad4e2446afe7e49438337e"
+        },
+        "source/scripts/__pycache__/fla_state_exponent_capture.cpython-312.pyc": {
+          "bytes": 17069,
+          "sha256": "ef035a215bb2df7f86117c4832dccd7bdc4ef95a1026acf54bd1ca1796394da0"
+        },
+        "source/scripts/__pycache__/prepare_fla_state_prefix.cpython-312.pyc": {
+          "bytes": 8034,
+          "sha256": "3c4e4cf4308c28f96b16789a2908c4d642a5adf613d92971193ab165c6083415"
+        },
+        "source/scripts/audit_fla_reference_state_ir.py": {
+          "bytes": 4534,
+          "sha256": "08def574a4a72c5a82d711508337321e6a5d150333326021d9f8e25296c1ab31"
+        },
+        "source/scripts/capture_fla_state_prefix.py": {
+          "bytes": 19523,
+          "sha256": "a1227a0926a4d0562b8d7dd5e79346b2f58973df6123b22ead5f47ec231b128a"
+        },
+        "source/scripts/capture_sm121_dynamic_embedding_scales.py": {
+          "bytes": 14843,
+          "sha256": "0dfc32e66bfe339fdf61843cd994b114d032c4ef968b19a42988a20cbb884ee7"
+        },
+        "source/scripts/capture_sm121_embedding_scales.py": {
+          "bytes": 13743,
+          "sha256": "8926ebdc3a56d84192b34ed2863c43c9fe8de5fc07d16ff606f74b37b6d96d15"
+        },
+        "source/scripts/capture_sm121_exp2_table.py": {
+          "bytes": 10836,
+          "sha256": "ddd0296d8c146ff8fe8f79da37d4cabba93a1738e1473dadbe2f4fd2c85733fc"
+        },
+        "source/scripts/capture_sm121_qkv_convolution.py": {
+          "bytes": 17837,
+          "sha256": "2342792b9c04c3a84a91dd4593915e0da7293646bc133f33b9bef3adcaf473ab"
+        },
+        "source/scripts/fla_state_exponent_capture.py": {
+          "bytes": 10842,
+          "sha256": "fa4b28496f183a513e2b21d3ddd534b1f782b5218784c84bf6dab96394775a33"
+        },
+        "source/scripts/prepare_fla_state_prefix.py": {
+          "bytes": 5491,
+          "sha256": "dc5fc9043a0d83f1d51bc953989561a0725222be2b51676d4b0fee1ff1feef6d"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3792,
+          "sha256": "2564c25e14ef1835264b7224960a4b2e67807420f138ef03166a950841acfa16"
+        }
+      }
+    }
+  },
+  "dispatch_timings": [
+    {
+      "rows": 19,
+      "elapsed_ms": 0.028384000062942505,
+      "peak_device_bytes": 238080,
+      "preparation_peak_device_bytes": 238080
+    },
+    {
+      "rows": 294,
+      "elapsed_ms": 0.02195199951529503,
+      "peak_device_bytes": 3618304,
+      "preparation_peak_device_bytes": 3618304
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6053119897842407,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 100700160
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6041920185089111,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.5996800065040588,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6068159937858582,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6075519919395447,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6024320125579834,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6018239855766296,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6060799956321716,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6020479798316956,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6043199896812439,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6021119952201843,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.61353600025177,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6042240262031555,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6233279705047607,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6006399989128113,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6013439893722534,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6022719740867615,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6000639796257019,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6013439893722534,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6087679862976074,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6008960008621216,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.608128011226654,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6019840240478516,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.5977920293807983,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6033279895782471,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6062719821929932,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6024320125579834,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6067839860916138,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6039040088653564,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 8192,
+      "elapsed_ms": 0.6007040143013,
+      "peak_device_bytes": 100700160,
+      "preparation_peak_device_bytes": 117478912
+    },
+    {
+      "rows": 2560,
+      "elapsed_ms": 0.17289599776268005,
+      "peak_device_bytes": 31471616,
+      "preparation_peak_device_bytes": 117478912
+    }
+  ],
+  "component_qualified": true,
+  "model_inference_acceptance": false,
+  "release_qualified": false,
+  "previous_failed_tool_runs": [
+    {
+      "dispatch": {
+        "file": "qrt-gb10-dynamic-embedding-tool-20260912-r1/dispatch.json",
+        "sha256": "ace2c37cc9b953a0ed60a1cb932221c4af41180a0eb47e3dcf27248de439b702",
+        "data": {
+          "host": "aitopatom-66c4",
+          "command": [
+            "docker",
+            "run",
+            "--rm",
+            "--name",
+            "qrt-gb10-dynamic-embedding-tool-20260912-r1",
+            "--hostname",
+            "aitopatom-66c4",
+            "--network",
+            "none",
+            "--gpus",
+            "all",
+            "--memory",
+            "6g",
+            "--cpus",
+            "2",
+            "--shm-size",
+            "1g",
+            "-v",
+            "${REFERENCE_WORK_ROOT}/qrt-gb10-short-remaining-20260912-r1:/inputs:ro",
+            "-v",
+            "${REFERENCE_WORK_ROOT}/qrt-gb10-dynamic-embedding-tool-20260912-r1:/work",
+            "-v",
+            "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+            "-w",
+            "/work",
+            "--entrypoint",
+            "timeout",
+            "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+            "--signal=TERM",
+            "--kill-after=5",
+            "150",
+            "python3",
+            "run.py"
+          ],
+          "command_file": "${REFERENCE_WORK_ROOT}/run-qrt-gb10-dynamic-embedding-tool-20260912-r1.py",
+          "command_file_sha256": "bdff03b260f1e72113f6473788edf3e924236bb4e1f40ed357e70e195e6cffbf",
+          "source_commit": "4efd76f41cb0124c3783c3273afca05bca72e98e",
+          "reason": "completed",
+          "returncode": 1,
+          "minimum_host_available_bytes": 120844025856,
+          "seconds": 34.03306923501077,
+          "after_compute_processes": "",
+          "after_compute_query_returncode": 0
+        }
+      },
+      "failure": {
+        "file": "qrt-gb10-dynamic-embedding-tool-20260912-r1/output/failure.json",
+        "sha256": "8dc9d1eef1544b0bde3f41f7690e4c57ec361e6db535810b5c03600ba499f060",
+        "data": {
+          "error": "observation dispatch/memory bound exceeded"
+        }
+      },
+      "package_manifest_sha256": "0c9517bfe467317c450ac5b3290a8ff566a80cec0995cfa462e4e52ddc9b243c"
+    },
+    {
+      "dispatch": {
+        "file": "qrt-gb10-dynamic-embedding-tool-20260912-r2/dispatch.json",
+        "sha256": "753f08b2bde236276c04fb2ff73b4e74bc4b70a9bbf3616381ff289c2b88f0f4",
+        "data": {
+          "host": "aitopatom-66c4",
+          "command": [
+            "docker",
+            "run",
+            "--rm",
+            "--name",
+            "qrt-gb10-dynamic-embedding-tool-20260912-r2",
+            "--hostname",
+            "aitopatom-66c4",
+            "--network",
+            "none",
+            "--gpus",
+            "all",
+            "--memory",
+            "6g",
+            "--cpus",
+            "2",
+            "--shm-size",
+            "1g",
+            "-v",
+            "${REFERENCE_WORK_ROOT}/qrt-gb10-short-remaining-20260912-r1:/inputs:ro",
+            "-v",
+            "${REFERENCE_WORK_ROOT}/qrt-gb10-dynamic-embedding-tool-20260912-r2:/work",
+            "-v",
+            "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+            "-w",
+            "/work",
+            "--entrypoint",
+            "timeout",
+            "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+            "--signal=TERM",
+            "--kill-after=5",
+            "150",
+            "python3",
+            "run.py"
+          ],
+          "command_file": "${REFERENCE_WORK_ROOT}/run-qrt-gb10-dynamic-embedding-tool-20260912-r2.py",
+          "command_file_sha256": "00d68921655c495cbe1848ff8cc4687fcf94fcc0eb768b9b79f6f3371ca5c359",
+          "source_commit": "a91b27c734dc9cecb87f46ecbedb007ce23008f5",
+          "reason": "completed",
+          "returncode": 1,
+          "minimum_host_available_bytes": 119260614656,
+          "seconds": 34.041695024003275,
+          "after_compute_processes": "",
+          "after_compute_query_returncode": 0
+        }
+      },
+      "failure": {
+        "file": "qrt-gb10-dynamic-embedding-tool-20260912-r2/output/failure.json",
+        "sha256": "8137265469b72c034caabc804c299c9a491ecd5021c80d7572ec1509664b6d9e",
+        "data": {
+          "error": "inverse observer changed original normalization"
+        }
+      },
+      "package_manifest_sha256": "864ff3bdd1f30f0e2c3b60c053950320cc3c4a85ef103711b2f2b7c7917f8eb5",
+      "dispatches": [
+        {
+          "rows": 19,
+          "elapsed_ms": 0.09123200178146362,
+          "peak_device_bytes": 238080,
+          "preparation_peak_device_bytes": 25325568
+        },
+        {
+          "rows": 294,
+          "elapsed_ms": 0.03177599981427193,
+          "peak_device_bytes": 3618304,
+          "preparation_peak_device_bytes": 25325568
+        },
+        {
+          "rows": 8192,
+          "elapsed_ms": 1.9807360172271729,
+          "peak_device_bytes": 100700160,
+          "preparation_peak_device_bytes": 67145728
+        },
+        {
+          "rows": 8192,
+          "elapsed_ms": 0.6176959872245789,
+          "peak_device_bytes": 100700160,
+          "preparation_peak_device_bytes": 117478912
+        },
+        {
+          "rows": 8192,
+          "elapsed_ms": 0.6116799712181091,
+          "peak_device_bytes": 100700160,
+          "preparation_peak_device_bytes": 117478912
+        },
+        {
+          "rows": 8192,
+          "elapsed_ms": 0.6200000047683716,
+          "peak_device_bytes": 100700160,
+          "preparation_peak_device_bytes": 117478912
+        }
+      ],
+      "vocabulary_progress": [
+        {
+          "verified_vocabulary_rows": 8192
+        },
+        {
+          "verified_vocabulary_rows": 16384
+        },
+        {
+          "verified_vocabulary_rows": 24576
+        }
+      ]
+    }
+  ],
+  "matching_product_evidence": {
+    "file": "benchmarks/correctness/http-short-dense-product-20260912.json",
+    "sha256": "146b01b7087e3b629cbb824c7def1be21a36a089280e815f1ba80976b77af97a"
+  },
+  "interpretation": [
+    "The original dynamic kernel source, recorded XBLOCK2/R0_BLOCK2048/16-warp launch and i64 width signature are all pinned.",
+    "The unmodified original JIT function is compiled with that recorded configuration; the observer adds only an inverse store. All248320 original norm rows are preserved, and both complete actual-token norm controls match.",
+    "The resulting993280 bytes have exactly the same SHA256 as the table used by the passing five short and eight cold native cases.",
+    "The first tool run rejected an observation timing/memory boundary before writing a table. The second prepared both kernels before timing, passed both small controls, then rejected a vocabulary mismatch after24576 verified rows. Neither failed run publishes a qualified table.",
+    "The final tool explicitly preserves the recorded original reduction configuration instead of allowing first-control autotuning. Native runtime dependencies and product targets are unchanged."
+  ],
+  "public_metadata_redaction": "Reference home paths are represented by ${REFERENCE_WORK_ROOT}; embedded SHA256 values identify original unredacted artifacts."
+}

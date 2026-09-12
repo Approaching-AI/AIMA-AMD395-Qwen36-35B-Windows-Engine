@@ -8,10 +8,12 @@ prefill has 80 exact normalization tensors across all 40 layers; q294's ten
 downloaded normalization tensors and both cases' layer0 projections and
 residual/combined carriers also match. See
 `benchmarks/correctness/http-short-dense-product-20260912.json`.
-The eight main cold cases are being renewed with these components. Their
-first q8192/out512 run passes all outputs and logit10.375, with actual callback
-TTFT58838.9266ms and load20045.2444ms. Combined archive, long contexts, soak
-and retained performance remain open; no release is qualified.
+The same components now pass all eight main cold cases, all 1216 outputs and
+eight exact first logits. The q8192/out512 actual callback TTFT is 58838.9266 ms,
+TPOT 109.084727 ms and load 20045.2444 ms. See
+`benchmarks/correctness/dense-norm-complete-cold-20260912.json`.
+Combined archive HTTP, long contexts, soak and retained performance remain
+open; no release is qualified.
 
 The preceding strict runtime passes all eight cold CLI cases and
 1216 GB10 outputs, plus q8192 HTTP from the extracted portable archive. The
@@ -134,6 +136,11 @@ failed its last raw token; the combined repairs pass the complete contract.
 All 26 CPU projection matrices (843136 values) match, including representative
 three/four-accumulator and serial/parallel BF16 partitions. The compiled plans
 match 20490 profiled configurations. These fixes add no runtime dependency.
+The repository script `scripts/capture_sm121_dynamic_embedding_scales.py`
+reproduces the exact table from the pinned original kernel and model weights.
+It checks every vocabulary row against the original reduction configuration
+and both captured real-token normalization controls. See
+`benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json`.
 
 The same a797b62 archive components pass both renewed main cold512 cases,
 all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,

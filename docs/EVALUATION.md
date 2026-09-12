@@ -33,24 +33,32 @@ with the global override disabled.
 ## Unreleased correctness diagnostics (updated September 12)
 
 The [dense projection and norm repair](../benchmarks/correctness/http-short-dense-product-20260912.json)
-at whole405d653 with MoEbc082a5 now passes all five short actual-token cases:
+at whole 405d653 with MoE bc082a5 now passes all five short actual-token cases:
 640 complete raw tokens and five exact first logits, including q19/out512
 and q294/out32. Native callbacks, host checks and the Windows build pass.
 q19's 80 complete prefill norm tensors are exact; q294's downloaded norms
 cover layers0–4 and are exact. Both layer0 projection/recurrence/gating and
-residual/combined carriers match. The 26 CPU matrices cover843136 values;
+residual/combined carriers match. The 26 CPU matrices cover 843136 values;
 20490 compiled plans match the exhaustive projection profile.
 
 The repair preserves serial BF16 split-K output carriers and physical
 accumulator merge order. Its model embedding inverse table comes from the
-original dynamic-width norm with an i64 width argument; all248320 original
+original dynamic-width norm with an i64 width argument; all 248320 original
 vocabulary norm outputs remain unchanged during observation. The isolated
 table still failed q294's last raw token, so its accepted short boundary binds
 the dense and MoE repairs together. No runtime dependency is added.
-The initial renewed q8192/out512 case also passes all512 tokens and logit10.375;
-actual callback58838.9266ms, TPOT109.084727ms and load20045.2444ms do not qualify
-retained performance. The remaining cold matrix, combined archive, long
-contexts and soak are still being evaluated. No release is qualified.
+The [complete renewed cold matrix](../benchmarks/correctness/dense-norm-complete-cold-20260912.json)
+passes all eight cases, 1216 output tokens and eight exact first logits.
+q8192/out512 has actual callback 58838.9266 ms, TPOT 109.084727 ms and load
+20045.2444 ms. Combined archive, long contexts, soak and retained performance
+remain unqualified. No release is qualified.
+
+The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
+also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
+Its pinned original reduction configuration and i64 width reproduce the same
+993280-byte table, SHA256 `b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9`.
+Every vocabulary row and both complete real-token norm controls pass. It runs
+on the reference service and adds no dependency to the Windows runtime.
 
 The [strict native HTTP check](../benchmarks/correctness/http-strict-q8192-20260912.json)
 at server `8c59848` uses the selected whole/FLA/CK/MoE DLLs in a verified
