@@ -18,6 +18,7 @@ verify their fallback transaction and complete owner-state restoration.
 | same binary, 16384-block window | cold 8192, ordinary path | 59348.223499 | 111.265862 | 20039.383501 |
 | MoE 25c3693, DPP integer reductions | cold 8192, ordinary path | 58243.9345 | 112.070807 | 20050.7749 |
 | whole/CK/FLA 930955a, same DPP MoE | cold 8192, ordinary path | 57617.9907 | 107.136582 | 20077.7027 |
+| CK d028182, globally compacted PV replay | cold 8192, ordinary path | 56604.0518 | 106.860717 | 20074.636 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -39,6 +40,19 @@ DPP operations. The full configuration is retained for further experiments;
 the observed 1730.232799 ms difference is a comparison of single runs, without
 a statistical repeatability claim. Build defaults remain disabled. Evidence:
 `benchmarks/correctness/dpp-exact-reductions-20260913.json`.
+
+The compacted PV experiment collects uncertain attention outputs across each
+32-query batch, then replays their original ordered K16 arithmetic with four
+lanes per output. All 512 GB10 tokens and callbacks pass with exact first
+token 144 and logit 10.375. Its 56604.0518 ms callback is 1013.9389 ms below
+the preceding DPP run; each configuration has one measurement. The original
+q7169 component matches all 29,364,224 external BF16 cells, selecting
+2,181,900 cells for correction. Completed host operator time is 1058.14 ms,
+versus 1200.62 ms for the ordinary path and 1521.55 ms for the same-build
+per-query replay control. Twenty native safety cases preserve raw outputs,
+inputs and redzones. This becomes the next experimental baseline through
+`QRT_CK_SM121_COMPACT_PV_REPLAY=1`; its default remains disabled. Evidence:
+`benchmarks/correctness/attention-compact-pv-20260913.json`.
 
 Removing the three fixed routed midpoint bands fails 384 of the 512 original
 continuation tokens, despite an exact first token and logit. The absolute-only

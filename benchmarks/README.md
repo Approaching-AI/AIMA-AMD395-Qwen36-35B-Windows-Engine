@@ -60,6 +60,14 @@ providers gives an observed 57617.9907 ms callback, with unchanged admission
 and arithmetic. This is an experimental baseline; retained performance and
 release qualification remain open.
 
+`correctness/attention-compact-pv-20260913.json` records globally compacted
+attention PV correction, twenty native safety cases, three original q7169
+operator comparisons and the complete q8192/out512 GB10 boundary. All external
+BF16 cells, product tokens and callbacks pass. The observed callback is
+56604.0518 ms, compared with 57617.9907 ms for the preceding DPP configuration.
+This single-run comparison supports the next experiment, without qualifying
+retained performance, broader contexts or a release.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
