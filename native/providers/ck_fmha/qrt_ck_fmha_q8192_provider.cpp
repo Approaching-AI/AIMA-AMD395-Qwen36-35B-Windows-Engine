@@ -205,6 +205,13 @@ constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121Matr
 constexpr size_t kSm121KeyElements =
     static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 
+struct Sm121SuffixWorkspace {
+    uint16_t* cells = nullptr;
+    unsigned int capacity_tokens = 0u;
+};
+Sm121SuffixWorkspace g_sm121_suffix;
+std::mutex g_sm121_suffix_mutex;
+
 bool sm121_attention_enabled(unsigned int tokens) {
     const char* flag = std::getenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
     return tokens > 0u && tokens <= kSm121MaxTokens && flag && std::strcmp(flag, "1") == 0;
@@ -373,6 +380,64 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);
+}
+
+int launch_sm121_suffix_attention(
+    const uint16_t* q, const uint16_t* prefix_k, const uint16_t* prefix_v,
+    const uint16_t* suffix_k, const uint16_t* suffix_v, float* output,
+    hipStream_t stream, unsigned int prefix_tokens, unsigned int suffix_tokens) {
+    if (!prefix_tokens || prefix_tokens >= kSm121MaxTokens || !suffix_tokens ||
+        suffix_tokens > 1024u || suffix_tokens > kSm121MaxTokens - prefix_tokens)
+        return int(hipErrorInvalidValue);
+    const unsigned int total = prefix_tokens + suffix_tokens;
+    const void* inputs[] = {q, prefix_k, prefix_v, suffix_k, suffix_v};
+    const size_t prefix_bytes = size_t(prefix_tokens) * kKvFeatures * sizeof(uint16_t);
+    const size_t suffix_bytes = size_t(suffix_tokens) * kKvFeatures * sizeof(uint16_t);
+    const size_t query_bytes = size_t(suffix_tokens) * kQueryFeatures * sizeof(uint16_t);
+    const size_t sizes[] = {query_bytes, prefix_bytes, prefix_bytes, suffix_bytes, suffix_bytes};
+    const size_t output_bytes = size_t(suffix_tokens) * kQueryFeatures * sizeof(float);
+    const uintptr_t destination = reinterpret_cast<uintptr_t>(output);
+    if (!destination || destination % alignof(float) || output_bytes > UINTPTR_MAX - destination)
+        return int(hipErrorInvalidValue);
+    for (unsigned int i = 0u; i < 5u; ++i) {
+        const uintptr_t address = reinterpret_cast<uintptr_t>(inputs[i]);
+        if (!address || address % alignof(uint16_t) || sizes[i] > UINTPTR_MAX - address ||
+            (destination < address + sizes[i] && address < destination + output_bytes))
+            return int(hipErrorInvalidValue);
+    }
+    if (!sm121_attention_enabled(total)) return int(hipErrorNotSupported);
+    // The exact kernels index Q by absolute position. Stage the compact suffix
+    // at that position and assemble the complete KV history without recomputing
+    // prefix projections. Prefix Q cells are never read by this query span.
+    // Every call refreshes all consumed cells, even when the addresses repeat.
+    std::lock_guard<std::mutex> lock(g_sm121_suffix_mutex);
+    if (g_sm121_suffix.capacity_tokens < total) {
+        uint16_t* next = nullptr;
+        const auto status = hipMalloc(reinterpret_cast<void**>(&next),
+            size_t(total) * (kQueryFeatures + 2u * kKvFeatures) * sizeof(uint16_t));
+        if (status != hipSuccess) return int(status);
+        (void)hipFree(g_sm121_suffix.cells);
+        g_sm121_suffix = Sm121SuffixWorkspace{next, total};
+    }
+    auto* staged_q = g_sm121_suffix.cells;
+    auto* staged_k = staged_q + size_t(g_sm121_suffix.capacity_tokens) * kQueryFeatures;
+    auto* staged_v = staged_k + size_t(g_sm121_suffix.capacity_tokens) * kKvFeatures;
+    void* destinations[] = {staged_q + size_t(prefix_tokens) * kQueryFeatures,
+        staged_k, staged_v, staged_k + size_t(prefix_tokens) * kKvFeatures,
+        staged_v + size_t(prefix_tokens) * kKvFeatures};
+    for (unsigned int i = 0u; i < 5u; ++i) {
+        const auto status = hipMemcpyAsync(destinations[i], inputs[i], sizes[i], hipMemcpyDeviceToDevice, stream);
+        if (status != hipSuccess) {
+            (void)hipStreamSynchronize(stream);
+            return int(status);
+        }
+    }
+    const int status = launch_sm121_attention(staged_q, staged_k, staged_v, output,
+        stream, prefix_tokens, suffix_tokens, 0u);
+    // Drain submitted copies too when a later launcher validation fails. The
+    // caller can immediately discard its transaction after any failed call.
+    if (status != int(hipSuccess)) (void)hipStreamSynchronize(stream);
+    return status;
 }
 
 int launch_blackwell_exact_terminal(
@@ -951,6 +1016,20 @@ QRT_CK_EXPORT int qrt_ck_fmha_q1024_kv17408_suffix_bf16_launch(
         mask_enum::mask_bottom_right);
 }
 
+// Optional exact continuation ABI. Q and suffix K/V are compact token-major
+// BF16; prefix K/V are immutable token-major BF16. Output is suffix-local F32.
+QRT_CK_EXPORT int qrt_ck_fmha_sm121_suffix_bf16_v1(
+    const uint16_t* q, const uint16_t* prefix_k, const uint16_t* prefix_v,
+    const uint16_t* suffix_k, const uint16_t* suffix_v, float* output,
+    void* stream, unsigned int prefix_tokens, unsigned int suffix_tokens) {
+#if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    return launch_sm121_suffix_attention(q, prefix_k, prefix_v, suffix_k, suffix_v,
+        output, reinterpret_cast<hipStream_t>(stream), prefix_tokens, suffix_tokens);
+#else
+    return int(hipErrorNotSupported);
+#endif
+}
+
 QRT_CK_EXPORT int qrt_ck_fmha_q32768_f32_launch(
     const float *packed_qkv,
     float *output,
@@ -1149,6 +1228,9 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
     (void)hipFree(g_state.q);
     g_state = ProviderState{};
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    std::lock_guard<std::mutex> suffix_lock(g_sm121_suffix_mutex);
+    (void)hipFree(g_sm121_suffix.cells);
+    g_sm121_suffix = Sm121SuffixWorkspace{};
     {
         std::lock_guard<std::mutex> tables_lock(g_sm121_mutex);
         (void)hipFree(g_sm121_exp2);
