@@ -320,6 +320,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const unsigned compact_pv_mode = query_count > 1u && compact_pv_option &&
         (*compact_pv_option >= '1' && *compact_pv_option <= '3') ? unsigned(*compact_pv_option - '0') : 0u;
     if (compact_pv_mode && (!tiled_qk || warp_softmax || prepared_value)) return int(hipErrorInvalidValue);
+    const char* batch_option = std::getenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
+    unsigned requested_batch = kSm121MatrixQueryBatch;
+    if (batch_option && *batch_option) {
+        if (std::strcmp(batch_option, "32") == 0) requested_batch = 32u;
+        else if (std::strcmp(batch_option, "64") == 0) requested_batch = 64u;
+        else if (std::strcmp(batch_option, "128") == 0) requested_batch = 128u;
+        else return int(hipErrorInvalidValue);
+    }
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -345,7 +353,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u || tiled_qk;
     const unsigned int memory_layout = compact_pv_mode ? 21u + compact_pv_mode : prepared_value ? 17u : warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
-    const unsigned int query_batch = matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
+    const bool wider_slab = (compact_pv_mode == 1u || compact_pv_mode == 3u) &&
+        query_start + query_count <= 8192u;
+    const unsigned int query_batch = wider_slab ? requested_batch :
+        matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
+    // The existing long-context scratch already covers a 128-query q8192 slab.
+    // Keep the same allocation size, ownership lock and completion boundaries.
+    static_assert(kSm121MantissaElements >=
+        size_t(128u) * kQueryHeads * (8192u + 8192u / 2u + 256u + 1u + 2u * kHeadDim) + 1u);
     if (expanded_scratch && !g_sm121_mantissa_scores) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_mantissa_scores),
             kSm121MantissaElements * sizeof(float)));

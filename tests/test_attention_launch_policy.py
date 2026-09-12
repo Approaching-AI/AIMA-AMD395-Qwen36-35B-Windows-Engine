@@ -450,6 +450,26 @@ int main() {
             fail_memset=false;
         }
     }
+    for(unsigned layout : {22u,24u}) {
+        for(unsigned count : {33u,64u,65u,127u,128u}) {
+            launches=error_queries=memsets=fail_launch=0u;
+            const unsigned start=8192u-count;
+            const size_t span=split_scratch_elements(count,8192u,layout);
+            const size_t expected=size_t(count)*16u*(8192u+4096u+257u+512u)+1u;
+            auto slab=[&](size_t elements) {
+                return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,3u,
+                    nullptr,nullptr,nullptr,true,rcp,layout,&scratch,elements,nullptr,nullptr,&operand,8192u);
+            };
+            if(span!=expected || slab(span-1u)!=hipErrorInvalidValue || launches || memsets) return 90;
+            if(slab(span)!=hipSuccess || launches!=5u || memsets!=1u || launch_grids[4]!=1024u) return 91;
+            for(unsigned failure=1u;failure<=5u;++failure) {
+                launches=error_queries=memsets=0u;fail_launch=failure;
+                if(slab(span)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 92;
+            }
+        }
+        if(split_scratch_elements(129u,8192u,layout) || split_scratch_elements(33u,8193u,layout)) return 93;
+    }
+    if(split_scratch_elements(33u,8192u,23u) || split_scratch_elements(33u,8192u,15u)) return 94;
     return 0;
 }
 '''

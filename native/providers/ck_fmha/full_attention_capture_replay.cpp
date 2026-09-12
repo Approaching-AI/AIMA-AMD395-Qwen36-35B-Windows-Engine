@@ -291,7 +291,7 @@ int main(int argc, char** argv) {
             "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_24]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
-        const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
+        const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 128);
         const bool baseline = parse(argv[12], 1) != 0;
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 24) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
@@ -299,7 +299,8 @@ int main(int argc, char** argv) {
             std::strcmp(native_product_option, "0") != 0;
         if (native_products && memory_layout != 4u) throw std::runtime_error("native products require transposed split attention");
         bool matched = true;
-        if (!tokens || !count || !batch || start >= tokens || count > tokens - start)
+        if (!tokens || !count || !batch || batch > qrt_blackwell_attention::split_query_limit(memory_layout, start + count) ||
+            start >= tokens || count > tokens - start)
             throw std::runtime_error("invalid query span");
         if (baseline && tokens > 8192u)
             throw std::runtime_error("CK baseline is bounded to 8192 tokens");

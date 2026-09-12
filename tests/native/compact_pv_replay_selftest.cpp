@@ -111,5 +111,8 @@ int main() try {
     if(std::strncmp(properties.gcnArchName,"gfx1151",7u)) throw std::runtime_error("requires gfx1151");
     for (auto shape : {std::pair<unsigned,unsigned>{0,1},{31,2},{17,32},{64,3},{8191,1}})
         for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode);
+    for (auto shape : {std::pair<unsigned,unsigned>{17,65},{31,128}})
+        for(unsigned mode : {0u,1u,2u,3u}) run(shape.first,shape.second,mode);
+    run(8064u,128u,2u);  // Long K, every query, sparse candidates across all slabs.
     return 0;
 } catch(const std::exception& e) { std::fprintf(stderr,"compact_pv_selftest_error=%s\n",e.what());return 2; }

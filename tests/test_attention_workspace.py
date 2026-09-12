@@ -129,7 +129,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     if (layout == 17u) {
         if (!preparations || wide != g_sm121_prepared_values || wide_tokens != key_stride) std::abort();
     } else if (wide || wide_tokens) std::abort();
-    if (!count || count > (matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
+    if (!count || count > ((layout == 22u || layout == 24u) && key_stride <= 8192u ? 128u : matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
     if ((layout >= 4u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u)) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
@@ -361,6 +361,29 @@ int main() {
         setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",bad,1);
         if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 60;
     }
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    for(const char* batch : {"32","64","128"}) {
+        setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH",batch,1);
+        const unsigned n=unsigned(std::atoi(batch));
+        reset();
+        if(launch(0,7169)!=hipSuccess || queries!=(7169u+n-1u)/n || syncs!=queries ||
+           largest_batch!=n || allocations!=5u) return 61;
+        reset();
+        if(launch(0,8192)!=hipSuccess || queries!=8192u/n || largest_batch!=n) return 62;
+        reset();
+        if(launch(1,8192)!=hipSuccess || queries!=256u || largest_batch!=32u) return 63;
+        reset();
+        if(launch(7168,1)!=hipSuccess || observed_layout!=2u || largest_batch!=1u) return 64;
+        reset();fail_query=2u;
+        if(launch(0,7169)!=hipErrorUnknown || queries!=2u || syncs!=2u) return 65;
+        reset();fail_allocation=5u;
+        if(launch(0,7169)!=hipErrorUnknown || queries || transposes || live.size()!=4u) return 66;
+    }
+    for(const char* bad : {"0","16","33","256","-1","128junk"," 128","0128"}) {
+        reset();setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || transposes) return 67;
+    }
+    unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
     return 0;

@@ -1539,9 +1539,17 @@ constexpr bool split_transposed_keys(unsigned layout) {
     return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 20u) || layout == 22u || layout == 23u || layout == 24u;
 }
 
+// Wider slabs expose more independent PV matrix blocks without changing any
+// query's K16 carry, K32 online recurrence, or selective-replay predicate.
+// Limit this experiment to global PV replay through q8192. Other layouts and
+// long-context calls retain their existing 32-query workspace contract.
+constexpr unsigned split_query_limit(unsigned layout, unsigned stride) {
+    return (layout == 22u || layout == 24u) && stride <= 8192u ? 128u : 32u;
+}
+
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
-    if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
+    if (!queries || queries > split_query_limit(memory_layout, stride) || stride < queries || stride > kSplitMaxTokens ||
         memory_layout < 2u || memory_layout > 24u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
@@ -1560,7 +1568,7 @@ inline int launch_compacted_pv_replay(
     float* raw_denominator, const float* errors, unsigned* indices, unsigned* count,
     hipStream_t stream) {
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
-        !query_count || query_count > 32u || query_start >= score_stride ||
+        !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
         output_start >= 262144u || query_count > 262144u - output_start)
         return int(hipErrorInvalidValue);
@@ -1606,7 +1614,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if (memory_layout >= 2u) {
         // The split replay includes a bounded continuation of the captured prefix.
         // Long-context terminal calls retain their existing allocation-free path.
-        if (!score_scratch || query_count > 32u || query_start + query_count > kSplitMaxTokens)
+        if (!score_scratch || query_count > split_query_limit(memory_layout, query_start + query_count) ||
+            query_start + query_count > kSplitMaxTokens)
             return int(hipErrorInvalidValue);
         const unsigned int stride = query_start + query_count;
         if (split_transposed_keys(memory_layout) && (!transposed_key || key_stride < stride || key_stride > kSplitMaxTokens))
