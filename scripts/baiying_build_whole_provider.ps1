@@ -221,6 +221,9 @@ $record = [ordered]@{
     source_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $source).Hash.ToLowerInvariant()
     projection_safety_test = [bool]$ProjectionSafetyTest
+    hawkeye_device_replay_test_header_sha256 = if ($ProjectionSafetyTest) {
+        (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo 'tests\native\hawkeye_device_replay_selftest.h')).Hash.ToLowerInvariant()
+    } else { $null }
     attention_admission_replay = [bool]$AttentionAdmissionReplay
     compile_source_path = $compileSource
     compile_source_sha256 = (Get-FileHash -Algorithm SHA256 `

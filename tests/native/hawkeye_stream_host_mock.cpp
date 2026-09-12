@@ -29,6 +29,7 @@ static unsigned int allocations = 0, frees = 0, collections = 0, corrections = 0
 static unsigned int reject_collection = 0, fail_sync = 0, syncs = 0;
 static unsigned int exact_blocks = 0;
 static unsigned int requested_blocks = 8u;
+static unsigned int count_reads = 0u;
 static size_t scratch_bytes = 0;
 static bool invalid_grid = false, invalid_range = false;
 static std::vector<size_t> corrected;
@@ -48,6 +49,7 @@ hipError_t hipMemsetAsync(void *p, int value, size_t n, hipStream_t) {
     std::memset(p, value, n); return hipSuccess;
 }
 hipError_t hipMemcpy(void *to, const void *from, size_t n, int) {
+    ++count_reads;
     std::memcpy(to, from, n); return hipSuccess;
 }
 hipError_t hipGetLastError() { return hipSuccess; }
@@ -61,7 +63,8 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     }
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
-    const unsigned int limit = exact
+    const unsigned int limit = std::strstr(name, "device_correction") != nullptr
+        ? qrt_hawkeye_dispatch::maximum_device_replay_blocks : exact
         ? (std::min)(requested_blocks, qrt_hawkeye_dispatch::maximum_exact_blocks)
         : qrt_hawkeye_dispatch::maximum_window_elements / 256u;
     if (exact) exact_blocks = blocks.x;
@@ -70,8 +73,9 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
 #define hipLaunchKernelGGL(kernel, blocks, threads, shared, stream, ...) \
     do { grid(#kernel, blocks, threads); kernel(__VA_ARGS__); } while (0)
 
+template<bool RoundOutputs>
 void selected_bf16_projection_hawkeye_compact_kernel(
-    const float *sums, const float *input_bounds, const float *weight_bounds, const float *output,
+    const float *sums, const float *input_bounds, const float *weight_bounds, float *output,
     unsigned int rows, unsigned int, unsigned int prefix, unsigned int,
     unsigned int *counts, unsigned int *indices, size_t offset, unsigned int count
 ) {
@@ -95,6 +99,10 @@ void selected_bf16_projection_hawkeye_compact_kernel(
         }
     }
     if (collections == reject_collection) counts[0] = qrt_hawkeye_dispatch::maximum_candidates + 1u;
+    if constexpr (RoundOutputs) {
+        ++rounds;
+        for (unsigned j = 0; j < count; ++j) output[offset + j] = 1.0f;
+    }
 }
 void round_f32_outputs_to_bf16_kernel(float *output, unsigned int count) {
     ++rounds;
@@ -124,6 +132,28 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
 }
 
 void selected_hawkeye_transpose_weights_kernel(const uint16_t*, uint16_t*, unsigned int, unsigned int) {}
+template<bool ShapeAware>
+void selected_bf16_projection_hawkeye_device_correction_kernel(
+    const uint16_t *, const uint16_t *inputs, float *output, unsigned int rows,
+    unsigned int, const unsigned int *counts, const unsigned int *indices,
+    unsigned int window, qrt_sm121_prefill_projection::Plan plan
+) {
+    ++corrections;
+    if (ShapeAware != qrt_sm121_prefill_projection::changes_dot(plan) || counts[0] > window)
+        invalid_range = true;
+    if (tracked_output) {
+        const size_t base = static_cast<size_t>(output - tracked_output);
+        if (inputs != tracked_inputs + base / rows * tracked_k ||
+            ShapeAware != (base != 0u)) invalid_range = true;
+        if (ShapeAware) shape_aware_outputs += counts[0];
+    }
+    for (unsigned j = 0; j < counts[0]; ++j) {
+        const size_t index = indices[j];
+        if (index >= total_elements) { invalid_range = true; continue; }
+        corrected.push_back(index);
+        output[index] = static_cast<float>((index / rows) * 2u + index % rows);
+    }
+}
 void selected_bf16_projection_hawkeye_packed_correction_kernel(
     const uint16_t*, const uint16_t*, float* output, unsigned int rows,
     unsigned int, const unsigned int* indices, unsigned int offset, unsigned int count
@@ -156,13 +186,23 @@ void packed_mode(bool enabled) {
     else unsetenv("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES");
 #endif
 }
+void device_mode(bool enabled) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_DEVICE_REPLAY", enabled ? "1" : "");
+#else
+    if (enabled) setenv("QRT_QWEN36_HAWKEYE_DEVICE_REPLAY", "1", 1);
+    else unsetenv("QRT_QWEN36_HAWKEYE_DEVICE_REPLAY");
+#endif
+}
 void reset() {
     allocations = frees = collections = corrections = rounds = 0;
     reject_collection = fail_sync = syncs = 0;
     invalid_grid = invalid_range = false; corrected.clear();
     shape_aware_outputs = 0;
+    count_reads = 0;
 }
 int main() {
+    device_mode(false);
     packed_mode(false);
     // Independently validate the native synthetic test's closed-form dot,
     // including zero signs, against the production scalar accumulator.
@@ -313,7 +353,8 @@ int main() {
                 &value, inputs.data(), sums.data(), bounds.data(), weight_bounds.data(), output.data(),
                 r, prefix + tail, k, 512u, 0u, 0u, requested_blocks, nullptr);
         };
-        reset();
+        for (bool device : {false, true}) {
+        device_mode(device); reset(); std::fill(output.begin(), output.end(), 1.001f);
         if (run() != hipSuccess || shape_aware_outputs != static_cast<size_t>(r) * tail ||
             corrected.size() != static_cast<size_t>(r) * tail || invalid_grid || invalid_range ||
             allocations != 2u || frees != 2u) return 28;
@@ -321,11 +362,41 @@ int main() {
             if (output[i] != 1.0f) return 29;
         for (size_t i = 0; i < static_cast<size_t>(r) * tail; ++i)
             if (output[static_cast<size_t>(prefix) * r + i] != static_cast<float>((i / r) * 2u + i % r)) return 30;
+        if (device && count_reads) return 33;
+        }
+        device_mode(false);
         reset(); fail_sync = 2u; std::fill(output.begin(), output.end(), 1.001f);
         if (run() != hipErrorUnknown || corrections || rounds || allocations != frees || shape_aware_outputs)
             return 31;
         if (!std::all_of(output.begin(), output.end(), [](float x) { return x == 1.001f; })) return 32;
         tracked_output = nullptr;
     }
+    // The device route selects before fused rounding, processes every index
+    // once across multiple windows, performs no D2H count reads, and stops
+    // later windows on a completion fault. Count-only remains nonmutating.
+    device_mode(true); requested_blocks = 4096u;
+    total_elements = static_cast<size_t>(rows) * tokens;
+    for (unsigned mode = 0; mode < 3; ++mode) {
+        reset(); output = initial;
+        if (mode != 1u) std::fill(output.begin(), output.end(), mode ? 1.00390625f : 1.001f);
+        const auto before = output;
+        if (invoke(output) != hipSuccess || collections != 3 || rounds != 3 || corrections != 3 ||
+            syncs != 4 || count_reads || invalid_grid || invalid_range || allocations != frees) return 34;
+        for (size_t i = 0; i < total_elements; ++i) {
+            const float expected = before[i] == 1.00390625f
+                ? static_cast<float>((i / rows) * 2u + i % rows) : 1.0f;
+            if (output[i] != expected) return 35;
+        }
+        std::sort(corrected.begin(), corrected.end());
+        if (std::adjacent_find(corrected.begin(), corrected.end()) != corrected.end()) return 36;
+    }
+    reset(); output = initial; fail_sync = 2;
+    if (invoke(output) != hipErrorUnknown || collections != 1 || corrections != 1 ||
+        count_reads || allocations != frees) return 37;
+    for (size_t i = 65536; i < output.size(); ++i) if (output[i] != initial[i]) return 38;
+    reset(); output = initial; count_only(true);
+    if (invoke(output) != hipErrorInvalidConfiguration || output != initial || rounds || corrections ||
+        count_reads != 3 || allocations != frees) return 39;
+    count_only(false); device_mode(false);
     return 0;
 }

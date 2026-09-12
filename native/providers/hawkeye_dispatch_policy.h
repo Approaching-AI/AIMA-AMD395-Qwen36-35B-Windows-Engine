@@ -21,6 +21,12 @@ constexpr std::uint32_t maximum_exact_blocks = 4096u;
 constexpr std::uint32_t maximum_candidates_per_block = 64u;
 constexpr double maximum_dispatch_ms = 100.0;
 constexpr double maximum_correction_ms = 10000.0;
+// Device-count replay completes one collection window before returning to the
+// host. Its 1024 CTAs each process at most 64 dots per four-lane subgroup at
+// K <= 4096. Bound this larger unit independently of the old one-dot dispatch.
+constexpr std::uint32_t maximum_device_window_elements = 4194304u;
+constexpr std::uint32_t maximum_device_replay_blocks = 1024u;
+constexpr double maximum_device_window_ms = 250.0;
 
 constexpr std::uint32_t window_elements(
     std::uint64_t remaining, std::uint32_t capacity = maximum_window_elements
@@ -42,6 +48,11 @@ constexpr bool admitted_packed(std::uint32_t candidates, std::uint32_t block_can
 
 constexpr bool time_remaining(double dispatch_ms, double correction_ms) {
     return dispatch_ms <= maximum_dispatch_ms &&
+        correction_ms <= maximum_correction_ms;
+}
+
+constexpr bool device_time_remaining(double window_ms, double correction_ms) {
+    return window_ms <= maximum_device_window_ms &&
         correction_ms <= maximum_correction_ms;
 }
 

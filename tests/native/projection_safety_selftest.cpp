@@ -334,6 +334,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_real_replay.h"
 #include "convolution_real_replay.h"
 #include "final_norm_real_replay.h"
+#include "hawkeye_device_replay_selftest.h"
 
 int main(int argc, char **argv) {
     using namespace projection_safety_test;
@@ -341,7 +342,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -349,7 +350,9 @@ int main(int argc, char **argv) {
             hipDeviceProp_t properties{};
             hip_ok(hipGetDeviceProperties(&properties, 0), "device_properties");
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
-            if (mode == "--wmma-staging") {
+            if (mode == "--device-replay") {
+                cases += run_device_replay_suite();
+            } else if (mode == "--wmma-staging") {
                 for (const auto shape : {std::pair{17u, 7u}, std::pair{129u, 65u}, std::pair{8192u, 8192u}}) {
                     run_staging_case(shape.first, shape.second);
                     ++cases;
