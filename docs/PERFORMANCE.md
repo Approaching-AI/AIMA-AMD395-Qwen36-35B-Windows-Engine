@@ -22,6 +22,8 @@ verify their fallback transaction and complete owner-state restoration.
 | MoE 8a7a8dc, staged K64 operands | cold 8192, ordinary path | 55453.937 | 105.957922 | 20116.758099 |
 | whole/CK/FLA/MoE 8f436db, compact normalization | cold 8192, ordinary path | 53818.8428 | 102.263044 | 20068.490699 |
 | MoE a012e01, exact dot tile certificate (not retained) | cold 8192, ordinary path | 56050.9289 | 101.508477 | 20076.2551 |
+| whole 57b3306, original dense dispatch | cold 8192, ordinary path | 53953.8059 | 100.925442 | 20031.092701 |
+| same binary, device-count dense replay | cold 8192, ordinary path | 53534.7813 | 100.702816 | 20018.5822 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -85,6 +87,18 @@ over compact normalization. Keep `CertifiedDotTiles=0` and the 8f436db MoE.
 These single runs establish no repeatability or real-model admission density;
 one negative native microtiming is invalid. Evidence:
 `benchmarks/correctness/certified-dot-20260913.json`.
+
+Dense correction can now collect and round in one pass, then read its candidate
+count on the GPU and replay bounded four-million-cell windows. Both same-binary
+q8192 runs pass every GB10 token, callback and exact first logit. The observed
+419.0246 ms difference accompanies correction host wall of 9512.093 versus
+9103.645 ms and eliminates 330 host count reads. Native tests compare 8,874,156
+output cells, full candidate windows, short split plans and all redzones.
+The larger completed window has a 250 ms deadline, exercised at 101.385 ms for
+maximum K and dense selection. This remains opt-in; subsequent producer
+experiments use compact normalization with device replay disabled. One paired
+measurement does not establish repeatability or qualify immutable performance.
+See `benchmarks/correctness/dense-device-replay-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical
