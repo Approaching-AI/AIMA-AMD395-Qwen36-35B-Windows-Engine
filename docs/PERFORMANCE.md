@@ -20,6 +20,7 @@ verify their fallback transaction and complete owner-state restoration.
 | whole/CK/FLA 930955a, same DPP MoE | cold 8192, ordinary path | 57617.9907 | 107.136582 | 20077.7027 |
 | CK d028182, globally compacted PV replay | cold 8192, ordinary path | 56604.0518 | 106.860717 | 20074.636 |
 | MoE 8a7a8dc, staged K64 operands | cold 8192, ordinary path | 55453.937 | 105.957922 | 20116.758099 |
+| whole/CK/FLA/MoE 8f436db, compact normalization | cold 8192, ordinary path | 53818.8428 | 102.263044 | 20068.490699 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -64,6 +65,15 @@ Emitted code confirms K64 operand loads without scratch spills. One negative
 microtiming remains invalid; the product comparison contains one run each.
 Use four staged groups in subsequent experiments; the build default remains
 one. See `benchmarks/correctness/moe-staged-dot-20260913.json`.
+
+The shared integer normalization now uses one magnitude alignment and a
+combined truncating shift, preserving the original internal 26-bit grid.
+All 4,194,304 wide CPU reference cases and 73,782 native dots pass. The full
+q8192/out512 run matches every GB10 token, callback and exact first logit at
+53818.8428 ms callback TTFT, 1635.0942 ms below the staged-MoE baseline.
+This single-run comparison supports enabling compact normalization in further
+experiments; its build default remains disabled. Broader contexts and release
+acceptance remain open. See `benchmarks/correctness/canonical-normalize-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical

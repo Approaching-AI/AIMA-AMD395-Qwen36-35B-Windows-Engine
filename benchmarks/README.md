@@ -81,6 +81,13 @@ callback TTFT is 55453.937 ms; all tokens, callbacks and the first logit match.
 The measured 1150.1148 ms reduction supports further experiments, while
 retained performance and release acceptance remain open.
 
+`correctness/canonical-normalize-20260913.json` records a common exact
+normalization simplification across whole, CK, FLA and MoE. Independent wide
+CPU arithmetic checks 4,194,304 magnitudes and native dots check 73,782 outputs.
+All q8192/out512 tokens, callbacks and the first logit match GB10 at an actual
+53818.8428 ms callback. The 1635.0942 ms observed reduction compares one run
+each; no retained performance threshold or release is qualified.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
