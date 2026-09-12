@@ -94,7 +94,7 @@ void run_case(uint32_t tokens, bool dense) {
     hip_ok(hipEventRecord(begin, nullptr), "record begin");
     const uint32_t blocks = static_cast<uint32_t>((elements + kNativeThreads - 1u) / kNativeThreads);
     hip_ok(launch_moe_correction<MaximumBlocks>(
-        shared_projection_hawkeye_midpoint_correction_kernel, blocks, nullptr,
+        shared_projection_hawkeye_midpoint_correction_kernel<false>, blocks, nullptr,
         MoeL2::SharedInput, MoeL2::SharedGate, dn.data(), di.data(), dw.data(),
         dout.data(), tokens, dense ? 32768u : 0u), "actual correction launcher");
     hip_ok(hipEventRecord(end, nullptr), "record end");
