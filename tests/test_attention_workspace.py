@@ -64,6 +64,7 @@ bool valid_layout(const unsigned char*, size_t) { return true; }
 }
 unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, syncs = 0;
 unsigned fail_query = 0;
+unsigned observed_layout = 0, largest_batch = 0;
 bool fail_transpose = false;
 std::set<void*> live;
 hipError_t hipMalloc(void** pointer, size_t) {
@@ -98,12 +99,17 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
                    unsigned key_stride, bool = false) {
     ++queries;
-    if (!count || count > 8u || scores != (layout == 5u ? g_sm121_mantissa_scores : g_sm121_scores) ||
+    observed_layout = layout; largest_batch = std::max(largest_batch, count);
+    const bool matrix = layout == 6u || layout == 7u;
+    const bool expanded = layout >= 5u && layout <= 7u;
+    if (!count || count > (matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
-    if (layout == 4u || layout == 5u) {
+    if (layout >= 4u && layout <= 7u) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
             std::abort();
-        if (layout == 5u && elements != kSm121MantissaElements) std::abort();
+        if (expanded && (elements != kSm121MantissaElements ||
+            elements < size_t(count) * 16u * (start + count) * 3u / 2u +
+                size_t(count) * 16u * (((start + count + 31u) / 32u) + 1u))) std::abort();
     } else if (layout != 2u || prepared || transposes) std::abort();
     return queries == fail_query ? hipErrorUnknown : hipSuccess;
 }
@@ -117,6 +123,7 @@ void reset() {
     qrt_ck_fmha_q8192_release();
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
+    observed_layout = largest_batch = 0;
     fail_transpose = false;
 }
 int main() {
@@ -178,6 +185,33 @@ int main() {
         sm121_attention_enabled(0xffffffffu)) return 18;
     reset();
     unsetenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
+    for (const char* mode : {"1", "2"}) {
+        setenv("QRT_CK_SM121_NATIVE_BF16_MATRIX", mode, 1);
+        reset(); fail_allocation = 5u;
+        if (launch(0, 65) != hipErrorUnknown || transposes || queries ||
+            g_sm121_mantissa_scores || live.size() != 4u) return 19;
+        reset();
+        if (launch(0, 65) != hipSuccess || queries != 3u || syncs != 3u ||
+            largest_batch != 32u || observed_layout != unsigned(5 + mode[0] - '0')) return 20;
+        reset(); fail_query = 2u;
+        if (launch(0, 65) != hipErrorUnknown || queries != 2u || syncs != 2u) return 21;
+        reset();
+        if (launch(8192, 1) != hipSuccess || observed_layout != 2u || transposes ||
+            g_sm121_mantissa_scores || largest_batch != 1u) return 22;
+        reset();
+        if (launch(16352, 32) != hipSuccess || observed_layout != unsigned(5 + mode[0] - '0') ||
+            queries != 1u || largest_batch != 32u) return 23;
+        for (const char* conflict : {"QRT_CK_SM121_MANTISSA_WMMA", "QRT_CK_SM121_NATIVE_PRODUCTS"}) {
+            reset(); setenv(conflict, "1", 1);
+            if (launch(0, 65) != hipErrorInvalidValue || transposes || queries) return 24;
+            unsetenv(conflict);
+        }
+    }
+    for (const char* bad : {"3", "-1", "true", "1junk", "20", " 2"}) {
+        reset(); setenv("QRT_CK_SM121_NATIVE_BF16_MATRIX", bad, 1);
+        if (launch(0, 65) != hipErrorInvalidValue || allocations || transposes || queries) return 25;
+    }
+    reset(); unsetenv("QRT_CK_SM121_NATIVE_BF16_MATRIX");
     return 0;
 }
 '''

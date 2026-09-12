@@ -12,8 +12,9 @@ prefill row at position 7168. Rollback and unrelated-prefix rejection pass.
 The earlier token220/logit9.3125 failure used decode recurrence for the last
 prefill input. Seeded FLA preserves the prefill BF16 chunk boundaries and
 unrounded FP32 initial state; generated-token decode retains its original
-recurrence. This qualifies the tested single-input case only. Divergent
-requests, multi-token suffixes, the wider cold matrix and packaged-server
+recurrence. The four later actual branch tests below additionally qualify
+three divergent single-input requests and one five-input request. General
+long-prefix targets, the wider cold configuration and packaged-server
 execution remain open. See
 `benchmarks/correctness/prefix-fla-single-input-20260912.json`; the earlier
 failure remains in `benchmarks/correctness/model-prefix-checkpoints-20260912.json`.

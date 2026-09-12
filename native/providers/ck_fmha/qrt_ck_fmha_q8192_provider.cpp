@@ -189,14 +189,17 @@ float* g_sm121_scores = nullptr;
 float* g_sm121_mantissa_scores = nullptr;
 uint16_t* g_sm121_transposed_keys = nullptr;
 constexpr unsigned int kSm121QueryBatch = 8u;
+constexpr unsigned int kSm121MatrixQueryBatch = 32u;
 // Match the exact kernel's checked extent, including the first token beyond
 // the historical q8192 bucket. Dispatch selection, score storage, key storage
 // and launch validation must use the same capacity.
 constexpr unsigned int kSm121MaxTokens = qrt_blackwell_attention::kSplitMaxTokens;
 constexpr size_t kSm121ScoreElements =
     static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kSm121MaxTokens;
-constexpr size_t kSm121MantissaElements = kSm121ScoreElements + kSm121ScoreElements / 2u +
-    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * (kSm121MaxTokens / 32u + 1u);
+constexpr size_t kSm121MatrixScoreElements =
+    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * kSm121MaxTokens;
+constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121MatrixScoreElements / 2u +
+    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * (kSm121MaxTokens / 32u + 1u);
 constexpr size_t kSm121KeyElements =
     static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 
@@ -271,6 +274,16 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     unsigned int query_start, unsigned int query_count, unsigned int output_start) {
     if (!q || !k || !v || !output || query_count == 0u || query_start >= kSm121MaxTokens ||
         query_count > kSm121MaxTokens - query_start) return int(hipErrorInvalidValue);
+    // Expose the already isolated native MMA candidates to real-model gates.
+    // 1 changes PV only; 2 changes QK and PV. Online softmax, tile order and
+    // reference SFU tables are shared with the exact route. Q1 stays exact.
+    const char* matrix_option = std::getenv("QRT_CK_SM121_NATIVE_BF16_MATRIX");
+    if (matrix_option && matrix_option[0] != '\0' &&
+        std::strcmp(matrix_option, "0") != 0 && std::strcmp(matrix_option, "1") != 0 &&
+        std::strcmp(matrix_option, "2") != 0) return int(hipErrorInvalidValue);
+    const unsigned matrix_mode = query_count > 1u && matrix_option &&
+        (matrix_option[0] == '1' || matrix_option[0] == '2')
+        ? static_cast<unsigned>(matrix_option[0] - '0') : 0u;
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -284,7 +297,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
     const bool native_products = independent_dots && !mantissa_wmma && native_product_option &&
         native_product_option[0] != '\0' && std::strcmp(native_product_option, "0") != 0;
-    if (mantissa_wmma && !g_sm121_mantissa_scores) {
+    if (matrix_mode && (mantissa_wmma || native_products)) return int(hipErrorInvalidValue);
+    const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u;
+    const unsigned int memory_layout = matrix_mode ? 5u + matrix_mode
+        : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
+    const unsigned int query_batch = matrix_mode ? kSm121MatrixQueryBatch : kSm121QueryBatch;
+    if (expanded_scratch && !g_sm121_mantissa_scores) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_mantissa_scores),
             kSm121MantissaElements * sizeof(float)));
         if (status != int(hipSuccess)) { g_sm121_mantissa_scores = nullptr; return status; }
@@ -298,12 +316,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             return status;
         }
     }
-    for (unsigned int offset = 0; offset < query_count; offset += kSm121QueryBatch) {
+    for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
         status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
-            query_start + offset, std::min(kSm121QueryBatch, query_count - offset), output_start + offset,
-            g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, mantissa_wmma ? 5u : (independent_dots ? 4u : 2u),
-            mantissa_wmma ? g_sm121_mantissa_scores : g_sm121_scores,
-            mantissa_wmma ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
+            query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
+            g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, memory_layout,
+            expanded_scratch ? g_sm121_mantissa_scores : g_sm121_scores,
+            expanded_scratch ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
             independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
@@ -315,8 +333,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
             return int(hipErrorLaunchTimeOut);
     }
-    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u diagnostic_only=1\n",
-        query_start, query_count, kSm121QueryBatch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma));
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u diagnostic_only=1\n",
+        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode);
     return int(hipSuccess);
 }
 

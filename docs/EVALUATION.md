@@ -32,6 +32,15 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
+connects the previously isolated native MMA attention candidates to full-model
+tests. It uses 32-query dispatches and preserves reference online softmax,
+tile order, exponential and reciprocal tables. Single-query calls retain the
+exact path. It cannot be combined with the older native-product or integer
+mantissa probes. The default remains off. Internal component bit differences
+are diagnostic; only a matching real-model GB10 run can qualify the route or
+its performance.
+
 Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
