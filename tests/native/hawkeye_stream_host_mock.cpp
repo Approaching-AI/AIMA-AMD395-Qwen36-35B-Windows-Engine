@@ -33,6 +33,11 @@ static size_t scratch_bytes = 0;
 static bool invalid_grid = false, invalid_range = false;
 static std::vector<size_t> corrected;
 static size_t total_elements = 0;
+static float *tracked_output = nullptr;
+static const float *tracked_sums = nullptr, *tracked_input_bounds = nullptr, *tracked_weight_bounds = nullptr;
+static const uint16_t *tracked_inputs = nullptr;
+static unsigned tracked_prefix = 0, tracked_k = 0;
+static size_t shape_aware_outputs = 0;
 
 hipError_t hipMalloc(void **p, size_t bytes) {
     ++allocations; scratch_bytes = bytes; *p = std::malloc(bytes);
@@ -66,11 +71,17 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     do { grid(#kernel, blocks, threads); kernel(__VA_ARGS__); } while (0)
 
 void selected_bf16_projection_hawkeye_compact_kernel(
-    const float *, const float *, const float *, const float *output,
+    const float *sums, const float *input_bounds, const float *weight_bounds, const float *output,
     unsigned int rows, unsigned int, unsigned int prefix, unsigned int,
     unsigned int *counts, unsigned int *indices, size_t offset, unsigned int count
 ) {
     ++collections;
+    if (tracked_output) {
+        const size_t base = static_cast<size_t>(output - tracked_output);
+        if (base != 0u && base != static_cast<size_t>(tracked_prefix) * rows) invalid_range = true;
+        if (sums != tracked_sums + base || input_bounds != tracked_input_bounds + base / rows ||
+            weight_bounds != tracked_weight_bounds || base + offset + count > total_elements) invalid_range = true;
+    }
     if (offset + count > total_elements) { invalid_range = true; return; }
     unsigned int block_count = 0;
     for (unsigned int j = 0; j < count; ++j) {
@@ -91,13 +102,19 @@ void round_f32_outputs_to_bf16_kernel(float *output, unsigned int count) {
 }
 template<bool ShapeAware>
 void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
-    const uint16_t *, const uint16_t *, float *output, unsigned int rows,
+    const uint16_t *, const uint16_t *inputs, float *output, unsigned int rows,
     unsigned int, const unsigned int *indices, unsigned int offset, unsigned int count,
     qrt_sm121_prefill_projection::Plan plan
 ) {
     if (ShapeAware != qrt_sm121_prefill_projection::changes_dot(plan)) invalid_range = true;
     ++corrections;
     const unsigned int end = (std::min)(count, offset + exact_blocks * (256u / kSelectedHawkeyeReplayLanes));
+    if (tracked_output) {
+        const size_t base = static_cast<size_t>(output - tracked_output);
+        if (inputs != tracked_inputs + base / rows * tracked_k ||
+            ShapeAware != (base != 0u)) invalid_range = true;
+        if (ShapeAware) shape_aware_outputs += end - offset;
+    }
     for (unsigned int j = offset; j < end; ++j) {
         const size_t index = indices[j];
         if (index >= total_elements) { invalid_range = true; continue; }
@@ -143,6 +160,7 @@ void reset() {
     allocations = frees = collections = corrections = rounds = 0;
     reject_collection = fail_sync = syncs = 0;
     invalid_grid = invalid_range = false; corrected.clear();
+    shape_aware_outputs = 0;
 }
 int main() {
     packed_mode(false);
@@ -276,5 +294,38 @@ int main() {
         }
     }
     packed_mode(false);
+    // Exercise the actual long-prompt launcher with differently sized input,
+    // output, and bound arrays. Only the final reference batch changes plan;
+    // failure in a complete prefix must never enqueue or round its tail.
+    for (const auto shape : {std::array<unsigned, 4>{32u, 2048u, 16384u, 1024u},
+                            std::array<unsigned, 4>{64u, 2048u, 8192u, 19u},
+                            std::array<unsigned, 4>{2048u, 4096u, 8192u, 19u}}) {
+        const unsigned r = shape[0], k = shape[1], prefix = shape[2], tail = shape[3];
+        total_elements = static_cast<size_t>(r) * (prefix + tail);
+        std::vector<uint16_t> inputs(static_cast<size_t>(prefix + tail) * k);
+        std::vector<float> sums(total_elements), bounds(prefix + tail), weight_bounds(r);
+        output.assign(total_elements, 1.001f);
+        tracked_output = output.data(); tracked_sums = sums.data(); tracked_inputs = inputs.data();
+        tracked_input_bounds = bounds.data(); tracked_weight_bounds = weight_bounds.data();
+        tracked_prefix = prefix; tracked_k = k; requested_blocks = 4096u;
+        auto run = [&] {
+            return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                &value, inputs.data(), sums.data(), bounds.data(), weight_bounds.data(), output.data(),
+                r, prefix + tail, k, 512u, 0u, 0u, requested_blocks, nullptr);
+        };
+        reset();
+        if (run() != hipSuccess || shape_aware_outputs != static_cast<size_t>(r) * tail ||
+            corrected.size() != static_cast<size_t>(r) * tail || invalid_grid || invalid_range ||
+            allocations != 2u || frees != 2u) return 28;
+        for (size_t i = 0; i < static_cast<size_t>(r) * prefix; ++i)
+            if (output[i] != 1.0f) return 29;
+        for (size_t i = 0; i < static_cast<size_t>(r) * tail; ++i)
+            if (output[static_cast<size_t>(prefix) * r + i] != static_cast<float>((i / r) * 2u + i % r)) return 30;
+        reset(); fail_sync = 2u; std::fill(output.begin(), output.end(), 1.001f);
+        if (run() != hipErrorUnknown || corrections || rounds || allocations != frees || shape_aware_outputs)
+            return 31;
+        if (!std::all_of(output.begin(), output.end(), [](float x) { return x == 1.001f; })) return 32;
+        tracked_output = nullptr;
+    }
     return 0;
 }

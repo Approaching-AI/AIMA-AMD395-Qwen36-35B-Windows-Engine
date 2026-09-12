@@ -37619,8 +37619,49 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         reduction_size % 16u != 0u || requested_window_elements == 0u ||
         requested_window_elements > qrt_hawkeye_dispatch::maximum_window_elements ||
         static_cast<uint64_t>(rows) * reduction_size > SIZE_MAX / sizeof(uint16_t) ||
+        static_cast<uint64_t>(selected_token_count) * reduction_size > SIZE_MAX / sizeof(uint16_t) ||
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
+    }
+    const auto plan_for_tokens = [&](unsigned int tokens) {
+        if ((rows == 32u || rows == 64u) && reduction_size == 2048u)
+            return qrt_sm121_prefill_projection::plan(
+                qrt_sm121_prefill_projection::Stage::LinearBA, tokens);
+        if (rows == 2048u && reduction_size == 4096u)
+            return qrt_sm121_prefill_projection::plan(
+                qrt_sm121_prefill_projection::Stage::AttentionOutput, tokens);
+        return qrt_sm121_prefill_projection::Plan{};
+    };
+    // The frozen GB10 scheduler admits at most 8192 prompt inputs per
+    // forward. A long prompt's final batch must use its own cuBLAS plan:
+    // e.g. 17408 = 8192 + 8192 + 1024, whose final BA uses three accumulators.
+    // Keep full batches on the original plan and split only a changed tail.
+    // Pointer rebasing also preserves error-bound inputs and local warp cells.
+    constexpr unsigned int kReferenceBatchTokens = 8192u;
+    const unsigned int tail_tokens = selected_token_count % kReferenceBatchTokens;
+    if (selected_token_count > kReferenceBatchTokens && tail_tokens != 0u &&
+        qrt_sm121_prefill_projection::changes_dot(plan_for_tokens(tail_tokens))) {
+        const unsigned int prefix_tokens = selected_token_count - tail_tokens;
+        const size_t output_offset = static_cast<size_t>(prefix_tokens) * rows;
+        std::fprintf(stderr,
+            "BATCH_MARK hawkeye_reference_batch_split rows=%u tokens=%u k=%u "
+            "prefix_tokens=%u tail_tokens=%u reference_batch_tokens=%u "
+            "diagnostic_only=1 numerical_correctness_claimed=0\n",
+            rows, selected_token_count, reduction_size, prefix_tokens, tail_tokens,
+            kReferenceBatchTokens);
+        const hipError_t prefix_status = launch_selected_bf16_projection_hawkeye_midpoint_correction(
+            weights, selected_inputs, absolute_product_sums, selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds, outputs, rows, prefix_tokens, reduction_size,
+            midpoint_radius, (std::min)(full_prefix_tokens, prefix_tokens),
+            absolute_error_bound_ppb, maximum_blocks_per_launch, stream, requested_window_elements);
+        if (prefix_status != hipSuccess) return prefix_status;
+        return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+            weights, selected_inputs + static_cast<size_t>(prefix_tokens) * reduction_size,
+            absolute_product_sums ? absolute_product_sums + output_offset : nullptr,
+            selected_input_l2_upper_bounds ? selected_input_l2_upper_bounds + prefix_tokens : nullptr,
+            weight_l2_upper_bounds, outputs + output_offset, rows, tail_tokens, reduction_size,
+            midpoint_radius, full_prefix_tokens > prefix_tokens ? full_prefix_tokens - prefix_tokens : 0u,
+            absolute_error_bound_ppb, maximum_blocks_per_launch, stream, requested_window_elements);
     }
     // The producer can still be queued on this stream. Complete it before
     // timing a collection dispatch, otherwise the first collection inherits
@@ -37631,13 +37672,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (status != hipSuccess) return status;
     const double input_wait_ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - input_wait_start).count();
-    qrt_sm121_prefill_projection::Plan projection_plan{};
-    if ((rows == 32u || rows == 64u) && reduction_size == 2048u)
-        projection_plan = qrt_sm121_prefill_projection::plan(
-            qrt_sm121_prefill_projection::Stage::LinearBA, selected_token_count);
-    else if (rows == 2048u && reduction_size == 4096u)
-        projection_plan = qrt_sm121_prefill_projection::plan(
-            qrt_sm121_prefill_projection::Stage::AttentionOutput, selected_token_count);
+    const auto projection_plan = plan_for_tokens(selected_token_count);
     const bool shape_aware = qrt_sm121_prefill_projection::changes_dot(projection_plan);
     // Serial BF16 carriers can move far from the unsplit producer midpoint.
     // Replay every output for the bounded dense shapes with a changed plan.
