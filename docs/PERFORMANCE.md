@@ -14,6 +14,19 @@ verify their fallback transaction and complete owner-state restoration.
 | whole/CK 9871ef2, chunking enabled | cold 17408, chunks 8192+8192+1024 | 170613.1127 | 162.553605 | 20066.476999 |
 | same new binaries, q8192 control | cold 8192, ordinary path | 62478.683599 | 110.904104 | 20046.251001 |
 | same new binaries, chunked owner | 16384 prefix + 1024 suffix | 17733.562599 | 161.906225 | 20033.961899 |
+| MoE 6278fe0, original 1024-block window | cold 8192, ordinary path | 62231.9179 | 112.049735 | 20085.2361 |
+| same binary, 16384-block window | cold 8192, ordinary path | 59348.223499 | 111.265862 | 20039.383501 |
+
+The same-binary window pair changes only
+`QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
+persistent replay save 2883.694401 ms in this measured pair, using 15 MiB more
+scratch; both complete GB10 boundaries pass. This is one paired measurement,
+with no statistical repeatability claim. The default remains 1024 blocks;
+16384 is retained for further experiments. Its separate synchronized profile
+also passes all 512 outputs and callbacks, with 13785.066 ms across 40 MoE host
+calls. Raw GPU intervals include invalid negative values and do not support
+an additive kernel breakdown. See
+`benchmarks/correctness/moe-wide-compaction-20260913.json`.
 
 The chunked route bounds activation carriers but shows no speedup and remains
 opt-in. The 10000ppb correction bound is an empirically qualified admission

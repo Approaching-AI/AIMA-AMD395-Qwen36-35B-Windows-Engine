@@ -34,6 +34,13 @@ overlapping GPU stages, and records the source-derived routed submission
 count. Its instrumented 64.37-second callback does not replace the ordinary
 62.48-second control or qualify retained performance.
 
+`correctness/moe-wide-compaction-20260913.json` records a wider routed
+candidate window with at most 1024 persistent replay blocks. The same-binary
+q8192 pair passes all 512 outputs and callbacks in each run, with callback
+TTFT 62231.9179 → 59348.223499 ms. A separate instrumented run also passes.
+The larger window is retained for experiments; broader contexts, packaging
+and the immutable performance targets remain open.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the

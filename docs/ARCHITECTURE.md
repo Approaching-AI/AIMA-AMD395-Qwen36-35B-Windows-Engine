@@ -61,6 +61,15 @@ preserve the BF16 reference and all qualified replay surfaces, but the best
 candidate still trails the exact tiled QK control. Product dispatch does not
 select these layouts. See `benchmarks/correctness/attention-integer-core-20260913.json`.
 
+The routed MoE correction scheduler also supports
+`QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS` (powers of two from 1024 to 16384).
+The default is 1024; wider windows require routed compaction. The maximum
+window uses 16 MiB plus one counter and keeps at most 1024 replay blocks.
+Each subgroup processes disjoint candidate slots in order, with unchanged
+selection, K16 arithmetic and up-finalization dependencies. The 16384-block
+experiment passes the declared q8192 boundary and reduces its measured
+callback by 2.88 seconds; broader qualification remains pending.
+
 ## Prefix cache
 
 Snapshots are owned by the resident provider. A compatible extension borrows
