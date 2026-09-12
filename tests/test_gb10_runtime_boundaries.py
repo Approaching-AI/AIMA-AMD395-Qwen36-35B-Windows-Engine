@@ -1,6 +1,7 @@
 """Bind target logits to real input histories, including rejected draft rows."""
 from pathlib import Path
 import os
+import json
 import sys
 import unittest
 from unittest.mock import patch
@@ -15,6 +16,29 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_actual_case_offsets_keep_prefill_and_bind_declared_history(self):
+        name = 'http-plain-q5-out32'
+        with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_OFFSETS':
+                                     json.dumps({name: [6, 7]})}, clear=True):
+            self.assertEqual(observation_positions(name, 5), {4, 5, 11, 12})
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            rows = target_rows([10, 11], [100, 200], [0, 1],
+                               observation_positions(name, 5))
+            self.assertEqual(rows, [dict(row=1, position=11, input_token_id=200, logit_row=1)])
+            transaction = dict(first_position=10, input_token_ids=[100, 200], rows=rows)
+            self.assertTrue(qualify_transaction(transaction, [0] * 10 + [100, 200])[0]
+                            ['matches_generated_history'])
+            self.assertFalse(qualify_transaction(transaction, [0] * 10 + [99, 200])[0]
+                             ['matches_generated_history'])
+        for plan in ([], {}, {name: []}, {name: [-1]}, {name: [31]},
+                     {name: [True]}, {name: [1, 1]}, {name: [1, 2, 3, 4]},
+                     {'no-declared-extent': [1]}, {'case-out513': [1]},
+                     {'case-out1': [0]}, {name: '6'}):
+            with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_OFFSETS':
+                                         json.dumps(plan)}, clear=True):
+                with self.assertRaises(ValueError):
+                    observation_positions(name, 5)
+
     def test_full_attention_capture_has_one_valid_owner(self):
         with patch.dict(os.environ, {}, clear=True):
             self.assertEqual(full_attention_observation_layer(), 3)

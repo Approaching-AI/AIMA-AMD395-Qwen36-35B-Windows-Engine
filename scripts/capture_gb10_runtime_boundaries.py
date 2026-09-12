@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import hashlib
 import inspect
+import json
 import os
 from pathlib import Path
+import re
 import time
 
 from capture_gb10_token_matrix import GPU_MODEL_RUNNER_SHA, TokenMatrixCapture
@@ -148,6 +150,25 @@ def observation_positions(case, prompt_tokens):
                     any(not 0 <= offset < continuation for offset in offsets)):
                 raise ValueError('invalid bounded continuation observation offsets')
         selected.update(prompt_tokens + offset for offset in offsets)
+    # Actual HTTP cases need the same bounded history qualification as the
+    # fixed matrix. Keep all historical/default positions when extending it.
+    extra = os.environ.get('QRT_GB10_CASE_BOUNDARY_OFFSETS')
+    if extra is not None:
+        plan = json.loads(extra)
+        if not isinstance(plan, dict) or not 1 <= len(plan) <= 12:
+            raise ValueError('invalid case-specific boundary plan')
+        for name, offsets in plan.items():
+            match = re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}-out([1-9][0-9]*)', name)
+            if match is None:
+                raise ValueError('case boundary plan requires a declared output extent')
+            outputs = int(match.group(1))
+            if (not 2 <= outputs <= 512 or not isinstance(offsets, list) or
+                    not 1 <= len(offsets) <= 3 or
+                    any(type(offset) is not int or not 0 <= offset < outputs - 1
+                        for offset in offsets) or len(set(offsets)) != len(offsets)):
+                raise ValueError('invalid case-specific continuation offsets')
+            if name == case:
+                selected.update(prompt_tokens + offset for offset in offsets)
     return selected
 
 
