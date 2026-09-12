@@ -39,7 +39,7 @@ int main() {
   assert(Scope::active==&owner);
  }
  assert(!Scope::active);
- for(size_t prefix : {0u,1u,63u,65u,7169u}) {Scope invalid(true,prefix,1);assert(!invalid.enabled);}
+ for(size_t prefix : {0u,1u,63u,65u,7169u,8192u,16384u}) {Scope invalid(true,prefix,1);assert(!invalid.enabled);}
  for(size_t suffix : {0u,2u,64u,1024u}) {Scope invalid(true,7168,suffix);assert(!invalid.enabled);}
 }
 '''.replace("int main()", "#include <initializer_list>\nint main()"))

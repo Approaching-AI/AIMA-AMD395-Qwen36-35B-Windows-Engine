@@ -68702,6 +68702,8 @@ bool run_qwen36_resident_linear_conv_cache_step(
 
 // Bound the alternate arithmetic to one real input at a K64 boundary. This
 // scope ends before any generated output token is decoded, including errors.
+// Limit this probe to the first reference prefill bucket. The qualified q8193
+// cold route crosses a scheduler boundary and keeps its existing recurrence.
 struct ScopedQwen36PrefixFlaSingleSuffix {
     inline static thread_local ScopedQwen36PrefixFlaSingleSuffix* active = nullptr;
     ScopedQwen36PrefixFlaSingleSuffix* previous;
@@ -68709,7 +68711,7 @@ struct ScopedQwen36PrefixFlaSingleSuffix {
     size_t position;
     uint64_t layers = 0u;
     ScopedQwen36PrefixFlaSingleSuffix(bool requested, size_t prefix, size_t suffix)
-        : previous(active), enabled(requested && prefix && prefix % 64u == 0u && suffix == 1u),
+        : previous(active), enabled(requested && prefix && prefix < 8192u && prefix % 64u == 0u && suffix == 1u),
           position(prefix) { active = this; }
     ~ScopedQwen36PrefixFlaSingleSuffix() { active = previous; }
     ScopedQwen36PrefixFlaSingleSuffix(const ScopedQwen36PrefixFlaSingleSuffix&) = delete;

@@ -76,3 +76,9 @@ Both state layouts pass native q65 and real q7169 operator parity at three
 independently computed prefixes. See `benchmarks/correctness/fla-seeded-key-major-20260912.json`.
 The model claim remains limited to the q7169 single-input proof above. Warm
 callback times exclude owner/seed prefill and cannot qualify cold TTFT.
+
+The single-input arithmetic probe is bounded to a prefix below 8192 tokens.
+It does not change the previously qualified cold q8193 scheduler continuation.
+The reference capture tool also supports actual-token branches with read-only
+runtime boundaries, while retaining both immutable controls and validating
+each selected row against the complete actual input/output history.

@@ -88,7 +88,7 @@ def explicit_cases(path, controls):
     if not isinstance(value, list) or not 1 <= len(value) <= 12:
         raise ValueError("explicit cases must be a nonempty bounded array")
     result = controls[:2]
-    used = {case["name"] for case in result}
+    used = {case["name"] for case in controls}
     for item in value:
         if not isinstance(item, dict) or set(item) != {
                 "name", "prompt_token_ids", "output_count"}:
@@ -184,6 +184,23 @@ class TokenMatrixCapture:
         return record
 
 
+def qualify_runtime_capture(worker, prompt, outputs):
+    """Bind every selected row to the actual request and generated history."""
+    from capture_gb10_runtime_boundaries import full_cache_row_is_qualified, qualify_transaction
+
+    history = prompt + outputs
+    boundaries = worker["runtime_boundaries"]
+    qualified_positions = set()
+    for transaction in boundaries["transactions"]:
+        transaction["qualified_rows"] = qualify_transaction(transaction, history)
+        qualified_positions.update(row["position"] for row in transaction["qualified_rows"]
+                                   if row["matches_generated_history"])
+    if qualified_positions != set(boundaries["selected_positions"]):
+        raise ValueError("selected boundaries lack matching generated histories")
+    if not full_cache_row_is_qualified(boundaries["full_attention_cache"], boundaries["transactions"]):
+        raise ValueError("full-attention cache lacks a matching generated history")
+
+
 def execute(args, cases, oracles):
     import torch
     from vllm import LLM, SamplingParams
@@ -257,23 +274,14 @@ def execute(args, cases, oracles):
                       worker=worker, armed=armed[0], prefix_caching=False,
                       native_tensor_inputs=False, windows_acceptance=False)
         if matrix is not None:
-            from capture_gb10_runtime_boundaries import full_cache_row_is_qualified, qualify_transaction
-
-            frozen = matrix[case["name"]]["expected"]
-            record["full_matrix_case_pass"] = (tokens == frozen["output_token_ids"] and
-                abs(worker["raw_logit"] - frozen["first_token_raw_logit"]) <= 0.125)
-            history = case["prompt_token_ids"] + tokens
-            qualified_positions = set()
-            for transaction in worker["runtime_boundaries"]["transactions"]:
-                transaction["qualified_rows"] = qualify_transaction(transaction, history)
-                qualified_positions.update(row["position"] for row in transaction["qualified_rows"]
-                                           if row["matches_generated_history"])
-            if qualified_positions != set(worker["runtime_boundaries"]["selected_positions"]):
-                raise ValueError("selected boundaries lack matching generated histories")
-            if not full_cache_row_is_qualified(
-                    worker['runtime_boundaries']['full_attention_cache'],
-                    worker['runtime_boundaries']['transactions']):
-                raise ValueError('full-attention cache lacks a matching generated history')
+            frozen = matrix.get(case["name"])
+            if frozen is not None:
+                if case["prompt"]["u32le_sha256"] != frozen["prompt"]["u32le_sha256"]:
+                    raise ValueError("frozen matrix case prompt changed")
+                expected = frozen["expected"]
+                record["full_matrix_case_pass"] = (tokens == expected["output_token_ids"] and
+                    abs(worker["raw_logit"] - expected["first_token_raw_logit"]) <= 0.125)
+            qualify_runtime_capture(worker, case["prompt_token_ids"], tokens)
         write_json(args.output_dir / (case["name"] + ".json"), record)
         results.append(record)
         print(json.dumps(dict(case=case["name"], first_token=tokens[0], raw_logit=worker["raw_logit"],
@@ -281,7 +289,7 @@ def execute(args, cases, oracles):
               flush=True)
         if not control_pass:
             raise ValueError("same-engine immutable control failed")
-        if matrix is not None and not record["full_matrix_case_pass"]:
+        if matrix is not None and case["name"] in matrix and not record["full_matrix_case_pass"]:
             raise ValueError("observed engine differs from the frozen complete token matrix")
         if len(results) == 2:
             write_json(args.output_dir / "controls-qualified.json", dict(
@@ -313,9 +321,9 @@ def main():
     args = parser.parse_args()
     cases, oracles = fixtures({7169: args.oracle_q7169, 8192: args.oracle_q8192})
     if args.additional_cases is not None:
-        if args.runtime_boundaries:
-            raise ValueError("explicit cases require the first-logit observer")
         cases = explicit_cases(args.additional_cases, cases)
+        if args.runtime_boundaries and any(case["output_count"] < 2 for case in cases):
+            raise ValueError("runtime boundaries require the first generated input to execute")
     if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 600 or
             len(args.source_commit) != 40 or any(x not in "0123456789abcdef" for x in args.source_commit)):
         raise ValueError("existing output, invalid source or invalid deadline")
