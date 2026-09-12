@@ -103,8 +103,20 @@ All four complete first-logit vocabularies and all 47 downloaded files verify.
 The model container exits 0; a subsequent `docker diff` times out. Read-only
 recovery verifies the stopped container and readonly original autotune mounts.
 The missing host-memory minimum and new-cache-file listing remain unknown.
-This is fresh reference evidence, with no historical outputs reused and no
-Windows, prefix-hit or performance acceptance attached yet.
+This is fresh reference evidence, with no historical outputs reused.
+
+The [native long-prefix cold checks](../benchmarks/correctness/long-prefix16k-cold-20260912.json)
+with the r4 components pass the owner's 32 tokens and exact first logit.
+Its actual callback is 135709.8882 ms and load is 20039.0348 ms. The combined
+17408-token cold prompt fails: first-logit error is 0.15625, and output first
+diverges at zero-based index114 (16602 instead of 328). Both processes finish
+with healthy host checks. Logs show nine full exact-attention dispatches for
+the owner and zero for the combined prompt, which exceeds the 16384-token
+workspace bound. The pending repair extends the shared bound to 32768,
+covering the suffix and 512-output extent. Four CPU tests pass actual launch,
+workspace, failure-cleanup and tile-output checks, including 17408/17920 and
+the new upper boundary. Native qualification of this change is still required;
+prefix-hit, performance and release acceptance remain open.
 
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.

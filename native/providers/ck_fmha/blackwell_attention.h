@@ -1275,9 +1275,11 @@ __global__ void blackwell_prepare_value_encoding_kernel(
     if (index < elements) output[index] = qrt_sm121_prepared_bf16::encode_wide(input[index]);
 }
 
-// Bounded captured-prefix replay includes continuation beyond an 8192-token
-// prompt. This diagnostic workspace bound does not change product contracts.
-constexpr unsigned int kSplitMaxTokens = 16384u;
+// Include the registered 16k prefix, 1024-token suffix and 512-token decode
+// extent. A 16k-only bound selected ordinary CK for the combined prompt,
+// although the owner itself used exact QK/PV. Keep all split buffers and
+// dispatch checks on this same bound; this is not long-context acceptance.
+constexpr unsigned int kSplitMaxTokens = 32768u;
 
 inline int prepare_value_encoding(const uint16_t* input, uint32_t* output,
     size_t output_elements, unsigned tokens, hipStream_t stream) {

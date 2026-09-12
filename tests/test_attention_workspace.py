@@ -24,6 +24,9 @@ def function(source, signature):
 class AttentionWorkspaceTests(unittest.TestCase):
     def test_atomic_prepare_release_and_failed_submission_drain(self):
         source = (ROOT / "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp").read_text()
+        header = (ROOT / "native/providers/ck_fmha/blackwell_attention.h").read_text()
+        maximum = "constexpr unsigned int kSplitMaxTokens" + header.split(
+            "constexpr unsigned int kSplitMaxTokens", 1)[1].split(";", 1)[0] + ";"
         globals_ = source.split("std::mutex g_sm121_mutex;", 1)[1].split(
             "bool sm121_attention_enabled", 1
         )[0]
@@ -46,7 +49,9 @@ class AttentionWorkspaceTests(unittest.TestCase):
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
-namespace qrt_blackwell_attention { constexpr unsigned kSplitMaxTokens = 16384; }
+namespace qrt_blackwell_attention {
+''' + maximum + r'''
+}
 std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
 #define QRT_CK_EXPORT
@@ -156,7 +161,7 @@ int main() {
         return launch_sm121_attention(&operand, &operand, &operand, &output, nullptr,
                                       start, count, 0);
     };
-    if (launch(0, 0) != hipErrorInvalidValue || launch(16383, 2) != hipErrorInvalidValue ||
+    if (launch(0, 0) != hipErrorInvalidValue || launch(kSm121MaxTokens - 1u, 2) != hipErrorInvalidValue ||
         launch(0xffffffffu, 2) != hipErrorInvalidValue || allocations)
         return 4;
     if (launch(0, 17) != hipSuccess || transposes != 1u || queries != 3u || syncs != 3u)
@@ -184,7 +189,8 @@ int main() {
     if (launch(7168, 1) != hipSuccess || live.size() != 4u || g_sm121_mantissa_scores || transposes)
         return 13;
     reset(); unsetenv("QRT_CK_SM121_MANTISSA_WMMA");
-    for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u}) {
+    for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u,
+                                 16385u, 17408u, 17920u, kSm121MaxTokens}) {
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "0", 1);
         if (sm121_attention_enabled(tokens)) return 14;
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "1", 1);
@@ -196,7 +202,7 @@ int main() {
         reset();
         if (launch(tokens - 1u, 1u) != hipSuccess || queries != 1u || transposes) return 17;
     }
-    if (sm121_attention_enabled(0u) || sm121_attention_enabled(16385u) ||
+    if (sm121_attention_enabled(0u) || sm121_attention_enabled(kSm121MaxTokens + 1u) ||
         sm121_attention_enabled(0xffffffffu)) return 18;
     reset();
     unsetenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
@@ -239,6 +245,16 @@ int main() {
     if(launch(7168,1)!=hipSuccess || observed_layout!=2u || transposes || g_sm121_mantissa_scores) return 29;
     reset();
     if(launch(16352,32)!=hipSuccess || observed_layout!=15u || queries!=1u) return 30;
+    // Every tile must retain the complete new key extent, including the
+    // registered suffix and the final decode position beyond the old bound.
+    for (const unsigned tokens : {17408u, 17920u, kSm121MaxTokens}) {
+        reset();
+        if (launch(0, tokens) != hipSuccess || observed_layout != 15u ||
+            queries != (tokens + 31u) / 32u || transposes != 1u) return 49;
+        reset();
+        if (launch(tokens - 1u, 1u) != hipSuccess || observed_layout != 2u ||
+            queries != 1u || transposes) return 50;
+    }
     for(const char* conflict : {"QRT_CK_SM121_NATIVE_BF16_MATRIX","QRT_CK_SM121_NATIVE_PRODUCTS","QRT_CK_SM121_MANTISSA_WMMA"}) {
         reset();setenv(conflict,"1",1);
         if(launch(0,65)!=hipErrorInvalidValue || queries || transposes) return 31;

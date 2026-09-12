@@ -91,7 +91,7 @@ int main() {
     if (split(0, 8, nullptr, 1024) != hipErrorInvalidValue) return 1;
     if (split(0, 8, &scratch, 1023) != hipErrorInvalidValue) return 2;
     if (split(7160, 8, &scratch, 8u * 16u * 8u) != hipErrorInvalidValue) return 3;
-    if (split(16383, 2, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 4;
+    if (split(kSplitMaxTokens - 1u, 2, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 4;
     if (split(0, 33, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 5;
     if (split(0, 0, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 6;
     if (split(UINT32_MAX, 8, &scratch, SIZE_MAX) != hipErrorInvalidValue) return 7;
@@ -122,7 +122,7 @@ int main() {
     launches = error_queries = events = 0u; fail_event = false;
     if (transpose_keys(nullptr, &operand, 512u, 1u, nullptr) != hipErrorInvalidValue ||
         transpose_keys(&operand, &operand, 511u, 1u, nullptr) != hipErrorInvalidValue ||
-        transpose_keys(&operand, &operand, SIZE_MAX, 16385u, nullptr) != hipErrorInvalidValue ||
+        transpose_keys(&operand, &operand, SIZE_MAX, (kSplitMaxTokens + 1u), nullptr) != hipErrorInvalidValue ||
         transpose_keys(&operand, &operand, SIZE_MAX, 0u, nullptr) != hipErrorInvalidValue || launches)
         return 18;
     if (transpose_keys(&operand, &operand, 16384u * 512u, 16384u, nullptr) != hipSuccess ||
@@ -135,7 +135,7 @@ int main() {
     };
     if (transposed(nullptr, 7168u) != hipErrorInvalidValue ||
         transposed(&operand, 7167u) != hipErrorInvalidValue ||
-        transposed(&operand, 16385u) != hipErrorInvalidValue || launches) return 20;
+        transposed(&operand, (kSplitMaxTokens + 1u)) != hipErrorInvalidValue || launches) return 20;
     if (transposed(&operand, 7169u) != hipSuccess || launches != 2u || error_queries != 2u)
         return 21;
     launches = error_queries = 0u; fail_scores = true;
@@ -150,7 +150,15 @@ int main() {
     launches = error_queries = 0u;
     if (split(16383, 1, &scratch, 16u * 16384u) != hipSuccess || launches != 2u)
         return 25;
-    if (split_scratch_elements(1u, 16385u, 2u) != 0u) return 26;
+    if (split_scratch_elements(1u, (kSplitMaxTokens + 1u), 2u) != 0u) return 26;
+    for (const unsigned tokens : {17408u, 17920u, kSplitMaxTokens}) {
+        launches = error_queries = 0u;
+        const size_t elements = 16u * tokens;
+        if (split(tokens - 1u, 1u, &scratch, elements - 1u) != hipErrorInvalidValue || launches)
+            return 73;
+        if (split(tokens - 1u, 1u, &scratch, elements) != hipSuccess || launches != 2u)
+            return 74;
+    }
     launches = error_queries = 0u;
     if (launch_queries(&operand, &operand, &operand, &output, nullptr,
         0, 8, 0, nullptr, nullptr, nullptr, true, nullptr, 2, &scratch, 1024,
@@ -176,7 +184,7 @@ int main() {
     if (matrix_elements != 7040u || matrix(matrix_elements - 1u, &operand) != hipErrorInvalidValue ||
         matrix(matrix_elements, nullptr) != hipErrorInvalidValue ||
         matrix(matrix_elements, &operand, 16u) != hipErrorInvalidValue ||
-        matrix(matrix_elements, &operand, 16385u) != hipErrorInvalidValue ||
+        matrix(matrix_elements, &operand, (kSplitMaxTokens + 1u)) != hipErrorInvalidValue ||
         matrix(matrix_elements, &operand, 17u, true) != hipErrorInvalidValue || launches)
         return 30;
     if (matrix(matrix_elements, &operand) != hipSuccess || launches != 3u || error_queries != 3u) return 31;
@@ -244,7 +252,7 @@ int main() {
         };
         if (strided(nullptr,17,elements)!=hipErrorInvalidValue ||
             strided(&operand,16,elements)!=hipErrorInvalidValue ||
-            strided(&operand,16385,elements)!=hipErrorInvalidValue ||
+            strided(&operand,(kSplitMaxTokens + 1u),elements)!=hipErrorInvalidValue ||
             strided(&operand,17,elements-1u)!=hipErrorInvalidValue || launches) return 47;
         if (strided(&operand,17,elements)!=hipSuccess || launches!=2u || error_queries!=2u ||
             launch_threads[0]!=256u || launch_threads[1]!=(layout==11u ? 256u : 512u)) return 48;
@@ -337,7 +345,7 @@ int main() {
     if(split_scratch_elements(32u,7142u,17u)!=tiled_cells || split_separate_probability(17u) ||
        wide(tiled_cells-1u,&wide_value)!=hipErrorInvalidValue || wide(tiled_cells,nullptr)!=hipErrorInvalidValue ||
        wide(tiled_cells,&wide_value,7141u)!=hipErrorInvalidValue ||
-       wide(tiled_cells,&wide_value,16385u)!=hipErrorInvalidValue || launches) return 65;
+       wide(tiled_cells,&wide_value,(kSplitMaxTokens + 1u))!=hipErrorInvalidValue || launches) return 65;
     if(wide(tiled_cells,&wide_value)!=hipSuccess || launches!=2u ||
        !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel") ||
        !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 66;
@@ -350,7 +358,7 @@ int main() {
        prepare_value_encoding(&operand,nullptr,512u,1u,nullptr)!=hipErrorInvalidValue ||
        prepare_value_encoding(&operand,&wide_value,511u,1u,nullptr)!=hipErrorInvalidValue ||
        prepare_value_encoding(&operand,&wide_value,SIZE_MAX,0u,nullptr)!=hipErrorInvalidValue ||
-       prepare_value_encoding(&operand,&wide_value,SIZE_MAX,16385u,nullptr)!=hipErrorInvalidValue || launches) return 68;
+       prepare_value_encoding(&operand,&wide_value,SIZE_MAX,(kSplitMaxTokens + 1u),nullptr)!=hipErrorInvalidValue || launches) return 68;
     if(prepare_value_encoding(&operand,&wide_value,16384u*512u,16384u,nullptr)!=hipSuccess ||
        launches!=1u || !std::strstr(launch_names[0],"blackwell_prepare_value_encoding_kernel")) return 69;
     launches=error_queries=0u;fail_launch=1u;
