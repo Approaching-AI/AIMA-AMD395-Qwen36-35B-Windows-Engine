@@ -73,5 +73,25 @@ inline Segment segment(const Plan* plan, uint32_t offset, uint32_t count) {
     return result;
 }
 using Launch = int (*)(const float*, const float*, float*, float*, int, void*, int32_t, const Plan*);
+// The FP32 state is both the initial state and final destination, in
+// [value_head][value][key] order. A model owner must supply a real K64
+// checkpoint; this operator does not infer or reset its prefix.
+using SeededLaunch = int (*)(const float*, const float*, float*, float*, int, void*, int32_t);
+inline bool valid_seeded(const float* raw, const float* gate, float* output,
+                         float* state, int32_t tokens) {
+    if (tokens <= 0 || tokens > 65536) return false;
+    const void* pointers[] = {raw, gate, output, state};
+    const uint64_t sizes[] = {uint64_t(tokens) * 8192u * sizeof(float),
+        uint64_t(tokens) * 64u * sizeof(float),
+        uint64_t(tokens) * 4096u * sizeof(float), kStateBytes};
+    for (unsigned i = 0; i < 4u; ++i) {
+        const uintptr_t address = reinterpret_cast<uintptr_t>(pointers[i]);
+        if (!address || address % alignof(float) || sizes[i] > UINTPTR_MAX - address)
+            return false;
+        for (unsigned j = 0; j < i; ++j)
+            if (overlaps(pointers[i], sizes[i], pointers[j], sizes[j])) return false;
+    }
+    return true;
+}
 } // namespace qrt_fla_checkpoint
 #endif

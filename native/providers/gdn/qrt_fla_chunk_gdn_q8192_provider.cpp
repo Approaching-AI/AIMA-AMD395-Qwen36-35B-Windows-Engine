@@ -993,7 +993,8 @@ int launch_pipeline_async_impl(
     int gate_values_are_decay,
     void *stream_pointer,
     int32_t tokens,
-    const qrt_fla_checkpoint::Plan* checkpoints = nullptr
+    const qrt_fla_checkpoint::Plan* checkpoints = nullptr,
+    bool reset_initial_state = true
 ) {
     const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
     if (dump_directory != nullptr && dump_directory[0] != '\0' && tokens != kSmokeTokens) {
@@ -1033,7 +1034,8 @@ int launch_pipeline_async_impl(
                     postconv_raw_f32 + static_cast<size_t>(offset) * kQkvRows,
                     gate_f32 + static_cast<size_t>(offset) * kGateRows,
                     output_f32 + static_cast<size_t>(offset) * kValueFeatures,
-                    final_state_f32, stream_pointer, count, offset == 0, 0,
+                    final_state_f32, stream_pointer, count,
+                    reset_initial_state && offset == 0, 0,
                     qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(offset), static_cast<unsigned>(count))
                 ) == 0) {
                 return 0;
@@ -1106,7 +1108,7 @@ int launch_pipeline_async_impl(
                 final_state_f32,
                 stream_pointer,
                 static_cast<int32_t>(kChunk),
-                prefix_tokens == 0,
+                reset_initial_state && prefix_tokens == 0,
                 tail_tokens,
                 qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(prefix_tokens), static_cast<unsigned>(tail_tokens))
             ) == 0) {
@@ -1142,7 +1144,7 @@ int launch_pipeline_async_impl(
                 final_state_f32,
                 stream_pointer,
                 segment_tokens,
-                token_offset == 0, 0,
+                reset_initial_state && token_offset == 0, 0,
                 qrt_fla_checkpoint::segment(checkpoints, static_cast<unsigned>(token_offset), static_cast<unsigned>(segment_tokens))
             ) == 0) {
             return 0;
@@ -1369,6 +1371,28 @@ QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_checkpoints_v1(
     }
     return launch_pipeline_async(postconv_raw_f32, gate_f32, output_f32, final_state_f32,
         gate_values_are_decay, stream_pointer, tokens, checkpoints);
+}
+
+QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_seeded_f32_v1(
+    const float* raw, const float* gate, float* output, float* state,
+    int gate_values_are_decay, void* stream, int32_t tokens
+) {
+    const char* capture = std::getenv("QRT_FLA_GDN_CAPTURE_FIRST_DIR");
+    const char* dump = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
+    if (!qrt_fla_checkpoint::valid_seeded(raw, gate, output, state, tokens) ||
+        gate_values_are_decay != 0 || !blackwell_state_enabled() ||
+        !blackwell_batched_enabled() || !qrt_fla_blackwell_cooperative::enabled() ||
+        (capture != nullptr && capture[0] != '\0') ||
+        (dump != nullptr && dump[0] != '\0')) {
+        set_error_text("Seeded FP32 prefill requires disjoint surfaces, exact cooperative FLA and no zero-seed capture hook");
+        return 0;
+    }
+    // Preserve the caller's unrounded checkpoint. The existing FLA kernels
+    // perform their own BF16 H/W/U boundaries and update final FP32 state.
+    return launch_pipeline_async_impl(
+        raw, gate, output, state, gate_values_are_decay, stream, tokens,
+        nullptr, false
+    );
 }
 
 QRT_FLA_GDN_EXPORT uint64_t qrt_fla_chunk_gdn_scratch_bytes(
