@@ -109952,17 +109952,28 @@ bool run_lm_head(
         !use_q1_lm_head_w8a8 &&
         !q16_distribution_full_logits_requested &&
         !use_q1_lm_head_triton_0626;
+    // A 1024-row suffix materializes about 1 GB of vocabulary logits. The
+    // diagnostic FNV kernel visits that buffer with a single GPU thread;
+    // neither the full-vocabulary top-k nor the terminal M1 sample uses it.
+    // Preserve all real teacher predictions and permit an explicit diagnostic
+    // replay with the original hash. The single-row terminal path is unchanged.
+    const bool elide_prefix_batch_logits_hash =
+        ScopedQwen36PrefixBatchSuffix::active != nullptr &&
+        prefill_tokens == ScopedQwen36PrefixBatchSuffix::active->tokens &&
+        run->selected_token_count == ScopedQwen36PrefixBatchSuffix::active->tokens &&
+        !raw_env_flag_enabled("QRT_QWEN36_PREFIX_BATCH_SUFFIX_HASH_LOGITS");
     const bool elide_product_logits_hash =
         run->trusted_gpu_topk &&
-        q1_product_last_token &&
-        (g_qwen36_mtp_tensor_namespace_active ||
-         (env_flag_enabled(
-              "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_KV8192"
-          ) &&
-          env_flag_enabled(
-              "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_ELIDE_LOGITS_HASH"
-          ))) &&
-        !q16_distribution_full_logits_requested;
+        !q16_distribution_full_logits_requested &&
+        (elide_prefix_batch_logits_hash ||
+         (q1_product_last_token &&
+          (g_qwen36_mtp_tensor_namespace_active ||
+           (env_flag_enabled(
+                "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_KV8192"
+            ) &&
+            env_flag_enabled(
+                "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_ELIDE_LOGITS_HASH"
+            )))));
     const bool capture_paired_fresh_q8208_full_logits =
         run->trusted_gpu_topk &&
         prefill_tokens == kRetainedPrefillTokens + 16u &&
@@ -112237,7 +112248,9 @@ bool run_lm_head(
                 );
             } else {
                 std::cerr
-                    << "BATCH_MARK q1_lm_head_logits_hash_elided"
+                    << (elide_prefix_batch_logits_hash
+                            ? "BATCH_MARK qwen36_prefix_batch_lm_head_logits_hash_elided"
+                            : "BATCH_MARK q1_lm_head_logits_hash_elided")
                     << " selected_tokens=" << run->selected_token_count
                     << " selected_token_id="
                     << run->selected_token_ids[0]
