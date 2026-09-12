@@ -1710,10 +1710,11 @@ struct MoeCorrectionBounds {
 };
 
 enum class MoeCorrectionPhase { Local, Collect, Replay, Finalize };
-// A dense window has the same 262,144-dot ceiling as the retained launcher.
+// The retained window contains 262,144 cells. An opt-in wider collection
+// amortizes submissions while the replay grid remains at most 1024 CTAs.
 // Only routed work owns this scratch; shared work may overlap on its stream.
 constexpr uint32_t kMoeCompactionBlocks = 1024u;
-constexpr uint32_t kMoeCompactionCapacity = kMoeCompactionBlocks * kNativeThreads;
+constexpr uint32_t kMaximumMoeCompactionBlocks = 16384u;
 
 struct ProviderState {
     ModuleKernel count;
@@ -1805,6 +1806,7 @@ struct ProviderState {
     uint16_t *cuda_vllm_silu_bf16_domain_lut = nullptr;
     bool sm121_routed_hawkeye = false;
     bool compact_routed_hawkeye = false;
+    uint32_t moe_compaction_blocks = kMoeCompactionBlocks;
     uint32_t *moe_compacted_indices = nullptr;
     uint32_t *moe_compacted_count = nullptr;
     uint32_t sm121_moe_absolute_error_ppb = 0u;
@@ -12228,7 +12230,10 @@ hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t str
 
 // The counter and list never leave the routed stream. Each window first
 // publishes all selected indices, then gives every wave16 subgroup work from
-// that list. There is no host count read, synchronization or new math boundary.
+// that list. Collection and replay have independent grid sizes: widening the
+// window removes repeated memset/collect/replay submissions without creating
+// more replay CTAs. Each subgroup visits disjoint slots by a grid-wide stride.
+// There is no host count read, synchronization or new math boundary.
 // Finalization is a separate grid only for up, after all exact writes finish.
 template<bool NeedsFinalize, typename Kernel, typename... Args>
 hipError_t launch_moe_routed_correction(
@@ -12240,12 +12245,17 @@ hipError_t launch_moe_routed_correction(
         return launch_moe_correction(local, blocks, stream, input, weights, arguments...);
     }
     if (blocks == 0u) return hipSuccess;
-    if (blocks > kRoutes * (kHidden / kNativeThreads) ||
+    const uint32_t window_blocks = g_state.moe_compaction_blocks;
+    if (window_blocks < kMoeCompactionBlocks ||
+        window_blocks > kMaximumMoeCompactionBlocks ||
+        (window_blocks & (window_blocks - 1u)) != 0u ||
+        blocks > kRoutes * (kHidden / kNativeThreads) ||
         g_state.moe_compacted_indices == nullptr || g_state.moe_compacted_count == nullptr) {
         return hipErrorInvalidValue;
     }
-    for (uint32_t first = 0u; first < blocks; first += kMoeCompactionBlocks) {
-        const uint32_t count = (std::min)(blocks - first, kMoeCompactionBlocks);
+    for (uint32_t first = 0u; first < blocks; first += window_blocks) {
+        const uint32_t count = (std::min)(blocks - first, window_blocks);
+        const uint32_t replay_blocks = (std::min)(count, kMoeCompactionBlocks);
         const MoeCorrectionBounds bounds{
             g_state.moe_l2[static_cast<size_t>(input)],
             g_state.moe_l2[static_cast<size_t>(weights)],
@@ -12258,7 +12268,7 @@ hipError_t launch_moe_routed_correction(
                           arguments..., bounds);
         status = hipGetLastError();
         if (status != hipSuccess) return status;
-        hipLaunchKernelGGL(replay, dim3(count), dim3(kNativeThreads), 0, stream,
+        hipLaunchKernelGGL(replay, dim3(replay_blocks), dim3(kNativeThreads), 0, stream,
                           arguments..., bounds);
         status = hipGetLastError();
         if (status != hipSuccess) return status;
@@ -12275,7 +12285,7 @@ hipError_t launch_moe_routed_correction(
 bool allocate_optional_moe_compaction() {
     if (!g_state.compact_routed_hawkeye) return true;
     return allocate(&g_state.moe_compacted_indices,
-                    static_cast<size_t>(kMoeCompactionCapacity) * sizeof(uint32_t),
+                    static_cast<size_t>(g_state.moe_compaction_blocks) * kNativeThreads * sizeof(uint32_t),
                     "hipMalloc(moe_compacted_indices)") &&
         allocate(&g_state.moe_compacted_count, sizeof(uint32_t),
                  "hipMalloc(moe_compacted_count)");
@@ -16417,6 +16427,19 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         set_error_text("routed correction compaction requires SM121 routed Hawkeye");
         return 0;
     }
+    const char *compaction_window = std::getenv("QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS");
+    if (compaction_window != nullptr && compaction_window[0] != '\0') {
+        char *end = nullptr;
+        const unsigned long parsed = std::strtoul(compaction_window, &end, 10);
+        if (end == compaction_window || *end != '\0' ||
+            parsed < kMoeCompactionBlocks || parsed > kMaximumMoeCompactionBlocks ||
+            (parsed & (parsed - 1u)) != 0u ||
+            (!g_state.compact_routed_hawkeye && parsed != kMoeCompactionBlocks)) {
+            set_error_text("MoE compaction window must be a power of two in 1024..16384; wider windows require routed compaction");
+            return 0;
+        }
+        g_state.moe_compaction_blocks = static_cast<uint32_t>(parsed);
+    }
     g_state.routed_up_projection_hawkeye_midpoint_radius =
         requested_routed_up_projection_hawkeye_midpoint_radius();
     g_state.routed_up_hawkeye_low_exponent_threshold =
@@ -16809,10 +16832,12 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         std::fprintf(stderr,
             "BATCH_MARK q8192_triton_selected_moe_routed_compaction "
             "enabled=1 window_candidates=%u scratch_bytes=%zu "
-            "host_count_reads=0 exact_dot_order_unchanged=1 replay_lanes=%u\n",
-            kMoeCompactionCapacity,
-            (static_cast<size_t>(kMoeCompactionCapacity) + 1u) * sizeof(uint32_t),
-            unsigned(QRT_MOE_ROUTED_REPLAY_LANES));
+            "host_count_reads=0 exact_dot_order_unchanged=1 replay_lanes=%u "
+            "window_blocks=%u maximum_replay_blocks=%u\n",
+            g_state.moe_compaction_blocks * kNativeThreads,
+            (static_cast<size_t>(g_state.moe_compaction_blocks) * kNativeThreads + 1u) * sizeof(uint32_t),
+            unsigned(QRT_MOE_ROUTED_REPLAY_LANES), g_state.moe_compaction_blocks,
+            kMoeCompactionBlocks);
     }
     g_state.error[0] = '\0';
     return 1;

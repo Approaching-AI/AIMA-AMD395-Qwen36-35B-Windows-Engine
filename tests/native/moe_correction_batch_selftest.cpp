@@ -132,7 +132,11 @@ void run_case(uint32_t tokens, bool dense) {
                 tokens, elements, dense ? "true" : "false", MaximumBlocks, milliseconds);
 }
 
-void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
+void compare_routed_compaction(uint32_t tokens, uint32_t mode,
+                               uint32_t window_blocks = kMoeCompactionBlocks) {
+    require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
+            "invalid test compaction window");
+    g_state.moe_compaction_blocks = window_blocks;
     const uint32_t routes = tokens * kTopK;
     const size_t elements = static_cast<size_t>(routes) * kIntermediate;
     const size_t down_elements = static_cast<size_t>(routes) * kHidden;
@@ -171,7 +175,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
     }
     std::vector<float> input_norm(routes + 2u * kGuard, mode == 3u ? 1000.0f : 0.0f);
     std::vector<float> weight_norm(4u * kHidden + 2u * kGuard, mode == 3u ? 1000.0f : 0.0f);
-    std::vector<uint32_t> index(kMoeCompactionCapacity + 2u * kGuard, UINT32_C(0x5a5a5a5a));
+    std::vector<uint32_t> index(size_t(window_blocks) * kNativeThreads + 2u * kGuard, UINT32_C(0x5a5a5a5a));
     std::vector<uint32_t> count(1u + 2u * kGuard, UINT32_C(0x5a5a5a5a));
     Device<uint16_t> di(input), dw(weights), ddw(down_weights), da(activated), dl(silu);
     Device<int32_t> did(ids);
@@ -254,10 +258,13 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
     hip_ok(hipStreamDestroy(stream), "compaction stream destroy");
     g_state.moe_l2.fill(nullptr); g_state.moe_compacted_indices = nullptr; g_state.moe_compacted_count = nullptr;
     g_state.compact_routed_hawkeye = false;
+    g_state.moe_compaction_blocks = kMoeCompactionBlocks;
     std::printf("{\"kind\":\"routed_compaction_comparison\",\"tokens\":%u,\"mode\":%u,\"projection_elements\":%zu,"
                 "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
-                "\"replay_lanes\":%u,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], unsigned(QRT_MOE_ROUTED_REPLAY_LANES));
+                "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
+                "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+                tokens, mode, elements, down_elements, times[0], times[1], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                window_blocks, kMoeCompactionBlocks);
 }
 
 void compare_scaled_l2(unsigned columns) {
@@ -300,8 +307,19 @@ void compare_scaled_l2(unsigned columns) {
 }
 }
 
-int main() {
+int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--wide-compaction") == 0) {
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks);
+            // Gate crosses one complete four-million-cell window; down
+            // crosses four. Dense mode also exercises every persistent slot.
+            moe_batch_test::compare_routed_compaction(1025u, 1u, kMaximumMoeCompactionBlocks);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks);
+            return 0;
+        }
+        moe_batch_test::require(argc == 1 || (argc == 2 && std::strcmp(argv[1], "--selftest") == 0),
+                               "unexpected safety test arguments");
         moe_batch_test::compare_scaled_l2(512u);
         moe_batch_test::compare_scaled_l2(2048u);
         moe_batch_test::run_case<64u>(512u, true);

@@ -48,7 +48,8 @@ class MoeCompactionTests(unittest.TestCase):
 constexpr uint32_t kNativeThreads=32, kHidden=32, kIntermediate=16, kTopK=2;
 constexpr uint32_t kRoutes=64, kActivatedElements=kRoutes*kIntermediate;
 constexpr uint32_t kMaximumMoeCorrectionBlocks=4, kMoeCompactionBlocks=4;
-constexpr uint32_t kMoeCompactionCapacity=kMoeCompactionBlocks*kNativeThreads;
+constexpr uint32_t kMaximumMoeCompactionBlocks=64;
+constexpr uint32_t kMoeCompactionCapacity=kMaximumMoeCompactionBlocks*kNativeThreads;
 #define QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG 1
 #define QRT_MOE_ROUTED_REPLAY_LANES 4
 #define __shared__ static
@@ -84,6 +85,7 @@ using hipStream_t=void *;
 enum class MoeL2 { Input, Weight };
 struct State {
     bool compact_routed_hawkeye=false;
+    uint32_t moe_compaction_blocks=kMoeCompactionBlocks;
     uint32_t sm121_moe_absolute_error_ppb=1000;
     std::array<float *,2> moe_l2{};
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr;
@@ -119,18 +121,18 @@ struct Pool {
 } pool;
 template<class Kernel,class... Args>
 void launch(Kernel kernel,dim3 grid,dim3 block,int,hipStream_t stream,Args... args) {
-    assert(stream==wanted_stream&&block.x==kNativeThreads&&grid.x<=kMoeCompactionBlocks);
+    assert(stream==wanted_stream&&block.x==kNativeThreads&&grid.x<=g_state.moe_compaction_blocks);
     if (!execute_kernels) return;
     pool.run(grid.x,[=]{kernel(args...);});
     auto parameters=std::make_tuple(args...);
     const auto bounds=std::get<sizeof...(Args)-1>(parameters);
     if (bounds.compacted_count) {
         unsigned count=*bounds.compacted_count;
-        assert(count<=grid.x*kNativeThreads);
+        assert(count<=g_state.moe_compaction_blocks*kNativeThreads);
         std::vector<unsigned> indices(bounds.compacted_indices,bounds.compacted_indices+count);
         std::sort(indices.begin(),indices.end());
         assert(std::adjacent_find(indices.begin(),indices.end())==indices.end());
-        for (auto i:indices) assert(i>=bounds.first_block*kNativeThreads&&i<(bounds.first_block+grid.x)*kNativeThreads);
+        for (auto i:indices) assert(i>=bounds.first_block*kNativeThreads&&i<(bounds.first_block+g_state.moe_compaction_blocks)*kNativeThreads);
     }
 }
 #define hipLaunchKernelGGL(...) launch(__VA_ARGS__)
@@ -189,6 +191,8 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
 int main() {
     std::vector<uint32_t> indices(kMoeCompactionCapacity+17,0xabcdef),counter(18,0xabcdef);
     g_state.moe_compacted_indices=indices.data();g_state.moe_compacted_count=counter.data();
+    for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
+    g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
         Data original(routes),local=original,compact=original;
         unsigned radius=mode==1?32768u:mode==2?128u:0u,exponent=mode==2?125u:0u;
@@ -210,7 +214,15 @@ int main() {
     for(fail_api=1;fail_api<=total;++fail_api) {
         api_calls=0;assert(run(d,19,32768,0)==hipErrorUnknown);assert(api_calls==fail_api);
     }
-    fail_api=0;api_calls=0;g_state.moe_compacted_count=nullptr;
+    fail_api=0;api_calls=0;
+    for(unsigned invalid:{0u,2u,5u,128u}) {
+        g_state.moe_compaction_blocks=invalid;
+        assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
+    }
+    g_state.moe_compaction_blocks=window;
+    execute_kernels=true;
+    }
+    Data d(19);g_state.moe_compacted_count=nullptr;api_calls=0;
     assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
 }
 '''
