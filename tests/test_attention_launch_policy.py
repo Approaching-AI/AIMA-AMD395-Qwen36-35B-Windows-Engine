@@ -45,6 +45,7 @@ void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
+void blackwell_prepare_value_encoding_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
@@ -52,7 +53,8 @@ template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
-         bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false>
+         bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false,
+         bool PreparedValue = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
 unsigned fail_launch = 0;
@@ -256,8 +258,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,17u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,17u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,18u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,18u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -324,6 +326,34 @@ int main() {
         launches=error_queries=0;fail_launch=failed;
         if(warp(tiled_cells,&operand)!=hipErrorUnknown || launches!=failed) return 64;
     }
+    launches=error_queries=fail_launch=0u;
+    uint32_t wide_value=0u;
+    auto wide=[&](size_t cells,const uint32_t* values,unsigned tokens=7169u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
+            nullptr,nullptr,nullptr,true,rcp,17u,&scratch,cells,nullptr,nullptr,&operand,7169u,
+            false,nullptr,values,tokens);
+    };
+    if(split_scratch_elements(32u,7142u,17u)!=tiled_cells || split_separate_probability(17u) ||
+       wide(tiled_cells-1u,&wide_value)!=hipErrorInvalidValue || wide(tiled_cells,nullptr)!=hipErrorInvalidValue ||
+       wide(tiled_cells,&wide_value,7141u)!=hipErrorInvalidValue ||
+       wide(tiled_cells,&wide_value,16385u)!=hipErrorInvalidValue || launches) return 65;
+    if(wide(tiled_cells,&wide_value)!=hipSuccess || launches!=2u ||
+       !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel") ||
+       !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 66;
+    for(unsigned failed=1;failed<=2;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(wide(tiled_cells,&wide_value)!=hipErrorUnknown || launches!=failed) return 67;
+    }
+    launches=error_queries=fail_launch=0u;
+    if(prepare_value_encoding(nullptr,&wide_value,512u,1u,nullptr)!=hipErrorInvalidValue ||
+       prepare_value_encoding(&operand,nullptr,512u,1u,nullptr)!=hipErrorInvalidValue ||
+       prepare_value_encoding(&operand,&wide_value,511u,1u,nullptr)!=hipErrorInvalidValue ||
+       prepare_value_encoding(&operand,&wide_value,SIZE_MAX,0u,nullptr)!=hipErrorInvalidValue ||
+       prepare_value_encoding(&operand,&wide_value,SIZE_MAX,16385u,nullptr)!=hipErrorInvalidValue || launches) return 68;
+    if(prepare_value_encoding(&operand,&wide_value,16384u*512u,16384u,nullptr)!=hipSuccess ||
+       launches!=1u || !std::strstr(launch_names[0],"blackwell_prepare_value_encoding_kernel")) return 69;
+    launches=error_queries=0u;fail_launch=1u;
+    if(prepare_value_encoding(&operand,&wide_value,512u,1u,nullptr)!=hipErrorUnknown || launches!=1u) return 70;
     return 0;
 }
 '''

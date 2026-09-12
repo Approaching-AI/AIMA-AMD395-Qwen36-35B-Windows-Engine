@@ -308,7 +308,8 @@ __global__ void blackwell_strided_scores_kernel(
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
 template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
-          bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false>
+          bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false,
+          bool PreparedValue = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -323,7 +324,7 @@ __global__ void blackwell_exact_attention_kernel(
     const unsigned char* rcp_table,
     const float* precomputed_scores,
     unsigned int score_stride,
-    const uint16_t* decode_tail_value,
+    const uint16_t* auxiliary_value,
     unsigned int decode_prefix_tokens) {
     static_assert(!SplitDecodeValue || (SerialValue && PrecomputedScores),
                   "split decode V requires precomputed QK and the serial-value layout");
@@ -331,10 +332,16 @@ __global__ void blackwell_exact_attention_kernel(
                   "paired value lanes require the bounded exact replay layout");
     static_assert(!WarpSoftmax || (SerialValue && PrecomputedScores && !SplitDecodeValue && !StridedValue && !NativeProducts),
                   "warp softmax requires the bounded scalar PV layout");
+    static_assert(!PreparedValue || (SerialValue && PrecomputedScores && !SplitDecodeValue && !StridedValue && !NativeProducts && !WarpSoftmax),
+                  "prepared values require the original scalar softmax/PV layout");
+    // This internal auxiliary slot holds either a BF16 decode tail or the
+    // lossless uint32 V encoding. The template modes are mutually exclusive.
+    const auto* prepared_value = reinterpret_cast<const uint32_t*>(auxiliary_value);
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
     __shared__ uint16_t probability_bf16[kExactTileTokens];
+    __shared__ uint32_t probability_prepared[PreparedValue ? kExactTileTokens : 1u];
     __shared__ float output_accumulator[kHeadDim];
     __shared__ float running_max;
     __shared__ float running_sum;
@@ -471,6 +478,8 @@ __global__ void blackwell_exact_attention_kernel(
                 : 0.0f;
             probability[thread] = p;
             probability_bf16[thread] = f32_to_bf16(p);
+            if constexpr (PreparedValue)
+                probability_prepared[thread] = qrt_sm121_prepared_bf16::encode_wide(probability_bf16[thread]);
             sum_scratch[thread] = p;
         }
         __syncthreads();
@@ -533,30 +542,38 @@ __global__ void blackwell_exact_attention_kernel(
             for (unsigned int begin = 0u; begin < kExactTileTokens;
                  begin += kBlackwellMmaGroup) {
                 uint32_t products[kBlackwellMmaGroup];
-                constexpr unsigned step = kPairedProducts && !NativeProducts ? 2u : 1u;
+                constexpr unsigned step = kPairedProducts && !NativeProducts && !PreparedValue ? 2u : 1u;
 #pragma unroll
                 for (unsigned int item = 0u; item < kBlackwellMmaGroup; item += step) {
-                    uint16_t values[step]{};
-#pragma unroll
-                    for (unsigned part = 0u; part < step; ++part) {
-                        const unsigned int key_token = tile * kExactTileTokens + begin + item + part;
-                        if (key_token < tokens) {
-                            const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
-                            const uint16_t *source = in_tail ? decode_tail_value : value;
-                            const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
-                            values[part] = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
-                        }
-                    }
-                    if constexpr (kPairedProducts && !NativeProducts) {
-                        uint32_t p;
-                        __builtin_memcpy(&p, probability_bf16 + begin + item, sizeof(p));
-                        const auto pair = qrt_sm121_paired_products::multiply(p, uint32_t(values[0]) | (uint32_t(values[1]) << 16u));
-                        products[item] = pair.low; products[item + 1u] = pair.high;
+                    if constexpr (PreparedValue) {
+                        const unsigned key_token = tile * kExactTileTokens + begin + item;
+                        const uint32_t v = key_token < tokens
+                            ? prepared_value[(size_t(key_token) * kKvHeads + kv_head) * kHeadDim + thread]
+                            : qrt_sm121_prepared_bf16::encode_wide(0u);
+                        products[item] = qrt_sm121_prepared_bf16::multiply_wide(probability_prepared[begin + item], v);
                     } else {
-                        const uint16_t v = values[0];
-                        products[item] = NativeProducts ? qrt_sm121_native_product::pack(probability_bf16[begin + item], v) :
-                            qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
-                                probability_bf16[begin + item], v, kBlackwellZeroExponent));
+                        uint16_t values[step]{};
+#pragma unroll
+                        for (unsigned part = 0u; part < step; ++part) {
+                            const unsigned int key_token = tile * kExactTileTokens + begin + item + part;
+                            if (key_token < tokens) {
+                                const bool in_tail = SplitDecodeValue && key_token >= decode_prefix_tokens;
+                                const uint16_t *source = in_tail ? auxiliary_value : value;
+                                const unsigned int source_token = in_tail ? key_token - decode_prefix_tokens : key_token;
+                                values[part] = source[(static_cast<size_t>(source_token) * kKvHeads + kv_head) * kHeadDim + thread];
+                            }
+                        }
+                        if constexpr (kPairedProducts && !NativeProducts) {
+                            uint32_t p;
+                            __builtin_memcpy(&p, probability_bf16 + begin + item, sizeof(p));
+                            const auto pair = qrt_sm121_paired_products::multiply(p, uint32_t(values[0]) | (uint32_t(values[1]) << 16u));
+                            products[item] = pair.low; products[item + 1u] = pair.high;
+                        } else {
+                            const uint16_t v = values[0];
+                            products[item] = NativeProducts ? qrt_sm121_native_product::pack(probability_bf16[begin + item], v) :
+                                qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                                    probability_bf16[begin + item], v, kBlackwellZeroExponent));
+                        }
                     }
                 }
                 const auto sum = NativeProducts ? qrt_sm121_native_product::sum(partial, products) :
@@ -1189,9 +1206,26 @@ __global__ void blackwell_mantissa_value_kernel(
     }
 }
 
+__global__ void blackwell_prepare_value_encoding_kernel(
+    const uint16_t* input, uint32_t* output, size_t elements) {
+    const size_t index = size_t(blockIdx.x) * kThreads + threadIdx.x;
+    if (index < elements) output[index] = qrt_sm121_prepared_bf16::encode_wide(input[index]);
+}
+
 // Bounded captured-prefix replay includes continuation beyond an 8192-token
 // prompt. This diagnostic workspace bound does not change product contracts.
 constexpr unsigned int kSplitMaxTokens = 16384u;
+
+inline int prepare_value_encoding(const uint16_t* input, uint32_t* output,
+    size_t output_elements, unsigned tokens, hipStream_t stream) {
+    const size_t elements = size_t(tokens) * kKvHeads * kHeadDim;
+    if (!input || !output || !tokens || tokens > kSplitMaxTokens || output_elements < elements)
+        return int(hipErrorInvalidValue);
+    hipLaunchKernelGGL(blackwell_prepare_value_encoding_kernel,
+        dim3((elements + kThreads - 1u) / kThreads), dim3(kThreads), 0u, stream,
+        input, output, elements);
+    return int(hipGetLastError());
+}
 
 template<IntegerRowKind Kind>
 inline int prepare_integer_rows(const uint16_t* input, IntegerOperandRow* output,
@@ -1222,13 +1256,13 @@ constexpr bool split_separate_probability(unsigned layout) {
     return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u || layout == 14u;
 }
 constexpr bool split_transposed_keys(unsigned layout) {
-    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 16u);
+    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 17u);
 }
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
-        memory_layout < 2u || memory_layout > 16u) return 0u;
+        memory_layout < 2u || memory_layout > 17u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
@@ -1248,13 +1282,16 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     float* score_scratch = nullptr, size_t score_scratch_elements = 0u,
     hipEvent_t scores_done = nullptr, hipEvent_t probabilities_done = nullptr,
     const uint16_t* transposed_key = nullptr, unsigned int key_stride = 0u,
-    bool native_products = false, const PrepackedIntegerWorkspace* prepared = nullptr) {
+    bool native_products = false, const PrepackedIntegerWorkspace* prepared = nullptr,
+    const uint32_t* prepared_values = nullptr, unsigned prepared_value_tokens = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 16u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
+    if (memory_layout > 17u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
+    if (memory_layout == 17u && (!prepared_values || prepared_value_tokens < query_start + query_count ||
+        prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
         // The split replay includes a bounded continuation of the captured prefix.
@@ -1267,7 +1304,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
-        if (memory_layout == 15u || memory_layout == 16u) {
+        if (memory_layout == 15u || memory_layout == 16u || memory_layout == 17u) {
             hipLaunchKernelGGL(blackwell_tiled_exact_scores_kernel,
                 dim3((stride + kTiledExactKeys - 1u) / kTiledExactKeys, kQueryHeads,
                     (query_count + kTiledExactQueries - 1u) / kTiledExactQueries), dim3(kThreads), 0u, stream,
@@ -1384,7 +1421,13 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             }
             return int(hipGetLastError());
         }
-        if (memory_layout == 16u) {
+        if (memory_layout == 17u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, false, false, false, true>),
+                dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+                q, k, v, output, query_start, output_start, exp2_table,
+                raw_accumulator, raw_denominator, vllm_sum, rcp_table,
+                score_scratch, stride, reinterpret_cast<const uint16_t*>(prepared_values), 0u);
+        } else if (memory_layout == 16u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, false, false, true>),
                 dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
                 q, k, v, output, query_start, output_start, exp2_table,

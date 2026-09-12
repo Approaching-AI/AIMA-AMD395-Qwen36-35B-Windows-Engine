@@ -23,10 +23,17 @@ void verify(uint16_t a,uint16_t b) {
     const auto expected=qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(a,b,-133));
     assert(p::multiply(p::encode(a),p::encode(b))==expected);
 }
+void verify_wide(uint16_t a,uint16_t b) {
+    const auto expected=qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(a,b,-133));
+    assert(p::multiply_wide(p::encode_wide(a),p::encode_wide(b))==expected);
+}
 int main() {
     const uint16_t controls[]={0u,0x8000u,0x2000u,0xa000u,0x207fu,0xa07fu,0x3f80u,0xbf80u,0x5f80u,0xdf80u,0x5fffu,0xdfffu};
-    unsigned eligible=0u,products=0u;
+    const uint16_t wide_controls[]={0u,0x8000u,1u,0x8001u,127u,0x807fu,128u,0x8080u,
+        0x3f80u,0xbf80u,0x7f7fu,0xff7fu,0x7f80u,0xff80u,0x7fc1u,0xffc1u};
+    unsigned eligible=0u,products=0u,wide_products=0u;
     for(unsigned i=0u;i<65536u;++i) {
+        for(uint16_t b:wide_controls) { verify_wide(uint16_t(i),b);verify_wide(b,uint16_t(i));wide_products+=2u; }
         const unsigned e=(i>>7u)&255u;
         assert(p::eligible(uint16_t(i))==((i&0x7fffu)==0u||(e>=64u&&e<=191u)));
         if(!p::eligible(uint16_t(i))) continue;
@@ -41,9 +48,12 @@ int main() {
         const uint16_t a=uint16_t((rnd()&0x807fu)|((64u+rnd()%128u)<<7u));
         const uint16_t b=uint16_t((rnd()&0x807fu)|((64u+rnd()%128u)<<7u));
         verify(a,b);++products;
+        const uint16_t wa=uint16_t(rnd()),wb=uint16_t(rnd());
+        verify_wide(wa,wb);++wide_products;
     }
     assert(eligible==32770u);
     std::printf("bf16_encodings=65536 eligible=%u packed_products=%u mismatches=0\n",eligible,products);
+    std::printf("wide_bf16_encodings=65536 signed_zero_subnormal_special_products=%u mismatches=0\n",wide_products);
 }
 '''
         with tempfile.TemporaryDirectory(prefix='qrt-prepared-bf16-') as tmp:
