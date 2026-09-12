@@ -41,6 +41,17 @@ mantissa probes. The default remains off. Internal component bit differences
 are diagnostic; only a matching real-model GB10 run can qualify the route or
 its performance.
 
+The [complete native matrix product tests](../benchmarks/correctness/attention-native-matrix-product-20260912.json)
+at CK `f204e8b`, whole/CLI `8b94be9`, FLA `6042803` and MoE `5710b89`
+reject both modes on actual output tokens. PV-only returns token220 instead
+of 82 at q7169 and differs at 393 of 512 q8192 outputs; QK/PV differs at the
+same q7169 first token and 470 q8192 outputs. Both q8192 first tokens and
+logits are correct, so first-token checks alone would miss these failures.
+The respective q8192 callback times of 55,207.214 and 48,109.3189 ms remain
+rejected diagnostics. Windows build, 322 local tests (2 skips), C/ABI, Rust,
+Clippy, q16 and hygiene pass. The next independent experiment adds selective
+exact PV replay around per-output BF16 rounding boundaries.
+
 Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
