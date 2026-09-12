@@ -85,6 +85,15 @@ does not renew the complete short/cold/archive/prefix matrix, long contexts or
 soak, and remains far above retained performance targets. It is not enabled in
 the qualified r4 archive.
 
+The [cell-parallel integer QK replay](../benchmarks/correctness/attention-cell-parallel-integer-20260912.json)
+at aa88b02 distributes each matrix tile's carry/fallback work across one cell
+per lane. All four full capture manifests still match, including raw
+accumulators and denominators. Its two 2134.66/2134.76 ms component runs are
+slower than the 1080.69/1088.97 ms prepared-scalar controls. QK alone takes
+1459.79/1460.55 ms versus 467.548/471.649 ms. The new schedule stays outside
+the product runtime; this result supports neither a performance claim nor a
+full-model acceptance.
+
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
 Its pinned original reduction configuration and i64 width reproduce the same
