@@ -313,11 +313,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (prepared_value && (!tiled_qk || warp_softmax)) return int(hipErrorInvalidValue);
     const char* compact_pv_option = std::getenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     if (compact_pv_option && *compact_pv_option && std::strcmp(compact_pv_option, "0") != 0 &&
-        std::strcmp(compact_pv_option, "1") != 0 && std::strcmp(compact_pv_option, "2") != 0)
+        std::strcmp(compact_pv_option, "1") != 0 && std::strcmp(compact_pv_option, "2") != 0 && std::strcmp(compact_pv_option, "3") != 0)
         return int(hipErrorInvalidValue);
-    // Mode2 keeps the previous per-query/head replay as a same-build control.
+    // Mode2 keeps per-query replay as a control; mode3 parallelizes probability
+    // generation while retaining global PV replay and ordered denominators.
     const unsigned compact_pv_mode = query_count > 1u && compact_pv_option &&
-        (*compact_pv_option == '1' || *compact_pv_option == '2') ? unsigned(*compact_pv_option - '0') : 0u;
+        (*compact_pv_option >= '1' && *compact_pv_option <= '3') ? unsigned(*compact_pv_option - '0') : 0u;
     if (compact_pv_mode && (!tiled_qk || warp_softmax || prepared_value)) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.

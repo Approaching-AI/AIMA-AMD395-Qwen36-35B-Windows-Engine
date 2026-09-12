@@ -51,6 +51,7 @@ void blackwell_prepare_value_encoding_kernel() {}
 template<bool SparseCore = false> void blackwell_cell_parallel_integer_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
+void blackwell_parallel_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
 void blackwell_compacted_pv_replay_kernel() {}
@@ -277,7 +278,7 @@ int main() {
     }
     launches=error_queries=0;
     if (split(0,8,&scratch,SIZE_MAX,22u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,24u)!=0u) return 51;
+        split_scratch_elements(8u,8u,25u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -395,7 +396,7 @@ int main() {
         }
     }
     launches=error_queries=fail_launch=0u;
-    if(split_scratch_elements(32u,7142u,24u)!=0u ||
+    if(split_scratch_elements(32u,7142u,25u)!=0u ||
        cells(tiled_cells,&wide_value,22u)!=hipErrorInvalidValue || launches) return 75;
     qrt_sm121_integer_core::Row core_row;
     CoreIntegerWorkspace core{&core_row,&core_row,7169u,32u};
@@ -421,27 +422,29 @@ int main() {
         if(core_call(&core,tiled_cells)!=hipErrorUnknown || launches!=failed || error_queries!=failed) return 82;
     }
     fail_launch=0;fail_scores=fail_probability=fail_event=false;
-    for(unsigned layout : {22u,23u}) {
+    for(unsigned layout : {22u,23u,24u}) {
         launches=error_queries=memsets=0;
         const size_t span=split_scratch_elements(16u,17u,layout);
-        if(span != matrix_elements + (layout==22u ? 2u*16u*16u*256u+1u : 16u*16u*256u) ||
+        if(span != matrix_elements + ((layout==22u || layout==24u) ? 2u*16u*16u*256u+1u : 16u*16u*256u) ||
            !split_transposed_keys(layout) || !split_separate_probability(layout)) return 83;
         auto compact_call=[&](size_t bytes) {
             return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,16u,0u,
                 nullptr,nullptr,nullptr,true,rcp,layout,&scratch,bytes,nullptr,nullptr,&operand,17u);
         };
         if(compact_call(span-1u)!=hipErrorInvalidValue || launches || memsets) return 84;
-        if(compact_call(span)!=hipSuccess || launches!=(layout==22u?5u:4u) ||
-           memsets!=(layout==22u?1u:0u) || !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel")) return 85;
-        if(layout==22u && (launch_grids[3]!=256u || launch_grids[4]!=1024u ||
+        if(compact_call(span)!=hipSuccess || launches!=((layout==22u || layout==24u)?5u:4u) ||
+           memsets!=((layout==22u || layout==24u)?1u:0u) || !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel")) return 85;
+        if((layout==22u || layout==24u) && (launch_grids[3]!=256u || launch_grids[4]!=1024u ||
             !std::strstr(launch_names[3],"blackwell_collect_pv_replay_kernel") ||
             !std::strstr(launch_names[4],"blackwell_compacted_pv_replay_kernel"))) return 86;
-        for(unsigned failure=1u;failure<=(layout==22u?5u:4u);++failure) {
+        if(launch_threads[1]!=(layout==24u?256u:32u) ||
+           !std::strstr(launch_names[1],layout==24u ? "blackwell_parallel_probability_kernel" : "blackwell_online_probability_kernel")) return 89;
+        for(unsigned failure=1u;failure<=((layout==22u || layout==24u)?5u:4u);++failure) {
             launches=error_queries=memsets=0;fail_launch=failure;
             if(compact_call(span)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 87;
         }
         fail_launch=0;
-        if(layout==22u) {
+        if(layout==22u || layout==24u) {
             launches=error_queries=memsets=0;fail_memset=true;
             if(compact_call(span)!=hipErrorUnknown || launches!=3u || memsets!=1u) return 88;
             fail_memset=false;

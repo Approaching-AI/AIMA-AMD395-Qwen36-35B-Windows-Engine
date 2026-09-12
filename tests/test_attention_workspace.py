@@ -124,20 +124,20 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    const uint32_t* wide = nullptr, unsigned wide_tokens = 0u) {
     ++queries;
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
-    const bool matrix = layout == 6u || layout == 7u || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u);
-    const bool expanded = (layout >= 5u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u);
+    const bool matrix = layout == 6u || layout == 7u || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
+    const bool expanded = (layout >= 5u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
     if (layout == 17u) {
         if (!preparations || wide != g_sm121_prepared_values || wide_tokens != key_stride) std::abort();
     } else if (wide || wide_tokens) std::abort();
     if (!count || count > (matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
-    if ((layout >= 4u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u)) {
+    if ((layout >= 4u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u)) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
             std::abort();
         if (expanded && (elements != kSm121MantissaElements ||
             elements < size_t(count) * 16u * (start + count) * 3u / 2u +
                 size_t(count) * 16u * (((start + count + 31u) / 32u) + 1u +
-                    (layout == 22u ? 512u : (layout == 13u || layout == 23u) ? 256u : 0u)))) std::abort();
+                    ((layout == 22u || layout == 24u) ? 512u : (layout == 13u || layout == 23u) ? 256u : 0u)))) std::abort();
     } else if (layout != 2u || prepared || transposes) std::abort();
     return queries == fail_query ? hipErrorUnknown : hipSuccess;
 }
@@ -340,7 +340,7 @@ int main() {
     if(launch(32768,1)!=hipErrorLaunchTimeOut || queries!=1u || syncs!=1u) return 53;
     reset();
     if(launch(32768,1024)!=hipSuccess || queries!=32u || syncs!=queries) return 54;
-    for(const char* mode : {"1","2"}) {
+    for(const char* mode : {"1","2","3"}) {
         reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
         if(launch(0,65)!=hipSuccess || observed_layout!=21u+unsigned(*mode-'0') || queries!=3u || transposes!=1u) return 55;
         reset();fail_query=2u;
@@ -357,7 +357,7 @@ int main() {
     unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
     if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 59;
     setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
-    for(const char* bad : {"3","true","1junk"}) {
+    for(const char* bad : {"4","true","1junk"}) {
         setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",bad,1);
         if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 60;
     }

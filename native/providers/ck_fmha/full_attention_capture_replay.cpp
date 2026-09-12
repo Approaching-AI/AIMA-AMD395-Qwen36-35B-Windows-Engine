@@ -133,6 +133,7 @@ bool report(const char* route, const std::vector<float>& output,
     else if (memory_layout == 20u) interval_kind = "cell_parallel_sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 21u) interval_kind = "prepacked_sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 22u) interval_kind = "tiled_exact_qk_native_pv_global_exact_replay";
+    else if (memory_layout == 24u) interval_kind = "parallel_probability_tiled_exact_qk_global_pv_replay";
     else if (memory_layout == 23u) interval_kind = "tiled_exact_qk_native_pv_local_exact_replay";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
@@ -162,13 +163,14 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"sparse_integer_core_qk\":" << (memory_layout >= 19u && memory_layout <= 21u ? "true" : "false")
               << ",\"prepacked_integer_core\":" << (memory_layout == 21u ? "true" : "false")
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
-              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u || memory_layout == 22u || memory_layout == 23u) ? "true" : "false")
-              << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u ? "true" : "false")
-              << ",\"compacted_pv_replay\":" << (memory_layout == 22u ? "true" : "false")
+              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) ? "true" : "false")
+              << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u ? "true" : "false")
+              << ",\"compacted_pv_replay\":" << ((memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
+              << ",\"parallel_probability\":" << (memory_layout == 24u ? "true" : "false")
               << ",\"compacted_pv_cells\":" << compacted_pv_cells
               << ",\"completed_host_ms\":" << completed_host_ms
-              << ",\"replay_count_host_reads_component_only\":" << (memory_layout == 22u ? "true" : "false")
-              << ",\"tiled_exact_qk\":" << ((memory_layout >= 15u && memory_layout <= 17u) || memory_layout == 22u || memory_layout == 23u ? "true" : "false")
+              << ",\"replay_count_host_reads_component_only\":" << ((memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
+              << ",\"tiled_exact_qk\":" << ((memory_layout >= 15u && memory_layout <= 17u) || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u ? "true" : "false")
               << ",\"prepared_value_encoding\":" << (memory_layout >= 17u && memory_layout <= 21u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
@@ -286,12 +288,12 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_23]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_24]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 23) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 24) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -457,7 +459,7 @@ int main(int argc, char** argv) {
                 prepacked_core ? &core_prepared : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
-            if (memory_layout == 22u) {
+            if (memory_layout == 22u || memory_layout == 24u) {
                 // Component diagnostics only, after completion and outside the
                 // timed interval. The product provider never reads this count.
                 const unsigned queries = std::min(batch, count - offset);
