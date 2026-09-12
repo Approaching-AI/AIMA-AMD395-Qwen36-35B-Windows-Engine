@@ -35,6 +35,10 @@ bool ensure_scratch(int n){assert(n>0&&n<=1024&&n%64==0);return true;}
 int hipMemsetAsync(void*,int,size_t,void*){return 0;}
 int hipMemcpyAsync(void*,const void*,size_t,int,void*){return 0;}
 unsigned calls=0,resets=0;int processed=0;
+std::vector<unsigned> observed_offsets;
+bool capture_segment_boundary(unsigned offset,const float* state,void*){
+ assert(state);observed_offsets.push_back(offset);return true;
+}
 int launch_guarded_segment_async(const float*,const float*,float*,float* state,void*,int count,bool reset,
                          int valid,qrt_fla_checkpoint::Segment plan){
  assert(count&&count<=1024&&count%64==0&&!plan.count);if(!valid)valid=count;
@@ -53,9 +57,11 @@ int main(){
  g_state.padded_gate=(float*)std::malloc(64*64*4);
  g_state.padded_output=(float*)std::malloc(64*4096*4);
  for(int n:{1,63,64,65,127,128,1023,1024,1025,7169,8192,8193}){
-  calls=resets=processed=0;*state=123;
+  calls=resets=processed=0;*state=123;observed_offsets.clear();
   assert(qrt_fla_gdn_launch_async_seeded_f32_v1(raw,gate,out,state,0,nullptr,n));
   assert(calls&&resets==0&&processed==n&&*state==123+n);
+  assert(observed_offsets.size()==calls&&observed_offsets.front()==0);
+  for(size_t i=1;i<observed_offsets.size();++i) assert(observed_offsets[i]>observed_offsets[i-1]);
   calls=resets=processed=0;*state=123;
   assert(launch_pipeline_async_impl(raw,gate,out,state,0,nullptr,n));
   assert(resets==1&&processed==n&&*state==n);

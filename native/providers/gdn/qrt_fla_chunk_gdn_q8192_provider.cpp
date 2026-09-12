@@ -1019,6 +1019,21 @@ int launch_segment_async(
 // The complete batched segment has the same bounded kernels and stream order
 // as the legacy path. One completion check covers all of them, including the
 // KKT gate and state/output aliases, before another segment may reuse scratch.
+bool capture_device_read(void* host, const void* device, size_t bytes, void* stream_pointer) {
+    hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
+    hipError_t status = hipMemcpyAsync(host, device, bytes, hipMemcpyDeviceToHost, stream);
+    if (status == hipSuccess) status = hipStreamSynchronize(stream);
+    if (status != hipSuccess) set_error("hipMemcpyAsync(first_call_capture)", status);
+    return status == hipSuccess;
+}
+
+bool capture_segment_boundary(unsigned offset, const float* state, void* stream_pointer) {
+    return g_state.first_call_capture.before_segment(offset, state,
+        [&](void* host, const void* device, size_t bytes) {
+            return capture_device_read(host, device, bytes, stream_pointer);
+        });
+}
+
 int launch_guarded_segment_async(
     const float* raw, const float* gates, float* output, float* state,
     void* stream_pointer, int32_t tokens, bool reset_state,
@@ -1106,6 +1121,7 @@ int launch_pipeline_async_impl(
             const int32_t remaining = prefix_tokens - offset;
             const int32_t count = remaining > kSegmentTokens
                 ? kSegmentTokens : remaining;
+            if (!capture_segment_boundary(static_cast<unsigned>(offset), final_state_f32, stream_pointer)) return 0;
             if (launch_guarded_segment_async(
                     postconv_raw_f32 + static_cast<size_t>(offset) * kQkvRows,
                     gate_f32 + static_cast<size_t>(offset) * kGateRows,
@@ -1177,6 +1193,7 @@ int launch_pipeline_async_impl(
             set_error("hipMemcpyAsync(padded_gate)", status);
             return 0;
         }
+        if (!capture_segment_boundary(static_cast<unsigned>(prefix_tokens), final_state_f32, stream_pointer)) return 0;
         if (launch_guarded_segment_async(
                 g_state.padded_postconv,
                 g_state.padded_gate,
@@ -1210,6 +1227,7 @@ int launch_pipeline_async_impl(
         const int32_t remaining = tokens - token_offset;
         const int32_t segment_tokens = remaining > kSegmentTokens
             ? kSegmentTokens : remaining;
+        if (!capture_segment_boundary(static_cast<unsigned>(token_offset), final_state_f32, stream_pointer)) return 0;
         if (launch_guarded_segment_async(
                 postconv_raw_f32 +
                     static_cast<size_t>(token_offset) * kQkvRows,
@@ -1252,17 +1270,19 @@ int launch_pipeline_async(
         set_error_text("FLA capture call index must be an integer in 0..63");
         return 0;
     }
+    qrt_fla_capture::Window window;
+    if (!qrt_fla_capture::parse_window(std::getenv("QRT_FLA_GDN_CAPTURE_FIRST_POSITION"),
+                                     std::getenv("QRT_FLA_GDN_CAPTURE_TOKENS"), window)) {
+        set_error_text("FLA capture window requires a positive segment-aligned start and 1024..8192 inputs");
+        return 0;
+    }
     if (!g_state.prepared || !supported_tokens(tokens) || gate_values_are_decay != 0 ||
         !postconv_raw_f32 || !gate_f32 || !output_f32 || !final_state_f32) return execute() ? 1 : 0;
     const bool success = g_state.first_call_capture.run(directory, static_cast<unsigned>(tokens),
         postconv_raw_f32, gate_f32, output_f32, final_state_f32,
         [&](void* host, const void* device, size_t bytes) {
-            hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
-            hipError_t status = hipMemcpyAsync(host, device, bytes, hipMemcpyDeviceToHost, stream);
-            if (status == hipSuccess) status = hipStreamSynchronize(stream);
-            if (status != hipSuccess) set_error("hipMemcpyAsync(first_call_capture)", status);
-            return status == hipSuccess;
-        }, execute, selected_call);
+            return capture_device_read(host, device, bytes, stream_pointer);
+        }, execute, selected_call, window);
     if (!success && !g_state.error[0]) set_error_text(g_state.first_call_capture.error);
     return success ? 1 : 0;
 }
