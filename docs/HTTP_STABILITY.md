@@ -65,6 +65,23 @@ error0.25. Tolerance remains0.125. See
 `benchmarks/correctness/http-short-gb10-matrix-20260912.json` and
 `contracts/gb10_http_short_actual_tokens_20260912_oracle.json`.
 
+Complete q5/q85 prefill rows now localize the earliest difference to layer0
+MoE. Input normalization, post-attention normalization and the original
+residual are bit-exact. The terminal row happens to match while earlier rows
+already differ; terminal-row sampling alone did not identify this origin.
+The router differs in 134 q5 and seven q85 BF16 cells, with identical selected
+expert IDs. Every q5 shared-expert stage matches; q85 shared gate/up has 54
+different cells. See `benchmarks/correctness/http-short-prefill-boundaries-20260912.json`
+and `benchmarks/correctness/http-short-moe-projections-20260912.json`.
+
+The bounded GB10 projection replay reproduces all six captured matrices using
+the original model weights. Its q5 router uses eight K256 partials, each rounded
+to BF16 before their FP32 sum; CPU replay matches all 1280 reference logits.
+The native unsplit projection omits that rounding. q85 selects different
+nvjet projection kernels, including a four-way FP32 split-K router. Its exact
+accumulation order remains under investigation. These are diagnostic results;
+the complete native token/logit failures remain open.
+
 The same a797b62 archive components pass both renewed main cold512 cases,
 all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,
 reaches its first callback in58785.9958ms and has TPOT109.671292ms. The complete

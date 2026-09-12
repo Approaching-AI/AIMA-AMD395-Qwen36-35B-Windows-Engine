@@ -85,8 +85,22 @@ matches all32 but has first-logit error0.5. q19 thinking differs at index303
 before EOS and has first-logit error0.25. The numerical tolerance stays0.125.
 All processes complete with healthy host checks. In the same a797b62 profile,
 q7169/out512 and q8192/out512 retain all1024 frozen tokens and real callbacks;
-q8192 actual TTFT58785.9958ms remains unqualified. Short prefill and continuation
-operator boundaries are being compared to locate the numerical differences.
+q8192 actual TTFT58785.9958ms remains unqualified.
+
+The [complete short prefill rows](../benchmarks/correctness/http-short-prefill-boundaries-20260912.json)
+show exact layer0 input/post-attention norms and residuals, followed by 2926
+q5 and 88 q85 different BF16 combined-carrier values. Both terminal rows match;
+earlier rows already differ before layer1 and propagate through its recurrence.
+The [MoE projection evidence](../benchmarks/correctness/http-short-moe-projections-20260912.json)
+finds 134 q5 and seven q85 router differences, with identical expert selection.
+All q5 shared stages match; q85 shared gate/up differs in 54 values. A bounded
+GB10 replay reproduces all six actual projection matrices. The q5 router's
+eight K256 BF16 partials and FP32 reduction explain all 134 differences:
+CPU replay matches every one of its 1280 reference logits. q85 uses different
+nvjet kernels; their accumulation order is still being characterized. Both
+immutable controls and short reference continuations reproduce, and the native
+observers preserve the original product failures. No arithmetic repair or
+product acceptance is inferred from intermediate hashes or component results.
 
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model
