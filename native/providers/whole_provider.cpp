@@ -62555,11 +62555,16 @@ std::vector<unsigned int> begin_qwen36_prefix_checkpoints(
     return final_rows;
 }
 
+#include "prefix_batch_suffix.h"
+
 int launch_qwen36_fla_with_checkpoints(
     AiterFusedGdnDynamicLaunchFn fallback,
     unsigned int layer_index, const float *raw, const float *gate,
     float *output, float *state, int decay_flag, int32_t tokens
 ) {
+    if (auto *suffix = ScopedQwen36PrefixBatchSuffix::active) {
+        return suffix->recurrent(layer_index, raw, gate, output, state, decay_flag, tokens);
+    }
     auto store = g_qwen36_resident_session.prefix_checkpoints;
     qrt_fla_checkpoint::Launch launch = nullptr;
 #ifdef _WIN32
@@ -113004,6 +113009,51 @@ cleanup:
     return run->failure_stage.empty() && run->correctness_pass;
 }
 
+bool capture_qwen36_prefix_batch_terminal(
+    const Layer1InputRmsnormRun &normalized, const std::string &model_dir,
+    unsigned prefill_tokens, std::string *failure_stage, std::string *failure
+) {
+    auto *suffix = ScopedQwen36PrefixBatchSuffix::active;
+    if (!suffix) return true;
+    if (suffix->terminal_valid || prefill_tokens != suffix->tokens ||
+        normalized.selected_token_count != suffix->tokens ||
+        normalized.selected_token_ids.back() + 1u != suffix->tokens ||
+        normalized.gpu_output.size() != size_t(suffix->tokens) * QRT_QWEN36_HIDDEN_SIZE) {
+        *failure_stage = "prefix_batch_terminal_shape";
+        *failure = "batch suffix must expose its actual final normalized row";
+        return false;
+    }
+    // GB10 samples only the last hidden row with an M1 vocabulary projection.
+    // The other teacher predictions are real batched projections; compute the
+    // sampled boundary separately with the existing M1 arithmetic.
+    Layer1InputRmsnormRun terminal;
+    terminal.selected_token_ids = {prefill_tokens - 1u};
+    terminal.selected_token_count = 1u;
+    terminal.output_elements = QRT_QWEN36_HIDDEN_SIZE;
+    terminal.output_bytes = terminal.output_elements * sizeof(float);
+    terminal.gpu_output.assign(normalized.gpu_output.end() - QRT_QWEN36_HIDDEN_SIZE,
+        normalized.gpu_output.end());
+    terminal.gpu_output_hash = qrt_fnv1a64_f32(terminal.gpu_output.data(), terminal.gpu_output.size());
+    terminal.correctness_pass = normalized.correctness_pass;
+    LmHeadRun head;
+    if (!run_lm_head(terminal, model_dir, prefill_tokens, &head) ||
+        !head.correctness_pass || head.gpu_topk_ids.size() < 2u || head.gpu_topk_logits.size() < 2u) {
+        *failure_stage = head.failure_stage.empty() ? "prefix_batch_terminal_head" : head.failure_stage;
+        *failure = head.failure.empty() ? "batch suffix M1 vocabulary projection failed" : head.failure;
+        return false;
+    }
+    for (unsigned i = 0; i < 2u; ++i) {
+        if (head.gpu_topk_ids[i] >= QRT_QWEN36_VOCAB_SIZE || !std::isfinite(head.gpu_topk_logits[i])) {
+            *failure_stage = "prefix_batch_terminal_output";
+            *failure = "batch suffix produced an invalid M1 token or raw logit"; return false;
+        }
+        suffix->terminal_ids[i] = head.gpu_topk_ids[i];
+        suffix->terminal_logits[i] = head.gpu_topk_logits[i];
+    }
+    suffix->terminal_valid = true;
+    return true;
+}
+
 bool run_sampler(
     const LmHeadRun &lm_head_run,
     unsigned int prefill_tokens,
@@ -120709,7 +120759,18 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             ))) {
             goto cleanup;
         }
-        if (use_bf16_conv_postconv_fusion) {
+        if (auto *suffix = ScopedQwen36PrefixBatchSuffix::active) {
+            if (use_bf16_conv_postconv_fusion || !use_secondary_fla_chunk_gdn_provider ||
+                !suffix->convolution(descriptor.layer_index, device_qkv, device_conv_weight,
+                    device_conv, target_token_count, conv_arithmetic_mode,
+                    device_cuda_silu_correction_keys, device_cuda_silu_correction_values,
+                    cuda_silu_correction_maximum_probe, device_sm121_silu_table)) {
+                run->failure_stage = prefix + "_prefix_batch_convolution";
+                run->failure = suffix->failure.empty()
+                    ? "batch suffix requires the raw-convolution FLA route" : suffix->failure;
+                goto cleanup;
+            }
+        } else if (use_bf16_conv_postconv_fusion) {
             if (use_q262144_staged_linear_workspace) {
                 std::cerr
                     << "BATCH_MARK q262144_chunked_bf16_postconv"
@@ -127019,11 +127080,11 @@ bool run_full_attention_prefill_resident_core_for_targets(
         << std::endl;
     const bool layer39_fixed_attention_weights_requested =
         qwen36_layer39_fixed_attention_weights_requested();
-    const bool layer39_q1_kv8192_requested = env_flag_enabled(
+    const bool layer39_q1_kv8192_requested = !ScopedQwen36PrefixBatchSuffix::active && env_flag_enabled(
         "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_KV8192"
     );
     const bool layer39_q4_kv8192_requested =
-        !layer39_q1_kv8192_requested && env_flag_enabled(
+        !ScopedQwen36PrefixBatchSuffix::active && !layer39_q1_kv8192_requested && env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q4_KV8192"
         );
     const bool layer39_q1_canonical_target_indices =
@@ -127509,6 +127570,8 @@ bool run_full_attention_prefill_resident_core_for_targets(
     uint16_t *device_k_norm_weight = nullptr;
     float *device_qk_norm = nullptr;
     unsigned int *device_history_token_ids = nullptr;
+    unsigned int *device_absolute_rope_positions = nullptr;
+    std::vector<unsigned int> absolute_rope_positions;
     const float2 *device_compact_rope_cos_sin = nullptr;
     std::unique_lock<std::mutex> compact_rope_table_lease;
     unsigned int *device_target_history_indices = nullptr;
@@ -127675,6 +127738,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
         free_device(device_score);
         free_device(device_rope);
         free_device(device_target_history_indices);
+        free_device(device_absolute_rope_positions);
         free_device(device_history_token_ids);
         free_device(device_qk_norm);
         if (!use_preloaded_fixed_attention_weights) {
@@ -129929,12 +129993,37 @@ bool run_full_attention_prefill_resident_core_for_targets(
             }
         }
     }
+    if (auto *suffix = ScopedQwen36PrefixBatchSuffix::active) {
+        if (!use_compact_ck_bf16 || !use_ck_fmha_full_attention_provider ||
+            history_tokens_u32 != suffix->tokens || target_tokens_u32 != suffix->tokens) {
+            run->failure_stage = prefix + "_prefix_batch_attention_shape";
+            run->failure = "batch suffix requires every actual query in compact BF16 attention";
+            cleanup(); return false;
+        }
+        absolute_rope_positions = run->rope.selected_token_ids;
+        for (unsigned i = 0; i < absolute_rope_positions.size(); ++i) {
+            if (absolute_rope_positions[i] != i) {
+                run->failure_stage = prefix + "_prefix_batch_attention_positions";
+                run->failure = "suffix carriers must be contiguous local rows";
+                cleanup(); return false;
+            }
+            absolute_rope_positions[i] += suffix->prefix;
+        }
+        if (!malloc_device(&device_absolute_rope_positions, absolute_rope_positions.size() * sizeof(unsigned),
+                prefix + "_prefix_batch_rope_positions_allocate") ||
+            !upload(device_absolute_rope_positions, absolute_rope_positions.data(),
+                absolute_rope_positions.size() * sizeof(unsigned), prefix + "_prefix_batch_rope_positions_upload")) {
+            cleanup(); return false;
+        }
+    }
     if (use_compact_ck_rope_table) {
         std::string rope_table_failure_stage;
         std::string rope_table_failure;
         if (!ensure_full_attention_compact_rope_table(
-                device_history_token_ids,
-                history_token_ids_hash,
+                device_absolute_rope_positions ? device_absolute_rope_positions : device_history_token_ids,
+                device_absolute_rope_positions
+                    ? qrt_fnv1a64_bytes(absolute_rope_positions.data(), absolute_rope_positions.size() * sizeof(unsigned))
+                    : history_token_ids_hash,
                 history_tokens_u32,
                 descriptor.layer_index,
                 &device_compact_rope_cos_sin,
@@ -131561,7 +131650,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 0,
                 device_q_bf16,
                 device_q_norm_weight,
-                device_history_token_ids,
+                device_absolute_rope_positions ? device_absolute_rope_positions : device_history_token_ids,
                 device_compact_rope_cos_sin,
                 device_compact_q_bf16,
                 history_tokens_u32,
@@ -131577,7 +131666,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 0,
                 device_k_bf16,
                 device_k_norm_weight,
-                device_history_token_ids,
+                device_absolute_rope_positions ? device_absolute_rope_positions : device_history_token_ids,
                 device_compact_rope_cos_sin,
                 history_tokens_u32,
                 use_q65536_vllm_persistent_qk_norm,
@@ -131595,7 +131684,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 0,
                 device_q_bf16,
                 device_q_norm_weight,
-                device_history_token_ids,
+                device_absolute_rope_positions ? device_absolute_rope_positions : device_history_token_ids,
                 device_compact_q_bf16,
                 history_tokens_u32,
                 use_q65536_vllm_persistent_qk_norm
@@ -131608,7 +131697,7 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 0,
                 device_k_bf16,
                 device_k_norm_weight,
-                device_history_token_ids,
+                device_absolute_rope_positions ? device_absolute_rope_positions : device_history_token_ids,
                 history_tokens_u32,
                 use_q65536_vllm_persistent_qk_norm
             );
@@ -131941,7 +132030,10 @@ bool run_full_attention_prefill_resident_core_for_targets(
                            : (use_ck_fmha_q16384_full_attention_provider
                                   ? ck_fmha_q16384_launch
                                   : ck_fmha_launch));
-            const hipError_t ck_launch_status = static_cast<hipError_t>(
+            const hipError_t ck_launch_status = ScopedQwen36PrefixBatchSuffix::active
+                ? ScopedQwen36PrefixBatchSuffix::active->attention(descriptor.layer_index,
+                    device_compact_q_bf16, device_k_bf16, device_v_bf16, device_score, prefill_tokens)
+                : static_cast<hipError_t>(
                 use_ck_fmha_q1_dynamic_full_attention_provider
                     ? ck_fmha_q1_dynamic_launch(
                           device_rope,
@@ -139925,6 +140017,11 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
                   << " status=ok elapsed_ns="
                   << qrt_elapsed_ns(lm_head_start_ns, qrt_now_ns())
                   << std::endl;
+        if (!capture_qwen36_prefix_batch_terminal(run->final_norm, model_dir, prefill_tokens,
+                &run->failure_stage, &run->failure)) {
+            run->next_unclosed_boundary = "lm_head";
+            return false;
+        }
         run->output_boundary = "lm_head";
         run->next_unclosed_boundary = "sampler";
         run->sampler_attempted = true;
@@ -219655,6 +219752,86 @@ qrt_qwen36_whole_provider_reset_resident_prefix_cache_v1(
     return 1;
 }
 
+bool run_qwen36_resident_batch_suffix(
+    const qrt_qwen36_whole_provider_prefix_request_v1_t &prefix_request,
+    uint32_t *teacher_predictions, std::string *failure_stage, std::string *failure
+) {
+    auto *const owner = &g_qwen36_resident_session;
+    ScopedQwen36PrefixBatchSuffix suffix(owner, prefix_request.expected_prefix_token_count,
+        prefix_request.suffix_token_count);
+    *failure_stage = "qwen36_resident_prefix_batch_suffix";
+    if (!teacher_predictions || !prefix_request.suffix_tokens || !suffix.validate()) {
+        *failure = suffix.failure.empty() ? "batch suffix request lacks actual inputs or output storage" : suffix.failure;
+        return false;
+    }
+    const std::string model_dir = owner->model_dir;
+    qrt_qwen36_whole_provider_request_t request{};
+    request.model_dir = model_dir.c_str();
+    request.resident_engine = const_cast<qrt_engine_t *>(owner->owner_engine);
+    request.input_tokens = prefix_request.suffix_tokens;
+    request.input_token_count = suffix.tokens;
+    request.output_token_capacity = 1u;
+    request.flags = QRT_QWEN36_WHOLE_PROVIDER_FLAG_ARBITRARY_PREFILL;
+    request.required_surfaces = QRT_QWEN36_WHOLE_PROVIDER_SURFACE_SELECTED_MOE |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_FULL_ATTENTION |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_RESIDENT_STACK |
+        QRT_QWEN36_WHOLE_PROVIDER_SURFACE_REQUEST_PATH;
+    request.expected_prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(request.input_tokens,
+        request.input_token_count * sizeof(*request.input_tokens));
+    request.expected_output_token_id = UINT_MAX;
+    std::vector<unsigned int> final_rows(suffix.tokens);
+    for (unsigned i = 0; i < suffix.tokens; ++i) final_rows[i] = i;
+    Qwen36ResidentSessionState temporary_session{};
+    LmHeadRun predictions;
+    auto result = std::make_unique<qrt_qwen36_whole_provider_result_t>();
+    int ok = 0;
+    hipError_t sync = hipSuccess;
+    {
+        ScopedQwen36ResidentActiveSession active_scope(&temporary_session);
+        ScopedQwen36ExactPrefillVerifier arithmetic_scope;
+        ScopedQwen36DirectFinalTargetTokens final_scope(&final_rows);
+        ScopedQwen36ExactPrefillLmHeadCapture predictions_scope(&predictions);
+        try {
+            ok = qrt_qwen36_whole_provider_prefill_v1(&request, result.get());
+        } catch (const std::exception &error) {
+            suffix.failure = std::string("batch suffix prefill exception: ") + error.what();
+        } catch (...) {
+            suffix.failure = "batch suffix prefill raised an unknown exception";
+        }
+        sync = hipDeviceSynchronize();
+    }
+    if (!ok || sync != hipSuccess || !result->completed || result->output_token_count != 1u ||
+        (result->provided_surfaces & request.required_surfaces) != request.required_surfaces ||
+        !suffix.complete() || predictions.selected_token_ids != final_rows ||
+        predictions.gpu_topk_ids.size() != size_t(suffix.tokens) * QRT_QWEN36_OUTPUT_HEAD_SAMPLER_TOPK) {
+        if (result->failure_stage[0]) *failure_stage = result->failure_stage;
+        *failure = !suffix.failure.empty() ? suffix.failure :
+            (result->failure[0] ? result->failure :
+             (sync != hipSuccess ? hipGetErrorString(sync) : "batch suffix did not complete every linear, attention and vocabulary boundary"));
+        return false;
+    }
+    for (unsigned i = 0; i < suffix.tokens; ++i) {
+        const uint32_t token = predictions.gpu_topk_ids[size_t(i) * QRT_QWEN36_OUTPUT_HEAD_SAMPLER_TOPK];
+        if (token >= QRT_QWEN36_VOCAB_SIZE) { *failure = "invalid batched teacher prediction"; return false; }
+        teacher_predictions[i] = token;
+    }
+    teacher_predictions[suffix.tokens - 1u] = suffix.terminal_ids[0];
+    owner->committed_decode_token_count = suffix.tokens;
+    owner->current_token_id = suffix.terminal_ids[0];
+    owner->current_token_valid = true;
+    owner->last_decode_top2_ids = suffix.terminal_ids;
+    owner->last_decode_top2_logits = suffix.terminal_logits;
+    owner->last_decode_top2_position = size_t(suffix.prefix) + suffix.tokens - 1u;
+    owner->last_decode_top2_valid = true;
+    std::cerr << "BATCH_MARK qwen36_prefix_batch_suffix prefix_tokens=" << suffix.prefix
+              << " suffix_tokens=" << suffix.tokens << " convolution_mask=" << hex_u64(suffix.convolution_layers)
+              << " recurrent_mask=" << hex_u64(suffix.recurrent_layers)
+              << " attention_mask=" << hex_u64(suffix.attention_layers)
+              << " first_token=" << suffix.terminal_ids[0] << " raw_logit=" << suffix.terminal_logits[0]
+              << " owner_replayed=0 sequential_suffix_decode=0" << std::endl;
+    return true;
+}
+
 bool qwen36_run_exact_low_margin_prefill_verifier(
     const qrt_qwen36_whole_provider_prefix_request_v1_t &prefix_request,
     uint32_t forced_verifier_input_token_count,
@@ -220367,7 +220544,9 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     qrt_qwen36_whole_provider_decode_request_v1_t decode_request{};
     qrt_qwen36_whole_provider_decode_result_v1_t decode_result{};
     const uint64_t suffix_start_ns = qrt_now_ns();
-    const bool q1024_owner_shape =
+    const bool batch_suffix_requested =
+        raw_env_flag_enabled("QRT_QWEN36_PREFIX_BATCH_SUFFIX") && request->suffix_token_count == 1024u;
+    const bool q1024_owner_shape = !batch_suffix_requested &&
         q1024_owner_enabled() &&
         q1024_owner_prefix_tokens_supported(
             request->expected_prefix_token_count
@@ -220399,7 +220578,12 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
             "the gb10 teacher-forced continuation must cover every requested output token"
         );
     }
-    if (q1024_owner_shape) {
+    if (batch_suffix_requested) {
+        if (!run_qwen36_resident_batch_suffix(*request, out_result->teacher_forced_prediction_tokens,
+                &failure_stage, &failure)) {
+            return rollback_failure(QRT_STATUS_UNSUPPORTED, failure_stage, failure);
+        }
+    } else if (q1024_owner_shape) {
         qrt_qwen36_q1024_owner_result_v1_t owner_result{};
         if (!run_qwen36_resident_q1024_suffix_owner(
                 *request,
@@ -220524,7 +220708,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefix_v1(
     const bool exact_prefill_verify_all_requested =
         raw_env_flag_enabled("QRT_QWEN36_Q1_EXACT_PREFILL_VERIFY_ALL");
     const bool exact_low_margin_verifier_requested =
-        !q1024_owner_shape && !gb10_continuation_teacher_forced &&
+        !batch_suffix_requested && !q1024_owner_shape && !gb10_continuation_teacher_forced &&
         (exact_prefill_verify_all_requested ||
          raw_env_flag_enabled(
              "QRT_QWEN36_Q1_EXACT_LOW_MARGIN_PREFILL_VERIFY"
