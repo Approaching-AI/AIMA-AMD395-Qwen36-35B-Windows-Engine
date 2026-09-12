@@ -80,7 +80,8 @@ bool report(const char* route, const std::vector<float>& output,
             const std::string& prefix, float total_ms, float max_ms,
             unsigned memory_layout = 0u, float scores_ms = 0.0f,
             float probabilities_ms = 0.0f, float value_ms = 0.0f,
-            float preparation_ms = 0.0f, bool native_products = false) {
+            float preparation_ms = 0.0f, bool native_products = false,
+            double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -131,6 +132,8 @@ bool report(const char* route, const std::vector<float>& output,
     else if (memory_layout == 19u) interval_kind = "sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 20u) interval_kind = "cell_parallel_sparse_integer_core_qk_prepared_exact_pv";
     else if (memory_layout == 21u) interval_kind = "prepacked_sparse_integer_core_qk_prepared_exact_pv";
+    else if (memory_layout == 22u) interval_kind = "tiled_exact_qk_native_pv_global_exact_replay";
+    else if (memory_layout == 23u) interval_kind = "tiled_exact_qk_native_pv_local_exact_replay";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
     else if (memory_layout >= 10u) interval_kind = "key_transpose_and_strided_pair_qk_pv";
@@ -159,9 +162,13 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"sparse_integer_core_qk\":" << (memory_layout >= 19u && memory_layout <= 21u ? "true" : "false")
               << ",\"prepacked_integer_core\":" << (memory_layout == 21u ? "true" : "false")
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
-              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u) ? "true" : "false")
-              << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u ? "true" : "false")
-              << ",\"tiled_exact_qk\":" << (memory_layout >= 15u && memory_layout <= 17u ? "true" : "false")
+              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u || memory_layout == 22u || memory_layout == 23u) ? "true" : "false")
+              << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u ? "true" : "false")
+              << ",\"compacted_pv_replay\":" << (memory_layout == 22u ? "true" : "false")
+              << ",\"compacted_pv_cells\":" << compacted_pv_cells
+              << ",\"completed_host_ms\":" << completed_host_ms
+              << ",\"replay_count_host_reads_component_only\":" << (memory_layout == 22u ? "true" : "false")
+              << ",\"tiled_exact_qk\":" << ((memory_layout >= 15u && memory_layout <= 17u) || memory_layout == 22u || memory_layout == 23u ? "true" : "false")
               << ",\"prepared_value_encoding\":" << (memory_layout >= 17u && memory_layout <= 21u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
@@ -279,12 +286,12 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_21]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_23]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 21) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 23) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -430,9 +437,12 @@ int main(int argc, char** argv) {
         Device scores((score_elements + 128u) * sizeof(float));
         auto* score_data = scores.as<float>() + 64u;
         check(hipMemset(scores.pointer, 0xa5, (score_elements + 128u) * sizeof(float)));
+        double completed_host_ms = 0.0;
+        uint64_t compacted_pv_cells = 0u;
         for (unsigned offset = 0; offset < count; offset += batch) {
             if (std::chrono::duration<double>(Clock::now() - begun).count() > 150.0)
                 throw std::runtime_error("replay aggregate deadline exceeded");
+            const auto host_begin = Clock::now();
             check(hipEventRecord(begin.value));
             check(hipError_t(qrt_blackwell_attention::launch_queries(dq.as<uint16_t>(), dk.as<uint16_t>(),
                 dv.as<uint16_t>(), output.as<float>(), nullptr, start + offset,
@@ -446,6 +456,18 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
+            completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
+            if (memory_layout == 22u) {
+                // Component diagnostics only, after completion and outside the
+                // timed interval. The product provider never reads this count.
+                const unsigned queries = std::min(batch, count - offset);
+                const size_t used = qrt_blackwell_attention::split_scratch_elements(
+                    queries, start + offset + queries, memory_layout);
+                unsigned selected = 0u;
+                check(hipMemcpy(&selected, score_data + used - 1u, sizeof(selected), hipMemcpyDeviceToHost));
+                if (selected > queries * 16u * 256u) throw std::runtime_error("PV candidate count overflow");
+                compacted_pv_cells += selected;
+            }
             if (memory_layout >= 2u) {
                 float stage_ms = 0;
                 check(hipEventElapsedTime(&stage_ms, begin.value, scores_done.value));
@@ -594,7 +616,8 @@ int main(int argc, char** argv) {
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
-                          scores_total, probabilities_total, value_total, preparation_ms, native_products);
+                          scores_total, probabilities_total, value_total, preparation_ms, native_products,
+                          completed_host_ms, compacted_pv_cells);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

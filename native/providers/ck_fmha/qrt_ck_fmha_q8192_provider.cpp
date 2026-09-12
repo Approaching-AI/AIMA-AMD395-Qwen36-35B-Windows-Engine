@@ -201,7 +201,7 @@ constexpr size_t kSm121MatrixScoreElements =
     static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * kSm121MaxTokens;
 constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121MatrixScoreElements / 2u +
     static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads *
-        (kSm121MaxTokens / 32u + 1u + kHeadDim);
+        (kSm121MaxTokens / 32u + 1u + 2u * kHeadDim) + 1u;
 constexpr size_t kSm121KeyElements =
     static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 
@@ -311,6 +311,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(prepared_option, "1") != 0) return int(hipErrorInvalidValue);
     const bool prepared_value = query_count > 1u && prepared_option && std::strcmp(prepared_option, "1") == 0;
     if (prepared_value && (!tiled_qk || warp_softmax)) return int(hipErrorInvalidValue);
+    const char* compact_pv_option = std::getenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
+    if (compact_pv_option && *compact_pv_option && std::strcmp(compact_pv_option, "0") != 0 &&
+        std::strcmp(compact_pv_option, "1") != 0 && std::strcmp(compact_pv_option, "2") != 0)
+        return int(hipErrorInvalidValue);
+    // Mode2 keeps the previous per-query/head replay as a same-build control.
+    const unsigned compact_pv_mode = query_count > 1u && compact_pv_option &&
+        (*compact_pv_option == '1' || *compact_pv_option == '2') ? unsigned(*compact_pv_option - '0') : 0u;
+    if (compact_pv_mode && (!tiled_qk || warp_softmax || prepared_value)) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -334,7 +342,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if ((matrix_mode && (mantissa_wmma || native_products || tiled_qk)) ||
         (tiled_qk && (mantissa_wmma || native_products))) return int(hipErrorInvalidValue);
     const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u || tiled_qk;
-    const unsigned int memory_layout = prepared_value ? 17u : warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
+    const unsigned int memory_layout = compact_pv_mode ? 21u + compact_pv_mode : prepared_value ? 17u : warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
     const unsigned int query_batch = matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     if (expanded_scratch && !g_sm121_mantissa_scores) {

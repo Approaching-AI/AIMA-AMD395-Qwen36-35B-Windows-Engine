@@ -9,6 +9,36 @@
 // K16 carry keep the original exponent alignment, unsigned sum and normalizer.
 // A smaller subgroup exposes more independent candidate dots per wave.
 namespace qrt_sm121_subgroup {
+// Lane-private products support strided operators without pretending they
+// are a complete contiguous K16 input array. Each subgroup still owns all16
+// products and one replicated carry.
+template<unsigned Lanes>
+__device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate_products(
+    qrt_q1_moe_hawkeye::Value carry, const uint32_t* products) {
+    static_assert(Lanes == 4u || Lanes == 8u);
+    constexpr unsigned items = 16u / Lanes;
+    int maximum = carry.exponent > -133 ? carry.exponent : -133;
+#pragma unroll
+    for (unsigned i = 0u; i < items; ++i) {
+        const int exponent = qrt_sm121_group16::packed_exponent(products[i]);
+        maximum = exponent > maximum ? exponent : maximum;
+    }
+    maximum = qrt_sm121_lane_reduce::maximum<Lanes>(maximum);
+    uint32_t modulo = 0u;
+#pragma unroll
+    for (unsigned i = 0u; i < items; ++i) {
+        const unsigned shift = unsigned(maximum - qrt_sm121_group16::packed_exponent(products[i]));
+        const uint32_t magnitude = shift >= 32u ? 0u : ((products[i] & 0xffffu) << 11u) >> shift;
+        modulo += (products[i] & 0x80000000u) ? 0u - magnitude : magnitude;
+    }
+    modulo = qrt_sm121_lane_reduce::sum<Lanes>(modulo);
+    const unsigned shift = unsigned(maximum - carry.exponent);
+    const uint32_t aligned = shift >= 32u ? 0u : (carry.significand << 2u) >> shift;
+    modulo += carry.negative ? 0u - aligned : aligned;
+    const auto sum = qrt_sm121_group16::decode_modulo_sum(modulo, (products[0] & 0x80000000u) != 0u);
+    return qrt_sm121_wave16::normalize(sum.magnitude, sum.negative, maximum);
+}
+
 // Advance one K16 group with a uniformly replicated FP32 carry. The caller
 // may finish that carry between groups when its original operator does so.
 template<unsigned Lanes>
@@ -27,7 +57,6 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
         __builtin_memcpy(&a, left + lane * items, sizeof(Packed));
         __builtin_memcpy(&b, right + lane * items, sizeof(Packed));
         uint32_t products[items];
-        int maximum = carry.exponent > -133 ? carry.exponent : -133;
         if constexpr (QRT_SM121_PAIRED_PRODUCTS) {
 #pragma unroll
             for (unsigned i = 0u; i < items; i += 2u) {
@@ -41,25 +70,7 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
                     qrt_q1_moe_hawkeye::multiply_bf16(uint16_t(a >> (i * 16u)), uint16_t(b >> (i * 16u)), -133));
             }
         }
-#pragma unroll
-        for (unsigned i = 0u; i < items; ++i) {
-            const int exponent = qrt_sm121_group16::packed_exponent(products[i]);
-            maximum = exponent > maximum ? exponent : maximum;
-        }
-        maximum = qrt_sm121_lane_reduce::maximum<Lanes>(maximum);
-        uint32_t modulo = 0u;
-#pragma unroll
-        for (unsigned i = 0u; i < items; ++i) {
-            const unsigned shift = unsigned(maximum - qrt_sm121_group16::packed_exponent(products[i]));
-            const uint32_t magnitude = shift >= 32u ? 0u : ((products[i] & 0xffffu) << 11u) >> shift;
-            modulo += (products[i] & 0x80000000u) ? 0u - magnitude : magnitude;
-        }
-        modulo = qrt_sm121_lane_reduce::sum<Lanes>(modulo);
-        const unsigned shift = unsigned(maximum - carry.exponent);
-        const uint32_t aligned = shift >= 32u ? 0u : (carry.significand << 2u) >> shift;
-        modulo += carry.negative ? 0u - aligned : aligned;
-        const auto sum = qrt_sm121_group16::decode_modulo_sum(modulo, (products[0] & 0x80000000u) != 0u);
-        carry = qrt_sm121_wave16::normalize(sum.magnitude, sum.negative, maximum);
+        carry = accumulate_products<Lanes>(carry, products);
     }
     return carry;
 }
