@@ -43,8 +43,12 @@ the history under the session mutex. Only the completed prompt's sampled token
 crosses the stream ABI; a failed replacement retires its partial state. Decode
 scratch is reserved for the full prompt before the first chunk runs. The current
 attention workspace still limits this experiment to65536 inputs, and prefix
-checkpoint capture is not combined with this mode. It remains off in the
-retained profile pending full original-token qualification. Per-descriptor
+checkpoint capture is not combined with this mode. Native build9871ef2 passes
+the original cold17408/out512, q8192/out512 control and16384+1024/out512
+prefix cases, including both prefix transactions and owner-state restoration.
+It remains off in the retained profile: the declared measurements exceed the
+performance targets, and larger contexts are unqualified. See
+`benchmarks/correctness/cold-prefill-chunks-20260913.json`. Per-descriptor
 metrics describe the last chunk; the provider wall and actual callback clock
 include all chunks and KV promotion. This mode does not change the1024-input
 prefix API's complete teacher-prediction contract.

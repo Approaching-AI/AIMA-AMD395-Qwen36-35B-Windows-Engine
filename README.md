@@ -8,6 +8,13 @@ resident batch-one runtime, an OpenAI-compatible HTTP API, and a structured
 [中文说明](README.zh-CN.md) ·
 [Linux companion](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine)
 
+The current development candidate is not release-qualified. The repaired
+runtime passes the declared short, cold and 32k continuation boundaries, but
+current q8192 TTFT is about 62 seconds and broader qualification remains open.
+See [current measurements](docs/PERFORMANCE.md) and
+[release readiness](docs/OPEN_SOURCE_READINESS.md). The published results below
+describe their historical versions and do not qualify this candidate.
+
 ## What is included
 
 - Native C/C++/HIP inference and model loading, with generated `gfx1151` AOT

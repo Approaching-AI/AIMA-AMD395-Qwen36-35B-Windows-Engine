@@ -1,9 +1,37 @@
 # Real-model performance
 
-These are retained native Windows results for Qwen3.6-35B-A3B BF16 on Ryzen AI
+## Current unreleased measurements, 2026-09-13
+
+The current corrected runtime has not recovered the retained performance
+targets. The following runs use the actual model on baiying, with startup
+excluded from the first streamed callback clock. Each listed case generates
+all 512 GB10 tokens and an exact first-token raw logit. Both prefix runs also
+verify their fallback transaction and complete owner-state restoration.
+
+| Build / route | Actual prompt shape | Callback TTFT ms | TPOT ms | Load ms |
+|---|---|---:|---:|---:|
+| whole 730a855 / CK 5816925, bound 10000 | 32768 prefix + 1024 suffix | 25597.6857 | 229.372641 | 20055.0067 |
+| whole/CK 9871ef2, chunking enabled | cold 17408, chunks 8192+8192+1024 | 170613.1127 | 162.553605 | 20066.476999 |
+| same new binaries, q8192 control | cold 8192, ordinary path | 62478.683599 | 110.904104 | 20046.251001 |
+| same new binaries, chunked owner | 16384 prefix + 1024 suffix | 17733.562599 | 161.906225 | 20033.961899 |
+
+The chunked route bounds activation carriers but shows no speedup and remains
+opt-in. The 10000ppb correction bound is an empirically qualified admission
+setting for the declared cases, with unchanged exact-dot arithmetic and
+GB10 tolerance. The targets remain q8192 TTFT <= 4187.415605 ms,
+TPOT <= 35.502151 ms and model+engine load <= 30000 ms. The new builds still need
+broader contexts and renewed package, HTTP and soak qualification. Commands,
+component hashes, raw outputs, callback timing and external oracle bindings
+are in `benchmarks/correctness/prefix32k-admission-product-20260913.json` and
+`benchmarks/correctness/cold-prefill-chunks-20260913.json`.
+
+## Historical published measurements
+
+The following are historical native Windows results for Qwen3.6-35B-A3B BF16 on Ryzen AI
 Max+ 395 (`gfx1151`), batch size 1. Startup is measured separately from TTFT.
 Every retained product row was accepted only with its matching external BF16
-correctness boundary.
+correctness boundary. These recorded profiles and boundaries do not qualify
+the current corrected runtime above.
 
 ## Product matrix
 

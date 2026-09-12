@@ -1,5 +1,14 @@
 # Unreleased native HTTP stability qualification
 
+Updated 2026-09-13. The subsequent 10000ppb attention output correction passes
+the original 32k prefix plus 1024 suffix and 512 outputs, both transaction
+rollbacks, and q8192/out512. The experimental chunked cold build 9871ef2 also
+passes cold17408/out512, q8192/out512, and both 16384+1024/out512 prefix
+transactions. These are CLI real-model results. The r4 HTTP qualification
+below has not been renewed for these newer builds; chunking remains opt-in.
+See `benchmarks/correctness/prefix32k-admission-product-20260913.json` and
+`benchmarks/correctness/cold-prefill-chunks-20260913.json`. No release is qualified.
+
 Updated 2026-09-12. Whole provider 405d653, MoE bc082a5 and the original
 dynamic-width embedding inverse table now pass all five actual short HTTP
 prompt fixtures on baiying: 640 raw output tokens and all five first logits

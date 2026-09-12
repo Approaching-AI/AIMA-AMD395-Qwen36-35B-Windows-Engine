@@ -2,12 +2,21 @@
 
 Historical audit date: 2026-08-22
 
-## Current unreleased candidate, 2026-09-09
+## Current unreleased candidate, 2026-09-13
 
-The current candidate is **not release-ready**: q7169 is still numerically
-incorrect and retained performance/full-archive qualification remain open.
-The repaired crash reproduction and latest native HTTP token/logit/stability
-evidence are documented in [HTTP_STABILITY.md](HTTP_STABILITY.md). The older
+The current candidate is **not release-ready**. The repaired r4 archive passes
+all eight cold cases, including q7169, all five short HTTP fixtures, and the
+declared HTTP and prefix-state checks. A broader attention correction bound
+subsequently repairs the original 32k prefix plus 1024 suffix and 512-token
+continuation. That newer configuration still needs renewed package, HTTP and
+soak qualification. The experimental chunked cold route also passes the
+declared 16k and q8192 boundaries, but remains disabled by default.
+
+Current q8192 callback TTFT is about 62 seconds, above the unchanged 4.187-second
+target and 10-second operating threshold. Larger contexts and retained
+performance remain open. See [current measurements](PERFORMANCE.md),
+[HTTP token/logit and stability evidence](HTTP_STABILITY.md), and
+`benchmarks/correctness/prefix32k-admission-product-20260913.json`. The older
 decision and tables below describe their recorded historical basis; they do
 not approve promotion of the current candidate or imply a new publication.
 

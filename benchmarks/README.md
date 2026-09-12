@@ -11,6 +11,15 @@ Evidence never includes model weights, evaluation question text, private
 endpoints, credentials, or personal deployment paths. SHA256 values bind each
 published artifact; diagnostic self-hashes are not correctness authority.
 
+The current unreleased runtime has separate correctness and performance
+status. `correctness/prefix32k-admission-product-20260913.json` records the
+broader correction bound's original 32k and q8192 acceptance, including the
+permanent original-row regression. `correctness/cold-prefill-chunks-20260913.json`
+records the opt-in 8192-input cold chunks, native builds, cold17408 and q8192
+controls, both 16k prefix transactions, callbacks and state restoration.
+Neither record passes the retained performance targets or qualifies a release.
+See [current measurements](../docs/PERFORMANCE.md).
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
