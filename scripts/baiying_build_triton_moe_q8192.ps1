@@ -32,6 +32,7 @@ param(
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
     [ValidateSet(0, 1)][int]$CompactNormalize = 0,
     [Parameter(Mandatory = $false)][ValidateSet(1, 4, 8)][int]$DotStagingGroups = 1,
+    [ValidateSet(0, 1)][int]$CertifiedDotTiles = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$FullSharedHawkeye = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ExactShared = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ConditionalExactGate = 0,
@@ -857,6 +858,7 @@ $variantDefines = @(
     "-DQRT_SM121_DPP_REDUCTION=$DppReduction",
     "-DQRT_SM121_COMPACT_NORMALIZE=$CompactNormalize",
     "-DQRT_SM121_DOT_STAGING_GROUPS=$DotStagingGroups",
+    "-DQRT_SM121_CERTIFIED_DOT_TILES=$CertifiedDotTiles",
     "-DQRT_TRITON_MOE_NATIVE_WMMA_K_STAGE=$NativeWmmaKStage"
 )
 if ($NativeWmmaGate -ne 0) { $variantDefines += "-DQRT_TRITON_MOE_NATIVE_WMMA_GATE=1" }
@@ -1390,6 +1392,9 @@ $record = [ordered]@{
     sm121_compact_normalize = ($CompactNormalize -ne 0)
     sm121_canonical_normalize_header_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_canonical_normalize.h')).Hash.ToLowerInvariant()
     sm121_dot_staging_groups = $DotStagingGroups
+    sm121_certified_dot_tiles = ($CertifiedDotTiles -ne 0)
+    sm121_dot_certificate_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_dot_certificate.h')).Hash.ToLowerInvariant()
     sm121_lane_reduce_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     parallel_gate_header_sha256 = (Get-FileHash -Algorithm SHA256 `
