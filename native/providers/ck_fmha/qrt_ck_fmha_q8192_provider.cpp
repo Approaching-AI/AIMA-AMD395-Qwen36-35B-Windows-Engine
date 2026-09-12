@@ -188,6 +188,7 @@ unsigned char* g_sm121_rcp = nullptr;
 float* g_sm121_scores = nullptr;
 float* g_sm121_mantissa_scores = nullptr;
 uint16_t* g_sm121_transposed_keys = nullptr;
+uint32_t* g_sm121_prepared_values = nullptr;
 constexpr unsigned int kSm121QueryBatch = 8u;
 constexpr unsigned int kSm121MatrixQueryBatch = 32u;
 // Match the exact kernel's checked extent, including the first token beyond
@@ -298,6 +299,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(warp_option, "1") != 0) return int(hipErrorInvalidValue);
     const bool warp_softmax = query_count > 1u && warp_option && std::strcmp(warp_option, "1") == 0;
     if (warp_softmax && !tiled_qk) return int(hipErrorInvalidValue);
+    const char* prepared_option = std::getenv("QRT_CK_SM121_PREPARED_VALUE");
+    if (prepared_option && *prepared_option && std::strcmp(prepared_option, "0") != 0 &&
+        std::strcmp(prepared_option, "1") != 0) return int(hipErrorInvalidValue);
+    const bool prepared_value = query_count > 1u && prepared_option && std::strcmp(prepared_option, "1") == 0;
+    if (prepared_value && (!tiled_qk || warp_softmax)) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -314,7 +320,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if ((matrix_mode && (mantissa_wmma || native_products || tiled_qk)) ||
         (tiled_qk && (mantissa_wmma || native_products))) return int(hipErrorInvalidValue);
     const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u || tiled_qk;
-    const unsigned int memory_layout = warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
+    const unsigned int memory_layout = prepared_value ? 17u : warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
     const unsigned int query_batch = matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     if (expanded_scratch && !g_sm121_mantissa_scores) {
@@ -323,6 +329,21 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (status != int(hipSuccess)) { g_sm121_mantissa_scores = nullptr; return status; }
     }
     const unsigned int key_stride = query_start + query_count;
+    if (prepared_value) {
+        if (!g_sm121_prepared_values) {
+            status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_prepared_values),
+                kSm121KeyElements * sizeof(uint32_t)));
+            if (status != int(hipSuccess)) { g_sm121_prepared_values = nullptr; return status; }
+        }
+        // Re-encode this call's V before any consumer; the allocation is reused,
+        // but no model or layer identity is inferred from the source address.
+        status = qrt_blackwell_attention::prepare_value_encoding(
+            v, g_sm121_prepared_values, kSm121KeyElements, key_stride, stream);
+        if (status != int(hipSuccess)) {
+            (void)hipStreamSynchronize(stream);
+            return status;
+        }
+    }
     if (independent_dots) {
         status = qrt_blackwell_attention::transpose_keys(
             k, g_sm121_transposed_keys, kSm121KeyElements, key_stride, stream);
@@ -337,7 +358,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, memory_layout,
             expanded_scratch ? g_sm121_mantissa_scores : g_sm121_scores,
             expanded_scratch ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
-            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products);
+            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
+            prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -348,8 +370,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
             return int(hipErrorLaunchTimeOut);
     }
-    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u diagnostic_only=1\n",
-        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax));
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
+        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);
 }
 
@@ -1134,11 +1156,13 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_scores);
         (void)hipFree(g_sm121_mantissa_scores);
         (void)hipFree(g_sm121_transposed_keys);
+        (void)hipFree(g_sm121_prepared_values);
         g_sm121_exp2 = nullptr;
         g_sm121_rcp = nullptr;
         g_sm121_scores = nullptr;
         g_sm121_mantissa_scores = nullptr;
         g_sm121_transposed_keys = nullptr;
+        g_sm121_prepared_values = nullptr;
     }
 #endif
     return static_cast<int>(hipSuccess);

@@ -65,6 +65,8 @@ bool valid_layout(const unsigned char*, size_t) { return true; }
 unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, syncs = 0;
 unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
+unsigned preparations = 0;
+bool fail_preparation = false;
 bool fail_transpose = false;
 std::set<void*> live;
 hipError_t hipMalloc(void** pointer, size_t) {
@@ -86,6 +88,13 @@ hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Val
 }
 namespace qrt_blackwell_attention {
 namespace exp2_backend = qrt_sm121_exp2;
+int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
+                          unsigned tokens, hipStream_t) {
+    ++preparations;
+    if (output != g_sm121_prepared_values || elements != kSm121KeyElements ||
+        elements < size_t(tokens) * 512u) std::abort();
+    return fail_preparation ? hipErrorUnknown : hipSuccess;
+}
 int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
                    unsigned tokens, hipStream_t) {
     ++transposes;
@@ -97,14 +106,18 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned start, unsigned count, unsigned, const unsigned char*,
                    float*, float*, bool, const unsigned char*, unsigned layout,
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
-                   unsigned key_stride, bool = false) {
+                   unsigned key_stride, bool = false, const void* = nullptr,
+                   const uint32_t* wide = nullptr, unsigned wide_tokens = 0u) {
     ++queries;
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
-    const bool matrix = layout == 6u || layout == 7u || (layout >= 13u && layout <= 16u);
-    const bool expanded = (layout >= 5u && layout <= 7u) || (layout >= 13u && layout <= 16u);
+    const bool matrix = layout == 6u || layout == 7u || (layout >= 13u && layout <= 17u);
+    const bool expanded = (layout >= 5u && layout <= 7u) || (layout >= 13u && layout <= 17u);
+    if (layout == 17u) {
+        if (!preparations || wide != g_sm121_prepared_values || wide_tokens != key_stride) std::abort();
+    } else if (wide || wide_tokens) std::abort();
     if (!count || count > (matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
-    if ((layout >= 4u && layout <= 7u) || (layout >= 13u && layout <= 16u)) {
+    if ((layout >= 4u && layout <= 7u) || (layout >= 13u && layout <= 17u)) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
             std::abort();
         if (expanded && (elements != kSm121MantissaElements ||
@@ -118,7 +131,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys && !g_sm121_mantissa_scores;
+           !g_sm121_transposed_keys && !g_sm121_mantissa_scores && !g_sm121_prepared_values;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -126,6 +139,7 @@ void reset() {
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
     observed_layout = largest_batch = 0;
     fail_transpose = false;
+    preparations = 0; fail_preparation = false;
 }
 int main() {
     for (unsigned failure = 1; failure <= 4; ++failure) {
@@ -248,6 +262,41 @@ int main() {
         if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 37;
     }
     reset();unsetenv("QRT_CK_SM121_WARP_SOFTMAX");
+    setenv("QRT_CK_SM121_PREPARED_VALUE","1",1);
+    if(launch(0,65)!=hipErrorInvalidValue || allocations || preparations) return 38;
+    setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    for(unsigned failed : {5u,6u}) {
+        reset();fail_allocation=failed;
+        if(launch(0,65)!=hipErrorUnknown || g_sm121_prepared_values || queries ||
+           transposes || preparations || live.size()!=failed-1u) return 39;
+    }
+    reset();fail_preparation=true;
+    if(launch(0,65)!=hipErrorUnknown || preparations!=1u || transposes || queries || syncs!=1u) return 40;
+    reset();fail_transpose=true;
+    if(launch(0,65)!=hipErrorUnknown || preparations!=1u || transposes!=1u || queries || syncs!=1u) return 41;
+    reset();
+    if(launch(0,65)!=hipSuccess || observed_layout!=17u || preparations!=1u ||
+       queries!=3u || syncs!=3u || allocations!=6u) return 42;
+    queries=transposes=syncs=0u;
+    if(launch(0,8193)!=hipSuccess || observed_layout!=17u || preparations!=2u ||
+       queries!=257u || allocations!=6u) return 43;
+    reset();fail_query=2u;
+    if(launch(0,65)!=hipErrorUnknown || preparations!=1u || queries!=2u || syncs!=2u) return 44;
+    reset();
+    if(launch(7168,1)!=hipSuccess || preparations || g_sm121_prepared_values || observed_layout!=2u) return 45;
+    reset();
+    if(launch(16352,32)!=hipSuccess || preparations!=1u || queries!=1u || observed_layout!=17u) return 46;
+    for(const char* conflict : {"QRT_CK_SM121_WARP_SOFTMAX","QRT_CK_SM121_NATIVE_BF16_MATRIX",
+                               "QRT_CK_SM121_NATIVE_PRODUCTS","QRT_CK_SM121_MANTISSA_WMMA"}) {
+        reset();setenv(conflict,"1",1);
+        if(launch(0,65)!=hipErrorInvalidValue || preparations || queries || transposes) return 47;
+        unsetenv(conflict);
+    }
+    for(const char* bad : {"2","true","1junk"}) {
+        reset();setenv("QRT_CK_SM121_PREPARED_VALUE",bad,1);
+        if(launch(0,65)!=hipErrorInvalidValue || allocations || preparations || queries) return 48;
+    }
+    reset();unsetenv("QRT_CK_SM121_PREPARED_VALUE");unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
     return 0;
 }
 '''
