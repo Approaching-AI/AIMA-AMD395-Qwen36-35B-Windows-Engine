@@ -68,6 +68,12 @@ BF16 cells, product tokens and callbacks pass. The observed callback is
 This single-run comparison supports the next experiment, without qualifying
 retained performance, broader contexts or a release.
 
+`correctness/attention-parallel-probability-20260913.json` records 216 native
+probability/scale comparisons and two complete original q7169 operator runs.
+Eight-wave probability generation preserves every checked bit and external
+BF16 endpoint. Its 5.39 ms observed operator difference is too small to retain;
+no full-model trial selects the new mode.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the

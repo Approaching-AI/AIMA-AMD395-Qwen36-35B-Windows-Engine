@@ -54,6 +54,13 @@ inputs and redzones. This becomes the next experimental baseline through
 `QRT_CK_SM121_COMPACT_PV_REPLAY=1`; its default remains disabled. Evidence:
 `benchmarks/correctness/attention-compact-pv-20260913.json`.
 
+Parallelizing probability generation across eight K32 waves preserves the
+original sequential denominator recurrence and all 216 native numerical
+cases. Both full q7169 comparisons match every external BF16 cell, but completed
+host operator time changes only 1069.18 to 1063.79 ms. No speedup is retained
+and no full-model run selects this mode. Subsequent experiments retain compact
+PV mode 1. See `benchmarks/correctness/attention-parallel-probability-20260913.json`.
+
 Removing the three fixed routed midpoint bands fails 384 of the 512 original
 continuation tokens, despite an exact first token and logit. The absolute-only
 selector experiment is rejected and its timing is excluded from performance
