@@ -1,0 +1,3160 @@
+{
+  "schema_version": 1,
+  "kind": "original_compact_suffix_attention_replay",
+  "host": "baiying",
+  "source_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+  "source": {
+    "sha": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+    "bundle": "suffix-attention-37914ed.bundle",
+    "bundle_sha256": "93078c14cd2cf9938ebe3d962d55b850c1c8e590863ff97a68e623d74a231134",
+    "repo": "D:/projects/AIMA-public-suffix-attention-20260912",
+    "script": "build-native-suffix-attention-r1.ps1"
+  },
+  "build": {
+    "provider-provenance.json": {
+      "host": "BAIYING",
+      "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+      "source_inputs": [
+        {
+          "sha256": "42176e0d4cc488f1a97d37193db747a2a4edec74dc89178549bfe042fe65fbdc",
+          "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+        },
+        {
+          "sha256": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+          "file": "native\\providers\\ck_fmha\\fmha_fwd_api.cpp"
+        },
+        {
+          "sha256": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+          "file": "native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+        },
+        {
+          "sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+          "file": "native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+        },
+        {
+          "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+          "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+        },
+        {
+          "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+          "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+        },
+        {
+          "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+          "file": "native\\providers\\gdn\\blackwell_inverse.h"
+        },
+        {
+          "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+          "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+        },
+        {
+          "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+          "file": "native\\providers\\gdn\\blackwell_kkt.h"
+        },
+        {
+          "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+          "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+        },
+        {
+          "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+          "file": "native\\providers\\gdn\\blackwell_state.h"
+        },
+        {
+          "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+          "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+        },
+        {
+          "sha256": "2e6af3e3651f3b097664880a2843cf18a34bfe6bc8ef112df4a01100011edebd",
+          "file": "native\\providers\\gdn\\first_call_capture.h"
+        },
+        {
+          "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+          "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+        },
+        {
+          "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+          "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+        },
+        {
+          "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+          "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+        },
+        {
+          "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+          "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+        },
+        {
+          "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+          "file": "native\\providers\\gdn\\sm121_q1_full.h"
+        },
+        {
+          "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+          "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+        },
+        {
+          "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+          "file": "native\\providers\\gdn\\sm121_q1_math.h"
+        },
+        {
+          "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+          "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+        },
+        {
+          "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+          "file": "native\\providers\\gdn\\sm121_silu_table.h"
+        },
+        {
+          "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+          "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+        },
+        {
+          "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+          "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+        },
+        {
+          "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+          "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+        },
+        {
+          "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+          "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+        },
+        {
+          "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+          "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+        },
+        {
+          "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+          "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+        },
+        {
+          "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+          "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+        },
+        {
+          "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+          "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+        },
+        {
+          "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+          "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+        },
+        {
+          "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+          "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+        },
+        {
+          "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+          "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+        },
+        {
+          "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+          "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+        },
+        {
+          "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+          "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+        },
+        {
+          "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373",
+          "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+        },
+        {
+          "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+          "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+        },
+        {
+          "sha256": "d74fd215720d927d8a6b3aee8fa9ef01427a331a93761295384d2f6ab86bd04b",
+          "file": "scripts\\baiying_build_ck_fmha_q8192.ps1"
+        }
+      ],
+      "ck_source_manifest_sha256": "412419e0747ae26380362f90a161070611d37a0666f4b7727edb33e71aa5e7d3",
+      "ck_source_files": 5350,
+      "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+      "run_record_sha256": "19c5b79ca82e37418f458f81580ea1f3c461025b05cc1aee0607e784a3d42f91",
+      "artifact": {
+        "sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+        "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+        "bytes": 1081856
+      }
+    },
+    "provider-run-record.json": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_build_ck_fmha_q8192.ps1",
+          "-CkRoot",
+          "D:\\projects\\composable-kernel-fdf4bb7",
+          "-OutPath",
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+          "-HipccPath",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+        "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+        "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+        "command_file_sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98",
+        "source_inputs": [
+          {
+            "sha256": "42176e0d4cc488f1a97d37193db747a2a4edec74dc89178549bfe042fe65fbdc",
+            "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_api.cpp"
+          },
+          {
+            "sha256": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+          },
+          {
+            "sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+            "file": "native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+            "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+            "file": "native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "2e6af3e3651f3b097664880a2843cf18a34bfe6bc8ef112df4a01100011edebd",
+            "file": "native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "native\\providers\\gdn\\sm121_silu_table.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373",
+            "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "d74fd215720d927d8a6b3aee8fa9ef01427a331a93761295384d2f6ab86bd04b",
+            "file": "scripts\\baiying_build_ck_fmha_q8192.ps1"
+          }
+        ],
+        "ck_source_manifest_sha256": "412419e0747ae26380362f90a161070611d37a0666f4b7727edb33e71aa5e7d3",
+        "ck_source_files": 5350,
+        "model": "none; native CK provider build",
+        "model_loaded": false,
+        "inference_acceptance": false
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T11:37:21.2078116Z",
+        "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_build_ck_fmha_q8192.ps1",
+            "-CkRoot",
+            "D:\\projects\\composable-kernel-fdf4bb7",
+            "-OutPath",
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+            "-HipccPath",
+            "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+          "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+          "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+          "command_file_sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98",
+          "source_inputs": [
+            {
+              "sha256": "42176e0d4cc488f1a97d37193db747a2a4edec74dc89178549bfe042fe65fbdc",
+              "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+              "file": "native\\providers\\ck_fmha\\fmha_fwd_api.cpp"
+            },
+            {
+              "sha256": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+              "file": "native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+            },
+            {
+              "sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+              "file": "native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+              "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+              "file": "native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "2e6af3e3651f3b097664880a2843cf18a34bfe6bc8ef112df4a01100011edebd",
+              "file": "native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9cc354ea279da1923f700ae5beb9fdbc49b5b04c2baed30026db215903e40dbd",
+              "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373",
+              "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+              "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "d74fd215720d927d8a6b3aee8fa9ef01427a331a93761295384d2f6ab86bd04b",
+              "file": "scripts\\baiying_build_ck_fmha_q8192.ps1"
+            }
+          ],
+          "ck_source_manifest_sha256": "412419e0747ae26380362f90a161070611d37a0666f4b7727edb33e71aa5e7d3",
+          "ck_source_files": 5350,
+          "model": "none; native CK provider build",
+          "model_loaded": false,
+          "inference_acceptance": false
+        },
+        "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24372916224,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146780209152,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533470924800,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 39829.487,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24373710848,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146736898048,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533467877376,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "replay-provenance.json": {
+      "host": "BAIYING",
+      "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+      "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+      "command_file_sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98",
+      "run_record_sha256": "c722f1f3aca8909e1f543c37364999f9f59776495e628ee2ba7d273761768808",
+      "source_inputs": [
+        {
+          "sha256": "2cb718f113c89e8841bec18d7db0c88174d891747d987d28a05ba10f17eb45d2",
+          "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp"
+        },
+        {
+          "sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+          "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+        }
+      ],
+      "artifact": {
+        "sha256": "2739e4fff2de4169d3e7cfcf67e88c47eea5076a36d0eeb798f8a8d22f7f7790",
+        "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-tool-r1\\suffix-attention-capture-replay.exe",
+        "bytes": 355840
+      }
+    },
+    "replay-run-record.json": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-tool-r1\\suffix-attention-capture-replay.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+        "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+        "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+        "command_file_sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98",
+        "model": "none; isolated suffix attention capture replay build",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "source_sha256": "2cb718f113c89e8841bec18d7db0c88174d891747d987d28a05ba10f17eb45d2",
+        "header_sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+        "purpose": "Build an isolated original-input suffix attention replay; no product runtime changes"
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T11:38:01.2907500Z",
+        "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O2",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-tool-r1\\suffix-attention-capture-replay.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+          "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+          "command_file": "D:\\projects\\build-native-suffix-attention-r1.ps1",
+          "command_file_sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98",
+          "model": "none; isolated suffix attention capture replay build",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "source_sha256": "2cb718f113c89e8841bec18d7db0c88174d891747d987d28a05ba10f17eb45d2",
+          "header_sha256": "e5b79e60fea9f7138e1fcd7dd663c3e93b420e4ebf846406610c2a15e813e676",
+          "purpose": "Build an isolated original-input suffix attention replay; no product runtime changes"
+        },
+        "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24355258368,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146713776128,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533467803648,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2893.039,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24385302528,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146785460224,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533468065792,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    }
+  },
+  "gb10": {
+    "host": "gb10-4t",
+    "actual_host": "aitopatom-66c4",
+    "source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+    "capture_sha256": "3ebcc146c2ee6430a6b16bebcfc60a5abafbe168e390029c1f469706e249bd77",
+    "case_sha256": "613879f1b2590a08be4f2fc10810ece2dbc67cc46c459e65821792dfe5d26e6a",
+    "command": [
+      "/work/scripts/capture_gb10_token_matrix.py",
+      "--source-commit",
+      "9b2a99edeede83ce77a4b775a509256f65894a7f",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--additional-cases",
+      "additional-cases.json",
+      "--maximum-prompt-tokens",
+      "17408",
+      "--runtime-boundaries",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "590",
+      "--execute",
+      "--worker",
+      "--supervisor-pid",
+      "7"
+    ],
+    "model": "/models",
+    "original_controls_pass": true,
+    "all_512_outputs_and_complete_first_logits_reproduced": true,
+    "oracle_file": "contracts/gb10_long_prefix16k_actual_tokens_20260912_oracle.json",
+    "oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+    "expected": {
+      "first_token_id": 3709,
+      "first_token_raw_logit": 5.6875,
+      "first_token_raw_logit_tolerance": 0.125,
+      "continuation_token_count": 512,
+      "output_token_ids": [
+        3709,
+        248045,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        198,
+        8160,
+        579,
+        264,
+        7047,
+        1817,
+        25,
+        271,
+        16,
+        13,
+        220,
+        2972,
+        2014,
+        53983,
+        2570,
+        5396,
+        64700,
+        198,
+        256,
+        471,
+        2972,
+        16174,
+        64700,
+        328,
+        20206,
+        440,
+        11778,
+        24959,
+        5732,
+        506,
+        220,
+        16,
+        15,
+        15,
+        321,
+        7459,
+        539,
+        799,
+        11,
+        18101,
+        539,
+        3074,
+        12258,
+        13,
+        59460,
+        506,
+        3140,
+        220,
+        21,
+        19,
+        24959,
+        321,
+        874,
+        15673,
+        13,
+        5272,
+        279,
+        69892,
+        1248,
+        61485,
+        16602,
+        2100,
+        220,
+        16,
+        21,
+        18,
+        23,
+        19,
+        1149,
+        198,
+        256,
+        471,
+        2972,
+        1905,
+        64700,
+        357,
+        10632,
+        2424,
+        314,
+        11173,
+        328,
+        16606,
+        1,
+        4105,
+        318,
+        1908,
+        220,
+        16,
+        21,
+        11,
+        15,
+        15,
+        15,
+        5587,
+        314,
+        328,
+        16606,
+        328,
+        11173,
+        553,
+        1061,
+        369,
+        9077,
+        264,
+        1228,
+        364,
+        2193,
+        3136,
+        11256,
+        466,
+        264,
+        3050,
+        9640,
+        24277,
+        14,
+        16606,
+        1228,
+        11,
+        694,
+        279,
+        6007,
+        7359,
+        369,
+        29350,
+        13,
+        198,
+        256,
+        471,
+        2972,
+        12554,
+        64700,
+        198,
+        257,
+        471,
+        4980,
+        506,
+        220,
+        16,
+        15,
+        15,
+        198,
+        257,
+        471,
+        38321,
+        539,
+        220,
+        16,
+        198,
+        257,
+        471,
+        32001,
+        639,
+        539,
+        3074,
+        12258,
+        198,
+        257,
+        471,
+        2332,
+        3140,
+        220,
+        21,
+        19,
+        24959,
+        198,
+        257,
+        471,
+        2233,
+        15673,
+        198,
+        257,
+        471,
+        328,
+        9947,
+        279,
+        69892,
+        1248,
+        61485,
+        16602,
+        2100,
+        220,
+        16,
+        21,
+        18,
+        23,
+        19,
+        1149,
+        318,
+        1919,
+        4222,
+        3254,
+        279,
+        2468,
+        1220,
+        381,
+        7658,
+        6117,
+        35880,
+        11,
+        466,
+        424,
+        579,
+        1066,
+        264,
+        16666,
+        1414,
+        75108,
+        16602,
+        7359,
+        13,
+        353,
+        3172,
+        9738,
+        424,
+        430,
+        424,
+        3070,
+        914,
+        2222,
+        279,
+        33625,
+        2468,
+        15808,
+        11,
+        694,
+        353,
+        3172,
+        5790,
+        279,
+        2468,
+        369,
+        6681,
+        430,
+        10897,
+        5946,
+        271,
+        17,
+        13,
+        220,
+        2972,
+        27382,
+        1386,
+        9237,
+        5261,
+        64700,
+        198,
+        256,
+        19208,
+        264,
+        8240,
+        314,
+        24959,
+        25,
+        220,
+        16,
+        15,
+        15,
+        11,
+        220,
+        16,
+        15,
+        16,
+        11,
+        220,
+        16,
+        15,
+        17,
+        11,
+        58317,
+        685,
+        310,
+        506,
+        3140,
+        220,
+        16,
+        15,
+        15,
+        478,
+        220,
+        21,
+        19,
+        471,
+        220,
+        16,
+        283,
+        220,
+        16,
+        21,
+        18,
+        13,
+        198,
+        256,
+        14606,
+        25,
+        3433,
+        70221,
+        11,
+        3074,
+        1500,
+        318,
+        269,
+        1066,
+        3433,
+        70221,
+        430,
+        10897,
+        681,
+        874,
+        4799,
+        1414,
+        13,
+        271,
+        18,
+        13,
+        220,
+        2972,
+        30097,
+        8984,
+        64700,
+        198,
+        256,
+        353,
+        1144,
+        310,
+        7936,
+        506,
+        3140,
+        220,
+        21,
+        19,
+        4947,
+        5732,
+        494,
+        220,
+        16,
+        15,
+        15,
+        13,
+        198,
+        256,
+        6558,
+        579,
+        6707,
+        6681,
+        220,
+        21,
+        19,
+        466,
+        264,
+        2612,
+        777,
+        310,
+        381,
+        5902,
+        13,
+        353,
+        3172,
+        635,
+        6681,
+        220,
+        21,
+        19,
+        310,
+        2426,
+        424,
+        61446,
+        11,
+        466,
+        6970,
+        220,
+        22,
+        15,
+        13,
+        561,
+        9640,
+        2640,
+        328,
+        266,
+        3140,
+        220,
+        21,
+        19,
+        3158,
+        198,
+        256,
+        27929,
+        25,
+        220,
+        16,
+        15,
+        15,
+        220,
+        16,
+        15,
+        16,
+        220,
+        16,
+        15,
+        17,
+        220,
+        16,
+        15,
+        18,
+        220,
+        16,
+        15,
+        19,
+        220,
+        16,
+        15,
+        20,
+        220,
+        16,
+        15,
+        21,
+        220,
+        16,
+        15,
+        22,
+        220,
+        16,
+        15,
+        23,
+        220,
+        16,
+        15,
+        24,
+        220,
+        16,
+        16,
+        15,
+        220,
+        16,
+        16,
+        16,
+        220,
+        16,
+        16,
+        17,
+        220,
+        16,
+        16,
+        18,
+        220,
+        16,
+        16,
+        19,
+        220,
+        16,
+        16,
+        20,
+        220,
+        16,
+        16,
+        21,
+        220,
+        16,
+        16,
+        22,
+        220,
+        16,
+        16,
+        23,
+        220,
+        16,
+        16,
+        24,
+        220,
+        16,
+        17,
+        15,
+        220,
+        16,
+        17,
+        16,
+        220,
+        16,
+        17,
+        17,
+        220,
+        16,
+        17,
+        18,
+        220,
+        16,
+        17,
+        19,
+        220,
+        16,
+        17,
+        20,
+        220,
+        16,
+        17,
+        21
+      ],
+      "output_token_ids_u32le_sha256": "37c88984315d232e8135e7d9376cd971f741e52c9bc023cea357c49496fbb2a0",
+      "output_token_ids_u32le_fnv1a64": "5f66fda56f5e076c"
+    },
+    "window": {
+      "plan": {
+        "layer": 3,
+        "first_position": 16384,
+        "tokens": 1024
+      },
+      "transaction": 2,
+      "labels": [
+        "cache-k",
+        "cache-v",
+        "context",
+        "gated",
+        "k-norm",
+        "k-rope",
+        "output",
+        "q-norm",
+        "q-rope",
+        "qkv"
+      ],
+      "cache": {
+        "tokens": 17408,
+        "block_size": 1056,
+        "block_indices": [
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72
+        ],
+        "cache_shape": [
+          1104,
+          2,
+          1056,
+          2,
+          256
+        ],
+        "max_query_len": 1024,
+        "seq_lens": [
+          17408
+        ]
+      }
+    },
+    "attention_backend": "TRITON_ATTN",
+    "observer_modifies_original_methods": false
+  },
+  "fixture": {
+    "archive": "<private-home>/qrt-gb10-suffix-attention1024-20260912-r2/suffix-attention-replay-inputs-r1.tar",
+    "bytes": 52449280,
+    "sha256": "96435d8e60d3f4f2a82c224536cce2e25e8014cf8c619ba9925e1cee79d45861",
+    "manifest": {
+      "schema_version": 1,
+      "host": "aitopatom-66c4",
+      "source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+      "command_file": "<private-home>/assemble_suffix_attention_inputs_r1.py",
+      "command_file_sha256": "63f0592defa7315277765f6ebfa9fae2e8aa07615b5adbbb83f7cc08e36bc386",
+      "capture_sha256": "3ebcc146c2ee6430a6b16bebcfc60a5abafbe168e390029c1f469706e249bd77",
+      "case_sha256": "613879f1b2590a08be4f2fc10810ece2dbc67cc46c459e65821792dfe5d26e6a",
+      "oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+      "original_controls_pass": true,
+      "all_512_tokens_and_full_first_logits_match": true,
+      "case": "long-prefix16384-suffix1024-out512",
+      "model_reference": "/models",
+      "layer": 3,
+      "prefix_tokens": 16384,
+      "suffix_tokens": 1024,
+      "suffix_u32le_sha256": "474ce4d5cf9f187ff0a6da9090aa44227c26c2203bd05680e254021f58dff108",
+      "reference_attention_backend": "TRITON_ATTN",
+      "layout": "token_head_channel_bf16",
+      "key_tail_matches_original_rope": true,
+      "value_tail_matches_original_projection": true,
+      "original_cache": {
+        "tokens": 17408,
+        "block_size": 1056,
+        "block_indices": [
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72
+        ],
+        "cache_shape": [
+          1104,
+          2,
+          1056,
+          2,
+          256
+        ],
+        "max_query_len": 1024,
+        "seq_lens": [
+          17408
+        ]
+      },
+      "original_source_files": {
+        "q-rope": {
+          "file": "txn0002-full-prefill-full-03-q-rope-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1024,
+            4096
+          ],
+          "bytes": 8388608,
+          "sha256": "d4445d9a03f92b1586eec9ccd12a794e742552613ed09a3b2ca28b0847ec1612",
+          "transaction": 2,
+          "label": "full-prefill-full-03-q-rope"
+        },
+        "cache-k": {
+          "file": "txn0002-full-prefill-full-03-cache-k-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            17408,
+            2,
+            256
+          ],
+          "bytes": 17825792,
+          "sha256": "dbfa44ac0e63e961397cba100589a373fda702c18121dd0ea42fbbef442310bd",
+          "transaction": 2,
+          "label": "full-prefill-full-03-cache-k"
+        },
+        "cache-v": {
+          "file": "txn0002-full-prefill-full-03-cache-v-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            17408,
+            2,
+            256
+          ],
+          "bytes": 17825792,
+          "sha256": "79eed4f839c165b451e4f33a54eafd2031c2876cfd19120cce9a18e36fc464a4",
+          "transaction": 2,
+          "label": "full-prefill-full-03-cache-v"
+        },
+        "context": {
+          "file": "txn0002-full-prefill-full-03-context-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1024,
+            4096
+          ],
+          "bytes": 8388608,
+          "sha256": "8e49075c5d36e29c17498f70e5bfac083f66b88d041878797c4a5f44bf8b7517",
+          "transaction": 2,
+          "label": "full-prefill-full-03-context"
+        },
+        "k-rope": {
+          "file": "txn0002-full-prefill-full-03-k-rope-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1024,
+            512
+          ],
+          "bytes": 1048576,
+          "sha256": "ad47daa6ea27cadc6d978002a8acf3576185dcef7356ba1cfc3604b87a459017",
+          "transaction": 2,
+          "label": "full-prefill-full-03-k-rope"
+        },
+        "qkv": {
+          "file": "txn0002-full-prefill-full-03-qkv-bf16.bin",
+          "dtype": "bf16",
+          "shape": [
+            1024,
+            9216
+          ],
+          "bytes": 18874368,
+          "sha256": "b13d12a364102aac77b31ec11e4067f56f7b7cbe451a2d9bc170cdb487c8ca8f",
+          "transaction": 2,
+          "label": "full-prefill-full-03-qkv"
+        }
+      },
+      "files": {
+        "key-bf16.bin": {
+          "bytes": 17825792,
+          "sha256": "dbfa44ac0e63e961397cba100589a373fda702c18121dd0ea42fbbef442310bd"
+        },
+        "value-bf16.bin": {
+          "bytes": 17825792,
+          "sha256": "79eed4f839c165b451e4f33a54eafd2031c2876cfd19120cce9a18e36fc464a4"
+        },
+        "query-bf16.bin": {
+          "bytes": 8388608,
+          "sha256": "d4445d9a03f92b1586eec9ccd12a794e742552613ed09a3b2ca28b0847ec1612"
+        },
+        "expected-output-bf16.bin": {
+          "bytes": 8388608,
+          "sha256": "8e49075c5d36e29c17498f70e5bfac083f66b88d041878797c4a5f44bf8b7517"
+        }
+      },
+      "diagnostic_only": true,
+      "model_inference_acceptance": false
+    },
+    "manifest_sha256": "819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1"
+  },
+  "component": {
+    "run_record": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-tool-r1\\suffix-attention-capture-replay.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+          "D:\\projects\\suffix-attention-replay-inputs-r1",
+          "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-outputs-r1",
+          "16384",
+          "1024"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+        "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+        "command_file": "D:\\projects\\run-native-suffix-attention-replay-r1.ps1",
+        "command_file_sha256": "4826dee1e7e9e45bc537751de0c4417b4dfa9d67890e659b5cf9c1aeda9eba91",
+        "model": "GB10 actual long-prefix16384-suffix1024-out512, layer3 original attention",
+        "model_loaded": false,
+        "native_tensor_inputs": true,
+        "inference_acceptance": false,
+        "purpose": "Isolated compact suffix Q with complete KV; repeat, zero-prefix negative, same-address refresh and redzones",
+        "executable_sha256": "2739e4fff2de4169d3e7cfcf67e88c47eea5076a36d0eeb798f8a8d22f7f7790",
+        "build_metadata_sha256": "ec4e1aeb38320f21cde0c3f1416191451f8dfd3efa10e9793c3d3da3fe885b70",
+        "reference_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+        "reference_capture_sha256": "3ebcc146c2ee6430a6b16bebcfc60a5abafbe168e390029c1f469706e249bd77",
+        "reference_case_sha256": "613879f1b2590a08be4f2fc10810ece2dbc67cc46c459e65821792dfe5d26e6a",
+        "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+        "reference_data_manifest_sha256": "819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1",
+        "provider_dll": {
+          "sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+          "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+          "bytes": 1081856
+        },
+        "provider_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+        "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+        "verified_artifacts": [
+          {
+            "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+            "bytes": 648036,
+            "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+          },
+          {
+            "path": "tables/full-gated-silu-f32-lut-f32.bin",
+            "bytes": 262144,
+            "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+          },
+          {
+            "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+            "bytes": 4194304,
+            "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+          },
+          {
+            "path": "tables/sm121-exp2-negative-f490940d.bin",
+            "bytes": 183174448,
+            "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+          },
+          {
+            "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+            "bytes": 17301808,
+            "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+          },
+          {
+            "path": "tables/sigmoid-beta-f32.bin",
+            "bytes": 262144,
+            "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+          },
+          {
+            "path": "tables/gates/capture.json",
+            "bytes": 37677,
+            "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+          },
+          {
+            "path": "tables/gates/layer0-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+          },
+          {
+            "path": "tables/gates/layer1-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+          },
+          {
+            "path": "tables/gates/layer2-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+          },
+          {
+            "path": "tables/gates/layer4-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+          },
+          {
+            "path": "tables/gates/layer5-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+          },
+          {
+            "path": "tables/gates/layer6-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+          },
+          {
+            "path": "tables/gates/layer8-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+          },
+          {
+            "path": "tables/gates/layer9-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+          },
+          {
+            "path": "tables/gates/layer10-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+          },
+          {
+            "path": "tables/gates/layer12-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+          },
+          {
+            "path": "tables/gates/layer13-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+          },
+          {
+            "path": "tables/gates/layer14-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+          },
+          {
+            "path": "tables/gates/layer16-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+          },
+          {
+            "path": "tables/gates/layer17-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+          },
+          {
+            "path": "tables/gates/layer18-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+          },
+          {
+            "path": "tables/gates/layer20-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+          },
+          {
+            "path": "tables/gates/layer21-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+          },
+          {
+            "path": "tables/gates/layer22-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+          },
+          {
+            "path": "tables/gates/layer24-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+          },
+          {
+            "path": "tables/gates/layer25-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+          },
+          {
+            "path": "tables/gates/layer26-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+          },
+          {
+            "path": "tables/gates/layer28-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+          },
+          {
+            "path": "tables/gates/layer29-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+          },
+          {
+            "path": "tables/gates/layer30-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+          },
+          {
+            "path": "tables/gates/layer32-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+          },
+          {
+            "path": "tables/gates/layer33-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+          },
+          {
+            "path": "tables/gates/layer34-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+          },
+          {
+            "path": "tables/gates/layer36-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+          },
+          {
+            "path": "tables/gates/layer37-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+          },
+          {
+            "path": "tables/gates/layer38-g-f32-head-major.bin",
+            "bytes": 8388608,
+            "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+          },
+          {
+            "path": "tables/gates/sigmoid-beta-bf16.bin",
+            "bytes": 131072,
+            "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+          },
+          {
+            "path": "tables/cuda-router-ex2-fraction-f32.bin",
+            "bytes": 33554432,
+            "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+          },
+          {
+            "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+            "bytes": 131096,
+            "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+          },
+          {
+            "path": "tables/sm121-attention-rcp-d2e55754.bin",
+            "bytes": 8388640,
+            "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+          },
+          {
+            "path": "tables/sm121-rope-bf16.bin",
+            "bytes": 33554432,
+            "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+          },
+          {
+            "path": "tables/layer0-embedding-inverse-f32.bin",
+            "bytes": 993280,
+            "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+          }
+        ],
+        "environment": {
+          "QRT_CK_FMHA_SM121_FULL_PREFIX": "1",
+          "QRT_CK_FMHA_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+          "QRT_CK_FMHA_SM121_RCP_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-attention-rcp-d2e55754.bin",
+          "QRT_CK_SM121_NATIVE_BF16_MATRIX": "0",
+          "QRT_CK_SM121_TILED_EXACT_QK": "1",
+          "QRT_CK_SM121_NATIVE_PRODUCTS": "0",
+          "QRT_CK_SM121_MANTISSA_WMMA": "0",
+          "QRT_CK_SM121_PREPARED_VALUE": "0",
+          "QRT_CK_SM121_WARP_SOFTMAX": "0"
+        }
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T11:58:20.4810241Z",
+        "command_file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-tool-r1\\suffix-attention-capture-replay.exe",
+          "arguments": [
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+            "D:\\projects\\suffix-attention-replay-inputs-r1",
+            "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\suffix-attention-replay-outputs-r1",
+            "16384",
+            "1024"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-suffix-attention-20260912",
+          "repo_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+          "command_file": "D:\\projects\\run-native-suffix-attention-replay-r1.ps1",
+          "command_file_sha256": "4826dee1e7e9e45bc537751de0c4417b4dfa9d67890e659b5cf9c1aeda9eba91",
+          "model": "GB10 actual long-prefix16384-suffix1024-out512, layer3 original attention",
+          "model_loaded": false,
+          "native_tensor_inputs": true,
+          "inference_acceptance": false,
+          "purpose": "Isolated compact suffix Q with complete KV; repeat, zero-prefix negative, same-address refresh and redzones",
+          "executable_sha256": "2739e4fff2de4169d3e7cfcf67e88c47eea5076a36d0eeb798f8a8d22f7f7790",
+          "build_metadata_sha256": "ec4e1aeb38320f21cde0c3f1416191451f8dfd3efa10e9793c3d3da3fe885b70",
+          "reference_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+          "reference_capture_sha256": "3ebcc146c2ee6430a6b16bebcfc60a5abafbe168e390029c1f469706e249bd77",
+          "reference_case_sha256": "613879f1b2590a08be4f2fc10810ece2dbc67cc46c459e65821792dfe5d26e6a",
+          "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+          "reference_data_manifest_sha256": "819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1",
+          "provider_dll": {
+            "sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+            "file": "D:\\projects\\AIMA-public-suffix-attention-20260912\\build\\ck-sm121\\qrt_ck_fmha_sm121.dll",
+            "bytes": 1081856
+          },
+          "provider_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+          "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+          "verified_artifacts": [
+            {
+              "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+              "bytes": 648036,
+              "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+            },
+            {
+              "path": "tables/full-gated-silu-f32-lut-f32.bin",
+              "bytes": 262144,
+              "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+            },
+            {
+              "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "bytes": 4194304,
+              "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+            },
+            {
+              "path": "tables/sm121-exp2-negative-f490940d.bin",
+              "bytes": 183174448,
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+            },
+            {
+              "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "bytes": 17301808,
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+            },
+            {
+              "path": "tables/sigmoid-beta-f32.bin",
+              "bytes": 262144,
+              "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+            },
+            {
+              "path": "tables/gates/capture.json",
+              "bytes": 37677,
+              "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+            },
+            {
+              "path": "tables/gates/layer0-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+            },
+            {
+              "path": "tables/gates/layer1-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+            },
+            {
+              "path": "tables/gates/layer2-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+            },
+            {
+              "path": "tables/gates/layer4-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+            },
+            {
+              "path": "tables/gates/layer5-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+            },
+            {
+              "path": "tables/gates/layer6-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+            },
+            {
+              "path": "tables/gates/layer8-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+            },
+            {
+              "path": "tables/gates/layer9-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+            },
+            {
+              "path": "tables/gates/layer10-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+            },
+            {
+              "path": "tables/gates/layer12-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+            },
+            {
+              "path": "tables/gates/layer13-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+            },
+            {
+              "path": "tables/gates/layer14-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+            },
+            {
+              "path": "tables/gates/layer16-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+            },
+            {
+              "path": "tables/gates/layer17-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+            },
+            {
+              "path": "tables/gates/layer18-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+            },
+            {
+              "path": "tables/gates/layer20-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+            },
+            {
+              "path": "tables/gates/layer21-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+            },
+            {
+              "path": "tables/gates/layer22-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+            },
+            {
+              "path": "tables/gates/layer24-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+            },
+            {
+              "path": "tables/gates/layer25-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+            },
+            {
+              "path": "tables/gates/layer26-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+            },
+            {
+              "path": "tables/gates/layer28-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+            },
+            {
+              "path": "tables/gates/layer29-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+            },
+            {
+              "path": "tables/gates/layer30-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+            },
+            {
+              "path": "tables/gates/layer32-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+            },
+            {
+              "path": "tables/gates/layer33-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+            },
+            {
+              "path": "tables/gates/layer34-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+            },
+            {
+              "path": "tables/gates/layer36-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+            },
+            {
+              "path": "tables/gates/layer37-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+            },
+            {
+              "path": "tables/gates/layer38-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+            },
+            {
+              "path": "tables/gates/sigmoid-beta-bf16.bin",
+              "bytes": 131072,
+              "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+            },
+            {
+              "path": "tables/cuda-router-ex2-fraction-f32.bin",
+              "bytes": 33554432,
+              "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+            },
+            {
+              "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+              "bytes": 131096,
+              "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+            },
+            {
+              "path": "tables/sm121-attention-rcp-d2e55754.bin",
+              "bytes": 8388640,
+              "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+            },
+            {
+              "path": "tables/sm121-rope-bf16.bin",
+              "bytes": 33554432,
+              "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+            },
+            {
+              "path": "tables/layer0-embedding-inverse-f32.bin",
+              "bytes": 993280,
+              "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+            }
+          ],
+          "environment": {
+            "QRT_CK_FMHA_SM121_FULL_PREFIX": "1",
+            "QRT_CK_FMHA_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+            "QRT_CK_FMHA_SM121_RCP_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-attention-rcp-d2e55754.bin",
+            "QRT_CK_SM121_NATIVE_BF16_MATRIX": "0",
+            "QRT_CK_SM121_TILED_EXACT_QK": "1",
+            "QRT_CK_SM121_NATIVE_PRODUCTS": "0",
+            "QRT_CK_SM121_MANTISSA_WMMA": "0",
+            "QRT_CK_SM121_PREPARED_VALUE": "0",
+            "QRT_CK_SM121_WARP_SOFTMAX": "0"
+          }
+        },
+        "executable_sha256": "2739e4fff2de4169d3e7cfcf67e88c47eea5076a36d0eeb798f8a8d22f7f7790",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24275197952,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146757820416,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533470990336,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 3659.851,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24263606272,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146736939008,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533462151168,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "result": {
+      "kind": "original_suffix_attention_capture_replay",
+      "host": "baiying",
+      "prefix_tokens": 16384,
+      "suffix_tokens": 1024,
+      "elements": 4194304,
+      "bf16_mismatches": 0,
+      "maximum_absolute_error": 0,
+      "relative_l2": 0,
+      "repeat_fp32_bitwise": true,
+      "same_address_refresh_fp32_bitwise": true,
+      "input_cells_unchanged": true,
+      "zero_prefix_kv_bf16_differences": 4111556,
+      "output_redzones_pass": true,
+      "component_pass": true,
+      "operator_gpu_ms": [
+        764.5697631835938,
+        771.5011596679688,
+        674.6259765625,
+        766.910888671875
+      ],
+      "diagnostic_only": true,
+      "model_inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "files": {
+      "product.stderr.log": {
+        "bytes": 1116,
+        "sha256": "4f179a00066aa35446f3c5035c3dec3c7c10d2fae86af1bdc1324389d5360734"
+      },
+      "result.json": {
+        "bytes": 563,
+        "sha256": "e611e22764da2fcef52df702a634b7ee33e53c577310f66fb9403b8eb35924e1"
+      },
+      "dispatch.json": {
+        "bytes": 1049,
+        "sha256": "7bbef1563c5405112d3786231e89101b58a7df15a89611f7b31465238f1bbfdd"
+      },
+      "product.stdout.jsonl": {
+        "bytes": 64,
+        "sha256": "cc80717d95808ae06be4aa61901ec0e75bc88918f11292a8251fafe7a6785b3d"
+      },
+      "launch.json": {
+        "bytes": 131,
+        "sha256": "3c09adabeb35c25688dad23917becd2142d7b44eb7ee4f0fefe794d7169c7d62"
+      },
+      "preflight.json": {
+        "bytes": 22854,
+        "sha256": "8d6b15e816966c97abded776735dce3b1721071e8df3272ae3413f0e7a67f95b"
+      },
+      "run-record.json": {
+        "bytes": 51374,
+        "sha256": "926631ad8abff500c50e507b95d4845b88d7d5f3567734d672b9a0e1fdce09fe"
+      }
+    }
+  },
+  "q8192_regression": {
+    "run_record": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+        "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+        "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+        "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+        "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+        "command_file": "D:\\projects\\run-native-suffix-attention-control-r1.ps1",
+        "command_file_sha256": "b610fec79ba7af3828e2bb55d1b421fee055bea5ab89d9ebf6d7e69ed0b9c5a9",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "ca7c30b242ddf035",
+          "--env-file",
+          "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\suffix-attention-control-q8192-out512-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-long-tail-projection-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+        "oracle_case": "q8192-out512",
+        "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+        "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+        "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+        "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+        "runtime_artifacts_verified": 267,
+        "component_commits": {
+          "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+          "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+          "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+          "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+        },
+        "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+        "portable_paths_resolved": 33,
+        "environment_sha256": "484c9d981011d5ff3406618b20febedc9a57dcca9f6b4d7ea22a3b925cc554cc",
+        "cold_prefill_seed_included": true,
+        "prefix_checkpoints_enabled": false,
+        "model_loaded_from_new_process": true,
+        "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+        "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+        "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+        "whole_provider_commit": "1975367172d8d5d6899d1d38922d9470e3b733ef",
+        "whole_provider_sha256": "0272708a3aa7e12235c8f50b68927130031a87da129e7bf485fd752bae5abdc4",
+        "whole_build_metadata_sha256": "93ba62a828b8f1f41a48576686e331c82e5f2adb394fc965286e7d6391025bff",
+        "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+        "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+        "ck_provider_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+        "ck_provider_sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+        "ck_build_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+        "prepared_value_enabled": false,
+        "exact_attention_maximum_tokens": 32768,
+        "purpose": "Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI."
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T11:43:51.5477384Z",
+        "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+          "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+          "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+          "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+          "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+          "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+          "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+          "command_file": "D:\\projects\\run-native-suffix-attention-control-r1.ps1",
+          "command_file_sha256": "b610fec79ba7af3828e2bb55d1b421fee055bea5ab89d9ebf6d7e69ed0b9c5a9",
+          "model": "D:\\models\\Qwen3.6-35B-A3B",
+          "arguments": [
+            "run",
+            "--model",
+            "D:\\models\\Qwen3.6-35B-A3B",
+            "--tokens",
+            "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+            "--output-tokens",
+            "512",
+            "--expected-output",
+            "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+            "--expected-prompt-fnv",
+            "1584e34d56e5d78b",
+            "--expected-output-fnv",
+            "ca7c30b242ddf035",
+            "--env-file",
+            "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\suffix-attention-control-q8192-out512-r1.env",
+            "--provider-dll",
+            "D:\\projects\\AIMA-public-long-tail-projection-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll"
+          ],
+          "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+          "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+          "oracle_case": "q8192-out512",
+          "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+          "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+          "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+          "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+          "runtime_artifacts_verified": 267,
+          "component_commits": {
+            "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+            "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+            "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+            "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+          },
+          "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+          "portable_paths_resolved": 33,
+          "environment_sha256": "484c9d981011d5ff3406618b20febedc9a57dcca9f6b4d7ea22a3b925cc554cc",
+          "cold_prefill_seed_included": true,
+          "prefix_checkpoints_enabled": false,
+          "model_loaded_from_new_process": true,
+          "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+          "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+          "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+          "whole_provider_commit": "1975367172d8d5d6899d1d38922d9470e3b733ef",
+          "whole_provider_sha256": "0272708a3aa7e12235c8f50b68927130031a87da129e7bf485fd752bae5abdc4",
+          "whole_build_metadata_sha256": "93ba62a828b8f1f41a48576686e331c82e5f2adb394fc965286e7d6391025bff",
+          "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+          "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+          "ck_provider_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+          "ck_provider_sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+          "ck_build_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+          "prepared_value_enabled": false,
+          "exact_attention_maximum_tokens": 32768,
+          "purpose": "Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI."
+        },
+        "executable_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+        "input_fingerprints": {
+          "--tokens": {
+            "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+            "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+          },
+          "--expected-output": {
+            "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+            "sha256": "b7ae24de7170ef3cf17581f3a820c9cd5c247c9b127c52170e8fa0ecbeb8c543"
+          },
+          "--env-file": {
+            "path": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\suffix-attention-control-q8192-out512-r1.env",
+            "sha256": "484c9d981011d5ff3406618b20febedc9a57dcca9f6b4d7ea22a3b925cc554cc"
+          },
+          "--provider-dll": {
+            "path": "D:\\projects\\AIMA-public-long-tail-projection-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll",
+            "sha256": "0272708a3aa7e12235c8f50b68927130031a87da129e7bf485fd752bae5abdc4"
+          }
+        },
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24379510784,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146824613888,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533469937664,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 135525.271,
+      "summary_present": true,
+      "cli_pass": true,
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-long-tail-projection-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 144,
+        "first_token_report_top1_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 8192,
+        "prefix_tokens": 0,
+        "suffix_tokens": 8192,
+        "output_tokens": 512,
+        "prefix_hit_count": 1,
+        "prefix_contract_pass_count": 0,
+        "prefix_output_match_count": 0,
+        "prefix_stream_match_count": 0,
+        "prefix_state_restored_count": 0,
+        "prefix_negative_guard_requested": false,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 0,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+        "output_token_ids_fnv1a64": "ca7c30b242ddf035",
+        "engine_load_ms": 20047.6189,
+        "provider_preload_ms": 20036.9817,
+        "provider_preload_reported_ms": 20036.347,
+        "provider_preload_dll_load_ms": 9.4366,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1858,
+        "prefix_seed_ms": 0.0,
+        "request_wall_ms": 115008.009599,
+        "ttft_ms": 58507.9005,
+        "provider_ttft_ms": 58503.788,
+        "prefill_tokens_per_second": 140.015279,
+        "tpot_ms": 110.366806,
+        "decode_tokens_per_second": 9.060695,
+        "stream_callback_count": 512,
+        "first_callback_wall_ms": 58507.9005,
+        "last_callback_wall_ms": 114996.697699,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          271,
+          248068,
+          271,
+          248069,
+          271,
+          760,
+          1414,
+          488,
+          3766,
+          7701,
+          310,
+          381,
+          2972,
+          5816,
+          82987,
+          11,
+          7132,
+          36412,
+          11,
+          466,
+          19873,
+          41915,
+          159034,
+          1049,
+          5435,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          33358,
+          314,
+          6163,
+          4105,
+          421,
+          635,
+          524,
+          1304,
+          53916,
+          22157,
+          466,
+          19214,
+          13976,
+          13,
+          1061,
+          3428,
+          8311,
+          4016,
+          310,
+          25,
+          271,
+          16,
+          13,
+          2972,
+          14266,
+          5787,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          8306,
+          264,
+          7620,
+          999,
+          466,
+          264,
+          999,
+          440,
+          264,
+          2086,
+          3542,
+          10845,
+          1040,
+          19464,
+          12,
+          23,
+          11,
+          18867,
+          12,
+          16,
+          11,
+          466,
+          25662,
+          11667,
+          1580,
+          430,
+          13983,
+          1414,
+          553,
+          198,
+          17,
+          13,
+          2972,
+          1008,
+          20600,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          31084,
+          4003,
+          11,
+          12977,
+          1412,
+          11,
+          466,
+          17822,
+          59026,
+          553,
+          198,
+          18,
+          13,
+          2972,
+          1037,
+          2845,
+          278,
+          1454,
+          49850,
+          362,
+          332,
+          318,
+          68,
+          1257,
+          2487,
+          24656,
+          466,
+          24315,
+          1973,
+          5976,
+          45543,
+          553,
+          271,
+          13962,
+          3437,
+          1394,
+          2885,
+          3054,
+          25,
+          198,
+          12,
+          2972,
+          3840,
+          279,
+          2450,
+          92217,
+          1368,
+          411,
+          3571,
+          494,
+          264,
+          999,
+          11,
+          5790,
+          424,
+          725,
+          8660,
+          440,
+          279,
+          4252,
+          10845,
+          466,
+          3061,
+          13,
+          198,
+          12,
+          2972,
+          674,
+          60346,
+          466,
+          11394,
+          92217,
+          1368,
+          424,
+          725,
+          494,
+          264,
+          4003,
+          11,
+          1380,
+          311,
+          14445,
+          10313,
+          466,
+          47455,
+          494,
+          264,
+          15264,
+          13,
+          198,
+          12,
+          2972,
+          58387,
+          2193,
+          92217,
+          1368,
+          488,
+          1366,
+          1092,
+          411,
+          1414,
+          348,
+          5274,
+          9,
+          3875,
+          318,
+          68,
+          1257,
+          2487,
+          264,
+          2128,
+          11,
+          1970,
+          11,
+          2099,
+          795,
+          681,
+          4191,
+          777,
+          3447,
+          748,
+          353,
+          628,
+          1438,
+          16401,
+          466,
+          13792,
+          424,
+          13,
+          271,
+          9764,
+          728,
+          1366,
+          1204,
+          353,
+          628,
+          7543,
+          4473,
+          0,
+          25677,
+          232,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248045,
+          846,
+          198,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338,
+          3300,
+          777,
+          3447,
+          466,
+          35932,
+          1092,
+          488,
+          2224,
+          9859,
+          30,
+          353,
+          2688,
+          1532,
+          310,
+          1438,
+          0,
+          25677,
+          232,
+          248046,
+          198,
+          248044,
+          248045,
+          248045,
+          248045,
+          248045,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338,
+          3300,
+          777,
+          3447,
+          466,
+          35932,
+          1092,
+          488,
+          2224,
+          9859,
+          30,
+          353,
+          2688,
+          1532,
+          310,
+          1438,
+          0,
+          25677,
+          232,
+          248046,
+          198,
+          248045,
+          846,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          4816,
+          1040,
+          678,
+          1876,
+          2493,
+          381,
+          31084,
+          466,
+          23644,
+          13,
+          16018,
+          488,
+          4338,
+          3300,
+          777,
+          3447,
+          466,
+          35932,
+          1092,
+          488,
+          2224,
+          9859
+        ],
+        "prefix_hit_request_wall_ms": [],
+        "prefix_hit_first_callback_wall_ms": [],
+        "prefix_hit_provider_ttft_ms": [],
+        "prefix_hit_suffix_ms": [],
+        "prefix_hit_tpot_ms": [],
+        "prefix_hit_total_ms": [],
+        "prefix_hit_input_token_ids_fnv1a64": [],
+        "prefix_hit_suffix_token_ids_fnv1a64": [],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": [],
+        "checkpoint_owner_tokens": 0,
+        "checkpoint_owner_first_token": 4294967295,
+        "checkpoint_owner_logit_valid": false,
+        "checkpoint_owner_first_logit": null
+      },
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24192520192,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146597908480,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533469052928,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "oracle_file": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+    "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+    "all_512_tokens_and_exact_first_logit_pass": true,
+    "new_suffix_export_exercised": false,
+    "files": {
+      "product.stderr.log": {
+        "bytes": 918962,
+        "sha256": "4b1a65d9c17afdcdbab5b9213635e9b987728f977883276722cfa246d655d64f"
+      },
+      "dispatch.json": {
+        "bytes": 31772,
+        "sha256": "0cb654be4e8931f1747230d39b886fd7398f2fa87972bfe8b5b8c52400852f59"
+      },
+      "product.stdout.jsonl": {
+        "bytes": 74091,
+        "sha256": "8a8f9ecc1e047cfd3c0cbc6c3e18c7b0fdbb187d19dcaa43d15b91c7f281015c"
+      },
+      "launch.json": {
+        "bytes": 131,
+        "sha256": "2dac77e08f76c18f4b473538f590adb7b8bc511307c345deb077e5fa3fbf49a6"
+      },
+      "preflight.json": {
+        "bytes": 9208,
+        "sha256": "7a4210eb5d09129a60342699092810babca025afe9bead2ebef07b87bcd23372"
+      },
+      "run-record.json": {
+        "bytes": 50125,
+        "sha256": "7f6a18dd8fce4096dcd3406d9e3933a4b44d46f7b433e264a7e77dc4be266645"
+      },
+      "runtime.env": {
+        "bytes": 31137,
+        "sha256": "484c9d981011d5ff3406618b20febedc9a57dcca9f6b4d7ea22a3b925cc554cc"
+      }
+    }
+  },
+  "commands": {
+    "assemble_suffix_attention_inputs_r1.py": {
+      "text": "from pathlib import Path\nimport array, hashlib, json, shutil, socket, struct, sys, tarfile\nassert socket.gethostname() == 'aitopatom-66c4' and sys.byteorder == 'little'\nroot = Path('<private-home>/qrt-gb10-suffix-attention1024-20260912-r2')\ncase = 'long-prefix16384-suffix1024-out512'\nsha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()\ncapture = json.loads((root/'capture/capture.json').read_text())\nassert capture['completed'] and capture['controls_qualified']\nassert capture['source_commit'] == '9b2a99edeede83ce77a4b775a509256f65894a7f'\nassert all(c['control_pass'] for c in capture['cases'])\noracle_path = root/'contracts/gb10_long_prefix16k_actual_tokens_20260912_oracle.json'\nassert sha(oracle_path) == 'f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5'\noracle = json.loads(oracle_path.read_text())\nrecord = json.loads((root/'capture'/(case+'.json')).read_text())\ngold = next(c for c in oracle['cases'] if c['name'] == case)\nassert record['output_token_ids'] == gold['expected']['output_token_ids']\nassert record['worker']['sha256'] == gold['raw_logits']['sha256']\nboundaries = record['worker']['runtime_boundaries']\nwindow = boundaries['full_prefill_attention_window']\nassert window['plan'] == dict(layer=3, first_position=16384, tokens=1024)\nassert window['transaction'] == 2 and len(window['labels']) == 10\nassert window['cache']['tokens'] == 17408 and window['cache']['max_query_len'] == 1024\nassert window['cache']['seq_lens'] == [17408]\ntransaction = next(t for t in boundaries['transactions'] if t['ordinal'] == 2)\nassert transaction['first_position'] == 16384 and transaction['token_count'] == 1024\nassert all(row['matches_generated_history'] for row in transaction['qualified_rows'])\ntoken_bytes = b''.join(struct.pack('<I',x) for x in transaction['input_token_ids'])\nassert hashlib.sha256(token_bytes).hexdigest() == json.loads((root/'prompt-lineage.json').read_text())['suffix']['u32le_sha256']\nout = root/'suffix-attention-replay-inputs-r1'; out.mkdir(exist_ok=False)\nsources = {}\ndef read(label, shape):\n    m = next(m for m in boundaries['files'].values() if m['transaction'] == 2 and m['label'] == 'full-prefill-full-03-'+label)\n    assert m['dtype'] == 'bf16' and m['shape'] == shape\n    p = root/'capture'/case/m['file']; data = p.read_bytes()\n    assert len(data) == m['bytes'] and hashlib.sha256(data).hexdigest() == m['sha256']\n    sources[label] = m\n    return data\nfor label, name, shape in (\n    ('q-rope','query-bf16.bin',[1024,4096]),\n    ('cache-k','key-bf16.bin',[17408,2,256]),\n    ('cache-v','value-bf16.bin',[17408,2,256]),\n    ('context','expected-output-bf16.bin',[1024,4096])):\n    (out/name).write_bytes(read(label,shape))\nk_rope = read('k-rope',[1024,512])\nqkv = read('qkv',[1024,9216])\nassert (out/'key-bf16.bin').read_bytes()[16384*1024:] == k_rope\nv_tail = b''.join(qkv[(r*9216+8704)*2:(r+1)*9216*2] for r in range(1024))\nassert (out/'value-bf16.bin').read_bytes()[16384*1024:] == v_tail\nfiles = {p.name:dict(bytes=p.stat().st_size,sha256=sha(p)) for p in out.iterdir()}\nmanifest = dict(schema_version=1,host=socket.gethostname(),source_commit=capture['source_commit'],\n    command_file=__file__,command_file_sha256=sha(Path(__file__)),\n    capture_sha256=sha(root/'capture/capture.json'),case_sha256=sha(root/'capture'/(case+'.json')),\n    oracle_sha256=sha(oracle_path),original_controls_pass=True,all_512_tokens_and_full_first_logits_match=True,\n    case=case,model_reference=capture['model'],layer=3,prefix_tokens=16384,suffix_tokens=1024,\n    suffix_u32le_sha256=hashlib.sha256(token_bytes).hexdigest(),\n    reference_attention_backend='TRITON_ATTN',layout='token_head_channel_bf16',\n    key_tail_matches_original_rope=True,value_tail_matches_original_projection=True,\n    original_cache=window['cache'],original_source_files=sources,files=files,\n    diagnostic_only=True,model_inference_acceptance=False)\n(out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\\n')\narchive = root/'suffix-attention-replay-inputs-r1.tar'; assert not archive.exists()\nwith tarfile.open(archive,'w') as tar:\n    for p in sorted(out.iterdir()):tar.add(p,arcname=p.name)\nprint(json.dumps(dict(archive=str(archive),bytes=archive.stat().st_size,sha256=sha(archive),\n    manifest=manifest,manifest_sha256=sha(out/'manifest.json'))),flush=True)\n",
+      "sha256": "63f0592defa7315277765f6ebfa9fae2e8aa07615b5adbbb83f7cc08e36bc386"
+    },
+    "build-native-suffix-attention-r1.ps1": {
+      "text": "$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-suffix-attention-20260912'\n$seed='D:\\projects\\AIMA-public-short-dense-projections-20260912'\n$sha='37914edb5c9845f0e836e0e6ce87dfb881f7664d'\n$bundle='D:\\projects\\suffix-attention-37914ed.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '93078c14cd2cf9938ebe3d962d55b850c1c8e590863ff97a68e623d74a231134'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD\n if($LASTEXITCODE -ne 0){throw 'Bundle fetch failed'}\n & git -C $seed worktree add --detach $repo $sha\n if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source checkout mismatch'}\n$build=Join-Path $repo 'build\\ck-sm121'\n$out=Join-Path $repo 'build\\ck-build-r1'\nif(Test-Path $out){throw 'Build evidence exists'}\n$null=New-Item -ItemType Directory -Path $build -Force\n$dll=Join-Path $build 'qrt_ck_fmha_sm121.dll'\n$ck='D:\\projects\\composable-kernel-fdf4bb7'\n$headers=@(Get-ChildItem -LiteralPath $ck -Recurse -File | Where-Object {$_.Extension -in @('.h','.hpp','.cpp')} | Sort-Object FullName | ForEach-Object {@{file=$_.FullName.Substring($ck.Length+1);bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n$headerPath=Join-Path $build 'ck-source-inputs.json'\n[IO.File]::WriteAllText($headerPath,($headers|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n$source=@()\nforeach($path in @('native\\providers\\ck_fmha\\blackwell_attention.h','native\\providers\\ck_fmha\\fmha_fwd_api.cpp','native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp','native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp','native\\providers\\gdn\\blackwell_accumulator.h','native\\providers\\gdn\\blackwell_cooperative.h','native\\providers\\gdn\\blackwell_inverse.h','native\\providers\\gdn\\blackwell_inverse_math.h','native\\providers\\gdn\\blackwell_kkt.h','native\\providers\\gdn\\blackwell_l2norm.h','native\\providers\\gdn\\blackwell_state.h','native\\providers\\gdn\\blackwell_wu_output.h','native\\providers\\gdn\\first_call_capture.h','native\\providers\\gdn\\sm121_attention_rcp.h','native\\providers\\gdn\\sm121_exp2_interpolated.h','native\\providers\\gdn\\sm121_exp2_table.h','native\\providers\\gdn\\sm121_q1_attention.h','native\\providers\\gdn\\sm121_q1_full.h','native\\providers\\gdn\\sm121_q1_gdn.h','native\\providers\\gdn\\sm121_q1_math.h','native\\providers\\gdn\\sm121_rsqrt_table.h','native\\providers\\gdn\\sm121_silu_table.h','native\\providers\\moe_accumulator\\bf16_midpoint_selector.h','native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h','native\\providers\\moe_accumulator\\sm121_group16_modulo.h','native\\providers\\moe_accumulator\\sm121_integer_parts.h','native\\providers\\moe_accumulator\\sm121_prepared_bf16.h','native\\providers\\moe_accumulator\\sm121_pv_error_bound.h','native\\providers\\moe_accumulator\\sm121_strided_pair.h','native\\providers\\moe_accumulator\\sm121_mantissa_parts.h','native\\providers\\moe_accumulator\\sm121_native_product.h','native\\providers\\moe_accumulator\\sm121_paired_products.h','native\\providers\\moe_accumulator\\sm121_q1_moe.h','native\\providers\\moe_accumulator\\sm121_router_exp.h','native\\providers\\moe_accumulator\\sm121_shared_gate.h','native\\providers\\moe_accumulator\\sm121_subgroup.h','native\\providers\\moe_accumulator\\sm121_wave16.h','scripts\\baiying_build_ck_fmha_q8192.ps1')){$source+=@{file=$path;sha256=(Get-FileHash (Join-Path $repo $path) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe';arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_ck_fmha_q8192.ps1'),'-CkRoot',$ck,'-OutPath',$dll,'-HipccPath','C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe');working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$source;ck_source_manifest_sha256=(Get-FileHash $headerPath -Algorithm SHA256).Hash.ToLowerInvariant();ck_source_files=$headers.Count;model='none; native CK provider build';model_loaded=$false;inference_acceptance=$false}\n$specPath=Join-Path $build 'build-spec.json'\nif(Test-Path $specPath){throw 'Build spec exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 210 | Out-Null\n$record=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$record|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($file in @('product.stdout.jsonl','product.stderr.log')){if(Test-Path (Join-Path $out $file)){[IO.File]::ReadAllLines((Join-Path $out $file))|Select-Object -Last 20}}\nif($record.reason -ne 'completed' -or $record.exit_code -ne 0 -or -not $record.host_checks_pass){throw 'Native CK build or host check failed'}\n$manifest=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$source;ck_source_manifest_sha256=$spec.ck_source_manifest_sha256;ck_source_files=$headers.Count;command_file=$PSCommandPath;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();artifact=@{file=$dll;bytes=(Get-Item $dll).Length;sha256=(Get-FileHash $dll -Algorithm SHA256).Hash.ToLowerInvariant()}}\n[IO.File]::WriteAllText((Join-Path $build 'build-provenance.json'),($manifest|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n\n$out=Join-Path $repo 'build\\suffix-attention-replay-tool-r1'\n$record=Join-Path $repo 'build\\suffix-attention-replay-build-r1'\n$specPath=Join-Path $repo 'build\\suffix-attention-replay-build-r1.json'\nforeach($path in @($out,$record,$specPath)){if(Test-Path $path){throw 'Existing build evidence'}}\n$null=New-Item -ItemType Directory -Path $out -Force\n$sourceFile=Join-Path $repo 'native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp'\n$header=Join-Path $repo 'native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp'\n$exe=Join-Path $out 'suffix-attention-capture-replay.exe'\n$compiler='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n$arguments=@('-std=c++17','-O2','--offload-arch=gfx1151',$sourceFile,'-o',$exe)\n$spec=[ordered]@{executable=$compiler;arguments=$arguments;working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='none; isolated suffix attention capture replay build';model_loaded=$false;inference_acceptance=$false;source_sha256=(Get-FileHash $sourceFile -Algorithm SHA256).Hash.ToLowerInvariant();header_sha256=(Get-FileHash $header -Algorithm SHA256).Hash.ToLowerInvariant();purpose='Build an isolated original-input suffix attention replay; no product runtime changes'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $record -TimeoutSeconds 90|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $record 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks_pass|ConvertTo-Json\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){Get-Content (Join-Path $record 'product.stderr.log') -Tail 20;throw 'Replay tool build failed'}\n$meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;run_record_sha256=(Get-FileHash (Join-Path $record 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=@(@{file=$sourceFile;sha256=$spec.source_sha256},@{file=$header;sha256=$spec.header_sha256});artifact=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n[IO.File]::WriteAllText((Join-Path $out 'build-provenance.json'),($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n",
+      "sha256": "0f6d703b1fa55b12d4c6a23027fd33339a94fac7ec0f600ca8aaf80ec55a8f98"
+    },
+    "run-native-suffix-attention-replay-r1.ps1": {
+      "text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\n$repo='D:\\projects\\AIMA-public-suffix-attention-20260912';$sha='37914edb5c9845f0e836e0e6ce87dfb881f7664d'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Replay source changed'}\n$metaPath=Join-Path $repo 'build\\suffix-attention-replay-tool-r1\\build-provenance.json';Verify-File $metaPath 'ec4e1aeb38320f21cde0c3f1416191451f8dfd3efa10e9793c3d3da3fe885b70'\n$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\nif($meta.repo_commit -ne $sha){throw 'Build source mismatch'}\nVerify-File $meta.artifact.file $meta.artifact.sha256\nforeach($e in $meta.source_inputs){Verify-File $e.file $e.sha256}\n$providerMetaPath=Join-Path $repo 'build\\ck-sm121\\build-provenance.json';Verify-File $providerMetaPath '47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf'\n$provider=[IO.File]::ReadAllText($providerMetaPath)|ConvertFrom-Json\nif($provider.repo_commit -ne $sha){throw 'Provider source mismatch'}\nVerify-File $provider.artifact.file $provider.artifact.sha256\nforeach($e in $provider.source_inputs){Verify-File (Join-Path $repo $e.file) $e.sha256}\n$fixtureRoot='D:\\projects\\suffix-attention-replay-inputs-r1';$archive=$fixtureRoot+'.tar';Verify-File $archive '96435d8e60d3f4f2a82c224536cce2e25e8014cf8c619ba9925e1cee79d45861'\nif(-not (Test-Path $fixtureRoot)){$null=New-Item -ItemType Directory -Path $fixtureRoot;& tar.exe -xf $archive -C $fixtureRoot;if($LASTEXITCODE -ne 0){throw 'Fixture extraction failed'}}\n$inputManifestPath=Join-Path $fixtureRoot 'manifest.json';Verify-File $inputManifestPath '819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1'\n$inputs=[IO.File]::ReadAllText($inputManifestPath)|ConvertFrom-Json\nif($inputs.source_commit -ne '9b2a99edeede83ce77a4b775a509256f65894a7f' -or $inputs.prefix_tokens -ne 16384 -or $inputs.suffix_tokens -ne 1024 -or $inputs.layer -ne 3 -or -not $inputs.all_512_tokens_and_full_first_logits_match -or -not $inputs.key_tail_matches_original_rope -or -not $inputs.value_tail_matches_original_projection){throw 'Reference identity mismatch'}\nforeach($prop in $inputs.files.PSObject.Properties){$file=Join-Path $fixtureRoot $prop.Name;Verify-File $file $prop.Value.sha256;if((Get-Item $file).Length -ne $prop.Value.bytes){throw 'Input size mismatch'}}\nif(@(Get-ChildItem -LiteralPath $fixtureRoot -File).Count -ne 5){throw 'Unexpected fixture inventory'}\n$runtime='D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3'\n$runtimeManifest=Join-Path $runtime 'runtime-manifest.json';Verify-File $runtimeManifest '6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1'\n$inventory=[IO.File]::ReadAllText($runtimeManifest)|ConvertFrom-Json\n$verified=@();foreach($e in $inventory.artifacts){if($e.path.Replace('\\','/').StartsWith('tables/')){Verify-File (Join-Path $runtime $e.path) $e.sha256;$verified+=$e}}\n$profilePath='D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\suffix-attention-control-q8192-out512-r1.env';Verify-File $profilePath '484c9d981011d5ff3406618b20febedc9a57dcca9f6b4d7ea22a3b925cc554cc'\nforeach($item in @(Get-ChildItem Env:|Where-Object {$_.Name.StartsWith('QRT_')})){[Environment]::SetEnvironmentVariable($item.Name,$null,'Process')}\n$environment=[ordered]@{}\nforeach($line in [IO.File]::ReadAllLines($profilePath)){if($line -match '^(QRT_CK_[A-Z0-9_]+)=(.*)$'){$environment[$Matches[1]]=$Matches[2];[Environment]::SetEnvironmentVariable($Matches[1],$Matches[2],'Process')}}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$recordDir=Join-Path $repo 'build\\suffix-attention-replay-r1';$outputs=Join-Path $repo 'build\\suffix-attention-replay-outputs-r1';$specPath=Join-Path $repo 'build\\suffix-attention-replay-r1.json'\nforeach($path in @($recordDir,$outputs,$specPath)){if(Test-Path $path){throw 'Existing replay evidence'}}\n$spec=[ordered]@{executable=$meta.artifact.file;arguments=@($provider.artifact.file,$fixtureRoot,$outputs,'16384','1024');working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='GB10 actual long-prefix16384-suffix1024-out512, layer3 original attention';model_loaded=$false;native_tensor_inputs=$true;inference_acceptance=$false;purpose='Isolated compact suffix Q with complete KV; repeat, zero-prefix negative, same-address refresh and redzones';executable_sha256=$meta.artifact.sha256;build_metadata_sha256='ec4e1aeb38320f21cde0c3f1416191451f8dfd3efa10e9793c3d3da3fe885b70';reference_source_commit=$inputs.source_commit;reference_capture_sha256=$inputs.capture_sha256;reference_case_sha256=$inputs.case_sha256;reference_oracle_sha256=$inputs.oracle_sha256;reference_data_manifest_sha256='819e15c5d36e6bf1deaf862839d83365b116e39a37526f90094e9f64bce652f1';provider_dll=$provider.artifact;provider_metadata_sha256='47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf';runtime_manifest_sha256='6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1';verified_artifacts=$verified;environment=$environment}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $recordDir -TimeoutSeconds 90|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $recordDir 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks_pass|ConvertTo-Json\nif(Test-Path (Join-Path $outputs 'result.json')){Get-Content -Raw (Join-Path $outputs 'result.json')}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){Get-Content (Join-Path $recordDir 'product.stderr.log') -Tail 12;throw 'Suffix attention component replay failed'}\n",
+      "sha256": "4826dee1e7e9e45bc537751de0c4417b4dfa9d67890e659b5cf9c1aeda9eba91"
+    },
+    "run-native-suffix-attention-control-r1.ps1": {
+      "text": "param([string]$Case='q8192-out512')\n$PreparedValue=0\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-prefix-after-decode-20260912';$sha='a797b62b36d81b7f2b98d0aa591ef18d74b1fb22'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\n$runtime=Join-Path $repo 'build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3'\n$manifestPath=Join-Path $runtime 'runtime-manifest.json';$manifestSha='6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1';Verify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.artifacts.Count -ne 267){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){$p=Join-Path $runtime $e.path;Verify-File $p $e.sha256;if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}}\n$cliMetaPath=Join-Path $repo 'build\\product-cli\\build-provenance.json';$cliMeta=[IO.File]::ReadAllText($cliMetaPath)|ConvertFrom-Json\n$cliRunPath=Join-Path $repo 'build\\cli-build-r1\\run-record.json';$cliRun=[IO.File]::ReadAllText($cliRunPath)|ConvertFrom-Json\nif($cliMeta.repo_commit -ne $sha -or $cliMeta.dirty_tree -or $cliRun.exit_code -ne 0 -or -not $cliRun.host_checks_pass){throw 'CLI build not qualified'}\nVerify-File $cliMeta.executable $cliMeta.executable_sha256\nif($cliMeta.executable_sha256 -ne 'ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254'){throw 'Wrong CLI'}\nforeach($e in $cliMeta.sources){Verify-File $e.path $e.sha256}\n$oraclePath=Join-Path $repo 'contracts\\gb10_cold_token_matrix_20260911_oracle.json';$oracleSha='7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1';Verify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json;$cases=@($matrix.cases|Where-Object {$_.name -eq $Case});if($cases.Count -ne 1){throw 'Oracle case missing'};$oracle=$cases[0]\n$data='D:\\projects\\gb10-token-matrix-inputs-20260911-r2';$dataManifestPath=Join-Path $data 'manifest.json';$dataSha='e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c';Verify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json');$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$name='suffix-attention-control-'+$Case+'-r1';$out=Join-Path $repo ('build\\'+$name);$envPath=Join-Path $repo ('build\\'+$name+'.env');$specPath=Join-Path $repo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env';$profileSha='88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d';Verify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath);$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n$map=[ordered]@{};foreach($line in ($resolved -split \"`n\")){if($line -match '^([^#=]+)=(.*)$'){$map[$Matches[1].Trim()]=$Matches[2].TrimEnd(\"`r\")}}\n$moeRoot='D:\\projects\\AIMA-public-short-moe-projections-20260912'\n$moeCommit='bc082a59da83fd3550e7fce9869c375629a78b69'\n$moeMetaPath=Join-Path $moeRoot 'build\\moe\\build-provenance.json';Verify-File $moeMetaPath '30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeCommit -or $moeMeta.dirty_tree -or @(& git -C $moeRoot status --porcelain).Count -ne 0){throw 'MoE source mismatch'}\nforeach($e in $moeMeta.artifacts){Verify-File (Join-Path (Join-Path $moeRoot 'build\\moe') $e.file) $e.sha256}\n$moeDll=Join-Path $moeRoot 'build\\moe\\qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll '4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL']=$moeDll.Replace('\\','/')\n$normTable='D:\\projects\\layer0-embedding-dynamic-inverse-20260912-r1.bin';Verify-File $normTable 'b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9'\n$map['QRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH']=$normTable.Replace('\\','/')\n$ckRoot='D:\\projects\\AIMA-public-suffix-attention-20260912';$ckCommit='37914edb5c9845f0e836e0e6ce87dfb881f7664d'\n$ckMetaPath=Join-Path $ckRoot 'build\\ck-sm121\\build-provenance.json';Verify-File $ckMetaPath '47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf'\n$ckMeta=[IO.File]::ReadAllText($ckMetaPath)|ConvertFrom-Json\n$ckRunPath=Join-Path $ckRoot 'build\\ck-build-r1\\run-record.json';$ckRun=[IO.File]::ReadAllText($ckRunPath)|ConvertFrom-Json\nif($ckMeta.repo_commit -ne $ckCommit -or (& git -C $ckRoot rev-parse HEAD).Trim() -ne $ckCommit -or @(& git -C $ckRoot status --porcelain).Count -ne 0 -or $ckRun.exit_code -ne 0 -or -not $ckRun.host_checks_pass){throw 'CK build not qualified'}\nforeach($e in $ckMeta.source_inputs){Verify-File (Join-Path $ckRoot $e.file) $e.sha256}\n$ckDll=Join-Path $ckRoot 'build\\ck-sm121\\qrt_ck_fmha_sm121.dll';Verify-File $ckDll '56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL']=$ckDll.Replace('\\','/')\n$map['QRT_CK_SM121_PREPARED_VALUE']=[string]$PreparedValue\n$map['QRT_CK_SM121_TILED_EXACT_QK']='1'\n$map['QRT_CK_SM121_WARP_SOFTMAX']='0'\n$resolved=(($map.GetEnumerator()|ForEach-Object {$_.Key+'='+$_.Value})-join \"`n\")+\"`n\"\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$wholeRoot='D:\\projects\\AIMA-public-long-tail-projection-20260912';$wholeCommit='1975367172d8d5d6899d1d38922d9470e3b733ef'\n$wholeMetaPath=Join-Path $wholeRoot 'build\\whole\\build-provenance.json';Verify-File $wholeMetaPath '93ba62a828b8f1f41a48576686e331c82e5f2adb394fc965286e7d6391025bff'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRunPath=Join-Path $wholeRoot 'build\\batch-whole-build-r1\\run-record.json';$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeCommit -or $wholeMeta.dirty_tree -or $wholeMeta.hawkeye_replay_lanes -ne 4 -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass -or @(& git -C $wholeRoot status --porcelain).Count -ne 0){throw 'Whole build mismatch'}\n$provider=Join-Path $wholeRoot 'build\\whole\\qrt_qwen36_whole_provider.dll';Verify-File $provider '0272708a3aa7e12235c8f50b68927130031a87da129e7bf485fd752bae5abdc4'\n\n\n$spec=[ordered]@{executable=$cliMeta.executable;working_directory=$repo;repo_commit=$sha;cli_commit=$sha;cli_sha256=$cliMeta.executable_sha256;cli_build_run_sha256=(Get-FileHash $cliRunPath -Algorithm SHA256).Hash.ToLowerInvariant();cli_build_metadata_sha256=(Get-FileHash $cliMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='D:\\models\\Qwen3.6-35B-A3B';arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider);oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha;runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits;source_profile_sha256=$profileSha;portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant();cold_prefill_seed_included=$true;prefix_checkpoints_enabled=$false;model_loaded_from_new_process=$true;moe_provider_commit=$moeCommit;moe_provider_sha256='4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41';moe_build_metadata_sha256=(Get-FileHash $moeMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();whole_provider_commit=$wholeCommit;whole_provider_sha256='0272708a3aa7e12235c8f50b68927130031a87da129e7bf485fd752bae5abdc4';whole_build_metadata_sha256='93ba62a828b8f1f41a48576686e331c82e5f2adb394fc965286e7d6391025bff';layer0_inverse_table_sha256='b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9';layer0_inverse_capture_sha256='f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2';ck_provider_commit=$ckCommit;ck_provider_sha256='56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e';ck_build_metadata_sha256='47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf';prepared_value_enabled=$false;exact_attention_maximum_tokens=32768;purpose='Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI.'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 420|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids);$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne $expected.Count){throw 'Actual stream callback boundary failed'}\nexit $r.exit_code\n",
+      "sha256": "b610fec79ba7af3828e2bb55d1b421fee055bea5ab89d9ebf6d7e69ed0b9c5a9"
+    }
+  },
+  "rejected_reference_attempt": {
+    "name": "qrt-gb10-suffix-attention1024-20260912-r1",
+    "case_sha256": "73edd864706f3839b3ed018aa21490151706d6b4f7eb71d8b1b080dfa94da729",
+    "actual_tokens": [
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220,
+      196,
+      220,
+      220
+    ],
+    "first_token": 220,
+    "first_logit": 9.375,
+    "control_pass": false,
+    "retained_as_oracle": false,
+    "first_divergent_model_layer": 3,
+    "exact_linear_layers_before_divergence": [
+      0,
+      1,
+      2
+    ],
+    "cause": "Unresolved reference-run numerical variation; selected attention backend is TRITON_ATTN. FlashInfer startup tuning is not evidence of an attention-backend change."
+  },
+  "component_scope": "Layer3 original 1024-query suffix after 16384 prefix tokens; complete original logical KV history.",
+  "whole_model_batch_suffix_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "public_record_redactions": [
+    "Private home path prefixes in command strings; original hashes remain unchanged."
+  ]
+}

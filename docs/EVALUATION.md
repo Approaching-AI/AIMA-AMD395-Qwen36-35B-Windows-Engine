@@ -32,6 +32,24 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [original suffix attention replay](../benchmarks/correctness/suffix-attention-original-input-20260912.json)
+at CK 37914ed preserves all 4194304 BF16 context cells for the actual layer3
+1024-query transaction after 16384 prefix tokens. Repetition and restoration
+of changed KV at the same addresses are FP32 bitwise stable; the zero-prefix
+negative control changes 4111556 BF16 cells. Input and output guards pass.
+The GB10 source 9b2a99e reproduces all four controls, the long case's 512
+outputs and its complete first-logit vocabulary. Its attention backend is
+TRITON_ATTN. A preceding failed reference run remains rejected; its cause is
+unresolved and no frozen oracle was changed.
+
+The same new CK DLL retains all q8192/out512 tokens and exact first logit
+10.375 with whole 1975367, MoE bc082a5 and FLA 6042803. Actual callback TTFT
+is 58507.9005 ms, TPOT 110.366806 ms and load 20047.6189 ms. This cold control
+does not exercise the suffix export and does not meet retained performance.
+Whole source 1c0a548 now connects seeded convolution/FLA, absolute RoPE and
+suffix attention in a resident shadow. Its native build and CPU state-layout
+test pass. Model continuation and release acceptance remain open.
+
 The [seeded FLA state-layout replay](../benchmarks/correctness/seeded-fla-state-layout-20260912.json)
 at tool source d009c8a verifies the retained 6042803 FLA provider against the
 original layer0 transaction after 16384 prefix tokens. Both value-major and
