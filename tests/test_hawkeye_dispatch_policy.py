@@ -28,20 +28,41 @@ class HawkeyeDispatchPolicyTests(unittest.TestCase):
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <string>
 #include "projection_output_policy.h"
-enum hipError_t { hipSuccess, hipErrorInvalidValue };
+#define QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER 1
+constexpr unsigned QRT_QWEN36_HIDDEN_SIZE = 2048;
+constexpr unsigned kThreads = 256;
+enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorInvalidConfiguration };
 using hipStream_t = void *;
 struct dim3 { dim3(size_t, size_t = 1) {} };
 static unsigned int launches = 0, last_error_calls = 0;
 constexpr int f32_to_bf16_kernel = 0;
 constexpr int selected_bf16_projection_wmma_k16_m64_kernel = 0;
 constexpr int selected_bf16_projection_wmma_k16_m64_lds_kernel = 1;
+constexpr int round_f32_outputs_to_bf16_kernel = 2;
+static unsigned backend_calls = 0;
+static bool backend_success = true;
+bool resident_bf16_matrix_matmul_f32_output(const uint16_t *w, const uint16_t *x, float *y,
+    unsigned rows, unsigned k, unsigned tokens, hipStream_t, const std::string &,
+    std::string *, std::string *) {
+    ++backend_calls;
+    return backend_success && w && x && y && rows && tokens && k == 2048;
+}
 template<class... T> void record_launch(T...) { ++launches; }
 #define hipLaunchKernelGGL(...) record_launch(__VA_ARGS__)
 hipError_t hipGetLastError() { ++last_error_calls; return hipSuccess; }
 ''' + "\n".join(guards) + r'''
 int main() {
     uint16_t x = 0; float y = 0;
+    auto producer = [](bool enabled) {
+#ifdef _WIN32
+        _putenv_s("QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER", enabled ? "1" : "0");
+#else
+        setenv("QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER", enabled ? "1" : "0", 1);
+#endif
+    };
+    producer(true);
     for (unsigned int i = 0; i < 6; ++i) {
         if (launch_selected_bf16_projection_wmma_checked(
             i == 0 ? nullptr : &x, i == 1 ? nullptr : &x,
@@ -53,7 +74,8 @@ int main() {
     if (launch_projection_f32_to_bf16_checked(&y, nullptr, 1, nullptr) != hipErrorInvalidValue) return 3;
     if (launch_projection_f32_to_bf16_checked(&y, &x, 0, nullptr) != hipErrorInvalidValue) return 4;
     if (launch_projection_f32_to_bf16_checked(&y, &x, SIZE_MAX, nullptr) != hipErrorInvalidValue) return 5;
-    if (launches || last_error_calls) return 6;
+    if (launches || last_error_calls || backend_calls) return 6;
+    producer(false);
     if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 128, 65, 0, 0, nullptr) != hipSuccess) return 7;
     if (launch_projection_f32_to_bf16_checked(&y, &x, 128 * 65, nullptr) != hipSuccess) return 8;
     if (launches != 2 || last_error_calls != 2) return 9;
@@ -63,7 +85,18 @@ int main() {
     setenv("QRT_QWEN36_PREFILL_WMMA_LDS", "1", 1);
 #endif
     if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 0, 0, nullptr) != hipSuccess) return 10;
-    return launches == 3 && last_error_calls == 3 ? 0 : 11;
+    if (launches != 3 || last_error_calls != 3) return 11;
+    producer(true);
+    if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 0, 0, nullptr) != hipSuccess ||
+        backend_calls != 1 || launches != 3) return 12;
+    if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 1, 0, nullptr) != hipSuccess ||
+        backend_calls != 2 || launches != 4) return 13;
+    backend_success = false;
+    if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 1, 0, nullptr) != hipErrorInvalidConfiguration ||
+        backend_calls != 3 || launches != 4) return 14;
+    if (launch_selected_bf16_projection_wmma_checked(&x, &x, &y, 129, 65, 0, 1, nullptr) != hipSuccess ||
+        backend_calls != 3 || launches != 5) return 15;
+    return 0;
 }
 '''
         with tempfile.TemporaryDirectory(prefix="qrt-launch-guard-") as tmp:

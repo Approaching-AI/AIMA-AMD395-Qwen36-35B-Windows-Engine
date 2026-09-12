@@ -37120,6 +37120,14 @@ void selected_bf16_projection_wmma_k16_m64_lds_kernel(
 
 // Validate before submission, not in a following correction kernel. The same
 // entry point is exercised by the model-free Windows safety regression.
+#if defined(QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER)
+bool resident_bf16_matrix_matmul_f32_output(
+    const uint16_t *weights, const uint16_t *inputs, float *outputs,
+    unsigned int output_features, unsigned int input_features,
+    unsigned int token_count, hipStream_t stream, const std::string &stage,
+    std::string *failure_stage, std::string *failure);
+#endif
+
 hipError_t launch_selected_bf16_projection_wmma_checked(
     const uint16_t *weights, const uint16_t *inputs, float *output,
     unsigned int rows, unsigned int tokens, unsigned int round_endpoint,
@@ -37129,6 +37137,34 @@ hipError_t launch_selected_bf16_projection_wmma_checked(
         rows == 0u || tokens == 0u || (tokens - 1u) / 64u >= 65535u) {
         return hipErrorInvalidValue;
     }
+#if defined(QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER)
+    // Replace only the approximate matrix producer. Callers still apply their
+    // existing norm bounds, candidate predicate and original exact correction.
+    // Absolute-product diagnostics retain the original WMMA operation.
+    const char* producer = std::getenv("QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER");
+    if (absolute_products == 0u && producer && std::strcmp(producer, "1") == 0) {
+        std::string failed_stage, failure;
+        if (!resident_bf16_matrix_matmul_f32_output(weights, inputs, output,
+                rows, QRT_QWEN36_HIDDEN_SIZE, tokens, stream,
+                "prefill_hipblaslt_f32_producer", &failed_stage, &failure)) {
+            std::fprintf(stderr, "BATCH_MARK prefill_hipblaslt_producer_failed stage=%s detail=%s\n",
+                failed_stage.c_str(), failure.c_str());
+            return hipErrorInvalidConfiguration;
+        }
+        if (round_endpoint != 0u) {
+            const size_t cells = static_cast<size_t>(rows) * tokens;
+            hipLaunchKernelGGL(round_f32_outputs_to_bf16_kernel,
+                dim3((cells + kThreads - 1u) / kThreads), dim3(kThreads),
+                0, stream, output, cells);
+        }
+        std::fprintf(stderr,
+            "BATCH_MARK prefill_hipblaslt_producer rows=%u tokens=%u k=2048 "
+            "input=bf16 weight=bf16 accumulator=f32 heuristic_index=0 "
+            "round_endpoint=%u admission_unchanged=1 diagnostic_only=1\n",
+            rows, tokens, round_endpoint);
+        return hipGetLastError();
+    }
+#endif
     const char* staging = std::getenv("QRT_QWEN36_PREFILL_WMMA_LDS");
     if (staging && std::strcmp(staging, "1") == 0) {
         hipLaunchKernelGGL(
