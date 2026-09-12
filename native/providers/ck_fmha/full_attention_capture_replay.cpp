@@ -127,6 +127,7 @@ bool report(const char* route, const std::vector<float>& output,
     else if (memory_layout == 15u) interval_kind = "shared_operand_exact_qk_and_exact_pv";
     else if (memory_layout == 16u) interval_kind = "shared_exact_qk_warp_softmax_exact_pv";
     else if (memory_layout == 17u) interval_kind = "shared_exact_qk_prepared_exact_pv";
+    else if (memory_layout == 18u) interval_kind = "cell_parallel_integer_qk_prepared_exact_pv";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
     else if (memory_layout >= 10u) interval_kind = "key_transpose_and_strided_pair_qk_pv";
@@ -150,12 +151,13 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"paired_products\":" << (std::strcmp(route, "ck") && qrt_blackwell_attention::kPairedProducts &&
                   !native_products && (memory_layout == 4u || memory_layout == 8u) ? "true" : "false")
               << ",\"mantissa_wmma\":" << (memory_layout == 5u ? "true" : "false")
-              << ",\"integer_wmma\":" << ((memory_layout == 5u || memory_layout == 9u) ? "true" : "false")
+              << ",\"integer_wmma\":" << ((memory_layout == 5u || memory_layout == 9u || memory_layout == 18u) ? "true" : "false")
+              << ",\"cell_parallel_integer_qk\":" << (memory_layout == 18u ? "true" : "false")
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
               << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u) ? "true" : "false")
               << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u ? "true" : "false")
               << ",\"tiled_exact_qk\":" << (memory_layout >= 15u && memory_layout <= 17u ? "true" : "false")
-              << ",\"prepared_value_encoding\":" << (memory_layout == 17u ? "true" : "false")
+              << ",\"prepared_value_encoding\":" << (memory_layout == 17u || memory_layout == 18u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
               << ",\"strided_pair_pv\":" << ((memory_layout == 10u || memory_layout == 12u) ? "true" : "false")
@@ -272,12 +274,12 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_17]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_18]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 17) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 18) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
@@ -391,7 +393,7 @@ int main(int argc, char** argv) {
             preparation_ms = finish(begin, end, 100.0f);
             total = maximum = preparation_ms;
         }
-        const bool prepare_values = memory_layout == 17u;
+        const bool prepare_values = memory_layout == 17u || memory_layout == 18u;
         Device prepared_values(prepare_values ? (v.size() + 128u) * sizeof(uint32_t) : 4u);
         auto* prepared_value_data = prepare_values ? prepared_values.as<uint32_t>() + 64u : nullptr;
         if (prepare_values) {

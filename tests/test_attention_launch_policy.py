@@ -46,6 +46,7 @@ void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
 void blackwell_prepare_value_encoding_kernel() {}
+void blackwell_cell_parallel_integer_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
@@ -258,8 +259,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,18u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,18u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,19u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,19u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -354,6 +355,21 @@ int main() {
        launches!=1u || !std::strstr(launch_names[0],"blackwell_prepare_value_encoding_kernel")) return 69;
     launches=error_queries=0u;fail_launch=1u;
     if(prepare_value_encoding(&operand,&wide_value,512u,1u,nullptr)!=hipErrorUnknown || launches!=1u) return 70;
+    launches=error_queries=fail_launch=0u;
+    auto cells=[&](size_t span,const uint32_t* values) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
+            nullptr,nullptr,nullptr,true,rcp,18u,&scratch,span,nullptr,nullptr,&operand,7169u,
+            false,nullptr,values,7169u);
+    };
+    if(split_scratch_elements(32u,7142u,18u)!=tiled_cells || split_separate_probability(18u) ||
+       cells(tiled_cells-1u,&wide_value)!=hipErrorInvalidValue || cells(tiled_cells,nullptr)!=hipErrorInvalidValue || launches) return 71;
+    if(cells(tiled_cells,&wide_value)!=hipSuccess || launches!=2u ||
+       !std::strstr(launch_names[0],"blackwell_cell_parallel_integer_scores_kernel") ||
+       !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, false, true>")) return 72;
+    for(unsigned failed=1;failed<=2;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(cells(tiled_cells,&wide_value)!=hipErrorUnknown || launches!=failed) return 73;
+    }
     return 0;
 }
 '''
