@@ -48,7 +48,14 @@ is 58507.9005 ms, TPOT 110.366806 ms and load 20047.6189 ms. This cold control
 does not exercise the suffix export and does not meet retained performance.
 Whole source 1c0a548 now connects seeded convolution/FLA, absolute RoPE and
 suffix attention in a resident shadow. Its native build and CPU state-layout
-test pass. Model continuation and release acceptance remain open.
+test pass. The [first model attempt and loader repair](../benchmarks/correctness/prefix-batch-suffix-loader-20260912.json)
+record a rejected suffix attention call after successful prefix capture. The
+new check incorrectly required the packed-F32 preparation flag, which direct
+BF16 loading leaves unset. All owner allocations/state roll back and host
+checks pass; no model output was accepted. Source 044a5b5 checks the loaded
+suffix symbol directly. Its native build and both CPU regression tests pass,
+including the unset F32 flag and failed submissions. Model continuation and
+release acceptance remain open.
 
 The [seeded FLA state-layout replay](../benchmarks/correctness/seeded-fla-state-layout-20260912.json)
 at tool source d009c8a verifies the retained 6042803 FLA provider against the
