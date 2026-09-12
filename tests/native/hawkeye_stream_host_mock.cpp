@@ -11,6 +11,7 @@
 #include <vector>
 #include "hawkeye_dispatch_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+#include "moe_accumulator/sm121_prefill_projection.h"
 
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorInvalidConfiguration, hipErrorUnknown };
 using hipStream_t = void *;
@@ -88,10 +89,13 @@ void round_f32_outputs_to_bf16_kernel(float *output, unsigned int count) {
     ++rounds;
     for (unsigned int i = 0; i < count; ++i) output[i] = 1.0f;
 }
+template<bool ShapeAware>
 void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     const uint16_t *, const uint16_t *, float *output, unsigned int rows,
-    unsigned int, const unsigned int *indices, unsigned int offset, unsigned int count
+    unsigned int, const unsigned int *indices, unsigned int offset, unsigned int count,
+    qrt_sm121_prefill_projection::Plan plan
 ) {
+    if (ShapeAware != qrt_sm121_prefill_projection::changes_dot(plan)) invalid_range = true;
     ++corrections;
     const unsigned int end = (std::min)(count, offset + exact_blocks * (256u / kSelectedHawkeyeReplayLanes));
     for (unsigned int j = offset; j < end; ++j) {
@@ -252,5 +256,25 @@ int main() {
     if (invoke(output) != hipErrorInvalidConfiguration || collections != 3u ||
         rounds || corrections || output != initial || allocations != 1u || frees != 1u) return 25;
     count_only(false); packed_mode(false);
+    // A changed dense plan must replay outputs outside the old midpoint band,
+    // retain bounded index dispatch, and bypass the unsplit packed kernel.
+    for (unsigned int dense_rows : {32u, 64u, 2048u}) {
+        const unsigned int dense_tokens = 19u;
+        const unsigned int k = dense_rows == 2048u ? 4096u : 2048u;
+        total_elements = static_cast<size_t>(dense_rows) * dense_tokens;
+        for (bool packed : {false, true}) {
+            packed_mode(packed); reset(); requested_blocks = 8u;
+            output.assign(total_elements, 1.001f);
+            if (launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                &value, &value, nullptr, nullptr, nullptr, output.data(), dense_rows,
+                dense_tokens, k, 512u, 0u, 0u, requested_blocks, nullptr, 65536u) != hipSuccess ||
+                corrected.size() != total_elements || invalid_grid || invalid_range ||
+                allocations != 1u || frees != 1u) return 26;
+            std::sort(corrected.begin(), corrected.end());
+            for (size_t i = 0; i < total_elements; ++i)
+                if (corrected[i] != i) return 27;
+        }
+    }
+    packed_mode(false);
     return 0;
 }

@@ -36,6 +36,7 @@
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_wave16.h"
 #include "moe_accumulator/sm121_subgroup.h"
+#include "moe_accumulator/sm121_prefill_projection.h"
 #include "moe_accumulator/bf16_midpoint_selector.h"
 #include "moe_accumulator/sm121_q1_moe.h"
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
@@ -37352,7 +37353,9 @@ void selected_bf16_projection_hawkeye_compact_kernel(
 
 // One subgroup computes one compacted candidate. Absolute indices keep
 // row, token, full-prefix, and optional error-bound addressing unchanged across
-// windows. The existing group-16/K-continuous arithmetic is unchanged.
+// windows. Shape-specific plans reproduce the pinned reference's split-K
+// carrier and accumulator merge; other shapes retain the K-continuous dot.
+template<bool ShapeAware>
 __global__ __launch_bounds__(256)
 void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     const uint16_t *weights,
@@ -37362,7 +37365,8 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     unsigned int reduction_size,
     const unsigned int *candidate_indices,
     unsigned int candidate_offset,
-    unsigned int candidate_count
+    unsigned int candidate_count,
+    qrt_sm121_prefill_projection::Plan projection_plan
 ) {
     constexpr unsigned int kReplayLanes = kSelectedHawkeyeReplayLanes;
     constexpr unsigned int kReplaySubgroups =
@@ -37373,9 +37377,17 @@ void selected_bf16_projection_hawkeye_midpoint_correction_kernel(
     const size_t index = candidate_indices[candidate_slot];
     const size_t token = index / rows;
     const size_t row = index - token * rows;
-    const float corrected = qrt_sm121_subgroup::dot<kReplayLanes>(
-        selected_inputs + token * static_cast<size_t>(reduction_size),
-        weights + row * static_cast<size_t>(reduction_size), reduction_size);
+    float corrected;
+    if constexpr (ShapeAware) {
+        corrected = qrt_sm121_prefill_projection::dot<kReplayLanes>(
+            selected_inputs + token * static_cast<size_t>(reduction_size),
+            weights + row * static_cast<size_t>(reduction_size), reduction_size,
+            projection_plan, static_cast<unsigned int>(token), static_cast<unsigned int>(row));
+    } else {
+        corrected = qrt_sm121_subgroup::dot<kReplayLanes>(
+            selected_inputs + token * static_cast<size_t>(reduction_size),
+            weights + row * static_cast<size_t>(reduction_size), reduction_size);
+    }
     if ((threadIdx.x & (kReplayLanes - 1u)) == 0u) {
         outputs[index] = device_bf16_round_to_float(corrected);
     }
@@ -37619,10 +37631,24 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (status != hipSuccess) return status;
     const double input_wait_ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - input_wait_start).count();
+    qrt_sm121_prefill_projection::Plan projection_plan{};
+    if ((rows == 32u || rows == 64u) && reduction_size == 2048u)
+        projection_plan = qrt_sm121_prefill_projection::plan(
+            qrt_sm121_prefill_projection::Stage::LinearBA, selected_token_count);
+    else if (rows == 2048u && reduction_size == 4096u)
+        projection_plan = qrt_sm121_prefill_projection::plan(
+            qrt_sm121_prefill_projection::Stage::AttentionOutput, selected_token_count);
+    const bool shape_aware = qrt_sm121_prefill_projection::changes_dot(projection_plan);
+    // Serial BF16 carriers can move far from the unsplit producer midpoint.
+    // Replay every output for the bounded dense shapes with a changed plan.
+    if (shape_aware) full_prefix_tokens = selected_token_count;
     std::fprintf(stderr,
         "BATCH_MARK hawkeye_input_ready rows=%u tokens=%u k=%u wait_ms=%.3f "
+        "splits=%u accumulators=%u bf16_partials=%u serial_bf16_tile=%u "
         "included_in_product_ttft=1 diagnostic_only=1\n",
-        rows, selected_token_count, reduction_size, input_wait_ms);
+        rows, selected_token_count, reduction_size, input_wait_ms,
+        projection_plan.splits, projection_plan.accumulators,
+        projection_plan.bf16_partials ? 1u : 0u, projection_plan.serial_bf16_tile);
     std::fflush(stderr);
     const size_t elements = static_cast<size_t>(selected_token_count) * rows;
     const unsigned int window_capacity = qrt_hawkeye_dispatch::window_elements(
@@ -37637,7 +37663,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const bool count_only = count_only_value != nullptr &&
         std::strcmp(count_only_value, "1") == 0;
     const char* packed_setting = std::getenv("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES");
-    const bool packed_candidates = !count_only && packed_setting && std::strcmp(packed_setting, "1") == 0;
+    const bool packed_candidates = !shape_aware && !count_only && packed_setting &&
+        std::strcmp(packed_setting, "1") == 0;
     uint16_t* transposed_weights = nullptr;
     const size_t transpose_bytes = packed_candidates
         ? static_cast<size_t>(rows) * reduction_size * sizeof(uint16_t) : 0u;
@@ -37752,12 +37779,18 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
                         transposed_weights, selected_inputs, outputs, rows, reduction_size,
                         scratch + 2u, candidate_offset, candidate_offset + launch_candidates);
-                } else {
-                    hipLaunchKernelGGL(selected_bf16_projection_hawkeye_midpoint_correction_kernel,
+                } else if (shape_aware) {
+                    hipLaunchKernelGGL((selected_bf16_projection_hawkeye_midpoint_correction_kernel<true>),
                         dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
                         dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
                         weights, selected_inputs, outputs, rows, reduction_size,
-                        scratch + 2u, candidate_offset, counts[0]);
+                        scratch + 2u, candidate_offset, counts[0], projection_plan);
+                } else {
+                    hipLaunchKernelGGL((selected_bf16_projection_hawkeye_midpoint_correction_kernel<false>),
+                        dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
+                        dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
+                        weights, selected_inputs, outputs, rows, reduction_size,
+                        scratch + 2u, candidate_offset, counts[0], projection_plan);
                 }
                 result = synchronize_bounded(dispatch_start);
                 if (result != hipSuccess) return result;

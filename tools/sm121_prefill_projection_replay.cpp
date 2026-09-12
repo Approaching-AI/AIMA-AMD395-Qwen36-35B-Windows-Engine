@@ -34,19 +34,24 @@ float widen(uint16_t x) {
 
 int main(int argc, char **argv) try {
     if (argc != 8) throw std::runtime_error(
-        "usage: replay router|shared-gate-up|shared-down tokens features K input weights expected");
+        "usage: replay router|shared-gate-up|shared-down|attention-output|linear-ba tokens features K input weights expected");
     using namespace qrt_sm121_prefill_projection;
     const std::string kind = argv[1];
     const Stage stage = kind == "router" ? Stage::Router :
-        kind == "shared-gate-up" ? Stage::SharedGateUp : Stage::SharedDown;
-    if (kind != "router" && kind != "shared-gate-up" && kind != "shared-down")
+        kind == "shared-gate-up" ? Stage::SharedGateUp :
+        kind == "attention-output" ? Stage::AttentionOutput :
+        kind == "linear-ba" ? Stage::LinearBA : Stage::SharedDown;
+    if (kind != "router" && kind != "shared-gate-up" && kind != "shared-down" &&
+        kind != "attention-output" && kind != "linear-ba")
         throw std::runtime_error("unknown projection");
     const unsigned tokens = std::stoul(argv[2]), features = std::stoul(argv[3]);
     const unsigned count = std::stoul(argv[4]);
     const bool shape = stage == Stage::Router ? (features == 256 && count == 2048) :
         stage == Stage::SharedGateUp ? ((features == 512 || features == 1024) && count == 2048) :
+        stage == Stage::AttentionOutput ? (features == 2048 && count == 4096) :
+        stage == Stage::LinearBA ? ((features == 32 || features == 64) && count == 2048) :
         (features == 2048 && count == 512);
-    if (!shape || !tokens || tokens > 1024 || uint64_t(tokens) * features * count > (1ull << 30))
+    if (!shape || !tokens || tokens > 4096 || uint64_t(tokens) * features * count > (1ull << 30))
         throw std::runtime_error("replay exceeds bounded model projection shape");
     const auto input = read<uint16_t>(argv[5], size_t(tokens) * count);
     const auto weights = read<uint16_t>(argv[6], size_t(features) * count);
@@ -75,6 +80,7 @@ int main(int argc, char **argv) try {
               << ",\"split_count\":" << selected.splits
               << ",\"accumulators\":" << selected.accumulators
               << ",\"bf16_partials\":" << (selected.bf16_partials ? "true" : "false")
+              << ",\"serial_bf16_tile\":" << selected.serial_bf16_tile
               << ",\"first_mismatches\":[";
     for (size_t i = 0; i < first.size(); ++i) {
         if (i) std::cout << ',';
