@@ -19,14 +19,34 @@ See `benchmarks/correctness/http-short-provider-gap-20260912.json` and
 `benchmarks/correctness/http-prefix-seed-gap-20260912.json`. These short
 functional outputs have no GB10 numerical qualification yet.
 
-The pending repair selects the compatible logical full-MoE ABI automatically
+The repair at b619793 selects the compatible logical full-MoE ABI automatically
 for strict prompts below 4096, retains the padded selected route above that
 boundary and excludes incompatible smooth-tail calls in strict mode. The
 server now reuses only complete native checkpoints and otherwise prefills.
 Fallback cannot repeat already emitted callbacks. Host regression executes
-the real C bridge against controlled native responses. Native repaired-server
-qualification, tools, thinking, saved-prefix HTTP, long contexts and performance
-remain open.
+the real C bridge against controlled native responses.
+
+The repaired r2 archive now passes the positive protocol matrix on baiying:
+text/chat/SSE, structured tool calls, tool-result continuation, tool SSE,
+FIFO queue, context rejection, default-disabled thinking, explicitly enabled
+thinking with separate reasoning/answer SSE, queue timeout/overflow and
+shutdown cancellation of waiters. The active q8192 request finishes normally
+during shutdown with all 32 GB10 tokens and first token144/logit10.375.
+The final process loads in 19877.3452 ms and exits normally; host checks pass.
+Its reported q8192 TTFT is 54730.0623 ms, not a cold callback measurement.
+
+The 124959485-byte ZIP has 280 verified files and retains the same portable
+profile with no temporary dynamic-MoE override. Three bounded runs share its
+source and artifact hashes. The first two original controller failures remain
+recorded: the first assumed the VL thinking default instead of the documented
+text default; the second expected a final answer before a valid 256-token
+length cutoff. The 512-token test completes reasoning and the visible answer
+323, with matching ordinary/SSE output and no think delimiters leaking.
+See `benchmarks/correctness/http-positive-protocol-20260912.json` for the
+commands, build/archive inventory, all responses and these explicit limits.
+Short chat/tool output has no independent GB10 token qualification yet.
+Saved-prefix HTTP, long contexts, the renewed full cold matrix and retained
+performance remain open. No release is qualified.
 
 ## Historical 2026-09-09 HTTP run
 
