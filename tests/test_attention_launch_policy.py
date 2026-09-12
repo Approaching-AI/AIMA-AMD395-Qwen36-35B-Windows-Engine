@@ -52,7 +52,7 @@ template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
-         bool NativeProducts = false, bool StridedValue = false>
+         bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false>
 void blackwell_exact_attention_kernel() {}
 unsigned launches = 0, error_queries = 0;
 unsigned fail_launch = 0;
@@ -256,8 +256,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,16u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,16u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,17u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,17u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -308,6 +308,21 @@ int main() {
     for(unsigned failed=1;failed<=2;++failed) {
         launches=error_queries=0;fail_launch=failed;
         if(tiled(tiled_cells,&operand)!=hipErrorUnknown || launches!=failed) return 61;
+    }
+    launches=error_queries=fail_launch=0u;
+    auto warp=[&](size_t elements,const uint16_t* key) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
+            nullptr,nullptr,nullptr,true,rcp,16u,&scratch,elements,nullptr,nullptr,key,7169u);
+    };
+    if(split_scratch_elements(32u,7142u,16u)!=tiled_cells || split_separate_probability(16u) ||
+       warp(tiled_cells-1u,&operand)!=hipErrorInvalidValue ||
+       warp(tiled_cells,nullptr)!=hipErrorInvalidValue || launches) return 62;
+    if(warp(tiled_cells,&operand)!=hipSuccess || launches!=2u ||
+       !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel") ||
+       !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true, false, false, false, true>")) return 63;
+    for(unsigned failed=1;failed<=2;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(warp(tiled_cells,&operand)!=hipErrorUnknown || launches!=failed) return 64;
     }
     return 0;
 }

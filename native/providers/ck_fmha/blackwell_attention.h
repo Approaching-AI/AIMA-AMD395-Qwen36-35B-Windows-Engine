@@ -308,7 +308,7 @@ __global__ void blackwell_strided_scores_kernel(
 // One CTA owns one causal query/head. Both terminal replacement and bounded
 // prefix replay share the same Blackwell QK and fused-C PV arithmetic.
 template <bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
-          bool NativeProducts = false, bool StridedValue = false>
+          bool NativeProducts = false, bool StridedValue = false, bool WarpSoftmax = false>
 __global__ void blackwell_exact_attention_kernel(
     const uint16_t *__restrict__ query,
     const uint16_t *__restrict__ key,
@@ -329,6 +329,8 @@ __global__ void blackwell_exact_attention_kernel(
                   "split decode V requires precomputed QK and the serial-value layout");
     static_assert(!StridedValue || (SerialValue && PrecomputedScores && !SplitDecodeValue && !NativeProducts),
                   "paired value lanes require the bounded exact replay layout");
+    static_assert(!WarpSoftmax || (SerialValue && PrecomputedScores && !SplitDecodeValue && !StridedValue && !NativeProducts),
+                  "warp softmax requires the bounded scalar PV layout");
     __shared__ float score[kExactTileTokens];
     __shared__ float probability[kExactTileTokens];
     __shared__ float sum_scratch[kExactTileTokens];
@@ -362,6 +364,42 @@ __global__ void blackwell_exact_attention_kernel(
     const unsigned int tile_count =
         (tokens + kExactTileTokens - 1u) / kExactTileTokens;
     for (unsigned int tile = 0u; tile < tile_count; ++tile) {
+        if constexpr (WarpSoftmax) {
+            // One complete wave owns the online-softmax tile. Its lane-zero
+            // reduction follows exactly the original (1,4,2,16,8) tree; one
+            // CTA barrier publishes probabilities, scale and sum to all PV
+            // dimensions instead of eight block-wide preparation barriers.
+            if (thread < kExactTileTokens) {
+                const unsigned key_token = tile * kExactTileTokens + thread;
+                const float item_score = key_token < tokens
+                    ? precomputed_scores[(blockIdx.y * kQueryHeads + query_head) * score_stride + key_token]
+                    : -INFINITY;
+                float next_max = fmaxf(running_max, item_score);
+#pragma unroll
+                for (unsigned mask = 16u; mask; mask >>= 1u)
+                    next_max = fmaxf(next_max, __shfl_xor(next_max, mask, 32u));
+                const float p = key_token < tokens
+                    ? blackwell_attention_exp(item_score - next_max, exp2_table) : 0.0f;
+                probability_bf16[thread] = f32_to_bf16(p);
+                float sum = p;
+                if (vllm_sum) {
+                    constexpr unsigned order[] = {1u,4u,2u,16u,8u};
+#pragma unroll
+                    for (unsigned step = 0u; step < 5u; ++step)
+                        sum += __shfl_xor(sum, order[step], 32u);
+                } else {
+#pragma unroll
+                    for (unsigned mask = 16u; mask; mask >>= 1u)
+                        sum += __shfl_xor(sum, mask, 32u);
+                }
+                if (thread == 0u) {
+                    tile_max = next_max;
+                    alpha = blackwell_attention_exp(running_max - next_max, exp2_table);
+                    sum_scratch[0] = sum;
+                }
+            }
+            __syncthreads();
+        } else {
         if constexpr (PrecomputedScores) {
             if (thread < kExactTileTokens) {
                 const unsigned int key_token = tile * kExactTileTokens + thread;
@@ -458,6 +496,8 @@ __global__ void blackwell_exact_attention_kernel(
                     sum_scratch[thread] += sum_scratch[thread + stride];
                 __syncthreads();
             }
+        }
+
         }
 
         if constexpr (StridedValue) {
@@ -1182,13 +1222,13 @@ constexpr bool split_separate_probability(unsigned layout) {
     return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u || layout == 14u;
 }
 constexpr bool split_transposed_keys(unsigned layout) {
-    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 15u);
+    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 16u);
 }
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
-        memory_layout < 2u || memory_layout > 15u) return 0u;
+        memory_layout < 2u || memory_layout > 16u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
@@ -1213,7 +1253,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 15u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
+    if (memory_layout > 16u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
@@ -1227,7 +1267,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
-        if (memory_layout == 15u) {
+        if (memory_layout == 15u || memory_layout == 16u) {
             hipLaunchKernelGGL(blackwell_tiled_exact_scores_kernel,
                 dim3((stride + kTiledExactKeys - 1u) / kTiledExactKeys, kQueryHeads,
                     (query_count + kTiledExactQueries - 1u) / kTiledExactQueries), dim3(kThreads), 0u, stream,
@@ -1344,7 +1384,13 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             }
             return int(hipGetLastError());
         }
-        if (memory_layout == 10u || memory_layout == 12u) {
+        if (memory_layout == 16u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, false, false, true>),
+                dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+                q, k, v, output, query_start, output_start, exp2_table,
+                raw_accumulator, raw_denominator, vllm_sum, rcp_table,
+                score_scratch, stride, nullptr, 0u);
+        } else if (memory_layout == 10u || memory_layout == 12u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_exact_attention_kernel<true, true, false, false, true>),
                 dim3(kQueryHeads, query_count), dim3(kHeadDim * 2u), 0u, stream,
                 q, k, v, output, query_start, output_start, exp2_table,

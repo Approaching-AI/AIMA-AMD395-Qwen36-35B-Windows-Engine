@@ -100,11 +100,11 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned key_stride, bool = false) {
     ++queries;
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
-    const bool matrix = layout == 6u || layout == 7u || (layout >= 13u && layout <= 15u);
-    const bool expanded = (layout >= 5u && layout <= 7u) || (layout >= 13u && layout <= 15u);
+    const bool matrix = layout == 6u || layout == 7u || (layout >= 13u && layout <= 16u);
+    const bool expanded = (layout >= 5u && layout <= 7u) || (layout >= 13u && layout <= 16u);
     if (!count || count > (matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
-    if ((layout >= 4u && layout <= 7u) || (layout >= 13u && layout <= 15u)) {
+    if ((layout >= 4u && layout <= 7u) || (layout >= 13u && layout <= 16u)) {
         if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
             std::abort();
         if (expanded && (elements != kSm121MantissaElements ||
@@ -234,7 +234,20 @@ int main() {
         reset();setenv("QRT_CK_SM121_TILED_EXACT_QK",bad,1);
         if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 32;
     }
+    reset();setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    setenv("QRT_CK_SM121_WARP_SOFTMAX","1",1);
+    if(launch(0,65)!=hipSuccess || observed_layout!=16u || queries!=3u) return 33;
+    reset();fail_query=2u;
+    if(launch(0,65)!=hipErrorUnknown || queries!=2u || syncs!=2u) return 34;
+    reset();
+    if(launch(7168,1)!=hipSuccess || observed_layout!=2u || transposes) return 35;
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
+    if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 36;
+    for(const char* bad : {"2","true","1junk"}) {
+        reset();setenv("QRT_CK_SM121_WARP_SOFTMAX",bad,1);
+        if(launch(0,65)!=hipErrorInvalidValue || queries || allocations) return 37;
+    }
+    reset();unsetenv("QRT_CK_SM121_WARP_SOFTMAX");
     return 0;
 }
 '''

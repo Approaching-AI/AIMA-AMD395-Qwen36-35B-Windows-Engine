@@ -105,10 +105,25 @@ tiny squared terms are raised to the normal FP32 range. Final exponent
 adjustment rounds subnormal results upward without floating subnormal
 arithmetic. The original FP64 path remains available. Host validation covers
 all 65,536 BF16 encodings and 138,240 rows with no bound underestimates.
-Native GPU and complete-model qualification are pending. The optional MoE
+The [native checks at `665c79a`](../benchmarks/correctness/moe-scaled-l2-20260912.json)
+also pass 518 GPU norm rows, dense/sparse correction and compaction controls,
+q7169/out32, q8192/out32 and q8192/out512. All 576 candidate tokens and 32
+control tokens match GB10. The unprofiled q8192/out512 callback is
+59,056.9391 ms, versus 58,662.0706 ms for the selected configuration.
+Same-build profiled q8192/out32 takes 61,410.7381 ms with FP64 norms and
+61,402.9181 ms with scaled FP32 norms. No product gain is retained. All
+325 local tests (2 skips), C/ABI, Rust, Clippy, q16 and hygiene pass. The optional MoE
 profile now separates norm generation, route sorting, matrix multiplication
 and exact corrections on the routed stream; overlapping shared time remains
 separate and is not added to the routed total.
+
+The next `QRT_CK_SM121_WARP_SOFTMAX=1` experiment requires tiled exact QK
+and keeps single-query calls on the original route. One wave computes each
+32-key online-softmax tile, retaining the original lane-zero reduction tree.
+One block barrier publishes probability BF16 values, alpha and denominator
+sum before the original exact PV accumulator runs. No separate probability
+slab or new allocation is introduced. Native and complete-model tests are
+pending; the default remains off.
 
 The preceding whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE

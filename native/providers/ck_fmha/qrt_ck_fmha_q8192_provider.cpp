@@ -293,6 +293,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (tiled_option && *tiled_option && std::strcmp(tiled_option, "0") != 0 &&
         std::strcmp(tiled_option, "1") != 0) return int(hipErrorInvalidValue);
     const bool tiled_qk = query_count > 1u && tiled_option && std::strcmp(tiled_option, "1") == 0;
+    const char* warp_option = std::getenv("QRT_CK_SM121_WARP_SOFTMAX");
+    if (warp_option && *warp_option && std::strcmp(warp_option, "0") != 0 &&
+        std::strcmp(warp_option, "1") != 0) return int(hipErrorInvalidValue);
+    const bool warp_softmax = query_count > 1u && warp_option && std::strcmp(warp_option, "1") == 0;
+    if (warp_softmax && !tiled_qk) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -309,7 +314,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if ((matrix_mode && (mantissa_wmma || native_products || tiled_qk)) ||
         (tiled_qk && (mantissa_wmma || native_products))) return int(hipErrorInvalidValue);
     const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u || tiled_qk;
-    const unsigned int memory_layout = tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
+    const unsigned int memory_layout = warp_softmax ? 16u : tiled_qk ? 15u : matrix_mode >= 3u ? 10u + matrix_mode : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
     const unsigned int query_batch = matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     if (expanded_scratch && !g_sm121_mantissa_scores) {
@@ -343,8 +348,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (std::chrono::duration<double>(std::chrono::steady_clock::now() - begin).count() > 20.0)
             return int(hipErrorLaunchTimeOut);
     }
-    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u diagnostic_only=1\n",
-        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk));
+    std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u diagnostic_only=1\n",
+        query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax));
     return int(hipSuccess);
 }
 

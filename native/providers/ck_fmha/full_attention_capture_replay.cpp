@@ -125,6 +125,7 @@ bool report(const char* route, const std::vector<float>& output,
     const char* interval_kind = "kernel_dispatch";
     if (std::strcmp(route, "ck") == 0) interval_kind = "provider_call";
     else if (memory_layout == 15u) interval_kind = "shared_operand_exact_qk_and_exact_pv";
+    else if (memory_layout == 16u) interval_kind = "shared_exact_qk_warp_softmax_exact_pv";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
     else if (memory_layout >= 10u) interval_kind = "key_transpose_and_strided_pair_qk_pv";
@@ -152,7 +153,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
               << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u) ? "true" : "false")
               << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u ? "true" : "false")
-              << ",\"tiled_exact_qk\":" << (memory_layout == 15u ? "true" : "false")
+              << ",\"tiled_exact_qk\":" << (memory_layout == 15u || memory_layout == 16u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
               << ",\"strided_pair_pv\":" << ((memory_layout == 10u || memory_layout == 12u) ? "true" : "false")
@@ -185,7 +186,7 @@ int tiled_qk_safety() {
         throw std::runtime_error("tiled QK safety requires gfx1151");
     constexpr unsigned tokens=67u, heads=16u, dim=256u;
     constexpr unsigned starts[]={0u,3u,33u,64u}, counts[]={1u,17u,32u,3u};
-    size_t compared=0;
+    size_t compared=0, attention_compared=0;
     for(unsigned test=0u;test<4u;++test) {
         std::vector<uint16_t> q(size_t(tokens)*heads*dim), k(size_t(tokens)*2u*dim);
         for(size_t i=0;i<q.size();++i) q[i]=uint16_t(((i*37u)&0x807fu)|((124u+i%6u)<<7u));
@@ -224,8 +225,41 @@ int tiled_qk_safety() {
             } else if(a[i]!=b[i]) throw std::runtime_error("tiled QK score differs from exact scalar control");
         }
         compared+=cells;
+        std::vector<uint16_t> v(k.size());
+        for(size_t i=0;i<v.size();++i) v[i]=uint16_t(((i*97u)&0x807fu)|((124u+i%6u)<<7u));
+        Device dv(v.size()*2u);
+        check(hipMemcpy(dv.pointer,v.data(),v.size()*2u,hipMemcpyHostToDevice));
+        constexpr unsigned output_start=2u;
+        const size_t output_cells=size_t(output_start+count)*heads*dim;
+        Device old_output((output_cells+128u)*4u), warp_output((output_cells+128u)*4u);
+        for(bool vllm_sum : {false,true}) {
+            check(hipMemset(old_output.pointer,0xa5,(output_cells+128u)*4u));
+            check(hipMemset(warp_output.pointer,0xa5,(output_cells+128u)*4u));
+            Event pv_begin,pv_end; check(hipEventRecord(pv_begin.value));
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_blackwell_attention::blackwell_exact_attention_kernel<true,true>),
+                dim3(heads,count),dim3(dim),0u,nullptr,
+                dq.as<uint16_t>(),dk.as<uint16_t>(),dv.as<uint16_t>(),old_output.as<float>()+64u,
+                start,output_start,nullptr,nullptr,nullptr,vllm_sum,nullptr,exact.as<float>()+64u,stride,nullptr,0u);
+            check(hipGetLastError());
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_blackwell_attention::blackwell_exact_attention_kernel<true,true,false,false,false,true>),
+                dim3(heads,count),dim3(dim),0u,nullptr,
+                dq.as<uint16_t>(),dk.as<uint16_t>(),dv.as<uint16_t>(),warp_output.as<float>()+64u,
+                start,output_start,nullptr,nullptr,nullptr,vllm_sum,nullptr,exact.as<float>()+64u,stride,nullptr,0u);
+            check(hipGetLastError()); (void)finish(pv_begin,pv_end,1000.0f);
+            std::vector<uint32_t> old_values(output_cells+128u),warp_values(output_cells+128u);
+            check(hipMemcpy(old_values.data(),old_output.pointer,old_values.size()*4u,hipMemcpyDeviceToHost));
+            check(hipMemcpy(warp_values.data(),warp_output.pointer,warp_values.size()*4u,hipMemcpyDeviceToHost));
+            for(size_t i=0;i<old_values.size();++i) {
+                if(i<64u+size_t(output_start)*heads*dim || i>=64u+output_cells) {
+                    if(old_values[i]!=0xa5a5a5a5u || warp_values[i]!=0xa5a5a5a5u)
+                        throw std::runtime_error("warp softmax output redzone changed");
+                } else if(old_values[i]!=warp_values[i]) throw std::runtime_error("warp softmax differs from original FP32 attention");
+            }
+            attention_compared+=size_t(count)*heads*dim;
+        }
     }
     std::cout << "{\"kind\":\"tiled_exact_qk_safety\",\"cases\":4,\"fp32_scores_compared\":" << compared
+              << ",\"warp_softmax_fp32_outputs_compared\":" << attention_compared
               << ",\"mismatches\":0,\"offset_and_partial_tiles\":true,\"range_and_subnormal_fallback\":true,"
                  "\"redzones_pass\":true,\"model_loaded\":false,\"inference_acceptance\":false}" << std::endl;
     return 0;
@@ -236,12 +270,12 @@ int main(int argc, char** argv) {
     try {
         if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_15]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_16]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 15) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 16) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;
