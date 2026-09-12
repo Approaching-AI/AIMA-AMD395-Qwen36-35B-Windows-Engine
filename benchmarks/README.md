@@ -27,6 +27,13 @@ declared numerical comparisons pass, but the new schedules remain slower than
 the control. These are component results; product dispatch keeps its existing
 attention route.
 
+`correctness/q8192-current-wall-profile-20260913.json` attaches all 512 GB10
+outputs and callbacks to the current corrected q8192 profile. It preserves
+negative GPU event values as invalid evidence, separates host walls from
+overlapping GPU stages, and records the source-derived routed submission
+count. Its instrumented 64.37-second callback does not replace the ordinary
+62.48-second control or qualify retained performance.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
