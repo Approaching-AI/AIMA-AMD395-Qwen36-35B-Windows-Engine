@@ -93,6 +93,13 @@ same-input GB10 replay isolates its first-layer drift to the FLA triangular
 inverse autotune choice: the historical 2-warp/2-stage configuration reproduces
 all original output and FP32 state bits; selecting 4 warps/5 stages alone
 reproduces the rejected run. Python kernel sources are identical. The original
-reference configuration is being restored through its recorded cache choices,
-with both immutable controls still required before new branch acceptance.
+reference configuration is restored through its recorded cache choices.
+Both complete immutable controls pass again: q7169 token82/logit9.25 and
+q8192 token144/logit10.375, with all 32 outputs each. Four actual branches
+at prefix6208, 6656 and 7168 now have GB10 captures, including a five-input
+suffix. See `contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json`.
+These are reference captures; each native Windows route still needs its own
+qualification. A timeout in post-run metadata collection is preserved, and
+all 3000 binary capture files were recovered and verified without rerunning
+the model. The lost controller memory minimum is explicitly unavailable.
 See `benchmarks/correctness/gb10-fla-autotune-drift-20260912.json`.
