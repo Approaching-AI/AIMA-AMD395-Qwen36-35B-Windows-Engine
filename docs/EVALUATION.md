@@ -122,8 +122,16 @@ and keeps single-query calls on the original route. One wave computes each
 32-key online-softmax tile, retaining the original lane-zero reduction tree.
 One block barrier publishes probability BF16 values, alpha and denominator
 sum before the original exact PV accumulator runs. No separate probability
-slab or new allocation is introduced. Native and complete-model tests are
-pending; the default remains off.
+slab or new allocation is introduced. The [native tests at `ea7682a`](../benchmarks/correctness/attention-warp-softmax-20260912.json)
+pass all 434,176 generated FP32 attention outputs, 41,952 QK scores,
+29,364,224 captured BF16 outputs and both complete model cases (544 tokens).
+The same-build component is 1,146.19 versus 1,155.03 ms, while actual
+q8192/out512 callback TTFT is 58,673.08 ms, essentially unchanged from
+58,662.0706 ms for the selected configuration. No product gain is retained.
+All 325 local tests (2 skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
+The flag remains off by default. A separate native MoE build will remove
+inactive palette branches from the raw-BF16 matrix kernels; the selected
+runtime currently uses raw BF16 operands.
 
 The preceding whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
