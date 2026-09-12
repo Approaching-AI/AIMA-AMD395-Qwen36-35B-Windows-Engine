@@ -25,6 +25,8 @@ verify their fallback transaction and complete owner-state restoration.
 | whole 57b3306, original dense dispatch | cold 8192, ordinary path | 53953.8059 | 100.925442 | 20031.092701 |
 | same binary, device-count dense replay | cold 8192, ordinary path | 53534.7813 | 100.702816 | 20018.5822 |
 | whole 584588a, original matrix producer | cold 8192, ordinary path | 53982.562999 | 100.835152 | 20032.911 |
+| CK 42448fe, same binary / 32 queries | cold 8192, ordinary path | 52167.1323 | 101.064893 | 20041.6208 |
+| same binary / 128 queries | cold 8192, ordinary path | 50764.6481 | 101.346222 | 20096.24 |
 | same binary, hipBLASLt matrix producer | cold 8192, ordinary path | 52110.692099 | 101.46877 | 20017.0856 |
 
 The same-binary window pair changes only
@@ -114,6 +116,23 @@ Use whole 584588a with `QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER=1`, qualified
 shipped producer default remains disabled. This adds no dependency and does
 not qualify immutable performance or the pending broader release matrix.
 Evidence: `benchmarks/correctness/hipblaslt-producer-20260913.json`.
+
+CK `42448fe` widens the independent query slab from32 to128 while preserving
+all QK, online probability and selective PV arithmetic. The existing scratch
+already accommodates this q8192 shape, so allocated memory does not grow.
+Twenty-nine native cases compare4325376 output cells with no raw-bit mismatch,
+including candidate ownership, redzones and unchanged inputs. Both original
+q7169 replays match all29364224 external BF16 cells; completed query-dispatch
+host wall improves1071.21 to994.928ms, with identical output, accumulator and
+denominator files.
+
+The same CK binary at q8192/out512 gives callback52167.1323ms with32 queries
+and50764.6481ms with128, a1402.4842ms improvement in this single paired run.
+Both pass all512 original GB10 outputs and actual callbacks, with exact first
+token144/logit10.375. Candidate TPOT is101.346222ms and load20096.24ms.
+128 queries becomes the next experimental configuration; the shipped default
+remains32. No immutable performance or broader release gate is qualified.
+Evidence: `benchmarks/correctness/attention-wide-queries-20260913.json`.
 
 A fresh instrumented q8192 run on that configuration passes the same full
 GB10 boundary. Completed host clocks show 21470.5 ms for the attention pipeline,
