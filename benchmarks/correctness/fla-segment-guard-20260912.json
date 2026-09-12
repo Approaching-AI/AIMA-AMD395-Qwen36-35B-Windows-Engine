@@ -1,0 +1,3191 @@
+{
+  "schema_version": 1,
+  "kind": "guarded_complete_fla_segment_trial",
+  "host": "baiying",
+  "source": {
+    "source_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+    "bundle": "fla-segment-ee0542a.bundle",
+    "bundle_bytes": 52378,
+    "bundle_sha256": "adf6ee7231ae3a6f6ae7058fa94fcdf4060c1c0d1007dcd6cd207cf12c0ce3f9",
+    "repo": "D:/projects/AIMA-public-fla-segment-20260912",
+    "command_file": "run-native-fla-segment-build-r1.ps1",
+    "command_file_sha256": "f9bde0a17e58aaa46d6d6130341826f5f5fdb81603884c1911766ae113d21f14"
+  },
+  "native_build": {
+    "run_record": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-fla-segment-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "working_directory": "D:\\projects\\AIMA-public-fla-segment-20260912",
+        "repo_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+        "command_file": "D:\\projects\\run-native-fla-segment-build-r1.ps1",
+        "command_file_sha256": "f9bde0a17e58aaa46d6d6130341826f5f5fdb81603884c1911766ae113d21f14",
+        "model": "none; native build and component smoke",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "source_inputs": [
+          {
+            "sha256": "ad0d52723378adfb0372e05ff67d6ce677c84c64952c7184bb165a80ba8037ab",
+            "file": "native\\providers\\prefix_batch_suffix.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          }
+        ],
+        "purpose": "Build one completion guard per unchanged FLA segment: fla",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-fla-segment-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+          "-AotDir",
+          "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+          "-TimeoutSeconds",
+          "120"
+        ]
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T13:34:07.8636725Z",
+        "command_file": "D:\\projects\\AIMA-public-fla-segment-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "working_directory": "D:\\projects\\AIMA-public-fla-segment-20260912",
+          "repo_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+          "command_file": "D:\\projects\\run-native-fla-segment-build-r1.ps1",
+          "command_file_sha256": "f9bde0a17e58aaa46d6d6130341826f5f5fdb81603884c1911766ae113d21f14",
+          "model": "none; native build and component smoke",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "source_inputs": [
+            {
+              "sha256": "ad0d52723378adfb0372e05ff67d6ce677c84c64952c7184bb165a80ba8037ab",
+              "file": "native\\providers\\prefix_batch_suffix.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24",
+              "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            }
+          ],
+          "purpose": "Build one completion guard per unchanged FLA segment: fla",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+            "-OutDir",
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+            "-AotDir",
+            "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+            "-TimeoutSeconds",
+            "120"
+          ]
+        },
+        "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24264933376,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146708926464,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533471195136,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 37572.764,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24274538496,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146688577536,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533467623424,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    },
+    "provenance": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_build_only",
+      "repo_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+      "dirty_tree": false,
+      "command_file": "D:\\projects\\AIMA-public-fla-segment-20260912\\scripts\\baiying_build_fla_gdn.ps1",
+      "timeout_seconds": 120,
+      "wall_ms": 36850.8801,
+      "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "wsl_distribution": "Ubuntu-24.04",
+      "triton_python": "/opt/qwen36-vllm/bin/python",
+      "precompiled_aot": "D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20",
+      "state_dot": "wmma",
+      "native_blackwell_state": true,
+      "cooperative_exact_available": true,
+      "cooperative_exact_lanes": 4,
+      "sources": [
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\generators\\compile_q8192_fla_chunk_gdn.py",
+          "sha256": "46eea902c6e7eeb6d24a8d1004e9ebd869a9f852da6212752da9cdc817f00bb6"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp",
+          "sha256": "193f4a11126ae118fa4f9973a6c00b912e760964b29da813ae8658ab38517b28"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\q64_fla_chunk_gdn_smoke.cpp",
+          "sha256": "19508dc07210fa8c1b30baee7487d813ea679f05d73cf89c1bfc7f6d5d4ef3a7"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_kkt.h",
+          "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+          "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\fla_output_capture_replay.cpp",
+          "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\fla_upstream_capture_replay.cpp",
+          "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_state.cpp",
+          "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_state.h",
+          "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_accumulator.h",
+          "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\moe_accumulator\\sm121_wave16.h",
+          "sha256": "e31acf8db432968693e104b04d18349a4b5bae8920dbe7d9ae7c4f01e6ef5f24"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h",
+          "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\moe_accumulator\\sm121_subgroup.h",
+          "sha256": "1d2f5038d99c6964bbf82be005e03b5ae967df333b772c359327cd960aeb2373"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\moe_accumulator\\sm121_paired_products.h",
+          "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\sm121_exp2_table.h",
+          "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_wu_output.cpp",
+          "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_wu_output.h",
+          "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_cooperative.cpp",
+          "sha256": "fd2432e3e6dc837bff8697d8ce81b80cf0ebeac5fc33322008020235363b4b33"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_cooperative.h",
+          "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\fla_checkpoint.h",
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_l2norm.cpp",
+          "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_l2norm.h",
+          "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\sm121_rsqrt_table.h",
+          "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_inverse.cpp",
+          "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_inverse.h",
+          "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\blackwell_inverse_math.h",
+          "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6"
+        },
+        {
+          "path": "D:\\projects\\AIMA-public-fla-segment-20260912\\native\\providers\\gdn\\first_call_capture.h",
+          "sha256": "2e6af3e3651f3b097664880a2843cf18a34bfe6bc8ef112df4a01100011edebd"
+        }
+      ],
+      "artifacts": [
+        {
+          "file": "fla-output-capture-replay.exe",
+          "bytes": 458240,
+          "sha256": "59f134a099052d8e0c93c24d2eaa27bed07dd1aa68fb4f64b6088682182b13c0"
+        },
+        {
+          "file": "fla-upstream-capture-replay.exe",
+          "bytes": 543232,
+          "sha256": "d36bbf3ee0bbe62d274ae71dcb4effbc52d7f744a62627659e4fcccb7346bd19"
+        },
+        {
+          "file": "metadata.json",
+          "bytes": 13951,
+          "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+        },
+        {
+          "file": "q64-fla-smoke.exe",
+          "bytes": 328192,
+          "sha256": "012b232f929dc6b2346b76f6d3672a88258771cbf18d466751d8a3f0f1e8917b"
+        },
+        {
+          "file": "q65-fla-smoke.exe",
+          "bytes": 347648,
+          "sha256": "cf386e565f063377ceb0c836ad796fe9308a60cddd58c7aa51daeb0c5e6e0569"
+        },
+        {
+          "file": "q7169-fla-smoke.exe",
+          "bytes": 347648,
+          "sha256": "d1ea6c69ee5c23a4305666e138fc3f0bbf495bfce15feb99db8fb4c240a08e9f"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output.hsaco",
+          "bytes": 16120,
+          "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+          "bytes": 16112,
+          "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_chunk_state.hsaco",
+          "bytes": 18880,
+          "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+          "bytes": 6664,
+          "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+          "bytes": 26816,
+          "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+          "bytes": 27960,
+          "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+          "bytes": 45112,
+          "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+          "bytes": 38272,
+          "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+          "bytes": 13160,
+          "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+          "bytes": 6168,
+          "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+        },
+        {
+          "file": "q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+          "bytes": 6040,
+          "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+        },
+        {
+          "file": "qrt_fla_chunk_gdn_provider.dll",
+          "bytes": 552448,
+          "sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be"
+        },
+        {
+          "file": "qrt_fla_gdn_kernel_specs.inc",
+          "bytes": 940,
+          "sha256": "c420be0c418b3ac8ca8e20dedc0eb2bc94b4e6e6deb27def177fa8d0ebe37d0f"
+        }
+      ],
+      "numerical_acceptance": false
+    }
+  },
+  "original_seeded_component_replays": {
+    "value-major": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-replay-tool-r2\\fla-seeded-capture-replay.exe",
+          "arguments": [
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "D:\\projects\\seeded-fla-replay-inputs-r2",
+            "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-segment-outputs-value-major-r1",
+            "1024",
+            "value-major"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912",
+          "repo_commit": "d009c8a671fb2d9496dee84067dcaeef2e49cf5c",
+          "command_file": "D:\\projects\\run-native-seeded-fla-segment-r1.ps1",
+          "command_file_sha256": "9fe7a47e7eea650c2ef8a6fd0151a5369b60b6972e9c875f8a4a8bc912c060db",
+          "model": "GB10 actual long-prefix16384-suffix1024-out512, layer0 seeded prefill",
+          "model_loaded": false,
+          "native_tensor_inputs": true,
+          "interface_state_layout": "value-major",
+          "capture_state_layout": "value_head_value_key_fp32",
+          "inference_acceptance": false,
+          "purpose": "Isolated seeded FLA interface with original inputs, repeatability and zero-state negative control",
+          "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+          "build_metadata_sha256": "be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035",
+          "reference_source_commit": "d4170fd995fa0d811d27077876a466924d7c820d",
+          "reference_capture_sha256": "a2db8cfa2c5c908f1f011f1f12626db1c5c4ae1edce7453fbbb8cc669f0371f9",
+          "reference_case_sha256": "aa05bcf7024dc62da899531dc1e5103dc520766e6a80c7908546123f88c72a41",
+          "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+          "reference_data_manifest_sha256": "790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0",
+          "fla_component_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+          "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+          "segment_guard_enabled": true,
+          "fla_dll": "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "fla_dll_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+          "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+          "verified_artifacts": [
+            {
+              "path": "fla/metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "path": "fla/qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 545792,
+              "sha256": "44cd6bd7fc4260cf627a28e3141363c75755b2453b0d67a46dd4b3b9bba44c0b"
+            },
+            {
+              "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+              "bytes": 648036,
+              "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+            },
+            {
+              "path": "tables/full-gated-silu-f32-lut-f32.bin",
+              "bytes": 262144,
+              "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+            },
+            {
+              "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "bytes": 4194304,
+              "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+            },
+            {
+              "path": "tables/sm121-exp2-negative-f490940d.bin",
+              "bytes": 183174448,
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+            },
+            {
+              "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "bytes": 17301808,
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+            },
+            {
+              "path": "tables/sigmoid-beta-f32.bin",
+              "bytes": 262144,
+              "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+            },
+            {
+              "path": "tables/gates/capture.json",
+              "bytes": 37677,
+              "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+            },
+            {
+              "path": "tables/gates/layer0-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+            },
+            {
+              "path": "tables/gates/layer1-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+            },
+            {
+              "path": "tables/gates/layer2-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+            },
+            {
+              "path": "tables/gates/layer4-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+            },
+            {
+              "path": "tables/gates/layer5-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+            },
+            {
+              "path": "tables/gates/layer6-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+            },
+            {
+              "path": "tables/gates/layer8-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+            },
+            {
+              "path": "tables/gates/layer9-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+            },
+            {
+              "path": "tables/gates/layer10-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+            },
+            {
+              "path": "tables/gates/layer12-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+            },
+            {
+              "path": "tables/gates/layer13-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+            },
+            {
+              "path": "tables/gates/layer14-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+            },
+            {
+              "path": "tables/gates/layer16-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+            },
+            {
+              "path": "tables/gates/layer17-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+            },
+            {
+              "path": "tables/gates/layer18-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+            },
+            {
+              "path": "tables/gates/layer20-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+            },
+            {
+              "path": "tables/gates/layer21-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+            },
+            {
+              "path": "tables/gates/layer22-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+            },
+            {
+              "path": "tables/gates/layer24-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+            },
+            {
+              "path": "tables/gates/layer25-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+            },
+            {
+              "path": "tables/gates/layer26-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+            },
+            {
+              "path": "tables/gates/layer28-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+            },
+            {
+              "path": "tables/gates/layer29-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+            },
+            {
+              "path": "tables/gates/layer30-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+            },
+            {
+              "path": "tables/gates/layer32-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+            },
+            {
+              "path": "tables/gates/layer33-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+            },
+            {
+              "path": "tables/gates/layer34-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+            },
+            {
+              "path": "tables/gates/layer36-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+            },
+            {
+              "path": "tables/gates/layer37-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+            },
+            {
+              "path": "tables/gates/layer38-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+            },
+            {
+              "path": "tables/gates/sigmoid-beta-bf16.bin",
+              "bytes": 131072,
+              "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+            },
+            {
+              "path": "tables/cuda-router-ex2-fraction-f32.bin",
+              "bytes": 33554432,
+              "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+            },
+            {
+              "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+              "bytes": 131096,
+              "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+            },
+            {
+              "path": "tables/sm121-attention-rcp-d2e55754.bin",
+              "bytes": 8388640,
+              "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+            },
+            {
+              "path": "tables/sm121-rope-bf16.bin",
+              "bytes": 33554432,
+              "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+            },
+            {
+              "path": "tables/layer0-embedding-inverse-f32.bin",
+              "bytes": 993280,
+              "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+            }
+          ],
+          "environment": {
+            "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+            "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+            "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+            "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+            "QRT_FLA_GDN_WU_BLACKWELL": "1",
+            "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+            "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+            "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+            "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+            "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+            "QRT_FLA_GDN_BATCHED_EXACT": "1",
+            "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+            "QRT_FLA_GDN_SEGMENT_GUARD": "1"
+          }
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-12T13:36:04.8902380Z",
+          "command_file": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-replay-tool-r2\\fla-seeded-capture-replay.exe",
+            "arguments": [
+              "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "D:\\projects\\seeded-fla-replay-inputs-r2",
+              "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-segment-outputs-value-major-r1",
+              "1024",
+              "value-major"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912",
+            "repo_commit": "d009c8a671fb2d9496dee84067dcaeef2e49cf5c",
+            "command_file": "D:\\projects\\run-native-seeded-fla-segment-r1.ps1",
+            "command_file_sha256": "9fe7a47e7eea650c2ef8a6fd0151a5369b60b6972e9c875f8a4a8bc912c060db",
+            "model": "GB10 actual long-prefix16384-suffix1024-out512, layer0 seeded prefill",
+            "model_loaded": false,
+            "native_tensor_inputs": true,
+            "interface_state_layout": "value-major",
+            "capture_state_layout": "value_head_value_key_fp32",
+            "inference_acceptance": false,
+            "purpose": "Isolated seeded FLA interface with original inputs, repeatability and zero-state negative control",
+            "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+            "build_metadata_sha256": "be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035",
+            "reference_source_commit": "d4170fd995fa0d811d27077876a466924d7c820d",
+            "reference_capture_sha256": "a2db8cfa2c5c908f1f011f1f12626db1c5c4ae1edce7453fbbb8cc669f0371f9",
+            "reference_case_sha256": "aa05bcf7024dc62da899531dc1e5103dc520766e6a80c7908546123f88c72a41",
+            "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+            "reference_data_manifest_sha256": "790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0",
+            "fla_component_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+            "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+            "segment_guard_enabled": true,
+            "fla_dll": "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "fla_dll_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+            "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+            "verified_artifacts": [
+              {
+                "path": "fla/metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "path": "fla/qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 545792,
+                "sha256": "44cd6bd7fc4260cf627a28e3141363c75755b2453b0d67a46dd4b3b9bba44c0b"
+              },
+              {
+                "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+                "bytes": 648036,
+                "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+              },
+              {
+                "path": "tables/full-gated-silu-f32-lut-f32.bin",
+                "bytes": 262144,
+                "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+              },
+              {
+                "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+                "bytes": 4194304,
+                "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+              },
+              {
+                "path": "tables/sm121-exp2-negative-f490940d.bin",
+                "bytes": 183174448,
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+              },
+              {
+                "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+                "bytes": 17301808,
+                "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+              },
+              {
+                "path": "tables/sigmoid-beta-f32.bin",
+                "bytes": 262144,
+                "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+              },
+              {
+                "path": "tables/gates/capture.json",
+                "bytes": 37677,
+                "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+              },
+              {
+                "path": "tables/gates/layer0-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+              },
+              {
+                "path": "tables/gates/layer1-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+              },
+              {
+                "path": "tables/gates/layer2-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+              },
+              {
+                "path": "tables/gates/layer4-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+              },
+              {
+                "path": "tables/gates/layer5-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+              },
+              {
+                "path": "tables/gates/layer6-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+              },
+              {
+                "path": "tables/gates/layer8-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+              },
+              {
+                "path": "tables/gates/layer9-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+              },
+              {
+                "path": "tables/gates/layer10-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+              },
+              {
+                "path": "tables/gates/layer12-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+              },
+              {
+                "path": "tables/gates/layer13-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+              },
+              {
+                "path": "tables/gates/layer14-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+              },
+              {
+                "path": "tables/gates/layer16-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+              },
+              {
+                "path": "tables/gates/layer17-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+              },
+              {
+                "path": "tables/gates/layer18-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+              },
+              {
+                "path": "tables/gates/layer20-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+              },
+              {
+                "path": "tables/gates/layer21-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+              },
+              {
+                "path": "tables/gates/layer22-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+              },
+              {
+                "path": "tables/gates/layer24-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+              },
+              {
+                "path": "tables/gates/layer25-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+              },
+              {
+                "path": "tables/gates/layer26-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+              },
+              {
+                "path": "tables/gates/layer28-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+              },
+              {
+                "path": "tables/gates/layer29-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+              },
+              {
+                "path": "tables/gates/layer30-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+              },
+              {
+                "path": "tables/gates/layer32-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+              },
+              {
+                "path": "tables/gates/layer33-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+              },
+              {
+                "path": "tables/gates/layer34-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+              },
+              {
+                "path": "tables/gates/layer36-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+              },
+              {
+                "path": "tables/gates/layer37-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+              },
+              {
+                "path": "tables/gates/layer38-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+              },
+              {
+                "path": "tables/gates/sigmoid-beta-bf16.bin",
+                "bytes": 131072,
+                "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+              },
+              {
+                "path": "tables/cuda-router-ex2-fraction-f32.bin",
+                "bytes": 33554432,
+                "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+              },
+              {
+                "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+                "bytes": 131096,
+                "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+              },
+              {
+                "path": "tables/sm121-attention-rcp-d2e55754.bin",
+                "bytes": 8388640,
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+              },
+              {
+                "path": "tables/sm121-rope-bf16.bin",
+                "bytes": 33554432,
+                "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+              },
+              {
+                "path": "tables/layer0-embedding-inverse-f32.bin",
+                "bytes": 993280,
+                "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+              }
+            ],
+            "environment": {
+              "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+              "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+              "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+              "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+              "QRT_FLA_GDN_WU_BLACKWELL": "1",
+              "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+              "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+              "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+              "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+              "QRT_FLA_GDN_BATCHED_EXACT": "1",
+              "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+              "QRT_FLA_GDN_SEGMENT_GUARD": "1"
+            }
+          },
+          "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24212840448,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146663276544,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533469929472,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 511.68,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24216924160,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146633080832,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533461696512,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "result": {
+        "kind": "original_seeded_fla_capture_replay",
+        "host": "baiying",
+        "tokens": 1024,
+        "capture_state_layout": "value_head_value_key_fp32",
+        "interface_state_layout": "value-major",
+        "fixture_state_transpose": false,
+        "diagnostic_only": true,
+        "product_acceptance": false,
+        "component_pass": true,
+        "output_bf16": {
+          "elements": 4194304,
+          "bit_mismatches": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "state_f32": {
+          "elements": 524288,
+          "bit_mismatches": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "state_absolute_and_relative_tolerance": 1e-05,
+        "seeded_repeat_bitwise": true,
+        "inputs_unchanged": true,
+        "zero_initial_state_vs_seeded": {
+          "elements": 4194304,
+          "bit_mismatches": 2040281,
+          "maximum_absolute_error": 1.283203125,
+          "relative_l2": 0.09938675470772818
+        },
+        "operator_gpu_ms": [
+          24.95509910583496,
+          24.00790023803711,
+          24.564599990844727
+        ]
+      },
+      "files": {
+        "product.stderr.log": {
+          "bytes": 660,
+          "sha256": "6e185cc9b9b9e4a904b7d1202a1a8e79cefb81540f5c88e0b6b64de75a89a668"
+        },
+        "result.json": {
+          "bytes": 805,
+          "sha256": "7751f74380ea1b93661d946210a52f1d9a21e35cbfb9a5446facf97cf0c43da1"
+        },
+        "dispatch.json": {
+          "bytes": 1345,
+          "sha256": "efe18440ecd8336c6ea286606d78512d31335f849b54e3a8010986a35fc056fd"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 50,
+          "sha256": "f3d91ab7343fef894d7cf1d142d56edc8c1fec96a9deef4f07917448d6624879"
+        },
+        "run-record.json": {
+          "bytes": 63746,
+          "sha256": "0555da99a110e76d94ae2cf44672f121c573a867d54daad0c99d7f257cd2399f"
+        }
+      }
+    },
+    "key-major": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-replay-tool-r2\\fla-seeded-capture-replay.exe",
+          "arguments": [
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+            "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "D:\\projects\\seeded-fla-replay-inputs-r2",
+            "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-segment-outputs-key-major-r1",
+            "1024",
+            "key-major"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912",
+          "repo_commit": "d009c8a671fb2d9496dee84067dcaeef2e49cf5c",
+          "command_file": "D:\\projects\\run-native-seeded-fla-segment-r1.ps1",
+          "command_file_sha256": "9fe7a47e7eea650c2ef8a6fd0151a5369b60b6972e9c875f8a4a8bc912c060db",
+          "model": "GB10 actual long-prefix16384-suffix1024-out512, layer0 seeded prefill",
+          "model_loaded": false,
+          "native_tensor_inputs": true,
+          "interface_state_layout": "key-major",
+          "capture_state_layout": "value_head_value_key_fp32",
+          "inference_acceptance": false,
+          "purpose": "Isolated seeded FLA interface with original inputs, repeatability and zero-state negative control",
+          "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+          "build_metadata_sha256": "be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035",
+          "reference_source_commit": "d4170fd995fa0d811d27077876a466924d7c820d",
+          "reference_capture_sha256": "a2db8cfa2c5c908f1f011f1f12626db1c5c4ae1edce7453fbbb8cc669f0371f9",
+          "reference_case_sha256": "aa05bcf7024dc62da899531dc1e5103dc520766e6a80c7908546123f88c72a41",
+          "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+          "reference_data_manifest_sha256": "790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0",
+          "fla_component_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+          "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+          "segment_guard_enabled": true,
+          "fla_dll": "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+          "fla_dll_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+          "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+          "verified_artifacts": [
+            {
+              "path": "fla/metadata.json",
+              "bytes": 13951,
+              "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_output.hsaco",
+              "bytes": 16120,
+              "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+              "bytes": 16112,
+              "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_chunk_state.hsaco",
+              "bytes": 18880,
+              "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+              "bytes": 6664,
+              "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+              "bytes": 26816,
+              "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+              "bytes": 27960,
+              "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+              "bytes": 45112,
+              "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+              "bytes": 38272,
+              "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+              "bytes": 13160,
+              "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+              "bytes": 6168,
+              "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+            },
+            {
+              "path": "fla/q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+              "bytes": 6040,
+              "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+            },
+            {
+              "path": "fla/qrt_fla_chunk_gdn_provider.dll",
+              "bytes": 545792,
+              "sha256": "44cd6bd7fc4260cf627a28e3141363c75755b2453b0d67a46dd4b3b9bba44c0b"
+            },
+            {
+              "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+              "bytes": 648036,
+              "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+            },
+            {
+              "path": "tables/full-gated-silu-f32-lut-f32.bin",
+              "bytes": 262144,
+              "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+            },
+            {
+              "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+              "bytes": 4194304,
+              "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+            },
+            {
+              "path": "tables/sm121-exp2-negative-f490940d.bin",
+              "bytes": 183174448,
+              "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+            },
+            {
+              "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "bytes": 17301808,
+              "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+            },
+            {
+              "path": "tables/sigmoid-beta-f32.bin",
+              "bytes": 262144,
+              "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+            },
+            {
+              "path": "tables/gates/capture.json",
+              "bytes": 37677,
+              "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+            },
+            {
+              "path": "tables/gates/layer0-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+            },
+            {
+              "path": "tables/gates/layer1-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+            },
+            {
+              "path": "tables/gates/layer2-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+            },
+            {
+              "path": "tables/gates/layer4-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+            },
+            {
+              "path": "tables/gates/layer5-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+            },
+            {
+              "path": "tables/gates/layer6-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+            },
+            {
+              "path": "tables/gates/layer8-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+            },
+            {
+              "path": "tables/gates/layer9-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+            },
+            {
+              "path": "tables/gates/layer10-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+            },
+            {
+              "path": "tables/gates/layer12-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+            },
+            {
+              "path": "tables/gates/layer13-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+            },
+            {
+              "path": "tables/gates/layer14-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+            },
+            {
+              "path": "tables/gates/layer16-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+            },
+            {
+              "path": "tables/gates/layer17-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+            },
+            {
+              "path": "tables/gates/layer18-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+            },
+            {
+              "path": "tables/gates/layer20-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+            },
+            {
+              "path": "tables/gates/layer21-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+            },
+            {
+              "path": "tables/gates/layer22-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+            },
+            {
+              "path": "tables/gates/layer24-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+            },
+            {
+              "path": "tables/gates/layer25-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+            },
+            {
+              "path": "tables/gates/layer26-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+            },
+            {
+              "path": "tables/gates/layer28-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+            },
+            {
+              "path": "tables/gates/layer29-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+            },
+            {
+              "path": "tables/gates/layer30-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+            },
+            {
+              "path": "tables/gates/layer32-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+            },
+            {
+              "path": "tables/gates/layer33-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+            },
+            {
+              "path": "tables/gates/layer34-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+            },
+            {
+              "path": "tables/gates/layer36-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+            },
+            {
+              "path": "tables/gates/layer37-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+            },
+            {
+              "path": "tables/gates/layer38-g-f32-head-major.bin",
+              "bytes": 8388608,
+              "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+            },
+            {
+              "path": "tables/gates/sigmoid-beta-bf16.bin",
+              "bytes": 131072,
+              "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+            },
+            {
+              "path": "tables/cuda-router-ex2-fraction-f32.bin",
+              "bytes": 33554432,
+              "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+            },
+            {
+              "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+              "bytes": 131096,
+              "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+            },
+            {
+              "path": "tables/sm121-attention-rcp-d2e55754.bin",
+              "bytes": 8388640,
+              "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+            },
+            {
+              "path": "tables/sm121-rope-bf16.bin",
+              "bytes": 33554432,
+              "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+            },
+            {
+              "path": "tables/layer0-embedding-inverse-f32.bin",
+              "bytes": 993280,
+              "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+            }
+          ],
+          "environment": {
+            "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+            "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+            "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+            "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+            "QRT_FLA_GDN_WU_BLACKWELL": "1",
+            "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+            "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+            "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+            "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+            "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+            "QRT_FLA_GDN_BATCHED_EXACT": "1",
+            "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+            "QRT_FLA_GDN_SEGMENT_GUARD": "1"
+          }
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-12T13:36:08.6979975Z",
+          "command_file": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-replay-tool-r2\\fla-seeded-capture-replay.exe",
+            "arguments": [
+              "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla",
+              "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+              "D:\\projects\\seeded-fla-replay-inputs-r2",
+              "D:\\projects\\AIMA-public-seeded-fla-layout-20260912\\build\\seeded-fla-segment-outputs-key-major-r1",
+              "1024",
+              "key-major"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-seeded-fla-layout-20260912",
+            "repo_commit": "d009c8a671fb2d9496dee84067dcaeef2e49cf5c",
+            "command_file": "D:\\projects\\run-native-seeded-fla-segment-r1.ps1",
+            "command_file_sha256": "9fe7a47e7eea650c2ef8a6fd0151a5369b60b6972e9c875f8a4a8bc912c060db",
+            "model": "GB10 actual long-prefix16384-suffix1024-out512, layer0 seeded prefill",
+            "model_loaded": false,
+            "native_tensor_inputs": true,
+            "interface_state_layout": "key-major",
+            "capture_state_layout": "value_head_value_key_fp32",
+            "inference_acceptance": false,
+            "purpose": "Isolated seeded FLA interface with original inputs, repeatability and zero-state negative control",
+            "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+            "build_metadata_sha256": "be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035",
+            "reference_source_commit": "d4170fd995fa0d811d27077876a466924d7c820d",
+            "reference_capture_sha256": "a2db8cfa2c5c908f1f011f1f12626db1c5c4ae1edce7453fbbb8cc669f0371f9",
+            "reference_case_sha256": "aa05bcf7024dc62da899531dc1e5103dc520766e6a80c7908546123f88c72a41",
+            "reference_oracle_sha256": "f3157aaa64ff6ba141366cd490be3a569e4e532d0f26103f65d6f79bb1a779a5",
+            "reference_data_manifest_sha256": "790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0",
+            "fla_component_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+            "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+            "segment_guard_enabled": true,
+            "fla_dll": "D:\\projects\\AIMA-public-fla-segment-20260912\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+            "fla_dll_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+            "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+            "verified_artifacts": [
+              {
+                "path": "fla/metadata.json",
+                "bytes": 13951,
+                "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_output.hsaco",
+                "bytes": 16120,
+                "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+                "bytes": 16112,
+                "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_chunk_state.hsaco",
+                "bytes": 18880,
+                "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+                "bytes": 6664,
+                "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+                "bytes": 26816,
+                "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+                "bytes": 27960,
+                "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+                "bytes": 45112,
+                "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+                "bytes": 38272,
+                "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+                "bytes": 13160,
+                "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+                "bytes": 6168,
+                "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+              },
+              {
+                "path": "fla/q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+                "bytes": 6040,
+                "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+              },
+              {
+                "path": "fla/qrt_fla_chunk_gdn_provider.dll",
+                "bytes": 545792,
+                "sha256": "44cd6bd7fc4260cf627a28e3141363c75755b2453b0d67a46dd4b3b9bba44c0b"
+              },
+              {
+                "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+                "bytes": 648036,
+                "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+              },
+              {
+                "path": "tables/full-gated-silu-f32-lut-f32.bin",
+                "bytes": 262144,
+                "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+              },
+              {
+                "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+                "bytes": 4194304,
+                "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+              },
+              {
+                "path": "tables/sm121-exp2-negative-f490940d.bin",
+                "bytes": 183174448,
+                "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+              },
+              {
+                "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+                "bytes": 17301808,
+                "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+              },
+              {
+                "path": "tables/sigmoid-beta-f32.bin",
+                "bytes": 262144,
+                "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+              },
+              {
+                "path": "tables/gates/capture.json",
+                "bytes": 37677,
+                "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+              },
+              {
+                "path": "tables/gates/layer0-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+              },
+              {
+                "path": "tables/gates/layer1-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+              },
+              {
+                "path": "tables/gates/layer2-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+              },
+              {
+                "path": "tables/gates/layer4-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+              },
+              {
+                "path": "tables/gates/layer5-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+              },
+              {
+                "path": "tables/gates/layer6-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+              },
+              {
+                "path": "tables/gates/layer8-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+              },
+              {
+                "path": "tables/gates/layer9-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+              },
+              {
+                "path": "tables/gates/layer10-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+              },
+              {
+                "path": "tables/gates/layer12-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+              },
+              {
+                "path": "tables/gates/layer13-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+              },
+              {
+                "path": "tables/gates/layer14-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+              },
+              {
+                "path": "tables/gates/layer16-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+              },
+              {
+                "path": "tables/gates/layer17-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+              },
+              {
+                "path": "tables/gates/layer18-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+              },
+              {
+                "path": "tables/gates/layer20-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+              },
+              {
+                "path": "tables/gates/layer21-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+              },
+              {
+                "path": "tables/gates/layer22-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+              },
+              {
+                "path": "tables/gates/layer24-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+              },
+              {
+                "path": "tables/gates/layer25-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+              },
+              {
+                "path": "tables/gates/layer26-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+              },
+              {
+                "path": "tables/gates/layer28-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+              },
+              {
+                "path": "tables/gates/layer29-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+              },
+              {
+                "path": "tables/gates/layer30-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+              },
+              {
+                "path": "tables/gates/layer32-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+              },
+              {
+                "path": "tables/gates/layer33-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+              },
+              {
+                "path": "tables/gates/layer34-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+              },
+              {
+                "path": "tables/gates/layer36-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+              },
+              {
+                "path": "tables/gates/layer37-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+              },
+              {
+                "path": "tables/gates/layer38-g-f32-head-major.bin",
+                "bytes": 8388608,
+                "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+              },
+              {
+                "path": "tables/gates/sigmoid-beta-bf16.bin",
+                "bytes": 131072,
+                "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+              },
+              {
+                "path": "tables/cuda-router-ex2-fraction-f32.bin",
+                "bytes": 33554432,
+                "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+              },
+              {
+                "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+                "bytes": 131096,
+                "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+              },
+              {
+                "path": "tables/sm121-attention-rcp-d2e55754.bin",
+                "bytes": 8388640,
+                "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+              },
+              {
+                "path": "tables/sm121-rope-bf16.bin",
+                "bytes": 33554432,
+                "sha256": "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
+              },
+              {
+                "path": "tables/layer0-embedding-inverse-f32.bin",
+                "bytes": 993280,
+                "sha256": "f4e37f759c586bfc8fcc4d74cefdd89235f0f0c0c90cd286147e331e87509e67"
+              }
+            ],
+            "environment": {
+              "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+              "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+              "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+              "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+              "QRT_FLA_GDN_WU_BLACKWELL": "1",
+              "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+              "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+              "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+              "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+              "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+              "QRT_FLA_GDN_BATCHED_EXACT": "1",
+              "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+              "QRT_FLA_GDN_SEGMENT_GUARD": "1"
+            }
+          },
+          "executable_sha256": "7556afb94edbf52b6019b158c839b28c5675698e7938d02a0f1d8a49291976bb",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:41:02.3881400+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24204976128,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146652958720,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533471019008,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 482.49,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24212856832,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146628972544,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462786048,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "result": {
+        "kind": "original_seeded_fla_capture_replay",
+        "host": "baiying",
+        "tokens": 1024,
+        "capture_state_layout": "value_head_value_key_fp32",
+        "interface_state_layout": "key-major",
+        "fixture_state_transpose": true,
+        "diagnostic_only": true,
+        "product_acceptance": false,
+        "component_pass": true,
+        "output_bf16": {
+          "elements": 4194304,
+          "bit_mismatches": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "state_f32": {
+          "elements": 524288,
+          "bit_mismatches": 0,
+          "maximum_absolute_error": 0,
+          "relative_l2": 0
+        },
+        "state_absolute_and_relative_tolerance": 1e-05,
+        "seeded_repeat_bitwise": true,
+        "inputs_unchanged": true,
+        "zero_initial_state_vs_seeded": {
+          "elements": 4194304,
+          "bit_mismatches": 2040281,
+          "maximum_absolute_error": 1.283203125,
+          "relative_l2": 0.09938675470772818
+        },
+        "operator_gpu_ms": [
+          25.618499755859375,
+          25.943599700927734,
+          24.210939407348633
+        ]
+      },
+      "files": {
+        "product.stderr.log": {
+          "bytes": 660,
+          "sha256": "2ddc87d2cc5553dec2517a77bf889a8ef50d41dd3b450842db035a8744fb748f"
+        },
+        "result.json": {
+          "bytes": 802,
+          "sha256": "7e71536394e81fb738be211dacf34c88ebe7e1d235c92b6167cdca1e470b512c"
+        },
+        "dispatch.json": {
+          "bytes": 1339,
+          "sha256": "987d14919e928f4815707ccc33ee11c6deb5feaf45d2efea0cec44c6dba6c00a"
+        },
+        "product.stdout.jsonl": {
+          "bytes": 50,
+          "sha256": "f3d91ab7343fef894d7cf1d142d56edc8c1fec96a9deef4f07917448d6624879"
+        },
+        "run-record.json": {
+          "bytes": 63734,
+          "sha256": "eba89467bee5ff292deade742d3200668468b3f17b0f3d74483089b1bb6d152d"
+        }
+      }
+    }
+  },
+  "product_run": {
+    "schema_version": 1,
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+      "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+      "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+      "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+      "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+      "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+      "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+      "command_file": "D:\\projects\\run-native-fla-segment-product-r1.ps1",
+      "command_file_sha256": "fb2a47ff77d8c679d6e5bd67ac9f96e21e903670f4a5183820f1e73c6e042418",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "arguments": [
+        "run",
+        "--model",
+        "D:\\models\\Qwen3.6-35B-A3B",
+        "--tokens",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+        "--output-tokens",
+        "512",
+        "--expected-output",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+        "--expected-prompt-fnv",
+        "1584e34d56e5d78b",
+        "--expected-output-fnv",
+        "ca7c30b242ddf035",
+        "--env-file",
+        "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\fla-segment-product-r1.env",
+        "--provider-dll",
+        "D:\\projects\\AIMA-public-prefix-batch-hash-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll"
+      ],
+      "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+      "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+      "oracle_case": "q8192-out512",
+      "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+      "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+      "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+      "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+      "runtime_artifacts_verified": 267,
+      "component_commits": {
+        "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+        "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+        "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+      },
+      "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+      "portable_paths_resolved": 33,
+      "environment_sha256": "3c033f576a0e5875784ae24030e78588b4ae6bb67bef0766f7434d4997c3cbed",
+      "cold_prefill_seed_included": true,
+      "prefix_checkpoints_enabled": false,
+      "model_loaded_from_new_process": true,
+      "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+      "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+      "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+      "whole_provider_commit": "337644ff3e778442de31c4fdb5f97c1839c5c977",
+      "whole_provider_sha256": "898c803e610205d82ad3f605bdaa303afa4e213fb51c9eabb6bd4fc865cc036d",
+      "whole_build_metadata_sha256": "98e8670110a69fcb3e9f6b5773a9fd518d44cc6117037987ed4a047722fbf719",
+      "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+      "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+      "ck_provider_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+      "ck_provider_sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+      "ck_build_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+      "prepared_value_enabled": false,
+      "exact_attention_maximum_tokens": 32768,
+      "fla_provider_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+      "fla_provider_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+      "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+      "fla_segment_guard_enabled": true,
+      "purpose": "Coalesce FLA completion checks per unchanged 1024-token segment with exact original kernels and FP32 carry. Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI."
+    },
+    "preflight": {
+      "host": "BAIYING",
+      "utc": "2026-09-12T13:36:45.1355415Z",
+      "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+        "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+        "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+        "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+        "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+        "command_file": "D:\\projects\\run-native-fla-segment-product-r1.ps1",
+        "command_file_sha256": "fb2a47ff77d8c679d6e5bd67ac9f96e21e903670f4a5183820f1e73c6e042418",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "ca7c30b242ddf035",
+          "--env-file",
+          "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\fla-segment-product-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-prefix-batch-hash-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+        "oracle_case": "q8192-out512",
+        "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+        "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+        "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+        "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+        "runtime_artifacts_verified": 267,
+        "component_commits": {
+          "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+          "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+          "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+          "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+        },
+        "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+        "portable_paths_resolved": 33,
+        "environment_sha256": "3c033f576a0e5875784ae24030e78588b4ae6bb67bef0766f7434d4997c3cbed",
+        "cold_prefill_seed_included": true,
+        "prefix_checkpoints_enabled": false,
+        "model_loaded_from_new_process": true,
+        "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+        "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+        "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+        "whole_provider_commit": "337644ff3e778442de31c4fdb5f97c1839c5c977",
+        "whole_provider_sha256": "898c803e610205d82ad3f605bdaa303afa4e213fb51c9eabb6bd4fc865cc036d",
+        "whole_build_metadata_sha256": "98e8670110a69fcb3e9f6b5773a9fd518d44cc6117037987ed4a047722fbf719",
+        "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+        "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+        "ck_provider_commit": "37914edb5c9845f0e836e0e6ce87dfb881f7664d",
+        "ck_provider_sha256": "56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e",
+        "ck_build_metadata_sha256": "47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf",
+        "prepared_value_enabled": false,
+        "exact_attention_maximum_tokens": 32768,
+        "fla_provider_commit": "ee0542a11cc549f375556af57d01b2e9178a05a3",
+        "fla_provider_sha256": "00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be",
+        "fla_build_metadata_sha256": "f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae",
+        "fla_segment_guard_enabled": true,
+        "purpose": "Coalesce FLA completion checks per unchanged 1024-token segment with exact original kernels and FP32 carry. Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI."
+      },
+      "executable_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+      "input_fingerprints": {
+        "--tokens": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "--expected-output": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "sha256": "b7ae24de7170ef3cf17581f3a820c9cd5c247c9b127c52170e8fa0ecbeb8c543"
+        },
+        "--env-file": {
+          "path": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\fla-segment-product-r1.env",
+          "sha256": "3c033f576a0e5875784ae24030e78588b4ae6bb67bef0766f7434d4997c3cbed"
+        },
+        "--provider-dll": {
+          "path": "D:\\projects\\AIMA-public-prefix-batch-hash-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll",
+          "sha256": "898c803e610205d82ad3f605bdaa303afa4e213fb51c9eabb6bd4fc865cc036d"
+        }
+      },
+      "boot": "2026-09-10T00:41:02.3881400+08:00",
+      "boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24256909312,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146704830464,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533470494720,
+        "AvailableExtendedVirtual": 0
+      },
+      "gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "processes": [],
+      "checks": {
+        "no_engine_or_compiler": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true,
+        "output_disk_reserve": true,
+        "source_commit_exact": true
+      },
+      "pass": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 134587.492,
+    "summary_present": true,
+    "cli_pass": true,
+    "summary": {
+      "type": "summary",
+      "status": "pass",
+      "host": "BAIYING",
+      "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+      "provider_dll": "D:\\projects\\AIMA-public-prefix-batch-hash-20260912\\build\\whole\\qrt_qwen36_whole_provider.dll",
+      "first_token_raw_logit_contract_version": 1,
+      "first_token_report_available": true,
+      "first_token_report_token_emitted": true,
+      "first_token_report_matches_output": true,
+      "first_token_raw_logit_available": true,
+      "first_token_report_token_id": 144,
+      "first_token_report_top1_token_id": 144,
+      "first_token_raw_logit": 10.375,
+      "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+      "batch_size": 1,
+      "input_tokens": 8192,
+      "prefix_tokens": 0,
+      "suffix_tokens": 8192,
+      "output_tokens": 512,
+      "prefix_hit_count": 1,
+      "prefix_contract_pass_count": 0,
+      "prefix_output_match_count": 0,
+      "prefix_stream_match_count": 0,
+      "prefix_state_restored_count": 0,
+      "prefix_negative_guard_requested": false,
+      "prefix_negative_guard_pass": true,
+      "prefix_negative_guard_status": 0,
+      "prefix_negative_guard_provider_invoked": 0,
+      "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+      "output_token_ids_fnv1a64": "ca7c30b242ddf035",
+      "engine_load_ms": 20025.681201,
+      "provider_preload_ms": 20014.336701,
+      "provider_preload_reported_ms": 20013.7533,
+      "provider_preload_dll_load_ms": 10.1415,
+      "provider_preload_stored_entries": 256,
+      "engine_create_ms": 1.1883,
+      "prefix_seed_ms": 0.0,
+      "request_wall_ms": 114073.759401,
+      "ttft_ms": 58521.607301,
+      "provider_ttft_ms": 58517.7655,
+      "prefill_tokens_per_second": 139.982485,
+      "tpot_ms": 108.510447,
+      "decode_tokens_per_second": 9.215703,
+      "stream_callback_count": 512,
+      "first_callback_wall_ms": 58521.607301,
+      "last_callback_wall_ms": 114066.615301,
+      "callbacks_before_return": true,
+      "stream_matches_output": true,
+      "expected_prompt_match": true,
+      "expected_output_tokens_match": true,
+      "expected_output_digest_match": true,
+      "state_restored": true,
+      "output_token_ids": [
+        144,
+        255,
+        82,
+        57,
+        79,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        271,
+        248068,
+        271,
+        248069,
+        271,
+        760,
+        1414,
+        488,
+        3766,
+        7701,
+        310,
+        381,
+        2972,
+        5816,
+        82987,
+        11,
+        7132,
+        36412,
+        11,
+        466,
+        19873,
+        41915,
+        159034,
+        1049,
+        5435,
+        264,
+        6311,
+        314,
+        4055,
+        5587,
+        11,
+        17210,
+        11,
+        321,
+        33358,
+        314,
+        6163,
+        4105,
+        421,
+        635,
+        524,
+        1304,
+        53916,
+        22157,
+        466,
+        19214,
+        13976,
+        13,
+        1061,
+        3428,
+        8311,
+        4016,
+        310,
+        25,
+        271,
+        16,
+        13,
+        2972,
+        14266,
+        5787,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        8306,
+        264,
+        7620,
+        999,
+        466,
+        264,
+        999,
+        440,
+        264,
+        2086,
+        3542,
+        10845,
+        1040,
+        19464,
+        12,
+        23,
+        11,
+        18867,
+        12,
+        16,
+        11,
+        466,
+        25662,
+        11667,
+        1580,
+        430,
+        13983,
+        1414,
+        553,
+        198,
+        17,
+        13,
+        2972,
+        1008,
+        20600,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        31084,
+        4003,
+        11,
+        12977,
+        1412,
+        11,
+        466,
+        17822,
+        59026,
+        553,
+        198,
+        18,
+        13,
+        2972,
+        1037,
+        2845,
+        278,
+        1454,
+        49850,
+        362,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        24656,
+        466,
+        24315,
+        1973,
+        5976,
+        45543,
+        553,
+        271,
+        13962,
+        3437,
+        1394,
+        2885,
+        3054,
+        25,
+        198,
+        12,
+        2972,
+        3840,
+        279,
+        2450,
+        92217,
+        1368,
+        411,
+        3571,
+        494,
+        264,
+        999,
+        11,
+        5790,
+        424,
+        725,
+        8660,
+        440,
+        279,
+        4252,
+        10845,
+        466,
+        3061,
+        13,
+        198,
+        12,
+        2972,
+        674,
+        60346,
+        466,
+        11394,
+        92217,
+        1368,
+        424,
+        725,
+        494,
+        264,
+        4003,
+        11,
+        1380,
+        311,
+        14445,
+        10313,
+        466,
+        47455,
+        494,
+        264,
+        15264,
+        13,
+        198,
+        12,
+        2972,
+        58387,
+        2193,
+        92217,
+        1368,
+        488,
+        1366,
+        1092,
+        411,
+        1414,
+        348,
+        5274,
+        9,
+        3875,
+        318,
+        68,
+        1257,
+        2487,
+        264,
+        2128,
+        11,
+        1970,
+        11,
+        2099,
+        795,
+        681,
+        4191,
+        777,
+        3447,
+        748,
+        353,
+        628,
+        1438,
+        16401,
+        466,
+        13792,
+        424,
+        13,
+        271,
+        9764,
+        728,
+        1366,
+        1204,
+        353,
+        628,
+        7543,
+        4473,
+        0,
+        25677,
+        232,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        25677,
+        232,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        0,
+        25677,
+        232,
+        248046,
+        198,
+        248045,
+        846,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859
+      ],
+      "prefix_hit_request_wall_ms": [],
+      "prefix_hit_first_callback_wall_ms": [],
+      "prefix_hit_provider_ttft_ms": [],
+      "prefix_hit_suffix_ms": [],
+      "prefix_hit_tpot_ms": [],
+      "prefix_hit_total_ms": [],
+      "prefix_hit_input_token_ids_fnv1a64": [],
+      "prefix_hit_suffix_token_ids_fnv1a64": [],
+      "prefix_hit_teacher_prediction_ids_fnv1a64": [],
+      "checkpoint_owner_tokens": 0,
+      "checkpoint_owner_first_token": 4294967295,
+      "checkpoint_owner_logit_valid": false,
+      "checkpoint_owner_first_logit": null
+    },
+    "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+    "after_boot_identity": {
+      "kind": "kernel_general_boot_event",
+      "value": "122570:639245688798983488",
+      "record_id": 122570,
+      "utc": "2026-09-09T16:41:19.8983488Z",
+      "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+    },
+    "boot_clock_text_unchanged": true,
+    "after_memory": {
+      "Length": 64,
+      "Load": 29,
+      "TotalPhysical": 33981009920,
+      "AvailablePhysical": 24071192576,
+      "TotalCommit": 156119142400,
+      "AvailableCommit": 146489589760,
+      "TotalVirtual": 140737488224256,
+      "AvailableVirtual": 138533469085696,
+      "AvailableExtendedVirtual": 0
+    },
+    "after_gpus": [
+      {
+        "Name": "AMD Radeon(TM) 8060S Graphics",
+        "Status": "OK",
+        "DriverVersion": "32.0.31036.15"
+      }
+    ],
+    "after_processes": [],
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "numerical_acceptance_requires_external_oracle": true
+  },
+  "oracle_file": "contracts/gb10_cold_token_matrix_20260911_oracle.json",
+  "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+  "all_512_raw_outputs_and_exact_first_logit_pass": true,
+  "complete_segment_markers": [
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.034300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.760500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.289499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.546400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.788799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.025299 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.454300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.422180 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.439880 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.793301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.966801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.822100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.265400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.358299 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.338400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.747499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.960199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.975201 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.567301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.309900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=30.933201 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.329220 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.112700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.977400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.041180 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.779499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.354401 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.331499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.512300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.743900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.525499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.225700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.962099 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.352699 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.399700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.324800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.643999 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.476700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.849100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=30.056700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.034000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.391100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.754900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.323099 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.049900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.379499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.678301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.587200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.055799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.357700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.787001 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.136700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.998899 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.220800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.784800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=31.137100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.928200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.117599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.517401 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.844101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.199600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.712099 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.601101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.183399 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.924400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.232599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=30.605400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.436701 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.033300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.654200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.379200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.997801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.670759 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.599400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.517500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.353901 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.509100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.521000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.809839 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.296101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.033899 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.757099 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.004700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.817200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.150801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.814301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.167101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.087200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.677900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.769501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.602699 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.967400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.503599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.997700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.511400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.905500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.520800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.573299 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.736900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.582600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.916901 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.385799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.798500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.427299 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.619900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.042000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.718800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.424700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.359600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.751801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.740101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.025900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.927660 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.171000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.359100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.246300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.751200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.065399 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.352501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.300900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.076300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.614201 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.236601 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.742100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.770201 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.232700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.864401 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.716801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.037380 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.055700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.010500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.662500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.333599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.079599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.770000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.059900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.344620 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.187000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.211901 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.480400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.332701 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.954399 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.564100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.841801 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.784599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.286100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.061800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.118200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.842100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.514000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.921600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.175600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.971901 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.382900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.214500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.192499 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.335800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.716101 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.794399 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.532200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.538300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.417601 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.453600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.536200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.636000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.518600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.054701 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.179300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.689480 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.858000 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.909300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.896799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.654301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.366199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=31.667400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.408199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.032961 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.323400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.729200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.595900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.158899 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=30.939699 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.777599 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.387501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.536320 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.379601 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.039600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.460501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.875900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=30.852501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.154301 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.557400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.690840 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.057199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.072001 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.783300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.149799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.235300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.730200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.740999 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.389900 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.087799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.220800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.071501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.237200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.378500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.957500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=29.788799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.755560 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.139999 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=22.241400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.310699 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.099001 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.884501 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.863100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.895201 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.768600 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.330400 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.007700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.246099 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.691799 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.068800 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.583500 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.106199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=24.909901 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.686199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.829300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.153601 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.121700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.123100 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=23.946699 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.127399 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=21.663300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.316700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.652700 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=26.556999 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=28.019199 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.953300 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=27.028200 guard_ms=100 completed=1",
+    "FLA_SEGMENT tokens=1024 valid_tokens=1024 stage_guards_deferred=6 gate_syncs_deferred=1 sequence_ms=25.848000 guard_ms=100 completed=1"
+  ],
+  "files": {
+    "product.stderr.log": {
+      "bytes": 841247,
+      "sha256": "9bab2cb4f218c6bef270dbfa17bbb0217bb4b9e7ea99e9c0d9e7e1019f0a039d"
+    },
+    "dispatch.json": {
+      "bytes": 32967,
+      "sha256": "af0fc98e213f283ec6c5395abec3347d02fd37b6f2375ed1f0652ff39f62ee50"
+    },
+    "product.stdout.jsonl": {
+      "bytes": 74083,
+      "sha256": "b2cc73e58e40f1693dd55a12f2fdc5ac877a99a3a5c63da60015c69793b014c2"
+    },
+    "launch.json": {
+      "bytes": 131,
+      "sha256": "3272d32bbdd9cf0b1762b06dc56c9cbb440f75dc303c9dd2f21e0c82c00c19dd"
+    },
+    "preflight.json": {
+      "bytes": 9635,
+      "sha256": "526dff82b03afdbfb44b2b81de219bab174d2fded63988cfa0431b7cede6fec6"
+    },
+    "run-record.json": {
+      "bytes": 51070,
+      "sha256": "f0c8d74881474baf2c10876a185992cdcf04ecd4be864eee678bbf808f2811f3"
+    },
+    "runtime.env": {
+      "bytes": 31065,
+      "sha256": "3c033f576a0e5875784ae24030e78588b4ae6bb67bef0766f7434d4997c3cbed"
+    }
+  },
+  "commands": {
+    "run-native-fla-segment-build-r1.ps1": {
+      "text": "param([ValidateSet('whole','fla','moe','ck')][string]$Action='fla')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-fla-segment-20260912';$source='D:\\projects\\AIMA-public-prefix-batch-hash-20260912'\n$sha='ee0542a11cc549f375556af57d01b2e9178a05a3';$bundle='D:\\projects\\fla-segment-ee0542a.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'adf6ee7231ae3a6f6ae7058fa94fcdf4060c1c0d1007dcd6cd207cf12c0ce3f9'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $source fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $source worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$specDir=Join-Path $repo 'build\\batch-specs';$null=New-Item -ItemType Directory -Path $specDir -Force\n$buildName=$Action;$runTag='r1'\n$out=Join-Path $repo ('build\\'+$buildName);$recordDir=Join-Path $repo ('build\\batch-'+$Action+'-build-'+$runTag);$specPath=Join-Path $specDir ($Action+'-build-'+$runTag+'.json')\nforeach($p in @($out,$recordDir,$specPath)){if(Test-Path $p){throw ('Existing evidence: '+$p)}}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$exe='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n$sourceInputs=@()\nforeach($name in @('native\\providers\\prefix_batch_suffix.h','native\\providers\\moe_accumulator\\sm121_prefill_projection.h','native\\providers\\moe_accumulator\\sm121_wave16.h','native\\providers\\moe_accumulator\\sm121_group16_modulo.h','native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h')){$sourceInputs+=@{file=$name;sha256=(Get-FileHash (Join-Path $repo $name) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable=$exe;working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='none; native build and component smoke';model_loaded=$false;inference_acceptance=$false;source_inputs=$sourceInputs;purpose=('Build one completion guard per unchanged FLA segment: '+$Action)}\nswitch($Action){\n 'whole'{$arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'),'-OutDir',$out,'-HawkeyeReplayLanes','4','-CompileTimeoutSeconds','180');$timeout=210}\n 'fla'{$arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_fla_gdn.ps1'),'-OutDir',$out,'-AotDir','D:\\projects\\AIMA-public-capture-20260910\\build\\fla-r20','-TimeoutSeconds','120');$timeout=160}\n 'moe'{\n$base='D:\\projects\\AIMA-public-f544cbed7966\\build\\runtime-candidate-f544cbe\\q8192-moe'\n$baseMeta=Join-Path $base 'build-provenance.json'\nif((Get-FileHash $baseMeta -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'c8cc58c4af345f2e61d8accb69b8f2eb4c8aa48cbbfa317ae7f6fc39ac61c508'){throw 'Retained MoE build provenance changed'}\n$proof=[IO.File]::ReadAllText($baseMeta)|ConvertFrom-Json\nforeach($artifact in $proof.artifacts){if((Get-FileHash (Join-Path $base $artifact.file) -Algorithm SHA256).Hash.ToLowerInvariant() -ne $artifact.sha256){throw 'Retained MoE artifact changed'}}\n\n$arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_triton_moe_q8192.ps1'),'-BuildDir',$out,'-OutDir',$out,'-ReuseAotDir',$base,'-HipccPath','C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe','-WslDistribution','Ubuntu-24.04','-WslLlvmStrip','/opt/rocm/llvm/bin/llvm-strip')\n$arguments+=@('-BlockM','64','-BlockN','64','-GateBlockN','64','-DownBlockN','64','-GateBlockK','64','-DownBlockK','64','-GroupM','1','-NumWarps','4','-NumStages','1','-WavesPerEu','0','-GateNumWarps','4','-GateNumStages','1','-GateWavesPerEu','0','-DownNumWarps','4','-DownNumStages','1','-DownWavesPerEu','0','-VllmSiluBf16Intermediate','0','-NativeWmmaRouted','0','-RoutedProjectionDebug','0','-BatchedHawkeye','1','-FullSharedHawkeye','0','-ExactShared','0','-ConditionalExactGate','1','-SortedConditionalExactGate','1','-RowMajorSortedConditionalExactGate','1','-ConditionalExactGateRows','256','-ConditionalExactDown','1','-ConditionalExactDownRows','4','-NativeWmmaGate','1','-NativeWmmaDown','1','-NativeFusedRouteLayout','1','-NativeWmmaAdaptiveTail','0','-NativeWmmaBucketedTail','0','-NativeWmmaParallelBucketedTail','0','-NativeWmmaCompactSplitTail','0','-NativeWmmaTail32','0','-NativeWmmaPrune16','0','-NativeWmmaWideN','0','-NativeWmmaLdsB','1','-NativeWmmaLdsBNarrowN','0','-NativeWmmaLdsBM96','0','-NativeWmmaLdsBM64','0','-NativeWmmaLdsBM80LoadWave','0','-NativeWmmaLdsBM80LoadThreads','0','-NativeWmmaLdsBM64LoadThreads','192','-NativeWmmaLdsBM64GateLoadThreads','0','-NativeWmmaLdsBM64DownLoadThreads','0','-NativeWmmaLdsBSplitGatePasses','1','-NativeWmmaLdsBSerialGateN32','1','-NativeWmmaLdsBParallelGateN64','0','-NativeWmmaLdsBParallelGateUpN32','0','-NativeWmmaLdsBSerialDownN32','1','-NativeWmmaLdsBSerialWideN64','0','-NativeWmmaLdsBCompactM96Waves','0','-NativeWmmaLdsBSkipInactiveAStores','1','-NativeWmmaLdsBFusedOverflow16','0','-NativeWmmaLdsBM64FusedOverflow32','1','-NativeWmmaLosslessPalette','1','-NativeWmmaLosslessRowPalette','1','-NativeWmmaWeightInt8','0','-NativeWmmaWeightInt8GroupValues','128','-NativeWmmaWeightInt8ScaleFp16','0','-NativeWmmaLdsBM64DirectM16','0','-NativeWmmaLdsBM64DualM16','0','-NativeWmmaLdsBGroupedSoleM16','0','-NativeWmmaLdsBM64QuadGateM16','0','-NativeWmmaLdsBAdaptiveM128','0','-NativeWmmaLdsBHybridM96M128','0','-NativeWmmaLdsBAdaptiveDirectGrid','0','-NativeWmmaLdsBFullDirectTail','0','-NativeWmmaLdsBCompactSoleTail','0','-NativeWmmaLdsBParallelCompactSoleTail','0','-NativeWmmaTallM96','0','-NativeWmmaKStage','32','-TransposedRouter','1','-RouterThreads','256','-RouterTokenTile','8','-FullV3FusedCombine','1','-FusedCombineWidth','4','-FullV3EventSlots','16','-Repetitions','1','-RequireExpectedFullProviderHash','0')\n\n $spec.retained_provider_source_sha256=$proof.provider_source_sha256;$spec.retained_provider_commit=$proof.repo_commit;$timeout=240\n }\n 'ck'{\n $null=New-Item -ItemType Directory -Path $out -Force\n $ck='D:\\projects\\composable-kernel-fdf4bb7';$dll=Join-Path $out 'qrt_ck_fmha_sm121.dll'\n $headers=@(Get-ChildItem -LiteralPath $ck -Recurse -File|Where-Object {$_.Extension -in @('.h','.hpp','.cpp')}|Sort-Object FullName|ForEach-Object {@{file=$_.FullName.Substring($ck.Length+1);bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n $headerPath=Join-Path $out 'ck-source-inputs.json';[IO.File]::WriteAllText($headerPath,($headers|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n foreach($name in @('native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp','native\\providers\\ck_fmha\\blackwell_attention.h','native\\providers\\ck_fmha\\fmha_fwd_api.cpp','native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp','native\\providers\\gdn\\sm121_exp2_table.h','native\\providers\\gdn\\sm121_attention_rcp.h','scripts\\baiying_build_ck_fmha_q8192.ps1')){$sourceInputs+=@{file=$name;sha256=(Get-FileHash (Join-Path $repo $name) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n $spec.source_inputs=$sourceInputs;$spec.ck_source_manifest_sha256=(Get-FileHash $headerPath -Algorithm SHA256).Hash.ToLowerInvariant();$spec.ck_source_files=$headers.Count\n $arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_ck_fmha_q8192.ps1'),'-CkRoot',$ck,'-OutPath',$dll,'-HipccPath','C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe');$timeout=210\n }\n}\n$spec.arguments=$arguments\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $recordDir -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $recordDir 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($file in @('product.stdout.jsonl','product.stderr.log')){if(Test-Path (Join-Path $recordDir $file)){Get-Content (Join-Path $recordDir $file) -Tail 4|ForEach-Object {$_.Substring(0,[Math]::Min(800,$_.Length))}}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('Native build failed: '+$Action)}\nif($Action -eq 'ck'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;ck_source_manifest_sha256=$spec.ck_source_manifest_sha256;ck_source_files=$spec.ck_source_files;command_file=$PSCommandPath;run_record_sha256=(Get-FileHash (Join-Path $recordDir 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();artifact=@{file=$dll;bytes=(Get-Item $dll).Length;sha256=(Get-FileHash $dll -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText((Join-Path $out 'build-provenance.json'),($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}\n",
+      "sha256": "f9bde0a17e58aaa46d6d6130341826f5f5fdb81603884c1911766ae113d21f14"
+    },
+    "run-native-fla-segment-product-r1.ps1": {
+      "text": "param([string]$Case='q8192-out512')\n$PreparedValue=0\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-prefix-after-decode-20260912';$sha='a797b62b36d81b7f2b98d0aa591ef18d74b1fb22'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\n$runtime=Join-Path $repo 'build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3'\n$manifestPath=Join-Path $runtime 'runtime-manifest.json';$manifestSha='6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1';Verify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.artifacts.Count -ne 267){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){$p=Join-Path $runtime $e.path;Verify-File $p $e.sha256;if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}}\n$cliMetaPath=Join-Path $repo 'build\\product-cli\\build-provenance.json';$cliMeta=[IO.File]::ReadAllText($cliMetaPath)|ConvertFrom-Json\n$cliRunPath=Join-Path $repo 'build\\cli-build-r1\\run-record.json';$cliRun=[IO.File]::ReadAllText($cliRunPath)|ConvertFrom-Json\nif($cliMeta.repo_commit -ne $sha -or $cliMeta.dirty_tree -or $cliRun.exit_code -ne 0 -or -not $cliRun.host_checks_pass){throw 'CLI build not qualified'}\nVerify-File $cliMeta.executable $cliMeta.executable_sha256\nif($cliMeta.executable_sha256 -ne 'ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254'){throw 'Wrong CLI'}\nforeach($e in $cliMeta.sources){Verify-File $e.path $e.sha256}\n$oraclePath=Join-Path $repo 'contracts\\gb10_cold_token_matrix_20260911_oracle.json';$oracleSha='7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1';Verify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json;$cases=@($matrix.cases|Where-Object {$_.name -eq $Case});if($cases.Count -ne 1){throw 'Oracle case missing'};$oracle=$cases[0]\n$data='D:\\projects\\gb10-token-matrix-inputs-20260911-r2';$dataManifestPath=Join-Path $data 'manifest.json';$dataSha='e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c';Verify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json');$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$name='fla-segment-product-r1';$out=Join-Path $repo ('build\\'+$name);$envPath=Join-Path $repo ('build\\'+$name+'.env');$specPath=Join-Path $repo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env';$profileSha='88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d';Verify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath);$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n$map=[ordered]@{};foreach($line in ($resolved -split \"`n\")){if($line -match '^([^#=]+)=(.*)$'){$map[$Matches[1].Trim()]=$Matches[2].TrimEnd(\"`r\")}}\n$moeRoot='D:\\projects\\AIMA-public-short-moe-projections-20260912'\n$moeCommit='bc082a59da83fd3550e7fce9869c375629a78b69'\n$moeMetaPath=Join-Path $moeRoot 'build\\moe\\build-provenance.json';Verify-File $moeMetaPath '30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeCommit -or $moeMeta.dirty_tree -or @(& git -C $moeRoot status --porcelain).Count -ne 0){throw 'MoE source mismatch'}\nforeach($e in $moeMeta.artifacts){Verify-File (Join-Path (Join-Path $moeRoot 'build\\moe') $e.file) $e.sha256}\n$moeDll=Join-Path $moeRoot 'build\\moe\\qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll '4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL']=$moeDll.Replace('\\','/')\n$normTable='D:\\projects\\layer0-embedding-dynamic-inverse-20260912-r1.bin';Verify-File $normTable 'b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9'\n$map['QRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH']=$normTable.Replace('\\','/')\n$ckRoot='D:\\projects\\AIMA-public-suffix-attention-20260912';$ckCommit='37914edb5c9845f0e836e0e6ce87dfb881f7664d'\n$ckMetaPath=Join-Path $ckRoot 'build\\ck-sm121\\build-provenance.json';Verify-File $ckMetaPath '47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf'\n$ckMeta=[IO.File]::ReadAllText($ckMetaPath)|ConvertFrom-Json\n$ckRunPath=Join-Path $ckRoot 'build\\ck-build-r1\\run-record.json';$ckRun=[IO.File]::ReadAllText($ckRunPath)|ConvertFrom-Json\nif($ckMeta.repo_commit -ne $ckCommit -or (& git -C $ckRoot rev-parse HEAD).Trim() -ne $ckCommit -or @(& git -C $ckRoot status --porcelain).Count -ne 0 -or $ckRun.exit_code -ne 0 -or -not $ckRun.host_checks_pass){throw 'CK build not qualified'}\nforeach($e in $ckMeta.source_inputs){Verify-File (Join-Path $ckRoot $e.file) $e.sha256}\n$ckDll=Join-Path $ckRoot 'build\\ck-sm121\\qrt_ck_fmha_sm121.dll';Verify-File $ckDll '56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL']=$ckDll.Replace('\\','/')\n$map['QRT_CK_SM121_PREPARED_VALUE']=[string]$PreparedValue\n$map['QRT_CK_SM121_TILED_EXACT_QK']='1'\n$map['QRT_CK_SM121_WARP_SOFTMAX']='0'\n$map['QRT_QWEN36_PREFIX_BATCH_SUFFIX']='1'\n$map['QRT_QWEN36_PREFIX_BATCH_SUFFIX_HASH_LOGITS']='0'\n$flaRoot='D:\\projects\\AIMA-public-fla-segment-20260912';$flaCommit='ee0542a11cc549f375556af57d01b2e9178a05a3'\n$flaMetaPath=Join-Path $flaRoot 'build\\fla\\build-provenance.json';Verify-File $flaMetaPath 'f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae'\n$flaMeta=[IO.File]::ReadAllText($flaMetaPath)|ConvertFrom-Json\n$flaRunPath=Join-Path $flaRoot 'build\\batch-fla-build-r1\\run-record.json';$flaRun=[IO.File]::ReadAllText($flaRunPath)|ConvertFrom-Json\nif($flaMeta.repo_commit -ne $flaCommit -or $flaMeta.dirty_tree -or $flaRun.exit_code -ne 0 -or -not $flaRun.host_checks_pass -or @(& git -C $flaRoot status --porcelain).Count -ne 0){throw 'FLA build mismatch'}\nforeach($e in $flaMeta.artifacts){Verify-File (Join-Path (Join-Path $flaRoot 'build\\fla') $e.file) $e.sha256}\n$flaDll=Join-Path $flaRoot 'build\\fla\\qrt_fla_chunk_gdn_provider.dll';Verify-File $flaDll '00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be'\n\n$map['QRT_FLA_GDN_SEGMENT_GUARD']='1'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL']=$flaDll.Replace('\\','/')\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR']=(Join-Path $flaRoot 'build\\fla').Replace('\\','/')\n$resolved=(($map.GetEnumerator()|ForEach-Object {$_.Key+'='+$_.Value})-join \"`n\")+\"`n\"\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$wholeRoot='D:\\projects\\AIMA-public-prefix-batch-hash-20260912';$wholeCommit='337644ff3e778442de31c4fdb5f97c1839c5c977'\n$wholeMetaPath=Join-Path $wholeRoot 'build\\whole\\build-provenance.json';Verify-File $wholeMetaPath '98e8670110a69fcb3e9f6b5773a9fd518d44cc6117037987ed4a047722fbf719'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRunPath=Join-Path $wholeRoot 'build\\batch-whole-build-r1\\run-record.json';$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeCommit -or $wholeMeta.dirty_tree -or $wholeMeta.hawkeye_replay_lanes -ne 4 -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass -or @(& git -C $wholeRoot status --porcelain).Count -ne 0){throw 'Whole build mismatch'}\n$provider=Join-Path $wholeRoot 'build\\whole\\qrt_qwen36_whole_provider.dll';Verify-File $provider '898c803e610205d82ad3f605bdaa303afa4e213fb51c9eabb6bd4fc865cc036d'\n\n\n$spec=[ordered]@{executable=$cliMeta.executable;working_directory=$repo;repo_commit=$sha;cli_commit=$sha;cli_sha256=$cliMeta.executable_sha256;cli_build_run_sha256=(Get-FileHash $cliRunPath -Algorithm SHA256).Hash.ToLowerInvariant();cli_build_metadata_sha256=(Get-FileHash $cliMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='D:\\models\\Qwen3.6-35B-A3B';arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider);oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha;runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits;source_profile_sha256=$profileSha;portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant();cold_prefill_seed_included=$true;prefix_checkpoints_enabled=$false;model_loaded_from_new_process=$true;moe_provider_commit=$moeCommit;moe_provider_sha256='4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41';moe_build_metadata_sha256=(Get-FileHash $moeMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();whole_provider_commit=$wholeCommit;whole_provider_sha256='898c803e610205d82ad3f605bdaa303afa4e213fb51c9eabb6bd4fc865cc036d';whole_build_metadata_sha256='98e8670110a69fcb3e9f6b5773a9fd518d44cc6117037987ed4a047722fbf719';layer0_inverse_table_sha256='b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9';layer0_inverse_capture_sha256='f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2';ck_provider_commit=$ckCommit;ck_provider_sha256='56b92bb4a9cec204634823ef5e3f5462f7632fa2c2416e6a30ded66f0b54eb8e';ck_build_metadata_sha256='47fdadc255775a68d3a10038a577f9859b9817f8244a71c043a153a9bb18d7cf';prepared_value_enabled=$false;exact_attention_maximum_tokens=32768;fla_provider_commit=$flaCommit;fla_provider_sha256=(Get-FileHash $flaDll -Algorithm SHA256).Hash.ToLowerInvariant();fla_build_metadata_sha256=(Get-FileHash $flaMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();fla_segment_guard_enabled=$true;purpose='Coalesce FLA completion checks per unchanged 1024-token segment with exact original kernels and FP32 carry. Renew the original q8192 cold boundary after adding the optional exact suffix attention ABI. The cold path retains the same arithmetic, whole1975367, MoE, FLA, norm table and CLI. This control does not exercise or qualify the new suffix ABI.'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 420|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids);$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne $expected.Count){throw 'Actual stream callback boundary failed'}\nexit $r.exit_code\n",
+      "sha256": "fb2a47ff77d8c679d6e5bd67ac9f96e21e903670f4a5183820f1e73c6e042418"
+    },
+    "run-native-seeded-fla-segment-r1.ps1": {
+      "text": "param([ValidateSet('value-major','key-major')][string]$Layout)\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\n$repo='D:\\projects\\AIMA-public-seeded-fla-layout-20260912';$sha='d009c8a671fb2d9496dee84067dcaeef2e49cf5c'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Replay source changed'}\n$metaPath=Join-Path $repo 'build\\seeded-fla-replay-tool-r2\\build-provenance.json';Verify-File $metaPath 'be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035'\n$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\nif($meta.repo_commit -ne $sha){throw 'Build source mismatch'}\nVerify-File $meta.artifact.file $meta.artifact.sha256\nforeach($e in $meta.source_inputs){Verify-File $e.file $e.sha256}\n$fixtureRoot='D:\\projects\\seeded-fla-replay-inputs-r2';$archive=$fixtureRoot+'.tar';Verify-File $archive '5ccc6993bcff1eae8aefff1f702a72677dccd520a33c52e81471e87e4de59e33'\nif(-not (Test-Path $fixtureRoot)){\n$null=New-Item -ItemType Directory -Path $fixtureRoot\n& tar.exe -xf $archive -C $fixtureRoot;if($LASTEXITCODE -ne 0){throw 'Fixture extraction failed'}\n}\n$inputManifestPath=Join-Path $fixtureRoot 'manifest.json';Verify-File $inputManifestPath '790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0'\n$inputs=[IO.File]::ReadAllText($inputManifestPath)|ConvertFrom-Json\nif($inputs.source_commit -ne 'd4170fd995fa0d811d27077876a466924d7c820d' -or $inputs.prefix_tokens -ne 16384 -or $inputs.suffix_tokens -ne 1024 -or $inputs.layer -ne 0 -or $inputs.state_layout -ne 'value_head_value_key_fp32' -or -not $inputs.initial_state_matches_independent_owner -or -not $inputs.all_512_tokens_and_full_first_logits_match){throw 'Reference identity mismatch'}\nforeach($prop in $inputs.files.PSObject.Properties){$file=Join-Path $fixtureRoot $prop.Name;Verify-File $file $prop.Value.sha256;if((Get-Item $file).Length -ne $prop.Value.bytes){throw 'Input size mismatch'}}\nif(@(Get-ChildItem -LiteralPath $fixtureRoot -File).Count -ne 6){throw 'Unexpected fixture inventory'}\n$runtime='D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3'\n$runtimeManifest=Join-Path $runtime 'runtime-manifest.json';Verify-File $runtimeManifest '6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1'\n$inventory=[IO.File]::ReadAllText($runtimeManifest)|ConvertFrom-Json\nif($inventory.component_commits.fla -ne '6042803f8e7933b44428b79331bcc2954a1b299e'){throw 'FLA source mismatch'}\n$verified=@();$dll=Join-Path $runtime 'fla\\qrt_fla_chunk_gdn_provider.dll';$kernels=Join-Path $runtime 'fla'\nforeach($e in $inventory.artifacts){$relative=$e.path.Replace('\\','/');if($relative.StartsWith('fla/') -or $relative.StartsWith('tables/')){Verify-File (Join-Path $runtime $e.path) $e.sha256;$verified+=$e}}\nif($verified.Count -lt 10){throw 'Missing FLA inventory'}\n$profilePath='D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\long-tail-projection-product-long-prefix16384-suffix1024-out512-r1.env';Verify-File $profilePath 'bf4bd76652317ddcf44382ae07293eeec11b282280cdf13a8bfb3536f355c5b5'\nforeach($item in @(Get-ChildItem Env:|Where-Object {$_.Name.StartsWith('QRT_FLA_')})){[Environment]::SetEnvironmentVariable($item.Name,$null,'Process')}\n$environment=[ordered]@{}\nforeach($line in [IO.File]::ReadAllLines($profilePath)){if($line -match '^(QRT_FLA_[A-Z0-9_]+)=(.*)$'){$environment[$Matches[1]]=$Matches[2];[Environment]::SetEnvironmentVariable($Matches[1],$Matches[2],'Process')}}\n$flaRoot='D:\\projects\\AIMA-public-fla-segment-20260912';$flaCommit='ee0542a11cc549f375556af57d01b2e9178a05a3'\n$flaMetaPath=Join-Path $flaRoot 'build\\fla\\build-provenance.json';Verify-File $flaMetaPath 'f0cb6a80833f91d4dc2779a3c7568e6dff4c1794195f2d5faacb3146da2210ae'\n$flaMeta=[IO.File]::ReadAllText($flaMetaPath)|ConvertFrom-Json\n$flaRunPath=Join-Path $flaRoot 'build\\batch-fla-build-r1\\run-record.json';$flaRun=[IO.File]::ReadAllText($flaRunPath)|ConvertFrom-Json\nif($flaMeta.repo_commit -ne $flaCommit -or $flaMeta.dirty_tree -or $flaRun.exit_code -ne 0 -or -not $flaRun.host_checks_pass -or @(& git -C $flaRoot status --porcelain).Count -ne 0){throw 'FLA build mismatch'}\nforeach($e in $flaMeta.artifacts){Verify-File (Join-Path (Join-Path $flaRoot 'build\\fla') $e.file) $e.sha256}\n$flaDll=Join-Path $flaRoot 'build\\fla\\qrt_fla_chunk_gdn_provider.dll';Verify-File $flaDll '00994d490866ce5c33175812e467bafe0101bcf308f1c0448b3acf90f53290be'\n\n$dll=$flaDll;$kernels=Join-Path $flaRoot 'build\\fla'\n$environment['QRT_FLA_GDN_SEGMENT_GUARD']='1';$env:QRT_FLA_GDN_SEGMENT_GUARD='1'\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$recordDir=Join-Path $repo ('build\\seeded-fla-segment-'+$Layout+'-r1');$outputs=Join-Path $repo ('build\\seeded-fla-segment-outputs-'+$Layout+'-r1');$specPath=Join-Path $repo ('build\\seeded-fla-segment-'+$Layout+'-r1.json')\nforeach($path in @($recordDir,$outputs,$specPath)){if(Test-Path $path){throw 'Existing replay evidence'}}\n$spec=[ordered]@{executable=$meta.artifact.file;arguments=@($kernels,$dll,$fixtureRoot,$outputs,'1024',$Layout);working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='GB10 actual long-prefix16384-suffix1024-out512, layer0 seeded prefill';model_loaded=$false;native_tensor_inputs=$true;interface_state_layout=$Layout;capture_state_layout=$inputs.state_layout;inference_acceptance=$false;purpose='Isolated seeded FLA interface with original inputs, repeatability and zero-state negative control';executable_sha256=$meta.artifact.sha256;build_metadata_sha256='be0c4c446920c4071a2ccd12baf9e61aaac1235b5eea8e76b6cc9329e2753035';reference_source_commit=$inputs.source_commit;reference_capture_sha256=$inputs.capture_sha256;reference_case_sha256=$inputs.case_sha256;reference_oracle_sha256=$inputs.oracle_sha256;reference_data_manifest_sha256='790eedd675cdd366506111bccb74428bd36f90515ae9761a76fc52b9a005d5b0';fla_component_commit=$flaCommit;fla_build_metadata_sha256=(Get-FileHash $flaMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();segment_guard_enabled=$true;fla_dll=$dll;fla_dll_sha256=(Get-FileHash $dll -Algorithm SHA256).Hash.ToLowerInvariant();runtime_manifest_sha256='6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1';verified_artifacts=$verified;environment=$environment}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 10),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $recordDir -TimeoutSeconds 90|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $recordDir 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks_pass|ConvertTo-Json\nif(Test-Path (Join-Path $outputs 'result.json')){Get-Content -Raw (Join-Path $outputs 'result.json')}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){Get-Content (Join-Path $recordDir 'product.stderr.log') -Tail 12;throw 'Seeded FLA component replay failed'}\n",
+      "sha256": "9fe7a47e7eea650c2ef8a6fd0151a5369b60b6972e9c875f8a4a8bc912c060db"
+    }
+  },
+  "unobserved_baseline_file": "benchmarks/correctness/prefix-batch-logit-hash-20260912.json",
+  "unobserved_baseline_sha256": "092bb6b95d2dded1ee5136526a66ac14fa65af4d3b223d34d387a18b73d53f27",
+  "baseline_callback_ms": 58918.8349,
+  "candidate_callback_ms": 58521.607301,
+  "observed_difference_ms": 397.2275990000053,
+  "default_enabled": false,
+  "inference_correctness": true,
+  "performance_improvement_retained": false,
+  "release_qualified": false,
+  "decision": "Keep the segment guard opt-in. Both seeded layouts and the complete q8192 product remain correct, but the observed 397.227599 ms callback difference is too small to pursue while the target remains below 4187.415605 ms. Do not infer a repeatable speedup from these single runs. Preserve the selected 6042803 FLA configuration and choose a broader next route.",
+  "public_record_redactions": [
+    "Private home prefixes; original fingerprints remain unchanged."
+  ]
+}

@@ -43,8 +43,15 @@ intervals may still include scheduling/overlap. Instrumented callback61708.29649
 ms does not replace the unobserved58918.8349 ms measurement. A new opt-in FLA
 trial retains the same1024-token segments and kernels while checking one
 complete segment instead of waiting after each math stage. Its CPU tests
-cover ordered completion, tails, preserved errors and partial-submission drain;
-native numerical and performance qualification remains pending.
+cover ordered completion, tails, preserved errors and partial-submission drain.
+The [ee0542a native trial](../benchmarks/correctness/fla-segment-guard-20260912.json)
+preserves every original seeded BF16 output and FP32 state in both layouts,
+and all512 q8192 outputs with exact144/logit10.375. Callback58521.607301 ms,
+TPOT108.510447 ms and load20025.681201 ms pass functional/host checks.
+All240 segments finish under the100 ms guard. The397.227599 ms callback
+difference from the unobserved control does not establish a repeatable gain
+or justify further small tuning while retained targets remain far away.
+The trial stays opt-in; the selected FLA component remains6042803.
 
 The [batch suffix diagnostic-hash removal](../benchmarks/correctness/prefix-batch-logit-hash-20260912.json)
 at whole337644f retains all actual vocabulary projections and top-k results,
