@@ -119,9 +119,10 @@ def execute(args, capture, controls, index):
         attrs={(i,): [["tt.divisibility", 16]] for i in range(4)}), options=options)
     (args.output_dir / "observer.ptx").write_text(compiled.asm["ptx"])
     launches, maximum_ms = 0, 0.0
+    maximum_device_bytes, preparation_peak_bytes = 0, 0
 
     def launch(values):
-        nonlocal launches, maximum_ms
+        nonlocal launches, maximum_ms, maximum_device_bytes, preparation_peak_bytes
         if np.any((values & 0x7f80) == 0x7f80):
             raise ValueError("nonfinite embedding")
         x = torch.from_numpy(values.copy()).view(torch.bfloat16).cuda()
@@ -131,6 +132,13 @@ def execute(args, capture, controls, index):
         torch.cuda.synchronize()
         out = torch.empty_like(x)
         inv = torch.empty(rows, dtype=torch.float32, device="cuda")
+        # CompiledKernel loads its CUDA module on first invocation. Prepare
+        # both launchers before timing GPU execution and retain preparation
+        # memory separately from the bounded observation's live tensors.
+        compiled[((rows + 1) // 2, 1, 1)](x, weight, out, inv, WIDTH, rows, WIDTH)
+        torch.cuda.synchronize()
+        preparation_peak_bytes = max(preparation_peak_bytes, torch.cuda.max_memory_allocated())
+        torch.cuda.reset_peak_memory_stats()
         start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
         start.record()
         expected = original.call([rows, WIDTH, x, weight])[0]
@@ -138,8 +146,13 @@ def execute(args, capture, controls, index):
         end.record(); end.synchronize()
         ms = start.elapsed_time(end)
         launches += 1; maximum_ms = max(maximum_ms, ms)
-        if ms > 100 or torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
-            raise ValueError("observation dispatch/memory bound exceeded")
+        peak_bytes = torch.cuda.max_memory_allocated()
+        maximum_device_bytes = max(maximum_device_bytes, peak_bytes)
+        with (args.output_dir / "dispatches.jsonl").open("a") as stream:
+            stream.write(json.dumps(dict(rows=rows, elapsed_ms=ms, peak_device_bytes=peak_bytes,
+                                         preparation_peak_device_bytes=preparation_peak_bytes)) + "\n")
+        if ms > 100 or peak_bytes > DEVICE_LIMIT:
+            raise ValueError(f"observation dispatch/memory bound exceeded: ms={ms}, peak_bytes={peak_bytes}")
         if not torch.equal(expected, out) or not torch.isfinite(inv).all() or not (inv > 0).all():
             raise ValueError("inverse observer changed original normalization")
         return out.view(torch.uint16).cpu().numpy(), inv.cpu().numpy()
@@ -182,7 +195,8 @@ def execute(args, capture, controls, index):
                 table_bytes=path.stat().st_size, table_sha256=file_sha(path),
                 observer_source_sha256=file_sha(source), observer_signature=signature, options=options,
                 observer_ptx_sha256=file_sha(args.output_dir / "observer.ptx"), launches=launches,
-                maximum_dispatch_ms=maximum_ms, peak_device_bytes=torch.cuda.max_memory_allocated(),
+                maximum_dispatch_ms=maximum_ms, peak_device_bytes=maximum_device_bytes,
+                preparation_peak_device_bytes=preparation_peak_bytes,
                 torch_version=torch.__version__, triton_version=triton.__version__)
 
 
