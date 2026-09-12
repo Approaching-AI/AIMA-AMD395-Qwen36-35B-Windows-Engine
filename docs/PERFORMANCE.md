@@ -21,6 +21,7 @@ verify their fallback transaction and complete owner-state restoration.
 | CK d028182, globally compacted PV replay | cold 8192, ordinary path | 56604.0518 | 106.860717 | 20074.636 |
 | MoE 8a7a8dc, staged K64 operands | cold 8192, ordinary path | 55453.937 | 105.957922 | 20116.758099 |
 | whole/CK/FLA/MoE 8f436db, compact normalization | cold 8192, ordinary path | 53818.8428 | 102.263044 | 20068.490699 |
+| MoE a012e01, exact dot tile certificate (not retained) | cold 8192, ordinary path | 56050.9289 | 101.508477 | 20076.2551 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -74,6 +75,16 @@ q8192/out512 run matches every GB10 token, callback and exact first logit at
 This single-run comparison supports enabling compact normalization in further
 experiments; its build default remains disabled. Broader contexts and release
 acceptance remain open. See `benchmarks/correctness/canonical-normalize-20260913.json`.
+
+An exact tile certificate skips repeated normalization only when every K16
+intermediate retains the original sign and exponent. Its 86,079 native dots
+match independent CPU arithmetic, exercising 161,050 admitted tiles. The full
+q8192 run passes all 512 GB10 tokens and callbacks with an exact first logit,
+but callback TTFT rises to 56050.9289 ms, an observed increase of 2232.0861 ms
+over compact normalization. Keep `CertifiedDotTiles=0` and the 8f436db MoE.
+These single runs establish no repeatability or real-model admission density;
+one negative native microtiming is invalid. Evidence:
+`benchmarks/correctness/certified-dot-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical
