@@ -199,7 +199,8 @@ constexpr size_t kSm121ScoreElements =
 constexpr size_t kSm121MatrixScoreElements =
     static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * kSm121MaxTokens;
 constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121MatrixScoreElements / 2u +
-    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * (kSm121MaxTokens / 32u + 1u);
+    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads *
+        (kSm121MaxTokens / 32u + 1u + kHeadDim);
 constexpr size_t kSm121KeyElements =
     static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 
@@ -275,14 +276,16 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (!q || !k || !v || !output || query_count == 0u || query_start >= kSm121MaxTokens ||
         query_count > kSm121MaxTokens - query_start) return int(hipErrorInvalidValue);
     // Expose the already isolated native MMA candidates to real-model gates.
-    // 1 changes PV only; 2 changes QK and PV. Online softmax, tile order and
+    // 1 changes PV only; 2 changes QK and PV; 3 adds selective exact PV replay.
+    // Online softmax, tile order and
     // reference SFU tables are shared with the exact route. Q1 stays exact.
     const char* matrix_option = std::getenv("QRT_CK_SM121_NATIVE_BF16_MATRIX");
     if (matrix_option && matrix_option[0] != '\0' &&
         std::strcmp(matrix_option, "0") != 0 && std::strcmp(matrix_option, "1") != 0 &&
-        std::strcmp(matrix_option, "2") != 0) return int(hipErrorInvalidValue);
+        std::strcmp(matrix_option, "2") != 0 && std::strcmp(matrix_option, "3") != 0)
+        return int(hipErrorInvalidValue);
     const unsigned matrix_mode = query_count > 1u && matrix_option &&
-        (matrix_option[0] == '1' || matrix_option[0] == '2')
+        (matrix_option[0] == '1' || matrix_option[0] == '2' || matrix_option[0] == '3')
         ? static_cast<unsigned>(matrix_option[0] - '0') : 0u;
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
@@ -299,7 +302,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         native_product_option[0] != '\0' && std::strcmp(native_product_option, "0") != 0;
     if (matrix_mode && (mantissa_wmma || native_products)) return int(hipErrorInvalidValue);
     const bool expanded_scratch = mantissa_wmma || matrix_mode != 0u;
-    const unsigned int memory_layout = matrix_mode ? 5u + matrix_mode
+    const unsigned int memory_layout = matrix_mode == 3u ? 13u : matrix_mode ? 5u + matrix_mode
         : (mantissa_wmma ? 5u : (independent_dots ? 4u : 2u));
     const unsigned int query_batch = matrix_mode ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     if (expanded_scratch && !g_sm121_mantissa_scores) {

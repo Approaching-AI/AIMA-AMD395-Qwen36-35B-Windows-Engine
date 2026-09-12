@@ -47,7 +47,7 @@ template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() 
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_scores_kernel() {}
-template<bool NativeMma = false, bool Prepacked = false> void blackwell_mantissa_value_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
          bool NativeProducts = false, bool StridedValue = false>
@@ -254,8 +254,27 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,13u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,13u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,14u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,14u)!=0u) return 51;
+    const size_t selective_elements=split_scratch_elements(16u,17u,13u);
+    if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
+    auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1,16,0,
+            nullptr,nullptr,nullptr,sum,rcp,13u,&scratch,elements,nullptr,nullptr,&operand,17u);
+    };
+    const auto* rcp=reinterpret_cast<const unsigned char*>(&operand);
+    if(selective(selective_elements,nullptr)!=hipErrorInvalidValue ||
+       selective(selective_elements,rcp,false)!=hipErrorInvalidValue ||
+       selective(selective_elements-1u,rcp)!=hipErrorInvalidValue || launches) return 53;
+    if(selective(selective_elements,rcp)!=hipSuccess || launches!=4u || error_queries!=4u ||
+       !std::strstr(launch_names[0],"blackwell_transposed_scores_kernel<false>") ||
+       !std::strstr(launch_names[2],"blackwell_mantissa_value_kernel<true, false, true>") ||
+       !std::strstr(launch_names[3],"blackwell_probability_value_kernel")) return 54;
+    for(unsigned failed=1;failed<=4;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(selective(selective_elements,rcp)!=hipErrorUnknown || launches!=failed || error_queries!=failed)
+            return 55;
+    }
     return 0;
 }
 '''

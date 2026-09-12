@@ -52,6 +52,15 @@ rejected diagnostics. Windows build, 322 local tests (2 skips), C/ABI, Rust,
 Clippy, q16 and hygiene pass. The next independent experiment adds selective
 exact PV replay around per-output BF16 rounding boundaries.
 
+Experimental mode `QRT_CK_SM121_NATIVE_BF16_MATRIX=3` keeps exact QK and
+the original online probabilities, alpha rescaling and denominator. An
+additional absolute-product matrix dot propagates a separate error envelope
+for every PV output. Dimensions whose outward interval crosses a BF16 rounding
+boundary are compacted within each query/head and recomputed with the original
+K16 accumulator. Its float output is intended for the existing BF16 attention
+consumer; unchanged float bits are not promised. It remains off by default
+and requires independent captured-input and complete GB10 model checks.
+
 Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
