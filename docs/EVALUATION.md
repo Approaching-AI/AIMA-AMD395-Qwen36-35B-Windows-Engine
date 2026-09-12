@@ -94,6 +94,18 @@ slower than the 1080.69/1088.97 ms prepared-scalar controls. QK alone takes
 the product runtime; this result supports neither a performance claim nor a
 full-model acceptance.
 
+The [fresh original 16k-prefix reference](../contracts/gb10_long_prefix16k_actual_tokens_20260912_oracle.json)
+at capture source 93a9297 preserves the registered 16384-token prefix and
+1024-token suffix, including their historical input hashes. GB10 first passes
+both immutable controls, then emits all 32 owner tokens and all 512 combined
+prompt tokens. Their first tokens/logits are 16/25.625 and 3709/5.6875.
+All four complete first-logit vocabularies and all 47 downloaded files verify.
+The model container exits 0; a subsequent `docker diff` times out. Read-only
+recovery verifies the stopped container and readonly original autotune mounts.
+The missing host-memory minimum and new-cache-file listing remain unknown.
+This is fresh reference evidence, with no historical outputs reused and no
+Windows, prefix-hit or performance acceptance attached yet.
+
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
 Its pinned original reduction configuration and i64 width reproduce the same
