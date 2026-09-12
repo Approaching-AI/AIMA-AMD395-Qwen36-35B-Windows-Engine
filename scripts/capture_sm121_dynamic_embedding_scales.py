@@ -113,6 +113,14 @@ def execute(args, capture, controls, index):
     signature = dict(in_ptr0="*bf16", in_ptr1="*bf16", out_ptr1="*bf16", inverse_ptr="*fp32",
                      ks0="i64", xnumel="i32", r0_numel="i32")
     options = dict(num_warps=16, num_stages=1, enable_fp_fusion=True, enable_reflect_ftz=True)
+    # Freeze the original capture's XBLOCK2/R0_BLOCK2048, 16-warp launch.
+    # Retuning the module on the first short control can select a different
+    # reduction tree that only disagrees on later vocabulary rows.
+    original_signature = {k: v for k, v in signature.items() if k != "inverse_ptr"}
+    compiled_original = triton.compile(ASTSource(kernel.fn, original_signature,
+        constexprs=dict(XBLOCK=2, R0_BLOCK=WIDTH),
+        attrs={(i,): [["tt.divisibility", 16]] for i in range(3)}), options=options)
+    (args.output_dir / "original.ptx").write_text(compiled_original.asm["ptx"])
     # JIT argument inference makes the literal width i32 and changes rounding.
     compiled = triton.compile(ASTSource(observer, signature,
         constexprs=dict(XBLOCK=2, R0_BLOCK=WIDTH),
@@ -127,21 +135,20 @@ def execute(args, capture, controls, index):
             raise ValueError("nonfinite embedding")
         x = torch.from_numpy(values.copy()).view(torch.bfloat16).cuda()
         rows = len(values)
-        # Prepare the original launcher outside the measured observation.
-        original.call([rows, WIDTH, x, weight])
-        torch.cuda.synchronize()
+        expected = torch.empty_like(x)
         out = torch.empty_like(x)
         inv = torch.empty(rows, dtype=torch.float32, device="cuda")
         # CompiledKernel loads its CUDA module on first invocation. Prepare
         # both launchers before timing GPU execution and retain preparation
         # memory separately from the bounded observation's live tensors.
+        compiled_original[((rows + 1) // 2, 1, 1)](x, weight, expected, WIDTH, rows, WIDTH)
         compiled[((rows + 1) // 2, 1, 1)](x, weight, out, inv, WIDTH, rows, WIDTH)
         torch.cuda.synchronize()
         preparation_peak_bytes = max(preparation_peak_bytes, torch.cuda.max_memory_allocated())
         torch.cuda.reset_peak_memory_stats()
         start, end = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
         start.record()
-        expected = original.call([rows, WIDTH, x, weight])[0]
+        compiled_original[((rows + 1) // 2, 1, 1)](x, weight, expected, WIDTH, rows, WIDTH)
         compiled[((rows + 1) // 2, 1, 1)](x, weight, out, inv, WIDTH, rows, WIDTH)
         end.record(); end.synchronize()
         ms = start.elapsed_time(end)
@@ -194,6 +201,9 @@ def execute(args, capture, controls, index):
                 model_tensors=locations, controls=checks, table_file=path.name,
                 table_bytes=path.stat().st_size, table_sha256=file_sha(path),
                 observer_source_sha256=file_sha(source), observer_signature=signature, options=options,
+                original_signature=original_signature,
+                original_configuration=dict(XBLOCK=2, R0_BLOCK=WIDTH, num_warps=16, num_stages=1),
+                original_ptx_sha256=file_sha(args.output_dir / "original.ptx"),
                 observer_ptx_sha256=file_sha(args.output_dir / "observer.ptx"), launches=launches,
                 maximum_dispatch_ms=maximum_ms, peak_device_bytes=maximum_device_bytes,
                 preparation_peak_device_bytes=preparation_peak_bytes,
