@@ -24,6 +24,8 @@ verify their fallback transaction and complete owner-state restoration.
 | MoE a012e01, exact dot tile certificate (not retained) | cold 8192, ordinary path | 56050.9289 | 101.508477 | 20076.2551 |
 | whole 57b3306, original dense dispatch | cold 8192, ordinary path | 53953.8059 | 100.925442 | 20031.092701 |
 | same binary, device-count dense replay | cold 8192, ordinary path | 53534.7813 | 100.702816 | 20018.5822 |
+| whole 584588a, original matrix producer | cold 8192, ordinary path | 53982.562999 | 100.835152 | 20032.911 |
+| same binary, hipBLASLt matrix producer | cold 8192, ordinary path | 52110.692099 | 101.46877 | 20017.0856 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -99,6 +101,19 @@ maximum K and dense selection. This remains opt-in; subsequent producer
 experiments use compact normalization with device replay disabled. One paired
 measurement does not establish repeatability or qualify immutable performance.
 See `benchmarks/correctness/dense-device-replay-20260913.json`.
+
+The existing hipBLASLt BF16-input/F32-output plan now optionally produces the
+70 QKV/Z matrices before their unchanged norm bounds and exact correction.
+Both same-binary q8192 runs pass all 512 GB10 outputs and callbacks with exact
+first token 144/logit 10.375. Callback TTFT changes from 53982.562999 to
+52110.692099 ms, an observed 1871.8709 ms reduction in one paired measurement.
+The original q7169 capture matches all 58,728,448 corrected BF16 QKV values;
+eight native shapes check 49,158 BF16 endpoints and preserve buffers.
+Use whole 584588a with `QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER=1`, qualified
+8f436db CK/FLA/MoE and device replay disabled for further experiments. The
+shipped producer default remains disabled. This adds no dependency and does
+not qualify immutable performance or the pending broader release matrix.
+Evidence: `benchmarks/correctness/hipblaslt-producer-20260913.json`.
 
 Parallelizing probability generation across eight K32 waves preserves the
 original sequential denominator recurrence and all 216 native numerical
