@@ -124,6 +124,7 @@ bool report(const char* route, const std::vector<float>& output,
     write(prefix + "-" + route + "-bf16.bin", rounded);
     const char* interval_kind = "kernel_dispatch";
     if (std::strcmp(route, "ck") == 0) interval_kind = "provider_call";
+    else if (memory_layout == 15u) interval_kind = "shared_operand_exact_qk_and_exact_pv";
     else if (memory_layout == 14u) interval_kind = "native_qk_and_exact_probability_pv";
     else if (memory_layout == 13u) interval_kind = "exact_qk_native_pv_and_selective_exact_pv_replay";
     else if (memory_layout >= 10u) interval_kind = "key_transpose_and_strided_pair_qk_pv";
@@ -151,6 +152,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
               << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u) ? "true" : "false")
               << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u ? "true" : "false")
+              << ",\"tiled_exact_qk\":" << (memory_layout == 15u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
               << ",\"strided_pair_qk\":" << ((memory_layout == 10u || memory_layout == 11u) ? "true" : "false")
               << ",\"strided_pair_pv\":" << ((memory_layout == 10u || memory_layout == 12u) ? "true" : "false")
@@ -176,17 +178,70 @@ unsigned parse(const char* text, unsigned maximum) {
     if (text == end || *end || n > maximum) throw std::runtime_error("invalid bounded integer");
     return unsigned(n);
 }
+
+int tiled_qk_safety() {
+    hipDeviceProp_t properties{}; check(hipGetDeviceProperties(&properties, 0));
+    if (std::string(properties.gcnArchName).rfind("gfx1151", 0) != 0)
+        throw std::runtime_error("tiled QK safety requires gfx1151");
+    constexpr unsigned tokens=67u, heads=16u, dim=256u;
+    constexpr unsigned starts[]={0u,3u,33u,64u}, counts[]={1u,17u,32u,3u};
+    size_t compared=0;
+    for(unsigned test=0u;test<4u;++test) {
+        std::vector<uint16_t> q(size_t(tokens)*heads*dim), k(size_t(tokens)*2u*dim);
+        for(size_t i=0;i<q.size();++i) q[i]=uint16_t(((i*37u)&0x807fu)|((124u+i%6u)<<7u));
+        for(size_t i=0;i<k.size();++i) k[i]=uint16_t(((i*53u)&0x807fu)|((122u+i%8u)<<7u));
+        if(test>=2u) {
+            // Force raw reloads for exponent-range and subnormal operands.
+            q[size_t(starts[test])*heads*dim]=uint16_t((63u<<7u)|19u);
+            q[size_t(starts[test])*heads*dim+1u]=1u;
+            k[0]=uint16_t((192u<<7u)|11u); k[1]=0x8000u;
+        }
+        const unsigned start=starts[test], count=counts[test], stride=start+count;
+        const size_t cells=size_t(count)*heads*stride;
+        Device dq(q.size()*2u), dk(k.size()*2u), transposed(k.size()*2u);
+        Device exact((cells+128u)*4u), tiled((cells+128u)*4u);
+        check(hipMemcpy(dq.pointer,q.data(),q.size()*2u,hipMemcpyHostToDevice));
+        check(hipMemcpy(dk.pointer,k.data(),k.size()*2u,hipMemcpyHostToDevice));
+        check(hipMemset(exact.pointer,0xa5,(cells+128u)*4u));
+        check(hipMemset(tiled.pointer,0xa5,(cells+128u)*4u));
+        check(hipError_t(qrt_blackwell_attention::transpose_keys(
+            dk.as<uint16_t>(),transposed.as<uint16_t>(),k.size(),tokens,nullptr)));
+        Event begin,end; check(hipEventRecord(begin.value));
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_blackwell_attention::blackwell_transposed_scores_kernel<false>),
+            dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
+            dq.as<uint16_t>(),transposed.as<uint16_t>(),exact.as<float>()+64u,start,count,stride,tokens);
+        check(hipGetLastError());
+        hipLaunchKernelGGL(qrt_blackwell_attention::blackwell_tiled_exact_scores_kernel,
+            dim3((stride+31u)/32u,heads,(count+7u)/8u),dim3(256u),0u,nullptr,
+            dq.as<uint16_t>(),transposed.as<uint16_t>(),tiled.as<float>()+64u,start,count,stride,tokens);
+        check(hipGetLastError()); (void)finish(begin,end,1000.0f);
+        std::vector<uint32_t> a(cells+128u),b(cells+128u);
+        check(hipMemcpy(a.data(),exact.pointer,a.size()*4u,hipMemcpyDeviceToHost));
+        check(hipMemcpy(b.data(),tiled.pointer,b.size()*4u,hipMemcpyDeviceToHost));
+        for(size_t i=0;i<a.size();++i) {
+            if(i<64u || i>=cells+64u) {
+                if(a[i]!=0xa5a5a5a5u || b[i]!=0xa5a5a5a5u) throw std::runtime_error("tiled QK redzone changed");
+            } else if(a[i]!=b[i]) throw std::runtime_error("tiled QK score differs from exact scalar control");
+        }
+        compared+=cells;
+    }
+    std::cout << "{\"kind\":\"tiled_exact_qk_safety\",\"cases\":4,\"fp32_scores_compared\":" << compared
+              << ",\"mismatches\":0,\"offset_and_partial_tiles\":true,\"range_and_subnormal_fallback\":true,"
+                 "\"redzones_pass\":true,\"model_loaded\":false,\"inference_acceptance\":false}" << std::endl;
+    return 0;
+}
 }
 
 int main(int argc, char** argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--tiled-qk-safety") == 0) return tiled_qk_safety();
         if (argc != 13 && argc != 14) throw std::runtime_error(
-            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_14]");
+            "usage: replay Q K V reference CK_DLL output_prefix tokens query_start count batch exp2_table_or_dash baseline_0_or_1 [memory_layout_0_to_15]");
         const unsigned tokens = parse(argv[7], qrt_blackwell_attention::kSplitMaxTokens);
         const unsigned start = parse(argv[8], qrt_blackwell_attention::kSplitMaxTokens - 1u);
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 32);
         const bool baseline = parse(argv[12], 1) != 0;
-        const unsigned memory_layout = argc == 14 ? parse(argv[13], 14) : 0u;
+        const unsigned memory_layout = argc == 14 ? parse(argv[13], 15) : 0u;
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
             std::strcmp(native_product_option, "0") != 0;

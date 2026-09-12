@@ -69,7 +69,23 @@ takes 1,487.11 ms versus 1,287.27 ms for the same-build exact control. This
 establishes the tested correctness of selective PV replay, with no product
 performance gain. All 323 local tests (2 skips) and the native build pass.
 The independent next mode `4` changes QK alone and uses the original complete
-PV accumulator; it also remains off until its own full-model qualification.
+PV accumulator. Its [complete model tests](../benchmarks/correctness/attention-native-qk-20260912.json)
+at `eb86520` fail q7169's first token and 461 of q8192's 512 outputs, starting
+at output index 8. The q8192 first token and logit10.4375 pass the first-token
+boundary. The captured component takes 1,026.26 versus 1,282.26 ms, but its
+full-model token failures prevent adopting that timing as valid performance.
+Both native QK and native PV require a different implementation route.
+
+The separate `QRT_CK_SM121_TILED_EXACT_QK=1` experiment stages eight query
+rows and 32 key rows in 20 KiB plus a range flag of shared memory per block.
+Normal BF16 operands with biased exponents 64–191 use a lossless halfword
+encoding with an explicit significand; signed zero remains exact. Any other
+operand makes the block reload raw BF16 and use the original product helper.
+Every lane keeps one exact K16 accumulator; feature pairs share packed LDS words. This removes
+repeated global operand reads across queries while retaining the selected
+integer alignment and original fused online-softmax/PV arithmetic. It uses
+32-query slabs, leaves single-query calls unchanged, and rejects combinations
+with the native-matrix, native-product or integer-mantissa experiments.
 
 Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE

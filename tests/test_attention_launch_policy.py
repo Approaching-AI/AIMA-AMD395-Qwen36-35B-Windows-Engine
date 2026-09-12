@@ -36,6 +36,7 @@ constexpr unsigned kQueryHeads = 16, kHeadDim = 256, kThreads = 256;
 constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kCooperativeColumns = 64;
+constexpr unsigned kTiledExactQueries = 8, kTiledExactKeys = 32;
 constexpr unsigned kExactTileTokens = 32;
 ''' + row + packed + r'''
 void blackwell_exact_scores_kernel() {}
@@ -43,6 +44,7 @@ void blackwell_cooperative_scores_kernel() {}
 void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
+void blackwell_tiled_exact_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
@@ -254,8 +256,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,15u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,15u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,16u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,16u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -290,6 +292,22 @@ int main() {
     for(unsigned failed=1;failed<=3;++failed) {
         launches=error_queries=0;fail_launch=failed;
         if(native_qk(matrix_elements,&operand)!=hipErrorUnknown || launches!=failed) return 58;
+    }
+    launches=error_queries=fail_launch=0u;
+    auto tiled=[&](size_t elements,const uint16_t* key) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,7110,32,0,
+            nullptr,nullptr,nullptr,true,rcp,15u,&scratch,elements,nullptr,nullptr,key,7169u);
+    };
+    const size_t tiled_cells=32u*16u*7142u;
+    if(split_scratch_elements(32u,7142u,15u)!=tiled_cells || split_separate_probability(15u) ||
+       tiled(tiled_cells-1u,&operand)!=hipErrorInvalidValue ||
+       tiled(tiled_cells,nullptr)!=hipErrorInvalidValue || launches) return 59;
+    if(tiled(tiled_cells,&operand)!=hipSuccess || launches!=2u ||
+       !std::strstr(launch_names[0],"blackwell_tiled_exact_scores_kernel") ||
+       !std::strstr(launch_names[1],"blackwell_exact_attention_kernel<true, true>")) return 60;
+    for(unsigned failed=1;failed<=2;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(tiled(tiled_cells,&operand)!=hipErrorUnknown || launches!=failed) return 61;
     }
     return 0;
 }

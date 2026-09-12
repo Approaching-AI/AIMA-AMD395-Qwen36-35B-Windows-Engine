@@ -12,6 +12,7 @@
 #include "../moe_accumulator/sm121_mantissa_parts.h"
 #include "../moe_accumulator/sm121_integer_parts.h"
 #include "../moe_accumulator/sm121_pv_error_bound.h"
+#include "../moe_accumulator/sm121_prepared_bf16.h"
 #include "../gdn/sm121_exp2_table.h"
 #include "../gdn/sm121_exp2_interpolated.h"
 #include "../gdn/sm121_attention_rcp.h"
@@ -159,6 +160,118 @@ __global__ void blackwell_transposed_scores_kernel(
     }
     scores[cell] = qrt_q1_moe_hawkeye::value_to_float(
         qrt_sm121_group16::finish_accumulator(dot)) * kExactScale;
+}
+
+constexpr unsigned kTiledExactQueries = 8u, kTiledExactKeys = 32u;
+static_assert(kTiledExactQueries * kTiledExactKeys == kThreads);
+
+// Stage paired halfwords with a lossless explicit-significand encoding.
+// An out-of-range operand marks the entire block for a raw reload; mixed
+// representations are never consumed by the exact accumulator.
+template<bool Prepared>
+__device__ __forceinline__ void blackwell_stage_tiled_qk(
+    const uint16_t* query, const uint16_t* transposed_key,
+    uint32_t (&queries)[kTiledExactQueries][kHeadDim / 2u],
+    uint32_t (&keys)[kHeadDim / 2u][kTiledExactKeys], unsigned* fallback,
+    unsigned head, unsigned first_query, unsigned first_key,
+    unsigned query_start, unsigned query_count, unsigned score_stride, unsigned key_stride) {
+    bool invalid = false;
+    for (unsigned cell = threadIdx.x; cell < kTiledExactQueries * (kHeadDim / 2u); cell += kThreads) {
+        const unsigned row = cell / (kHeadDim / 2u), pair = cell % (kHeadDim / 2u);
+        uint16_t a = 0u, b = 0u;
+        if (first_query + row < query_count) {
+            const size_t base = (size_t(query_start + first_query + row) * kQueryHeads + head) * kHeadDim + pair * 2u;
+            a = query[base]; b = query[base + 1u];
+        }
+        if constexpr (Prepared) {
+            const bool valid = qrt_sm121_prepared_bf16::eligible(a) && qrt_sm121_prepared_bf16::eligible(b);
+            invalid = invalid || !valid;
+            a = valid ? qrt_sm121_prepared_bf16::encode(a) : 0u;
+            b = valid ? qrt_sm121_prepared_bf16::encode(b) : 0u;
+        }
+        queries[row][pair] = uint32_t(a) | (uint32_t(b) << 16u);
+    }
+    const unsigned kv_head = head / (kQueryHeads / kKvHeads);
+    for (unsigned cell = threadIdx.x; cell < (kHeadDim / 2u) * kTiledExactKeys; cell += kThreads) {
+        const unsigned pair = cell / kTiledExactKeys, column = cell % kTiledExactKeys;
+        uint16_t a = 0u, b = 0u;
+        if (first_key + column < score_stride) {
+            const size_t base = (size_t(kv_head) * kHeadDim + pair * 2u) * key_stride + first_key + column;
+            a = transposed_key[base]; b = transposed_key[base + key_stride];
+        }
+        if constexpr (Prepared) {
+            const bool valid = qrt_sm121_prepared_bf16::eligible(a) && qrt_sm121_prepared_bf16::eligible(b);
+            invalid = invalid || !valid;
+            a = valid ? qrt_sm121_prepared_bf16::encode(a) : 0u;
+            b = valid ? qrt_sm121_prepared_bf16::encode(b) : 0u;
+        }
+        keys[pair][column] = uint32_t(a) | (uint32_t(b) << 16u);
+    }
+    if constexpr (Prepared) { if (invalid) atomicOr(fallback, 1u); }
+}
+
+template<bool Prepared>
+__device__ __forceinline__ float blackwell_tiled_qk_dot(
+    const uint32_t (&queries)[kTiledExactQueries][kHeadDim / 2u],
+    const uint32_t (&keys)[kHeadDim / 2u][kTiledExactKeys], unsigned row, unsigned key) {
+    qrt_q1_moe_hawkeye::Value dot{0u, kBlackwellZeroExponent, false};
+    for (unsigned base = 0u; base < kHeadDim; base += kBlackwellMmaGroup) {
+        uint32_t products[kBlackwellMmaGroup];
+#pragma unroll
+        for (unsigned item = 0u; item < kBlackwellMmaGroup; item += 2u) {
+            const uint32_t q = queries[row][(base + item) / 2u];
+            const uint32_t k = keys[(base + item) / 2u][key];
+            if constexpr (Prepared) {
+                products[item] = qrt_sm121_prepared_bf16::multiply(uint16_t(q), uint16_t(k));
+                products[item + 1u] = qrt_sm121_prepared_bf16::multiply(uint16_t(q >> 16u), uint16_t(k >> 16u));
+            } else {
+                products[item] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                    uint16_t(q), uint16_t(k), kBlackwellZeroExponent));
+                products[item + 1u] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                    uint16_t(q >> 16u), uint16_t(k >> 16u), kBlackwellZeroExponent));
+            }
+        }
+        const auto sum = qrt_sm121_group16::sum_packed(dot, products);
+        dot = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
+    }
+    return qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(dot)) * kExactScale;
+}
+
+// Each wave owns 32 independent keys for one query. Eight query waves reuse
+// the same keys; feature pairs occupy distinct 32-bit LDS banks. Only operand
+// preparation and reuse change, not K16 order, alignment or truncation.
+__global__ void blackwell_tiled_exact_scores_kernel(
+    const uint16_t* query, const uint16_t* transposed_key, float* scores,
+    unsigned query_start, unsigned query_count, unsigned score_stride, unsigned key_stride) {
+    __shared__ uint32_t queries[kTiledExactQueries][kHeadDim / 2u];
+    __shared__ uint32_t keys[kHeadDim / 2u][kTiledExactKeys];
+    __shared__ unsigned fallback;
+    const unsigned head = blockIdx.y, first_query = blockIdx.z * kTiledExactQueries;
+    const unsigned first_key = blockIdx.x * kTiledExactKeys;
+    const unsigned local_query = threadIdx.x / kTiledExactKeys;
+    const unsigned local_key = threadIdx.x % kTiledExactKeys;
+    const unsigned row = first_query + local_query, key = first_key + local_key;
+    const unsigned last_query = query_start + min(first_query + kTiledExactQueries, query_count) - 1u;
+    if (first_key > last_query) {
+        if (row < query_count && key < score_stride)
+            scores[(size_t(row) * kQueryHeads + head) * score_stride + key] = -INFINITY;
+        return;
+    }
+    if (threadIdx.x == 0u) fallback = 0u;
+    __syncthreads();
+    blackwell_stage_tiled_qk<true>(query, transposed_key, queries, keys, &fallback,
+        head, first_query, first_key, query_start, query_count, score_stride, key_stride);
+    __syncthreads();
+    if (fallback) {
+        blackwell_stage_tiled_qk<false>(query, transposed_key, queries, keys, &fallback,
+            head, first_query, first_key, query_start, query_count, score_stride, key_stride);
+        __syncthreads();
+    }
+    if (row >= query_count || key >= score_stride) return;
+    const size_t cell = (size_t(row) * kQueryHeads + head) * score_stride + key;
+    if (key > query_start + row) { scores[cell] = -INFINITY; return; }
+    scores[cell] = fallback ? blackwell_tiled_qk_dot<false>(queries, keys, local_query, local_key)
+                           : blackwell_tiled_qk_dot<true>(queries, keys, local_query, local_key);
 }
 
 __global__ void blackwell_strided_scores_kernel(
@@ -1069,13 +1182,13 @@ constexpr bool split_separate_probability(unsigned layout) {
     return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u || layout == 14u;
 }
 constexpr bool split_transposed_keys(unsigned layout) {
-    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 14u);
+    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 15u);
 }
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
-        memory_layout < 2u || memory_layout > 14u) return 0u;
+        memory_layout < 2u || memory_layout > 15u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
@@ -1100,7 +1213,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 14u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
+    if (memory_layout > 15u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
@@ -1114,7 +1227,12 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         const size_t cells = static_cast<size_t>(query_count) * kQueryHeads * stride;
         if (score_scratch_elements < split_scratch_elements(query_count, stride, memory_layout))
             return int(hipErrorInvalidValue);
-        if (memory_layout == 9u) {
+        if (memory_layout == 15u) {
+            hipLaunchKernelGGL(blackwell_tiled_exact_scores_kernel,
+                dim3((stride + kTiledExactKeys - 1u) / kTiledExactKeys, kQueryHeads,
+                    (query_count + kTiledExactQueries - 1u) / kTiledExactQueries), dim3(kThreads), 0u, stream,
+                q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
+        } else if (memory_layout == 9u) {
             if (!prepared || !prepared->key || !prepared->value || !prepared->query ||
                 !prepared->probability || prepared->tokens < stride ||
                 prepared->tokens > kSplitMaxTokens || prepared->queries < query_count || prepared->queries > 32u)
