@@ -64,12 +64,25 @@ saved-prefix proof: complete checkpoints exist, but lookup rejects an owner
 after any generated token. The next branch cold-prefills and still returns
 its 32 GB10 tokens. See
 `benchmarks/correctness/http-prefix-owner-decode-gap-20260912.json`.
-The pending repair retains partial checkpoint access after successful decode.
+Source a797b62 retains partial checkpoint access after successful decode.
 The core tracks the owner's actual committed count; the private checkpoint
 shadow starts at zero, and rollback must restore that original count. An
 advanced live frontier remains ineligible as an exact whole-owner hit. Host
-tests exercise both KV layouts, advanced owner state and allocation failures;
-native qualification of the repaired route remains pending.
+tests exercise both KV layouts, advanced owner state and allocation failures.
+
+The repaired r3 archive now passes the actual HTTP owner/out32 scenario on
+baiying with D:\models\Qwen3.6-35B-A3B. Its four branches perform twelve
+saved-state transactions after the owner has committed 31 decode inputs.
+All 256 nonstream branch tokens and twelve first-token logits match GB10;
+four SSE responses match text and usage. Every transaction restores the
+original committed count and allocations. An unrelated q8192 request replaces
+the owner, returns all 32 GB10 tokens and logit10.375, and makes the former
+branch correctly cold-prefill. See
+`benchmarks/correctness/http-prefix-after-decode-20260912.json`.
+Load is 20181.3837 ms. Warm reported HTTP TTFT is 141.1245–519.2788 ms and
+excludes the owner's 47705.8181 ms prefill; it cannot qualify cold TTFT.
+The archive's default remains checkpoints disabled; this test explicitly
+enables them. Wider suffixes and long-prefix targets remain unqualified.
 
 For native qualification, qrt-product run accepts --checkpoint-owner FILE
 together with --prefix-tokens N. It first runs the complete owner prompt,
@@ -129,7 +142,7 @@ Internal tensor differences in some passing cases are diagnostics, not a
 reason to reject their GB10-valid output. No extra arithmetic repair is added
 solely to equalize these hashes. See
 `benchmarks/correctness/prefix-actual-branches-20260912.json`.
-Long-prefix, 1024-input/512-output and packaged-server qualification remain open;
+Long-prefix and 1024-input/512-output qualification remain open;
 the 53.7–54.2 second owner prefill is excluded from warm callback measurements.
 A timeout in post-run metadata collection is preserved, and
 all 3000 binary capture files were recovered and verified without rerunning

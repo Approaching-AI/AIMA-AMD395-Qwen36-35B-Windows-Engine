@@ -45,8 +45,17 @@ length cutoff. The 512-token test completes reasoning and the visible answer
 See `benchmarks/correctness/http-positive-protocol-20260912.json` for the
 commands, build/archive inventory, all responses and these explicit limits.
 Short chat/tool output has no independent GB10 token qualification yet.
-Saved-prefix HTTP, long contexts, the renewed full cold matrix and retained
-performance remain open. No release is qualified.
+The later a797b62 whole/core/server r3 archive also passes saved-prefix HTTP
+after a normal 32-token owner response. All four branches really restore saved
+state: 256 raw tokens and twelve first logits match GB10, four SSE comparisons
+pass, and all twelve transactions restore the advanced owner and allocations.
+Owner replacement and the old branch's subsequent cold fallback pass. Load
+is 20181.3837 ms; the four branches' 141.1245–519.2788 ms reported warm TTFT
+excludes the 47705.8181 ms owner prefill. The default checkpoint switch remains
+off while wider suffixes are unqualified. See
+`benchmarks/correctness/http-prefix-after-decode-20260912.json`.
+Short chat/tool numerical qualification, long contexts, the renewed full cold
+matrix and retained performance remain open. No release is qualified.
 
 ## Historical 2026-09-09 HTTP run
 

@@ -44,7 +44,7 @@ controller preserves the hashed correction profile and has explicit bounded
 request deadlines; these do not change product performance thresholds.
 Reported HTTP TTFT is 55,543.3509 / 54,851.8818 ms. The second request is
 not cold, and these metrics do not replace the complete CLI callback gate.
-Positive chat/tools, prefix HTTP and archive relocation remain open.
+The following archive and later protocol records extend this original check.
 
 The [portable archive at `545636c`](../benchmarks/correctness/runtime-portable-archive-20260912.json)
 now passes native relocation: all 280 files are verified after extracting the
@@ -62,6 +62,20 @@ chat, tools, thinking and contention tests have not yet run. The server exits
 normally with healthy host checks. A compatible short full-MoE route must be
 qualified before continuing that protocol matrix; the passing q8192 archive
 result does not cover this short-prompt path.
+
+The later compatible logical full-MoE selection and complete-checkpoint-only
+HTTP routing pass all seventeen positive protocol checks from the extracted
+b619793 r2 archive. The tool, explicit/default thinking, queue timeout/overflow
+and shutdown responses are recorded in
+[the positive protocol evidence](../benchmarks/correctness/http-positive-protocol-20260912.json).
+Short output still needs independent GB10 qualification. The a797b62 r3 archive
+additionally repairs checkpoint lookup after owner decode and passes four
+actual saved-prefix branches: all 256 raw output tokens and twelve first logits
+match GB10, with matching SSE, complete owner rollback and cold fallback after
+owner replacement. See
+[the HTTP saved-prefix evidence](../benchmarks/correctness/http-prefix-after-decode-20260912.json).
+Neither warm HTTP timing nor these bounded branches qualify cold performance
+or the wider long-prefix targets.
 
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model
