@@ -52,3 +52,10 @@ The host tests execute the actual query, publication and shadow transaction
 code with guarded host allocations, including each allocation failure, both
 KV layouts, missing layers/hidden, wrong generation/owner, unrelated tokens
 and rollback. They do not establish GPU arithmetic or GB10 correctness.
+
+The optional row-major FP32 seeded FLA entry point now reproduces the original
+full operator execution exactly from independently computed prefixes. Native
+q65 at prefix 64 and real GB10 q7169 at prefixes 64, 1024, and 7168 have zero
+suffix output or final-state bit mismatches. This is operator evidence only;
+whole-model suffix integration and key-major state conversion remain pending.
+See `benchmarks/correctness/fla-seeded-fp32-20260912.json`.
