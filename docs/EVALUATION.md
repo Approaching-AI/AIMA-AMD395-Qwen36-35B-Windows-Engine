@@ -61,6 +61,16 @@ K16 accumulator. Its float output is intended for the existing BF16 attention
 consumer; unchanged float bits are not promised. It remains off by default
 and requires independent captured-input and complete GB10 model checks.
 
+Source `cd7dd88` now passes those [captured-input and model checks](../benchmarks/correctness/attention-selective-pv-20260912.json):
+all 29,364,224 attention BF16 outputs, q7169/out32, and q8192/out512 match
+their GB10 boundaries. Actual q8192 first callback is 62,896.6632 ms, with
+load 20,046.7506 ms and TPOT 115.818670 ms. Its captured attention component
+takes 1,487.11 ms versus 1,287.27 ms for the same-build exact control. This
+establishes the tested correctness of selective PV replay, with no product
+performance gain. All 323 local tests (2 skips) and the native build pass.
+The independent next mode `4` changes QK alone and uses the original complete
+PV accumulator; it also remains off until its own full-model qualification.
+
 Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA

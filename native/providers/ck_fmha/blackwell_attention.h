@@ -1066,16 +1066,16 @@ inline int transpose_keys(const uint16_t* key, uint16_t* transposed,
 }
 
 constexpr bool split_separate_probability(unsigned layout) {
-    return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u;
+    return layout == 3u || (layout >= 5u && layout <= 9u) || layout == 13u || layout == 14u;
 }
 constexpr bool split_transposed_keys(unsigned layout) {
-    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 13u);
+    return (layout >= 4u && layout <= 7u) || (layout >= 10u && layout <= 14u);
 }
 
 inline size_t split_scratch_elements(unsigned int queries, unsigned int stride,
                                      unsigned int memory_layout) {
     if (!queries || queries > 32u || stride < queries || stride > kSplitMaxTokens ||
-        memory_layout < 2u || memory_layout > 13u) return 0u;
+        memory_layout < 2u || memory_layout > 14u) return 0u;
     const size_t rows = static_cast<size_t>(queries) * kQueryHeads;
     const size_t cells = rows * stride;
     // Every row count is a multiple of sixteen, so the BF16 slab ends on a
@@ -1100,7 +1100,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
         query_count > 262144u - output_start) return int(hipErrorInvalidValue);
-    if (memory_layout > 13u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
+    if (memory_layout > 14u || (memory_layout == 13u && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (memory_layout >= 2u) {
@@ -1135,7 +1135,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             hipLaunchKernelGGL(blackwell_cooperative_scores_kernel,
                 dim3((cells + kCooperativeColumns - 1u) / kCooperativeColumns), dim3(kThreads), 0u, stream,
                 q, k, score_scratch, query_start, query_count, stride);
-        } else if (memory_layout == 7u) {
+        } else if (memory_layout == 7u || memory_layout == 14u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_scores_kernel<true>),
                 dim3((stride + kIntegerMatrixColumns - 1u) / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                 q, transposed_key, score_scratch, query_start, query_count, stride, key_stride, nullptr, nullptr);
@@ -1203,6 +1203,11 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                     dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
                     v, probabilities, scales, output, query_start, output_start, stride,
                     rcp_table, raw_accumulator, raw_denominator, errors);
+            } else if (memory_layout == 14u) {
+                hipLaunchKernelGGL(blackwell_probability_value_kernel,
+                    dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,
+                    v, probabilities, scales, output, query_start, output_start, stride,
+                    rcp_table, raw_accumulator, raw_denominator, nullptr);
             } else if (memory_layout >= 6u) {
                 hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true>),
                     dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,

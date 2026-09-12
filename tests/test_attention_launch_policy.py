@@ -254,8 +254,8 @@ int main() {
         fail_launch=0;
     }
     launches=error_queries=0;
-    if (split(0,8,&scratch,SIZE_MAX,14u)!=hipErrorInvalidValue || launches ||
-        split_scratch_elements(8u,8u,14u)!=0u) return 51;
+    if (split(0,8,&scratch,SIZE_MAX,15u)!=hipErrorInvalidValue || launches ||
+        split_scratch_elements(8u,8u,15u)!=0u) return 51;
     const size_t selective_elements=split_scratch_elements(16u,17u,13u);
     if(selective_elements!=matrix_elements+16u*16u*256u) return 52;
     auto selective=[&](size_t elements, const unsigned char* rcp, bool sum=true) {
@@ -274,6 +274,22 @@ int main() {
         launches=error_queries=0;fail_launch=failed;
         if(selective(selective_elements,rcp)!=hipErrorUnknown || launches!=failed || error_queries!=failed)
             return 55;
+    }
+    launches=error_queries=fail_launch=0u;
+    auto native_qk=[&](size_t elements,const uint16_t* key) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1,16,0,
+            nullptr,nullptr,nullptr,true,rcp,14u,&scratch,elements,nullptr,nullptr,key,17u);
+    };
+    if(split_scratch_elements(16u,17u,14u)!=matrix_elements ||
+       native_qk(matrix_elements-1u,&operand)!=hipErrorInvalidValue ||
+       native_qk(matrix_elements,nullptr)!=hipErrorInvalidValue || launches) return 56;
+    if(native_qk(matrix_elements,&operand)!=hipSuccess || launches!=3u ||
+       !std::strstr(launch_names[0],"blackwell_mantissa_scores_kernel<true>") ||
+       !std::strstr(launch_names[1],"blackwell_online_probability_kernel") ||
+       !std::strstr(launch_names[2],"blackwell_probability_value_kernel")) return 57;
+    for(unsigned failed=1;failed<=3;++failed) {
+        launches=error_queries=0;fail_launch=failed;
+        if(native_qk(matrix_elements,&operand)!=hipErrorUnknown || launches!=failed) return 58;
     }
     return 0;
 }
