@@ -102,6 +102,14 @@ immutable controls and short reference continuations reproduce, and the native
 observers preserve the original product failures. No arithmetic repair or
 product acceptance is inferred from intermediate hashes or component results.
 
+The [short router repair](../benchmarks/correctness/http-short-router-product-20260912.json)
+at MoE 641cf79 passes the actual q5/out32 request using the a797b62 whole/CLI.
+All 32 raw outputs, first logit 17.875, stream callbacks and host checks pass.
+Every layer0 router logit, top-k ID/weight and unrounded carrier value matches
+the independent reference. The eight K256 BF16 partials apply to the complete
+observed 4–16 token range. Other short-case repairs and product performance
+remain open.
+
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model
 tests. It uses 32-query dispatches and preserves reference online softmax,

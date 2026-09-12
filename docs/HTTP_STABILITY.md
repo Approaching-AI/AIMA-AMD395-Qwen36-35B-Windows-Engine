@@ -82,6 +82,14 @@ nvjet projection kernels, including a four-way FP32 split-K router. Its exact
 accumulation order remains under investigation. These are diagnostic results;
 the complete native token/logit failures remain open.
 
+The router repair at MoE 641cf79 now passes the real q5/out32 case with the
+a797b62 whole/CLI: all 32 tokens, first logit 17.875 and actual stream callbacks
+match GB10; host checks pass. Its complete layer0 router, top-k IDs/weights and
+unrounded combined carrier also match. The same reference router kernel is
+observed at every length 4–16. See
+`benchmarks/correctness/http-short-router-product-20260912.json`.
+The q17/q19/q85 failures still need repair; no release is qualified.
+
 The same a797b62 archive components pass both renewed main cold512 cases,
 all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,
 reaches its first callback in58785.9958ms and has TPOT109.671292ms. The complete
