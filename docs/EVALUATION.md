@@ -68,7 +68,7 @@ HTTP routing pass all seventeen positive protocol checks from the extracted
 b619793 r2 archive. The tool, explicit/default thinking, queue timeout/overflow
 and shutdown responses are recorded in
 [the positive protocol evidence](../benchmarks/correctness/http-positive-protocol-20260912.json).
-Short output still needs independent GB10 qualification. The a797b62 r3 archive
+The actual short-input GB10 check below exposes numerical gaps. The a797b62 r3 archive
 additionally repairs checkpoint lookup after owner decode and passes four
 actual saved-prefix branches: all 256 raw output tokens and twelve first logits
 match GB10, with matching SSE, complete owner rollback and cold fallback after
@@ -76,6 +76,17 @@ owner replacement. See
 [the HTTP saved-prefix evidence](../benchmarks/correctness/http-prefix-after-decode-20260912.json).
 Neither warm HTTP timing nor these bounded branches qualify cold performance
 or the wider long-prefix targets.
+
+The [five actual HTTP prompt checks](../benchmarks/correctness/http-short-gb10-matrix-20260912.json)
+retain all native tokenizer inputs and frozen GB10 outputs. Only q294 tool call
+passes both complete32 output and first-logit checks. q5 plain text diverges
+at index7; q17 chat diverges at index9 after its first EOS. q85 tool continuation
+matches all32 but has first-logit error0.5. q19 thinking differs at index303
+before EOS and has first-logit error0.25. The numerical tolerance stays0.125.
+All processes complete with healthy host checks. In the same a797b62 profile,
+q7169/out512 and q8192/out512 retain all1024 frozen tokens and real callbacks;
+q8192 actual TTFT58785.9958ms remains unqualified. Short prefill and continuation
+operator boundaries are being compared to locate the numerical differences.
 
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model

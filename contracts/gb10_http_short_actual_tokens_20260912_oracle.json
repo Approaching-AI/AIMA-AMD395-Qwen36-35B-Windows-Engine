@@ -2012,7 +2012,7 @@
   "download_verification": {
     "schema_version": 1,
     "host": "aitopatom-66c4",
-    "command_file": "/home/qujing/recover_gb10_short_protocol_r1.py",
+    "command_file": "recover_gb10_short_protocol_r1.py",
     "command_file_sha256": "1a4b7b09de4410f03d538e080c4a2bd042cc98e9c6bbcf8b69e75468be91d833",
     "container_name": "qrt-gb10-short-protocol-20260912-r1",
     "container_id": "ee1879504c66e621d36534e40fd2da8633fe49df2c9e2aaf73d54d2b0f169ada",
@@ -2033,67 +2033,67 @@
     "readonly_cache_mounts": [
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A",
         "Destination": "/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA",
         "Destination": "/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ",
         "Destination": "/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ",
         "Destination": "/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA",
         "Destination": "/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ",
         "Destination": "/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA",
         "Destination": "/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA"
       },
       {
         "Type": "bind",
-        "Source": "/home/qujing/qrt-gb10-short-protocol-20260912-r1/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA",
         "Destination": "/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA",
         "Mode": "ro",
         "RW": false,
-        "Propagation": "rprivate"
+        "Propagation": "rprivate",
+        "source_relative_to_capture_root": "frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA"
       }
     ],
     "frozen_input_hashes_verified": true,
@@ -2343,5 +2343,7 @@
     "minimum_host_available_bytes": null,
     "new_autotune_cache_status_unavailable": true
   },
-  "old_control_oracles_changed": false
+  "old_control_oracles_changed": false,
+  "original_unredacted_contract_sha256": "2c0c496276f376a4148560c0976bdece4c088ddcf7d989afb1e2a58c10718c6b",
+  "reference_metadata_path_scope": "Absolute reference-account home paths omitted; command basename and capture-root-relative cache sources preserve identities. Original unredacted contract hash binds native runs already completed."
 }

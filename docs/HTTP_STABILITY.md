@@ -44,7 +44,8 @@ length cutoff. The 512-token test completes reasoning and the visible answer
 323, with matching ordinary/SSE output and no think delimiters leaking.
 See `benchmarks/correctness/http-positive-protocol-20260912.json` for the
 commands, build/archive inventory, all responses and these explicit limits.
-Short chat/tool output has no independent GB10 token qualification yet.
+The subsequent actual-token GB10 capture finds short-input numerical gaps,
+described below; the functional protocol pass does not qualify those outputs.
 The later a797b62 whole/core/server r3 archive also passes saved-prefix HTTP
 after a normal 32-token owner response. All four branches really restore saved
 state: 256 raw tokens and twelve first logits match GB10, four SSE comparisons
@@ -54,8 +55,21 @@ is 20181.3837 ms; the four branches' 141.1245–519.2788 ms reported warm TTFT
 excludes the 47705.8181 ms owner prefill. The default checkpoint switch remains
 off while wider suffixes are unqualified. See
 `benchmarks/correctness/http-prefix-after-decode-20260912.json`.
-Short chat/tool numerical qualification, long contexts, the renewed full cold
-matrix and retained performance remain open. No release is qualified.
+Five actual HTTP prompts now have independent GB10 references, with both
+immutable controls passing in the same loaded reference engine. Native a797b62
+cold runs show that q294 tool call passes all 32 tokens and first-logit tolerance.
+Plain q5 diverges at output index7. Chat q17 diverges at index9, after its first
+EOS. Tool continuation q85 matches all 32 tokens but its first logit differs
+by0.5; thinking q19 first differs at index303 before EOS and has first-logit
+error0.25. Tolerance remains0.125. See
+`benchmarks/correctness/http-short-gb10-matrix-20260912.json` and
+`contracts/gb10_http_short_actual_tokens_20260912_oracle.json`.
+
+The same a797b62 archive components pass both renewed main cold512 cases,
+all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,
+reaches its first callback in58785.9958ms and has TPOT109.671292ms. The complete
+eight-case renewal, short-input repair, long contexts and retained performance
+remain open. No release is qualified.
 
 ## Historical 2026-09-09 HTTP run
 
