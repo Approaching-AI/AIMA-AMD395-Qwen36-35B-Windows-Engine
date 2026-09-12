@@ -30,6 +30,7 @@ param(
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$BatchedHawkeye = 0,
     [Parameter(Mandatory = $false)][ValidateSet(4, 8, 16)][int]$RoutedReplayLanes = 16,
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
+    [Parameter(Mandatory = $false)][ValidateSet(1, 4, 8)][int]$DotStagingGroups = 1,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$FullSharedHawkeye = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ExactShared = 0,
     [Parameter(Mandatory = $false)][ValidateRange(0, 1)][int]$ConditionalExactGate = 0,
@@ -853,6 +854,7 @@ $variantDefines = @(
     "-DQRT_TRITON_MOE_FULL_V3_EVENT_SLOTS=$FullV3EventSlots",
     "-DQRT_MOE_ROUTED_REPLAY_LANES=$RoutedReplayLanes",
     "-DQRT_SM121_DPP_REDUCTION=$DppReduction",
+    "-DQRT_SM121_DOT_STAGING_GROUPS=$DotStagingGroups",
     "-DQRT_TRITON_MOE_NATIVE_WMMA_K_STAGE=$NativeWmmaKStage"
 )
 if ($NativeWmmaGate -ne 0) { $variantDefines += "-DQRT_TRITON_MOE_NATIVE_WMMA_GATE=1" }
@@ -1383,6 +1385,7 @@ $record = [ordered]@{
     batched_hawkeye = ($BatchedHawkeye -ne 0)
     routed_replay_lanes = $RoutedReplayLanes
     sm121_dpp_reduction = ($DppReduction -ne 0)
+    sm121_dot_staging_groups = $DotStagingGroups
     sm121_lane_reduce_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     parallel_gate_header_sha256 = (Get-FileHash -Algorithm SHA256 `

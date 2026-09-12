@@ -77,20 +77,11 @@ normalize(
  * no signed overflow or 64-bit wave shuffle is needed.
  */
 __device__ __forceinline__ qrt_q1_moe_hawkeye::Value
-accumulate(
+accumulate_product(
     qrt_q1_moe_hawkeye::Value accumulator,
-    uint16_t left,
-    uint16_t right,
-    unsigned int /* subgroup_lane */
+    qrt_q1_moe_hawkeye::Value product
 ) {
     constexpr int kInternalToFp32Shift = 2;
-
-    const qrt_q1_moe_hawkeye::Value product =
-        qrt_q1_moe_hawkeye::multiply_bf16(
-            left,
-            right,
-            kZeroExponent
-        );
     // All callers initialize the K-continuous carry uniformly across the
     // subgroup. Keeping the reduction in every lane removes carry broadcasts
     // and the lane-zero normalization branch from every K16 iteration.
@@ -124,6 +115,13 @@ accumulate(
         qrt_sm121_group16::decode_modulo_sum(modulo_significand, product.negative);
     accumulator = normalize(sum.magnitude, sum.negative, max_exponent);
     return accumulator;
+}
+
+__device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
+    qrt_q1_moe_hawkeye::Value accumulator, uint16_t left, uint16_t right,
+    unsigned int /* subgroup_lane */) {
+    return accumulate_product(accumulator,
+        qrt_q1_moe_hawkeye::multiply_bf16(left, right, kZeroExponent));
 }
 
 }  // namespace qrt_sm121_wave16

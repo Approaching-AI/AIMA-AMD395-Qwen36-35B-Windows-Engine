@@ -4,6 +4,11 @@
 #include "sm121_paired_products.h"
 #include <cstring>
 #include <type_traits>
+#ifndef QRT_SM121_DOT_STAGING_GROUPS
+#define QRT_SM121_DOT_STAGING_GROUPS 1
+#endif
+static_assert(QRT_SM121_DOT_STAGING_GROUPS == 1 || QRT_SM121_DOT_STAGING_GROUPS == 4 ||
+              QRT_SM121_DOT_STAGING_GROUPS == 8);
 
 // Distribute the same sixteen products over fewer lanes. Products and their
 // K16 carry keep the original exponent alignment, unsigned sum and normalizer.
@@ -75,15 +80,36 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
     return carry;
 }
 
-template<unsigned Lanes>
+template<unsigned Lanes, unsigned StagingGroups = QRT_SM121_DOT_STAGING_GROUPS>
 __device__ __forceinline__ float dot(const uint16_t* left, const uint16_t* right,
                                    unsigned reduction_size) {
+    static_assert(StagingGroups == 1u || StagingGroups == 4u || StagingGroups == 8u);
     const unsigned lane = threadIdx.x & (Lanes - 1u);
     qrt_q1_moe_hawkeye::Value carry{0u, -133, false};
     // Callers supply complete K16 groups, retaining ascending K order.
+    if constexpr (Lanes == 16u && StagingGroups > 1u) {
+        // Decode a K64/K128 operand tile before its carry-dependent work.
+        // Independent loads and products can overlap; every K16 still uses
+        // the original integer alignment, reduction and normalization.
 #pragma unroll 1
-    for (unsigned base = 0u; base < reduction_size; base += 16u)
-        carry = accumulate<Lanes>(carry, left + base, right + base);
+        for (unsigned base = 0u; base < reduction_size; base += 16u * StagingGroups) {
+            qrt_q1_moe_hawkeye::Value products[StagingGroups];
+#pragma unroll
+            for (unsigned group = 0u; group < StagingGroups; ++group) {
+                const unsigned k = base + group * 16u;
+                if (k < reduction_size)
+                    products[group] = qrt_q1_moe_hawkeye::multiply_bf16(left[k + lane], right[k + lane], -133);
+            }
+#pragma unroll
+            for (unsigned group = 0u; group < StagingGroups; ++group)
+                if (base + group * 16u < reduction_size)
+                    carry = qrt_sm121_wave16::accumulate_product(carry, products[group]);
+        }
+    } else {
+#pragma unroll 1
+        for (unsigned base = 0u; base < reduction_size; base += 16u)
+            carry = accumulate<Lanes>(carry, left + base, right + base);
+    }
     return lane ? 0.0f : qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
 }
 
