@@ -70,6 +70,14 @@ selection, K16 arithmetic and up-finalization dependencies. The 16384-block
 experiment passes the declared q8192 boundary and reduces its measured
 callback by 2.88 seconds; broader qualification remains pending.
 
+`QRT_QWEN36_MOE_PARALLEL_GATE=1` is a separate opt-in M64/N64/K64 matrix
+schedule. It reads the original BF16 weights and computes gate/up tiles
+independently, then uses the existing exact corrections. Both original
+overflow descriptors are decoded into independent M64 tiles. Its native
+FP32 comparison and declared q8192 continuation pass, but the product timing
+difference is too small to retain. The default is off; see
+`benchmarks/correctness/moe-parallel-gate-20260913.json`.
+
 ## Prefix cache
 
 Snapshots are owned by the resident provider. A compatible extension borrows

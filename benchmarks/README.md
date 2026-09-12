@@ -41,6 +41,12 @@ TTFT 62231.9179 → 59348.223499 ms. A separate instrumented run also passes.
 The larger window is retained for experiments; broader contexts, packaging
 and the immutable performance targets remain open.
 
+`correctness/moe-parallel-gate-20260913.json` records an independent M64/N64
+matrix schedule. Its 19-shape native comparison is bitwise exact and its
+q8192 run passes all 512 GB10 tokens and callbacks. The 134.8 ms observed
+callback difference from the qualified wider-window configuration is too
+small to retain as a performance improvement; the matrix option stays off.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
