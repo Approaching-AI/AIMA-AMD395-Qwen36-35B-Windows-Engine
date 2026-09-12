@@ -16,6 +16,8 @@ verify their fallback transaction and complete owner-state restoration.
 | same new binaries, chunked owner | 16384 prefix + 1024 suffix | 17733.562599 | 161.906225 | 20033.961899 |
 | MoE 6278fe0, original 1024-block window | cold 8192, ordinary path | 62231.9179 | 112.049735 | 20085.2361 |
 | same binary, 16384-block window | cold 8192, ordinary path | 59348.223499 | 111.265862 | 20039.383501 |
+| MoE 25c3693, DPP integer reductions | cold 8192, ordinary path | 58243.9345 | 112.070807 | 20050.7749 |
+| whole/CK/FLA 930955a, same DPP MoE | cold 8192, ordinary path | 57617.9907 | 107.136582 | 20077.7027 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -27,6 +29,16 @@ also passes all 512 outputs and callbacks, with 13785.066 ms across 40 MoE host
 calls. Raw GPU intervals include invalid negative values and do not support
 an additive kernel breakdown. See
 `benchmarks/correctness/moe-wide-compaction-20260913.json`.
+
+The DPP experiment changes integer lane transport, preserving the exact
+arithmetic and every correction bound. Both new q8192 runs pass all 512 GB10
+tokens and callbacks with exact first token/logit. Native masked reductions
+check 5,505,276 lane results, and 36,891 BF16 dots match the original scalar
+algorithm bitwise. Disassembly confirms eight shuffle exchanges become eight
+DPP operations. The full configuration is retained for further experiments;
+the observed 1730.232799 ms difference is a comparison of single runs, without
+a statistical repeatability claim. Build defaults remain disabled. Evidence:
+`benchmarks/correctness/dpp-exact-reductions-20260913.json`.
 
 Removing the three fixed routed midpoint bands fails 384 of the 512 original
 continuation tokens, despite an exact first token and logit. The absolute-only

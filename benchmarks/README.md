@@ -53,6 +53,13 @@ keeping the norm-scaled bound produces 384 incorrect continuation tokens out
 of 512, despite the exact first token and logit. Its timing is ineligible for
 performance acceptance; subsequent experiments restore all three radii to 512.
 
+`correctness/dpp-exact-reductions-20260913.json` records native masked integer
+reductions, adversarial BF16 dots, emitted GPU instructions and two complete
+q8192 GB10 boundaries. Extending DPP transport from MoE to the whole, CK and FLA
+providers gives an observed 57617.9907 ms callback, with unchanged admission
+and arithmetic. This is an experimental baseline; retained performance and
+release qualification remain open.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
