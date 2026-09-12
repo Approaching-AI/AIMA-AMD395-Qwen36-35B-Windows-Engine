@@ -78,7 +78,21 @@ The model claim remains limited to the q7169 single-input proof above. Warm
 callback times exclude owner/seed prefill and cannot qualify cold TTFT.
 
 The single-input arithmetic probe is bounded to a prefix below 8192 tokens.
-It does not change the previously qualified cold q8193 scheduler continuation.
+Native source 8b94be9 preserves the q7169 saved-prefix result and the previously
+qualified cold q8193 scheduler continuation. Both 32-token/logit gates pass;
+all 93 q8193 diagnostic files equal the prior qualified native configuration.
+The q8193 generated-input row has internal differences from the GB10 r3 trace;
+these diagnostics do not override its passing token/logit boundary. See
+`benchmarks/correctness/prefix-fla-bucket-20260912.json`.
 The reference capture tool also supports actual-token branches with read-only
 runtime boundaries, while retaining both immutable controls and validating
 each selected row against the complete actual input/output history.
+
+A new reference capture initially failed the unchanged q7169 control. A
+same-input GB10 replay isolates its first-layer drift to the FLA triangular
+inverse autotune choice: the historical 2-warp/2-stage configuration reproduces
+all original output and FP32 state bits; selecting 4 warps/5 stages alone
+reproduces the rejected run. Python kernel sources are identical. The original
+reference configuration is being restored through its recorded cache choices,
+with both immutable controls still required before new branch acceptance.
+See `benchmarks/correctness/gb10-fla-autotune-drift-20260912.json`.

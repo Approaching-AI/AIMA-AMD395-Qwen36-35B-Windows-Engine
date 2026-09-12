@@ -1,0 +1,1113 @@
+{
+  "schema_version": 1,
+  "kind": "gb10_fla_autotune_causal_replay",
+  "reference_controls_unchanged": true,
+  "source_comparison": {
+    "sha256": "c7ff97fa26938f368f93196a2521c332865200b233d89a767e7974e81f21ca66",
+    "value": {
+      "sources": {
+        "qrt-gb10-token-matrix-20260911-r2": {
+          "fla/__init__.py": "5dbbfa3fc286edb2e970e175ef33cee4f6181c89b0784f5a8986201b2312f54e",
+          "fla/ops/l2norm.py": "520f4513ef4fc97e6b88dc07877cca8e29da0d34e44673fe989e3af002d86381",
+          "fla/ops/solve_tril.py": "0117db52028e1e577665bab75658233f4edb8dccc54820907343112e6001715f",
+          "fla/ops/index.py": "1fa36b77833c56cdc1ec1af3ea38225d8ae9e1faec5b218cf48af5482ddf15a0",
+          "fla/ops/kda.py": "769d842e7d256c836ca70cffda04b855fc609542e6162e2432a4188a5ccca3fa",
+          "fla/ops/__init__.py": "ea5b20efc293aca2e467445ef67d86988266573ab22f3cf25b14b88b12344737",
+          "fla/ops/chunk.py": "bcce3501c8213a446895467e16180a0256d7b289d9317bde7549959e00029fd2",
+          "fla/ops/layernorm_guard.py": "d6a2f6545a71b6e1a9eddd83783b1489cc79de18fac6db09192980ad83179995",
+          "fla/ops/op.py": "6ad9192acc939815136baf069d193455f1157ca01b991a052d8b5095ff3f2413",
+          "fla/ops/utils.py": "68896db4e8fbfb5bbcb1c0089102eab2bfa3bf854aef19504fbba91efe0c8501",
+          "fla/ops/chunk_o.py": "f3491a16a6a644212ae52978ada43e27af1ed58d7558ffd67411a37d2b7a6522",
+          "fla/ops/wy_fast.py": "f71518e77f0bbdcbd79ea2a6da3b75eb0394341b33bdce35a30979eb745f0834",
+          "fla/ops/cumsum.py": "aa14bf2e7cbeae888408c103bed5811364698856032a3a96c7040e35174bda00",
+          "fla/ops/fused_sigmoid_gating.py": "2df5092c250c2046e070af9e219046e9bc97e2ebf8ca82eb0e7c4201d4b771e7",
+          "fla/ops/chunk_scaled_dot_kkt.py": "6dda2245d14ebd61d93cd4fa17e0b31d291c47f243c3ade36a302b905d8e5488",
+          "fla/ops/chunk_delta_h.py": "81a4549225deebb7e8dfaabccf9db03c1d7ab69356a78f5c0d2651f97e7fd1c5",
+          "fla/ops/fused_recurrent.py": "c2f65f0bc798bd899f50af2079b51ef262291e3283608ff1879246ebf2277bab"
+        },
+        "qrt-gb10-prefix-control-boundaries-20260912-r1": {
+          "fla/__init__.py": "5dbbfa3fc286edb2e970e175ef33cee4f6181c89b0784f5a8986201b2312f54e",
+          "fla/ops/l2norm.py": "520f4513ef4fc97e6b88dc07877cca8e29da0d34e44673fe989e3af002d86381",
+          "fla/ops/solve_tril.py": "0117db52028e1e577665bab75658233f4edb8dccc54820907343112e6001715f",
+          "fla/ops/index.py": "1fa36b77833c56cdc1ec1af3ea38225d8ae9e1faec5b218cf48af5482ddf15a0",
+          "fla/ops/kda.py": "769d842e7d256c836ca70cffda04b855fc609542e6162e2432a4188a5ccca3fa",
+          "fla/ops/__init__.py": "ea5b20efc293aca2e467445ef67d86988266573ab22f3cf25b14b88b12344737",
+          "fla/ops/chunk.py": "bcce3501c8213a446895467e16180a0256d7b289d9317bde7549959e00029fd2",
+          "fla/ops/layernorm_guard.py": "d6a2f6545a71b6e1a9eddd83783b1489cc79de18fac6db09192980ad83179995",
+          "fla/ops/op.py": "6ad9192acc939815136baf069d193455f1157ca01b991a052d8b5095ff3f2413",
+          "fla/ops/utils.py": "68896db4e8fbfb5bbcb1c0089102eab2bfa3bf854aef19504fbba91efe0c8501",
+          "fla/ops/chunk_o.py": "f3491a16a6a644212ae52978ada43e27af1ed58d7558ffd67411a37d2b7a6522",
+          "fla/ops/wy_fast.py": "f71518e77f0bbdcbd79ea2a6da3b75eb0394341b33bdce35a30979eb745f0834",
+          "fla/ops/cumsum.py": "aa14bf2e7cbeae888408c103bed5811364698856032a3a96c7040e35174bda00",
+          "fla/ops/fused_sigmoid_gating.py": "2df5092c250c2046e070af9e219046e9bc97e2ebf8ca82eb0e7c4201d4b771e7",
+          "fla/ops/chunk_scaled_dot_kkt.py": "6dda2245d14ebd61d93cd4fa17e0b31d291c47f243c3ade36a302b905d8e5488",
+          "fla/ops/chunk_delta_h.py": "81a4549225deebb7e8dfaabccf9db03c1d7ab69356a78f5c0d2651f97e7fd1c5",
+          "fla/ops/fused_recurrent.py": "c2f65f0bc798bd899f50af2079b51ef262291e3283608ff1879246ebf2277bab"
+        }
+      },
+      "changes": []
+    }
+  },
+  "autotuner_source_sha256": "40f5e142806219942585a16742e9f3721d5bfef88145b571cf389f9aec6460bb",
+  "actual_original_and_recent_autotune_records_sha256": "afa551804b53a4ddb64a777ea31bf6985063453a4f4e65cc7d0afc5d7a74d5bf",
+  "rejected_model_control": {
+    "sha256": "8967078cebbadb5728ae0c568fb95d20a59971236b1f6752135f60b0abd7608b",
+    "value": {
+      "kind": "rejected_reference_control",
+      "reference_dispatch": {
+        "host": "aitopatom-66c4",
+        "command": [
+          "docker",
+          "run",
+          "--name",
+          "qrt-gb10-partial-prefix-20260912-r1",
+          "--hostname",
+          "aitopatom-66c4",
+          "--gpus",
+          "all",
+          "--network",
+          "none",
+          "--memory",
+          "108g",
+          "--shm-size",
+          "8g",
+          "--cpus",
+          "8",
+          "-e",
+          "PYTHONPATH=/work/scripts",
+          "-e",
+          "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+          "-e",
+          "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+          "-v",
+          "${GB10_WORK_ROOT}/qrt-gb10-partial-prefix-20260912-r1:/work",
+          "-v",
+          "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+          "-w",
+          "/work",
+          "--entrypoint",
+          "timeout",
+          "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+          "--signal=TERM",
+          "--kill-after=10",
+          "620",
+          "python3",
+          "scripts/capture_gb10_token_matrix.py",
+          "--source-commit",
+          "6042803f8e7933b44428b79331bcc2954a1b299e",
+          "--oracle-q7169",
+          "contracts/arbitrary_q7169_gb10_oracle.json",
+          "--oracle-q8192",
+          "contracts/hprefill_q8192_gb10_oracle.json",
+          "--additional-cases",
+          "additional-cases.json",
+          "--output-dir",
+          "capture",
+          "--expected-host",
+          "aitopatom-66c4",
+          "--timeout-seconds",
+          "590",
+          "--execute"
+        ],
+        "command_file": "${GB10_WORK_ROOT}/run-qrt-gb10-partial-prefix-20260912-r1.py",
+        "command_file_sha256": "5019287d45bad365e1900d1ce9617656e847762bbdf64072a0ccb64c70f4a7b6",
+        "source_commit": "6042803f8e7933b44428b79331bcc2954a1b299e",
+        "returncode": 1,
+        "reason": "completed",
+        "wall_seconds": 349.50793439600966,
+        "minimum_host_available_bytes": 14713884672,
+        "container_status": "false 1",
+        "archive_sha256": "21d49019d77e02507a6343a1ebdc160e9f8b87642c6bdfd2a0c62d9aa9e04519"
+      },
+      "reference_dispatch_sha256": "6e68afb851576b87e475bc753ca4f0636aa60fd54dd93bac63247e400c70a1c8",
+      "case": {
+        "name": "q7169-out32",
+        "prompt": {
+          "token_count": 7169,
+          "seed": 50536152,
+          "first_token_id": 30199,
+          "u32le_sha256": "b4ba753492f994e7c64ca7805c1b48523993ff24f6e75b44fa5705067d1de87d",
+          "u32le_fnv1a64": "c900c18703532d6a"
+        },
+        "output_token_ids": [
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "output_fingerprints": {
+          "u32le_sha256": "59c04145d4c05b4df91937bec93242973b5c8cebcb6459b7fbf4cb76c384ebd3",
+          "u32le_fnv1a64": "45dbd21ceb759123"
+        },
+        "first_token_id": 220,
+        "first_token_raw_logit": 9.3125,
+        "first_token_raw_logit_tolerance": 0.125,
+        "finish_reason": "length",
+        "request_seconds": 11.883063733985182,
+        "control": true,
+        "control_pass": false,
+        "control_oracle_sha256": "7fa645e8111932279e71ad20b9a1117b5f5f4f26074fdd43c7b2d274a86ac121",
+        "worker": {
+          "complete": true,
+          "raw_argmax_token": 220,
+          "raw_logit": 9.3125,
+          "sampling_boundary": {
+            "requests": 1,
+            "prompt_tokens": 7169,
+            "processed_tokens": 7169,
+            "discarded": false,
+            "expected_prompt": 7169
+          },
+          "discarded_prefill_calls": 0,
+          "dtype": "torch.bfloat16",
+          "shape": [
+            1,
+            248320
+          ],
+          "bytes": 496640,
+          "file": "first-logits.bin",
+          "sha256": "074d048cdef3416808b35d0b2a8004f2f363a9debd4df7ab72d902cb461dcd9f",
+          "negative_infinity_count": 0,
+          "observer_modifies_output": false
+        },
+        "armed": {
+          "compute_logits_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/model_executor/models/qwen3_vl.py",
+            "sha256": "78ef9783baa036b471fe3773d709ecfb631523e17c6013a5b31ba659df86438a"
+          },
+          "model_runner_source": {
+            "file": "/usr/local/lib/python3.12/dist-packages/vllm/v1/worker/gpu_model_runner.py",
+            "sha256": "3afc290d3df1be3df1b89b9b35942695f5896c7729f608d6c44580899212c301"
+          },
+          "model_class": "Qwen3_5MoeForConditionalGeneration",
+          "observer_modifies_output": false
+        },
+        "prefix_caching": false,
+        "native_tensor_inputs": false,
+        "windows_acceptance": false
+      },
+      "case_sha256": "3feee4c5eb8846ffa9c3bd15890889cd1f0f4563745f9d37a7c3994973264e2b",
+      "prior_case_sha256": "bccb5ae18aaaceb2c6696926e05c3c2be59f45ac1331eabb0ab4e6c592c2ef81",
+      "prior_first_token": 82,
+      "prior_first_logit": 9.25,
+      "same_main_engine_arguments": true,
+      "old_cache_capacity_tokens": 313632,
+      "new_cache_capacity_tokens": 324192,
+      "new_reference_qualified": false,
+      "windows_result_requalified": false,
+      "cause": "unresolved; read-only layer-boundary capture dispatched; frozen oracle unchanged"
+    }
+  },
+  "replay": {
+    "sha256": "ecba8e8734265ce3ccfceba9ceeb616900dd31d79d1ce6eeda260b0db6da3544",
+    "value": {
+      "host": "aitopatom-66c4",
+      "model_reference": "saved real Qwen3.6-35B-A3B q7169 layer 0 operands",
+      "source_commit": "8b94be97e17f646cf6c2a485265d2170942f9ab5",
+      "command_file": "/work/probe.py",
+      "command_sha256": "dfc6fbf35496c9f2a6f81f9494d07cbec7893f1c9e3394d3972cadadf4c28447",
+      "inputs": {
+        "full-v-bf16.bin": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+        "full-cu_seqlens-i32.bin": "1e5eac68ac00562698c9eb422f77066f05e72d787c489f1fda90a8359db49c05",
+        "full-q-bf16.bin": "b060def5e5fcb028fdcd575d1be04275309ce2047601b984a6a18ef248e4ae1c",
+        "full-k-bf16.bin": "601fa1266e4403da579bc7352a1a8650e4a8b22a06d847f730084aafd5080d14",
+        "new-state-f32.bin": "de8dfe2124c92926d334936f2070695400a361652b17be857e91e225cefa634e",
+        "full-output-bf16.bin": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde",
+        "full-beta-bf16.bin": "0cdbca3923d699b6c9db3a4b9aac166a851f322f409b365fc5264b7726cf642b",
+        "full-g-f32.bin": "8bab0ca92fcebdb6dad0301da9303f86f8c4ef95053325acd0021a24d964a8ab",
+        "full-initial_state-f32.bin": "5647f05ec18958947d32874eeb788fa396a05d0bab7c1b71f112ceb7e9b31eee",
+        "new-core-bf16.bin": "0a5fdf048537d8c1773f68a92afc9785b405cf08d8d2d310a701df23df6d0166",
+        "full-state-f32.bin": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+      },
+      "results": [
+        {
+          "variant": "original",
+          "configs": {
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 2,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 1,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 2.7758300339919515,
+          "old_full_output": {
+            "bit_mismatches": 0,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "old_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "new_last_output": {
+            "bit_mismatches": 193,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a"
+          },
+          "new_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "last_output_sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a",
+          "max_gpu_allocated": 629424128
+        },
+        {
+          "variant": "recent",
+          "configs": {
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 32
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 5,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 0.7947511399979703,
+          "old_full_output": {
+            "bit_mismatches": 756756,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "dab4bf09e7c713087660562baef406c98272da08216215e3c7e0d393abe6c9d0"
+          },
+          "old_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "de8dfe2124c92926d334936f2070695400a361652b17be857e91e225cefa634e"
+          },
+          "new_last_output": {
+            "bit_mismatches": 0,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "0a5fdf048537d8c1773f68a92afc9785b405cf08d8d2d310a701df23df6d0166"
+          },
+          "new_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "de8dfe2124c92926d334936f2070695400a361652b17be857e91e225cefa634e"
+          },
+          "last_output_sha256": "0a5fdf048537d8c1773f68a92afc9785b405cf08d8d2d310a701df23df6d0166",
+          "max_gpu_allocated": 629424128
+        },
+        {
+          "variant": "only-merge_16x16_to_64x64_inverse_kernel",
+          "configs": {
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 5,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 1,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 0.006366521993186325,
+          "old_full_output": {
+            "bit_mismatches": 756756,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "dab4bf09e7c713087660562baef406c98272da08216215e3c7e0d393abe6c9d0"
+          },
+          "old_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "de8dfe2124c92926d334936f2070695400a361652b17be857e91e225cefa634e"
+          },
+          "new_last_output": {
+            "bit_mismatches": 0,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "0a5fdf048537d8c1773f68a92afc9785b405cf08d8d2d310a701df23df6d0166"
+          },
+          "new_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "de8dfe2124c92926d334936f2070695400a361652b17be857e91e225cefa634e"
+          },
+          "last_output_sha256": "0a5fdf048537d8c1773f68a92afc9785b405cf08d8d2d310a701df23df6d0166",
+          "max_gpu_allocated": 629424128
+        },
+        {
+          "variant": "only-recompute_w_u_fwd_kernel",
+          "configs": {
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 2,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 1,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 0.005953915999270976,
+          "old_full_output": {
+            "bit_mismatches": 0,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "old_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "new_last_output": {
+            "bit_mismatches": 193,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a"
+          },
+          "new_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "last_output_sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a",
+          "max_gpu_allocated": 629424128
+        },
+        {
+          "variant": "only-chunk_local_cumsum_scalar_kernel",
+          "configs": {
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 2,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 0.005945546989096329,
+          "old_full_output": {
+            "bit_mismatches": 0,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "old_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "new_last_output": {
+            "bit_mismatches": 193,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a"
+          },
+          "new_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "last_output_sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a",
+          "max_gpu_allocated": 629424128
+        },
+        {
+          "variant": "only-chunk_gated_delta_rule_fwd_kernel_h_blockdim64",
+          "configs": {
+            "merge_16x16_to_64x64_inverse_kernel": {
+              "kwargs": {},
+              "num_warps": 2,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_fwd_kernel_o": {
+              "kwargs": {
+                "BK": 64,
+                "BV": 64
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "recompute_w_u_fwd_kernel": {
+              "kwargs": {},
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_local_cumsum_scalar_kernel": {
+              "kwargs": {},
+              "num_warps": 1,
+              "num_ctas": 1,
+              "num_stages": 3,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_scaled_dot_kkt_fwd_kernel": {
+              "kwargs": {
+                "BK": 64
+              },
+              "num_warps": 8,
+              "num_ctas": 1,
+              "num_stages": 4,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            },
+            "chunk_gated_delta_rule_fwd_kernel_h_blockdim64": {
+              "kwargs": {
+                "BV": 32
+              },
+              "num_warps": 4,
+              "num_ctas": 1,
+              "num_stages": 2,
+              "maxnreg": null,
+              "pre_hook": null,
+              "ir_override": null
+            }
+          },
+          "wall_seconds": 0.005963901028735563,
+          "old_full_output": {
+            "bit_mismatches": 0,
+            "elements": 29364224,
+            "finite": true,
+            "sha256": "b014c544f3a6db0c890a7dc57cf8f41bddf3c47992d6f5f3142e10fe89fe9dde"
+          },
+          "old_final_state": {
+            "bit_mismatches": 0,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "new_last_output": {
+            "bit_mismatches": 193,
+            "elements": 4096,
+            "finite": true,
+            "sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a"
+          },
+          "new_final_state": {
+            "bit_mismatches": 116139,
+            "elements": 524288,
+            "finite": true,
+            "sha256": "e6772a4e2efc6c51f8fbbac851a8526b686b2b559ac2b60160678b7852eb7ef2"
+          },
+          "last_output_sha256": "3bf5c26ddbaf758cff805dd6ce2aa2601ee538bcfe43c466eba2ebc490e82c7a",
+          "max_gpu_allocated": 629424128
+        }
+      ]
+    }
+  },
+  "dispatch": {
+    "sha256": "2474c25af14cd17505660f3ea6a184945456b7a42769b484364a9c00d79a617b",
+    "value": {
+      "host": "aitopatom-66c4",
+      "source_commit": "8b94be97e17f646cf6c2a485265d2170942f9ab5",
+      "command": [
+        "docker",
+        "run",
+        "--name",
+        "qrt-gb10-fla-autotune-probe-20260912-r2",
+        "--hostname",
+        "aitopatom-66c4",
+        "--gpus",
+        "all",
+        "--network",
+        "none",
+        "--memory",
+        "6g",
+        "--shm-size",
+        "1g",
+        "--cpus",
+        "2",
+        "-v",
+        "${GB10_WORK_ROOT}/qrt-gb10-fla-autotune-probe-20260912-r1:/inputs:ro",
+        "-v",
+        "${GB10_WORK_ROOT}/qrt-gb10-fla-autotune-probe-20260912-r2:/work",
+        "-w",
+        "/work",
+        "--entrypoint",
+        "timeout",
+        "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+        "--signal=TERM",
+        "--kill-after=5",
+        "150",
+        "python3",
+        "probe.py"
+      ],
+      "command_file": "${GB10_WORK_ROOT}/run-qrt-gb10-fla-autotune-probe-20260912-r2.py",
+      "command_file_sha256": "a5a5966f4fc7f1e8225c41bb8b43f211f1ef41e586db0d049e4d2343f874c064",
+      "archive_sha256": "484c02f4655d0bd2037d1bb69b5b8f9c3de2937af60f3b4a11e8cb70e77a65d8",
+      "returncode": 0,
+      "container_status": "false 0",
+      "wall_seconds": 7.540599458996439
+    }
+  },
+  "replay_command_source": "from pathlib import Path\nimport hashlib,json,importlib,inspect,socket,time,os\nroot=Path('/work');inputs_root=Path('/inputs');out=root/'probe';out.mkdir(exist_ok=False)\nassert socket.gethostname()=='aitopatom-66c4'\nmanifest=json.loads((inputs_root/'inputs.json').read_text())\nfor name,digest in manifest.items():assert hashlib.sha256((inputs_root/name).read_bytes()).hexdigest()==digest,name\nimport torch,triton\nfrom triton.runtime.autotuner import Autotuner\nassert torch.cuda.device_count()==1 and torch.cuda.get_device_capability()==(12,1)\ntorch.set_num_threads(2);torch.cuda.set_device(0)\ntriton.set_allocator(lambda size,alignment,stream: torch.empty(size,dtype=torch.uint8,device='cuda'))\nassert torch.cuda.mem_get_info()[0]>3*(1<<30)\nsource_manifest=json.loads((inputs_root/'sources.json').read_text());base=Path(importlib.import_module('vllm.model_executor.layers.fla').__file__).parent\nfor name,digest in source_manifest.items():assert hashlib.sha256((base.parent/name).read_bytes()).hexdigest()==digest,name\nassert hashlib.sha256(Path(inspect.getsourcefile(Autotuner)).read_bytes()).hexdigest()==json.loads((inputs_root/'runtime-source.json').read_text())['autotuner_sha256']\nrecords=json.loads((root/'autotune.json').read_text());old=[x for x in records if x['container']=='qrt-gb10-token-matrix-20260911-r2'];new=[x for x in records if x['container']!='qrt-gb10-token-matrix-20260911-r2']\nmodules={'merge_16x16_to_64x64_inverse_kernel':'solve_tril','chunk_fwd_kernel_o':'chunk_o','recompute_w_u_fwd_kernel':'wy_fast','chunk_local_cumsum_scalar_kernel':'cumsum','chunk_scaled_dot_kkt_fwd_kernel':'chunk_scaled_dot_kkt','chunk_gated_delta_rule_fwd_kernel_h_blockdim64':'chunk_delta_h'}\ndef selection(rows):\n result={}\n for r in rows:\n  name=Path(r['path']).name.removesuffix('.autotune.json')\n  if name=='chunk_fwd_kernel_o' and r['value']['key'][3]!=64:continue\n  config,timing=min(r['value']['configs_timings'],key=lambda v:v[1]);result[name]=config\n return result\nold,new=selection(old),selection(new);assert set(old)==set(modules) and set(new)==set(modules)\nobjects={}\nfor name,module in modules.items():\n obj=getattr(importlib.import_module('vllm.model_executor.layers.fla.ops.'+module),name)\n while not isinstance(obj,Autotuner):obj=obj.fn\n objects[name]=(obj,list(obj.configs))\ndef pin(configs):\n for name,c in configs.items():\n  obj,allowed=objects[name];matches=[x for x in allowed if x.__dict__==c];assert len(matches)==1,(name,c)\n  obj.configs=matches;obj.cache.clear()\ndef tensor(name,dtype,shape):return torch.frombuffer(bytearray((inputs_root/name).read_bytes()),dtype=dtype).reshape(shape).cuda()\nT=7169\ninputs={name:tensor('full-'+name+'-'+suffix+'.bin',dtype,shape) for name,suffix,dtype,shape in [('q','bf16',torch.bfloat16,(1,T,16,128)),('k','bf16',torch.bfloat16,(1,T,16,128)),('v','bf16',torch.bfloat16,(1,T,32,128)),('g','f32',torch.float32,(1,T,32)),('beta','bf16',torch.bfloat16,(1,T,32)),('initial_state','f32',torch.float32,(1,32,128,128))]}\nseq=tensor('full-cu_seqlens-i32.bin',torch.int32,(2,))\nexpected_output=tensor('full-output-bf16.bin',torch.bfloat16,(1,T,32,128));expected_state=tensor('full-state-f32.bin',torch.float32,(1,32,128,128))\nnew_output=tensor('new-core-bf16.bin',torch.bfloat16,(1,1,32,128));new_state=tensor('new-state-f32.bin',torch.float32,(1,32,128,128))\nfrom vllm.model_executor.layers.fla.ops.chunk import chunk_gated_delta_rule\nresults=[]\ndef compare(a,b):\n assert a.shape==b.shape\n dtype=torch.int16 if a.dtype==torch.bfloat16 else torch.int32\n return dict(bit_mismatches=int((a.view(dtype)!=b.view(dtype)).sum().item()),elements=a.numel(),finite=bool(torch.isfinite(a).all().item()),sha256=hashlib.sha256(a.detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()).hexdigest())\nvariants=[('original',old),('recent',new)]\nfor name in old:\n if old[name]!=new[name]:variants.append(('only-'+name,{**old,name:new[name]}))\nfor label,configs in variants:\n pin(configs);start=time.monotonic()\n with torch.inference_mode():o,h=chunk_gated_delta_rule(**inputs,output_final_state=True,cu_seqlens=seq,use_qk_l2norm_in_kernel=True)\n torch.cuda.synchronize()\n r=dict(variant=label,configs=configs,wall_seconds=time.monotonic()-start,old_full_output=compare(o,expected_output),old_final_state=compare(h,expected_state),new_last_output=compare(o[:,-1:],new_output),new_final_state=compare(h,new_state),last_output_sha256=hashlib.sha256(o[:,-1:].detach().cpu().contiguous().view(torch.uint8).numpy().tobytes()).hexdigest(),max_gpu_allocated=torch.cuda.max_memory_allocated())\n results.append(r);(out/(label+'.json')).write_text(json.dumps(r,indent=2)+'\\n');print(json.dumps(r),flush=True)\n assert torch.cuda.max_memory_allocated()<2*(1<<30)\n del o,h\n(out/'result.json').write_text(json.dumps(dict(host=socket.gethostname(),model_reference='saved real Qwen3.6-35B-A3B q7169 layer 0 operands',source_commit=(inputs_root/'commit.txt').read_text().strip(),command_file=__file__,command_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),inputs=manifest,results=results),indent=2)+'\\n')\n",
+  "original_source_config_profile": {
+    "sha256": "e56809a3c40509122313bce164745787b0aa217081ddc0398ffc97646930df4e",
+    "value": {
+      "origin": "historical actually qualified GB10 token matrix",
+      "records": [
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A/chunk_fwd_kernel_o.autotune.json",
+          "stage_path": "frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A/chunk_fwd_kernel_o.autotune.json",
+          "sha256": "eebae677d0bd4cb467e860831d1485490d7597cc66cb4395c5a6fc9e4895cfb9",
+          "key": [
+            32,
+            128,
+            128,
+            16,
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {
+              "BK": 64,
+              "BV": 64
+            },
+            "num_warps": 2,
+            "num_ctas": 1,
+            "num_stages": 2,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA/chunk_fwd_kernel_o.autotune.json",
+          "stage_path": "frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA/chunk_fwd_kernel_o.autotune.json",
+          "sha256": "d4516b6f102756ba379adedd49321c08a41f25bfe17afc708fd387d779e45e86",
+          "key": [
+            32,
+            128,
+            128,
+            32,
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {
+              "BK": 64,
+              "BV": 64
+            },
+            "num_warps": 2,
+            "num_ctas": 1,
+            "num_stages": 2,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ/merge_16x16_to_64x64_inverse_kernel.autotune.json",
+          "stage_path": "frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ/merge_16x16_to_64x64_inverse_kernel.autotune.json",
+          "sha256": "46a4e551ce9c36f168ff2c1b5a77dd956fb49da07bf25e1efc9bb5f6835c952b",
+          "key": [
+            32,
+            64,
+            true,
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {},
+            "num_warps": 2,
+            "num_ctas": 1,
+            "num_stages": 2,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA/chunk_fwd_kernel_o.autotune.json",
+          "stage_path": "frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA/chunk_fwd_kernel_o.autotune.json",
+          "sha256": "0a798660a92dc596f2f13b429a2039a384f620235bf5e21b014a6b054bb22404",
+          "key": [
+            32,
+            128,
+            128,
+            64,
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {
+              "BK": 64,
+              "BV": 64
+            },
+            "num_warps": 4,
+            "num_ctas": 1,
+            "num_stages": 2,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ/recompute_w_u_fwd_kernel.autotune.json",
+          "stage_path": "frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ/recompute_w_u_fwd_kernel.autotune.json",
+          "sha256": "cadbd97d2dd3e89889e36d8cd48bf6a2472bc1011698bf2156799d8d5fb30633",
+          "key": [
+            32,
+            128,
+            128,
+            64,
+            64,
+            64,
+            true,
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {},
+            "num_warps": 4,
+            "num_ctas": 1,
+            "num_stages": 4,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA/chunk_local_cumsum_scalar_kernel.autotune.json",
+          "stage_path": "frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA/chunk_local_cumsum_scalar_kernel.autotune.json",
+          "sha256": "8e0f038c472f94121365f02116e2df5df27aefef625f16aa94501b2b0e1b1dad",
+          "key": [
+            1,
+            32,
+            64,
+            true,
+            false,
+            "torch.float32",
+            "torch.float32",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {},
+            "num_warps": 1,
+            "num_ctas": 1,
+            "num_stages": 3,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ/chunk_scaled_dot_kkt_fwd_kernel.autotune.json",
+          "stage_path": "frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ/chunk_scaled_dot_kkt_fwd_kernel.autotune.json",
+          "sha256": "7f19539a0ca9da30f25880cefd8b107ea0d78821008eea54c4719066e5194d86",
+          "key": [
+            32,
+            128,
+            64,
+            true,
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.int32",
+            "torch.int32"
+          ],
+          "winner": {
+            "kwargs": {
+              "BK": 64
+            },
+            "num_warps": 8,
+            "num_ctas": 1,
+            "num_stages": 4,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        },
+        {
+          "source_container": "qrt-gb10-token-matrix-20260911-r2",
+          "cache_path": "/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA/chunk_gated_delta_rule_fwd_kernel_h_blockdim64.autotune.json",
+          "stage_path": "frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA/chunk_gated_delta_rule_fwd_kernel_h_blockdim64.autotune.json",
+          "sha256": "1f7a24cb9300115c6c83e4d46ae6c944d6e136300f0b4a169412444701b73d58",
+          "key": [
+            32,
+            128,
+            128,
+            64,
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.bfloat16",
+            "torch.float32",
+            "torch.float32",
+            "torch.int32",
+            "torch.int64"
+          ],
+          "winner": {
+            "kwargs": {
+              "BV": 64
+            },
+            "num_warps": 4,
+            "num_ctas": 1,
+            "num_stages": 2,
+            "maxnreg": null,
+            "pre_hook": null,
+            "ir_override": null
+          }
+        }
+      ],
+      "reference_outputs_or_model_inputs_overridden": false,
+      "component_replay_sha256": "ecba8e8734265ce3ccfceba9ceeb616900dd31d79d1ce6eeda260b0db6da3544"
+    }
+  },
+  "result": "Identical FLA Python sources and real q7169 layer0 operands reproduce all original output/state bits with the historically selected configurations. Changing only the triangular inverse from 2 warps/2 stages to 4 warps/5 stages reproduces the rejected full-model core and state exactly. Other changed configurations individually preserve all original full output/state bits in this replay.",
+  "limitations": "This proves the layer0 source of the current reference drift. The newly staged whole-model reference must pass both unchanged controls before accepting any new prompt capture. No new Windows, performance or release qualification follows from this component replay.",
+  "restored_whole_model_controls_qualified": false,
+  "public_path_normalization": "Private host home paths replaced by ${GB10_WORK_ROOT}; original record SHA256 values identify the unchanged local evidence."
+}
