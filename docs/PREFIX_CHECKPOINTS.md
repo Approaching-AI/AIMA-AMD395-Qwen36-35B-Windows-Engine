@@ -3,13 +3,20 @@
 This implementation is experimental and disabled unless
 QRT_QWEN36_PREFIX_CHECKPOINTS=1. Native q7169 cold capture preserves all 32 GB10
 outputs and first-token logit, and all three model checkpoints are complete.
-Partial continuation is **not qualified**: the saved 7168 prefix and an
-independently computed prefix both return 220/9.3125 instead of the GB10 cold
-prompt's first token 82/9.25. All 186 captured operator, carrier and KV files
-in those continuation routes match bit-for-bit; repeated rollback and the
-unrelated-prefix guard pass. The next arithmetic investigation is seeded FLA
-prefill versus the current decode recurrence. This is a hypothesis, not a
-completed repair. See benchmarks/correctness/model-prefix-checkpoints-20260912.json.
+With QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX=1, a saved 7168 prefix and an
+independently computed prefix both return the GB10 first token 82/logit9.25
+and all 32 continuation tokens at both repeated hits. All 40 F32 layer
+carriers, final BF16 norm and nine operator boundaries match the GB10 cold
+prefill row at position 7168. Rollback and unrelated-prefix rejection pass.
+
+The earlier token220/logit9.3125 failure used decode recurrence for the last
+prefill input. Seeded FLA preserves the prefill BF16 chunk boundaries and
+unrounded FP32 initial state; generated-token decode retains its original
+recurrence. This qualifies the tested single-input case only. Divergent
+requests, multi-token suffixes, the wider cold matrix and packaged-server
+execution remain open. See
+`benchmarks/correctness/prefix-fla-single-input-20260912.json`; the earlier
+failure remains in `benchmarks/correctness/model-prefix-checkpoints-20260912.json`.
 
 The separate recurrent producer's native evidence is
 benchmarks/correctness/fla-fp32-checkpoints-20260912.json. That component
@@ -57,7 +64,7 @@ The optional row-major FP32 seeded FLA entry point now reproduces the original
 full operator execution exactly from independently computed prefixes. Native
 q65 at prefix 64 and real GB10 q7169 at prefixes 64, 1024, and 7168 have zero
 suffix output or final-state bit mismatches. This is operator evidence only;
-whole-model suffix integration and key-major state conversion remain pending.
+whole-model results have their separate record above.
 See `benchmarks/correctness/fla-seeded-fp32-20260912.json`.
 
 A separate opt-in probe, QRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX=1, uses seeded
@@ -65,5 +72,7 @@ FLA for one actual suffix input at a 64-token boundary. The scope must visit
 all 30 recurrent layers and ends before generated-token decode. Key-major
 FP32 state is transposed as bits into a private 2 MiB FLA workspace and back.
 The original zero-seed capture hooks are rejected on this entry point.
-This probe does not establish multi-token suffix or whole-model correctness;
-native operator and GB10 model verification are pending.
+Both state layouts pass native q65 and real q7169 operator parity at three
+independently computed prefixes. See `benchmarks/correctness/fla-seeded-key-major-20260912.json`.
+The model claim remains limited to the q7169 single-input proof above. Warm
+callback times exclude owner/seed prefill and cannot qualify cold TTFT.
