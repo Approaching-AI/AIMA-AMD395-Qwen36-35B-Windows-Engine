@@ -4,6 +4,7 @@
 #include <hip/hip_runtime.h>
 #include "q1_moe_hawkeye_bf16_accumulator.h"
 #include "sm121_group16_modulo.h"
+#include "sm121_lane_reduce.h"
 
 // Shared exact K16 / internal-width-26 arithmetic for attention, projection,
 // routed MoE and recurrent-state kernels. Every subgroup lane owns the same
@@ -98,18 +99,7 @@ accumulate(
             accumulator_exponent
         ? static_cast<int>(product.exponent)
         : accumulator_exponent;
-    for (unsigned int lane_mask = kGroup / 2u;
-         lane_mask != 0u;
-         lane_mask >>= 1u) {
-        const int other_exponent = __shfl_xor(
-            max_exponent,
-            lane_mask,
-            kGroup
-        );
-        if (other_exponent > max_exponent) {
-            max_exponent = other_exponent;
-        }
-    }
+    max_exponent = qrt_sm121_lane_reduce::maximum<kGroup>(max_exponent);
 
     const int product_shift =
         max_exponent - static_cast<int>(product.exponent);
@@ -120,12 +110,7 @@ accumulate(
     uint32_t modulo_significand = product.negative
         ? 0u - product_aligned
         : product_aligned;
-    for (unsigned int lane_mask = kGroup / 2u;
-         lane_mask != 0u;
-         lane_mask >>= 1u) {
-        modulo_significand += __shfl_xor(
-            modulo_significand, lane_mask, kGroup);
-    }
+    modulo_significand = qrt_sm121_lane_reduce::sum<kGroup>(modulo_significand);
     const int accumulator_shift = max_exponent - accumulator_exponent;
     const uint32_t accumulator_aligned = accumulator_shift >= 32
         ? 0u : (accumulator.significand << kInternalToFp32Shift) >>

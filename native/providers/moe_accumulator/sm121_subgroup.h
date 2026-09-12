@@ -46,11 +46,7 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
             const int exponent = qrt_sm121_group16::packed_exponent(products[i]);
             maximum = exponent > maximum ? exponent : maximum;
         }
-#pragma unroll
-        for (unsigned mask = Lanes / 2u; mask; mask >>= 1u) {
-            const int other = __shfl_xor(maximum, mask, Lanes);
-            maximum = other > maximum ? other : maximum;
-        }
+        maximum = qrt_sm121_lane_reduce::maximum<Lanes>(maximum);
         uint32_t modulo = 0u;
 #pragma unroll
         for (unsigned i = 0u; i < items; ++i) {
@@ -58,9 +54,7 @@ __device__ __forceinline__ qrt_q1_moe_hawkeye::Value accumulate(
             const uint32_t magnitude = shift >= 32u ? 0u : ((products[i] & 0xffffu) << 11u) >> shift;
             modulo += (products[i] & 0x80000000u) ? 0u - magnitude : magnitude;
         }
-#pragma unroll
-        for (unsigned mask = Lanes / 2u; mask; mask >>= 1u)
-            modulo += __shfl_xor(modulo, mask, Lanes);
+        modulo = qrt_sm121_lane_reduce::sum<Lanes>(modulo);
         const unsigned shift = unsigned(maximum - carry.exponent);
         const uint32_t aligned = shift >= 32u ? 0u : (carry.significand << 2u) >> shift;
         modulo += carry.negative ? 0u - aligned : aligned;
