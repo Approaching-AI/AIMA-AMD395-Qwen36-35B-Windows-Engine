@@ -676,7 +676,23 @@ fn configure_smooth_tail_moe_providers(
 pub fn load_env_file(path: &Path) -> Result<usize> {
     let content = fs::read_to_string(path)
         .with_context(|| format!("could not read runtime env file {}", path.display()))?;
-    let mut count = 0;
+    // Resolve a packaged profile against its own directory, independently of
+    // the shell or detached service's working directory. Parse before setting
+    // any variables so a malformed portable path cannot apply half a profile.
+    let assignments = parse_runtime_profile(&content, path)?;
+    let count = assignments.len();
+    for (key, value) in assignments {
+        std::env::set_var(key, value);
+    }
+    Ok(count)
+}
+
+fn parse_runtime_profile(content: &str, path: &Path) -> Result<Vec<(String, String)>> {
+    let absolute = std::path::absolute(path)?;
+    let runtime_dir = absolute
+        .parent()
+        .context("runtime env file has no directory")?;
+    let mut assignments = Vec::new();
     for (line_index, original) in content.lines().enumerate() {
         let mut line = original.trim();
         if line.is_empty() || line.starts_with('#') {
@@ -688,10 +704,38 @@ pub fn load_env_file(path: &Path) -> Result<usize> {
         let (key, value) = parse_env_assignment(line).with_context(|| {
             format!("invalid env entry at {}:{}", path.display(), line_index + 1)
         })?;
-        std::env::set_var(key, value);
-        count += 1;
+        let value = if let Some(suffix) = value.strip_prefix("${RUNTIME_DIR}") {
+            let relative = if suffix.is_empty() {
+                ""
+            } else {
+                suffix.strip_prefix(['/', '\\']).context(
+                    "${RUNTIME_DIR} must be followed by a path separator or the end of the value",
+                )?
+            };
+            let relative = Path::new(relative);
+            if relative.components().any(|component| {
+                !matches!(
+                    component,
+                    std::path::Component::Normal(_) | std::path::Component::CurDir
+                )
+            }) {
+                bail!(
+                    "portable runtime path escapes its directory at {}:{}",
+                    path.display(),
+                    line_index + 1
+                );
+            }
+            runtime_dir
+                .join(relative)
+                .into_os_string()
+                .into_string()
+                .map_err(|_| anyhow!("portable runtime path is not valid UTF-8"))?
+        } else {
+            value
+        };
+        assignments.push((key.to_owned(), value));
     }
-    Ok(count)
+    Ok(assignments)
 }
 
 fn apply_env_overrides(assignments: &[String]) -> Result<usize> {
@@ -926,6 +970,49 @@ mod tests {
         );
         assert!(parse_env_assignment("NOT-VALID=1").is_err());
         assert!(parse_env_assignment("MISSING_EQUALS").is_err());
+    }
+
+    #[test]
+    fn portable_profile_follows_a_moved_runtime_directory() {
+        let nonce = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let root =
+            std::env::temp_dir().join(format!("qrt-portable-{}-{nonce}", std::process::id()));
+        let original = root.join("original runtime");
+        let moved = root.join("moved runtime");
+        fs::create_dir_all(original.join("tables")).unwrap();
+        fs::write(original.join("tables/gate.bin"), b"unchanged table").unwrap();
+        let content = "# portable paths\nROOT=${RUNTIME_DIR}\nTABLE='${RUNTIME_DIR}/tables/gate.bin'\nCOUNT=4096\nLITERAL=${HOME}\n";
+        fs::write(original.join("runtime.env"), content).unwrap();
+        let before = parse_runtime_profile(content, &original.join("runtime.env")).unwrap();
+        assert_eq!(fs::read(&before[1].1).unwrap(), b"unchanged table");
+        fs::rename(&original, &moved).unwrap();
+        let profile = moved.join("runtime.env");
+        let after =
+            parse_runtime_profile(&fs::read_to_string(&profile).unwrap(), &profile).unwrap();
+        assert_eq!(Path::new(&after[0].1), moved);
+        assert_eq!(fs::read(&after[1].1).unwrap(), b"unchanged table");
+        assert!(!Path::new(&before[1].1).exists());
+        assert_eq!(after[2], ("COUNT".to_owned(), "4096".to_owned()));
+        assert_eq!(after[3], ("LITERAL".to_owned(), "${HOME}".to_owned()));
+        fs::remove_dir_all(root).unwrap();
+    }
+
+    #[test]
+    fn portable_profile_rejects_escaping_or_malformed_paths() {
+        for value in [
+            "${RUNTIME_DIR}/../outside",
+            "${RUNTIME_DIR}//outside",
+            "${RUNTIME_DIR}suffix",
+        ] {
+            let content = format!("VALID=1\nPATH={value}\n");
+            assert!(parse_runtime_profile(&content, Path::new("runtime.env")).is_err());
+        }
+        let parsed =
+            parse_runtime_profile("PATH=literal/path\n", Path::new("runtime.env")).unwrap();
+        assert_eq!(parsed[0].1, "literal/path");
     }
 
     #[test]

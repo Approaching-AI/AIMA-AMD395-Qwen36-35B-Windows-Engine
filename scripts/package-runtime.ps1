@@ -1,10 +1,17 @@
 param(
     [Parameter(Mandatory = $true)][string]$RuntimeDir,
     [Parameter(Mandatory = $false)][string]$OutDir = "",
-    [Parameter(Mandatory = $false)][string]$Version = "1.0.1"
+    [Parameter(Mandatory = $false)][string]$Version = "1.0.1",
+    [Parameter(Mandatory = $false)][string]$CkProviderRelativePath = "ck-fmha\qrt_ck_fmha_continuous_long.dll"
 )
 
 $ErrorActionPreference = "Stop"
+
+$normalizedCkPath = $CkProviderRelativePath.Replace('\', '/')
+if ($normalizedCkPath -notmatch '^ck-fmha/[^/]+\.dll$' -or
+    $normalizedCkPath.Split('/') -contains '..') {
+    throw "CK provider must be a DLL directly inside ck-fmha"
+}
 
 function Get-PortableRelativePath {
     param(
@@ -71,7 +78,7 @@ $requiredFiles = @(
     "whole-provider\qrt_qwen36_whole_provider.dll",
     "q1024-moe\qrt_triton_moe_q1024_exact_provider_slots64.dll",
     "q8192-moe\qrt_triton_moe_q8192_provider.dll",
-    "ck-fmha\qrt_ck_fmha_continuous_long.dll",
+    $CkProviderRelativePath,
     "aiter-gdn\qrt_aiter_fused_gdn_q8192_provider.dll",
     "runtime.env",
     "runtime-manifest.json"

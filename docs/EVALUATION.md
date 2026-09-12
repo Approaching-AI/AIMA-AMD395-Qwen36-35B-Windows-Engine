@@ -32,6 +32,20 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 12)
 
+The [strict native HTTP check](../benchmarks/correctness/http-strict-q8192-20260912.json)
+at server `8c59848` uses the selected whole/FLA/CK/MoE DLLs in a verified
+267-artifact runtime. The real model loads in 20,068.8737 ms. Nonstream HTTP
+returns all 32 frozen q8192 tokens; both requests report token144/logit10.375.
+SSE text and usage match, health responds during generation, three invalid
+thinking requests never start inference, both requests drain, and the owned
+server exits normally. Native MSVC/Rust build, 40 native server tests and
+326 local tests (2 skips), C/ABI, Clippy, q16 and hygiene pass. The HTTP
+controller preserves the hashed correction profile and has explicit bounded
+request deadlines; these do not change product performance thresholds.
+Reported HTTP TTFT is 55,543.3509 / 54,851.8818 ms. The second request is
+not cold, and these metrics do not replace the complete CLI callback gate.
+Positive chat/tools, prefix HTTP and archive relocation remain open.
+
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model
 tests. It uses 32-query dispatches and preserves reference online softmax,

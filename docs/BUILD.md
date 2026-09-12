@@ -214,3 +214,26 @@ provenance: pass it as
 `QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR` as shown in the
 top-level quick start. Related q1 projection/attention loaders resolve their
 qualified objects from the same directory.
+
+## Portable profiles in the unreleased server
+
+Runtime paths in an env file can start with the literal `${RUNTIME_DIR}`.
+The server resolves this marker against the directory containing that env
+file, including when `start` launches from another working directory. It does
+not expand other environment variables. For example:
+
+```dotenv
+QRT_FLA_GDN_SM121_EXP2_TABLE=${RUNTIME_DIR}/tables/sm121-exp2-negative-f490940d.bin
+```
+
+Use forward slashes after the marker. Parent traversal and rooted suffixes
+are rejected; external model paths remain explicit command arguments.
+Literal values and later `--set-env` overrides retain their existing behavior.
+All entries are parsed before any profile variables are applied.
+
+For a verified runtime containing the separate SM121 attention DLL, pass
+`-CkProviderRelativePath 'ck-fmha/qrt_ck_fmha_sm121.dll'` to
+`scripts/package-runtime.ps1`. The chosen DLL must be present in the hashed
+runtime manifest. The packaging default remains the existing continuous
+attention DLL. Source support and local tests do not establish archive
+relocation or model acceptance; run the extracted artifact on baiying.
