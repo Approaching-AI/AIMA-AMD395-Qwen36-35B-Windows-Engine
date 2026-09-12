@@ -112,11 +112,16 @@ Its actual callback is 135709.8882 ms and load is 20039.0348 ms. The combined
 diverges at zero-based index114 (16602 instead of 328). Both processes finish
 with healthy host checks. Logs show nine full exact-attention dispatches for
 the owner and zero for the combined prompt, which exceeds the 16384-token
-workspace bound. The pending repair extends the shared bound to 32768,
-covering the suffix and 512-output extent. Four CPU tests pass actual launch,
-workspace, failure-cleanup and tile-output checks, including 17408/17920 and
-the new upper boundary. Native qualification of this change is still required;
-prefix-hit, performance and release acceptance remain open.
+workspace bound. The [workspace repair check](../benchmarks/correctness/attention-long-prefix-workspace-20260912.json)
+extends the shared bound to 32768, covering the suffix and 512-output extent.
+Four CPU tests and the native CK build pass. With CK 894e87b and the same
+whole/MoE/FLA/CLI components, q8192 retains all 512 outputs and exact first
+logit. The 17408-token prompt now uses nine full exact-attention dispatches
+and its first-logit error falls to 0.0625, within tolerance. Its raw continuation
+still fails at index102 (71 instead of 1908). Actual callback is 151411.7376 ms,
+TPOT 163.734468 ms and load 20258.5559 ms. Both runs finish with healthy host
+checks. This fixes a dispatch gap; it does not qualify the long input, renew
+the complete short/cold/archive matrix, or meet performance/release gates.
 
 The [long-prefix reuse check](../benchmarks/correctness/long-prefix16k-prefix-gap-20260912.json)
 also rejects the existing sequential-suffix route. One measured hit emits all
