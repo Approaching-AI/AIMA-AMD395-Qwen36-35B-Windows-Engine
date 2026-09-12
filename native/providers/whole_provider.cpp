@@ -139937,6 +139937,20 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
         const uint64_t final_norm_start_ns = qrt_now_ns();
         std::cerr << "BATCH_MARK post_stack_stage_start stage=final_norm"
                   << std::endl;
+        if (ScopedQwen36PrefixBatchSuffix::active && final_output_residual.gpu_output.empty()) {
+            // An exact cache-key hit preserves the GPU-only carrier. The
+            // ordinary terminal corridor accepts one such row; suffix teacher
+            // predictions require the actual complete set of normalized rows.
+            OutputResidualRun materialized;
+            if (!materialize_device_output_residual_rows_for_tokens(
+                    kDescriptorBatchFinalLayer, prefill_tokens, final_output_residual,
+                    repeated_target_tokens, "prefix_batch_final_output", "prefix_batch_final_output_copy",
+                    &materialized, &run->failure_stage, &run->failure)) {
+                run->next_unclosed_boundary = "final_norm_input_residual";
+                return false;
+            }
+            final_output_residual = std::move(materialized);
+        }
         if (!run_final_norm(
                 final_output_residual,
                 model_dir,
