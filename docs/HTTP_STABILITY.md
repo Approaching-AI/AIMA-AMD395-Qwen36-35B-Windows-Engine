@@ -1,9 +1,39 @@
 # Unreleased native HTTP stability qualification
 
-Date: 2026-09-09. This record does not approve a release. The known null-output
-repair remains in force; observed healthy runs do not exclude every possible
-hardware/driver lockup. The q7169 gate remains failed and the GB10 reference
-machine is currently unreachable.
+Updated 2026-09-12. The strict runtime passes all eight cold CLI cases and
+1216 GB10 outputs, plus q8192 HTTP from the extracted portable archive. The
+archive loads in 20206.2284 ms and returns all 32 frozen nonstream tokens;
+both requests report first token144/logit10.375. SSE text/usage, health, queue
+drain and normal exit pass. Server source is 545636c; see
+`benchmarks/correctness/runtime-portable-archive-20260912.json` for the complete
+component inventory and native command. These are reported HTTP timings;
+the selected cold CLI actual callback remains 58662.0706 ms, above the
+unchanged 4187.415605 ms target. No release is qualified.
+
+Positive protocol tests expose two additional gaps. The strict short/smooth-tail
+MoE ABI cannot publish unrounded residual variance. Explicitly selecting the
+existing dynamic full ABI fixes five-token text and 17-token chat, including
+their SSE comparisons, but the first 294-token tool request then returns 500:
+an out1 seed did not establish the live prefix state assumed by the bridge.
+See `benchmarks/correctness/http-short-provider-gap-20260912.json` and
+`benchmarks/correctness/http-prefix-seed-gap-20260912.json`. These short
+functional outputs have no GB10 numerical qualification yet.
+
+The pending repair selects the compatible logical full-MoE ABI automatically
+for strict prompts below 4096, retains the padded selected route above that
+boundary and excludes incompatible smooth-tail calls in strict mode. The
+server now reuses only complete native checkpoints and otherwise prefills.
+Fallback cannot repeat already emitted callbacks. Host regression executes
+the real C bridge against controlled native responses. Native repaired-server
+qualification, tools, thinking, saved-prefix HTTP, long contexts and performance
+remain open.
+
+## Historical 2026-09-09 HTTP run
+
+The following evidence used the earlier fast profile and its limited q8192
+boundary. It does not qualify the current strict arithmetic route. Its then
+unavailable GB10 service is restored, and the q7169 gate now passes in the
+strict eight-case matrix above.
 
 The retained-package preload mismatch is fixed at `310e872`: ordinary and
 split-tail profiles require eight power-of-two modules, while explicit

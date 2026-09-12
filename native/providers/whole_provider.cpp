@@ -106092,19 +106092,25 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
         raw_env_flag_enabled(
             "QRT_QWEN36_EXACT_ARBITRARY_FORCE_Q1024_MOE_PROVIDER"
         );
+    // Strict residual arithmetic requires the full provider ABI at every
+    // layer. Short legacy/smooth-tail providers cannot publish that carrier.
+    // Keep short calls on their actual logical extent, and retain the selected
+    // padded q8192 route for larger prompts unless explicitly overridden.
+    const bool strict_residual_mode =
+        qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens);
     const bool dynamic_logical_moe_provider_requested =
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&
         !exact_arbitrary_force_q1024_moe &&
         !maximum_context_streamed_prefill_tokens(prefill_tokens) &&
-        raw_env_flag_enabled(
+        (raw_env_flag_enabled(
             "QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER"
-        );
+        ) || (strict_residual_mode && prefill_tokens < 4096u));
     // The next layer consumes this variance.  In particular, an arbitrary
     // q8192-padded tile has the same unrounded residual endpoint as the
     // dynamic provider; restricting publication to the dynamic route loses
     // the variance before a layer selected by the residual-norm mask.
     const bool use_vllm_split_variance =
-        qwen36_exact_arbitrary_vllm_split_variance_active(prefill_tokens) &&
+        strict_residual_mode &&
         (qwen36_vllm_bf16_residual_norm_active() ||
          qwen36_exact_arbitrary_vllm_bf16_residual_norm_active(
              layer_index + 1u,
@@ -106267,12 +106273,13 @@ bool run_qwen36_whole_provider_selected_moe_full_v2(
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&
         !exact_arbitrary_force_q1024_moe &&
         !dynamic_logical_moe_provider_requested &&
+        !strict_residual_mode &&
         !maximum_context_streamed_prefill_tokens(prefill_tokens) &&
         smooth_tail_triton_selected_moe_provider_requested();
     const bool exact_arbitrary_q8192_moe =
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&
         (prefill_tokens >= 4096u || smooth_tail_route_requested ||
-         dynamic_logical_moe_provider_requested) &&
+         dynamic_logical_moe_provider_requested || strict_residual_mode) &&
         !exact_arbitrary_force_q1024_moe;
     const bool exact_arbitrary_q1024_moe =
         qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) &&

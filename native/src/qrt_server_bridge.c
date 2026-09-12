@@ -22,12 +22,6 @@
 
 struct qrt_server_engine {
     qrt_engine_t *engine;
-    uint32_t *resident_prefix_tokens;
-    size_t resident_prefix_token_count;
-    size_t resident_prefix_token_capacity;
-    uint32_t *previous_request_tokens;
-    size_t previous_request_token_count;
-    size_t previous_request_token_capacity;
 #ifdef _WIN32
     HMODULE provider_module;
 #endif
@@ -82,52 +76,6 @@ static void qrt_server_write_first_token_observation(
     }
     fputs(",\"source\":\"qrt_engine_report.baseline_output_head_topk_logits[0]\"}\n", destination);
     fflush(destination);
-}
-
-static int qrt_server_store_tokens(
-    uint32_t **destination,
-    size_t *destination_count,
-    size_t *destination_capacity,
-    const uint32_t *source,
-    size_t source_count
-) {
-    uint32_t *replacement;
-    if (destination == NULL || destination_count == NULL ||
-        destination_capacity == NULL || source == NULL || source_count == 0u ||
-        source_count > SIZE_MAX / sizeof(source[0])) {
-        return 0;
-    }
-    if (*destination_capacity < source_count) {
-        replacement = (uint32_t *)realloc(
-            *destination,
-            source_count * sizeof(source[0])
-        );
-        if (replacement == NULL) {
-            return 0;
-        }
-        *destination = replacement;
-        *destination_capacity = source_count;
-    }
-    memcpy(*destination, source, source_count * sizeof(source[0]));
-    *destination_count = source_count;
-    return 1;
-}
-
-static size_t qrt_server_common_prefix_tokens(
-    const uint32_t *left,
-    size_t left_count,
-    const uint32_t *right,
-    size_t right_count
-) {
-    size_t count = 0u;
-    const size_t limit = left_count < right_count ? left_count : right_count;
-    if (left == NULL || right == NULL) {
-        return 0u;
-    }
-    while (count < limit && left[count] == right[count]) {
-        ++count;
-    }
-    return count;
 }
 
 static const char *qrt_server_environment_value(
@@ -472,14 +420,6 @@ void qrt_server_engine_free_v1(qrt_server_engine_t *engine) {
         qrt_engine_free(engine->engine);
         engine->engine = NULL;
     }
-    free(engine->resident_prefix_tokens);
-    engine->resident_prefix_tokens = NULL;
-    engine->resident_prefix_token_count = 0u;
-    engine->resident_prefix_token_capacity = 0u;
-    free(engine->previous_request_tokens);
-    engine->previous_request_tokens = NULL;
-    engine->previous_request_token_count = 0u;
-    engine->previous_request_token_capacity = 0u;
 #ifdef _WIN32
     if (engine->provider_module != NULL) {
         FreeLibrary(engine->provider_module);
@@ -487,6 +427,22 @@ void qrt_server_engine_free_v1(qrt_server_engine_t *engine) {
     }
 #endif
     free(engine);
+}
+
+typedef struct qrt_server_prefix_callback_guard {
+    qrt_token_stream_callback_v1_t callback;
+    void *user_data;
+    size_t calls;
+} qrt_server_prefix_callback_guard_t;
+
+static int QRT_CDECL qrt_server_forward_prefix_callback(
+    void *user_data,
+    const qrt_token_stream_event_v1_t *event
+) {
+    qrt_server_prefix_callback_guard_t *guard =
+        (qrt_server_prefix_callback_guard_t *)user_data;
+    ++guard->calls;
+    return guard->callback(guard->user_data, event);
 }
 
 static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
@@ -504,9 +460,7 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
     qrt_engine_report_t *engine_report;
     qrt_status_t status;
     const uint64_t request_start_ns = qrt_server_now_ns();
-    uint64_t prefix_seed_elapsed_ns = UINT64_C(0);
     size_t prefix_hit_token_count = 0u;
-    int prefix_seed_required = 0;
     int prefix_route_used = 0;
 
     /* The exact-first-token provider is Windows-only, but the bridge also
@@ -891,6 +845,11 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
     }
     }
 #endif
+    /* Token overlap alone does not establish live native state. In
+     * particular, an exact first-token request may publish no resident
+     * session. Only the engine's complete, generation-bound checkpoints
+     * authorize a prefix continuation; all other requests prefill normally. */
+    *out_output_token_count = 0u;
     if (qrt_server_prefix_cache_enabled()) {
         size_t saved_prefix = 0u;
         const qrt_status_t query_status = qrt_engine_prefix_checkpoint_match_v1(
@@ -904,171 +863,49 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
             prefix_hit_token_count = saved_prefix;
         }
     }
-    if (prefix_hit_token_count == 0u && qrt_server_prefix_cache_enabled() &&
-        input_token_count <
-            (size_t)QRT_SERVER_RETAINED_Q8192_TOKENS) {
-        const size_t minimum_prefix_tokens =
-            qrt_server_prefix_cache_min_tokens();
-        if (engine->resident_prefix_token_count >= minimum_prefix_tokens &&
-            qrt_server_prefix_shape_supported(
-                input_token_count,
-                engine->resident_prefix_token_count,
-                output_token_capacity
-            ) &&
-            memcmp(
-                engine->resident_prefix_tokens,
-                input_tokens,
-                engine->resident_prefix_token_count * sizeof(input_tokens[0])
-            ) == 0) {
-            prefix_hit_token_count = engine->resident_prefix_token_count;
-        } else if (engine->previous_request_token_count != 0u) {
-            size_t common_prefix = qrt_server_common_prefix_tokens(
-                engine->previous_request_tokens,
-                engine->previous_request_token_count,
-                input_tokens,
-                input_token_count
-            );
-            if (common_prefix == input_token_count && common_prefix != 0u) {
-                --common_prefix;
-            }
-            if (common_prefix >= minimum_prefix_tokens &&
-                qrt_server_prefix_shape_supported(
-                    input_token_count,
-                    common_prefix,
-                    output_token_capacity
-                )) {
-                prefix_hit_token_count = common_prefix;
-                prefix_seed_required = 1;
-            }
-        }
-        if (prefix_hit_token_count == 0u &&
-            input_token_count > minimum_prefix_tokens &&
-            qrt_server_prefix_shape_supported(
-                input_token_count,
-                input_token_count - 1u,
-                output_token_capacity
-            )) {
-            prefix_hit_token_count = input_token_count - 1u;
-            prefix_seed_required = 1;
-        }
-    }
-
-    if (prefix_hit_token_count != 0u && prefix_seed_required) {
-        uint32_t seed_output_token = UINT32_MAX;
-        size_t seed_output_token_count = 0u;
-        const uint64_t seed_start_ns = qrt_server_now_ns();
-        status = qrt_engine_request_tokens(
-            engine->engine,
-            input_tokens,
-            prefix_hit_token_count,
-            &seed_output_token,
-            1u,
-            &seed_output_token_count
-        );
-        prefix_seed_elapsed_ns = qrt_server_elapsed_ns(seed_start_ns);
-        if (status != QRT_STATUS_OK || seed_output_token_count != 1u ||
-            seed_output_token >= (uint32_t)QRT_QWEN36_VOCAB_SIZE ||
-            !qrt_server_store_tokens(
-                &engine->resident_prefix_tokens,
-                &engine->resident_prefix_token_count,
-                &engine->resident_prefix_token_capacity,
-                input_tokens,
-                prefix_hit_token_count
-            )) {
-            engine->resident_prefix_token_count = 0u;
-            *out_output_token_count = 0u;
-            out_report->request_wall_ns = qrt_server_elapsed_ns(request_start_ns);
-            return status == QRT_STATUS_OK ? QRT_STATUS_OUT_OF_MEMORY : status;
-        }
-        fprintf(
-            stderr,
-            "QRT_SERVER_MARK prefix_cache_seed prefix_tokens=%zu suffix_tokens=%zu output_tokens=%zu elapsed_ms=%.4f\n",
-            prefix_hit_token_count,
-            input_token_count - prefix_hit_token_count,
-            output_token_capacity,
-            (double)prefix_seed_elapsed_ns / 1000000.0
-        );
-    }
-
     if (prefix_hit_token_count != 0u) {
+        qrt_server_prefix_callback_guard_t callback_guard = {
+            callback, user_data, 0u
+        };
         qrt_qwen36_resident_prefix_cache_result_v1_t *prefix_result =
             (qrt_qwen36_resident_prefix_cache_result_v1_t *)calloc(
-                1u,
-                sizeof(*prefix_result)
+                1u, sizeof(*prefix_result)
             );
         if (prefix_result == NULL) {
-            *out_output_token_count = 0u;
             out_report->request_wall_ns = qrt_server_elapsed_ns(request_start_ns);
             return QRT_STATUS_OUT_OF_MEMORY;
         }
         status = qrt_engine_request_tokens_prefix_stream_v1(
-            engine->engine,
-            input_tokens,
-            input_token_count,
-            prefix_hit_token_count,
-            output_tokens,
-            output_token_capacity,
-            prefix_result,
-            callback,
-            user_data
+            engine->engine, input_tokens, input_token_count,
+            prefix_hit_token_count, output_tokens, output_token_capacity,
+            prefix_result, qrt_server_forward_prefix_callback, &callback_guard
         );
         if (status == QRT_STATUS_OK) {
             *out_output_token_count = (size_t)prefix_result->output_token_count;
             prefix_route_used = 1;
-            (void)qrt_server_store_tokens(
-                &engine->previous_request_tokens,
-                &engine->previous_request_token_count,
-                &engine->previous_request_token_capacity,
-                input_tokens,
-                input_token_count
-            );
-            fprintf(
-                stderr,
-                "QRT_SERVER_MARK prefix_cache_hit prefix_tokens=%zu suffix_tokens=%zu output_tokens=%zu seed=%d ttft_ms=%.4f tpot_ms=%.4f\n",
-                prefix_hit_token_count,
-                input_token_count - prefix_hit_token_count,
+            fprintf(stderr,
+                "QRT_SERVER_MARK prefix_cache_hit prefix_tokens=%zu suffix_tokens=%zu output_tokens=%zu seed=0 ttft_ms=%.4f tpot_ms=%.4f\n",
+                prefix_hit_token_count, input_token_count - prefix_hit_token_count,
                 *out_output_token_count,
-                prefix_seed_required,
                 (double)prefix_result->ttft_elapsed_ns / 1000000.0,
-                (double)prefix_result->tpot_elapsed_ns / 1000000.0
-            );
-        } else {
-            engine->resident_prefix_token_count = 0u;
-            *out_output_token_count = 0u;
+                (double)prefix_result->tpot_elapsed_ns / 1000000.0);
+        } else if (status == QRT_STATUS_UNSUPPORTED && callback_guard.calls == 0u &&
+                   prefix_result->output_token_count == 0u) {
+            fprintf(stderr,
+                "QRT_SERVER_MARK prefix_cache_fallback prefix_tokens=%zu callbacks=0 reason=checkpoint_unavailable\n",
+                prefix_hit_token_count);
+            prefix_hit_token_count = 0u;
         }
         free(prefix_result);
-    } else {
-        status = qrt_engine_request_tokens_stream_v1(
-            engine->engine,
-            input_tokens,
-            input_token_count,
-            output_tokens,
-            output_token_capacity,
-            out_output_token_count,
-            callback,
-            user_data
-        );
-        if (status == QRT_STATUS_OK) {
-            (void)qrt_server_store_tokens(
-                &engine->previous_request_tokens,
-                &engine->previous_request_token_count,
-                &engine->previous_request_token_capacity,
-                input_tokens,
-                input_token_count
-            );
-            if (output_token_capacity == 1u) {
-                (void)qrt_server_store_tokens(
-                    &engine->resident_prefix_tokens,
-                    &engine->resident_prefix_token_count,
-                    &engine->resident_prefix_token_capacity,
-                    input_tokens,
-                    input_token_count
-                );
-            } else {
-                engine->resident_prefix_token_count = 0u;
-            }
-        }
     }
+    if (prefix_hit_token_count == 0u) {
+        status = qrt_engine_request_tokens_stream_v1(
+            engine->engine, input_tokens, input_token_count,
+            output_tokens, output_token_capacity, out_output_token_count,
+            callback, user_data
+        );
+    }
+
     out_report->request_wall_ns = qrt_server_elapsed_ns(request_start_ns);
     out_report->output_token_count = *out_output_token_count;
     engine_report = (qrt_engine_report_t *)calloc(1u, sizeof(*engine_report));
@@ -1076,8 +913,7 @@ static qrt_status_t qrt_server_engine_request_tokens_stream_internal(
         return status != QRT_STATUS_OK ? status : QRT_STATUS_OUT_OF_MEMORY;
     }
     if (qrt_engine_report(engine->engine, engine_report) == QRT_STATUS_OK) {
-        out_report->ttft_ns = engine_report->last_request_ttft_elapsed_ns +
-            (prefix_route_used ? prefix_seed_elapsed_ns : UINT64_C(0));
+        out_report->ttft_ns = engine_report->last_request_ttft_elapsed_ns;
         out_report->tpot_ns = engine_report->last_request_tpot_elapsed_ns;
         out_report->tpot_sample_count = engine_report->last_request_tpot_sample_count;
         if (input_token_count == QRT_SERVER_RETAINED_Q8192_TOKENS) {

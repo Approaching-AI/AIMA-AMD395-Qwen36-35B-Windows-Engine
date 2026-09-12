@@ -39,8 +39,11 @@ exact-prefix path.
 
 The qrt_engine_prefix_checkpoint_match_v1 API returns the deepest complete
 boundary matching actual input tokens, with a suffix of at most 1024 tokens
-and the existing decode-tail capacity. Zero means a miss. The server tries
-this query before its existing seed logic. A saved hit performs no cold seed.
+and the existing decode-tail capacity. Zero means a miss. This query is the
+server's authority for prefix reuse. A miss performs an ordinary prefill;
+the server does not infer resident state from token overlap or an out1 seed.
+An unsupported checkpoint attempt falls back only before any callback or
+output. Cancellation, partial output and other failures are not retried.
 
 Restoration clones the saved linear state and mutable KV tail. Separate KV
 storage borrows only the owner's immutable prefix. Contiguous KV storage copies

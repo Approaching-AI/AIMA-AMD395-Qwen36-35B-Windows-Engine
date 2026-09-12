@@ -17,7 +17,7 @@ class ServerFirstTokenObservationTests(unittest.TestCase):
         bridge = (ROOT / "native/src/qrt_server_bridge.c").read_text()
         declaration = "static void qrt_server_write_first_token_observation("
         actual = declaration + bridge.split(declaration, 1)[1].split(
-            "static int qrt_server_store_tokens(", 1)[0]
+            "static const char *qrt_server_environment_value(", 1)[0]
         source = r'''
 #include "qrt.h"
 #include <stdio.h>
