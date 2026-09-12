@@ -134,6 +134,15 @@ token144/logit10.375. Candidate TPOT is101.346222ms and load20096.24ms.
 remains32. No immutable performance or broader release gate is qualified.
 Evidence: `benchmarks/correctness/attention-wide-queries-20260913.json`.
 
+An optional completion observer then isolates originalq7169 layer3 attention
+with128 queries per slab. Completed host phases are QK437.1211ms,
+probability135.1112ms, approximate PV244.2869ms, collection6.5589ms and exact
+PV179.7545ms. All57 samples per phase complete; all29364224 external BF16
+cells and the prior diagnostic artifact manifests match. The observer adds
+synchronizations, so its1006.2578ms outer component wall is diagnostic and does
+not replace the q8192 performance result. See
+`benchmarks/correctness/attention-completed-phases-20260913.json`.
+
 A fresh instrumented q8192 run on that configuration passes the same full
 GB10 boundary. Completed host clocks show 21470.5 ms for the attention pipeline,
 11298.44 ms for linear core including output projection, 10792.946 ms for MoE
