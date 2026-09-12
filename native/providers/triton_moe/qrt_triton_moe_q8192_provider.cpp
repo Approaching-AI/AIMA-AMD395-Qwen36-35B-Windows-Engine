@@ -21,6 +21,7 @@
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
+#include "../moe_accumulator/bf16_scaled_l2.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
 
 #if defined(_WIN32)
@@ -1669,6 +1670,11 @@ struct MatrixPlan {
     hipDataType output_type = HIP_R_16BF;
 };
 
+enum class RoutedProfilePoint : size_t {
+    GateNorm, GateMatrix, GateCorrection, DownMatrix, DownNorm, Count
+};
+using RoutedProfileEvents = std::array<hipEvent_t, static_cast<size_t>(RoutedProfilePoint::Count)>;
+
 struct FullV3EventSlot {
     hipEvent_t input_start = nullptr;
     hipEvent_t input_ready = nullptr;
@@ -1677,6 +1683,7 @@ struct FullV3EventSlot {
     hipEvent_t sort_done = nullptr;
     hipEvent_t gate_done = nullptr;
     hipEvent_t routed_done = nullptr;
+    RoutedProfileEvents routed_detail{};
 #if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
     hipEvent_t tail_done = nullptr;
 #endif
@@ -1800,6 +1807,7 @@ struct ProviderState {
     uint32_t *moe_compacted_indices = nullptr;
     uint32_t *moe_compacted_count = nullptr;
     uint32_t sm121_moe_absolute_error_ppb = 0u;
+    bool scaled_l2 = false;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
     uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
@@ -3640,6 +3648,48 @@ void moe_bf16_row_l2_kernel(const uint16_t *values, float *norms,
         __syncthreads();
     }
     if (threadIdx.x == 0u) norms[row] = static_cast<float>(sqrt(partial[0])) * 1.00002f;
+}
+
+// Same 256-lane row ownership and bounded launches; all device arithmetic is
+// FP32 or integer. The metadata upper bound covers the complete BF16 range.
+__global__ __launch_bounds__(256)
+void moe_bf16_scaled_row_l2_kernel(const uint16_t *values, float *norms,
+                                 uint32_t rows, uint32_t columns, uint32_t first_row) {
+    using namespace qrt_bf16_scaled_l2;
+    __shared__ unsigned exponents[kNativeThreads];
+    __shared__ float partial[kNativeThreads];
+    const uint32_t row = first_row + blockIdx.x;
+    if (row >= rows) return;
+    unsigned maximum = 0u;
+    for (uint32_t k = threadIdx.x; k < columns; k += blockDim.x) {
+        const unsigned e = exponent(values[static_cast<size_t>(row) * columns + k]);
+        maximum = e > maximum ? e : maximum;
+    }
+    exponents[threadIdx.x] = maximum;
+    __syncthreads();
+    for (uint32_t offset = kNativeThreads / 2u; offset; offset >>= 1u) {
+        if (threadIdx.x < offset) {
+            const unsigned other = exponents[threadIdx.x + offset];
+            if (other > exponents[threadIdx.x]) exponents[threadIdx.x] = other;
+        }
+        __syncthreads();
+    }
+    maximum = exponents[0];
+    if (maximum == 0u || maximum == 255u) {
+        if (threadIdx.x == 0u) norms[row] = finish(0.0f, maximum);
+        return;
+    }
+    float sum = 0.0f;
+    for (uint32_t k = threadIdx.x; k < columns; k += blockDim.x)
+        sum = add_up(sum, square(values[static_cast<size_t>(row) * columns + k], maximum));
+    partial[threadIdx.x] = sum;
+    __syncthreads();
+    for (uint32_t offset = kNativeThreads / 2u; offset; offset >>= 1u) {
+        if (threadIdx.x < offset)
+            partial[threadIdx.x] = add_up(partial[threadIdx.x], partial[threadIdx.x + offset]);
+        __syncthreads();
+    }
+    if (threadIdx.x == 0u) norms[row] = finish(partial[0], maximum);
 }
 
 __device__ bool moe_l2_candidate(float endpoint, const MoeCorrectionBounds &bounds,
@@ -11689,6 +11739,9 @@ bool release_full_v3_execution_state() {
         if (slot.routed_done != nullptr) {
             (void)hipEventDestroy(slot.routed_done);
         }
+        for (hipEvent_t event : slot.routed_detail) {
+            if (event != nullptr) (void)hipEventDestroy(event);
+        }
         if (slot.gate_done != nullptr) {
             (void)hipEventDestroy(slot.gate_done);
         }
@@ -12052,8 +12105,13 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
     }
     for (uint32_t first = 0; first < rows; first += 4096u) {
         const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
-        hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(count), dim3(kNativeThreads),
-            0, stream, values, g_state.moe_l2[slot], rows, columns, first);
+        if (g_state.scaled_l2) {
+            hipLaunchKernelGGL(moe_bf16_scaled_row_l2_kernel, dim3(count), dim3(kNativeThreads),
+                0, stream, values, g_state.moe_l2[slot], rows, columns, first);
+        } else {
+            hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(count), dim3(kNativeThreads),
+                0, stream, values, g_state.moe_l2[slot], rows, columns, first);
+        }
         const hipError_t status = hipGetLastError();
         if (status != hipSuccess) { set_error("MoE L2 row metadata", status); return false; }
     }
@@ -12608,6 +12666,9 @@ bool ensure_full_v3_execution_state() {
             slot.tail_done != nullptr &&
 #endif
             slot.caller_done != nullptr;
+        for (hipEvent_t event : slot.routed_detail) {
+            complete = complete && event != nullptr;
+        }
     }
     if (complete) {
         return true;
@@ -12667,6 +12728,11 @@ bool ensure_full_v3_execution_state() {
                 &slot.routed_done,
                 event_flags
             );
+        }
+        for (hipEvent_t &event : slot.routed_detail) {
+            if (status == hipSuccess) {
+                status = hipEventCreateWithFlags(&event, event_flags);
+            }
         }
 #if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
         if (status == hipSuccess) {
@@ -13300,11 +13366,17 @@ bool launch_routed_matrices_after_input_conversion(
     uint32_t retained_compat_logical_tokens = 0u,
     hipEvent_t sort_done = nullptr,
     hipEvent_t gate_done = nullptr,
-    hipEvent_t tail_done = nullptr
+    hipEvent_t tail_done = nullptr,
+    const RoutedProfileEvents *routed_profile = nullptr
 ) {
     if (!launch_moe_l2(g_state.input_bf16, MoeL2::Input, token_count, kHidden, stream) ||
         !launch_moe_l2(gate_up_bf16, MoeL2::RoutedGateUp,
                        kExperts * 2u * kIntermediate, kHidden, stream)) return false;
+    if (routed_profile != nullptr) {
+        const hipError_t status = hipEventRecord(
+            (*routed_profile)[static_cast<size_t>(RoutedProfilePoint::GateNorm)], stream);
+        if (status != hipSuccess) { set_error("routed gate norm event", status); return false; }
+    }
 
 #if QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED
     const uint16_t *gate_up_pointer = gate_up_bf16;
@@ -13790,6 +13862,9 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
 #endif
     }
+    if (status == hipSuccess && routed_profile != nullptr) {
+        status = hipEventRecord((*routed_profile)[static_cast<size_t>(RoutedProfilePoint::GateMatrix)], stream);
+    }
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_GATE
     if (status == hipSuccess && !g_state.sm121_routed_hawkeye) {
         const bool correction_requested =
@@ -13955,6 +14030,9 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
         );
         status = correction_status;
+        if (status == hipSuccess && routed_profile != nullptr) {
+            status = hipEventRecord((*routed_profile)[static_cast<size_t>(RoutedProfilePoint::GateCorrection)], stream);
+        }
         if (status == hipSuccess) {
             const hipError_t correction_status = launch_moe_routed_correction<true>(
                 routed_up_batched_hawkeye_correction_activation_kernel<MoeCorrectionPhase::Local>,
@@ -14328,6 +14406,9 @@ bool launch_routed_matrices_after_input_conversion(
 #endif
 #endif
     }
+    if (status == hipSuccess && routed_profile != nullptr) {
+        status = hipEventRecord((*routed_profile)[static_cast<size_t>(RoutedProfilePoint::DownMatrix)], stream);
+    }
 #if QRT_TRITON_MOE_CONDITIONAL_EXACT_DOWN
     if (status == hipSuccess &&
         !g_state.sm121_routed_hawkeye &&
@@ -14368,6 +14449,10 @@ bool launch_routed_matrices_after_input_conversion(
          g_state.sm121_moe_absolute_error_ppb != 0u)) {
         if (!launch_moe_l2(g_state.activated, MoeL2::RoutedActivated, token_count * kTopK, kIntermediate, stream) ||
             !launch_moe_l2(down_bf16, MoeL2::RoutedDown, kExperts * kHidden, kIntermediate, stream)) return false;
+        if (routed_profile != nullptr) {
+            status = hipEventRecord((*routed_profile)[static_cast<size_t>(RoutedProfilePoint::DownNorm)], stream);
+            if (status != hipSuccess) { set_error("routed down norm event", status); return false; }
+        }
         const size_t route_output_elements =
             static_cast<size_t>(token_count) * kTopK * kHidden;
         const uint32_t correction_blocks = static_cast<uint32_t>(
@@ -15782,6 +15867,17 @@ int launch_full_v3_impl(
     );
     const bool profile_subphases = profile_value != nullptr &&
         profile_value[0] != '\0' && std::strcmp(profile_value, "0") != 0;
+    // These boundaries are on the routed stream. Parallel-tail and AOT-only
+    // configurations do not expose the same split and report it as inactive.
+    const bool profile_routed_detail = profile_subphases &&
+        QRT_TRITON_MOE_NATIVE_WMMA_GATE && QRT_TRITON_MOE_NATIVE_WMMA_DOWN &&
+        QRT_TRITON_MOE_BATCHED_HAWKEYE &&
+        !QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM &&
+        !QRT_TRITON_MOE_Q1024_PACKED_EXACT_ROUTED &&
+        !QRT_TRITON_MOE_Q1024_EXACT_ROUTED &&
+        !QRT_TRITON_MOE_Q1024_SORTED_PACKED_EXACT_ROUTED &&
+        !QRT_TRITON_MOE_Q1024_GROUPED_GATE_EXACT_DOWN &&
+        g_state.sm121_routed_hawkeye && g_state.sm121_moe_absolute_error_ppb != 0u;
     FullV3EventSlot *slot = acquire_full_v3_event_slot(stream);
     if (slot == nullptr) {
         return 0;
@@ -15868,10 +15964,13 @@ int launch_full_v3_impl(
 #else
             profile_subphases ? slot->sort_done : nullptr,
 #endif
-            profile_subphases ? slot->gate_done : nullptr
+            profile_subphases ? slot->gate_done : nullptr,
 #if QRT_TRITON_MOE_NATIVE_WMMA_PARALLEL_TAIL_STREAM
-            , slot->tail_done
+            slot->tail_done,
+#else
+            nullptr,
 #endif
+            profile_routed_detail ? &slot->routed_detail : nullptr
         )) {
         drain_full_v3_streams(stream);
         return 0;
@@ -15936,6 +16035,26 @@ int launch_full_v3_impl(
         float down_ms = 0.0f;
         float routed_ms = 0.0f;
         float total_ms = 0.0f;
+        float gate_matrix_ms = 0.0f, gate_correction_ms = 0.0f;
+        float up_correction_ms = 0.0f, down_matrix_ms = 0.0f;
+        float down_correction_ms = 0.0f;
+        float gate_norm_ms = 0.0f, route_sort_ms = 0.0f, down_norm_ms = 0.0f;
+        if (status == hipSuccess && profile_routed_detail) {
+            const auto &detail = slot->routed_detail;
+            const hipEvent_t gate_matrix = detail[static_cast<size_t>(RoutedProfilePoint::GateMatrix)];
+            const hipEvent_t gate_correction = detail[static_cast<size_t>(RoutedProfilePoint::GateCorrection)];
+            const hipEvent_t down_matrix = detail[static_cast<size_t>(RoutedProfilePoint::DownMatrix)];
+            const hipEvent_t gate_norm = detail[static_cast<size_t>(RoutedProfilePoint::GateNorm)];
+            const hipEvent_t down_norm = detail[static_cast<size_t>(RoutedProfilePoint::DownNorm)];
+            status = hipEventElapsedTime(&gate_norm_ms, slot->router_done, gate_norm);
+            if (status == hipSuccess) status = hipEventElapsedTime(&route_sort_ms, gate_norm, slot->sort_done);
+            if (status == hipSuccess) status = hipEventElapsedTime(&gate_matrix_ms, slot->sort_done, gate_matrix);
+            if (status == hipSuccess) status = hipEventElapsedTime(&gate_correction_ms, gate_matrix, gate_correction);
+            if (status == hipSuccess) status = hipEventElapsedTime(&up_correction_ms, gate_correction, slot->gate_done);
+            if (status == hipSuccess) status = hipEventElapsedTime(&down_matrix_ms, slot->gate_done, down_matrix);
+            if (status == hipSuccess) status = hipEventElapsedTime(&down_norm_ms, down_matrix, down_norm);
+            if (status == hipSuccess) status = hipEventElapsedTime(&down_correction_ms, down_norm, slot->routed_done);
+        }
         if (status == hipSuccess) {
             status = hipEventElapsedTime(
                 &input_ms,
@@ -16067,6 +16186,9 @@ int launch_full_v3_impl(
             "padded_routes=%d input_ms=%.6f shared_ms=%.6f "
             "router_ms=%.6f sort_ms=%.6f gate_ms=%.6f down_ms=%.6f "
             "routed_ms=%.6f total_ms=%.6f "
+            "routed_detail_active=%u gate_matrix_ms=%.6f gate_correction_ms=%.6f "
+            "up_correction_ms=%.6f down_matrix_ms=%.6f down_correction_ms=%.6f "
+            "gate_norm_ms=%.6f route_sort_ms=%.6f down_norm_ms=%.6f scaled_l2=%u "
             "expert_hist_empty=%u sole_1_16=%u sole_17_32=%u "
             "sole_33_48=%u sole_49_63=%u exact_m64=%u "
             "overflow_1_16=%u overflow_17_32=%u overflow_33_48=%u "
@@ -16082,6 +16204,16 @@ int launch_full_v3_impl(
             static_cast<double>(down_ms),
             static_cast<double>(routed_ms),
             static_cast<double>(total_ms),
+            profile_routed_detail ? 1u : 0u,
+            static_cast<double>(gate_matrix_ms),
+            static_cast<double>(gate_correction_ms),
+            static_cast<double>(up_correction_ms),
+            static_cast<double>(down_matrix_ms),
+            static_cast<double>(down_correction_ms),
+            static_cast<double>(gate_norm_ms),
+            static_cast<double>(route_sort_ms),
+            static_cast<double>(down_norm_ms),
+            g_state.scaled_l2 ? 1u : 0u,
             empty_experts,
             sole_le16,
             sole_le32,
@@ -16143,6 +16275,13 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         }
 #endif
     }
+    const char *scaled_l2 = std::getenv("QRT_QWEN36_MOE_SCALED_L2");
+    if (scaled_l2 != nullptr && scaled_l2[0] != '\0' &&
+        std::strcmp(scaled_l2, "0") != 0 && std::strcmp(scaled_l2, "1") != 0) {
+        set_error_text("QRT_QWEN36_MOE_SCALED_L2 must be 0 or 1");
+        return 0;
+    }
+    g_state.scaled_l2 = scaled_l2 != nullptr && std::strcmp(scaled_l2, "1") == 0;
     const char *absolute_ppb = std::getenv("QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB");
     if (absolute_ppb != nullptr && absolute_ppb[0] != '\0') {
         char *end = nullptr;
@@ -16539,10 +16678,10 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         size_t bytes = 0u;
         for (size_t rows : kMoeL2Rows) bytes += rows * sizeof(float);
         std::fprintf(stderr, "BATCH_MARK q8192_triton_selected_moe_sm121_absolute_selector "
-            "ppb=%u norm_bytes=%zu maximum_correction_blocks=%u "
+            "ppb=%u norm_bytes=%zu scaled_l2=%u maximum_correction_blocks=%u "
             "maximum_candidates_per_dispatch=%u maximum_norm_rows=4096 "
             "weight_source=live_bf16 input_source=live_bf16 numerical_correctness_claimed=0\n",
-            g_state.sm121_moe_absolute_error_ppb, bytes,
+            g_state.sm121_moe_absolute_error_ppb, bytes, g_state.scaled_l2 ? 1u : 0u,
             kMaximumMoeCorrectionBlocks, kMaximumMoeCorrectionBlocks * kNativeThreads);
     }
     if (g_state.sm121_routed_hawkeye) {

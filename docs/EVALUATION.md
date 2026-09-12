@@ -87,7 +87,30 @@ integer alignment and original fused online-softmax/PV arithmetic. It uses
 32-query slabs, leaves single-query calls unchanged, and rejects combinations
 with the native-matrix, native-product or integer-mantissa experiments.
 
-Whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
+CK `d392e7f`, whole/CLI `8b94be9`, FLA `6042803`, and MoE `5710b89`
+now pass the [complete cold matrix](../benchmarks/correctness/attention-tiled-exact-qk-20260912.json)
+with this flag: all eight prompts and 1,216 output tokens, first-token logits,
+streaming and host checks. Actual q8192/out512 callback TTFT is 58,662.0706 ms,
+load 20,022.9296 ms, and TPOT 115.922234 ms. The preceding selected run was
+62,837.3352 ms; the retained performance target remains unmet and unchanged.
+Same-build captured attention takes 1,155.15 versus 1,282.19 ms, with all
+29,364,224 BF16 outputs matching. Generated native offset, tail and fallback
+checks compare 41,952 FP32 scores without differences. All 324 local tests
+(2 skips), C/ABI, Rust, Clippy, q16 and hygiene pass.
+
+The next opt-in `QRT_QWEN36_MOE_SCALED_L2=1` computes conservative L2
+selector metadata using FP32 and integer exponent scaling, retaining the
+existing selector thresholds and inflation. Each addition rounds outward;
+tiny squared terms are raised to the normal FP32 range. Final exponent
+adjustment rounds subnormal results upward without floating subnormal
+arithmetic. The original FP64 path remains available. Host validation covers
+all 65,536 BF16 encodings and 138,240 rows with no bound underestimates.
+Native GPU and complete-model qualification are pending. The optional MoE
+profile now separates norm generation, route sorting, matrix multiplication
+and exact corrections on the routed stream; overlapping shared time remains
+separate and is not added to the routed total.
+
+The preceding whole and CLI `77877edb8cb757149fd6cfc2343bea387119a082`, built with
 `-HawkeyeReplayLanes 4`, MoE
 `5710b891787bde7c5ed641a76619b374ca8911d8` and FLA
 `13d77b63ea705ea8f4d4daee8d2ac30a581b7bfb` with

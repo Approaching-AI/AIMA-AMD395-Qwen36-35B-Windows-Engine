@@ -13,6 +13,7 @@
 
 #include <chrono>
 #include <stdexcept>
+#include "scaled_l2_reference.h"
 
 namespace moe_batch_test {
 constexpr size_t kGuard = 128u;
@@ -258,10 +259,51 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode) {
                 "\"replay_lanes\":%u,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
                 tokens, mode, elements, down_elements, times[0], times[1], unsigned(QRT_MOE_ROUTED_REPLAY_LANES));
 }
+
+void compare_scaled_l2(unsigned columns) {
+    constexpr unsigned first = 3u, tested_rows = 259u, rows = first + tested_rows;
+    const auto fixture = scaled_l2_test::fixture(tested_rows, columns);
+    std::vector<uint16_t> input(size_t(rows) * columns + 2u * kGuard, kSentinel);
+    std::copy(fixture.begin(), fixture.end(), input.begin() + kGuard + size_t(first) * columns);
+    std::vector<float> output(rows + 2u * kGuard, 12345.25f);
+    Device<uint16_t> di(input);
+    Device<float> original(output), scaled(output);
+    hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+                      di.data(), original.data(), rows, columns, first);
+    hip_ok(hipGetLastError(), "original row norm launch");
+    hipLaunchKernelGGL(moe_bf16_scaled_row_l2_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+                      di.data(), scaled.data(), rows, columns, first);
+    hip_ok(hipGetLastError(), "scaled row norm launch");
+    const auto control = original.read(output.size());
+    const auto candidate = scaled.read(output.size());
+    for (size_t i = 0; i < output.size(); ++i) {
+        if (i < kGuard + first || i >= kGuard + rows) {
+            require(control[i] == output[i] && candidate[i] == output[i], "norm output redzone changed");
+            continue;
+        }
+        const size_t row = i - kGuard - first;
+        const long double expected = scaled_l2_test::norm(fixture.data() + row * columns, columns);
+        if (!std::isfinite(expected)) {
+            require(std::isinf(candidate[i]), "nonfinite operand did not select conservative infinity");
+        } else {
+            require(static_cast<long double>(candidate[i]) >= expected * static_cast<long double>(1.00002f),
+                    "scaled GPU norm underestimates inflated reference");
+            require(candidate[i] >= control[i], "scaled GPU norm below original metadata");
+            if (std::isfinite(candidate[i]))
+                require(static_cast<long double>(candidate[i]) <= expected * 1.0001L, "scaled GPU norm inflation too large");
+        }
+    }
+    require(di.read(input.size()) == input, "norm input changed");
+    std::printf("{\"kind\":\"scaled_l2_bound_comparison\",\"rows\":%u,\"columns\":%u,"
+                "\"first_row\":%u,\"underestimates\":0,\"redzones_pass\":true,"
+                "\"immutable_inputs\":true,\"inference_acceptance\":false}\n", tested_rows, columns, first);
+}
 }
 
 int main() {
     try {
+        moe_batch_test::compare_scaled_l2(512u);
+        moe_batch_test::compare_scaled_l2(2048u);
         moe_batch_test::run_case<64u>(512u, true);
         moe_batch_test::run_case<kMaximumMoeCorrectionBlocks>(512u, true);
         moe_batch_test::run_case<kMaximumMoeCorrectionBlocks>(513u, true);
