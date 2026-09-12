@@ -3701,6 +3701,45 @@ __device__ bool moe_l2_candidate(float endpoint, const MoeCorrectionBounds &boun
     return qrt_bf16_midpoint::within_error(endpoint, error);
 }
 
+// The original cuBLAS router uses eight K256 partitions for logical M=4..16.
+// Each partition has a BF16 endpoint before the final FP32 sum. An unsplit
+// FP32 result can differ well away from a midpoint, so sparse correction is
+// insufficient for this bounded shape. The actual q5 capture and CPU replay
+// match every one of its 1280 router logits with these endpoints.
+__global__ __launch_bounds__(256)
+void router_short_split_bf16_kernel(
+    const uint16_t *input_bf16,
+    const uint16_t *router_weights,
+    uint16_t *logits_bf16,
+    uint32_t token_count
+) {
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+    constexpr uint32_t subgroup_width = 16u;
+#else
+    constexpr uint32_t subgroup_width = 1u;
+#endif
+    const size_t index = (static_cast<size_t>(blockIdx.x) * blockDim.x +
+                          threadIdx.x) / subgroup_width;
+    if (index >= static_cast<size_t>(token_count) * kExperts) return;
+    const uint32_t lane = threadIdx.x % subgroup_width;
+    const uint16_t *input = input_bf16 + (index / kExperts) * kHidden;
+    const uint16_t *weight = router_weights + (index % kExperts) * kHidden;
+    float sum = 0.0f;
+    for (uint32_t part = 0u; part < 8u; ++part) {
+        const uint32_t offset = part * (kHidden / 8u);
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+        const float partial = batched_hawkeye_wave16_dot_bf16_hopper(
+            input + offset, weight + offset, kHidden / 8u);
+#else
+        const float partial = qrt_q1_moe_hawkeye::dot_bf16_hopper(
+            input + offset, weight + offset, kHidden / 8u);
+#endif
+        if (lane == 0u)
+            sum = __fadd_rn(sum, bf16_to_float(float_to_bf16(partial)));
+    }
+    if (lane == 0u) logits_bf16[index] = float_to_bf16(sum);
+}
+
 // hipBLASLt remains the fast router projection.  Request its F32 endpoint so
 // cells close to a BF16 midpoint can be identified, then replay only those
 // sparse cells with the measured Hopper mma.sync K16 arithmetic.  The older
@@ -14612,7 +14651,26 @@ bool launch_router(
             )) {
             return false;
         }
-        if (cuda_reduction_all) {
+        const bool short_split_bf16 = g_state.sm121_routed_hawkeye &&
+            token_count >= 4u && token_count <= 16u;
+        if (short_split_bf16) {
+            constexpr uint32_t subgroup_width =
+                QRT_TRITON_MOE_BATCHED_HAWKEYE ? 16u : 1u;
+            const size_t threads = static_cast<size_t>(token_count) *
+                kExperts * subgroup_width;
+            hipLaunchKernelGGL(
+                router_short_split_bf16_kernel,
+                dim3(static_cast<uint32_t>((threads + kNativeThreads - 1u) /
+                                          kNativeThreads)),
+                dim3(kNativeThreads), 0, stream,
+                g_state.input_bf16, router_bf16,
+                g_state.router_logits_bf16, token_count);
+            const hipError_t split_status = hipGetLastError();
+            if (split_status != hipSuccess) {
+                set_error("router short BF16 split-K", split_status);
+                return false;
+            }
+        } else if (cuda_reduction_all) {
             hipLaunchKernelGGL(
                 router_bf16_cuda_reduction_all_kernel,
                 dim3(token_count),
