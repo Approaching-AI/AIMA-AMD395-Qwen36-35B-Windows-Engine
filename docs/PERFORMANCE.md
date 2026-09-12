@@ -28,6 +28,13 @@ calls. Raw GPU intervals include invalid negative values and do not support
 an additive kernel breakdown. See
 `benchmarks/correctness/moe-wide-compaction-20260913.json`.
 
+Removing the three fixed routed midpoint bands fails 384 of the 512 original
+continuation tokens, despite an exact first token and logit. The absolute-only
+selector experiment is rejected and its timing is excluded from performance
+acceptance. Further experiments retain all three fixed radii at 512, alongside
+the original norm-scaled bound. Full failed tokens, callbacks and command
+provenance are in `benchmarks/correctness/moe-absolute-selector-20260913.json`.
+
 The chunked route bounds activation carriers but shows no speedup and remains
 opt-in. The 10000ppb correction bound is an empirically qualified admission
 setting for the declared cases, with unchanged exact-dot arithmetic and

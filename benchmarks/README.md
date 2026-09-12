@@ -47,6 +47,12 @@ q8192 run passes all 512 GB10 tokens and callbacks. The 134.8 ms observed
 callback difference from the qualified wider-window configuration is too
 small to retain as a performance improvement; the matrix option stays off.
 
+`correctness/moe-absolute-selector-20260913.json` preserves a rejected
+admission experiment. Removing the three fixed routed midpoint bands while
+keeping the norm-scaled bound produces 384 incorrect continuation tokens out
+of 512, despite the exact first token and logit. Its timing is ineligible for
+performance acceptance; subsequent experiments restore all three radii to 512.
+
 The v1.0.1 q8192-neighbor and wide-length repair adds four bounded artifacts:
 
 - `correctness/gb10-q8192-neighbor-continuation-reference-v1.0.1.json` is the
