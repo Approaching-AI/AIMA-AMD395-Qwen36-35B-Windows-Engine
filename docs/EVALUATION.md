@@ -46,6 +46,23 @@ Reported HTTP TTFT is 55,543.3509 / 54,851.8818 ms. The second request is
 not cold, and these metrics do not replace the complete CLI callback gate.
 Positive chat/tools, prefix HTTP and archive relocation remain open.
 
+The [portable archive at `545636c`](../benchmarks/correctness/runtime-portable-archive-20260912.json)
+now passes native relocation: all 280 files are verified after extracting the
+124,940,525-byte ZIP to a different directory containing spaces and moving
+away its original staging directory. All 33 runtime paths resolve from the
+env-file location. Its newly built server again passes q8192 token/logit,
+SSE, health and shutdown checks. Native build and all 42 server tests pass.
+This remains a local candidate with no performance or release acceptance.
+
+The subsequent [ordinary short-prompt HTTP check](../benchmarks/correctness/http-short-provider-gap-20260912.json)
+finds a provider-selection failure: a five-token completion returns HTTP 500
+at layer0 because the short/smooth-tail MoE interface cannot publish the
+strict unrounded residual variance. Discovery and tokenizer checks pass;
+chat, tools, thinking and contention tests have not yet run. The server exits
+normally with healthy host checks. A compatible short full-MoE route must be
+qualified before continuing that protocol matrix; the passing q8192 archive
+result does not cover this short-prompt path.
+
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model
 tests. It uses 32-query dispatches and preserves reference online softmax,

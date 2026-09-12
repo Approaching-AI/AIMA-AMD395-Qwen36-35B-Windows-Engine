@@ -1,0 +1,518 @@
+{
+  "schema_version": 1,
+  "kind": "native_short_prompt_http_provider_capability_gap",
+  "host": "baiying",
+  "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+  "server_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+  "guard": {
+    "sha256": "ebee4d8569c4eef134638613e2e10b0a49b0e007287590b13e3c3c0cf69dbab3",
+    "value": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-runtime-portable-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\Python313\\python.exe",
+        "arguments": [
+          "D:\\projects\\verify_native_http_protocol_r1.py"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-runtime-portable-20260912",
+        "repo_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+        "command_file": "D:\\projects\\run-native-http-protocol-r1.ps1",
+        "command_file_sha256": "b238663ac5104e5391e4e4a6f26cecbbb649261f35c5b292cc8cf2e71eba68d8",
+        "controller_file": "D:\\projects\\verify_native_http_protocol_r1.py",
+        "controller_sha256": "95176185f8edb3de8c8b1ae0a7db7e1bab7fb0253f70132b0b8339e17a22093f",
+        "config_sha256": "1d7cff13681639a95a56a553c960043ec18bbb2c98cb137df9ce87ff4fca4664",
+        "model": "D:/models/Qwen3.6-35B-A3B",
+        "inference_acceptance": false,
+        "purpose": "Native extracted-archive chat/tool/thinking and queue timeout/overflow/shutdown tests; final active request retains complete frozen q8192 GB10 boundary"
+      },
+      "preflight": {
+        "host": "BAIYING",
+        "utc": "2026-09-12T04:03:26.1024430Z",
+        "command_file": "D:\\projects\\AIMA-public-runtime-portable-20260912\\scripts\\baiying_guarded_inference.ps1",
+        "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+        "spec": {
+          "executable": "C:\\Program Files\\Python313\\python.exe",
+          "arguments": [
+            "D:\\projects\\verify_native_http_protocol_r1.py"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-runtime-portable-20260912",
+          "repo_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+          "command_file": "D:\\projects\\run-native-http-protocol-r1.ps1",
+          "command_file_sha256": "b238663ac5104e5391e4e4a6f26cecbbb649261f35c5b292cc8cf2e71eba68d8",
+          "controller_file": "D:\\projects\\verify_native_http_protocol_r1.py",
+          "controller_sha256": "95176185f8edb3de8c8b1ae0a7db7e1bab7fb0253f70132b0b8339e17a22093f",
+          "config_sha256": "1d7cff13681639a95a56a553c960043ec18bbb2c98cb137df9ce87ff4fca4664",
+          "model": "D:/models/Qwen3.6-35B-A3B",
+          "inference_acceptance": false,
+          "purpose": "Native extracted-archive chat/tool/thinking and queue timeout/overflow/shutdown tests; final active request retains complete frozen q8192 GB10 boundary"
+        },
+        "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+        "input_fingerprints": {},
+        "boot": "2026-09-10T00:41:02.3881400+08:00",
+        "boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+        },
+        "memory": {
+          "Length": 64,
+          "Load": 27,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24636567552,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 147035811840,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533471191040,
+          "AvailableExtendedVirtual": 0
+        },
+        "gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "processes": [],
+        "checks": {
+          "no_engine_or_compiler": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true,
+          "output_disk_reserve": true,
+          "source_commit_exact": true
+        },
+        "pass": true
+      },
+      "reason": "completed",
+      "exit_code": 2,
+      "wall_ms": 24091.802,
+      "summary_present": false,
+      "cli_pass": false,
+      "summary": null,
+      "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+      "after_boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "boot_clock_text_unchanged": true,
+      "after_memory": {
+        "Length": 64,
+        "Load": 28,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24395468800,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146779398144,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533464989696,
+        "AvailableExtendedVirtual": 0
+      },
+      "after_gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "after_processes": [],
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "numerical_acceptance_requires_external_oracle": true
+    }
+  },
+  "dispatch": {
+    "sha256": "66713f0ef0ecb2e84730edc3ed0cdfdd1885c5950080e9ab62d65a8b968e25f6",
+    "value": {
+      "returncode": 1,
+      "wall_seconds": 25.184210374951363,
+      "stdout": "{\n    \"reason\":  \"completed\",\n    \"exit_code\":  2,\n    \"wall_ms\":  24091.802,\n    \"host_checks\":  {\n                        \"same_boot\":  true,\n                        \"no_engine_process\":  true,\n                        \"host_memory_reserve\":  true,\n                        \"commit_reserve\":  true,\n                        \"amd_gpu_ok\":  true\n                    }\n}\n{\"phase\": \"discovery\", \"elapsed_seconds\": 22.0859300000011}\n{\"phase\": \"completion\", \"elapsed_seconds\": 22.800479300000006}\n{\"status\": \"failed\", \"error\": \"VerificationError: POST /v1/completions returned status 500: {'error': {'code': 'engine_error', 'message': 'native request failed (unsupported) at q8192_triton_selected_moe_full_v2_split_variance_provider: unrounded residual variance requires a dynamic or padded selected-MoE provider with the BF16 residual carrier enabled', 'param': None, 'type': 'server_error'}}\", \"wall_ms\": 23490.337900002487, \"captured_http_requests\": 8, \"server_exit_code\": 0}\n",
+      "stderr": "HTTP protocol check failed\n\u6240\u5728\u4f4d\u7f6e D:\\projects\\run-native-http-protocol-r1.ps1:15 \u5b57\u7b26: 83\n+ ... e 0 -or -not $r.host_checks_pass){throw 'HTTP protocol check failed'}\n+                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n    + CategoryInfo          : OperationStopped: (HTTP protocol check failed:String) [], RuntimeException\n    + FullyQualifiedErrorId : HTTP protocol check failed\n \n"
+    }
+  },
+  "controller_result": {
+    "sha256": "ddbce9aed3faf54158c44fdd1df027b8fefab2490aea91ea27cb4909c1857b8c",
+    "value": {
+      "schema_version": 1,
+      "status": "failed",
+      "host": "baiying",
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "server_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+      "controller_sha256": "95176185f8edb3de8c8b1ae0a7db7e1bab7fb0253f70132b0b8339e17a22093f",
+      "numerical_acceptance_for_chat_claimed": false,
+      "performance_qualified": false,
+      "release_qualified": false,
+      "preflight": {
+        "pass": true,
+        "runtime_artifacts_verified": 267,
+        "files": {
+          "server": {
+            "path": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\engine\\qrt.exe",
+            "sha256": "45ca07308f00f1ff95b8e70178a08812692d9039db95e7c82ca7e2643e1446bd"
+          },
+          "provider": {
+            "path": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+            "sha256": "733322bb7e05011ab445a4e23b66f1982648279eaaba2a9b726f16e51fede570"
+          },
+          "env": {
+            "path": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\runtime.env",
+            "sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d"
+          },
+          "prompt": {
+            "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+            "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+          },
+          "oracle": {
+            "path": "D:\\projects\\AIMA-public-runtime-portable-20260912\\contracts\\hprefill_q8192_gb10_oracle.json",
+            "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+          },
+          "runtime_manifest": {
+            "path": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\runtime-manifest.json",
+            "sha256": "07e273a19e33b364e9e0cee8c15af2c2d966676b8ac1b4059ee056578a67c62f"
+          }
+        },
+        "server_checkout_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+        "execution_limits": {
+          "readiness_seconds": 35,
+          "request_seconds": 120,
+          "controller_seconds": 360
+        }
+      },
+      "command": [
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\engine\\qrt.exe",
+        "serve",
+        "--model",
+        "D:/models/Qwen3.6-35B-A3B",
+        "--provider",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+        "--env-file",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\runtime.env",
+        "--arbitrary-moe-provider",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+        "--arbitrary-moe-kernel-dir",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\q1024-moe\\moe-kernels",
+        "--smooth-tail-moe-root",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\smooth-tail",
+        "--model-id",
+        "qwen3.6-35b-a3b",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "18133",
+        "--max-model-len",
+        "262144",
+        "--max-queue-depth",
+        "2",
+        "--queue-timeout-seconds",
+        "15",
+        "--state-file",
+        "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\http-protocol-requests-r1\\service.json",
+        "--set-env",
+        "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1"
+      ],
+      "pid": 4940,
+      "health_before": {
+        "capabilities": {
+          "batch_size": 1,
+          "bounded_fifo_queue": true,
+          "continuous_prompt_lengths": true,
+          "prefix_cache": true,
+          "streaming": true,
+          "tool_calls": true
+        },
+        "load": {
+          "engine_create_ms": 0.9894,
+          "provider_dll_ms": 11.3204,
+          "provider_preload_reported_ms": 19843.7424,
+          "provider_preload_stored_entries": 256,
+          "provider_preload_wall_ms": 19844.3671,
+          "total_ms": 19856.6807
+        },
+        "max_model_len": 262144,
+        "max_output_tokens": 512,
+        "model": "qwen3.6-35b-a3b",
+        "pid": 4940,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 0,
+          "max_waiting_requests": 2,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 0,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        },
+        "ready": true,
+        "started_at": "1789185826",
+        "status": "ok"
+      },
+      "ready_wall_ms": 20461.7142000061,
+      "error": "VerificationError: POST /v1/completions returned status 500: {'error': {'code': 'engine_error', 'message': 'native request failed (unsupported) at q8192_triton_selected_moe_full_v2_split_variance_provider: unrounded residual variance requires a dynamic or padded selected-MoE provider with the BF16 residual carrier enabled', 'param': None, 'type': 'server_error'}}",
+      "checks": [
+        {
+          "name": "health",
+          "passed": true,
+          "details": {
+            "pid": 4940,
+            "model": "qwen3.6-35b-a3b",
+            "max_model_len": 262144,
+            "max_output_tokens": 512,
+            "queue": {
+              "accepting_requests": true,
+              "active_requests": 0,
+              "completed_total": 0,
+              "max_waiting_requests": 2,
+              "queued_total": 0,
+              "rejected_total": 0,
+              "shutdown_rejected_total": 0,
+              "started_total": 0,
+              "timed_out_total": 0,
+              "wait_max_ms": 0.0,
+              "wait_mean_ms": 0.0,
+              "wait_timeout_seconds": 15,
+              "waiting_requests": 0
+            },
+            "load": {
+              "engine_create_ms": 0.9894,
+              "provider_dll_ms": 11.3204,
+              "provider_preload_reported_ms": 19843.7424,
+              "provider_preload_stored_entries": 256,
+              "provider_preload_wall_ms": 19844.3671,
+              "total_ms": 19856.6807
+            }
+          }
+        },
+        {
+          "name": "ready",
+          "passed": true,
+          "details": {
+            "pid": 4940,
+            "model": "qwen3.6-35b-a3b"
+          }
+        },
+        {
+          "name": "models",
+          "passed": true,
+          "details": {
+            "count": 1,
+            "served_model": "qwen3.6-35b-a3b"
+          }
+        },
+        {
+          "name": "model_retrieve",
+          "passed": true,
+          "details": {
+            "model": "qwen3.6-35b-a3b"
+          }
+        },
+        {
+          "name": "tokenizer_round_trip",
+          "passed": true,
+          "details": {
+            "token_count": 10
+          }
+        },
+        {
+          "name": "chat_template_tokenize",
+          "passed": true,
+          "details": {
+            "token_count": 17
+          }
+        }
+      ],
+      "cleanup_shutdown_response": {
+        "pid": 4940,
+        "status": "stopping"
+      },
+      "server_exit_code": 0,
+      "deadline_failures": [],
+      "wall_ms": 23490.337900002487,
+      "captured_http_requests": 8
+    }
+  },
+  "controller_sha256": "95176185f8edb3de8c8b1ae0a7db7e1bab7fb0253f70132b0b8339e17a22093f",
+  "discovery_checks": {
+    "sha256": "30eae844ee92595a12e914917dae0d9b00f4d9052f4ec192da41b405d2189248",
+    "value": [
+      {
+        "name": "health",
+        "passed": true,
+        "details": {
+          "pid": 4940,
+          "model": "qwen3.6-35b-a3b",
+          "max_model_len": 262144,
+          "max_output_tokens": 512,
+          "queue": {
+            "accepting_requests": true,
+            "active_requests": 0,
+            "completed_total": 0,
+            "max_waiting_requests": 2,
+            "queued_total": 0,
+            "rejected_total": 0,
+            "shutdown_rejected_total": 0,
+            "started_total": 0,
+            "timed_out_total": 0,
+            "wait_max_ms": 0.0,
+            "wait_mean_ms": 0.0,
+            "wait_timeout_seconds": 15,
+            "waiting_requests": 0
+          },
+          "load": {
+            "engine_create_ms": 0.9894,
+            "provider_dll_ms": 11.3204,
+            "provider_preload_reported_ms": 19843.7424,
+            "provider_preload_stored_entries": 256,
+            "provider_preload_wall_ms": 19844.3671,
+            "total_ms": 19856.6807
+          }
+        }
+      },
+      {
+        "name": "ready",
+        "passed": true,
+        "details": {
+          "pid": 4940,
+          "model": "qwen3.6-35b-a3b"
+        }
+      },
+      {
+        "name": "models",
+        "passed": true,
+        "details": {
+          "count": 1,
+          "served_model": "qwen3.6-35b-a3b"
+        }
+      },
+      {
+        "name": "model_retrieve",
+        "passed": true,
+        "details": {
+          "model": "qwen3.6-35b-a3b"
+        }
+      },
+      {
+        "name": "tokenizer_round_trip",
+        "passed": true,
+        "details": {
+          "token_count": 10
+        }
+      },
+      {
+        "name": "chat_template_tokenize",
+        "passed": true,
+        "details": {
+          "token_count": 17
+        }
+      }
+    ]
+  },
+  "failing_request": {
+    "sha256": "317280ad3dc19a41964631df1472a3dbb4acbfd2fad63c8df790f4c2ddf92d7f",
+    "value": {
+      "method": "POST",
+      "path": "/v1/completions",
+      "payload": {
+        "model": "qwen3.6-35b-a3b",
+        "prompt": "The capital of France is",
+        "max_tokens": 32,
+        "temperature": 0,
+        "top_p": 1,
+        "n": 1
+      },
+      "status": 500,
+      "headers": {
+        "content-type": "application/json",
+        "x-request-id": "cmpl-18d477084e295544-1",
+        "content-length": "296",
+        "connection": "close",
+        "date": "Sat, 12 Sep 2026 04:03:49 GMT"
+      },
+      "body_sha256": "23e4534068f2e96235e7d22d70426d956d5855658206e6435c590fd9f917f36c",
+      "wall_ms": 305.76300001121126
+    }
+  },
+  "failing_response": {
+    "sha256": "23e4534068f2e96235e7d22d70426d956d5855658206e6435c590fd9f917f36c",
+    "value": {
+      "error": {
+        "code": "engine_error",
+        "message": "native request failed (unsupported) at q8192_triton_selected_moe_full_v2_split_variance_provider: unrounded residual variance requires a dynamic or padded selected-MoE provider with the BF16 residual carrier enabled",
+        "param": null,
+        "type": "server_error"
+      }
+    }
+  },
+  "service_state": {
+    "sha256": "4a100c95317b1078ba23a8b0e8f0edf719e877469b381402f77a8ab10c33cdf2",
+    "value": {
+      "schema_version": 1,
+      "status": "stopped",
+      "pid": 4940,
+      "address": "127.0.0.1:18133",
+      "model": "qwen3.6-35b-a3b",
+      "model_path": "D:/models/Qwen3.6-35B-A3B",
+      "provider_dll": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+      "arbitrary_moe_provider_dll": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+      "arbitrary_moe_kernel_dir": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\q1024-moe\\moe-kernels",
+      "smooth_tail_moe_root": "D:\\projects\\AIMA-public-runtime-portable-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r1\\smooth-tail",
+      "max_model_len": 262144,
+      "max_queue_depth": 2,
+      "queue_timeout_seconds": 15,
+      "repo_commit": "545636c3d1fc19cec687905f77861d889e69a3be",
+      "host": "BAIYING",
+      "started_unix_seconds": 1789185806,
+      "ready_unix_seconds": 1789185826,
+      "stopped_unix_seconds": 1789185830,
+      "message": null
+    }
+  },
+  "stderr_sha256": "536e8c33839903a681cead1ec81da067ab916653294d351b47c9df12087f3464",
+  "stderr_tail": [
+    "BATCH_MARK q8192_aiter_fused_gdn_provider layer=0 tokens=5 exact_q16384=0 exact_q32768=0 exact_arbitrary_dynamic=1 gate_values_are_decay=0 early_raw_log_gate=0 fla_chunk_gdn_arithmetic=1 secondary_fla_chunk_gdn_provider=1 fla_chunk_gdn_layer_mask=18446744073709551615 gdn_input=raw_postconv_bf16_f32_cells final_state_bytes=2097152 async=1 full_sequence_recurrence=1 independent_q8192_state_merge=0",
+    "BATCH_MARK qwen36_exact_arbitrary_early_out_hawkeye_candidates layer=0 tokens=5 output_elements=10240 candidates=3041 density_ppm=296973 maximum_block_candidates=106 maximum_candidates=16777216 maximum_candidates_per_block=256 limit_pass=1 diagnostic_only=1 numerical_correctness_claimed=0",
+    "BATCH_MARK hawkeye_input_ready rows=2048 tokens=5 k=4096 wait_ms=0.001 included_in_product_ttft=1 diagnostic_only=1",
+    "BATCH_MARK hawkeye_dispatch_stream rows=2048 tokens=5 k=4096 windows=1 candidates=3041 maximum_source_block_candidates=106 compacted_candidates_per_block=64 packed_candidates=0 transpose_bytes=0 exact_dispatches=1 maximum_dispatch_ms=0.166 correction_ms=0.290 count_only=0 completed=1 scratch_bytes=40968 diagnostic_only=1 numerical_correctness_claimed=0",
+    "BATCH_MARK qwen36_exact_arbitrary_early_out_hawkeye layer=0 tokens=5 reduction_size=4096 midpoint_radius=512 absolute_error_bound_ppb=1000 absolute_product_upper_bound=l2_cauchy terminal_diagnostic=0 hawkeye_maximum_blocks_per_launch=4096 layer_mask=0x0 accumulator=hopper_group16 endpoint=bf16_rne diagnostic_only=1 numerical_correctness_claimed=0",
+    "BATCH_MARK resident_bf16_matrix_provider surface=repeated_output layer=0 calls=1 tokens=5 output=bf16",
+    "BATCH_MARK vllm_unrounded_residual_postnorm_hotpath layer=0 tokens=5 output_projection=bf16",
+    "BATCH_MARK q65536_vllm_bf16_residual_norm stage=linear_attention layer=0 selected_tokens=5",
+    "BATCH_MARK descriptor_resident_layer_stack_carrier_store kind=residual_hidden layer=0 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7 resident_bytes=40960 surface_count=1",
+    "BATCH_MARK descriptor_residual_hidden_output_handoff_store producer=repeated_linear_stack layer=0 selected_tokens=5 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7",
+    "BATCH_MARK descriptor_resident_layer_stack_carrier_store kind=post_attention layer=0 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7 resident_bytes=81920 surface_count=2",
+    "BATCH_MARK qwen36_whole_provider_resident_stack_surface_hit kind=early_linear_attention layer=0 selected_tokens=5 output_bytes=40960",
+    "BATCH_MARK descriptor_resident_layer_stack_carrier_borrow kind=post_attention consumer=q8192_triton_selected_moe_full_v2 layer=0 hit=1 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7",
+    "BATCH_MARK descriptor_resident_layer_stack_carrier_take kind=residual_hidden consumer=residual_hidden_output_handoff layer=0 hit=1 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7 resident_bytes=40960",
+    "BATCH_MARK descriptor_resident_layer_stack_carrier_release kind=post_attention layer=0 output_bytes=40960 selected_token_ids_hash=9cdd9761e6ed8cf7",
+    "BATCH_MARK device_allocation_pool requests=26 reuse=0 new=26 release=26 cached_bytes=3181144 peak_cached_bytes=3181144 in_use_blocks=0 in_use_bytes=0 release_ms=0.1131",
+    "BATCH_MARK tensor_location_cache_release entries=692 lookup=703 hit=11 miss=692 store=692",
+    "BATCH_MARK tensor_slice_cache_release entries=5 bytes=20480 lookup=5 hit=0 miss=5 store=5 store_failure=0 skip_large=0 skip_capacity=0 hit_bytes=0 miss_bytes=20480 stored_bytes=20480",
+    "BATCH_MARK routed_device_weight_cache_release entries=0 bytes=0 lookup=0 hit=0 miss=0 store=0 store_failure=0 eviction=0 copy_bytes=0 stored_bytes=0 peak_bytes=0 mapped_raw_views=0",
+    "BATCH_MARK routed_compact_device_layout_release entries=256 bytes=1610612736 owned_bytes=0 owned_limit_bytes=2147483648 lookup=0 hit=0 miss=0 store=256 store_failure=0 eviction=0 copy_bytes=0 stored_bytes=1610612736 peak_bytes=1610612736",
+    "BATCH_MARK decode_resident_dense_weight_release lookup=0 hit=0 miss=0 input_rmsnorm_hits=0 selected_projection_hits=0 output_projection_hits=0 host_read_avoided_bytes=0 h2d_avoided_bytes=0 validation_d2h_bytes=0",
+    "BATCH_MARK decode_projection_device_weight_cache_release entries=0 bytes=0 lookup=0 hit=0 miss=0 store=0 store_failure=0 eviction=0 copy_bytes=0 stored_bytes=0 peak_bytes=0",
+    "BATCH_MARK resident_model_shard_store_release shards=26 tensors=1045 device_bytes=71903776776 location_lookup=692 location_hit=692 device_view_lookup=691 device_view_hit=691 host_slice_copy=0 host_slice_bytes=0 host_backing_slice_copy=0 host_backing_slice_bytes=0",
+    "BATCH_MARK qwen36_whole_provider_engine_lifecycle operation=release registered_before=1 registered_after=0 live_engines_before=1 live_engines_after=0 session_owner_before=0 session_valid_before=0 session_valid_after=0 generation_before=0 generation_after=0 resident_bytes_before=0 resident_bytes_after=0 session_released=0 shared_weights_released=1 shared_weights_retained=0 pass=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 mtp_top2_arbitration=0 speculative_decode=0 numerical_correctness_claimed=0"
+  ],
+  "parent_archive_evidence": "benchmarks/correctness/runtime-portable-archive-20260912.json",
+  "inference_correctness_qualified": false,
+  "positive_protocol_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "interpretation": "The extracted archive passes q8192 HTTP but an ordinary five-token completion fails at layer0: the short/smooth-tail selected-MoE route cannot publish the strict unrounded residual variance. This is a provider selection failure, not a token mismatch or a passing generation test. The server closes normally and all host checks pass. No chat, tool, thinking or contention phase ran after this failure.",
+  "next_route": "Check the existing dynamic full-MoE ABI at short logical lengths, then test a compatible complete route while retaining BF16 residual and split-variance arithmetic."
+}
