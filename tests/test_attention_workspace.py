@@ -75,6 +75,8 @@ bool valid_layout(const unsigned char*, size_t) { return true; }
 unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, syncs = 0;
 unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
+unsigned value_transposes = 0;
+bool fail_value_transpose = false;
 unsigned preparations = 0;
 unsigned clock_ms = 0, sync_ms = 0;
 std::chrono::steady_clock::time_point mock_now() {
@@ -111,6 +113,11 @@ int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
 }
 int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
                    unsigned tokens, hipStream_t) {
+    if (prepared == g_sm121_transposed_values && prepared) {
+        ++value_transposes;
+        if(elements != kSm121TransposedValueElements || tokens>8192u) std::abort();
+        return fail_value_transpose ? hipErrorUnknown : hipSuccess;
+    }
     ++transposes;
     if (prepared != g_sm121_transposed_keys || elements < size_t(tokens) * 512u)
         std::abort();
@@ -121,11 +128,17 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    float*, float*, bool, const unsigned char*, unsigned layout,
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
                    unsigned key_stride, bool = false, const void* = nullptr,
-                   const uint32_t* wide = nullptr, unsigned wide_tokens = 0u) {
+                   const uint32_t* wide = nullptr, unsigned wide_tokens = 0u,
+                   const void* = nullptr, const void* = nullptr,
+                   const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u) {
     ++queries;
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
     const bool matrix = layout == 6u || layout == 7u || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
     const bool expanded = (layout >= 5u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
+    if(transposed_value) {
+        if(transposed_value!=g_sm121_transposed_values || value_tokens!=key_stride ||
+           !value_transposes || value_tokens>8192u || (layout!=22u && layout!=24u)) std::abort();
+    } else if(value_tokens || value_transposes) std::abort();
     if (layout == 17u) {
         if (!preparations || wide != g_sm121_prepared_values || wide_tokens != key_stride) std::abort();
     } else if (wide || wide_tokens) std::abort();
@@ -145,7 +158,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys && !g_sm121_mantissa_scores && !g_sm121_prepared_values;
+           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -154,6 +167,7 @@ void reset() {
     observed_layout = largest_batch = 0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
+    value_transposes = 0; fail_value_transpose = false;
     clock_ms = sync_ms = 0;
 }
 int main() {
@@ -383,6 +397,30 @@ int main() {
         reset();setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH",bad,1);
         if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || transposes) return 67;
     }
+    setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE","1",1);
+    reset();fail_allocation=6u;
+    if(launch(0,8192)!=hipErrorUnknown || g_sm121_transposed_values || queries ||
+       transposes || value_transposes || live.size()!=5u) return 68;
+    reset();fail_value_transpose=true;
+    if(launch(0,8192)!=hipErrorUnknown || transposes!=1u || value_transposes!=1u || queries || syncs!=1u) return 69;
+    reset();
+    if(launch(0,8192)!=hipSuccess || allocations!=6u || live.size()!=6u ||
+       value_transposes!=1u || queries!=64u || syncs!=queries) return 70;
+    transposes=value_transposes=queries=syncs=0u;
+    if(launch(0,7169)!=hipSuccess || allocations!=6u || value_transposes!=1u || queries!=57u) return 71;
+    reset();fail_query=2u;
+    if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u || value_transposes!=1u) return 72;
+    for(unsigned tokens : {1u,8193u,17408u}) {
+        reset();
+        if(launch(0,tokens)!=hipSuccess || value_transposes || g_sm121_transposed_values ||
+           allocations!=(tokens==1u ? 4u : 5u)) return 73;
+    }
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || value_transposes) return 74;
+    }
+    unsetenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
