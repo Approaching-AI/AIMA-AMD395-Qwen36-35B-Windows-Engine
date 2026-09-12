@@ -78,8 +78,8 @@ Neither warm HTTP timing nor these bounded branches qualify cold performance
 or the wider long-prefix targets.
 
 The [five actual HTTP prompt checks](../benchmarks/correctness/http-short-gb10-matrix-20260912.json)
-retain all native tokenizer inputs and frozen GB10 outputs. Only q294 tool call
-passes both complete32 output and first-logit checks. q5 plain text diverges
+retain all native tokenizer inputs and frozen GB10 outputs. The original
+a797b62 baseline passes both checks only for q294 tool call. q5 plain text diverges
 at index7; q17 chat diverges at index9 after its first EOS. q85 tool continuation
 matches all32 but has first-logit error0.5. q19 thinking differs at index303
 before EOS and has first-logit error0.25. The numerical tolerance stays0.125.
@@ -97,7 +97,8 @@ All q5 shared stages match; q85 shared gate/up differs in 54 values. A bounded
 GB10 replay reproduces all six actual projection matrices. The q5 router's
 eight K256 BF16 partials and FP32 reduction explain all 134 differences:
 CPU replay matches every one of its 1280 reference logits. q85 uses different
-nvjet kernels; their accumulation order is still being characterized. Both
+nvjet kernels, whose split traversal and accumulation are characterized in
+the later native projection evidence below. Both
 immutable controls and short reference continuations reproduce, and the native
 observers preserve the original product failures. No arithmetic repair or
 product acceptance is inferred from intermediate hashes or component results.
@@ -107,8 +108,23 @@ at MoE 641cf79 passes the actual q5/out32 request using the a797b62 whole/CLI.
 All 32 raw outputs, first logit 17.875, stream callbacks and host checks pass.
 Every layer0 router logit, top-k ID/weight and unrounded carrier value matches
 the independent reference. The eight K256 BF16 partials apply to the complete
-observed 4–16 token range. Other short-case repairs and product performance
-remain open.
+observed 4–16 token range.
+
+The [shape-specific projection repair](../benchmarks/correctness/http-short-projection-product-20260912.json)
+at MoE bc082a5 adds strided K64 split-K and the observed three-accumulator
+physical merge. All eight actual CPU projection matrices are exact; 12,294
+compiled shape plans match the exhaustive 1–4096 and 7169/8192 profile.
+All 32 observed nvjet kernel structures are captured and identified by SHA.
+Native q5 and q17 now match all 32 tokens and first logits exactly. q85 matches
+all 32 and has first-logit error 0.125; every captured layer0 MoE stage is exact.
+
+q19 remains unqualified: first-logit error 0.25 and 121 raw-token differences
+starting at index 379, after its first EOS at 368. q294 now has an exact first
+logit but regresses at the final raw token, index 31, after EOS at 26. The full
+frozen continuations remain required. These are bounded cold real-model runs
+on baiying with a797b62 whole/CLI and the fingerprinted bc082a5 selected MoE;
+all actual callbacks and host guards pass. Component replay and short-case
+timings do not establish q8192 performance or release qualification.
 
 The opt-in `QRT_CK_SM121_NATIVE_BF16_MATRIX=1` (PV) or `2` (QK and PV)
 connects the previously isolated native MMA attention candidates to full-model

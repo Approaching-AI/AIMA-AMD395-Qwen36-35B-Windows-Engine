@@ -78,9 +78,9 @@ The bounded GB10 projection replay reproduces all six captured matrices using
 the original model weights. Its q5 router uses eight K256 partials, each rounded
 to BF16 before their FP32 sum; CPU replay matches all 1280 reference logits.
 The native unsplit projection omits that rounding. q85 selects different
-nvjet projection kernels, including a four-way FP32 split-K router. Its exact
-accumulation order remains under investigation. These are diagnostic results;
-the complete native token/logit failures remain open.
+nvjet projection kernels, including a four-way FP32 split-K router. The later native repair below follows its observed split traversal and
+three-accumulator merge. These projection diagnostics alone do not establish
+complete model correctness.
 
 The router repair at MoE 641cf79 now passes the real q5/out32 case with the
 a797b62 whole/CLI: all 32 tokens, first logit 17.875 and actual stream callbacks
@@ -88,7 +88,31 @@ match GB10; host checks pass. Its complete layer0 router, top-k IDs/weights and
 unrounded combined carrier also match. The same reference router kernel is
 observed at every length 4–16. See
 `benchmarks/correctness/http-short-router-product-20260912.json`.
-The q17/q19/q85 failures still need repair; no release is qualified.
+MoE bc082a5 now also repairs shape-specific FP32 split-K and the physical
+three-accumulator merge. All eight CPU projection matrices match, and the
+compiled shape plans agree with 12,294 observed configurations covering every
+length 1–4096 plus 7169/8192. Loaded instruction observations cover all 32
+nvjet kernels in that profile. No NVIDIA runtime dependency is added.
+
+The five real native cold cases use the a797b62 whole/CLI and the separately
+fingerprinted bc082a5 MoE provider. Their complete raw-output boundary is:
+
+| Case | Token differences | First-logit error | Qualified |
+|---|---:|---:|---|
+| q5 / 32 | 0 | 0 | Yes |
+| q17 / 32 | 0 | 0 | Yes |
+| q85 / 32 | 0 | 0.125 | Yes |
+| q19 / 512 | 121, first at index 379 | 0.25 | No |
+| q294 / 32 | 1, at index 31 | 0 | No |
+
+q85 layer0 router, top-k weights, shared stages and MoE output are all bit-exact.
+q19 now matches through its first EOS at index 368, but its logit still exceeds
+tolerance. q294 differs after EOS at index 26; the final raw token is a regression
+against the prior profile. The frozen full-output requirements remain active.
+All native processes and actual callback checks pass. These short timings do
+not qualify q8192 performance. See
+`benchmarks/correctness/http-short-projection-product-20260912.json`.
+The two remaining numerical cases, combined archive and release remain open.
 
 The same a797b62 archive components pass both renewed main cold512 cases,
 all 1024 outputs/logits and actual callbacks. q8192 loads in20079.5905ms,
