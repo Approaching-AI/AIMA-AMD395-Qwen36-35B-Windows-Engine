@@ -74,7 +74,7 @@ FP32 state is transposed as bits into a private 2 MiB FLA workspace and back.
 The original zero-seed capture hooks are rejected on this entry point.
 Both state layouts pass native q65 and real q7169 operator parity at three
 independently computed prefixes. See `benchmarks/correctness/fla-seeded-key-major-20260912.json`.
-The model claim remains limited to the q7169 single-input proof above. Warm
+The seed arithmetic claim remains bounded by the actual native tests. Warm
 callback times exclude owner/seed prefill and cannot qualify cold TTFT.
 
 The single-input arithmetic probe is bounded to a prefix below 8192 tokens.
@@ -98,8 +98,17 @@ Both complete immutable controls pass again: q7169 token82/logit9.25 and
 q8192 token144/logit10.375, with all 32 outputs each. Four actual branches
 at prefix6208, 6656 and 7168 now have GB10 captures, including a five-input
 suffix. See `contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json`.
-These are reference captures; each native Windows route still needs its own
-qualification. A timeout in post-run metadata collection is preserved, and
+The native saved-prefix route now passes all four branches at two repeated
+hits each: all 256 generated tokens and all first logits match GB10; streaming,
+rollback and unrelated-prefix rejection pass. The three single-input branches
+use seeded FLA. The five-input branch passes using the original recurrence.
+Internal tensor differences in some passing cases are diagnostics, not a
+reason to reject their GB10-valid output. No extra arithmetic repair is added
+solely to equalize these hashes. See
+`benchmarks/correctness/prefix-actual-branches-20260912.json`.
+Long-prefix, 1024-input/512-output and packaged-server qualification remain open;
+the 53.7–54.2 second owner prefill is excluded from warm callback measurements.
+A timeout in post-run metadata collection is preserved, and
 all 3000 binary capture files were recovered and verified without rerunning
 the model. The lost controller memory minimum is explicitly unavailable.
 See `benchmarks/correctness/gb10-fla-autotune-drift-20260912.json`.
