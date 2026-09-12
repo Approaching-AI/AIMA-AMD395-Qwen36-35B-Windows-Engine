@@ -135,6 +135,13 @@ def full_cache_row_is_qualified(cache, transactions):
 def observation_positions(case, prompt_tokens):
     selected = {prompt_tokens - 1, prompt_tokens,
                 prompt_tokens + full_cache_observation_offset(case)}
+    full_short = os.environ.get('QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS')
+    if full_short is not None:
+        limit = int(full_short)
+        if not 1 <= limit <= 128:
+            raise ValueError('full short-prefill observation is bounded to128 rows')
+        if prompt_tokens <= limit:
+            selected.update(range(prompt_tokens))
     defaults = {
         'q8191-out32': (32, (1, 5)),
         'q7169-out512': (512, (30, 31, 32, 118, 119, 120)),

@@ -16,6 +16,19 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_all_short_prefill_rows_preserve_actual_history_and_long_controls(self):
+        with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': '85'},
+                        clear=True):
+            self.assertEqual(observation_positions('http-plain-q5-out32', 5), set(range(6)))
+            self.assertEqual(observation_positions('http-tool-continuation-q85-out32', 85),
+                             set(range(86)))
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+        for value in ('0', '-1', '129', 'bad'):
+            with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': value},
+                            clear=True):
+                with self.assertRaises(ValueError):
+                    observation_positions('http-plain-q5-out32', 5)
+
     def test_actual_case_offsets_keep_prefill_and_bind_declared_history(self):
         name = 'http-plain-q5-out32'
         with patch.dict(os.environ, {'QRT_GB10_CASE_BOUNDARY_OFFSETS':
