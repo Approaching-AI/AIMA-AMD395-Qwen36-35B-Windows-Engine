@@ -90,6 +90,15 @@ class RuntimeBoundaryTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 full_prefill_linear_window(case, 32767)
         with patch.dict(os.environ, dict(environment,
+                QRT_GB10_FULL_PREFILL_LINEAR_WINDOWS=json.dumps({case: dict(plan, first_position=8192)})),
+                clear=True):
+            self.assertEqual(observation_positions(case, 32768), {16383, 32767, 32768})
+            self.assertEqual(observation_positions('q7169-out32', 7169), {7168, 7169})
+            rows = target_rows(list(range(8192, 16384)), [16602]*8192, [],
+                               observation_positions(case, 32768))
+            self.assertEqual(rows, [dict(row=8191, position=16383, input_token_id=16602,
+                                        logit_row=None)])
+        with patch.dict(os.environ, dict(environment,
                 QRT_GB10_FULL_PREFILL_LINEAR_CORE_ONLY='0'), clear=True):
             with self.assertRaises(ValueError):
                 full_prefill_linear_window(case, 32768)

@@ -176,6 +176,11 @@ def observation_positions(case, prompt_tokens):
                 raise ValueError('invalid case-specific continuation offsets')
             if name == case:
                 selected.update(prompt_tokens + offset for offset in offsets)
+    window = full_prefill_linear_window(case, prompt_tokens)
+    if window is not None:
+        # A middle original transaction has no sampled logit row. Select its
+        # real final position so the same hooks observe its complete operands.
+        selected.add(window['first_position'] + window['tokens'] - 1)
     return selected
 
 
