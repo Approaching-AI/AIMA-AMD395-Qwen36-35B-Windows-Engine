@@ -69,6 +69,22 @@ Its recorded correction changes the config working directory, preserving the
 same archive and runtime profile. HTTP and warm prefix timings do not replace
 the cold actual-callback gate; checkpoints remain opt-in.
 
+The subsequent [prepared PV trial](../benchmarks/correctness/attention-prepared-value-20260912.json)
+at CK e4a73eb losslessly encodes each V cell once per attention call and each
+probability once per online tile. All K16 and online-softmax arithmetic stays
+unchanged. The complete q7169 capture retains every BF16/FP32 output, raw
+accumulator and denominator bit. Two paired component trials reduce total
+time by 6.54%, including preparation. The same DLL's real q8192/out512 callback
+improves from 58525.4724 to 57667.8462 ms, retaining all 512 outputs and exact
+first logit; q7169/out32 and q8193/out32 also pass. Load is 20056.8001 ms and
+TPOT 108.546006 ms for the candidate q8192 run. Its opt-in
+`QRT_CK_SM121_PREPARED_VALUE=1` requires tiled exact QK and keeps each call's
+encoding under the existing workspace lock. Six CPU tests, native replay and
+provider builds, product callbacks and host checks pass. This limited trial
+does not renew the complete short/cold/archive/prefix matrix, long contexts or
+soak, and remains far above retained performance targets. It is not enabled in
+the qualified r4 archive.
+
 The [table regeneration check](../benchmarks/correctness/dynamic-embedding-table-regeneration-20260912.json)
 also qualifies `scripts/capture_sm121_dynamic_embedding_scales.py` at 5f13f4e.
 Its pinned original reduction configuration and i64 width reproduce the same
