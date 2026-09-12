@@ -1310,6 +1310,8 @@ $record = [ordered]@{
     provider_source_sha256 = (
         Get-FileHash -Algorithm SHA256 -LiteralPath $providerSource
     ).Hash.ToLowerInvariant()
+    sm121_prefill_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        (Join-Path $repo 'native\providers\moe_accumulator\sm121_prefill_projection.h')).Hash.ToLowerInvariant()
     sm121_wave16_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_wave16.h')).Hash.ToLowerInvariant()
     sm121_group16_modulo_header_sha256 = (Get-FileHash -Algorithm SHA256 `

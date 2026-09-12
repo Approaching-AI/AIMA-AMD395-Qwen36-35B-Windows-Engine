@@ -20,6 +20,7 @@
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
+#include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
@@ -3746,6 +3747,7 @@ void router_short_split_bf16_kernel(
 // FMA reduction below is useful as a diagnostic, but it can choose the wrong
 // BF16 side for isolated token/expert pairs because tensor-core accumulation
 // is not an ordinary F32 dot product.
+template<bool ShapeAware>
 __global__ __launch_bounds__(256)
 void router_hawkeye_midpoint_correction_kernel(
     const float *native_logits,
@@ -3789,11 +3791,17 @@ void router_hawkeye_midpoint_correction_kernel(
                 static_cast<uint32_t>(index / kExperts);
             const uint32_t expert = static_cast<uint32_t>(index -
                 static_cast<size_t>(token) * kExperts);
-            const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
-                input_bf16 + static_cast<size_t>(token) * kHidden,
-                router_weights + static_cast<size_t>(expert) * kHidden,
-                kHidden
-            );
+            const float exact = ShapeAware
+                ? qrt_sm121_prefill_projection::dot<1>(
+                    input_bf16 + static_cast<size_t>(token) * kHidden,
+                    router_weights + static_cast<size_t>(expert) * kHidden,
+                    kHidden, qrt_sm121_prefill_projection::plan(
+                        qrt_sm121_prefill_projection::Stage::Router, token_count),
+                    token, expert)
+                : qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                    input_bf16 + static_cast<size_t>(token) * kHidden,
+                    router_weights + static_cast<size_t>(expert) * kHidden,
+                    kHidden);
             corrected_logits[index] = float_to_bf16(exact);
 #endif
         }
@@ -3809,11 +3817,17 @@ void router_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kExperts;
         const uint32_t expert = candidate - token * kExperts;
-        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
-            input_bf16 + static_cast<size_t>(token) * kHidden,
-            router_weights + static_cast<size_t>(expert) * kHidden,
-            kHidden
-        );
+        const float exact = ShapeAware
+            ? qrt_sm121_prefill_projection::dot<16>(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                router_weights + static_cast<size_t>(expert) * kHidden,
+                kHidden, qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::Router, token_count),
+                token, expert)
+            : batched_hawkeye_wave16_dot_bf16_hopper(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                router_weights + static_cast<size_t>(expert) * kHidden,
+                kHidden);
         if (lane == 0u) {
             corrected_logits[candidate] = float_to_bf16(exact);
         }
@@ -10909,6 +10923,7 @@ void shared_down_full_hawkeye_kernel(
 // where gfx1151 and GB10 can choose adjacent endpoints.  Candidate cells are
 // compacted per block; only those cells replay the characterized Hopper K16
 // accumulation against the authoritative BF16 input and weight row.
+template<bool ShapeAware>
 __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
     const float *native_projection,
     const uint16_t *input_bf16,
@@ -10955,11 +10970,17 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kIntermediate;
         const uint32_t row = candidate - token * kIntermediate;
-        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
-            input_bf16 + static_cast<size_t>(token) * kHidden,
-            weights_bf16 + static_cast<size_t>(row) * kHidden,
-            kHidden
-        );
+        const float exact = ShapeAware
+            ? qrt_sm121_prefill_projection::dot<16>(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden, qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count),
+                token, row)
+            : batched_hawkeye_wave16_dot_bf16_hopper(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden);
         if (lane == 0u) {
             corrected_projection[candidate] = float_to_bf16(exact);
         }
@@ -10971,11 +10992,17 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kIntermediate;
         const uint32_t row = candidate - token * kIntermediate;
-        const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
-            input_bf16 + static_cast<size_t>(token) * kHidden,
-            weights_bf16 + static_cast<size_t>(row) * kHidden,
-            kHidden
-        );
+        const float exact = ShapeAware
+            ? qrt_sm121_prefill_projection::dot<1>(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden, qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count),
+                token, row)
+            : qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                input_bf16 + static_cast<size_t>(token) * kHidden,
+                weights_bf16 + static_cast<size_t>(row) * kHidden,
+                kHidden);
         corrected_projection[candidate] = float_to_bf16(exact);
     }
 #endif
@@ -10987,6 +11014,7 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
 // used only to select sparse BF16 midpoint candidates; every selected dot is
 // recomputed with the characterized Hopper accumulation order before the
 // authoritative BF16 endpoint is materialized.
+template<bool ShapeAware>
 __global__ void shared_down_hawkeye_midpoint_correction_kernel(
     const float *native_projection,
     const uint16_t *activated_bf16,
@@ -11033,11 +11061,17 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kHidden;
         const uint32_t row = candidate - token * kHidden;
-        const float exact = batched_hawkeye_wave16_dot_bf16_hopper(
-            activated_bf16 + static_cast<size_t>(token) * kIntermediate,
-            weights_bf16 + static_cast<size_t>(row) * kIntermediate,
-            kIntermediate
-        );
+        const float exact = ShapeAware
+            ? qrt_sm121_prefill_projection::dot<16>(
+                activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+                weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+                kIntermediate, qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedDown, token_count),
+                token, row)
+            : batched_hawkeye_wave16_dot_bf16_hopper(
+                activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+                weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+                kIntermediate);
         if (lane == 0u) {
             corrected_projection[candidate] = float_to_bf16(exact);
         }
@@ -11049,11 +11083,17 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kHidden;
         const uint32_t row = candidate - token * kHidden;
-        const float exact = qrt_q1_moe_hawkeye::dot_bf16_hopper(
-            activated_bf16 + static_cast<size_t>(token) * kIntermediate,
-            weights_bf16 + static_cast<size_t>(row) * kIntermediate,
-            kIntermediate
-        );
+        const float exact = ShapeAware
+            ? qrt_sm121_prefill_projection::dot<1>(
+                activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+                weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+                kIntermediate, qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedDown, token_count),
+                token, row)
+            : qrt_q1_moe_hawkeye::dot_bf16_hopper(
+                activated_bf16 + static_cast<size_t>(token) * kIntermediate,
+                weights_bf16 + static_cast<size_t>(row) * kIntermediate,
+                kIntermediate);
         corrected_projection[candidate] = float_to_bf16(exact);
     }
 #endif
@@ -14720,7 +14760,11 @@ bool launch_router(
                 const size_t router_elements =
                     static_cast<size_t>(token_count) * kExperts;
                 const hipError_t correction_status = launch_moe_correction(
-                    router_hawkeye_midpoint_correction_kernel, static_cast<uint32_t>(
+                    (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                        qrt_sm121_prefill_projection::Stage::Router, token_count))
+                        ? router_hawkeye_midpoint_correction_kernel<true>
+                        : router_hawkeye_midpoint_correction_kernel<false>),
+                    static_cast<uint32_t>(
                         (router_elements + kNativeThreads - 1u) /
                             kNativeThreads
                     ), stream, MoeL2::Input, MoeL2::Router,
@@ -15476,7 +15520,11 @@ bool launch_shared_pipeline(
             kNativeThreads
         );
         const hipError_t correction_status = launch_moe_correction(
-            shared_projection_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedGate,
+            (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                        qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count))
+                        ? shared_projection_hawkeye_midpoint_correction_kernel<true>
+                        : shared_projection_hawkeye_midpoint_correction_kernel<false>),
+            correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedGate,
             g_state.shared_gate_projection_f32,
             g_state.input_bf16,
             shared_gate_projection_bf16,
@@ -15487,7 +15535,11 @@ bool launch_shared_pipeline(
         status = correction_status;
         if (status == hipSuccess) {
             const hipError_t correction_status = launch_moe_correction(
-                shared_projection_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedUp,
+                (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                        qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count))
+                        ? shared_projection_hawkeye_midpoint_correction_kernel<true>
+                        : shared_projection_hawkeye_midpoint_correction_kernel<false>),
+                correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedUp,
                 g_state.shared_up_projection_f32,
                 g_state.input_bf16,
                 shared_up_projection_bf16,
@@ -15550,7 +15602,11 @@ bool launch_shared_pipeline(
             (shared_down_elements + kNativeThreads - 1u) / kNativeThreads
         );
         const hipError_t correction_status = launch_moe_correction(
-            shared_down_hawkeye_midpoint_correction_kernel, correction_blocks, stream, MoeL2::SharedActivated, MoeL2::SharedDown,
+            (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                        qrt_sm121_prefill_projection::Stage::SharedDown, token_count))
+                        ? shared_down_hawkeye_midpoint_correction_kernel<true>
+                        : shared_down_hawkeye_midpoint_correction_kernel<false>),
+            correction_blocks, stream, MoeL2::SharedActivated, MoeL2::SharedDown,
             g_state.shared_down_projection_f32,
             g_state.shared_activated,
             shared_down_bf16,
