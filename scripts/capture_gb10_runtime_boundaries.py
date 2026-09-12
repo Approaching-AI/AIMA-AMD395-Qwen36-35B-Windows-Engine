@@ -179,6 +179,12 @@ def observation_positions(case, prompt_tokens):
     return selected
 
 
+def short_prefill_moe_observation(prompt_tokens, first_position, token_count):
+    return (os.environ.get('QRT_GB10_SHORT_PREFILL_MOE') == '1' and
+            1 <= prompt_tokens <= 128 and first_position == 0 and
+            token_count == prompt_tokens)
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -340,10 +346,13 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
 
             def moe_stage(label, value, width):
                 transaction = self._qrt_boundary_active
-                if (transaction is None or not transaction["rows"] or
-                        transaction["first_position"] < prompt_tokens):
+                if transaction is None or not transaction["rows"]:
                     return
-                if transaction["token_count"] > 2:
+                prefill = transaction["first_position"] < prompt_tokens
+                if prefill and not short_prefill_moe_observation(
+                        prompt_tokens, transaction["first_position"], transaction["token_count"]):
+                    return
+                if not prefill and transaction["token_count"] > 2:
                     raise ValueError("decode MoE observation exceeds the original MTP batch")
                 if value.dtype == torch.int64:
                     if torch.any((value < 0) | (value >= 256)):
@@ -740,6 +749,14 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                             if value["transaction"] == transaction["ordinal"]}
                 if not required <= observed:
                     raise ValueError("incomplete selected target layer observations")
+                if short_prefill_moe_observation(
+                        self._qrt_boundary_prompt_tokens, transaction["first_position"],
+                        transaction["token_count"]):
+                    prefill_moe_required = {f"moe-{layer:02d}-" + label
+                        for layer in self._qrt_boundary_moe_layers
+                        for label in self._qrt_boundary_moe_labels}
+                    if not prefill_moe_required <= observed:
+                        raise ValueError("incomplete original short-prefill MoE observations")
                 if transaction["first_position"] >= self._qrt_boundary_prompt_tokens:
                     decode_required = {f"linear-{layer:02d}-{stage}"
                         for layer in self._qrt_boundary_linear_layers

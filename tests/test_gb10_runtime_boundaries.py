@@ -11,11 +11,21 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_attention_observation_layer, full_cache_observation_offset,
     full_cache_observation_row, full_cache_row_is_qualified,
     observation_positions, prepared_token_ids, qualify_transaction,
-    recurrent_state_selection, target_rows,
+    recurrent_state_selection, short_prefill_moe_observation, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_short_moe_capture_requires_the_complete_original_prefill(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertFalse(short_prefill_moe_observation(5, 0, 5))
+        with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_MOE': '1'}, clear=True):
+            for length in (1, 5, 85, 128):
+                self.assertTrue(short_prefill_moe_observation(length, 0, length))
+            for args in ((0, 0, 0), (129, 0, 129), (7169, 0, 7169),
+                         (5, 0, 4), (5, 1, 5), (5, 5, 2)):
+                self.assertFalse(short_prefill_moe_observation(*args))
+
     def test_all_short_prefill_rows_preserve_actual_history_and_long_controls(self):
         with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': '85'},
                         clear=True):
