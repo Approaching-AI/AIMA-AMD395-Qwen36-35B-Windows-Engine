@@ -91,7 +91,7 @@ struct Session {
  std::array<Qwen36ResidentSessionFullAttentionLayer,40> full_attention_layers{};
 };
 struct Validate {
- Validate* previous=nullptr;Session* session;unsigned prefix=16384,tokens=1024;std::string failure;
+ Validate* previous=nullptr;Session* session;unsigned prefix=16384,tokens=1024;std::string failure;bool terminal_only=false;
  bool reject(const char* s){failure=s;return false;}
 ''' + validation + r'''
 };
@@ -157,6 +157,10 @@ int main(){
  session.prefix_tokens=v.prefix=16384;
  for(unsigned i=0;i<40;++i){session.linear_layers[i].prefix_tokens=16384;
   auto& l=session.full_attention_layers[i];l.history_tokens=16384;l.k_bytes=l.v_bytes=16384u*1024u;}
+ v.tokens=8192;assert(!v.validate());v.terminal_only=true;assert(!v.validate());
+ for(unsigned i=3;i<40;i+=4){auto& l=session.full_attention_layers[i];l.decode_tail_capacity_tokens=8192;
+  l.decode_tail_k_bytes=l.decode_tail_v_bytes=8192u*1024u;}
+ assert(v.validate());v.tokens=8193;assert(!v.validate());v.terminal_only=false;
  v.tokens=1025;assert(!v.validate());v.tokens=1024;v.prefix=16383;assert(!v.validate());v.prefix=16384;
  v.previous=&v;assert(!v.validate());v.previous=nullptr;session.committed_decode_token_count=1;assert(!v.validate());
 }

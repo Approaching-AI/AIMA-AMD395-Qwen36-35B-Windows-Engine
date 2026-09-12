@@ -1,0 +1,3209 @@
+{
+  "schema": "qrt.correctness.rejected-attention-matrix-retry.v1",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "whole_commit": "730a85518bd98f2b4d672fc91427121c51ff473e",
+  "ck_commit": "5816925df0da999a30eb609ad180ed737a797182",
+  "configuration_change": "Native BF16 QK/PV mode2, tiled exact QK off; corrected attention-output admission remains10000ppb.",
+  "decision": "Rejected:470 of512 originalGB10 output tokens differ. Correct first token and logit do not qualify the continuation or performance. Retained matrix mode remains0 with tiled exact QK.",
+  "run_record": {
+    "schema_version": 1,
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+      "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+      "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+      "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+      "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+      "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+      "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+      "command_file": "D:\\projects\\run-native-attention-matrix2-bound10000-q8192-r1.ps1",
+      "command_file_sha256": "6e1ddeeb1aad1b93288a50948cba4582f747381ff29312c0fc514cdf5b291786",
+      "model": "D:\\models\\Qwen3.6-35B-A3B",
+      "arguments": [
+        "run",
+        "--model",
+        "D:\\models\\Qwen3.6-35B-A3B",
+        "--tokens",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+        "--output-tokens",
+        "512",
+        "--expected-output",
+        "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+        "--expected-prompt-fnv",
+        "1584e34d56e5d78b",
+        "--expected-output-fnv",
+        "ca7c30b242ddf035",
+        "--env-file",
+        "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\attention-matrix2-bound10000-q8192-r1.env",
+        "--provider-dll",
+        "D:\\projects\\AIMA-public-row-traces-20260913\\build\\whole\\qrt_qwen36_whole_provider.dll"
+      ],
+      "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+      "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+      "oracle_case": "q8192-out512",
+      "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+      "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+      "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+      "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+      "runtime_artifacts_verified": 267,
+      "component_commits": {
+        "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+        "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+        "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+      },
+      "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+      "portable_paths_resolved": 33,
+      "environment_sha256": "efe62df2c1a75541ab2df7011f16addad7201e7c4e4ff1196aac0348640f595d",
+      "cold_prefill_seed_included": true,
+      "prefix_checkpoints_enabled": false,
+      "model_loaded_from_new_process": true,
+      "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+      "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+      "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+      "whole_provider_commit": "730a85518bd98f2b4d672fc91427121c51ff473e",
+      "whole_provider_sha256": "0a9e3eafa234edfefa409e6b5f438e4a9616b87cdfd22814d449db364ffaa357",
+      "whole_build_metadata_sha256": "f30c1318c20e3f897cca1dec3ee89816806b571c2e42429177edf298aa21afe6",
+      "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+      "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+      "ck_provider_commit": "5816925df0da999a30eb609ad180ed737a797182",
+      "ck_provider_sha256": "339518a00f438a371de8593be8fe6290ae5ca66fe29e962312ee3bb51932e166",
+      "ck_build_metadata_sha256": "990910639294ea95a7c861d6131d0c67238550fdf248226fe6cee37f9ff78e3c",
+      "prepared_value_enabled": false,
+      "exact_attention_maximum_tokens": 65536,
+      "purpose": "Re-evaluate native matrix QK/PV against the full actual q8192/out512 gate after the output-admission and decode fixes. This is a new candidate and has no retained performance claim. Renew q8192/out512 actual callback and complete GB10 token boundary with whole5121901 and CK5816925. Exact-attention workspace now extends beyond32768 and long calls check completed8192-query windows; the q8192 twenty-second call bound and arithmetic are unchanged. This cold control does not qualify long suffix behavior."
+    },
+    "preflight": {
+      "host": "BAIYING",
+      "utc": "2026-09-12T16:57:09.2736545Z",
+      "command_file": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\scripts\\baiying_guarded_inference.ps1",
+      "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+        "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+        "repo_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+        "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+        "cli_build_run_sha256": "ae5acae9b04fb89a0f4500daa544842a1372cf1c8001eb416ab22b79edd6fadf",
+        "cli_build_metadata_sha256": "04da1bb3534817c27d62b43a5fc1132d3888dbe8d6b32cc88c710edeba70719c",
+        "command_file": "D:\\projects\\run-native-attention-matrix2-bound10000-q8192-r1.ps1",
+        "command_file_sha256": "6e1ddeeb1aad1b93288a50948cba4582f747381ff29312c0fc514cdf5b291786",
+        "model": "D:\\models\\Qwen3.6-35B-A3B",
+        "arguments": [
+          "run",
+          "--model",
+          "D:\\models\\Qwen3.6-35B-A3B",
+          "--tokens",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "--output-tokens",
+          "512",
+          "--expected-output",
+          "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "--expected-prompt-fnv",
+          "1584e34d56e5d78b",
+          "--expected-output-fnv",
+          "ca7c30b242ddf035",
+          "--env-file",
+          "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\attention-matrix2-bound10000-q8192-r1.env",
+          "--provider-dll",
+          "D:\\projects\\AIMA-public-row-traces-20260913\\build\\whole\\qrt_qwen36_whole_provider.dll"
+        ],
+        "oracle": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+        "oracle_case": "q8192-out512",
+        "reference_case_sha256": "8aceae4792e6c6ec2bfc12d15a7b04068c9037c1b7c008fcec28d2cb014485e6",
+        "reference_data_manifest_sha256": "e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c",
+        "runtime_manifest": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3\\runtime-manifest.json",
+        "runtime_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+        "runtime_artifacts_verified": 267,
+        "component_commits": {
+          "whole": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+          "fla": "6042803f8e7933b44428b79331bcc2954a1b299e",
+          "moe": "5710b891787bde7c5ed641a76619b374ca8911d8",
+          "ck": "d392e7f2a47d92a684e5201ba4e1a94662dff5b1"
+        },
+        "source_profile_sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d",
+        "portable_paths_resolved": 33,
+        "environment_sha256": "efe62df2c1a75541ab2df7011f16addad7201e7c4e4ff1196aac0348640f595d",
+        "cold_prefill_seed_included": true,
+        "prefix_checkpoints_enabled": false,
+        "model_loaded_from_new_process": true,
+        "moe_provider_commit": "bc082a59da83fd3550e7fce9869c375629a78b69",
+        "moe_provider_sha256": "4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41",
+        "moe_build_metadata_sha256": "30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e",
+        "whole_provider_commit": "730a85518bd98f2b4d672fc91427121c51ff473e",
+        "whole_provider_sha256": "0a9e3eafa234edfefa409e6b5f438e4a9616b87cdfd22814d449db364ffaa357",
+        "whole_build_metadata_sha256": "f30c1318c20e3f897cca1dec3ee89816806b571c2e42429177edf298aa21afe6",
+        "layer0_inverse_table_sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+        "layer0_inverse_capture_sha256": "f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2",
+        "ck_provider_commit": "5816925df0da999a30eb609ad180ed737a797182",
+        "ck_provider_sha256": "339518a00f438a371de8593be8fe6290ae5ca66fe29e962312ee3bb51932e166",
+        "ck_build_metadata_sha256": "990910639294ea95a7c861d6131d0c67238550fdf248226fe6cee37f9ff78e3c",
+        "prepared_value_enabled": false,
+        "exact_attention_maximum_tokens": 65536,
+        "purpose": "Re-evaluate native matrix QK/PV against the full actual q8192/out512 gate after the output-admission and decode fixes. This is a new candidate and has no retained performance claim. Renew q8192/out512 actual callback and complete GB10 token boundary with whole5121901 and CK5816925. Exact-attention workspace now extends beyond32768 and long calls check completed8192-query windows; the q8192 twenty-second call bound and arithmetic are unchanged. This cold control does not qualify long suffix behavior."
+      },
+      "executable_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+      "input_fingerprints": {
+        "--tokens": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "--expected-output": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out512-expected.json",
+          "sha256": "b7ae24de7170ef3cf17581f3a820c9cd5c247c9b127c52170e8fa0ecbeb8c543"
+        },
+        "--env-file": {
+          "path": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\attention-matrix2-bound10000-q8192-r1.env",
+          "sha256": "efe62df2c1a75541ab2df7011f16addad7201e7c4e4ff1196aac0348640f595d"
+        },
+        "--provider-dll": {
+          "path": "D:\\projects\\AIMA-public-row-traces-20260913\\build\\whole\\qrt_qwen36_whole_provider.dll",
+          "sha256": "0a9e3eafa234edfefa409e6b5f438e4a9616b87cdfd22814d449db364ffaa357"
+        }
+      },
+      "boot": "2026-09-10T00:41:02.3881400+08:00",
+      "boot_identity": {
+        "kind": "kernel_general_boot_event",
+        "value": "122570:639245688798983488",
+        "record_id": 122570,
+        "utc": "2026-09-09T16:41:19.8983488Z",
+        "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+      },
+      "memory": {
+        "Length": 64,
+        "Load": 27,
+        "TotalPhysical": 33981009920,
+        "AvailablePhysical": 24502382592,
+        "TotalCommit": 156119142400,
+        "AvailableCommit": 146928672768,
+        "TotalVirtual": 140737488224256,
+        "AvailableVirtual": 138533470998528,
+        "AvailableExtendedVirtual": 0
+      },
+      "gpus": [
+        {
+          "Name": "AMD Radeon(TM) 8060S Graphics",
+          "Status": "OK",
+          "DriverVersion": "32.0.31036.15"
+        }
+      ],
+      "processes": [],
+      "checks": {
+        "no_engine_or_compiler": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true,
+        "output_disk_reserve": true,
+        "source_commit_exact": true
+      },
+      "pass": true
+    },
+    "reason": "completed",
+    "exit_code": 6,
+    "wall_ms": 128147.897,
+    "summary_present": true,
+    "cli_pass": false,
+    "summary": {
+      "type": "summary",
+      "status": "fail",
+      "host": "BAIYING",
+      "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+      "provider_dll": "D:\\projects\\AIMA-public-row-traces-20260913\\build\\whole\\qrt_qwen36_whole_provider.dll",
+      "first_token_raw_logit_contract_version": 1,
+      "first_token_report_available": true,
+      "first_token_report_token_emitted": true,
+      "first_token_report_matches_output": true,
+      "first_token_raw_logit_available": true,
+      "first_token_report_token_id": 144,
+      "first_token_report_top1_token_id": 144,
+      "first_token_raw_logit": 10.375,
+      "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+      "batch_size": 1,
+      "input_tokens": 8192,
+      "prefix_tokens": 0,
+      "suffix_tokens": 8192,
+      "output_tokens": 512,
+      "prefix_hit_count": 1,
+      "prefix_contract_pass_count": 0,
+      "prefix_output_match_count": 0,
+      "prefix_stream_match_count": 0,
+      "prefix_state_restored_count": 0,
+      "prefix_negative_guard_requested": false,
+      "prefix_negative_guard_pass": true,
+      "prefix_negative_guard_status": 0,
+      "prefix_negative_guard_provider_invoked": 0,
+      "prompt_token_ids_fnv1a64": "1584e34d56e5d78b",
+      "output_token_ids_fnv1a64": "a9df5bb4545454a5",
+      "engine_load_ms": 20084.6548,
+      "provider_preload_ms": 20072.973599,
+      "provider_preload_reported_ms": 20072.3766,
+      "provider_preload_dll_load_ms": 10.2408,
+      "provider_preload_stored_entries": 256,
+      "engine_create_ms": 1.424,
+      "prefix_seed_ms": 0.0,
+      "request_wall_ms": 107585.111999,
+      "ttft_ms": 50904.4684,
+      "provider_ttft_ms": 50900.5417,
+      "prefill_tokens_per_second": 160.928898,
+      "tpot_ms": 110.698765,
+      "decode_tokens_per_second": 9.033524,
+      "stream_callback_count": 512,
+      "first_callback_wall_ms": 50904.4684,
+      "last_callback_wall_ms": 107578.223899,
+      "callbacks_before_return": true,
+      "stream_matches_output": true,
+      "expected_prompt_match": true,
+      "expected_output_tokens_match": false,
+      "expected_output_digest_match": false,
+      "state_restored": true,
+      "output_token_ids": [
+        144,
+        244,
+        82,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        196,
+        220,
+        220,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        7701,
+        421,
+        279,
+        1414,
+        488,
+        3766,
+        369,
+        47739,
+        466,
+        5435,
+        4927,
+        10845,
+        5787,
+        11,
+        12571,
+        303,
+        264,
+        6311,
+        314,
+        4055,
+        5587,
+        11,
+        17210,
+        11,
+        321,
+        83123,
+        4105,
+        421,
+        513,
+        4839,
+        310,
+        13792,
+        13,
+        271,
+        2592,
+        488,
+        10287,
+        310,
+        2466,
+        264,
+        3050,
+        3296,
+        466,
+        4191,
+        264,
+        53916,
+        1876,
+        11,
+        4338,
+        1380,
+        310,
+        25,
+        271,
+        16,
+        13,
+        2972,
+        674,
+        63908,
+        279,
+        1414,
+        332,
+        494,
+        279,
+        3889,
+        2450,
+        13,
+        198,
+        17,
+        13,
+        2972,
+        3840,
+        678,
+        10845,
+        4842,
+        332,
+        318,
+        68,
+        1257,
+        2487,
+        19464,
+        12,
+        23,
+        5972,
+        13,
+        38016,
+        8,
+        413,
+        488,
+        513,
+        3162,
+        286,
+        494,
+        264,
+        999,
+        466,
+        2361,
+        3638,
+        13,
+        198,
+        18,
+        13,
+        2972,
+        674,
+        26812,
+        678,
+        3296,
+        332,
+        303,
+        2708,
+        11,
+        5129,
+        3992,
+        13,
+        271,
+        40,
+        1044,
+        1532,
+        310,
+        1438,
+        0,
+        5044,
+        3300,
+        264,
+        2708,
+        9640,
+        11,
+        321,
+        353,
+        668,
+        635,
+        821,
+        1786,
+        310,
+        7543,
+        488,
+        13,
+        248046,
+        198,
+        248044,
+        248045,
+        248045,
+        248045,
+        248045,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        440,
+        866,
+        4602,
+        466,
+        1928,
+        488,
+        1144,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        198,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        440,
+        866,
+        4602,
+        466,
+        1928,
+        488,
+        1144,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        271,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        440,
+        866,
+        4602,
+        466,
+        1928,
+        488,
+        1144,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045,
+        74455,
+        271,
+        248068,
+        271,
+        248069,
+        271,
+        2064,
+        4816,
+        1040,
+        678,
+        1876,
+        2493,
+        381,
+        31084,
+        466,
+        23644,
+        13,
+        16018,
+        488,
+        4338,
+        3300,
+        777,
+        3447,
+        466,
+        35932,
+        1092,
+        488,
+        2224,
+        9859,
+        30,
+        353,
+        2688,
+        1532,
+        310,
+        1438,
+        440,
+        866,
+        4602,
+        466,
+        1928,
+        488,
+        1144,
+        0,
+        248046,
+        198,
+        248045,
+        846,
+        198,
+        248046,
+        198,
+        248045
+      ],
+      "prefix_hit_request_wall_ms": [],
+      "prefix_hit_first_callback_wall_ms": [],
+      "prefix_hit_provider_ttft_ms": [],
+      "prefix_hit_suffix_ms": [],
+      "prefix_hit_tpot_ms": [],
+      "prefix_hit_total_ms": [],
+      "prefix_hit_input_token_ids_fnv1a64": [],
+      "prefix_hit_suffix_token_ids_fnv1a64": [],
+      "prefix_hit_teacher_prediction_ids_fnv1a64": [],
+      "checkpoint_owner_tokens": 0,
+      "checkpoint_owner_first_token": 4294967295,
+      "checkpoint_owner_logit_valid": false,
+      "checkpoint_owner_first_logit": null
+    },
+    "after_boot": "2026-09-10T00:41:02.3881400+08:00",
+    "after_boot_identity": {
+      "kind": "kernel_general_boot_event",
+      "value": "122570:639245688798983488",
+      "record_id": 122570,
+      "utc": "2026-09-09T16:41:19.8983488Z",
+      "cim_boot": "2026-09-10T00:41:02.3881400+08:00"
+    },
+    "boot_clock_text_unchanged": true,
+    "after_memory": {
+      "Length": 64,
+      "Load": 28,
+      "TotalPhysical": 33981009920,
+      "AvailablePhysical": 24288448512,
+      "TotalCommit": 156119142400,
+      "AvailableCommit": 146716254208,
+      "TotalVirtual": 140737488224256,
+      "AvailableVirtual": 138533469065216,
+      "AvailableExtendedVirtual": 0
+    },
+    "after_gpus": [
+      {
+        "Name": "AMD Radeon(TM) 8060S Graphics",
+        "Status": "OK",
+        "DriverVersion": "32.0.31036.15"
+      }
+    ],
+    "after_processes": [],
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "numerical_acceptance_requires_external_oracle": true
+  },
+  "analysis": {
+    "host": "baiying",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "whole_provider_commit": "730a85518bd98f2b4d672fc91427121c51ff473e",
+    "ck_provider_commit": "5816925df0da999a30eb609ad180ed737a797182",
+    "command_file": "D:\\projects\\run-native-attention-matrix2-bound10000-q8192-r1.ps1",
+    "command_file_sha256": "6e1ddeeb1aad1b93288a50948cba4582f747381ff29312c0fc514cdf5b291786",
+    "run_record_sha256": "9dad816199a715ffa8881eb5c53608703379890217613e0936fb5d21a61de72f",
+    "oracle_sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1",
+    "native_matrix_mode": 2,
+    "correction_bound_ppb": 10000,
+    "original_prompt_matches": true,
+    "first_token_matches": true,
+    "first_logit": 10.375,
+    "mismatches": [
+      {
+        "index": 1,
+        "actual": 244,
+        "expected": 255
+      },
+      {
+        "index": 3,
+        "actual": 220,
+        "expected": 57
+      },
+      {
+        "index": 4,
+        "actual": 220,
+        "expected": 79
+      },
+      {
+        "index": 5,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 7,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 8,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 10,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 11,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 13,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 14,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 16,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 17,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 19,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 20,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 22,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 23,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 25,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 26,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 28,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 29,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 31,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 32,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 34,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 35,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 37,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 38,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 40,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 41,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 43,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 44,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 46,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 47,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 49,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 50,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 52,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 53,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 55,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 56,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 58,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 59,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 61,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 62,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 64,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 65,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 67,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 68,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 70,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 71,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 73,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 74,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 76,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 77,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 79,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 80,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 82,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 83,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 85,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 86,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 88,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 89,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 91,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 92,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 94,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 95,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 97,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 98,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 100,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 101,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 103,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 104,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 106,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 107,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 109,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 110,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 112,
+        "actual": 220,
+        "expected": 196
+      },
+      {
+        "index": 113,
+        "actual": 196,
+        "expected": 220
+      },
+      {
+        "index": 115,
+        "actual": 220,
+        "expected": 271
+      },
+      {
+        "index": 116,
+        "actual": 196,
+        "expected": 248068
+      },
+      {
+        "index": 117,
+        "actual": 220,
+        "expected": 271
+      },
+      {
+        "index": 118,
+        "actual": 220,
+        "expected": 248069
+      },
+      {
+        "index": 119,
+        "actual": 196,
+        "expected": 271
+      },
+      {
+        "index": 120,
+        "actual": 220,
+        "expected": 760
+      },
+      {
+        "index": 121,
+        "actual": 220,
+        "expected": 1414
+      },
+      {
+        "index": 122,
+        "actual": 196,
+        "expected": 488
+      },
+      {
+        "index": 123,
+        "actual": 220,
+        "expected": 3766
+      },
+      {
+        "index": 124,
+        "actual": 220,
+        "expected": 7701
+      },
+      {
+        "index": 125,
+        "actual": 196,
+        "expected": 310
+      },
+      {
+        "index": 126,
+        "actual": 220,
+        "expected": 381
+      },
+      {
+        "index": 127,
+        "actual": 220,
+        "expected": 2972
+      },
+      {
+        "index": 128,
+        "actual": 196,
+        "expected": 5816
+      },
+      {
+        "index": 129,
+        "actual": 220,
+        "expected": 82987
+      },
+      {
+        "index": 130,
+        "actual": 220,
+        "expected": 11
+      },
+      {
+        "index": 131,
+        "actual": 196,
+        "expected": 7132
+      },
+      {
+        "index": 132,
+        "actual": 220,
+        "expected": 36412
+      },
+      {
+        "index": 133,
+        "actual": 220,
+        "expected": 11
+      },
+      {
+        "index": 134,
+        "actual": 196,
+        "expected": 466
+      },
+      {
+        "index": 135,
+        "actual": 220,
+        "expected": 19873
+      },
+      {
+        "index": 136,
+        "actual": 220,
+        "expected": 41915
+      },
+      {
+        "index": 137,
+        "actual": 196,
+        "expected": 159034
+      },
+      {
+        "index": 138,
+        "actual": 220,
+        "expected": 1049
+      },
+      {
+        "index": 139,
+        "actual": 220,
+        "expected": 5435
+      },
+      {
+        "index": 140,
+        "actual": 196,
+        "expected": 264
+      },
+      {
+        "index": 141,
+        "actual": 220,
+        "expected": 6311
+      },
+      {
+        "index": 142,
+        "actual": 220,
+        "expected": 314
+      },
+      {
+        "index": 143,
+        "actual": 196,
+        "expected": 4055
+      },
+      {
+        "index": 144,
+        "actual": 220,
+        "expected": 5587
+      },
+      {
+        "index": 145,
+        "actual": 220,
+        "expected": 11
+      },
+      {
+        "index": 146,
+        "actual": 196,
+        "expected": 17210
+      },
+      {
+        "index": 147,
+        "actual": 220,
+        "expected": 11
+      },
+      {
+        "index": 148,
+        "actual": 220,
+        "expected": 321
+      },
+      {
+        "index": 149,
+        "actual": 248046,
+        "expected": 33358
+      },
+      {
+        "index": 150,
+        "actual": 198,
+        "expected": 314
+      },
+      {
+        "index": 151,
+        "actual": 248045,
+        "expected": 6163
+      },
+      {
+        "index": 152,
+        "actual": 74455,
+        "expected": 4105
+      },
+      {
+        "index": 153,
+        "actual": 198,
+        "expected": 421
+      },
+      {
+        "index": 154,
+        "actual": 248068,
+        "expected": 635
+      },
+      {
+        "index": 155,
+        "actual": 271,
+        "expected": 524
+      },
+      {
+        "index": 156,
+        "actual": 248069,
+        "expected": 1304
+      },
+      {
+        "index": 157,
+        "actual": 271,
+        "expected": 53916
+      },
+      {
+        "index": 158,
+        "actual": 2064,
+        "expected": 22157
+      },
+      {
+        "index": 159,
+        "actual": 7701,
+        "expected": 466
+      },
+      {
+        "index": 160,
+        "actual": 421,
+        "expected": 19214
+      },
+      {
+        "index": 161,
+        "actual": 279,
+        "expected": 13976
+      },
+      {
+        "index": 162,
+        "actual": 1414,
+        "expected": 13
+      },
+      {
+        "index": 163,
+        "actual": 488,
+        "expected": 1061
+      },
+      {
+        "index": 164,
+        "actual": 3766,
+        "expected": 3428
+      },
+      {
+        "index": 165,
+        "actual": 369,
+        "expected": 8311
+      },
+      {
+        "index": 166,
+        "actual": 47739,
+        "expected": 4016
+      },
+      {
+        "index": 167,
+        "actual": 466,
+        "expected": 310
+      },
+      {
+        "index": 168,
+        "actual": 5435,
+        "expected": 25
+      },
+      {
+        "index": 169,
+        "actual": 4927,
+        "expected": 271
+      },
+      {
+        "index": 170,
+        "actual": 10845,
+        "expected": 16
+      },
+      {
+        "index": 171,
+        "actual": 5787,
+        "expected": 13
+      },
+      {
+        "index": 172,
+        "actual": 11,
+        "expected": 2972
+      },
+      {
+        "index": 173,
+        "actual": 12571,
+        "expected": 14266
+      },
+      {
+        "index": 174,
+        "actual": 303,
+        "expected": 5787
+      },
+      {
+        "index": 175,
+        "actual": 264,
+        "expected": 332
+      },
+      {
+        "index": 176,
+        "actual": 6311,
+        "expected": 318
+      },
+      {
+        "index": 177,
+        "actual": 314,
+        "expected": 68
+      },
+      {
+        "index": 178,
+        "actual": 4055,
+        "expected": 1257
+      },
+      {
+        "index": 179,
+        "actual": 5587,
+        "expected": 2487
+      },
+      {
+        "index": 180,
+        "actual": 11,
+        "expected": 8306
+      },
+      {
+        "index": 181,
+        "actual": 17210,
+        "expected": 264
+      },
+      {
+        "index": 182,
+        "actual": 11,
+        "expected": 7620
+      },
+      {
+        "index": 183,
+        "actual": 321,
+        "expected": 999
+      },
+      {
+        "index": 184,
+        "actual": 83123,
+        "expected": 466
+      },
+      {
+        "index": 185,
+        "actual": 4105,
+        "expected": 264
+      },
+      {
+        "index": 186,
+        "actual": 421,
+        "expected": 999
+      },
+      {
+        "index": 187,
+        "actual": 513,
+        "expected": 440
+      },
+      {
+        "index": 188,
+        "actual": 4839,
+        "expected": 264
+      },
+      {
+        "index": 189,
+        "actual": 310,
+        "expected": 2086
+      },
+      {
+        "index": 190,
+        "actual": 13792,
+        "expected": 3542
+      },
+      {
+        "index": 191,
+        "actual": 13,
+        "expected": 10845
+      },
+      {
+        "index": 192,
+        "actual": 271,
+        "expected": 1040
+      },
+      {
+        "index": 193,
+        "actual": 2592,
+        "expected": 19464
+      },
+      {
+        "index": 194,
+        "actual": 488,
+        "expected": 12
+      },
+      {
+        "index": 195,
+        "actual": 10287,
+        "expected": 23
+      },
+      {
+        "index": 196,
+        "actual": 310,
+        "expected": 11
+      },
+      {
+        "index": 197,
+        "actual": 2466,
+        "expected": 18867
+      },
+      {
+        "index": 198,
+        "actual": 264,
+        "expected": 12
+      },
+      {
+        "index": 199,
+        "actual": 3050,
+        "expected": 16
+      },
+      {
+        "index": 200,
+        "actual": 3296,
+        "expected": 11
+      },
+      {
+        "index": 202,
+        "actual": 4191,
+        "expected": 25662
+      },
+      {
+        "index": 203,
+        "actual": 264,
+        "expected": 11667
+      },
+      {
+        "index": 204,
+        "actual": 53916,
+        "expected": 1580
+      },
+      {
+        "index": 205,
+        "actual": 1876,
+        "expected": 430
+      },
+      {
+        "index": 206,
+        "actual": 11,
+        "expected": 13983
+      },
+      {
+        "index": 207,
+        "actual": 4338,
+        "expected": 1414
+      },
+      {
+        "index": 208,
+        "actual": 1380,
+        "expected": 553
+      },
+      {
+        "index": 209,
+        "actual": 310,
+        "expected": 198
+      },
+      {
+        "index": 210,
+        "actual": 25,
+        "expected": 17
+      },
+      {
+        "index": 211,
+        "actual": 271,
+        "expected": 13
+      },
+      {
+        "index": 212,
+        "actual": 16,
+        "expected": 2972
+      },
+      {
+        "index": 213,
+        "actual": 13,
+        "expected": 1008
+      },
+      {
+        "index": 214,
+        "actual": 2972,
+        "expected": 20600
+      },
+      {
+        "index": 215,
+        "actual": 674,
+        "expected": 332
+      },
+      {
+        "index": 216,
+        "actual": 63908,
+        "expected": 318
+      },
+      {
+        "index": 217,
+        "actual": 279,
+        "expected": 68
+      },
+      {
+        "index": 218,
+        "actual": 1414,
+        "expected": 1257
+      },
+      {
+        "index": 219,
+        "actual": 332,
+        "expected": 2487
+      },
+      {
+        "index": 220,
+        "actual": 494,
+        "expected": 31084
+      },
+      {
+        "index": 221,
+        "actual": 279,
+        "expected": 4003
+      },
+      {
+        "index": 222,
+        "actual": 3889,
+        "expected": 11
+      },
+      {
+        "index": 223,
+        "actual": 2450,
+        "expected": 12977
+      },
+      {
+        "index": 224,
+        "actual": 13,
+        "expected": 1412
+      },
+      {
+        "index": 225,
+        "actual": 198,
+        "expected": 11
+      },
+      {
+        "index": 226,
+        "actual": 17,
+        "expected": 466
+      },
+      {
+        "index": 227,
+        "actual": 13,
+        "expected": 17822
+      },
+      {
+        "index": 228,
+        "actual": 2972,
+        "expected": 59026
+      },
+      {
+        "index": 229,
+        "actual": 3840,
+        "expected": 553
+      },
+      {
+        "index": 230,
+        "actual": 678,
+        "expected": 198
+      },
+      {
+        "index": 231,
+        "actual": 10845,
+        "expected": 18
+      },
+      {
+        "index": 232,
+        "actual": 4842,
+        "expected": 13
+      },
+      {
+        "index": 233,
+        "actual": 332,
+        "expected": 2972
+      },
+      {
+        "index": 234,
+        "actual": 318,
+        "expected": 1037
+      },
+      {
+        "index": 235,
+        "actual": 68,
+        "expected": 2845
+      },
+      {
+        "index": 236,
+        "actual": 1257,
+        "expected": 278
+      },
+      {
+        "index": 237,
+        "actual": 2487,
+        "expected": 1454
+      },
+      {
+        "index": 238,
+        "actual": 19464,
+        "expected": 49850
+      },
+      {
+        "index": 239,
+        "actual": 12,
+        "expected": 362
+      },
+      {
+        "index": 240,
+        "actual": 23,
+        "expected": 332
+      },
+      {
+        "index": 241,
+        "actual": 5972,
+        "expected": 318
+      },
+      {
+        "index": 242,
+        "actual": 13,
+        "expected": 68
+      },
+      {
+        "index": 243,
+        "actual": 38016,
+        "expected": 1257
+      },
+      {
+        "index": 244,
+        "actual": 8,
+        "expected": 2487
+      },
+      {
+        "index": 245,
+        "actual": 413,
+        "expected": 24656
+      },
+      {
+        "index": 246,
+        "actual": 488,
+        "expected": 466
+      },
+      {
+        "index": 247,
+        "actual": 513,
+        "expected": 24315
+      },
+      {
+        "index": 248,
+        "actual": 3162,
+        "expected": 1973
+      },
+      {
+        "index": 249,
+        "actual": 286,
+        "expected": 5976
+      },
+      {
+        "index": 250,
+        "actual": 494,
+        "expected": 45543
+      },
+      {
+        "index": 251,
+        "actual": 264,
+        "expected": 553
+      },
+      {
+        "index": 252,
+        "actual": 999,
+        "expected": 271
+      },
+      {
+        "index": 253,
+        "actual": 466,
+        "expected": 13962
+      },
+      {
+        "index": 254,
+        "actual": 2361,
+        "expected": 3437
+      },
+      {
+        "index": 255,
+        "actual": 3638,
+        "expected": 1394
+      },
+      {
+        "index": 256,
+        "actual": 13,
+        "expected": 2885
+      },
+      {
+        "index": 257,
+        "actual": 198,
+        "expected": 3054
+      },
+      {
+        "index": 258,
+        "actual": 18,
+        "expected": 25
+      },
+      {
+        "index": 259,
+        "actual": 13,
+        "expected": 198
+      },
+      {
+        "index": 260,
+        "actual": 2972,
+        "expected": 12
+      },
+      {
+        "index": 261,
+        "actual": 674,
+        "expected": 2972
+      },
+      {
+        "index": 262,
+        "actual": 26812,
+        "expected": 3840
+      },
+      {
+        "index": 263,
+        "actual": 678,
+        "expected": 279
+      },
+      {
+        "index": 264,
+        "actual": 3296,
+        "expected": 2450
+      },
+      {
+        "index": 265,
+        "actual": 332,
+        "expected": 92217
+      },
+      {
+        "index": 266,
+        "actual": 303,
+        "expected": 1368
+      },
+      {
+        "index": 267,
+        "actual": 2708,
+        "expected": 411
+      },
+      {
+        "index": 268,
+        "actual": 11,
+        "expected": 3571
+      },
+      {
+        "index": 269,
+        "actual": 5129,
+        "expected": 494
+      },
+      {
+        "index": 270,
+        "actual": 3992,
+        "expected": 264
+      },
+      {
+        "index": 271,
+        "actual": 13,
+        "expected": 999
+      },
+      {
+        "index": 272,
+        "actual": 271,
+        "expected": 11
+      },
+      {
+        "index": 273,
+        "actual": 40,
+        "expected": 5790
+      },
+      {
+        "index": 274,
+        "actual": 1044,
+        "expected": 424
+      },
+      {
+        "index": 275,
+        "actual": 1532,
+        "expected": 725
+      },
+      {
+        "index": 276,
+        "actual": 310,
+        "expected": 8660
+      },
+      {
+        "index": 277,
+        "actual": 1438,
+        "expected": 440
+      },
+      {
+        "index": 278,
+        "actual": 0,
+        "expected": 279
+      },
+      {
+        "index": 279,
+        "actual": 5044,
+        "expected": 4252
+      },
+      {
+        "index": 280,
+        "actual": 3300,
+        "expected": 10845
+      },
+      {
+        "index": 281,
+        "actual": 264,
+        "expected": 466
+      },
+      {
+        "index": 282,
+        "actual": 2708,
+        "expected": 3061
+      },
+      {
+        "index": 283,
+        "actual": 9640,
+        "expected": 13
+      },
+      {
+        "index": 284,
+        "actual": 11,
+        "expected": 198
+      },
+      {
+        "index": 285,
+        "actual": 321,
+        "expected": 12
+      },
+      {
+        "index": 286,
+        "actual": 353,
+        "expected": 2972
+      },
+      {
+        "index": 287,
+        "actual": 668,
+        "expected": 674
+      },
+      {
+        "index": 288,
+        "actual": 635,
+        "expected": 60346
+      },
+      {
+        "index": 289,
+        "actual": 821,
+        "expected": 466
+      },
+      {
+        "index": 290,
+        "actual": 1786,
+        "expected": 11394
+      },
+      {
+        "index": 291,
+        "actual": 310,
+        "expected": 92217
+      },
+      {
+        "index": 292,
+        "actual": 7543,
+        "expected": 1368
+      },
+      {
+        "index": 293,
+        "actual": 488,
+        "expected": 424
+      },
+      {
+        "index": 294,
+        "actual": 13,
+        "expected": 725
+      },
+      {
+        "index": 295,
+        "actual": 248046,
+        "expected": 494
+      },
+      {
+        "index": 296,
+        "actual": 198,
+        "expected": 264
+      },
+      {
+        "index": 297,
+        "actual": 248044,
+        "expected": 4003
+      },
+      {
+        "index": 298,
+        "actual": 248045,
+        "expected": 11
+      },
+      {
+        "index": 299,
+        "actual": 248045,
+        "expected": 1380
+      },
+      {
+        "index": 300,
+        "actual": 248045,
+        "expected": 311
+      },
+      {
+        "index": 301,
+        "actual": 248045,
+        "expected": 14445
+      },
+      {
+        "index": 302,
+        "actual": 248045,
+        "expected": 10313
+      },
+      {
+        "index": 303,
+        "actual": 846,
+        "expected": 466
+      },
+      {
+        "index": 304,
+        "actual": 198,
+        "expected": 47455
+      },
+      {
+        "index": 305,
+        "actual": 248046,
+        "expected": 494
+      },
+      {
+        "index": 306,
+        "actual": 198,
+        "expected": 264
+      },
+      {
+        "index": 307,
+        "actual": 248045,
+        "expected": 15264
+      },
+      {
+        "index": 308,
+        "actual": 74455,
+        "expected": 13
+      },
+      {
+        "index": 310,
+        "actual": 248068,
+        "expected": 12
+      },
+      {
+        "index": 311,
+        "actual": 271,
+        "expected": 2972
+      },
+      {
+        "index": 312,
+        "actual": 248069,
+        "expected": 58387
+      },
+      {
+        "index": 313,
+        "actual": 271,
+        "expected": 2193
+      },
+      {
+        "index": 314,
+        "actual": 2064,
+        "expected": 92217
+      },
+      {
+        "index": 315,
+        "actual": 4816,
+        "expected": 1368
+      },
+      {
+        "index": 316,
+        "actual": 1040,
+        "expected": 488
+      },
+      {
+        "index": 317,
+        "actual": 678,
+        "expected": 1366
+      },
+      {
+        "index": 318,
+        "actual": 1876,
+        "expected": 1092
+      },
+      {
+        "index": 319,
+        "actual": 2493,
+        "expected": 411
+      },
+      {
+        "index": 320,
+        "actual": 381,
+        "expected": 1414
+      },
+      {
+        "index": 321,
+        "actual": 31084,
+        "expected": 348
+      },
+      {
+        "index": 322,
+        "actual": 466,
+        "expected": 5274
+      },
+      {
+        "index": 323,
+        "actual": 23644,
+        "expected": 9
+      },
+      {
+        "index": 324,
+        "actual": 13,
+        "expected": 3875
+      },
+      {
+        "index": 325,
+        "actual": 16018,
+        "expected": 318
+      },
+      {
+        "index": 326,
+        "actual": 488,
+        "expected": 68
+      },
+      {
+        "index": 327,
+        "actual": 4338,
+        "expected": 1257
+      },
+      {
+        "index": 328,
+        "actual": 3300,
+        "expected": 2487
+      },
+      {
+        "index": 329,
+        "actual": 777,
+        "expected": 264
+      },
+      {
+        "index": 330,
+        "actual": 3447,
+        "expected": 2128
+      },
+      {
+        "index": 331,
+        "actual": 466,
+        "expected": 11
+      },
+      {
+        "index": 332,
+        "actual": 35932,
+        "expected": 1970
+      },
+      {
+        "index": 333,
+        "actual": 1092,
+        "expected": 11
+      },
+      {
+        "index": 334,
+        "actual": 488,
+        "expected": 2099
+      },
+      {
+        "index": 335,
+        "actual": 2224,
+        "expected": 795
+      },
+      {
+        "index": 336,
+        "actual": 9859,
+        "expected": 681
+      },
+      {
+        "index": 337,
+        "actual": 30,
+        "expected": 4191
+      },
+      {
+        "index": 338,
+        "actual": 353,
+        "expected": 777
+      },
+      {
+        "index": 339,
+        "actual": 2688,
+        "expected": 3447
+      },
+      {
+        "index": 340,
+        "actual": 1532,
+        "expected": 748
+      },
+      {
+        "index": 341,
+        "actual": 310,
+        "expected": 353
+      },
+      {
+        "index": 342,
+        "actual": 1438,
+        "expected": 628
+      },
+      {
+        "index": 343,
+        "actual": 440,
+        "expected": 1438
+      },
+      {
+        "index": 344,
+        "actual": 866,
+        "expected": 16401
+      },
+      {
+        "index": 345,
+        "actual": 4602,
+        "expected": 466
+      },
+      {
+        "index": 346,
+        "actual": 466,
+        "expected": 13792
+      },
+      {
+        "index": 347,
+        "actual": 1928,
+        "expected": 424
+      },
+      {
+        "index": 348,
+        "actual": 488,
+        "expected": 13
+      },
+      {
+        "index": 349,
+        "actual": 1144,
+        "expected": 271
+      },
+      {
+        "index": 350,
+        "actual": 0,
+        "expected": 9764
+      },
+      {
+        "index": 351,
+        "actual": 248046,
+        "expected": 728
+      },
+      {
+        "index": 352,
+        "actual": 198,
+        "expected": 1366
+      },
+      {
+        "index": 353,
+        "actual": 248045,
+        "expected": 1204
+      },
+      {
+        "index": 354,
+        "actual": 846,
+        "expected": 353
+      },
+      {
+        "index": 355,
+        "actual": 198,
+        "expected": 628
+      },
+      {
+        "index": 356,
+        "actual": 248046,
+        "expected": 7543
+      },
+      {
+        "index": 357,
+        "actual": 198,
+        "expected": 4473
+      },
+      {
+        "index": 358,
+        "actual": 248045,
+        "expected": 0
+      },
+      {
+        "index": 359,
+        "actual": 74455,
+        "expected": 25677
+      },
+      {
+        "index": 360,
+        "actual": 198,
+        "expected": 232
+      },
+      {
+        "index": 361,
+        "actual": 248068,
+        "expected": 248044
+      },
+      {
+        "index": 362,
+        "actual": 271,
+        "expected": 248045
+      },
+      {
+        "index": 363,
+        "actual": 248069,
+        "expected": 248045
+      },
+      {
+        "index": 364,
+        "actual": 271,
+        "expected": 248045
+      },
+      {
+        "index": 365,
+        "actual": 2064,
+        "expected": 248045
+      },
+      {
+        "index": 366,
+        "actual": 4816,
+        "expected": 248045
+      },
+      {
+        "index": 367,
+        "actual": 1040,
+        "expected": 248045
+      },
+      {
+        "index": 368,
+        "actual": 678,
+        "expected": 248045
+      },
+      {
+        "index": 369,
+        "actual": 1876,
+        "expected": 248045
+      },
+      {
+        "index": 370,
+        "actual": 2493,
+        "expected": 248046
+      },
+      {
+        "index": 371,
+        "actual": 381,
+        "expected": 198
+      },
+      {
+        "index": 372,
+        "actual": 31084,
+        "expected": 248044
+      },
+      {
+        "index": 373,
+        "actual": 466,
+        "expected": 248045
+      },
+      {
+        "index": 374,
+        "actual": 23644,
+        "expected": 248045
+      },
+      {
+        "index": 375,
+        "actual": 13,
+        "expected": 248045
+      },
+      {
+        "index": 376,
+        "actual": 16018,
+        "expected": 248045
+      },
+      {
+        "index": 377,
+        "actual": 488,
+        "expected": 248045
+      },
+      {
+        "index": 378,
+        "actual": 4338,
+        "expected": 248046
+      },
+      {
+        "index": 379,
+        "actual": 3300,
+        "expected": 198
+      },
+      {
+        "index": 380,
+        "actual": 777,
+        "expected": 248045
+      },
+      {
+        "index": 381,
+        "actual": 3447,
+        "expected": 846
+      },
+      {
+        "index": 382,
+        "actual": 466,
+        "expected": 198
+      },
+      {
+        "index": 383,
+        "actual": 35932,
+        "expected": 248046
+      },
+      {
+        "index": 384,
+        "actual": 1092,
+        "expected": 198
+      },
+      {
+        "index": 385,
+        "actual": 488,
+        "expected": 248045
+      },
+      {
+        "index": 386,
+        "actual": 2224,
+        "expected": 74455
+      },
+      {
+        "index": 387,
+        "actual": 9859,
+        "expected": 198
+      },
+      {
+        "index": 388,
+        "actual": 30,
+        "expected": 248068
+      },
+      {
+        "index": 389,
+        "actual": 353,
+        "expected": 271
+      },
+      {
+        "index": 390,
+        "actual": 2688,
+        "expected": 248069
+      },
+      {
+        "index": 391,
+        "actual": 1532,
+        "expected": 271
+      },
+      {
+        "index": 392,
+        "actual": 310,
+        "expected": 2064
+      },
+      {
+        "index": 393,
+        "actual": 1438,
+        "expected": 4816
+      },
+      {
+        "index": 394,
+        "actual": 440,
+        "expected": 1040
+      },
+      {
+        "index": 395,
+        "actual": 866,
+        "expected": 678
+      },
+      {
+        "index": 396,
+        "actual": 4602,
+        "expected": 1876
+      },
+      {
+        "index": 397,
+        "actual": 466,
+        "expected": 2493
+      },
+      {
+        "index": 398,
+        "actual": 1928,
+        "expected": 381
+      },
+      {
+        "index": 399,
+        "actual": 488,
+        "expected": 31084
+      },
+      {
+        "index": 400,
+        "actual": 1144,
+        "expected": 466
+      },
+      {
+        "index": 401,
+        "actual": 0,
+        "expected": 23644
+      },
+      {
+        "index": 402,
+        "actual": 248046,
+        "expected": 13
+      },
+      {
+        "index": 403,
+        "actual": 198,
+        "expected": 16018
+      },
+      {
+        "index": 404,
+        "actual": 248045,
+        "expected": 488
+      },
+      {
+        "index": 405,
+        "actual": 846,
+        "expected": 4338
+      },
+      {
+        "index": 406,
+        "actual": 198,
+        "expected": 3300
+      },
+      {
+        "index": 407,
+        "actual": 248046,
+        "expected": 777
+      },
+      {
+        "index": 408,
+        "actual": 198,
+        "expected": 3447
+      },
+      {
+        "index": 409,
+        "actual": 248045,
+        "expected": 466
+      },
+      {
+        "index": 410,
+        "actual": 74455,
+        "expected": 35932
+      },
+      {
+        "index": 411,
+        "actual": 271,
+        "expected": 1092
+      },
+      {
+        "index": 412,
+        "actual": 248068,
+        "expected": 488
+      },
+      {
+        "index": 413,
+        "actual": 271,
+        "expected": 2224
+      },
+      {
+        "index": 414,
+        "actual": 248069,
+        "expected": 9859
+      },
+      {
+        "index": 415,
+        "actual": 271,
+        "expected": 30
+      },
+      {
+        "index": 416,
+        "actual": 2064,
+        "expected": 353
+      },
+      {
+        "index": 417,
+        "actual": 4816,
+        "expected": 2688
+      },
+      {
+        "index": 418,
+        "actual": 1040,
+        "expected": 1532
+      },
+      {
+        "index": 419,
+        "actual": 678,
+        "expected": 310
+      },
+      {
+        "index": 420,
+        "actual": 1876,
+        "expected": 1438
+      },
+      {
+        "index": 421,
+        "actual": 2493,
+        "expected": 0
+      },
+      {
+        "index": 422,
+        "actual": 381,
+        "expected": 25677
+      },
+      {
+        "index": 423,
+        "actual": 31084,
+        "expected": 232
+      },
+      {
+        "index": 424,
+        "actual": 466,
+        "expected": 248046
+      },
+      {
+        "index": 425,
+        "actual": 23644,
+        "expected": 198
+      },
+      {
+        "index": 426,
+        "actual": 13,
+        "expected": 248044
+      },
+      {
+        "index": 427,
+        "actual": 16018,
+        "expected": 248045
+      },
+      {
+        "index": 428,
+        "actual": 488,
+        "expected": 248045
+      },
+      {
+        "index": 429,
+        "actual": 4338,
+        "expected": 248045
+      },
+      {
+        "index": 430,
+        "actual": 3300,
+        "expected": 248045
+      },
+      {
+        "index": 431,
+        "actual": 777,
+        "expected": 248046
+      },
+      {
+        "index": 432,
+        "actual": 3447,
+        "expected": 198
+      },
+      {
+        "index": 433,
+        "actual": 466,
+        "expected": 248045
+      },
+      {
+        "index": 434,
+        "actual": 35932,
+        "expected": 846
+      },
+      {
+        "index": 435,
+        "actual": 1092,
+        "expected": 248046
+      },
+      {
+        "index": 436,
+        "actual": 488,
+        "expected": 198
+      },
+      {
+        "index": 437,
+        "actual": 2224,
+        "expected": 248045
+      },
+      {
+        "index": 438,
+        "actual": 9859,
+        "expected": 74455
+      },
+      {
+        "index": 439,
+        "actual": 30,
+        "expected": 198
+      },
+      {
+        "index": 440,
+        "actual": 353,
+        "expected": 248068
+      },
+      {
+        "index": 441,
+        "actual": 2688,
+        "expected": 271
+      },
+      {
+        "index": 442,
+        "actual": 1532,
+        "expected": 248069
+      },
+      {
+        "index": 443,
+        "actual": 310,
+        "expected": 271
+      },
+      {
+        "index": 444,
+        "actual": 1438,
+        "expected": 2064
+      },
+      {
+        "index": 445,
+        "actual": 440,
+        "expected": 4816
+      },
+      {
+        "index": 446,
+        "actual": 866,
+        "expected": 1040
+      },
+      {
+        "index": 447,
+        "actual": 4602,
+        "expected": 678
+      },
+      {
+        "index": 448,
+        "actual": 466,
+        "expected": 1876
+      },
+      {
+        "index": 449,
+        "actual": 1928,
+        "expected": 2493
+      },
+      {
+        "index": 450,
+        "actual": 488,
+        "expected": 381
+      },
+      {
+        "index": 451,
+        "actual": 1144,
+        "expected": 31084
+      },
+      {
+        "index": 452,
+        "actual": 0,
+        "expected": 466
+      },
+      {
+        "index": 453,
+        "actual": 248046,
+        "expected": 23644
+      },
+      {
+        "index": 454,
+        "actual": 198,
+        "expected": 13
+      },
+      {
+        "index": 455,
+        "actual": 248045,
+        "expected": 16018
+      },
+      {
+        "index": 456,
+        "actual": 846,
+        "expected": 488
+      },
+      {
+        "index": 457,
+        "actual": 198,
+        "expected": 4338
+      },
+      {
+        "index": 458,
+        "actual": 248046,
+        "expected": 3300
+      },
+      {
+        "index": 459,
+        "actual": 198,
+        "expected": 777
+      },
+      {
+        "index": 460,
+        "actual": 248045,
+        "expected": 3447
+      },
+      {
+        "index": 461,
+        "actual": 74455,
+        "expected": 466
+      },
+      {
+        "index": 462,
+        "actual": 271,
+        "expected": 35932
+      },
+      {
+        "index": 463,
+        "actual": 248068,
+        "expected": 1092
+      },
+      {
+        "index": 464,
+        "actual": 271,
+        "expected": 488
+      },
+      {
+        "index": 465,
+        "actual": 248069,
+        "expected": 2224
+      },
+      {
+        "index": 466,
+        "actual": 271,
+        "expected": 9859
+      },
+      {
+        "index": 467,
+        "actual": 2064,
+        "expected": 30
+      },
+      {
+        "index": 468,
+        "actual": 4816,
+        "expected": 353
+      },
+      {
+        "index": 469,
+        "actual": 1040,
+        "expected": 2688
+      },
+      {
+        "index": 470,
+        "actual": 678,
+        "expected": 1532
+      },
+      {
+        "index": 471,
+        "actual": 1876,
+        "expected": 310
+      },
+      {
+        "index": 472,
+        "actual": 2493,
+        "expected": 1438
+      },
+      {
+        "index": 473,
+        "actual": 381,
+        "expected": 0
+      },
+      {
+        "index": 474,
+        "actual": 31084,
+        "expected": 25677
+      },
+      {
+        "index": 475,
+        "actual": 466,
+        "expected": 232
+      },
+      {
+        "index": 476,
+        "actual": 23644,
+        "expected": 248046
+      },
+      {
+        "index": 477,
+        "actual": 13,
+        "expected": 198
+      },
+      {
+        "index": 478,
+        "actual": 16018,
+        "expected": 248045
+      },
+      {
+        "index": 479,
+        "actual": 488,
+        "expected": 846
+      },
+      {
+        "index": 480,
+        "actual": 4338,
+        "expected": 248046
+      },
+      {
+        "index": 481,
+        "actual": 3300,
+        "expected": 198
+      },
+      {
+        "index": 482,
+        "actual": 777,
+        "expected": 248045
+      },
+      {
+        "index": 483,
+        "actual": 3447,
+        "expected": 74455
+      },
+      {
+        "index": 484,
+        "actual": 466,
+        "expected": 198
+      },
+      {
+        "index": 485,
+        "actual": 35932,
+        "expected": 248068
+      },
+      {
+        "index": 486,
+        "actual": 1092,
+        "expected": 271
+      },
+      {
+        "index": 487,
+        "actual": 488,
+        "expected": 248069
+      },
+      {
+        "index": 488,
+        "actual": 2224,
+        "expected": 271
+      },
+      {
+        "index": 489,
+        "actual": 9859,
+        "expected": 2064
+      },
+      {
+        "index": 490,
+        "actual": 30,
+        "expected": 4816
+      },
+      {
+        "index": 491,
+        "actual": 353,
+        "expected": 1040
+      },
+      {
+        "index": 492,
+        "actual": 2688,
+        "expected": 678
+      },
+      {
+        "index": 493,
+        "actual": 1532,
+        "expected": 1876
+      },
+      {
+        "index": 494,
+        "actual": 310,
+        "expected": 2493
+      },
+      {
+        "index": 495,
+        "actual": 1438,
+        "expected": 381
+      },
+      {
+        "index": 496,
+        "actual": 440,
+        "expected": 31084
+      },
+      {
+        "index": 497,
+        "actual": 866,
+        "expected": 466
+      },
+      {
+        "index": 498,
+        "actual": 4602,
+        "expected": 23644
+      },
+      {
+        "index": 499,
+        "actual": 466,
+        "expected": 13
+      },
+      {
+        "index": 500,
+        "actual": 1928,
+        "expected": 16018
+      },
+      {
+        "index": 502,
+        "actual": 1144,
+        "expected": 4338
+      },
+      {
+        "index": 503,
+        "actual": 0,
+        "expected": 3300
+      },
+      {
+        "index": 504,
+        "actual": 248046,
+        "expected": 777
+      },
+      {
+        "index": 505,
+        "actual": 198,
+        "expected": 3447
+      },
+      {
+        "index": 506,
+        "actual": 248045,
+        "expected": 466
+      },
+      {
+        "index": 507,
+        "actual": 846,
+        "expected": 35932
+      },
+      {
+        "index": 508,
+        "actual": 198,
+        "expected": 1092
+      },
+      {
+        "index": 509,
+        "actual": 248046,
+        "expected": 488
+      },
+      {
+        "index": 510,
+        "actual": 198,
+        "expected": 2224
+      },
+      {
+        "index": 511,
+        "actual": 248045,
+        "expected": 9859
+      }
+    ],
+    "mismatch_count": 470,
+    "actual_callback_ttft_ms": 50904.4684,
+    "tpot_ms": 110.698765,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "command_file": {
+    "file": "run-native-attention-matrix2-bound10000-q8192-r1.ps1",
+    "sha256": "6e1ddeeb1aad1b93288a50948cba4582f747381ff29312c0fc514cdf5b291786",
+    "text": "param([string]$Case='q8192-out512')\n$PreparedValue=0\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-prefix-after-decode-20260912';$sha='a797b62b36d81b7f2b98d0aa591ef18d74b1fb22'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}}\n$runtime=Join-Path $repo 'build\\relocated archive r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3'\n$manifestPath=Join-Path $runtime 'runtime-manifest.json';$manifestSha='6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1';Verify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.artifacts.Count -ne 267){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){$p=Join-Path $runtime $e.path;Verify-File $p $e.sha256;if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}}\n$cliMetaPath=Join-Path $repo 'build\\product-cli\\build-provenance.json';$cliMeta=[IO.File]::ReadAllText($cliMetaPath)|ConvertFrom-Json\n$cliRunPath=Join-Path $repo 'build\\cli-build-r1\\run-record.json';$cliRun=[IO.File]::ReadAllText($cliRunPath)|ConvertFrom-Json\nif($cliMeta.repo_commit -ne $sha -or $cliMeta.dirty_tree -or $cliRun.exit_code -ne 0 -or -not $cliRun.host_checks_pass){throw 'CLI build not qualified'}\nVerify-File $cliMeta.executable $cliMeta.executable_sha256\nif($cliMeta.executable_sha256 -ne 'ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254'){throw 'Wrong CLI'}\nforeach($e in $cliMeta.sources){Verify-File $e.path $e.sha256}\n$oraclePath=Join-Path $repo 'contracts\\gb10_cold_token_matrix_20260911_oracle.json';$oracleSha='7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1';Verify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json;$cases=@($matrix.cases|Where-Object {$_.name -eq $Case});if($cases.Count -ne 1){throw 'Oracle case missing'};$oracle=$cases[0]\n$data='D:\\projects\\gb10-token-matrix-inputs-20260911-r2';$dataManifestPath=Join-Path $data 'manifest.json';$dataSha='e1a2fa36b42487a979b0c4839b001149db20b9130957d0c6fe801609f452339c';Verify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json');$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$name='attention-matrix2-bound10000-q8192-r1';$out=Join-Path $repo ('build\\'+$name);$envPath=Join-Path $repo ('build\\'+$name+'.env');$specPath=Join-Path $repo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env';$profileSha='88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d';Verify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath);$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n$map=[ordered]@{};foreach($line in ($resolved -split \"`n\")){if($line -match '^([^#=]+)=(.*)$'){$map[$Matches[1].Trim()]=$Matches[2].TrimEnd(\"`r\")}}\n$moeRoot='D:\\projects\\AIMA-public-short-moe-projections-20260912'\n$moeCommit='bc082a59da83fd3550e7fce9869c375629a78b69'\n$moeMetaPath=Join-Path $moeRoot 'build\\moe\\build-provenance.json';Verify-File $moeMetaPath '30d741ddeb5e88f48548a7719c92dbdc5615428fcb76d5275657e5f22080aa2e'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeCommit -or $moeMeta.dirty_tree -or @(& git -C $moeRoot status --porcelain).Count -ne 0){throw 'MoE source mismatch'}\nforeach($e in $moeMeta.artifacts){Verify-File (Join-Path (Join-Path $moeRoot 'build\\moe') $e.file) $e.sha256}\n$moeDll=Join-Path $moeRoot 'build\\moe\\qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll '4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL']=$moeDll.Replace('\\','/')\n$normTable='D:\\projects\\layer0-embedding-dynamic-inverse-20260912-r1.bin';Verify-File $normTable 'b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9'\n$map['QRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH']=$normTable.Replace('\\','/')\n$ckRoot='D:\\projects\\AIMA-public-prefix32k-deadline-20260912';$ckCommit='5816925df0da999a30eb609ad180ed737a797182'\n$ckMetaPath=Join-Path $ckRoot 'build\\ck\\build-provenance.json';Verify-File $ckMetaPath '990910639294ea95a7c861d6131d0c67238550fdf248226fe6cee37f9ff78e3c'\n$ckMeta=[IO.File]::ReadAllText($ckMetaPath)|ConvertFrom-Json\n$ckRunPath=Join-Path $ckRoot 'build\\batch-ck-build-r1\\run-record.json';$ckRun=[IO.File]::ReadAllText($ckRunPath)|ConvertFrom-Json\nif($ckMeta.repo_commit -ne $ckCommit -or (& git -C $ckRoot rev-parse HEAD).Trim() -ne $ckCommit -or @(& git -C $ckRoot status --porcelain).Count -ne 0 -or $ckRun.exit_code -ne 0 -or -not $ckRun.host_checks_pass){throw 'CK build not qualified'}\nforeach($e in $ckMeta.source_inputs){Verify-File (Join-Path $ckRoot $e.file) $e.sha256}\n$ckDll=Join-Path $ckRoot 'build\\ck\\qrt_ck_fmha_sm121.dll';Verify-File $ckDll '339518a00f438a371de8593be8fe6290ae5ca66fe29e962312ee3bb51932e166'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL']=$ckDll.Replace('\\','/')\n$map['QRT_CK_SM121_PREPARED_VALUE']=[string]$PreparedValue\n$map['QRT_CK_SM121_TILED_EXACT_QK']='0'\n$map['QRT_CK_SM121_NATIVE_BF16_MATRIX']='2'\n$map['QRT_CK_SM121_WARP_SOFTMAX']='0'\n$map['QRT_QWEN36_PREFIX_BATCH_SUFFIX']='1'\n$map['QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB']='10000'\n$map['QRT_QWEN36_PREFIX_BATCH_SUFFIX_HASH_LOGITS']='0'\n$resolved=(($map.GetEnumerator()|ForEach-Object {$_.Key+'='+$_.Value})-join \"`n\")+\"`n\"\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$wholeRoot='D:\\projects\\AIMA-public-row-traces-20260913';$wholeCommit='730a85518bd98f2b4d672fc91427121c51ff473e'\n$wholeMetaPath=Join-Path $wholeRoot 'build\\whole\\build-provenance.json';Verify-File $wholeMetaPath 'f30c1318c20e3f897cca1dec3ee89816806b571c2e42429177edf298aa21afe6'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRunPath=Join-Path $wholeRoot 'build\\batch-whole-build-r1\\run-record.json';$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeCommit -or $wholeMeta.dirty_tree -or $wholeMeta.hawkeye_replay_lanes -ne 4 -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass -or @(& git -C $wholeRoot status --porcelain).Count -ne 0){throw 'Whole build mismatch'}\n$provider=Join-Path $wholeRoot 'build\\whole\\qrt_qwen36_whole_provider.dll';Verify-File $provider '0a9e3eafa234edfefa409e6b5f438e4a9616b87cdfd22814d449db364ffaa357'\n\n\n$spec=[ordered]@{executable=$cliMeta.executable;working_directory=$repo;repo_commit=$sha;cli_commit=$sha;cli_sha256=$cliMeta.executable_sha256;cli_build_run_sha256=(Get-FileHash $cliRunPath -Algorithm SHA256).Hash.ToLowerInvariant();cli_build_metadata_sha256=(Get-FileHash $cliMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='D:\\models\\Qwen3.6-35B-A3B';arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider);oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha;runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits;source_profile_sha256=$profileSha;portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant();cold_prefill_seed_included=$true;prefix_checkpoints_enabled=$false;model_loaded_from_new_process=$true;moe_provider_commit=$moeCommit;moe_provider_sha256='4fafdbde24074953edc49d2991652d481ad8cb87941d50208d62d12d5f160c41';moe_build_metadata_sha256=(Get-FileHash $moeMetaPath -Algorithm SHA256).Hash.ToLowerInvariant();whole_provider_commit=$wholeCommit;whole_provider_sha256='0a9e3eafa234edfefa409e6b5f438e4a9616b87cdfd22814d449db364ffaa357';whole_build_metadata_sha256='f30c1318c20e3f897cca1dec3ee89816806b571c2e42429177edf298aa21afe6';layer0_inverse_table_sha256='b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9';layer0_inverse_capture_sha256='f6832f32e78bf8a3fb81b5c405199e62132c5c816a9e120d9c2c5ed3b46ae0f2';ck_provider_commit=$ckCommit;ck_provider_sha256='339518a00f438a371de8593be8fe6290ae5ca66fe29e962312ee3bb51932e166';ck_build_metadata_sha256='990910639294ea95a7c861d6131d0c67238550fdf248226fe6cee37f9ff78e3c';prepared_value_enabled=$false;exact_attention_maximum_tokens=65536;purpose='Re-evaluate native matrix QK/PV against the full actual q8192/out512 gate after the output-admission and decode fixes. This is a new candidate and has no retained performance claim. Renew q8192/out512 actual callback and complete GB10 token boundary with whole5121901 and CK5816925. Exact-attention workspace now extends beyond32768 and long calls check completed8192-query windows; the q8192 twenty-second call bound and arithmetic are unchanged. This cold control does not qualify long suffix behavior.'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 420|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids);$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne $expected.Count){throw 'Actual stream callback boundary failed'}\nexit $r.exit_code\n"
+  },
+  "original_run_record_sha256": "9dad816199a715ffa8881eb5c53608703379890217613e0936fb5d21a61de72f",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "redaction_notice": "Private home prefixes in embedded metadata are redacted; command and original-record hashes identify the original unredacted execution files."
+}

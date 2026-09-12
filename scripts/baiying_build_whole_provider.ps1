@@ -240,6 +240,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\sm121_attention_capacity.h')).Hash.ToLowerInvariant()
     prefix_batch_suffix_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\prefix_batch_suffix.h')).Hash.ToLowerInvariant()
+    prefill_chunks_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\prefill_chunks.h')).Hash.ToLowerInvariant()
     fla_checkpoint_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\gdn\fla_checkpoint.h')).Hash.ToLowerInvariant()
     sm121_q1_gdn_header_sha256 = (Get-FileHash -Algorithm SHA256 `

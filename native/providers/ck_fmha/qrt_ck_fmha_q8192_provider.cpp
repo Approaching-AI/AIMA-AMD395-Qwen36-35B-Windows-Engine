@@ -402,7 +402,7 @@ int launch_sm121_suffix_attention(
     const uint16_t* suffix_k, const uint16_t* suffix_v, float* output,
     hipStream_t stream, unsigned int prefix_tokens, unsigned int suffix_tokens) {
     if (!prefix_tokens || prefix_tokens >= kSm121MaxTokens || !suffix_tokens ||
-        suffix_tokens > 1024u || suffix_tokens > kSm121MaxTokens - prefix_tokens)
+        suffix_tokens > kPrefillChunkTokens || suffix_tokens > kSm121MaxTokens - prefix_tokens)
         return int(hipErrorInvalidValue);
     const unsigned int total = prefix_tokens + suffix_tokens;
     const void* inputs[] = {q, prefix_k, prefix_v, suffix_k, suffix_v};

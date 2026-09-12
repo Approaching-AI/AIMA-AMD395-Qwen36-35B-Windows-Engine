@@ -41712,11 +41712,14 @@ bool qwen36_layer39_dynamic_terminal_compact_q_enabled(
         );
 }
 
+bool qwen36_chunk_prefill_continuation_active();
+
 bool qwen36_final_layer_full_prefix_requested(unsigned int prefill_tokens) {
     // The complete-prefix path reuses the validated attention and MoE providers.
     // Keep this explicit replay within their existing single q8192 allocation.
     return prefill_tokens > 1u && prefill_tokens <= kRetainedPrefillTokens &&
-        env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX");
+        (env_flag_enabled("QRT_QWEN36_FINAL_LAYER_FULL_PREFIX") ||
+         qwen36_chunk_prefill_continuation_active());
 }
 
 bool qwen36_layer39_dynamic_terminal_packed_moe_enabled(
@@ -58914,6 +58917,9 @@ public:
 private:
     Qwen36ResidentSessionState *prior_ = nullptr;
 };
+// Reserve decode scratch for the entire cold prompt while its activation
+// carrier is built in bounded chunks. Zero retains ordinary capture behavior.
+thread_local size_t g_qwen36_chunked_prefill_total_tokens = 0u;
 uint64_t g_qwen36_resident_session_generation_clock = UINT64_C(0);
 std::recursive_mutex g_qwen36_resident_session_mutex;
 std::vector<const qrt_engine_t *> g_qwen36_whole_provider_live_engines;
@@ -60450,7 +60456,8 @@ hipError_t allocate_qwen36_resident_decode_activation_workspace_locked(
         return hipErrorInvalidValue;
     }
     const size_t score_scratch_token_capacity =
-        qwen36_resident_full_attention_score_token_capacity(prefix_tokens);
+        qwen36_resident_full_attention_score_token_capacity(
+            (std::max)(prefix_tokens, g_qwen36_chunked_prefill_total_tokens));
     const size_t score_scratch_allocation_bytes =
         qwen36_resident_full_attention_scratch_allocation_bytes(
             score_scratch_token_capacity
@@ -62556,6 +62563,11 @@ std::vector<unsigned int> begin_qwen36_prefix_checkpoints(
 }
 
 #include "prefix_batch_suffix.h"
+
+bool qwen36_chunk_prefill_continuation_active() {
+    const auto *scope = ScopedQwen36PrefixBatchSuffix::active;
+    return scope && scope->terminal_only;
+}
 
 int launch_qwen36_fla_with_checkpoints(
     AiterFusedGdnDynamicLaunchFn fallback,
@@ -113059,9 +113071,10 @@ bool capture_qwen36_prefix_batch_terminal(
     auto *suffix = ScopedQwen36PrefixBatchSuffix::active;
     if (!suffix) return true;
     if (suffix->terminal_valid || prefill_tokens != suffix->tokens ||
-        normalized.selected_token_count != suffix->tokens ||
+        normalized.selected_token_count != (suffix->terminal_only ? 1u : suffix->tokens) ||
+        normalized.selected_token_ids.empty() ||
         normalized.selected_token_ids.back() + 1u != suffix->tokens ||
-        normalized.gpu_output.size() != size_t(suffix->tokens) * QRT_QWEN36_HIDDEN_SIZE) {
+        normalized.gpu_output.size() != normalized.selected_token_count * QRT_QWEN36_HIDDEN_SIZE) {
         *failure_stage = "prefix_batch_terminal_shape";
         *failure = "batch suffix must expose its actual final normalized row";
         return false;
@@ -158188,6 +158201,10 @@ bool qwen36_run_exact_low_margin_prefill_verifier(
     std::string *failure
 );
 
+int run_qwen36_chunked_prefill(
+    const qrt_qwen36_whole_provider_request_t &request,
+    qrt_qwen36_whole_provider_result_t *result, uint64_t start_ns);
+
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_EXPORT int
 QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     const qrt_qwen36_whole_provider_request_t *request,
@@ -158405,6 +158422,13 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
     // only after the resident weights are ready and expose the startup time in
     // preload_wall_clock_ns.
     start_ns = qrt_now_ns();
+    if (arbitrary_prefill_requested && resident_decode_v1_result_requested &&
+        request->input_token_count > 8192u &&
+        raw_env_flag_enabled("QRT_QWEN36_CHUNKED_PREFILL") &&
+        !g_qwen36_exact_prefill_verifier_active &&
+        !g_qwen36_chunked_prefill_total_tokens) {
+        return run_qwen36_chunked_prefill(*request, out_result, start_ns);
+    }
     ScopedRequiredBatchMarkerFilter required_marker_filter;
     if (env_flag_enabled(
             "QRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_BF16_MATRIX_PROVIDER"
@@ -219811,13 +219835,14 @@ qrt_qwen36_whole_provider_reset_resident_prefix_cache_v1(
 
 bool run_qwen36_resident_batch_suffix(
     const qrt_qwen36_whole_provider_prefix_request_v1_t &prefix_request,
-    uint32_t *teacher_predictions, std::string *failure_stage, std::string *failure
+    uint32_t *teacher_predictions, std::string *failure_stage, std::string *failure,
+    bool terminal_only = false, qrt_qwen36_whole_provider_result_t *chunk_result = nullptr
 ) {
     auto *const owner = &g_qwen36_resident_session;
     ScopedQwen36PrefixBatchSuffix suffix(owner, prefix_request.expected_prefix_token_count,
-        prefix_request.suffix_token_count);
+        prefix_request.suffix_token_count, terminal_only);
     *failure_stage = "qwen36_resident_prefix_batch_suffix";
-    if (!teacher_predictions || !prefix_request.suffix_tokens || !suffix.validate()) {
+    if ((!terminal_only && !teacher_predictions) || !prefix_request.suffix_tokens || !suffix.validate()) {
         *failure = suffix.failure.empty() ? "batch suffix request lacks actual inputs or output storage" : suffix.failure;
         return false;
     }
@@ -219836,8 +219861,8 @@ bool run_qwen36_resident_batch_suffix(
     request.expected_prompt_token_ids_fnv1a64 = qrt_fnv1a64_bytes(request.input_tokens,
         request.input_token_count * sizeof(*request.input_tokens));
     request.expected_output_token_id = UINT_MAX;
-    std::vector<unsigned int> final_rows(suffix.tokens);
-    for (unsigned i = 0; i < suffix.tokens; ++i) final_rows[i] = i;
+    std::vector<unsigned int> final_rows(terminal_only ? 1u : suffix.tokens);
+    for (unsigned i = 0; i < final_rows.size(); ++i) final_rows[i] = terminal_only ? suffix.tokens - 1u : i;
     Qwen36ResidentSessionState temporary_session{};
     LmHeadRun predictions;
     auto result = std::make_unique<qrt_qwen36_whole_provider_result_t>();
@@ -219860,19 +219885,27 @@ bool run_qwen36_resident_batch_suffix(
     if (!ok || sync != hipSuccess || !result->completed || result->output_token_count != 1u ||
         (result->provided_surfaces & request.required_surfaces) != request.required_surfaces ||
         !suffix.complete() || predictions.selected_token_ids != final_rows ||
-        predictions.gpu_topk_ids.size() != size_t(suffix.tokens) * QRT_QWEN36_OUTPUT_HEAD_SAMPLER_TOPK) {
+        predictions.gpu_topk_ids.size() != final_rows.size() * QRT_QWEN36_OUTPUT_HEAD_SAMPLER_TOPK) {
         if (result->failure_stage[0]) *failure_stage = result->failure_stage;
         *failure = !suffix.failure.empty() ? suffix.failure :
             (result->failure[0] ? result->failure :
              (sync != hipSuccess ? hipGetErrorString(sync) : "batch suffix did not complete every linear, attention and vocabulary boundary"));
         return false;
     }
-    for (unsigned i = 0; i < suffix.tokens; ++i) {
+    for (unsigned i = 0; !terminal_only && i < suffix.tokens; ++i) {
         const uint32_t token = predictions.gpu_topk_ids[size_t(i) * QRT_QWEN36_OUTPUT_HEAD_SAMPLER_TOPK];
         if (token >= QRT_QWEN36_VOCAB_SIZE) { *failure = "invalid batched teacher prediction"; return false; }
         teacher_predictions[i] = token;
     }
-    teacher_predictions[suffix.tokens - 1u] = suffix.terminal_ids[0];
+    if (!terminal_only) teacher_predictions[suffix.tokens - 1u] = suffix.terminal_ids[0];
+    if (chunk_result) {
+        if (result->continuation.output_token_id != suffix.terminal_ids[0] ||
+            result->continuation.output_logit != suffix.terminal_logits[0]) {
+            *failure = "chunk terminal projection disagrees with its independent M1 sample";
+            return false;
+        }
+        *chunk_result = *result;
+    }
     owner->committed_decode_token_count = suffix.tokens;
     owner->current_token_id = suffix.terminal_ids[0];
     owner->current_token_valid = true;
@@ -219881,13 +219914,16 @@ bool run_qwen36_resident_batch_suffix(
     owner->last_decode_top2_position = size_t(suffix.prefix) + suffix.tokens - 1u;
     owner->last_decode_top2_valid = true;
     std::cerr << "BATCH_MARK qwen36_prefix_batch_suffix prefix_tokens=" << suffix.prefix
-              << " suffix_tokens=" << suffix.tokens << " convolution_mask=" << hex_u64(suffix.convolution_layers)
+              << " suffix_tokens=" << suffix.tokens << " terminal_only=" << terminal_only
+              << " convolution_mask=" << hex_u64(suffix.convolution_layers)
               << " recurrent_mask=" << hex_u64(suffix.recurrent_layers)
               << " attention_mask=" << hex_u64(suffix.attention_layers)
               << " first_token=" << suffix.terminal_ids[0] << " raw_logit=" << suffix.terminal_logits[0]
               << " owner_replayed=0 sequential_suffix_decode=0" << std::endl;
     return true;
 }
+
+#include "prefill_chunks.h"
 
 bool qwen36_run_exact_low_margin_prefill_verifier(
     const qrt_qwen36_whole_provider_prefix_request_v1_t &prefix_request,

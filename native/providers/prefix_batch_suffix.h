@@ -45,6 +45,7 @@ struct ScopedQwen36PrefixBatchSuffix {
     ScopedQwen36PrefixBatchSuffix *previous;
     Qwen36ResidentSessionState *session;
     unsigned prefix, tokens;
+    bool terminal_only = false;
     uint64_t convolution_layers = 0u, recurrent_layers = 0u, attention_layers = 0u;
     float *halo = nullptr;
     uint32_t *indices = nullptr;
@@ -53,8 +54,9 @@ struct ScopedQwen36PrefixBatchSuffix {
     bool terminal_valid = false;
     std::string failure;
 
-    ScopedQwen36PrefixBatchSuffix(Qwen36ResidentSessionState *owner, unsigned before, unsigned count)
-        : previous(active), session(owner), prefix(before), tokens(count) { active = this; }
+    ScopedQwen36PrefixBatchSuffix(Qwen36ResidentSessionState *owner, unsigned before, unsigned count,
+        bool last_row_only = false)
+        : previous(active), session(owner), prefix(before), tokens(count), terminal_only(last_row_only) { active = this; }
     ~ScopedQwen36PrefixBatchSuffix() {
         // The caller synchronizes before publishing counters. Drain even a
         // partial enqueue before freeing the shared convolution workspace.
@@ -74,9 +76,10 @@ struct ScopedQwen36PrefixBatchSuffix {
     bool validate() {
         if (previous || !session || !session->valid || !session->owner_engine ||
             session->prefix_tokens != prefix || session->committed_decode_token_count ||
-            prefix < 8192u || prefix % 8192u || tokens != 1024u ||
+            prefix < 8192u || prefix % 8192u ||
+            (tokens != 1024u && !(terminal_only && tokens == 8192u)) ||
             prefix > qrt_sm121_attention_capacity::kTokens - tokens)
-            return reject("batch suffix requires an untouched aligned prefix shadow and 1024 actual inputs");
+            return reject("batch suffix requires an untouched aligned prefix and 1024 actual inputs, or an 8192-input cold chunk");
         for (unsigned i = 0; i < 40u; ++i) {
             if (i % 4u != 3u) {
                 const auto &layer = session->linear_layers[i];
@@ -114,7 +117,7 @@ struct ScopedQwen36PrefixBatchSuffix {
         if (!halo) {
             if (!check(hipMalloc(reinterpret_cast<void **>(&halo), size_t(tokens + 3u) * 8192u * 4u)) ||
                 !check(hipMalloc(reinterpret_cast<void **>(&indices), size_t(tokens) * 4u * 4u))) return false;
-            std::array<uint32_t, 4096> host_indices{};
+            std::vector<uint32_t> host_indices(size_t(tokens) * 4u);
             for (unsigned row = 0; row < tokens; ++row)
                 for (unsigned tap = 0; tap < 4u; ++tap) host_indices[row * 4u + tap] = row + tap;
             if (!check(hipMemcpy(indices, host_indices.data(), host_indices.size() * 4u, hipMemcpyHostToDevice))) return false;

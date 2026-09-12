@@ -35,6 +35,20 @@ shape and are not restricted to benchmark sizes. At `max_model_len=262144`, a
 262,143-token prompt can request one output token, while a 262,144-token prompt
 requesting output is rejected before native execution.
 
+The opt-in `QRT_QWEN36_CHUNKED_PREFILL=1` route bounds cold activation
+carriers to8192 real inputs, followed by an optional1024-input terminal chunk.
+It seeds the ordinary resident session once, extends original FP32 recurrent
+states and convolution rings, and promotes each completed chunk's BF16 KV into
+the history under the session mutex. Only the completed prompt's sampled token
+crosses the stream ABI; a failed replacement retires its partial state. Decode
+scratch is reserved for the full prompt before the first chunk runs. The current
+attention workspace still limits this experiment to65536 inputs, and prefix
+checkpoint capture is not combined with this mode. It remains off in the
+retained profile pending full original-token qualification. Per-descriptor
+metrics describe the last chunk; the provider wall and actual callback clock
+include all chunks and KV promotion. This mode does not change the1024-input
+prefix API's complete teacher-prediction contract.
+
 ## Prefix cache
 
 Snapshots are owned by the resident provider. A compatible extension borrows
