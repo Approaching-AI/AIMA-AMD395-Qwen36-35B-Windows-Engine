@@ -49,17 +49,24 @@ void complete(unsigned method, hipEvent_t event) {
 }
 
 int main(int argc, char** argv) try {
-    require(argc == 2 && (!std::strcmp(argv[1], "auto") || !std::strcmp(argv[1], "spin")),
-            "expected auto or spin device schedule");
-    const unsigned requested = !std::strcmp(argv[1], "spin") ? hipDeviceScheduleSpin : hipDeviceScheduleAuto;
-    check(hipSetDeviceFlags(requested));
+    require(argc == 2 && (!std::strcmp(argv[1], "default") || !std::strcmp(argv[1], "auto") ||
+            !std::strcmp(argv[1], "spin") || !std::strcmp(argv[1], "blocking")),
+            "expected default, auto, spin or blocking device schedule");
+    // Observe the untouched process too: the SDK's API description does not
+    // establish its backend's initial active-wait state. Upstream 7.1 also
+    // maps several explicitly selected schedule flags to the same path.
+    const bool set_policy = std::strcmp(argv[1], "default") != 0;
+    const unsigned requested = !set_policy ? UINT32_MAX : !std::strcmp(argv[1], "spin")
+        ? hipDeviceScheduleSpin : !std::strcmp(argv[1], "blocking")
+        ? hipDeviceScheduleBlockingSync : hipDeviceScheduleAuto;
+    if (set_policy) check(hipSetDeviceFlags(requested));
     unsigned actual = 0u; check(hipGetDeviceFlags(&actual));
     hipDeviceProp_t properties{}; check(hipGetDeviceProperties(&properties, 0));
     require(!std::strncmp(properties.gcnArchName, "gfx1151", 7u), "requires gfx1151");
     int runtime = 0, driver = 0;
     check(hipRuntimeGetVersion(&runtime)); check(hipDriverGetVersion(&driver));
-    std::printf("{\"type\":\"wait_configuration\",\"schedule\":\"%s\",\"requested_flags\":%u,\"actual_flags\":%u,\"runtime_version\":%d,\"driver_version\":%d,\"architecture\":\"%s\",\"model_loaded\":false}\n",
-        argv[1], requested, actual, runtime, driver, properties.gcnArchName);
+    std::printf("{\"type\":\"wait_configuration\",\"schedule\":\"%s\",\"policy_set\":%s,\"requested_flags\":%u,\"actual_flags\":%u,\"runtime_version\":%d,\"driver_version\":%d,\"architecture\":\"%s\",\"model_loaded\":false}\n",
+        argv[1], set_policy ? "true" : "false", requested, actual, runtime, driver, properties.gcnArchName);
     std::vector<uint32_t> host(count + 2u * guard, sentinel);
     uint32_t* device = nullptr;
     check(hipMalloc(reinterpret_cast<void**>(&device), host.size() * sizeof(uint32_t)));
