@@ -2,7 +2,37 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Current MoE work ownership at source `cb0f266` passes a complete same-source
+Dense and MoE candidate grouping at source `a50f15d` passes both complete
+original q8192/out512 product runs on baiying with
+`D:\models\Qwen3.6-35B-A3B`. Both OFF and ON preserve all 512 GB10 outputs
+and actual callbacks, first 144 and exact raw logit 10.375. The same dense
+and MoE DLLs, four lanes, one MoE staged K16 group, ten AOT artifacts, CK
+`4a5a5b0`, FLA `2ee6215` state 8 and CLI `a797b62` are common.
+
+Callback TTFT is 37810.5655 / 38176.3825 ms OFF/ON. Grouping is 365.8170 ms
+slower in this single pair, despite its component gains. Keep both grouping
+options at 0 for subsequent work. The qualified OFF control has TPOT
+101.637313 ms and model plus engine load 21296.3550 ms. This does not
+establish repeatability or retained performance; the immutable 4187.415605 ms
+TTFT and 35.502151 ms TPOT targets remain open.
+
+All 48 native permutation/capacity cases, six MoE controls, four actual
+dense correction shapes and both original real QKV runs pass. Full local
+checks and extended address/undefined-behavior dispatch checks pass. Both
+product runs select identical dense candidate counts; completed dense
+correction totals are 7310.218 / 7346.269 ms. Those inclusive correction
+clocks do not fully attribute TTFT. Obtain a current synchronized product
+profile on the qualified OFF stack before selecting the next structural
+replacement. Original arithmetic, FP64 norms and admission bounds remain
+unchanged; range normalization remains a component experiment.
+
+The qualified 64k stack retains its earlier sixteen-lane MoE identity.
+No new prefix, Windows 128k/256k, package, HTTP, soak or release acceptance
+follows. Command: `run-native-partition-product-q8192-r1.ps1 -PartitionReplay 0|1`.
+Evidence: `benchmarks/correctness/dense-moe-candidate-partition-product-20260914.json`,
+SHA256 `3999da7941991baa25bc488981d1589b7e5887346f1d3ae250bdb284f68f9378`.
+
+The preceding MoE work-ownership experiment at source `cb0f266` passes a complete same-source
 q8192/out512 pair on baiying with `D:\models\Qwen3.6-35B-A3B`. Both sixteen
 and four lanes preserve all 512 GB10 outputs and actual callbacks, first
 144 and exact raw logit 10.375. Whole `27cfc32`, CK `4a5a5b0`, FLA `2ee6215`
@@ -32,8 +62,8 @@ With unchanged four-lane arithmetic, completed preparation plus replay is
 variants take 48.3263 / 39.7011 ms. GPU partition and raw capture writes are
 included; these are single component observations.
 
-Proceed with dense and MoE product grouping using original arithmetic and
-unchanged admission bounds, followed by original q8192/out512 GB10 validation.
+The component result motivated the dense/MoE product comparison above;
+its complete GB10-valid product regression now determines the option choice.
 Range normalization stays outside product dispatch during that comparison.
 No new product performance or release acceptance follows. Command:
 `run-native-replay-partition-r1.ps1 -Kind partition|real -Action build|test`.
@@ -51,9 +81,7 @@ establish a seconds-scale product benefit; retain the original dispatcher.
 Read-only inspection finds that the 112 old-ineligible weight rows contain
 229376 tiny normal BF16 values, with biased exponents 4 through 51. All
 8192 weight rows differ bytewise; the first-layer input has 257 unique rows.
-Do not generalize that embedding-only repetition to later layers. Next
-investigate grouping candidate work by its floating or integer arithmetic
-path. Source bounds, original dot order and PPB 1000 remain unchanged.
+Do not generalize that embedding-only repetition to later layers. This motivated the candidate grouping experiment recorded above. Source bounds, original dot order and PPB 1000 remain unchanged.
 Command: `run-native-range-projection-r1.ps1 -Kind projection|real -Action build|test`.
 No new token-loop or release acceptance follows. Evidence:
 `benchmarks/correctness/range-certified-projection-20260914.json`, SHA256
