@@ -42,6 +42,18 @@ not establish a reliable additive breakdown. Instrumented callback TTFT
 Evidence: `benchmarks/correctness/prevalidated-float-wall-profile-20260913.json`,
 SHA256 `46cc00d8851eaf96bcb872cf6521d969db239c3566877a9d594df75767350b15`.
 
+The cooperative scalar-float QK component at source `ae2256d` is correct
+but slower. All 171 generated cases match 292498128 raw score slots; each
+of the nine variants also matches 418496528 original real q7169 score slots
+and 228 independent CPU dots. Guards, input immutability and fallback pass.
+The same executable measures original integer QK at 453.4480 ms, current
+scalar float at 344.6427 ms, and the fastest new cooperative variant at
+491.0003 ms. Keep the product's scalar QK setting; these eight cooperative
+layouts remain component diagnostics. The next investigation targets broader
+linear-attention matrix work. No new product or release acceptance follows.
+Evidence: `benchmarks/correctness/float-subgroup-qk-20260913.json`,
+SHA256 `8f93aed84d81cf4c51574f922e72be405d2ce489b622450338f382ef0420d04a`.
+
 Row-prevalidated cooperative float replay at whole/MoE source `d2f283f`
 passes complete same-DLL q8192 controls. Baseline / both enabled / dense only
 match all 512 original GB10 output tokens and actual callbacks, with first
