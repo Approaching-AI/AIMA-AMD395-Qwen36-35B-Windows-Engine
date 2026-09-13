@@ -2,6 +2,25 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Exact integer-matrix consumer layouts at `395c9ee` pass 96 generated
+cases, 193301280 score comparisons and 6144 independent CPU dots. Six
+original q7169 variants each preserve 418496528 raw scores and 228 CPU dots.
+All source, prepared-input and output guards pass. Native build and targeted
+local numerical/C ABI/hygiene checks pass.
+
+The current scalar-float control takes 324.0524 ms plus 6.2415 ms transpose.
+Original four-IU8/positive-three routes take 616.3583 / 641.1169 ms for
+queries and encoding. Positive-three with one/two/four scalar chains takes
+664.4613 / 587.2366 / 740.3925 ms; four-IU8 with two chains takes 579.5273 ms.
+All matrix variants add the same 0.4833 ms key encoding. These component
+results improve the old matrix route but remain slower than scalar float.
+Keep the experiment outside product dispatch. Investigate scalar-float
+alignment for groups that fail the fast exact integer certificate, retaining
+the original fallback. No new token-loop or performance acceptance follows.
+Command: `run-native-matrix-consumer-qk-r1.ps1 -Kind qk -Action build|test|capture`.
+Evidence: `benchmarks/correctness/matrix-consumer-qk-20260914.json`, SHA256
+`5390569f89fcd707bcee2d1aa96bf7d8d4174dddde4754f0fdfce5e322a12664`.
+
 Decoded-window QK at `7d25cfd` passes all 100 generated native cases,
 163826160 score comparisons and 6400 independent CPU dots. Five variants
 each match all 418496528 original q7169 score cells and 228 CPU dots,
