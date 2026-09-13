@@ -2,6 +2,19 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Selective QK source90609e4 now constructs its candidate from original Q/K,
+without reading baseline scores. All35 generated cases /6307840 output cells
+and all29364224 originalq7169 GB10 BF16 cells pass. Probability and alpha
+endpoints agree, all score/denominator intervals hold, and guards pass. The
+strict denominator repair nevertheless recomputes403235056 of411213840
+scores (98.0597%). Native bounded QK takes99.5748ms and the repair/probability
+pipeline2512.3431ms; original QK/probability take431.8602/86.9274ms.
+Candidate PV is canonical for every cell in this component. This route remains
+outside product dispatch. The next trial isolates exact probabilities/alpha
+with the approximate denominator and requires a new complete GB10 product
+boundary before any acceptance. Evidence:
+`benchmarks/correctness/selective-qk-20260913.json`.
+
 The QK numerical decomposition at sourcee373d47 keeps the product unchanged.
 On originalq7169 layer3 Q/K/V, canonical attention matches all29364224 GB10
 BF16 cells. Native QK changes45648 outputs. Exact prefix maxima and maximum
