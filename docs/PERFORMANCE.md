@@ -34,11 +34,24 @@ output projection included in linear core. Forty MoE event totals sum to
 7533.152 ms. These intervals overlap by scope and must not be added together.
 Nine residual/postnorm event intervals are negative and excluded.
 
-Use the existing completion observer to measure QK, probability generation,
-approximate PV, candidate collection and exact PV with completed host
-clocks. The new `QRT_CK_SM121_PROFILE_COMPLETED_STAGES=1` diagnostic adds
-synchronization for compact prefill and checks every stage; its default is 0
-and Q1 remains unchanged. Its native validation is still pending.
+CK `9bbd5d0` now passes native HIP build and the complete q8192 GB10
+boundary with `QRT_CK_SM121_PROFILE_COMPLETED_STAGES=1`. All ten attention
+calls, 640 query batches and 3200 completed checkpoints pass phase coverage
+and disjoint interval accounting. QK is 4666.2065 ms, probability generation
+1449.7858 ms, approximate PV 1767.9649 ms, collection 110.8707 ms and exact
+PV 1887.8618 ms. Entry wait, preparation and dispatch remainder account for
+the rest of the 9949.2487 ms completed attention total. No interval is negative.
+
+The diagnostic defaults to 0 and leaves Q1 synchronization unchanged.
+Instrumented callback TTFT is 39229.4652 ms, TPOT 104.926239 ms and load
+21328.6543 ms. These do not replace the uninstrumented control. Prioritize
+cooperative QK operand decoding in bounded K windows, with the original
+K16 arithmetic and fallback. Complete raw QK and external BF16 comparisons
+must precede a product decision. Command:
+`run-native-ck-completed-profile-q8192-r1.ps1 -CkCompletedProfile 1 -ProfileStages 1`.
+Evidence: `benchmarks/correctness/completed-attention-phases-20260914.json`,
+SHA256 `8a12277736733c4f94d8d8bdcc1abdd5428d7e1872773dac4caa26aa548bb460`.
+
 The recorded instrumented callback TTFT of 39026.1248 ms is not comparable
 to uninstrumented performance. Command:
 `run-native-partition-product-q8192-r1.ps1 -PartitionReplay 0 -ProfileStages 1`.
