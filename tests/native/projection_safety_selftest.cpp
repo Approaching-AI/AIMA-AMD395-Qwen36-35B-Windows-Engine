@@ -363,6 +363,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_row_max_replay_suite.h"
 #include "projection_f32_carry_replay_suite.h"
 #include "projection_range_replay_suite.h"
+#include "projection_partition_replay_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "absolute_admission_audit_selftest.h"
