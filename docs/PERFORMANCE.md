@@ -2,6 +2,24 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The signed three-BF16 integer-core candidate is rejected at source1738c5f.
+Native1048576 cells contain566483 raw partial differences and263108
+reconstruction differences; four-IU8 reference partials, guards and inputs
+pass. Source dca442c isolates the effect: all196608 core conversions are
+exact, but mixed-sign BF16 WMMA, FP16 WMMA and packed BF16 DOT2 each differ
+on67345 of262144 cells, with maximum observed error0.015625. Scalar FP32
+and the five other tested sign/pattern families are exact. Observed nearest-
+integer agreement is diagnostic; no snapping or general error bound is
+accepted. The current runtime remains unchanged. Next investigate a
+nonnegative third partial with exact integer centering correction.
+
+The probe also repairs a real runner issue at source182492c: omit an empty
+Start-Process ArgumentList while preserving quoting and job ownership.
+Four Windows argument cases pass, and the unchanged no-argument GPU test
+then starts and records its numerical failure correctly. No product timing
+is accepted from these component diagnostics. Evidence:
+`benchmarks/correctness/integer-matrix-contract-20260913.json`.
+
 Routed MoE prepared replay at source7af2c3c passes both complete q8192
 controls: all512 GB10 tokens/callbacks and exact first144/logit10.375. Only
 `QRT_QWEN36_MOE_PREPARED_REPLAY=0|1` changes. Disabled/enabled callback TTFT
