@@ -32,6 +32,20 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 13)
 
+The [coarse row certificate counterexamples](../benchmarks/correctness/mantissa-row-certificate-failure-20260913.json)
+at probe source `d33d5b8` reject another floating-WMMA reconstruction route.
+CPU scalar partials reconstruct every accepted canonical K16 value in
+1048576 synthetic and2097152 sampled real-QK groups. Real coverage is
+520598 groups (24.8240471 percent), with no fully certified dot among131072
+samples. These conditions depend on exact partials. On baiying/gfx1151,
+the native16384-cell probe admits4864 cells but finds2792 incorrect floating
+partials and1698 incorrect canonical sums on both host and device. Input
+conversion and eligibility match. Exit2 is a numerical failure; no runtime
+admission uses this certificate. The record preserves the initial missing-HIP
+include build failure and the successful CPU checks without treating either
+as model or performance acceptance. The root cause of the floating-partial
+discrepancy is not established by these observations.
+
 The [final PV envelope evidence](../benchmarks/correctness/final-pv-bound-20260913.json)
 binds CK source `6520982`, its native binaries, both original-tensor runs and
 both q8192/out512 product runs on baiying. Its bound is checked against the
