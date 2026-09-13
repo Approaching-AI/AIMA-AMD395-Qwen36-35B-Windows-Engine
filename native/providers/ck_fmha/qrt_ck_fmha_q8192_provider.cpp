@@ -367,12 +367,54 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const bool float_alignment_qk = query_count > 1u && float_alignment_option &&
         std::strcmp(float_alignment_option,"1") == 0;
     if (float_alignment_qk && (!tiled_qk || selective_qk)) return int(hipErrorInvalidValue);
+    const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
+    if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
+        std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
+    const bool profile_stages = query_count > 1u && profile_option &&
+        std::strcmp(profile_option,"1") == 0;
+    if (profile_stages && (selective_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
+        return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
     const auto begin = std::chrono::steady_clock::now();
+    // Completed host clocks avoid driver event intervals that can be negative.
+    // This observer adds synchronization only when explicitly requested. All
+    // kernels, admission bounds, workspace ownership and the call deadline stay
+    // unchanged. The instrumented wall is diagnostic, not retained performance.
+    struct CompletedProfile {
+        std::chrono::steady_clock::time_point last;
+        uint64_t stage_ns[5]{};
+        unsigned stage_calls[5]{};
+        unsigned next_stage = 0u;
+    } profile{begin};
+    const auto elapsed_ns = [](auto start, auto end) {
+        return static_cast<uint64_t>(std::chrono::duration_cast<
+            std::chrono::nanoseconds>(end - start).count());
+    };
+    uint64_t entry_wait_ns = 0u, preparation_ns = 0u;
+    qrt_blackwell_attention::SplitCompletionObserver observer{&profile,
+        [](void* state, unsigned stage, hipStream_t completed_stream) -> int {
+            auto& p = *static_cast<CompletedProfile*>(state);
+            if (stage >= 5u || stage != p.next_stage) return int(hipErrorInvalidValue);
+            const int completion = int(hipStreamSynchronize(completed_stream));
+            if (completion != int(hipSuccess)) return completion;
+            const auto now = std::chrono::steady_clock::now();
+            p.stage_ns[stage] += static_cast<uint64_t>(std::chrono::duration_cast<
+                std::chrono::nanoseconds>(now - p.last).count());
+            ++p.stage_calls[stage];
+            p.next_stage = (stage + 1u) % 5u;
+            p.last = now;
+            return int(hipSuccess);
+        }};
+    if (profile_stages) {
+        status = int(hipStreamSynchronize(stream));
+        if (status != int(hipSuccess)) return status;
+        profile.last = std::chrono::steady_clock::now();
+        entry_wait_ns = elapsed_ns(begin, profile.last);
+    }
     // Retain the original q8192 deadline while accounting for the additional
     // key history consumed by long-prefix query windows. Every batch still
     // drains before the progress check, and the outer process has its own bound.
@@ -447,7 +489,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             kSm121TransposedValueElements, key_stride, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
+    if (profile_stages) {
+        status = int(hipStreamSynchronize(stream));
+        if (status != int(hipSuccess)) return status;
+        preparation_ns = elapsed_ns(profile.last, std::chrono::steady_clock::now());
+    }
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
+        if (profile_stages) profile.last = std::chrono::steady_clock::now();
         if (selective_qk) {
             status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
@@ -463,7 +511,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             expanded_scratch ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
             independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
             prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
-            nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
+            nullptr, profile_stages ? &observer : nullptr,
+            transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk);
         }
         if (status != int(hipSuccess)) {
@@ -486,6 +535,27 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             return int(hipErrorLaunchTimeOut);
         }
         if (completed_queries % deadline_window_queries == 0u) window_begin = now;
+    }
+    if (profile_stages) {
+        const uint64_t total_ns = elapsed_ns(begin, std::chrono::steady_clock::now());
+        uint64_t accounted_ns = entry_wait_ns + preparation_ns;
+        const unsigned batches = (query_count + query_batch - 1u) / query_batch;
+        for (unsigned stage = 0u; stage < 5u; ++stage) {
+            if (profile.stage_calls[stage] != batches) return int(hipErrorInvalidValue);
+            accounted_ns += profile.stage_ns[stage];
+        }
+        if (profile.next_stage || accounted_ns > total_ns) return int(hipErrorInvalidValue);
+        std::fprintf(stderr, "SM121_COMPLETED_STAGE_PROFILE query_start=%u query_count=%u query_batch=%u batches=%u "
+            "entry_wait_ms=%.6f preparation_ms=%.6f qk_ms=%.6f probability_ms=%.6f "
+            "approximate_pv_ms=%.6f collect_pv_ms=%.6f exact_pv_ms=%.6f "
+            "dispatch_remainder_ms=%.6f total_ms=%.6f completed_stages=%u "
+            "clock=steady_host stream_drained=1 additional_device_bytes=0 instrumented=1\n",
+            query_start, query_count, query_batch, batches,
+            double(entry_wait_ns) / 1e6, double(preparation_ns) / 1e6,
+            double(profile.stage_ns[0]) / 1e6, double(profile.stage_ns[1]) / 1e6,
+            double(profile.stage_ns[2]) / 1e6, double(profile.stage_ns[3]) / 1e6,
+            double(profile.stage_ns[4]) / 1e6, double(total_ns - accounted_ns) / 1e6,
+            double(total_ns) / 1e6, batches * 5u);
     }
     if (transpose_value)
         std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1\n",

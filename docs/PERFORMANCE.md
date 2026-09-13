@@ -21,10 +21,29 @@ dense correction shapes and both original real QKV runs pass. Full local
 checks and extended address/undefined-behavior dispatch checks pass. Both
 product runs select identical dense candidate counts; completed dense
 correction totals are 7310.218 / 7346.269 ms. Those inclusive correction
-clocks do not fully attribute TTFT. Obtain a current synchronized product
-profile on the qualified OFF stack before selecting the next structural
-replacement. Original arithmetic, FP64 norms and admission bounds remain
-unchanged; range normalization remains a component experiment.
+clocks do not fully attribute TTFT. The completed synchronized OFF profile
+below now directs the next structural investigation. Original arithmetic,
+FP64 norms and admission bounds remain unchanged; range normalization
+remains a component experiment.
+
+The same-artifact synchronized OFF profile preserves all 512 GB10 outputs
+and callbacks, first 144 and raw logit 10.375. Completed host full-attention
+core time is 14284.6 ms; its nested CK event total is 9812.025 ms. The thirty
+completed linear projection/core totals are 6571.388 / 7800.228 ms, with
+output projection included in linear core. Forty MoE event totals sum to
+7533.152 ms. These intervals overlap by scope and must not be added together.
+Nine residual/postnorm event intervals are negative and excluded.
+
+Use the existing completion observer to measure QK, probability generation,
+approximate PV, candidate collection and exact PV with completed host
+clocks. The new `QRT_CK_SM121_PROFILE_COMPLETED_STAGES=1` diagnostic adds
+synchronization for compact prefill and checks every stage; its default is 0
+and Q1 remains unchanged. Its native validation is still pending.
+The recorded instrumented callback TTFT of 39026.1248 ms is not comparable
+to uninstrumented performance. Command:
+`run-native-partition-product-q8192-r1.ps1 -PartitionReplay 0 -ProfileStages 1`.
+Evidence: `benchmarks/correctness/current-off-stack-profile-20260914.json`,
+SHA256 `da00667bec7c1b0276ab83da135d40520514bab6a26d54d1dd3a99bc222d2bdf`.
 
 The qualified 64k stack retains its earlier sixteen-lane MoE identity.
 No new prefix, Windows 128k/256k, package, HTTP, soak or release acceptance

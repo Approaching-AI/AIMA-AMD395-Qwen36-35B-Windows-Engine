@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import os
+import re
 import subprocess
 import tempfile
 import unittest
@@ -88,6 +89,7 @@ bool valid_layout(const unsigned char*, size_t) { return true; }
 }
 unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, syncs = 0;
 unsigned fail_query = 0;
+unsigned fail_sync = 0, profile_observations = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned direct_pv_queries = 0;
@@ -114,7 +116,10 @@ hipError_t hipFree(void* pointer) {
     if (pointer && live.erase(pointer) != 1u) std::abort();
     return hipSuccess;
 }
-hipError_t hipStreamSynchronize(hipStream_t) { ++syncs; clock_ms += sync_ms; return hipSuccess; }
+hipError_t hipStreamSynchronize(hipStream_t) {
+    ++syncs; clock_ms += sync_ms;
+    return syncs == fail_sync ? hipErrorUnknown : hipSuccess;
+}
 template<class Validate>
 hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Validate,
                            unsigned char** output) {
@@ -122,6 +127,10 @@ hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Val
 }
 namespace qrt_blackwell_attention {
 namespace exp2_backend = qrt_sm121_exp2;
+struct SplitCompletionObserver {
+    void* state;
+    int (*observe)(void*, unsigned, hipStream_t);
+};
 int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
                           unsigned tokens, hipStream_t) {
     ++preparations;
@@ -141,13 +150,13 @@ int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
         std::abort();
     return fail_transpose ? hipErrorUnknown : hipSuccess;
 }
-int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hipStream_t,
+int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hipStream_t stream,
                    unsigned start, unsigned count, unsigned, const unsigned char*,
                    float*, float*, bool, const unsigned char*, unsigned layout,
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
                    unsigned key_stride, bool = false, const void* = nullptr,
                    const uint32_t* wide = nullptr, unsigned wide_tokens = 0u,
-                   const void* = nullptr, const void* = nullptr,
+                   const void* = nullptr, SplitCompletionObserver* observer = nullptr,
                    const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u,
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
                    bool direct_pv_operands = false, bool float_alignment_qk = false) {
@@ -185,7 +194,16 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                 size_t(count) * 16u * (((start + count + 31u) / 32u) + 1u +
                     ((layout == 22u || layout == 24u) ? 512u : (layout == 13u || layout == 23u) ? 256u : 0u)))) std::abort();
     } else if (layout != 2u || prepared || transposes) std::abort();
-    return queries == fail_query ? hipErrorUnknown : hipSuccess;
+    if (queries == fail_query) return hipErrorUnknown;
+    if (observer) {
+        if (layout != 22u && layout != 24u) std::abort();
+        for (unsigned stage = 0u; stage < 5u; ++stage) {
+            ++profile_observations;
+            const int status = observer->observe(observer->state, stage, stream);
+            if (status != hipSuccess) return status;
+        }
+    }
+    return hipSuccess;
 }
 }
 namespace qrt_selective_qk {
@@ -213,6 +231,7 @@ void reset() {
     qrt_ck_fmha_q8192_release();
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
+    fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = 0;
     float_alignment_queries = 0;
     fail_transpose = false;
@@ -581,6 +600,29 @@ int main() {
     reset();setenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY","1",1);
     if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 93;
     unsetenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES",bad,1);
+        if(launch(0,129)!=hipErrorInvalidValue || allocations || queries || syncs) return 128;
+    }
+    reset();setenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES","1",1);sync_ms=1u;
+    if(launch(0,129)!=hipSuccess || queries!=2u || syncs!=14u ||
+       profile_observations!=10u || clock_ms!=14u || allocations!=5u) return 129;
+    // A failed completion at any observed stage must stop dependent stages and
+    // batches, while the provider drains submitted work before releasing its lock.
+    for(unsigned failure=3u;failure<=7u;++failure) {
+        reset();fail_sync=failure;
+        if(launch(0,129)!=hipErrorUnknown || queries!=1u || syncs!=failure+1u ||
+           profile_observations!=failure-2u) return 130;
+    }
+    reset();sync_ms=3000u;
+    if(launch(0,128)!=hipErrorLaunchTimeOut || queries!=1u ||
+       profile_observations!=5u || syncs!=8u) return 131;
+    reset();
+    if(launch(7168,1)!=hipSuccess || queries!=1u || syncs!=1u || profile_observations) return 132;
+    reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","2",1);
+    if(launch(0,129)!=hipErrorInvalidValue || allocations || queries || syncs) return 133;
+    unsetenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();
@@ -599,7 +641,20 @@ int main() {
                  "-Werror", "-x", "c++", "-", "-o", executable],
                 input=harness, text=True, check=True, timeout=30,
             )
-            subprocess.run([executable], check=True, timeout=5)
+            result = subprocess.run([executable], check=True, timeout=5, capture_output=True, text=True)
+            profiles = [dict(re.findall(r"(\w+)=([^ ]+)", line))
+                        for line in result.stderr.splitlines()
+                        if line.startswith("SM121_COMPLETED_STAGE_PROFILE ")]
+            self.assertEqual(len(profiles), 1)
+            row = profiles[0]
+            self.assertEqual((row["query_count"], row["batches"], row["completed_stages"]),
+                             ("129", "2", "10"))
+            for field in ("qk_ms", "probability_ms", "approximate_pv_ms", "collect_pv_ms", "exact_pv_ms"):
+                self.assertEqual(float(row[field]), 2.0)
+            self.assertEqual(float(row["entry_wait_ms"]), 1.0)
+            self.assertEqual(float(row["preparation_ms"]), 1.0)
+            self.assertEqual(float(row["dispatch_remainder_ms"]), 2.0)
+            self.assertEqual(float(row["total_ms"]), 14.0)
 
 
 if __name__ == "__main__":
