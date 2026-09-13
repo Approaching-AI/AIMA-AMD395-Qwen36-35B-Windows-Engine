@@ -33,10 +33,20 @@ struct Buffer {
         std::vector<unsigned> v(size); check(hipMemcpy(v.data(), base, size * sizeof(unsigned), hipMemcpyDeviceToHost)); return v;
     }
 };
-void run(unsigned count, unsigned mode) {
+__global__ void capacity_kernel(const unsigned* indices, unsigned* output,
+    unsigned* counts, const unsigned* weights, const unsigned* inputs,
+    unsigned rows, unsigned count, unsigned capacity) {
+    const unsigned slot = blockIdx.x * blockDim.x + threadIdx.x;
+    const bool valid = slot < count;
+    const unsigned cell = valid ? indices[slot] : 0u;
+    const bool floating = valid && (weights[cell % rows] & inputs[cell / rows] & 1u);
+    qrt_sm121_replay_partition::append_block(cell, valid, floating, output, counts, capacity);
+}
+void run(unsigned count, unsigned mode, unsigned gap) {
     constexpr unsigned rows = 37u;
     const unsigned tokens = (count + rows - 1u) / rows + 1u, cells = rows * tokens;
-    std::vector<unsigned> input(count + 2u * guard, sentinel), output = input;
+    const unsigned capacity = count + gap;
+    std::vector<unsigned> input(count + 2u * guard, sentinel), output(capacity + 2u * guard, sentinel);
     std::vector<unsigned> weights(rows + 2u * guard, sentinel), inputs(tokens + 2u * guard, sentinel);
     std::vector<unsigned> counts(2u + 2u * guard, sentinel);
     counts[guard] = counts[guard + 1u] = 0u;
@@ -49,32 +59,37 @@ void run(unsigned count, unsigned mode) {
         floating += (weights[guard + cell % rows] & inputs[guard + cell / rows] & 1u) != 0u;
     }
     Buffer di(input), out(output), dc(counts), dw(weights), dx(inputs);
-    hipLaunchKernelGGL(qrt_sm121_replay_partition::indices_kernel,
+    hipLaunchKernelGGL(capacity_kernel,
         dim3(std::max(1u, (count + 255u) / 256u)), dim3(256u), 0u, nullptr,
-        di.data(), out.data(), dc.data(), dw.data(), dx.data(), rows, count);
+        di.data(), out.data(), dc.data(), dw.data(), dx.data(), rows, count, capacity);
     check(hipGetLastError()); complete();
     auto actual = out.read(), counter = dc.read();
     if (counter[guard] != floating || counter[guard + 1u] != count - floating) throw std::runtime_error("partition count differs");
+    std::vector<unsigned> sorted;
     for (unsigned i = 0u; i < count; ++i) {
-        const unsigned cell = actual[guard + i];
+        const unsigned physical = i < floating ? i : capacity - 1u - (i - floating);
+        const unsigned cell = actual[guard + physical];
+        sorted.push_back(cell);
         if (cell >= cells) throw std::runtime_error("partition index out of range");
         const bool is_float = (weights[guard + cell % rows] & inputs[guard + cell / rows] & 1u) != 0u;
         if (is_float != (i < floating)) throw std::runtime_error("partition class differs");
     }
-    std::vector<unsigned> sorted(actual.begin() + guard, actual.end() - guard);
+    for (unsigned i = floating; i < floating + gap; ++i)
+        if (actual[guard + i] != sentinel) throw std::runtime_error("unused partition gap changed");
     auto original = std::vector<unsigned>(input.begin() + guard, input.end() - guard);
     std::sort(sorted.begin(), sorted.end()); std::sort(original.begin(), original.end());
     if (sorted != original) throw std::runtime_error("partition is not an exact permutation");
     for (unsigned i = 0; i < guard; ++i)
-        if (actual[i] != sentinel || actual[guard + count + i] != sentinel ||
+        if (actual[i] != sentinel || actual[guard + capacity + i] != sentinel ||
             counter[i] != sentinel || counter[guard + 2u + i] != sentinel) throw std::runtime_error("partition redzone");
     if (di.read() != input || dw.read() != weights || dx.read() != inputs) throw std::runtime_error("partition input changed");
-    std::printf("{\"kind\":\"exact_replay_partition\",\"count\":%u,\"mode\":%u,\"floating\":%u,\"integer\":%u,\"permutation_mismatches\":0,\"class_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",count,mode,floating,count-floating);
+    std::printf("{\"kind\":\"exact_replay_partition\",\"count\":%u,\"capacity\":%u,\"mode\":%u,\"floating\":%u,\"integer\":%u,\"permutation_mismatches\":0,\"class_mismatches\":0,\"unused_gap_unchanged\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",count,capacity,mode,floating,count-floating);
 }
 int main() try {
     hipDeviceProp_t device{}; check(hipGetDeviceProperties(&device, 0));
     if (std::string(device.gcnArchName).find("gfx1151") != 0u) throw std::runtime_error("requires gfx1151");
     for (unsigned count : {0u,1u,17u,255u,256u,257u,4099u,65539u})
-        for (unsigned mode = 0u; mode < 3u; ++mode) run(count,mode);
+        for (unsigned mode = 0u; mode < 3u; ++mode)
+            for (unsigned gap : {0u,19u}) run(count,mode,gap);
     return 0;
 } catch (const std::exception& e) { std::fprintf(stderr,"replay_partition_error=%s\n",e.what()); return 2; }

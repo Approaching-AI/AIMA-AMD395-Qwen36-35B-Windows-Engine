@@ -40,6 +40,7 @@
 #include "moe_accumulator/sm121_prepared_projection.h"
 #include "moe_accumulator/sm121_float_subgroup.h"
 #include "moe_accumulator/sm121_scalar_projection.h"
+#include "moe_accumulator/sm121_replay_partition.h"
 #include "moe_accumulator/bf16_absolute_product_matrix.h"
 #include "moe_accumulator/bf16_absolute_product_views.h"
 #include "moe_accumulator/bf16_midpoint_selector.h"
@@ -37953,6 +37954,10 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         (!absolute_bound_setting || std::strcmp(absolute_bound_setting,"1") != 0) &&
         (!k16_major_setting || std::strcmp(k16_major_setting,"1") != 0);
     if (validated_float && float_replay) return hipErrorInvalidValue;
+    const char* partition_setting = std::getenv("QRT_QWEN36_HAWKEYE_PARTITION_REPLAY");
+    if (partition_setting && *partition_setting && std::strcmp(partition_setting,"0") && std::strcmp(partition_setting,"1"))
+        return hipErrorInvalidValue;
+    const bool partition_replay = validated_float && partition_setting && std::strcmp(partition_setting,"1") == 0;
     const bool prepared_operands = prepared_requested && !float_replay && !validated_float;
     // Reuse lossless preparation's whole-row eligibility. The matrix computes
     // selector metadata from original BF16 operands; excluded rows keep an
@@ -37973,14 +37978,17 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const size_t elements = static_cast<size_t>(selected_token_count) * rows;
     const unsigned int window_capacity = qrt_hawkeye_dispatch::window_elements(
         elements, requested_window_elements);
+    const size_t partition_bytes = partition_replay ? (size_t(window_capacity) + 2u) * sizeof(unsigned) : 0u;
     const size_t scratch_bytes = (static_cast<size_t>(window_capacity) + 2u) *
-        sizeof(unsigned int);
+        sizeof(unsigned int) + partition_bytes;
     // The producer has already completed above. Measure allocation and
     // release separately from correction work before choosing a reuse policy.
     const auto workspace_allocation_start = std::chrono::steady_clock::now();
     unsigned int *scratch = nullptr;
     status = hipMalloc(reinterpret_cast<void **>(&scratch), scratch_bytes);
     if (status != hipSuccess) return status;
+    unsigned* partition_indices = partition_replay ? scratch + window_capacity + 2u : nullptr;
+    unsigned* partition_counts = partition_replay ? partition_indices + window_capacity : nullptr;
     uint16_t* transposed_weights = nullptr;
     const size_t transpose_bytes = packed_candidates
         ? static_cast<size_t>(rows) * reduction_size * sizeof(uint16_t) : 0u;
@@ -38304,6 +38312,16 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             // Freeze the candidate indices before rounding the admitted window;
             // subsequent exact dots replace just those selected endpoints.
             dispatch_start = std::chrono::steady_clock::now();
+            if (partition_replay && counts[0]) {
+                result = hipMemsetAsync(partition_counts, 0, 2u * sizeof(unsigned), stream);
+                if (result != hipSuccess) return result;
+                hipLaunchKernelGGL(qrt_sm121_replay_partition::indices_kernel,
+                    dim3((counts[0] + kThreads - 1u) / kThreads), dim3(kThreads), 0, stream,
+                    scratch + 2u, partition_indices, partition_counts,
+                    prepared_flags, prepared_flags + rows, rows, counts[0]);
+                result = hipGetLastError();
+                if (result != hipSuccess) return result;
+            }
             hipLaunchKernelGGL(round_f32_outputs_to_bf16_kernel,
                 dim3((window_elements + kThreads - 1u) / kThreads), dim3(kThreads),
                 0, stream, outputs + element_offset, window_elements);
@@ -38325,7 +38343,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
                         dim3(kSelectedHawkeyeCorrectionThreads),0,stream,weights,selected_inputs,
                         prepared_flags,prepared_flags+rows,outputs,rows,reduction_size,
-                        scratch+2u,candidate_offset,counts[0]);
+                        partition_replay ? partition_indices : scratch+2u,candidate_offset,counts[0]);
                 } else if (float_replay) {
                     hipLaunchKernelGGL(selected_bf16_projection_hawkeye_float_correction_kernel,
                         dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
@@ -38382,8 +38400,9 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         scratch_bytes, device_replay ? 1u : 0u, device_replay ? 0u : 1u, host_count_reads);
     std::fflush(stderr);
     if (validated_float) {
-        std::fprintf(stderr,"BATCH_MARK hawkeye_prevalidated_float rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=%u canonical_k16=1 original_fallback=1 completed=%u\n",
-            rows,selected_token_count,reduction_size,prepared_bytes,kSelectedHawkeyeReplayLanes,status==hipSuccess ? 1u : 0u);
+        std::fprintf(stderr,"BATCH_MARK hawkeye_prevalidated_float rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=%u canonical_k16=1 original_fallback=1 completed=%u partition_replay=%u partition_workspace_bytes=%zu\n",
+            rows,selected_token_count,reduction_size,prepared_bytes,kSelectedHawkeyeReplayLanes,status==hipSuccess ? 1u : 0u,
+            partition_replay ? 1u : 0u,partition_bytes);
     }
     if (absolute_product_bound) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_absolute_product_bound rows=%u tokens=%u k=%u workspace_bytes=%zu windows=%u bound_host_ms=%.3f infinite_row_fallback=1 ppb=%u midpoint_radius=%u completed=%u hipblaslt=%u magnitude_bytes=%zu\n",

@@ -63,6 +63,8 @@ static unsigned eligibility_scans=0, float_corrections=0, validated_corrections=
 static unsigned validated_fast_cells=0, validated_fallback_cells=0;
 static unsigned* eligibility_flags[2]{};
 static unsigned eligibility_rows[2]{};
+static unsigned partitions=0, fail_partition=0;
+static bool partition_fault=false;
 bool owns(const void* p,size_t bytes) {
     return std::any_of(allocation_records.begin(),allocation_records.end(),
         [&](const auto& record) { return record.first==p && record.second>=bytes; });
@@ -90,8 +92,8 @@ hipError_t hipMemcpy(void *to, const void *from, size_t n, int) {
     std::memcpy(to, from, n); return hipSuccess;
 }
 hipError_t hipGetLastError() {
-    const bool failed = preparation_fault || bound_fault || magnitude_fault;
-    preparation_fault = bound_fault = magnitude_fault = false;
+    const bool failed = preparation_fault || bound_fault || magnitude_fault || partition_fault;
+    preparation_fault = bound_fault = magnitude_fault = partition_fault = false;
     return failed ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) {
@@ -277,6 +279,24 @@ void eligible_rows_kernel(const uint16_t*,unsigned* flags,unsigned rows,unsigned
     preparation_fault=eligibility_scans==fail_preparation;
 }
 }
+namespace qrt_sm121_replay_partition {
+void indices_kernel(const unsigned* indices,unsigned* ordered,unsigned* counts,
+    const unsigned* weights,const unsigned* inputs,unsigned rows,unsigned count) {
+    if(++partitions==fail_partition){partition_fault=true;return;}
+    if(eligibility_scans!=2u || weights!=eligibility_flags[0] || inputs!=eligibility_flags[1] ||
+        rows!=eligibility_rows[0] || counts[0] || counts[1] || allocation_records.size()!=2u){invalid_range=true;return;}
+    const size_t capacity=size_t(ordered-indices);
+    if(count>capacity || counts!=ordered+capacity || indices!=static_cast<unsigned*>(allocation_records[0].first)+2u ||
+        allocation_records[0].second!=(capacity+2u)*2u*sizeof(unsigned)){invalid_range=true;return;}
+    for(unsigned i=0u;i<count;++i){
+        const unsigned cell=indices[i];
+        if(cell>=total_elements){invalid_range=true;return;}
+        const unsigned kind=(weights[cell%rows] && inputs[cell/rows])?0u:1u;
+        const unsigned slot=counts[kind]++;
+        ordered[kind?count-1u-slot:slot]=cell;
+    }
+}
+}
 namespace qrt_bf16_absolute_product_matrix {
 void window_kernel(const uint16_t*, const uint16_t*, const unsigned* wf, const unsigned* xf,
     float* bounds, unsigned rows, unsigned tokens, unsigned, size_t first, unsigned count) {
@@ -366,6 +386,13 @@ void selected_bf16_projection_hawkeye_validated_float_kernel(
 
 // QRT_ACTUAL_LAUNCHER
 
+void partition_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_PARTITION_REPLAY",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_PARTITION_REPLAY",value,1);
+#endif
+}
 void float_mode(const char* value,bool prevalidated=false) {
     const char* name=prevalidated ? "QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY" : "QRT_QWEN36_HAWKEYE_FLOAT_REPLAY";
 #ifdef _WIN32
@@ -449,6 +476,7 @@ void reset() {
     audit_collections=audit_dispatches=audit_reports=0;audit_changed_candidates=2;audit_mismatch=false;
     k16_major_preparations=k16_major_corrections=0;
     eligibility_scans=float_corrections=validated_corrections=0;
+    partitions=fail_partition=0;partition_fault=false;
     validated_fast_cells=validated_fallback_cells=0;
 }
 int main() {
@@ -826,6 +854,26 @@ int main() {
     }
     float_mode("1");float_mode("1",true);reset();output=prepared_initial;
     if(run_prepared()!=hipErrorInvalidValue || allocations || corrections || output!=prepared_initial) return 86;
-    float_mode("0");float_mode("0",true);
+    float_mode("0");float_mode("1",true);
+    partition_mode("invalid");reset();output=prepared_initial;
+    if(run_prepared()!=hipErrorInvalidValue || allocations || corrections || output!=prepared_initial)return 87;
+    partition_mode("1");
+    for(unsigned mode=0u;mode<3u;++mode){
+        reset();output=prepared_initial;
+        if(mode!=1u)std::fill(output.begin(),output.end(),mode?1.00390625f:1.001f);
+        const auto before=output;
+        if(run_prepared()!=hipSuccess || eligibility_scans!=2u || partitions!=(mode?16u:0u) ||
+            allocations!=2u || frees!=2u || invalid_grid || invalid_range || !allocation_records.empty())return 88;
+        for(size_t i=0;i<total_elements;++i)if(output[i]!=(before[i]==1.00390625f?float((i/1024u)*2u+i%1024u):1.0f))return 89;
+        auto sorted=corrected;std::sort(sorted.begin(),sorted.end());
+        if(std::adjacent_find(sorted.begin(),sorted.end())!=sorted.end())return 90;
+    }
+    for(unsigned failure:{1u,2u}){
+        reset();fail_partition=failure;output=prepared_initial;
+        if(run_prepared()!=hipErrorUnknown || partitions!=failure || rounds!=failure-1u ||
+            allocations!=frees || invalid_grid || invalid_range || !allocation_records.empty())return 91;
+        for(size_t i=size_t(failure-1u)*65536u;i<total_elements;++i)if(output[i]!=prepared_initial[i])return 92;
+    }
+    float_mode("0",true);partition_mode("0");
     return 0;
 }

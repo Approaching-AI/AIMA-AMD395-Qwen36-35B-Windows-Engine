@@ -24,6 +24,7 @@
 #include "../moe_accumulator/sm121_prepared_projection.h"
 #include "../moe_accumulator/sm121_float_subgroup.h"
 #include "../moe_accumulator/sm121_scalar_projection.h"
+#include "../moe_accumulator/sm121_replay_partition.h"
 #include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
@@ -1723,7 +1724,33 @@ struct MoeCorrectionBounds {
     const uint32_t *prepared_input_rows = nullptr, *prepared_weight_rows = nullptr;
     bool float_replay = false;
     bool prevalidated_float = false;
+    uint32_t partition_capacity = 0u;
 };
+
+template<uint32_t ProjectionRows, uint32_t InputDivisor, uint32_t WeightRows, uint32_t WeightOffset>
+__device__ __forceinline__ void moe_collect_partitioned(const uint32_t* local_indices,
+    uint32_t local_count, const int32_t* topk_ids, const MoeCorrectionBounds& bounds) {
+    const bool valid = threadIdx.x < local_count;
+    const uint32_t cell = valid ? local_indices[threadIdx.x] : 0u;
+    bool floating = false;
+    if (valid) {
+        const uint32_t route = cell / ProjectionRows;
+        const uint32_t weight_row = uint32_t(topk_ids[route]) * WeightRows + WeightOffset + cell % ProjectionRows;
+        floating = bounds.prepared_input_rows[route / InputDivisor] && bounds.prepared_weight_rows[weight_row];
+    }
+    qrt_sm121_replay_partition::append_block(cell, valid, floating,
+        bounds.compacted_indices, bounds.compacted_count, bounds.partition_capacity);
+}
+
+__device__ __forceinline__ uint32_t moe_replay_count(const MoeCorrectionBounds& bounds) {
+    return bounds.compacted_count[0] + (bounds.partition_capacity ? bounds.compacted_count[1] : 0u);
+}
+__device__ __forceinline__ uint32_t moe_replay_cell(const MoeCorrectionBounds& bounds, uint32_t slot) {
+    const uint32_t floating = bounds.compacted_count[0];
+    const uint32_t physical = bounds.partition_capacity && slot >= floating
+        ? bounds.partition_capacity - 1u - (slot - floating) : slot;
+    return bounds.compacted_indices[physical];
+}
 
 template<unsigned Lanes>
 __device__ __forceinline__ float moe_routed_replay_dot(const uint16_t *inputs,
@@ -1863,6 +1890,7 @@ struct ProviderState {
     bool prepared_replay = false, prepared_replay_active = false;
     bool float_replay = false, float_replay_active = false;
     bool prevalidated_float = false, prevalidated_float_active = false;
+    bool partition_replay = false;
     uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
     uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
@@ -5934,13 +5962,18 @@ void routed_gate_batched_hawkeye_correction_kernel(
     }
 
     if constexpr (Phase == MoeCorrectionPhase::Collect) {
-        __shared__ uint32_t first_candidate;
-        if (threadIdx.x == 0u) {
-            first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
-        }
-        __syncthreads();
-        if (threadIdx.x < candidate_count) {
-            bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+        if (bounds.partition_capacity) {
+            moe_collect_partitioned<kIntermediate, kTopK, 2u * kIntermediate, 0u>(
+                candidate_indices, candidate_count, topk_ids, bounds);
+        } else {
+            __shared__ uint32_t first_candidate;
+            if (threadIdx.x == 0u) {
+                first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
+            }
+            __syncthreads();
+            if (threadIdx.x < candidate_count) {
+                bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+            }
         }
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
     if (index < projection_elements) {
@@ -5964,7 +5997,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
         const uint32_t subgroup = threadIdx.x / kReplayLanes;
         const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
-            ? *bounds.compacted_count : candidate_count;
+            ? moe_replay_count(bounds) : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
             ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
@@ -5973,7 +6006,7 @@ void routed_gate_batched_hawkeye_correction_kernel(
              slot < replay_count;
              slot += slot_stride) {
             const uint32_t candidate = Phase == MoeCorrectionPhase::Replay
-                ? bounds.compacted_indices[slot] : candidate_indices[slot];
+                ? moe_replay_cell(bounds, slot) : candidate_indices[slot];
             const uint32_t route = candidate / kIntermediate;
             const uint32_t row = candidate - route * kIntermediate;
             const uint32_t token = route / kTopK;
@@ -6104,13 +6137,18 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
     }
 
     if constexpr (Phase == MoeCorrectionPhase::Collect) {
-        __shared__ uint32_t first_candidate;
-        if (threadIdx.x == 0u) {
-            first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
-        }
-        __syncthreads();
-        if (threadIdx.x < candidate_count) {
-            bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+        if (bounds.partition_capacity) {
+            moe_collect_partitioned<kIntermediate, kTopK, 2u * kIntermediate, kIntermediate>(
+                candidate_indices, candidate_count, topk_ids, bounds);
+        } else {
+            __shared__ uint32_t first_candidate;
+            if (threadIdx.x == 0u) {
+                first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
+            }
+            __syncthreads();
+            if (threadIdx.x < candidate_count) {
+                bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+            }
         }
         return;
     }
@@ -6120,7 +6158,7 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
         const uint32_t subgroup = threadIdx.x / kReplayLanes;
         const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
-            ? *bounds.compacted_count : candidate_count;
+            ? moe_replay_count(bounds) : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
             ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
@@ -6129,7 +6167,7 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
              slot < replay_count;
              slot += slot_stride) {
             const uint32_t candidate = Phase == MoeCorrectionPhase::Replay
-                ? bounds.compacted_indices[slot] : candidate_indices[slot];
+                ? moe_replay_cell(bounds, slot) : candidate_indices[slot];
             const uint32_t route = candidate / kIntermediate;
             const uint32_t row = candidate - route * kIntermediate;
             const uint32_t token = route / kTopK;
@@ -11353,13 +11391,18 @@ void routed_down_batched_hawkeye_correction_kernel(
     }
 
     if constexpr (Phase == MoeCorrectionPhase::Collect) {
-        __shared__ uint32_t first_candidate;
-        if (threadIdx.x == 0u) {
-            first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
-        }
-        __syncthreads();
-        if (threadIdx.x < candidate_count) {
-            bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+        if (bounds.partition_capacity) {
+            moe_collect_partitioned<kHidden, 1u, kHidden, 0u>(
+                candidate_indices, candidate_count, topk_ids, bounds);
+        } else {
+            __shared__ uint32_t first_candidate;
+            if (threadIdx.x == 0u) {
+                first_candidate = atomicAdd(bounds.compacted_count, candidate_count);
+            }
+            __syncthreads();
+            if (threadIdx.x < candidate_count) {
+                bounds.compacted_indices[first_candidate + threadIdx.x] = candidate_indices[threadIdx.x];
+            }
         }
         return;
     }
@@ -11369,7 +11412,7 @@ void routed_down_batched_hawkeye_correction_kernel(
         const uint32_t subgroup = threadIdx.x / kReplayLanes;
         const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
-            ? *bounds.compacted_count : candidate_count;
+            ? moe_replay_count(bounds) : candidate_count;
         const uint32_t first_slot = Phase == MoeCorrectionPhase::Replay
             ? blockIdx.x * kReplaySubgroups + subgroup : subgroup;
         const uint32_t slot_stride = Phase == MoeCorrectionPhase::Replay
@@ -11378,7 +11421,7 @@ void routed_down_batched_hawkeye_correction_kernel(
              slot < replay_count;
              slot += slot_stride) {
             const uint32_t candidate = Phase == MoeCorrectionPhase::Replay
-                ? bounds.compacted_indices[slot] : candidate_indices[slot];
+                ? moe_replay_cell(bounds, slot) : candidate_indices[slot];
             const uint32_t route = candidate / kHidden;
             const uint32_t column = candidate - route * kHidden;
             const int32_t expert = topk_ids[route];
@@ -12429,8 +12472,11 @@ hipError_t launch_moe_routed_correction(
             bounds.prepared_weights = g_state.prepared_replay_weights;
             bounds.prepared_input_rows = g_state.prepared_replay_input_rows;
             bounds.prepared_weight_rows = g_state.prepared_replay_weight_rows;
+            if (g_state.partition_replay && bounds.prevalidated_float)
+                bounds.partition_capacity = count * kNativeThreads;
         }
-        hipError_t status = hipMemsetAsync(bounds.compacted_count, 0, sizeof(uint32_t), stream);
+        hipError_t status = hipMemsetAsync(bounds.compacted_count, 0,
+            (bounds.partition_capacity ? 2u : 1u) * sizeof(uint32_t), stream);
         if (status != hipSuccess) return status;
         hipLaunchKernelGGL(collect, dim3(count), dim3(kNativeThreads), 0, stream,
                           arguments..., bounds);
@@ -12455,7 +12501,7 @@ bool allocate_optional_moe_compaction() {
     return allocate(&g_state.moe_compacted_indices,
                     static_cast<size_t>(g_state.moe_compaction_blocks) * kNativeThreads * sizeof(uint32_t),
                     "hipMalloc(moe_compacted_indices)") &&
-        allocate(&g_state.moe_compacted_count, sizeof(uint32_t),
+        allocate(&g_state.moe_compacted_count, (g_state.partition_replay ? 2u : 1u) * sizeof(uint32_t),
                  "hipMalloc(moe_compacted_count)");
 }
 
@@ -13651,9 +13697,10 @@ bool launch_routed_matrices_after_input_conversion(
         }
     } prepared_replay_scope(token_count);
     if (g_state.prevalidated_float_active) {
-        std::fprintf(stderr,"BATCH_MARK moe_prevalidated_float tokens=%u workspace_bytes=%zu lanes=%u staging_groups=%u fused_norm_scan=1 canonical_k16=1 original_fallback=1\n",
+        std::fprintf(stderr,"BATCH_MARK moe_prevalidated_float tokens=%u workspace_bytes=%zu lanes=%u staging_groups=%u fused_norm_scan=1 canonical_k16=1 original_fallback=1 partition_replay=%u additional_workspace_bytes=%u\n",
             token_count,(kMoePreparedWeightRows+kMoePreparedInputRows)*sizeof(uint32_t),
-            unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS));
+            unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS),
+            g_state.partition_replay ? 1u : 0u,g_state.partition_replay ? unsigned(sizeof(uint32_t)) : 0u);
     }
     if (g_state.float_replay_active) {
         std::fprintf(stderr,"BATCH_MARK moe_float_replay tokens=%u workspace_bytes=0 lanes=%u staging_groups=%u canonical_k16=1 original_fallback=1\n",
@@ -16670,6 +16717,14 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         set_error_text("QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY must be 0 or 1"); return 0;
     }
     g_state.prevalidated_float = validated_float && std::strcmp(validated_float,"1") == 0;
+    const char* partition_replay = std::getenv("QRT_QWEN36_MOE_PARTITION_REPLAY");
+    if (partition_replay && *partition_replay && std::strcmp(partition_replay,"0") && std::strcmp(partition_replay,"1")) {
+        set_error_text("QRT_QWEN36_MOE_PARTITION_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.partition_replay = partition_replay && std::strcmp(partition_replay,"1") == 0;
+    if (g_state.partition_replay && !g_state.prevalidated_float) {
+        set_error_text("partition replay requires prevalidated float replay"); return 0;
+    }
     if (g_state.prevalidated_float && (kTokens != 8192u || !g_state.sm121_routed_hawkeye ||
         !g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb || g_state.scaled_l2 ||
         g_state.prepared_replay || g_state.float_replay)) {

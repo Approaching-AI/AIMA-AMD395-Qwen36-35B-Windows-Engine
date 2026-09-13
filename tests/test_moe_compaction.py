@@ -18,6 +18,11 @@ class MoeCompactionTests(unittest.TestCase):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
         definitions = function(s, 'struct MoeCorrectionBounds {') + ';\n'
         definitions += function(s, 'enum class MoeCorrectionPhase {') + ';\n'
+        partition = (ROOT / 'native/providers/moe_accumulator/sm121_replay_partition.h').read_text()
+        definitions += 'namespace qrt_sm121_replay_partition {\n' + function(partition, 'void append_block(') + '\n}\n'
+        definitions += 'template<uint32_t ProjectionRows, uint32_t InputDivisor, uint32_t WeightRows, uint32_t WeightOffset>\n' + function(s, 'void moe_collect_partitioned(') + '\n'
+        definitions += function(s, 'uint32_t moe_replay_count(') + '\n'
+        definitions += function(s, 'uint32_t moe_replay_cell(') + '\n'
         definitions += 'template<unsigned Lanes>\n' + function(s, 'float moe_routed_replay_dot(') + '\n'
         helpers = '\n'.join(function(s, signature) for signature in (
             'float routed_silu_from_gate_bf16(',
@@ -109,7 +114,7 @@ enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDo
 struct State {
     bool compact_routed_hawkeye=false;
     bool prepared_replay_active=false;
-    bool float_replay_active=false,prevalidated_float_active=false;
+    bool float_replay_active=false,prevalidated_float_active=false,partition_replay=false;
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
     uint32_t moe_compaction_blocks=kMoeCompactionBlocks;
@@ -154,9 +159,10 @@ void launch(Kernel kernel,dim3 grid,dim3 block,int,hipStream_t stream,Args... ar
     auto parameters=std::make_tuple(args...);
     const auto bounds=std::get<sizeof...(Args)-1>(parameters);
     if (bounds.compacted_count) {
-        unsigned count=*bounds.compacted_count;
+        unsigned count=moe_replay_count(bounds);
         assert(count<=g_state.moe_compaction_blocks*kNativeThreads);
-        std::vector<unsigned> indices(bounds.compacted_indices,bounds.compacted_indices+count);
+        std::vector<unsigned> indices;
+        for(unsigned slot=0;slot<count;++slot)indices.push_back(moe_replay_cell(bounds,slot));
         std::sort(indices.begin(),indices.end());
         assert(std::adjacent_find(indices.begin(),indices.end())==indices.end());
         for (auto i:indices) assert(i>=bounds.first_block*kNativeThreads&&i<(bounds.first_block+g_state.moe_compaction_blocks)*kNativeThreads);
@@ -165,7 +171,7 @@ void launch(Kernel kernel,dim3 grid,dim3 block,int,hipStream_t stream,Args... ar
 #define hipLaunchKernelGGL(...) launch(__VA_ARGS__)
 hipError_t hipGetLastError() { return ++api_calls==fail_api?hipErrorUnknown:hipSuccess; }
 hipError_t hipMemsetAsync(void *p,int value,size_t bytes,hipStream_t stream) {
-    assert(stream==wanted_stream&&bytes==4);
+    assert(stream==wanted_stream&&bytes==(g_state.partition_replay?8u:4u));
     if(++api_calls==fail_api)return hipErrorUnknown;
     std::memset(p,value,bytes); return hipSuccess;
 }
@@ -222,8 +228,8 @@ int main() {
     for(unsigned i=0;i<input_flags.size();++i)input_flags[i]=i%2;
     for(unsigned i=0;i<weight_flags.size();++i)weight_flags[i]=i%3!=0;
     g_state.prepared_replay_input_rows=input_flags.data();g_state.prepared_replay_weight_rows=weight_flags.data();
-    for(unsigned route_mode:{0u,1u,2u}) {
-    g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode==2;
+    for(unsigned route_mode:{0u,1u,2u,3u}) {
+    g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode>=2;g_state.partition_replay=route_mode==3;
     for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
     g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
@@ -240,7 +246,7 @@ int main() {
         assert(compact.input==original.input&&compact.weights==original.weights&&compact.down_weights==original.down_weights);
         assert(compact.ids==original.ids&&compact.topk==original.topk&&compact.lut==original.lut);
         for(size_t i=kMoeCompactionCapacity;i<indices.size();++i)assert(indices[i]==0xabcdef);
-        for(size_t i=1;i<counter.size();++i)assert(counter[i]==0xabcdef);
+        for(size_t i=g_state.partition_replay?2u:1u;i<counter.size();++i)assert(counter[i]==0xabcdef);
     }
     execute_kernels=false;Data d(19);
     api_calls=0;assert(run(d,19,32768,0)==hipSuccess);unsigned total=api_calls;
