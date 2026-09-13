@@ -12,11 +12,13 @@ continuation. That newer configuration still needs renewed package, HTTP and
 soak qualification. The experimental chunked cold route also passes the
 declared 16k and q8192 boundaries, but remains disabled by default.
 
-The current control records q8192 callback TTFT of 39.203 seconds at
-whole `27cfc32`, CK `4a5a5b0` and FLA `2ee6215`, with all 512
+The current q8192 candidate records callback TTFT of 38.092 seconds at
+whole `27cfc32`, CK `4a5a5b0`, FLA `2ee6215` state 8 and MoE `cb0f266`
+with four replay lanes and one staged K16 group, with all 512
 original GB10 tokens and stream callbacks matched and exact first logit 10.375.
 It remains above the unchanged 4.187-second target and 10-second operating
-threshold. The same stack now passes all 512 original 64k+1024 outputs and
+threshold. The preceding sixteen-lane MoE `9f00db5` stack passes all 512
+original 64k+1024 outputs and
 callbacks, exact first logit 5.9375, restoration and changed-prefix rejection.
 With long direct PV operands enabled, warm TTFT is 52.684 seconds and TPOT
 is 355.022 ms, both above target. Original 128k/256k reference capture is now

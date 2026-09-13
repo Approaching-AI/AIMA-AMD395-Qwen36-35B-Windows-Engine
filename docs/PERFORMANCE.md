@@ -2,6 +2,27 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Current MoE work ownership at source `cb0f266` passes a complete same-source
+q8192/out512 pair on baiying with `D:\models\Qwen3.6-35B-A3B`. Both sixteen
+and four lanes preserve all 512 GB10 outputs and actual callbacks, first
+144 and exact raw logit 10.375. Whole `27cfc32`, CK `4a5a5b0`, FLA `2ee6215`
+state 8 and CLI `a797b62` are common. Both native safety suites pass, and
+all ten AOT artifacts are identical. This revisits the older integer-era
+experiment under current prevalidated-float replay and registered metadata.
+
+Callback TTFT is 39379.8088 / 38091.7431 ms for sixteen lanes with four
+staged K16 groups / four lanes with one group, a 1288.0657 ms reduction in
+this single pair. Four-lane TPOT is 101.798454 ms and load is 21296.2683 ms.
+Use four lanes and one group for subsequent q8192 candidates; source build
+defaults remain unchanged. Numerical bounds remain dense/MoE PPB 1000,
+full-attention OUT PPB 10000 and routed radius 512. This does not establish
+repeatability or retained performance. The qualified 64k stack below still
+uses the prior sixteen-lane MoE. Broader contexts, current package/HTTP,
+soak and release remain open. Command:
+`run-native-moe-prevalidated-ownership-product-r1.ps1 -MoeLanes 16|4`.
+Evidence: `benchmarks/correctness/moe-prevalidated-ownership-product-20260914.json`,
+SHA256 `c478df7f4139e5fe855c12bed7b61bd77627aa65818ca3d1aef93cb7cbc557f1`.
+
 The component-only FP32 K16 carry experiment at `cb0f266` preserves all
 tested raw bits, but does not justify product promotion. Native checks cover
 2097152 ordered K16 groups, 24 generated projection cases, 42 generated QK
