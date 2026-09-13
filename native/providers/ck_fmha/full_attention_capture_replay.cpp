@@ -315,11 +315,15 @@ int main(int argc, char** argv) {
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 24) : 0u;
         const char* qk_lane_option = std::getenv("QRT_ATTENTION_REPLAY_QK_LANES");
         const unsigned qk_lanes = qk_lane_option && *qk_lane_option ? parse(qk_lane_option, 4u) : 1u;
-        if ((qk_lanes != 1u && qk_lanes != 4u) || (qk_lanes == 4u &&
+        const char* qk_row_option = std::getenv("QRT_ATTENTION_REPLAY_QK_ROWS_PER_THREAD");
+        const unsigned qk_rows = qk_row_option && *qk_row_option ? parse(qk_row_option, 2u) : 1u;
+        if ((qk_lanes != 1u && qk_lanes != 4u) || (qk_rows != 1u && qk_rows != 2u) ||
+            (qk_rows == 2u && qk_lanes != 1u) || ((qk_lanes == 4u || qk_rows == 2u) &&
             memory_layout != 15u && memory_layout != 16u && memory_layout != 17u &&
             memory_layout != 22u && memory_layout != 23u && memory_layout != 24u))
             throw std::runtime_error("invalid tiled QK subgroup option");
         std::fprintf(stderr, "TILED_QK_SUBGROUP lanes=%u\n", qk_lanes);
+        std::fprintf(stderr, "TILED_QK_ROWS_PER_THREAD rows=%u\n", qk_rows);
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const char* host_phase_option = std::getenv("QRT_ATTENTION_REPLAY_HOST_PHASES");
         if (host_phase_option && *host_phase_option && std::strcmp(host_phase_option, "0") &&
@@ -511,7 +515,7 @@ int main(int argc, char** argv) {
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
-                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes)));
+                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {

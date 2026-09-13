@@ -39,6 +39,7 @@ constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kCooperativeColumns = 64;
 constexpr unsigned kTiledExactQueries = 8, kTiledExactKeys = 32;
+constexpr unsigned kPairedTiledQueries = 16;
 constexpr unsigned kSubgroupTiledKeys = 8;
 constexpr unsigned kExactTileTokens = 32;
 ''' + attention_capacity() + row + packed + r'''
@@ -49,6 +50,7 @@ void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
 void blackwell_subgroup_tiled_scores_kernel() {}
+void blackwell_paired_query_scores_kernel() {}
 void blackwell_prepare_value_encoding_kernel() {}
 template<bool SparseCore = false> void blackwell_cell_parallel_integer_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
@@ -80,7 +82,9 @@ hipError_t hipEventRecord(hipEvent_t, hipStream_t) {
 }
 const char* launch_names[64]{};
 unsigned launch_threads[64]{}, launch_grids[64]{};
+unsigned launch_query_grids[64]{};
 template<class Kernel, class... T> void record_launch(const char* name, Kernel, dim3 grid, dim3 threads, T...) {
+    launch_query_grids[launches]=grid.z;
     launch_grids[launches]=grid.x; launch_threads[launches]=threads.x; launch_names[launches++] = name;
 }
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
@@ -517,6 +521,23 @@ int main() {
     for(unsigned failure=1u;failure<=5u;++failure) {
         launches=error_queries=memsets=0u;fail_launch=failure;
         if(subgroup_qk(4u)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 102;
+    }
+    auto paired_qk=[&](unsigned rows,unsigned lanes=1u,unsigned layout=22u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,17u,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,split_scratch_elements(17u,18u,layout),nullptr,nullptr,&operand,18u,
+            false,nullptr,nullptr,0u,nullptr,nullptr,nullptr,0u,lanes,rows);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned rows:{0u,3u,4u})
+        if(paired_qk(rows)!=hipErrorInvalidValue || launches || memsets) return 103;
+    if(paired_qk(2u,4u)!=hipErrorInvalidValue || launches || memsets) return 104;
+    for(unsigned layout:{0u,2u,4u,7u,8u,13u,14u})
+        if(paired_qk(2u,1u,layout)!=hipErrorInvalidValue || launches || memsets) return 105;
+    if(paired_qk(2u)!=hipSuccess || launches!=5u || launch_grids[0]!=1u || launch_query_grids[0]!=2u ||
+        !std::strstr(launch_names[0],"blackwell_paired_query_scores_kernel")) return 106;
+    for(unsigned failure=1u;failure<=5u;++failure) {
+        launches=error_queries=memsets=0u;fail_launch=failure;
+        if(paired_qk(2u)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 107;
     }
     return 0;
 }
