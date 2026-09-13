@@ -56,12 +56,20 @@ template<IntegerRowKind Kind> void prepare(const uint16_t* input, Row* output,
         input,output,tokens,start,count);
     check(hipGetLastError());
 }
-template<unsigned Groups> void staged(const Row* q, const Row* k, float* out,
+template<unsigned Groups, bool CacheRows = false> void staged(const Row* q, const Row* k, float* out,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_staged_integer_scores_kernel<Groups>),
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_staged_integer_scores_kernel<Groups, CacheRows>),
         dim3((stride+15u)/16u,kQueryHeads,(count+15u)/16u),dim3(kThreads),0u,nullptr,
         q,k,out,start,count,stride,key_stride);
     check(hipGetLastError());
+}
+void staged_variant(unsigned variant, const Row* q, const Row* k, float* out,
+    unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
+    if(variant==8u)staged<8u>(q,k,out,start,count,stride,key_stride);
+    else if(variant==16u)staged<16u>(q,k,out,start,count,stride,key_stride);
+    else if(variant==104u)staged<4u,true>(q,k,out,start,count,stride,key_stride);
+    else if(variant==108u)staged<8u,true>(q,k,out,start,count,stride,key_stride);
+    else throw std::runtime_error("invalid staging variant");
 }
 void original(const uint16_t* q, const uint16_t* k, float* out,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
@@ -138,10 +146,10 @@ void run(Case c) {
     check(hipMemset(reference.pointer,0xa5,(cells+2u*guard)*4u));
     original(dq.as<uint16_t>()+guard,dt.as<uint16_t>()+guard,reference.as<float>()+guard,c.start,c.count,stride,c.tokens);
     finish();const auto a=download<uint32_t>(reference,cells+2u*guard);
-    for(unsigned groups:{8u,16u}) {
+    for(unsigned variant:{8u,16u,104u,108u}) {
+        const unsigned groups=variant%100u;
         check(hipMemset(candidate.pointer,0xa5,(cells+2u*guard)*4u));
-        if(groups==8u)staged<8u>(prepared_q,prepared_k,candidate.as<float>()+guard,c.start,c.count,stride,c.tokens);
-        else staged<16u>(prepared_q,prepared_k,candidate.as<float>()+guard,c.start,c.count,stride,c.tokens);
+        staged_variant(variant,prepared_q,prepared_k,candidate.as<float>()+guard,c.start,c.count,stride,c.tokens);
         finish();const auto b=download<uint32_t>(candidate,cells+2u*guard);
         for(size_t i=0u;i<a.size();++i) {
             if(i<guard || i>=cells+guard) {
@@ -161,7 +169,7 @@ void run(Case c) {
                 throw std::runtime_error("QK differs from independent wide CPU accumulator");
         }
         unchanged(qp,qbefore);unchanged(kp,kbefore);
-        std::printf("{\"kind\":\"staged_integer_qk_safety\",\"groups_per_stage\":%u,\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",groups,c.tokens,c.start,c.count,c.mode,cells);
+        std::printf("{\"kind\":\"staged_integer_qk_safety\",\"groups_per_stage\":%u,\"shared_operand_rows\":%s,\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",groups,variant>100u?"true":"false",c.tokens,c.start,c.count,c.mode,cells);
         std::fflush(stdout);
     }
     unchanged(dq,q);unchanged(dk,k);unchanged(dt,transposed);
@@ -199,7 +207,8 @@ void captured(const char* qfile,const char* kfile) {
     begin=std::chrono::steady_clock::now();
     prepare<IntegerRowKind::Key>(dk.as<uint16_t>(),kp.as<Row>(),tokens,0u,0u);
     finish();const double key_encoding_ms=elapsed(begin);
-    double original_ms=0.0,staged_ms[2]{},maximum_stage_ms[2]{};
+    double original_ms=0.0,staged_ms[4]{},maximum_stage_ms[4]{};
+    const unsigned variants[]={8u,16u,104u,108u};
     size_t compared=0u;unsigned cpu_dots=0u;
     for(unsigned start=0u;start<tokens;start+=batch) {
         const unsigned count=std::min(batch,tokens-start),stride=start+count;
@@ -207,11 +216,10 @@ void captured(const char* qfile,const char* kfile) {
         begin=std::chrono::steady_clock::now();
         original(dq.as<uint16_t>(),dt.as<uint16_t>(),reference.as<float>()+guard,start,count,stride,tokens);
         finish();original_ms+=elapsed(begin);
-        for(unsigned mode=0u;mode<2u;++mode) {
+        for(unsigned mode=0u;mode<4u;++mode) {
             begin=std::chrono::steady_clock::now();
             prepare<IntegerRowKind::Query>(dq.as<uint16_t>(),qp.as<Row>(),tokens,start,count);
-            if(!mode)staged<8u>(qp.as<Row>(),kp.as<Row>(),candidate.as<float>()+guard,start,count,stride,tokens);
-            else staged<16u>(qp.as<Row>(),kp.as<Row>(),candidate.as<float>()+guard,start,count,stride,tokens);
+            staged_variant(variants[mode],qp.as<Row>(),kp.as<Row>(),candidate.as<float>()+guard,start,count,stride,tokens);
             finish();const double wall=elapsed(begin);staged_ms[mode]+=wall;
             maximum_stage_ms[mode]=std::max(maximum_stage_ms[mode],wall);
             hipLaunchKernelGGL(compare_scores,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
@@ -237,7 +245,7 @@ void captured(const char* qfile,const char* kfile) {
         for(auto word:words)if(word!=0xa5a5a5a5u)throw std::runtime_error("captured QK redzone changed");
     }
     unchanged(dq,q);unchanged(dk,k);
-    std::printf("{\"kind\":\"staged_integer_original_q7169\",\"tokens\":7169,\"query_batch\":128,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"original_query_ms\":%.6f,\"key_transpose_ms\":%.6f,\"staged_8_query_and_encoding_ms\":%.6f,\"staged_16_query_and_encoding_ms\":%.6f,\"key_encoding_ms\":%.6f,\"staged_8_maximum_completed_slab_ms\":%.6f,\"staged_16_maximum_completed_slab_ms\":%.6f,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",compared,cpu_dots,original_ms,transpose_ms,staged_ms[0],staged_ms[1],key_encoding_ms,maximum_stage_ms[0],maximum_stage_ms[1]);
+    std::printf("{\"kind\":\"staged_integer_original_q7169\",\"tokens\":7169,\"query_batch\":128,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"original_query_ms\":%.6f,\"key_transpose_ms\":%.6f,\"staged_8_query_and_encoding_ms\":%.6f,\"staged_16_query_and_encoding_ms\":%.6f,\"staged_shared_4_query_and_encoding_ms\":%.6f,\"staged_shared_8_query_and_encoding_ms\":%.6f,\"key_encoding_ms\":%.6f,\"maximum_completed_slab_ms\":[%.6f,%.6f,%.6f,%.6f],\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",compared,cpu_dots,original_ms,transpose_ms,staged_ms[0],staged_ms[1],staged_ms[2],staged_ms[3],key_encoding_ms,maximum_stage_ms[0],maximum_stage_ms[1],maximum_stage_ms[2],maximum_stage_ms[3]);
 }
 }
 int main(int argc,char** argv) {

@@ -1340,27 +1340,52 @@ __device__ __forceinline__ float blackwell_integer_accumulate(
 struct NativeOperandRow { uint16_t original[18]; };
 
 // All waves first produce independent K16 integer products. Each lane then
-// consumes its cell's original ordered carry chain. Staging eight or sixteen
-// groups reduces producer/consumer barriers from three per group to one or
-// three per complete K256 dot; no floating product or rounding is substituted.
+// consumes its cell's original ordered carry chain. Without row staging, eight
+// or sixteen groups need three or one producer/consumer barriers per K256 dot.
+// Optional cooperative row staging adds one barrier per stage and reuses all
+// operand metadata in LDS. No floating product or rounding is substituted.
 // This is a component experiment with no product dispatcher call site.
-template<unsigned GroupsPerStage>
+template<unsigned GroupsPerStage, bool CacheRows = false>
 __global__ void blackwell_staged_integer_scores_kernel(
     const qrt_sm121_integer_core::Row* prepared_query,
     const qrt_sm121_integer_core::Row* prepared_key, float* scores,
     unsigned query_start, unsigned query_count, unsigned score_stride,
     unsigned key_stride) {
-    static_assert(GroupsPerStage == 8u || GroupsPerStage == 16u);
+    static_assert(GroupsPerStage == 8u || GroupsPerStage == 16u || (GroupsPerStage == 4u && CacheRows));
+    static_assert(!CacheRows || GroupsPerStage <= 8u);
+    using Row = qrt_sm121_integer_core::Row;
     __shared__ int64_t products[GroupsPerStage][256];
+    __shared__ Row operands[CacheRows ? GroupsPerStage * 32u : 1u];
     const unsigned thread = threadIdx.x, lane = thread % 32u, wave = thread / 32u;
     const unsigned head = blockIdx.y, kv_head = head / (kQueryHeads / kKvHeads);
     const unsigned query_tile = blockIdx.z * 16u, key_tile = blockIdx.x * 16u;
     const unsigned row = query_tile + thread / 16u, key = key_tile + thread % 16u;
     const unsigned last_query = query_start + min(query_tile + 16u, query_count) - 1u;
     const bool live = row < query_count && key < score_stride && key <= query_start + row;
-    float accumulator = 0.0f;
+    qrt_q1_moe_hawkeye::Value accumulator{0u, kBlackwellZeroExponent, false};
     if (key_tile <= last_query) {
         for (unsigned first_group = 0u; first_group < 16u; first_group += GroupsPerStage) {
+            if constexpr (CacheRows) {
+                // All consumers reuse each row's metadata and sparse operands
+                // from LDS. Copy words cooperatively without local Row objects.
+                constexpr unsigned words = sizeof(Row) / sizeof(uint32_t);
+                for (unsigned item = thread; item < GroupsPerStage * 32u * words; item += kThreads) {
+                    const unsigned local_group = item / (32u * words);
+                    const unsigned input = (item / words) % 32u, word = item % words;
+                    const unsigned group = first_group + local_group;
+                    const unsigned input_row = query_tile + input % 16u;
+                    const unsigned input_key = key_tile + input % 16u;
+                    uint32_t value = 0u;
+                    if (input < 16u ? input_row < query_count : input_key < score_stride) {
+                        const auto* source = input < 16u
+                            ? prepared_query + (size_t(input_row) * kQueryHeads + head) * 16u + group
+                            : prepared_key + (size_t(kv_head) * 16u + group) * key_stride + input_key;
+                        __builtin_memcpy(&value, reinterpret_cast<const unsigned char*>(source) + word * 4u, 4u);
+                    }
+                    __builtin_memcpy(reinterpret_cast<unsigned char*>(operands) + item * 4u, &value, 4u);
+                }
+                __syncthreads();
+            }
             for (unsigned local_group = wave; local_group < GroupsPerStage; local_group += 8u) {
                 const unsigned group = first_group + local_group;
                 const unsigned input_row = query_tile + lane % 16u;
@@ -1369,11 +1394,13 @@ __global__ void blackwell_staged_integer_scores_kernel(
 #pragma unroll
                 for (unsigned word = 0u; word < 4u; ++word) {
                     if (input_row < query_count) {
-                        const auto& a = prepared_query[(size_t(input_row) * kQueryHeads + head) * 16u + group];
+                        const auto& a = CacheRows ? operands[local_group * 32u + lane % 16u]
+                            : prepared_query[(size_t(input_row) * kQueryHeads + head) * 16u + group];
                         lh[word] = a.high[word]; ll[word] = a.low[word];
                     }
                     if (input_key < score_stride) {
-                        const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + input_key];
+                        const auto& b = CacheRows ? operands[local_group * 32u + 16u + lane % 16u]
+                            : prepared_key[(size_t(kv_head) * 16u + group) * key_stride + input_key];
                         rh[word] = b.high[word]; rl[word] = b.low[word];
                     }
                 }
@@ -1393,27 +1420,30 @@ __global__ void blackwell_staged_integer_scores_kernel(
             if (live) {
                 for (unsigned local_group = 0u; local_group < GroupsPerStage; ++local_group) {
                     const unsigned group = first_group + local_group;
-                    const auto& a = prepared_query[(size_t(row) * kQueryHeads + head) * 16u + group];
-                    const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + key];
-                    const auto carry = qrt_q1_moe_hawkeye::value_from_float(accumulator, kBlackwellZeroExponent);
+                    const auto& a = CacheRows ? operands[local_group * 32u + thread / 16u]
+                        : prepared_query[(size_t(row) * kQueryHeads + head) * 16u + group];
+                    const auto& b = CacheRows ? operands[local_group * 32u + 16u + thread % 16u]
+                        : prepared_key[(size_t(kv_head) * 16u + group) * key_stride + key];
                     qrt_sm121_group16::AlignedSum sum;
-                    if (!qrt_sm121_integer_core::sum_integer_product(carry, a, b, products[local_group][thread], &sum)) {
+                    if (!qrt_sm121_integer_core::sum_integer_product(accumulator, a, b, products[local_group][thread], &sum)) {
                         uint32_t original[16];
 #pragma unroll
                         for (unsigned i = 0u; i < 16u; ++i)
                             original[i] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
                                 a.original[i], b.original[i], kBlackwellZeroExponent));
-                        sum = qrt_sm121_group16::sum_packed(carry, original);
+                        sum = qrt_sm121_group16::sum_packed(accumulator, original);
                     }
-                    accumulator = qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
-                        qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent)));
+                    // Match the original exact QK loop: carry its normalized
+                    // Value directly and finish only at the K256 endpoint.
+                    accumulator = qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
                 }
             }
             if (first_group + GroupsPerStage < 16u) __syncthreads();
         }
     }
     if (row < query_count && key < score_stride)
-        scores[(size_t(row) * kQueryHeads + head) * score_stride + key] = live ? accumulator * kExactScale : -INFINITY;
+        scores[(size_t(row) * kQueryHeads + head) * score_stride + key] = live
+            ? qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(accumulator)) * kExactScale : -INFINITY;
 }
 
 // One wave produces four exact IU8 matrix partials, then all eight waves
