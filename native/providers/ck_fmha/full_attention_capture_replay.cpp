@@ -351,6 +351,15 @@ int main(int argc, char** argv) {
         if (direct_pv_operands && ((memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
             throw std::runtime_error("direct PV operands require global replay at <=8192 tokens");
         std::fprintf(stderr,"DIRECT_PV_OPERANDS enabled=%u token_major_values=1\n",unsigned(direct_pv_operands));
+        const char* float_pv_option = std::getenv("QRT_ATTENTION_REPLAY_PREVALIDATED_FLOAT_PV");
+        const unsigned float_pv_lanes = float_pv_option && *float_pv_option ? parse(float_pv_option,4u) : 0u;
+        if (float_pv_lanes && ((float_pv_lanes!=1u && float_pv_lanes!=4u) ||
+                (memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
+            throw std::runtime_error("invalid prevalidated float PV route");
+        std::fprintf(stderr,"PREVALIDATED_FLOAT_PV lanes=%u original_k16=1 reused_score_scratch=1\n",float_pv_lanes);
+        const char* float_qk_option = std::getenv("QRT_ATTENTION_REPLAY_FLOAT_ALIGNMENT_QK");
+        const bool float_alignment_qk = float_qk_option && *float_qk_option ? parse(float_qk_option,1u)!=0u : false;
+        std::fprintf(stderr,"FLOAT_ALIGNMENT_QK enabled=%u\n",unsigned(float_alignment_qk));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
@@ -530,7 +539,7 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
-                direct_pv_operands)));
+                direct_pv_operands,float_alignment_qk,float_pv_lanes)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {

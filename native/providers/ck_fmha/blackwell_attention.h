@@ -20,6 +20,7 @@
 #include "../gdn/sm121_exp2_table.h"
 #include "../gdn/sm121_exp2_interpolated.h"
 #include "../gdn/sm121_attention_rcp.h"
+#include "float_pv_replay.h"
 namespace qrt_blackwell_attention {
 #if defined(QRT_CK_SM121_INTERPOLATED_EXP2) && QRT_CK_SM121_INTERPOLATED_EXP2
 namespace exp2_backend = qrt_sm121_exp2_interpolated;
@@ -2023,13 +2024,17 @@ inline int launch_compacted_pv_replay(
     unsigned score_stride, const unsigned char* rcp_table, float* raw_accumulator,
     float* raw_denominator, const float* errors, unsigned* indices, unsigned* count,
     hipStream_t stream, SplitCompletionObserver* observer = nullptr,
-    const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u) {
+    const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
+    unsigned float_pv_lanes = 0u, const unsigned* float_pv_flags = nullptr) {
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
         !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
         output_start >= 262144u || query_count > 262144u - output_start)
         return int(hipErrorInvalidValue);
     if (transposed_value ? value_stride < score_stride || value_stride > kSplitMaxTokens : value_stride != 0u)
+        return int(hipErrorInvalidValue);
+    if (float_pv_lanes ? (float_pv_lanes != 1u && float_pv_lanes != 4u) ||
+            !float_pv_flags || score_stride > 8192u || value_stride > 8192u : float_pv_flags != nullptr)
         return int(hipErrorInvalidValue);
     const unsigned cells = query_count * kQueryHeads * kHeadDim;
     auto status = hipMemsetAsync(count, 0, sizeof(unsigned), stream);
@@ -2041,6 +2046,14 @@ inline int launch_compacted_pv_replay(
     if (status != hipSuccess) return int(status);
     const int collect_status = observe_split_stage(observer, 3u, stream);
     if (collect_status != int(hipSuccess)) return collect_status;
+    if (float_pv_lanes) {
+        const int replay_status = qrt_sm121_float_pv::launch(value, probabilities, scales,
+            output, query_start, query_count, output_start, score_stride, rcp_table,
+            raw_accumulator, raw_denominator, indices, count, transposed_value,
+            value_stride, float_pv_flags, float_pv_lanes, stream);
+        if (replay_status != int(hipSuccess)) return replay_status;
+        return observe_split_stage(observer, 4u, stream);
+    }
     const unsigned maximum_blocks = (cells + kThreads / 4u - 1u) / (kThreads / 4u);
     const unsigned blocks = maximum_blocks < 1024u ? maximum_blocks : 1024u;
     if (transposed_value) {
@@ -2076,7 +2089,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
     unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u,
     bool final_pv_bound = false, bool direct_pv_operands = false,
-    bool float_alignment_qk = false) {
+    bool float_alignment_qk = false, unsigned float_pv_lanes = 0u) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -2090,6 +2103,10 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if (direct_pv_operands && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
+    if (float_pv_lanes && ((float_pv_lanes != 1u && float_pv_lanes != 4u) ||
+            (memory_layout != 22u && memory_layout != 24u) ||
+            query_start + query_count > 8192u || value_stride > 8192u))
+        return int(hipErrorInvalidValue);
     if (float_alignment_qk && (tiled_qk_lanes != 1u || tiled_qk_rows_per_thread != 1u ||
             (memory_layout != 15u && memory_layout != 16u && memory_layout != 17u &&
              memory_layout != 22u && memory_layout != 23u && memory_layout != 24u)))
@@ -2278,10 +2295,21 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 if (memory_layout == 22u || memory_layout == 24u) {
                     auto* indices = reinterpret_cast<unsigned*>(errors + size_t(query_count) * kQueryHeads * kHeadDim);
                     auto* count = indices + size_t(query_count) * kQueryHeads * kHeadDim;
+                    unsigned* float_flags = nullptr;
+                    // Online probabilities have consumed every QK score. Reuse
+                    // only that dead slab, keeping P, alpha, errors and compacted
+                    // candidates disjoint. Tiny slabs retain the original replay.
+                    if (float_pv_lanes && cells >= size_t(query_count) * kQueryHeads + kKvHeads * kHeadDim) {
+                        float_flags = reinterpret_cast<unsigned*>(score_scratch);
+                        const int flags_status = qrt_sm121_float_pv::prepare(v, probabilities,
+                            query_start, query_count, stride, transposed_value, value_stride,
+                            float_flags, cells, stream);
+                        if (flags_status != int(hipSuccess)) return flags_status;
+                    }
                     return launch_compacted_pv_replay(v, probabilities, scales, output,
                         query_start, query_count, output_start, stride, rcp_table,
                         raw_accumulator, raw_denominator, errors, indices, count, stream, observer,
-                        transposed_value, value_stride);
+                        transposed_value, value_stride, float_flags ? float_pv_lanes : 0u, float_flags);
                 }
                 hipLaunchKernelGGL(blackwell_probability_value_kernel,
                     dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,

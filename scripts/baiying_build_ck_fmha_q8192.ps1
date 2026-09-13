@@ -64,6 +64,7 @@ foreach ($required in @(
     (Join-Path $ckExample "fmha_fwd.hpp"),
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
     (Join-Path $sourceDir "blackwell_attention.h"),
+    (Join-Path $sourceDir "float_pv_replay.h"),
     (Join-Path $sourceDir "..\sm121_attention_capacity.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_native_product.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_mantissa_parts.h"),
@@ -71,6 +72,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "..\moe_accumulator\sm121_pv_error_bound.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_prepared_bf16.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_float_alignment.h"),
+    (Join-Path $sourceDir "..\moe_accumulator\sm121_float_subgroup.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_interpolated.h"),
     (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
@@ -249,6 +251,10 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir "..\sm121_attention_capacity.h")).Hash.ToLowerInvariant()
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
+    float_pv_replay_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "float_pv_replay.h")).Hash.ToLowerInvariant()
+    sm121_float_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_float_subgroup.h')).Hash.ToLowerInvariant()
     sm121_wave16_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_wave16.h')).Hash.ToLowerInvariant()
     sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `

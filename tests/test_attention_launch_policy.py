@@ -21,6 +21,9 @@ class AttentionLaunchPolicyTests(unittest.TestCase):
             '__device__ __forceinline__ void blackwell_prepare_integer_row', 1)[0]
         packed = 'struct PrepackedIntegerWorkspace' + header.split('struct PrepackedIntegerWorkspace', 1)[1].split(
             'template<IntegerRowKind Kind>', 1)[0]
+        pv_header = (ROOT / "native/providers/ck_fmha/float_pv_replay.h").read_text()
+        pv_launch = 'inline int prepare(' + pv_header.split('inline int prepare(', 1)[1].split(
+            '} // namespace qrt_sm121_float_pv', 1)[0]
         source = r'''
 #include <cstddef>
 #include <cstdint>
@@ -95,6 +98,12 @@ hipError_t hipGetLastError() {
     return ((fail_launch && launches == fail_launch) ||
         (fail_scores && launches == 1u) || (fail_probability && launches == 2u))
         ? hipErrorUnknown : hipSuccess;
+}
+namespace qrt_sm121_float_pv {
+constexpr unsigned threads=256u,heads=16u,kv_heads=2u,dimensions=256u;
+template<bool Transposed> void eligibility_kernel() {}
+template<unsigned Lanes,bool Transposed> void replay_kernel() {}
+''' + pv_launch + r'''
 }
 ''' + launch + r'''
 int main() {
@@ -601,6 +610,39 @@ int main() {
             if(float_qk(layout)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 120;
         }
     }
+    auto float_pv=[&](unsigned lanes,unsigned start=1u,unsigned queries=17u,unsigned layout=22u,bool transpose=false) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,queries,3u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+queries,
+            false,nullptr,nullptr,0u,nullptr,nullptr,transpose ? &operand : nullptr,
+            transpose ? start+queries : 0u,1u,1u,false,false,true,lanes);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned lanes:{2u,3u,8u,16u})
+        if(float_pv(lanes)!=hipErrorInvalidValue || launches || memsets) return 121;
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u})
+        if(float_pv(1u,1u,17u,layout)!=hipErrorInvalidValue || launches || memsets) return 122;
+    if(float_pv(1u,8192u,1u)!=hipErrorInvalidValue || launches || memsets) return 123;
+    for(unsigned lanes:{1u,4u}) for(bool transpose:{false,true}) for(unsigned layout:{22u,24u}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(float_pv(lanes,1u,17u,layout,transpose)!=hipSuccess || launches!=6u || memsets!=1u ||
+           launch_grids[3]!=17u*16u+512u ||
+           !std::strstr(launch_names[3],"eligibility_kernel") ||
+           !std::strstr(launch_names[5],"replay_kernel") ||
+           launch_grids[5]!=(lanes==4u ? 1024u : 272u)) return 124;
+        for(unsigned failure=1u;failure<=6u;++failure) {
+            launches=error_queries=memsets=0u;fail_launch=failure;
+            if(float_pv(lanes,1u,17u,layout,transpose)!=hipErrorUnknown ||
+               launches!=failure || error_queries!=failure) return 125;
+        }
+    }
+    launches=error_queries=memsets=fail_launch=0u;
+    if(float_pv(1u,0u,1u)!=hipSuccess || launches!=5u ||
+       !std::strstr(launch_names[4],"blackwell_compacted_pv_replay_kernel")) return 126;
+    unsigned flag=0u;
+    launches=error_queries=memsets=fail_launch=0u;
+    for(size_t words:{0u,527u})
+        if(qrt_sm121_float_pv::prepare(&operand,&operand,0u,1u,1u,nullptr,0u,&flag,words,nullptr)!=hipErrorInvalidValue || launches) return 127;
+    if(qrt_sm121_float_pv::prepare(&operand,&operand,0u,1u,1u,nullptr,0u,&flag,528u,nullptr)!=hipSuccess || launches!=1u) return 128;
     return 0;
 }
 '''
