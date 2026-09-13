@@ -335,6 +335,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         return int(hipErrorInvalidValue);
     const bool transpose_value = value_option && std::strcmp(value_option,"1")==0 &&
         (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+    const char* final_bound_option = std::getenv("QRT_CK_SM121_FINAL_PV_BOUND");
+    if (final_bound_option && *final_bound_option && std::strcmp(final_bound_option,"0") &&
+        std::strcmp(final_bound_option,"1")) return int(hipErrorInvalidValue);
+    const bool final_pv_bound = final_bound_option && std::strcmp(final_bound_option,"1")==0 &&
+        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -417,7 +422,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             expanded_scratch ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
             independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
             prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
-            nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u);
+            nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
+            1u, 1u, final_pv_bound);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -439,6 +445,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (transpose_value)
         std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1\n",
             query_start,query_count,key_stride,kSm121TransposedValueElements*sizeof(uint16_t));
+    if (final_pv_bound)
+        std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",
+            query_start,query_count);
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);

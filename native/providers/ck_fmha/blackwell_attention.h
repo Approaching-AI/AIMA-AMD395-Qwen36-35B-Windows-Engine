@@ -14,6 +14,7 @@
 #include "../moe_accumulator/sm121_integer_parts.h"
 #include "../moe_accumulator/sm121_integer_core.h"
 #include "../moe_accumulator/sm121_pv_error_bound.h"
+#include "../moe_accumulator/sm121_pv_final_bound.h"
 #include "../moe_accumulator/sm121_prepared_bf16.h"
 #include "../gdn/sm121_exp2_table.h"
 #include "../gdn/sm121_exp2_interpolated.h"
@@ -1514,7 +1515,7 @@ __global__ void blackwell_mantissa_scores_kernel(
     }
 }
 
-template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false>
+template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false>
 __global__ void blackwell_mantissa_value_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned int query_start, unsigned int query_count, unsigned int output_start,
@@ -1523,6 +1524,7 @@ __global__ void blackwell_mantissa_value_kernel(
     const IntegerOperandRow* prepared_probability, const IntegerOperandRow* prepared_value,
     float* error_bounds) {
     static_assert(!BoundError || NativeMma);
+    static_assert(!FinalBound || BoundError);
     using OperandRow = std::conditional_t<NativeMma, NativeOperandRow, IntegerOperandRow>;
     __shared__ OperandRow left[16], right[kIntegerMatrixColumns];
     const unsigned int lane = threadIdx.x % 32u, wave = threadIdx.x / 32u, head = blockIdx.y;
@@ -1575,8 +1577,12 @@ __global__ void blackwell_mantissa_value_kernel(
                     if (row < query_count && base / 32u < (tokens + 31u) / 32u) {
                         const float alpha = scales[(static_cast<size_t>(row) * kQueryHeads + head) *
                             (tile_stride + 1u) + base / 32u];
-                        if constexpr (BoundError)
-                            errors[element] = qrt_sm121_pv_bound::rescale(errors[element], accumulator[element], alpha);
+                        if constexpr (BoundError) {
+                            if constexpr (FinalBound)
+                                errors[element] = qrt_sm121_pv_final_bound::rescale(errors[element], accumulator[element], alpha);
+                            else
+                                errors[element] = qrt_sm121_pv_bound::rescale(errors[element], accumulator[element], alpha);
+                        }
                         volatile float rounded = accumulator[element] * alpha;
                         accumulator[element] = rounded;
                     }
@@ -1591,8 +1597,12 @@ __global__ void blackwell_mantissa_value_kernel(
                 const unsigned row = query_tile + 2u * element + lane / 16u;
                 const unsigned tokens = query_start + row + 1u;
                 if (row < query_count && base / 32u < (tokens + 31u) / 32u) {
-                    if constexpr (BoundError)
-                        errors[element] = qrt_sm121_pv_bound::group(errors[element], accumulator[element], magnitudes[element]);
+                    if constexpr (BoundError) {
+                        if constexpr (FinalBound)
+                            errors[element] = qrt_sm121_pv_final_bound::group(errors[element], accumulator[element], magnitudes[element]);
+                        else
+                            errors[element] = qrt_sm121_pv_bound::group(errors[element], accumulator[element], magnitudes[element]);
+                    }
                     accumulator[element] = next[element];
                 }
             }
@@ -1629,10 +1639,14 @@ __global__ void blackwell_mantissa_value_kernel(
             const size_t index = (static_cast<size_t>(output_start + row) * kQueryHeads + head) * kHeadDim + column;
             output[index] = rcp_table ? accumulator[element] * qrt_sm121_attention_rcp::evaluate(rcp_table, denominator)
                                      : accumulator[element] / denominator;
-            if constexpr (BoundError)
+            if constexpr (BoundError) {
+                if constexpr (FinalBound)
+                    errors[element] = qrt_sm121_pv_final_bound::finalize(errors[element],
+                        ((query_start + row + 32u) / 32u) * 2u);
                 error_bounds[(size_t(row) * kQueryHeads + head) * kHeadDim + column] =
                     qrt_sm121_pv_bound::finish(errors[element], accumulator[element],
                         qrt_sm121_attention_rcp::evaluate(rcp_table, denominator));
+            }
             if (raw_accumulator) raw_accumulator[index] = accumulator[element];
             if (raw_denominator && column == 0u)
                 raw_denominator[static_cast<size_t>(output_start + row) * kQueryHeads + head] = denominator;
@@ -1799,7 +1813,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const CoreIntegerWorkspace* core_prepared = nullptr,
     SplitCompletionObserver* observer = nullptr,
     const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
-    unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u) {
+    unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u,
+    bool final_pv_bound = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -1809,6 +1824,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
+    if (final_pv_bound && ((memory_layout != 22u && memory_layout != 24u) ||
+            query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if ((tiled_qk_lanes != 1u && tiled_qk_lanes != 4u) ||
         (tiled_qk_rows_per_thread != 1u && tiled_qk_rows_per_thread != 2u) ||
         (tiled_qk_rows_per_thread == 2u && tiled_qk_lanes != 1u) ||
@@ -1960,10 +1977,17 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             } else if (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) {
                 auto* errors = scales + size_t(query_count) * kQueryHeads *
                     ((stride + 31u) / 32u + 1u);
+                if (final_pv_bound) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true>),
+                    dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                    v, probabilities, scales, output, query_start, query_count, output_start, stride,
+                    rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+                } else {
                 hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true>),
                     dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                     v, probabilities, scales, output, query_start, query_count, output_start, stride,
                     rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+                }
                 const auto approximate_status = hipGetLastError();
                 if (approximate_status != hipSuccess) return int(approximate_status);
                 const int completed_approximate_status = observe_split_stage(observer, 2u, stream);

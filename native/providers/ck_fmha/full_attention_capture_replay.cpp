@@ -337,6 +337,13 @@ int main(int argc, char** argv) {
         const bool transpose_value = transpose_option && std::strcmp(transpose_option,"1")==0;
         if (transpose_value && memory_layout!=22u && memory_layout!=24u)
             throw std::runtime_error("transposed V requires global PV replay");
+        const char* final_bound_option = std::getenv("QRT_ATTENTION_REPLAY_FINAL_PV_BOUND");
+        if (final_bound_option && *final_bound_option && std::strcmp(final_bound_option,"0") &&
+            std::strcmp(final_bound_option,"1")) throw std::runtime_error("invalid final PV bound option");
+        const bool final_pv_bound = final_bound_option && std::strcmp(final_bound_option,"1")==0;
+        if (final_pv_bound && ((memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
+            throw std::runtime_error("final PV bound requires global replay at <=8192 tokens");
+        std::fprintf(stderr,"FINAL_PV_BOUND enabled=%u maximum_k16_groups=512\n",unsigned(final_pv_bound));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
@@ -515,7 +522,7 @@ int main(int argc, char** argv) {
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
-                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows)));
+                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {
