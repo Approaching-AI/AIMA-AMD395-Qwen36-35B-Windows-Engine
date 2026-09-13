@@ -32,6 +32,19 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 13)
 
+The [staged integer QK experiment](../benchmarks/correctness/staged-integer-qk-20260913.json)
+separates exact IU8 product production from the ordered K16 carry chain.
+Source `04e3919` passes56 native cases /128729216 score comparisons and3584
+independent CPU dots. Four complete original-q7169 variants at `86fd52f`
+pass1673986112 raw score comparisons and912 CPU dots. The scalar control's
+source is unchanged from qualified CK6520982; no new model run is inferred.
+Fixed1ms host sleeps distorted the first timings: sixteen measured sleeps
+average15.360294ms. Yield polling retains an explicit30s deadline and measures
+438.7816ms for the scalar control including key transpose, versus509.7267,
+605.7199,712.0651 and1395.3252ms for the staged variants including key/query
+encoding. Shared metadata removes repeated global loads but does not improve
+this measured schedule. No product dispatcher enables these kernels.
+
 The [coarse row certificate counterexamples](../benchmarks/correctness/mantissa-row-certificate-failure-20260913.json)
 at probe source `d33d5b8` reject another floating-WMMA reconstruction route.
 CPU scalar partials reconstruct every accepted canonical K16 value in
