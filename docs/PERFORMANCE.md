@@ -25,9 +25,11 @@ verify their fallback transaction and complete owner-state restoration.
 | whole 57b3306, original dense dispatch | cold 8192, ordinary path | 53953.8059 | 100.925442 | 20031.092701 |
 | same binary, device-count dense replay | cold 8192, ordinary path | 53534.7813 | 100.702816 | 20018.5822 |
 | whole 584588a, original matrix producer | cold 8192, ordinary path | 53982.562999 | 100.835152 | 20032.911 |
+| same binary, hipBLASLt matrix producer | cold 8192, ordinary path | 52110.692099 | 101.46877 | 20017.0856 |
 | CK 42448fe, same binary / 32 queries | cold 8192, ordinary path | 52167.1323 | 101.064893 | 20041.6208 |
 | same binary / 128 queries | cold 8192, ordinary path | 50764.6481 | 101.346222 | 20096.24 |
-| same binary, hipBLASLt matrix producer | cold 8192, ordinary path | 52110.692099 | 101.46877 | 20017.0856 |
+| CK 9a7eaf4, 128 queries / V transpose disabled | cold 8192, ordinary path | 50888.006 | 101.364914 | 20059.2105 |
+| same binary / V transpose enabled | cold 8192, ordinary path | 49691.0931 | 101.291451 | 20017.5312 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -143,8 +145,30 @@ synchronizations, so its1006.2578ms outer component wall is diagnostic and does
 not replace the q8192 performance result. See
 `benchmarks/correctness/attention-completed-phases-20260913.json`.
 
-A fresh instrumented q8192 run on that configuration passes the same full
-GB10 boundary. Completed host clocks show 21470.5 ms for the attention pipeline,
+CK `9a7eaf4` adds an optional 8 MiB transposed V view for compacted exact PV.
+The arithmetic and admission bounds remain unchanged; the view refreshes
+under the existing workspace lease for every layer/call and is released with
+the provider. Fifty-eight native cases compare 8,650,752 output cells with
+zero raw-bit differences and preserve inputs, redzones and candidate ownership.
+Both original q7169 modes match all 29,364,224 external BF16 cells. Completed
+query wall changes from 993.2327 to 965.8722 ms, including 0.1259 ms for the
+new transpose but excluding allocation, upload, safety checks and common K
+transpose. An instrumented run shows less exact-PV time and more probability
+time; the cause of the latter is not established.
+
+Both same-DLL q8192 runs pass all 512 original GB10 outputs and actual
+callbacks with exact first token 144/logit 10.375. Callback TTFT changes from
+50888.006 to 49691.0931 ms, an observed 1196.9129 ms reduction in one paired
+measurement. Candidate TPOT is 101.291451 ms and load is 20017.5312 ms.
+Enable `QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE=1` for subsequent experiments
+with 128 queries; the shipped default remains disabled. Decode and key
+extents beyond 8192 retain the original layout. No repeatability or release
+qualification is claimed. Evidence:
+`benchmarks/correctness/pv-transposed-view-20260913.json`.
+
+An instrumented q8192 run with whole584588a and CK/FLA/MoE8f436db, before
+wider query slabs and the V transpose, passes the same full GB10 boundary.
+Completed host clocks show 21470.5 ms for the attention pipeline,
 11298.44 ms for linear core including output projection, 10792.946 ms for MoE
 and 7340.268 ms for linear projection. Its 53787.850699 ms callback includes
 profiling and does not replace the uninstrumented result.
