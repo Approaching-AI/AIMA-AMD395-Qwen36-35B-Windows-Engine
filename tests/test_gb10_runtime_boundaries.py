@@ -12,12 +12,21 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_cache_observation_row, full_cache_row_is_qualified,
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
     full_prefill_linear_core_only, full_prefill_linear_labels,
-    observation_positions, prepared_token_ids, qualify_transaction,
+    observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
     recurrent_state_selection, short_prefill_moe_observation, target_rows,
 )
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_complete_large_request_has_a_bounded_observation_deadline(self):
+        for count in (1, 7169, 8192, 32768, 65536, 66560, 131072, 132096):
+            self.assertEqual(observation_timeout_seconds(count), 180)
+        for count in (132097, 262144, 263168):
+            self.assertEqual(observation_timeout_seconds(count), 900)
+        for count in (0, -1, 263169, True, 262144.0, "262144"):
+            with self.assertRaisesRegex(ValueError, "original observation prompt extent"):
+                observation_timeout_seconds(count)
+
     def test_interior_prefill_positions_bind_real_unsampled_rows_and_preserve_controls(self):
         case = 'long-prefix32768-owner-out32'
         setting = 'QRT_GB10_CASE_PREFILL_POSITIONS'

@@ -280,6 +280,15 @@ def full_prefill_attention_window(case, prompt_tokens):
     return plans.get(case)
 
 
+def observation_timeout_seconds(prompt_tokens):
+    if type(prompt_tokens) is not int or not 1 <= prompt_tokens <= 263168:
+        raise ValueError("invalid original observation prompt extent")
+    # The observer starts before the whole request, including all prefill
+    # chunks. A complete 256k request exceeds the old 180-second bound before
+    # its first selected row; the separately owned process stays bounded.
+    return 900 if prompt_tokens > 132096 else 180
+
+
 class RuntimeBoundaryCapture(TokenMatrixCapture):
     def qrt_arm_token_matrix(self, directory, prompt_tokens):
         import torch
@@ -305,6 +314,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
         state_hashes_enabled = os.environ.get('QRT_GB10_BOUNDARY_STATE_HASHES', '0') == '1'
         self._qrt_boundary_bytes = 0
         self._qrt_boundary_started = time.monotonic()
+        self._qrt_boundary_timeout = observation_timeout_seconds(prompt_tokens)
         self._qrt_boundary_active = None
         self._qrt_boundary_selected = selected
         self._qrt_boundary_prompt_tokens = prompt_tokens
@@ -375,7 +385,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 self._qrt_boundary_active = None
 
         def save(label, value, transaction):
-            if time.monotonic() - self._qrt_boundary_started > 180:
+            if time.monotonic() - self._qrt_boundary_started > self._qrt_boundary_timeout:
                 raise ValueError("boundary observation deadline exceeded")
             if value.dtype not in (torch.bfloat16, torch.float32, torch.int32):
                 raise ValueError("boundary dtype changed")
@@ -815,7 +825,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
                 if state_hashes_enabled:
                     if (len(self._qrt_boundary_state_hashes) >=
                             1024 * len(self._qrt_boundary_linear_layers) or
-                            time.monotonic() - self._qrt_boundary_started > 180):
+                            time.monotonic() - self._qrt_boundary_started > self._qrt_boundary_timeout):
                         raise ValueError("bounded recurrent state hash trace exceeded")
                     self._qrt_boundary_state_hashes.append(dict(
                         transaction=transaction["ordinal"], layer=index,
@@ -953,6 +963,7 @@ class RuntimeBoundaryCapture(TokenMatrixCapture):
             if window['transaction'] is None or set(window['labels']) != required:
                 raise ValueError('selected full prefill linear transaction was not completely observed')
         boundaries = dict(files=self._qrt_boundary_files, bytes=self._qrt_boundary_bytes,
+            observation_timeout_seconds=self._qrt_boundary_timeout,
             transactions=self._qrt_boundary_transactions, full_prefill_norms=self._qrt_boundary_norms,
             full_prefill_linear_stages=self._qrt_boundary_stages,
             decode_state_selections=self._qrt_boundary_decode_states,
