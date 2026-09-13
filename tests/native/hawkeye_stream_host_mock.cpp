@@ -8,7 +8,9 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 #include <vector>
+#define QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER 1
 #include "hawkeye_dispatch_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_prefill_projection.h"
@@ -50,15 +52,29 @@ static float* bound_buffer = nullptr;
 static size_t bound_offset = 0, bound_count = 0;
 static void* last_allocation = nullptr;
 static size_t last_allocation_bytes = 0;
+static std::vector<std::pair<void*,size_t>> allocation_records;
+static unsigned magnitude_preparations = 0, fail_magnitude = 0, matrix_calls = 0, fail_matrix = 0;
+static bool magnitude_fault = false;
+static uint16_t* magnitude_buffers[2]{};
+bool owns(const void* p,size_t bytes) {
+    return std::any_of(allocation_records.begin(),allocation_records.end(),
+        [&](const auto& record) { return record.first==p && record.second>=bytes; });
+}
 
 hipError_t hipMalloc(void **p, size_t bytes) {
     ++allocations; scratch_bytes = bytes;
     if (allocations == fail_allocation) { *p = nullptr; return hipErrorUnknown; }
     *p = std::malloc(bytes);
     last_allocation = *p; last_allocation_bytes = bytes;
+    if (*p) allocation_records.emplace_back(*p,bytes);
     return *p ? hipSuccess : hipErrorUnknown;
 }
-hipError_t hipFree(void *p) { ++frees; std::free(p); return hipSuccess; }
+hipError_t hipFree(void *p) {
+    ++frees;
+    const auto found=std::find_if(allocation_records.begin(),allocation_records.end(),[&](const auto& r){return r.first==p;});
+    if(found==allocation_records.end())invalid_range=true;else allocation_records.erase(found);
+    std::free(p);return hipSuccess;
+}
 hipError_t hipMemsetAsync(void *p, int value, size_t n, hipStream_t) {
     std::memset(p, value, n); return hipSuccess;
 }
@@ -67,8 +83,8 @@ hipError_t hipMemcpy(void *to, const void *from, size_t n, int) {
     std::memcpy(to, from, n); return hipSuccess;
 }
 hipError_t hipGetLastError() {
-    const bool failed = preparation_fault || bound_fault;
-    preparation_fault = bound_fault = false;
+    const bool failed = preparation_fault || bound_fault || magnitude_fault;
+    preparation_fault = bound_fault = magnitude_fault = false;
     return failed ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) {
@@ -105,7 +121,8 @@ void selected_bf16_projection_hawkeye_compact_kernel(
 ) {
     ++collections;
     if constexpr (WindowSums) {
-        if (RoundOutputs || sums != bound_buffer || offset != bound_offset || count != bound_count)
+        if (RoundOutputs || offset < bound_offset || offset + count > bound_offset + bound_count ||
+            sums != bound_buffer + (offset-bound_offset))
             invalid_range = true;
         for (unsigned j = 0u; j < count; ++j)
             if (sums[j] != float((offset + j) % 4093u)) invalid_range = true;
@@ -225,6 +242,32 @@ void window_kernel(const uint16_t*, const uint16_t*, const unsigned* wf, const u
     bound_fault = ++bound_windows == fail_bound;
 }
 }
+namespace qrt_bf16_absolute_product_views {
+void prepare_rows_kernel(const uint16_t*,const unsigned* flags,uint16_t* view,unsigned rows,unsigned k) {
+    if(preparations!=2u || magnitude_preparations>=2u) { invalid_range=true;return; }
+    const unsigned which=magnitude_preparations;
+    if(flags!=prepared_flags[which] || rows!=prepared_rows[which])invalid_range=true;
+    magnitude_buffers[which]=view;
+    if(which && view!=magnitude_buffers[0]+size_t(prepared_rows[0])*k)invalid_range=true;
+    magnitude_fault=++magnitude_preparations==fail_magnitude;
+}
+void finish_matrix_kernel(float* matrix,const unsigned* wf,const unsigned* xf,unsigned rows,
+    unsigned first_token,unsigned,unsigned elements) {
+    if(wf!=prepared_flags[0] || xf!=prepared_flags[1] || !owns(matrix,size_t(elements)*sizeof(float)))invalid_range=true;
+    bound_buffer=matrix;bound_offset=size_t(first_token)*rows;bound_count=elements;
+    bound_fault=++bound_windows==fail_bound;
+}
+}
+bool resident_bf16_matrix_matmul_f32_output(const uint16_t* weights,const uint16_t* inputs,float* output,
+    unsigned rows,unsigned k,unsigned tokens,hipStream_t,const std::string&,std::string*,std::string*) {
+    if(++matrix_calls==fail_matrix)return false;
+    if(magnitude_preparations!=2u || weights!=magnitude_buffers[0] || !owns(output,size_t(rows)*tokens*sizeof(float)))invalid_range=true;
+    const size_t input_offset=size_t(inputs-magnitude_buffers[1]);
+    if(input_offset%k || input_offset/k+tokens>prepared_rows[1])invalid_range=true;
+    const size_t first=input_offset/k*rows;
+    for(size_t i=0;i<size_t(rows)*tokens;++i)output[i]=float((first+i)%4093u);
+    return true;
+}
 void selected_bf16_projection_hawkeye_prepared_correction_kernel(
     const uint16_t* weights,const uint16_t* inputs,const uint16_t* pw,const uint16_t* px,
     const unsigned* wf,const unsigned* xf,float* output,unsigned rows,unsigned k,
@@ -249,6 +292,13 @@ void absolute_bound_mode(const char* value) {
     _putenv_s("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND",value);
 #else
     setenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND",value,1);
+#endif
+}
+void absolute_hipblaslt_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT",value,1);
 #endif
 }
 void count_only(bool enabled) {
@@ -285,12 +335,14 @@ void reset() {
     preparation_fault = false;
     bound_windows = fail_bound = 0; bound_fault = false;
     bound_buffer = nullptr; bound_offset = bound_count = 0;
+    magnitude_preparations=fail_magnitude=matrix_calls=fail_matrix=0;magnitude_fault=false;
 }
 int main() {
     device_mode(false);
     packed_mode(false);
     prepared_mode("0");
     absolute_bound_mode("0");
+    absolute_hipblaslt_mode("0");
     // Independently validate the native synthetic test's closed-form dot,
     // including zero signs, against the production scalar accumulator.
     for (unsigned int k : {16u, 2048u}) {
@@ -558,6 +610,36 @@ int main() {
             exclusion==2u?nullptr:&norm,exclusion==3u?0u:1000u)!=hipSuccess || bound_windows ||
             allocations!=frees || invalid_range || invalid_grid) return 55;
     }
-    absolute_bound_mode("0"); prepared_mode("0");
+    prepared_mode("1"); absolute_hipblaslt_mode("invalid"); reset(); output=prepared_initial;
+    if(run_bound()!=hipErrorInvalidValue || allocations || syncs || output!=prepared_initial)return 56;
+    absolute_hipblaslt_mode("1"); reset(); output=prepared_initial;
+    if(run_bound()!=hipSuccess || preparations!=2u || magnitude_preparations!=2u || matrix_calls!=16u ||
+        bound_windows!=16u || collections!=16u || allocations!=4u || frees!=4u || invalid_range || invalid_grid)return 57;
+    for(size_t i=0;i<total_elements;++i) {
+        const float expected=i%37u ? 1.0f : float((i/1024u)*2u+i%1024u);
+        if(output[i]!=expected)return 58;
+    }
+    reset();fail_allocation=4u;output=prepared_initial;
+    if(run_bound()!=hipErrorUnknown || allocations!=4u || frees!=3u || preparations || magnitude_preparations ||
+        collections || output!=prepared_initial || invalid_range)return 59;
+    for(unsigned failure:{1u,2u}) {
+        reset();fail_magnitude=failure;output=prepared_initial;
+        if(run_bound()!=hipErrorUnknown || magnitude_preparations!=failure || matrix_calls || collections ||
+            allocations!=frees || syncs!=3u || output!=prepared_initial || invalid_range)return 60;
+        reset();fail_matrix=failure;output=prepared_initial;
+        if(run_bound()!=hipErrorInvalidConfiguration || matrix_calls!=failure || bound_windows!=failure-1u ||
+            collections!=failure-1u || allocations!=frees || invalid_range || invalid_grid)return 61;
+        for(size_t i=size_t(failure-1u)*65537u;i<total_elements;++i)if(output[i]!=prepared_initial[i])return 62;
+    }
+    reset();fail_sync=4u;output=prepared_initial;
+    if(run_bound()!=hipErrorUnknown || matrix_calls!=1u || bound_windows!=1u || collections || rounds || corrections ||
+        allocations!=frees || syncs!=5u || output!=prepared_initial)return 63;
+    reset();fail_bound=1u;output=prepared_initial;
+    if(run_bound()!=hipErrorUnknown || matrix_calls!=1u || bound_windows!=1u || collections || output!=prepared_initial ||
+        allocations!=frees || invalid_range || invalid_grid)return 64;
+    absolute_bound_mode("0");reset();output=prepared_initial;
+    if(run_bound()!=hipSuccess || magnitude_preparations || matrix_calls || bound_windows || allocations!=frees ||
+        invalid_range || invalid_grid)return 65;
+    absolute_hipblaslt_mode("0"); prepared_mode("0");
     return 0;
 }
