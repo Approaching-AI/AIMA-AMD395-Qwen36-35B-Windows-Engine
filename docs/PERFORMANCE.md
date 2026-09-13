@@ -133,6 +133,24 @@ different designs. Command files: `run-native-replay-admission-product-r1.ps1`,
 Evidence: `benchmarks/correctness/replay-admission-product-failures-20260914.json`,
 SHA256 `01d73e7965f15ffc95d63f8bd0152222cd8b57362fcd05b1312438443541e0aa`.
 
+Complete-row exponent maxima at source `dfd681c` preserve all 58728448
+original GB10 QKV cells, raw output bits and 3791742 selected identities.
+Forty native cases also preserve 11592 outputs and 1805464 complete K16
+carry states, with independent CPU metadata, production/diagnostic parity,
+unaligned inputs and memory guards. Full checks pass 371 Python tests with
+2 skipped, 47 Rust tests, C smoke, clippy and public hygiene.
+
+The candidate retains the original 61444-byte row metadata allocation and
+certifies 181901255 of 485342976 real K16 groups without a product maximum
+reduction. Another 205687993 groups retain that reduction and 97753728 use
+the original ineligible-row fallback. Completed preparation plus replay is
+55.0315 / 56.6621 ms for original/candidate, a 1.6306 ms increase in this
+single observation. Keep it outside the product dispatcher and pursue a
+broader compute replacement. No token-loop or release qualification follows.
+Command file: `run-native-row-max-projection-whole-r1.ps1 -Action reference-test`.
+Evidence: `benchmarks/correctness/row-maximum-projection-20260914.json`,
+SHA256 `86ab77ef43c721c7d847595a73281227c0d825684323fd83bafac5c0962a4b61`.
+
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
