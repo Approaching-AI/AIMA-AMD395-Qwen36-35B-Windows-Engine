@@ -2,43 +2,36 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Exact integer-matrix consumer layouts at `395c9ee` pass 96 generated
-cases, 193301280 score comparisons and 6144 independent CPU dots. Six
-original q7169 variants each preserve 418496528 raw scores and 228 CPU dots.
-All source, prepared-input and output guards pass. Native build and targeted
-local numerical/C ABI/hygiene checks pass.
+The hybrid exact-integer/scalar-float QK experiment at `824a07f` passes
+128 native generated cases, 257735040 score comparisons and 8192 independent
+CPU dots. Eight original q7169 variants each preserve 418496528 raw scores
+and 228 CPU dots; all memory guards and immutable operands pass. Full local
+checks pass 377 Python tests with two skips, 47 Rust tests, C smoke, clippy
+and hygiene. The independent sanitized arithmetic test covers 500000 groups
+and all three exact-integer, scalar-float and original-integer branches.
 
-The current scalar-float control takes 324.0524 ms plus 6.2415 ms transpose.
-Original four-IU8/positive-three routes take 616.3583 / 641.1169 ms for
-queries and encoding. Positive-three with one/two/four scalar chains takes
-664.4613 / 587.2366 / 740.3925 ms; four-IU8 with two chains takes 579.5273 ms.
-All matrix variants add the same 0.4833 ms key encoding. These component
-results improve the old matrix route but remain slower than scalar float.
-Keep the experiment outside product dispatch. Investigate scalar-float
-alignment for groups that fail the fast exact integer certificate, retaining
-the original fallback. No new token-loop or performance acceptance follows.
-Command: `run-native-matrix-consumer-qk-r1.ps1 -Kind qk -Action build|test|capture`.
-Evidence: `benchmarks/correctness/matrix-consumer-qk-20260914.json`, SHA256
-`5390569f89fcd707bcee2d1aa96bf7d8d4174dddde4754f0fdfce5e322a12664`.
+The same-run scalar-float control takes 325.1009 ms plus 6.5245 ms transpose.
+The best hybrid takes 538.6084 ms plus 0.4851 ms key encoding, including
+query encoding. It improves its matching nonhybrid matrix control at
+582.9409 ms but remains slower than scalar float. Keep it outside product
+dispatch. CPU samples predict 2176 exact-integer and 1472 scalar-float K16
+groups; these are diagnostic CPU classifications, not GPU counters.
 
-Decoded-window QK at `7d25cfd` passes all 100 generated native cases,
-163826160 score comparisons and 6400 independent CPU dots. Five variants
-each match all 418496528 original q7169 score cells and 228 CPU dots,
-including redzones and immutable operands. The scalar-float control takes
-342.2474 ms. Decoded K32/K64/K128 with query16/key16 take
-313.9618 / 323.4431 / 322.4960 ms; K64 with query8/key32 takes 300.8436 ms.
-The common key transpose is 6.1160 ms. These are single completed component
-clocks, including staging and excluding allocation, uploads and verification.
+A separate compiler resource check reports no scratch or register spills.
+Scalar QK uses 65 VGPRs; hybrid layouts use 83–94. Their compiler occupancy
+is 16 waves/SIMD, which is not a measured occupancy result. The evidence
+does not support register spilling as the cause of this performance gap.
+Investigate the seconds-scale dense projection replay surface using the
+completed whole-stack attribution below. Product arithmetic, admission
+bounds and all mission targets remain unchanged.
+Command: `run-native-matrix-float-qk-r1.ps1 -Kind qk -Action build|test|capture`.
+Evidence: `benchmarks/correctness/matrix-float-qk-20260914.json`, SHA256
+`bf667a8b18fd696450a8469f93569d4ce819d5937bea4b8876d4f4cf9132c659`.
 
-The best component reduction is 41.4038 ms, about 12.10 percent. Keep it
-outside product dispatch while investigating a broader exact integer
-matrix route with scalar correction work distributed across more threads.
-The five score variants and all source tensors are recorded; no new model
-load, token loop or product performance follows. Full local checks pass
-376 Python tests with two skips, 47 Rust tests, C smoke, clippy and hygiene.
-Command: `run-native-decoded-window-qk-r1.ps1 -Kind qk -Action build|test|capture`.
-Evidence: `benchmarks/correctness/decoded-window-qk-20260914.json`, SHA256
-`1482469310fc86b6623617d7e10cda602aadade56e463c52aa341a35250c6474`.
+Earlier exact matrix-consumer layouts (`395c9ee`) and decoded QK windows
+(`7d25cfd`) remain component evidence only. Their full comparisons are in
+`matrix-consumer-qk-20260914.json` and `decoded-window-qk-20260914.json`.
+No token-loop or product performance qualification follows from these runs.
 
 Dense and MoE candidate grouping at source `a50f15d` passes both complete
 original q8192/out512 product runs on baiying with
