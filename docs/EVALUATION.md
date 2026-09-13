@@ -32,6 +32,27 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 13)
 
+The [first dense admission difference](../benchmarks/correctness/absolute-admission-first-difference-20260913.json)
+at whole source `ff3820d` localizes the failed absolute-product route on the
+original q8192 prompt. Six layer-zero QKV/Z windows have 1,513,949 changed
+selector memberships and no changed BF16 endpoints. The first K4096 linear
+OUT window has 4,111,235 changed memberships and 380 changed endpoints.
+The first is token 14, row 1534: producer `bd20`, canonical `bd21`.
+Exact rational reconstruction confirms the magnitude bound 1.118265748 is
+above the true absolute-product sum 1.113923012. The 1000 PPB multiplier
+does not cover the producer/canonical difference 0.000003166497; both
+accumulations differ from the mathematical dot. This sample does not certify
+a replacement multiplier. The K4096 producer already calls hipBLASLt.
+
+The opt-in auditor leaves outputs unchanged and stops before replaying that
+window: native exit 5, zero tokens/callbacks, no inference or timing acceptance.
+Four native detector controls pass both membership directions, mixed raw and
+prepared rows, tails and immutable guards. Local launcher checks cover failure
+propagation and no additional device workspace. The original selector stays
+active by default; absolute-product admission remains unqualified. Source,
+binaries, commands, raw evidence hashes and the first operand hashes are bound
+in the record; the long operand-hex log lines are omitted from its rendering.
+
 The [staged integer QK experiment](../benchmarks/correctness/staged-integer-qk-20260913.json)
 separates exact IU8 product production from the ordered K16 carry chain.
 Source `04e3919` passes56 native cases /128729216 score comparisons and3584
