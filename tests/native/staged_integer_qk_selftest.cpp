@@ -40,7 +40,9 @@ void finish() {
         if (status == hipSuccess) break;
         if (status != hipErrorNotReady) check(status);
         if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("QK completion deadline");
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        // Keep the explicit deadline without quantizing each short GPU slab
+        // through a fixed host sleep. The benchmark reports completed host time.
+        std::this_thread::yield();
     }
     check(hipEventDestroy(event));
 }
@@ -189,6 +191,14 @@ __global__ void compare_scores(const uint32_t* expected, const uint32_t* actual,
 }
 void captured(const char* qfile,const char* kfile) {
     constexpr unsigned tokens=7169u,batch=128u;
+    double sleep_minimum=1.0e30,sleep_maximum=0.0,sleep_total=0.0;
+    for(unsigned i=0u;i<16u;++i) {
+        const auto before=std::chrono::steady_clock::now();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        const double wall=elapsed(before);
+        sleep_total+=wall;sleep_minimum=std::min(sleep_minimum,wall);sleep_maximum=std::max(sleep_maximum,wall);
+    }
+    std::fprintf(stderr,"HOST_WAIT_DIAGNOSTIC requested_sleep_ms=1 samples=16 minimum_ms=%.6f maximum_ms=%.6f mean_ms=%.6f measurement_polling=yield deadline_seconds=30\n",sleep_minimum,sleep_maximum,sleep_total/16.0);
     const auto q=read_words(qfile,size_t(tokens)*kQueryHeads*kHeadDim);
     const auto k=read_words(kfile,size_t(tokens)*kKvHeads*kHeadDim);
     const size_t capacity=size_t(batch)*kQueryHeads*tokens;
