@@ -113,6 +113,26 @@ Command file: `run-native-scaled-projection-whole-r1.ps1 -Action reference-test`
 Evidence: `benchmarks/correctness/scaled-significand-projection-20260914.json`,
 SHA256 `ecc9711752b25a52ee4353be7d34549dd68d69219215230f228cfe1a337363a8`.
 
+Four same-DLL q8192/512 admission experiments fail the original GB10
+continuation boundary. Combined quarter, dense-only quarter, MoE-only
+quarter and combined half PPB settings match 114 / 115 / 50 / 58 of 512
+positions; their first mismatches are at zero-based indices 2 / 2 / 1 / 8.
+All finish with passing host guards, 512 actual callbacks, first token 144
+and first-logit error at most 0.0625. This first-token agreement does not
+qualify the failed continuations. Observed callback walls
+31976.7090 / 35359.5935 / 35793.3683 / 34521.9848 ms are diagnostic only.
+
+Complete environment comparisons verify only the declared selector PPBs
+changed. Keep the qualified dense/MoE PPB 1000 and full-attention OUT PPB
+10000, with the original GB10 tolerance 0.125 and all 512 expected tokens.
+The product dispatcher and defaults are unchanged. Continue broader exact
+arithmetic replacements; these observations do not constrain materially
+different designs. Command files: `run-native-replay-admission-product-r1.ps1`,
+`run-native-replay-admission-isolation-r1.ps1` and
+`run-native-replay-admission-half-r1.ps1`. No new release qualification.
+Evidence: `benchmarks/correctness/replay-admission-product-failures-20260914.json`,
+SHA256 `01d73e7965f15ffc95d63f8bd0152222cd8b57362fcd05b1312438443541e0aa`.
+
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
