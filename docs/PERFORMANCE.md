@@ -34,6 +34,38 @@ verify their fallback transaction and complete owner-state restoration.
 | whole 8cc97d6, prepared operands disabled | cold 8192, ordinary path | 49840.7445 | 101.842764 | 20028.7697 |
 | same binary, prepared operands enabled | cold 8192, ordinary path | 48202.0546 | 102.12639 | 20006.0793 |
 | whole 1a7f621, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48111.7024 | 101.159201 | 20065.8768 |
+| whole 2e49049, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48017.509 | 101.468183 | 20041.4914 |
+
+The resident hipBLASLt follow-up also leaves absolute-product admission
+disabled in the selected stack. It passes110430 native double-reference
+cells,62930951 integration endpoints and all58728448 original QKV cells.
+The QKV bound matrix costs52.629ms and total correction117.598ms. However,
+the actualq8192/out512 candidate, source2e49049, fails the GB10 continuation:
+first mismatch is zero-based index115, expected271 versus actual196;
+only130 of512 positions match. Its first144/logit10.3125 passes the0.125
+first-logit tolerance, which does not qualify the failed continuation.
+
+The same-DLL bound-disabled control matches all512 GB10 outputs and actual
+callbacks with exact144/logit10.375 at48017.509ms. No candidate performance
+result is retained. A conservative absolute-product sum on the tested cells
+does not establish that the existing empirical projection-error coefficients
+remain valid with tighter admission. The first tensor-level numerical
+difference has not been localized. Retain the Cauchy configuration and
+refresh the full-stack phase measurements. Evidence:
+`benchmarks/correctness/absolute-product-hipblaslt-20260913.json`.
+
+The refreshed synchronized profile uses this restored2e49049 control and
+passes all512 GB10 outputs/callbacks with exact first144/logit10.375.
+Completed host observations are18334.4ms for the full attention pipeline,
+10690.656ms for MoE,6890.107ms for linear projections and10894.705ms for
+the linear core including its output projection. Coarse buckets and nested
+observers are not additive. GPU subphase intervals still include negatives;
+their raw values are retained without clamping or a validated additive
+attribution. The instrumented49635.3398ms callback is diagnostic and does
+not replace the48017.509ms uninstrumented observation. Next investigate an
+optimized approximate PV producer within attention while preserving exact
+QK, probability normalization and the existing replay gate. Evidence:
+`benchmarks/correctness/prepared-stack-wall-profile-20260913.json`.
 
 The bounded absolute-product experiment has not passed its product request.
 Source1a7f621 uses WMMA to compute tighter per-cell admission metadata while
@@ -49,8 +81,8 @@ dispatch limit. The process returns5 and releases its allocation pool.
 There is no candidate TTFT or product correctness result. The same-DLL
 bound-disabled control passes all512 GB10 outputs and callbacks with exact
 first144/logit10.375 at48111.7024ms. Only the bound flag differs. Keep the
-bound disabled in the selected stack and test the existing resident hipBLASLt
-backend for generating this metadata. Evidence:
+bound disabled in the selected stack; the resident backend follow-up above
+also fails product correctness. Evidence:
 `benchmarks/correctness/absolute-product-admission-20260913.json`.
 
 Dense projection replay now optionally prepares a lossless16-bit operand view

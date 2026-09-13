@@ -217,10 +217,15 @@ The follow-up `QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT=1` option uses
 the existing resident matrix dependency with immutable BF16 magnitude views.
 It is active only with the bound option. A flat window owns up to64MiB plus
 two partial token columns, and a separate bounded allocation holds magnitude
-operands. The native `--absolute-product-hipblaslt` mode checks independent
+operands. Its completed matrix window has a250ms deadline, including backend
+setup; exact-dot/WMMA dispatches retain100ms and the aggregate correction
+limit remains10000ms. All setup remains in actual product TTFT.
+The native `--absolute-product-hipblaslt` mode checks independent
 double sums, magnitude views and guards; `--absolute-bound-correction` checks
-the actual launcher with either backend. This follow-up remains under
-validation and is not a product-qualified configuration.
+the actual launcher with either backend. The native and original QKV checks
+pass, but the completeq8192 continuation fails from output index115. Keep
+absolute-product admission disabled. A tested upper bound on the product sum
+does not independently validate the projection-error coefficient.
 
 ## Model files
 
