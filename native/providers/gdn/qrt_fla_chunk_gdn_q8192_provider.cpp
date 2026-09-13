@@ -259,8 +259,15 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
         set_error_text("Blackwell KKT requires checked chunk-aligned segment pointers");
         return false;
     }
+    const int tiled_mode = qrt_fla_blackwell::tiled_kkt_mode();
+    if (tiled_mode < 0) {
+        set_error_text("QRT_FLA_GDN_TILED_KKT requires 0, 1 or 2"); return false;
+    }
     float sequence_ms = 0.0f;
     if (!launch_blackwell_math("blackwell_kkt_chunks", stream, [&] {
+        if (tiled_mode) return qrt_fla_blackwell::launch_dot_chunks(
+            k, beta, a, 0u, static_cast<unsigned>(tokens) / kChunk,
+            static_cast<unsigned>(tiled_mode), stream);
         if (blackwell_batched_enabled()) {
             hipLaunchKernelGGL(qrt_fla_blackwell::dot_kernel,
                 dim3(kChunk * kChunk / (qrt_fla_blackwell::kThreads / qrt_fla_blackwell::kGroup),
@@ -277,6 +284,9 @@ bool launch_blackwell_kkt(const uint16_t* k, const uint16_t* beta,
         }
         return hipSuccess;
     }, &sequence_ms)) return false;
+    if (tiled_mode) std::fprintf(stderr,
+        "FLA_TILED_KKT mode=%d tokens=%d chunks=%u query_rows=8 key_columns=32 original_k16=1 segment_completion_required=1\n",
+        tiled_mode, tokens, static_cast<unsigned>(tokens) / kChunk);
     if (!dump_q64_stage(dump, "a-dot-f32", a, 64u * 32u * 64u * 4u)) return false;
     const unsigned int elements = static_cast<unsigned int>(tokens) * kValueHeads * kChunk;
     hipLaunchKernelGGL(qrt_fla_blackwell::gate_kernel,
