@@ -1,3 +1,6 @@
+#if defined(__HIPCC__)
+#include <hip/hip_runtime.h>
+#endif
 #include "../../native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
 #include "../../native/providers/moe_accumulator/sm121_canonical_normalize.h"
 #include <algorithm>
