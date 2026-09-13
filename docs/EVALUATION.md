@@ -32,6 +32,24 @@ with the global override disabled.
 
 ## Unreleased correctness diagnostics (updated September 13)
 
+The [K16-major prepared layout](../benchmarks/correctness/prepared-k16-major-20260913.json)
+at whole `4fec3ea` passes all 512 original q8192 outputs and actual callbacks
+in both settings, with exact first 144/logit 10.375. On the same DLL and
+CK6520982 final-envelope setting, callback TTFT is 48892.9312 ms enabled
+versus 47810.3028 ms disabled. Dense correction takes 9122.575 versus
+8133.005 ms. Candidate counts and view sizes match; keep the layout disabled.
+This paired slowdown does not justify further tuning while TTFT exceeds 10 s.
+
+The layout permutes the existing prepared allocation and preserves products,
+ordered carries, selection and raw-row fallback. Thirty native dot cases
+pass 13,974 raw comparisons and 4,658 independent CPU dots; four actual
+launcher cases pass 62,930,951 BF16 endpoints with mixed fallback and guards.
+All 58,728,448 original QKV reference cells match. This does not qualify
+unmeasured contexts, prefix checkpoints, packages, HTTP, soak or release.
+The refreshed Linux release source still lists `.7` as latest with unchanged
+release notes. Next measure completion waiting across native providers before
+assuming another arithmetic replacement will address the remaining wall time.
+
 The [first dense admission difference](../benchmarks/correctness/absolute-admission-first-difference-20260913.json)
 at whole source `ff3820d` localizes the failed absolute-product route on the
 original q8192 prompt. Six layer-zero QKV/Z windows have 1,513,949 changed
