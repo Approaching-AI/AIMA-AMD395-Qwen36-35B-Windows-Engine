@@ -2,15 +2,28 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Exact scalar float QK at CK source `6c0c54c` passes complete same-DLL
+q8192 OFF/ON validation: all 512 GB10 outputs and callbacks match, with exact
+first token 144 and raw logit 10.375. Callback TTFT is 46064.2854/44535.0777 ms,
+TPOT 101.936076/101.197382 ms, and load 20034.3533/20021.0454 ms. Only
+`QRT_CK_SM121_FLOAT_ALIGNMENT_QK=0|1` differs. The single pair saves
+1529.2077 ms without extra workspace; use 1 in subsequent candidate runs.
+The source default remains 0 pending wider validation. Whole `4fec3ea`,
+FLA-MoE `8f436db`, CLI `a797b62`, selective QK 0 and direct PV 1 remain common.
+All host guards pass. q8192 is still above 10 seconds and the immutable
+4187.415605 ms target; long-context, package, HTTP, soak and release gates
+remain open. Next evaluate cooperative scalar product/alignment for dense
+and routed-MoE exact replay, preserving K16 order and original fallback.
+Evidence: `benchmarks/correctness/float-alignment-product-20260913.json`.
+
 Scalar FP32 products with canonical integer alignment at source `f15ea53`
 pass all 1048576 intermediate K16 endpoints and 65536 dots on gfx1151,
 including original fallback. Fourteen generated QK cases match 32182304
 score slots and 896 CPU dots; real q7169 Q/K match 418496528 slots and
 228 CPU dots. Guards and inputs pass. Query time is 338.3151 ms against
 447.4125 ms original, with the same 5.1814 ms key transpose. This is a single
-component observation, not retained product performance. The next source
-adds default-off `QRT_CK_SM121_FLOAT_ALIGNMENT_QK=0|1` for complete same-DLL
-q8192 GB10 validation; no release qualification follows yet. Evidence:
+component observation, not retained product performance. The product implementation and complete same-DLL q8192 validation are
+recorded above; no release qualification follows yet. Evidence:
 `benchmarks/correctness/float-alignment-qk-20260913.json`.
 
 The compact 18-bit core at source `609f468` is exact but remains slower.
