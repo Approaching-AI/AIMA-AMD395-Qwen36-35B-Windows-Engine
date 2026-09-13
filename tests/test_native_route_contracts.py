@@ -367,12 +367,14 @@ class NativeRouteContractTests(unittest.TestCase):
             "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_LAYER_MASK",
         ):
             self.assertIn(env_name, self.provider)
-        self.assertEqual(
-            self.provider.count(
-                "launch_selected_bf16_projection_hawkeye_midpoint_correction("
-            ),
-            8,
-        )
+        # Long-prompt splitting must preserve the bounded launcher, stop on a
+        # failed prefix and rebase the tail's operands and selector metadata.
+        self.assertIn("if (prefix_status != hipSuccess) return prefix_status;", route)
+        self.assertIn("outputs + output_offset, rows, tail_tokens", route)
+        self.assertIn("absolute_product_sums + output_offset", route)
+        self.assertIn("selected_input_l2_upper_bounds + prefix_tokens", route)
+        self.assertEqual(route.count(
+            "absolute_error_bound_ppb, maximum_blocks_per_launch, stream, requested_window_elements)"), 2)
 
     def test_exact_arbitrary_q8192_disables_specialized_q1_route(self) -> None:
         helper_start = self.provider.index(

@@ -77,6 +77,7 @@ unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned direct_pv_queries = 0;
+unsigned float_alignment_queries = 0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -135,8 +136,13 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    const void* = nullptr, const void* = nullptr,
                    const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u,
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
-                   bool direct_pv_operands = false) {
+                   bool direct_pv_operands = false, bool float_alignment_qk = false) {
     ++queries;
+    if(float_alignment_qk) {
+        if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
+            std::abort();
+        ++float_alignment_queries;
+    }
     if(final_pv_bound) {
         if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
         ++final_bound_queries;
@@ -194,6 +200,7 @@ void reset() {
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = 0;
+    float_alignment_queries = 0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -506,6 +513,30 @@ int main() {
     transposes=queries=syncs=selective_qk_queries=0u;
     if(launch(0,7169)!=hipSuccess || allocations!=6u || selective_qk_queries!=57u) return 89;
     unsetenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries) return 90;
+    }
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","1",1);
+    for(const char* mode : {"1","2","3"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        for(unsigned tokens : {1u,7169u,8192u,8193u,17408u}) {
+            reset();
+            if(launch(0,tokens)!=hipSuccess || float_alignment_queries!=(tokens==1u ? 0u : queries) ||
+               allocations!=(tokens==1u ? 4u : 5u) || selective_qk_queries) return 91;
+        }
+        reset();fail_query=2u;
+        if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u || float_alignment_queries!=2u)
+            return 92;
+    }
+    reset();setenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY","1",1);
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 93;
+    unsetenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
+    unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
+    unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
+    reset();
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 94;
+    unsetenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");

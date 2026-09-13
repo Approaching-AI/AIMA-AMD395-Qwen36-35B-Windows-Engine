@@ -59,6 +59,10 @@ static uint16_t* magnitude_buffers[2]{};
 static unsigned audit_collections=0,audit_dispatches=0,audit_reports=0,audit_changed_candidates=2;
 static bool audit_mismatch=false;
 static unsigned k16_major_preparations=0, k16_major_corrections=0;
+static unsigned eligibility_scans=0, float_corrections=0, validated_corrections=0;
+static unsigned validated_fast_cells=0, validated_fallback_cells=0;
+static unsigned* eligibility_flags[2]{};
+static unsigned eligibility_rows[2]{};
 bool owns(const void* p,size_t bytes) {
     return std::any_of(allocation_records.begin(),allocation_records.end(),
         [&](const auto& record) { return record.first==p && record.second>=bytes; });
@@ -105,6 +109,8 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     }
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr ||
         std::strstr(name, "prepared_correction") != nullptr ||
+        std::strstr(name, "float_correction") != nullptr ||
+        std::strstr(name, "validated_float") != nullptr ||
         std::strstr(name, "admission_audit") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
     const unsigned int limit = std::strstr(name, "device_correction") != nullptr
@@ -256,6 +262,21 @@ void prepare_k16_major_rows_kernel(const uint16_t* source,uint16_t* encoded,unsi
     prepare_rows_kernel(source,encoded,eligible,rows,width);
 }
 }
+namespace qrt_sm121_scalar_projection {
+void eligible_rows_kernel(const uint16_t*,unsigned* flags,unsigned rows,unsigned width) {
+    if(eligibility_scans>=2u || !width || width%16u) { invalid_range=true; return; }
+    const unsigned which=eligibility_scans++;
+    eligibility_flags[which]=flags;eligibility_rows[which]=rows;
+    if(!which) {
+        if(flags!=last_allocation) invalid_range=true;
+    } else if(flags!=eligibility_flags[0]+eligibility_rows[0] ||
+        last_allocation_bytes!=size_t(eligibility_rows[0]+rows)*sizeof(unsigned)) invalid_range=true;
+    // Transport flags with both eligibility outcomes. Native tests own the
+    // BF16 scan and arithmetic; this mock checks indexing and ownership.
+    for(unsigned r=0;r<rows;++r) flags[r]=r%3u!=0u;
+    preparation_fault=eligibility_scans==fail_preparation;
+}
+}
 namespace qrt_bf16_absolute_product_matrix {
 void window_kernel(const uint16_t*, const uint16_t*, const unsigned* wf, const unsigned* xf,
     float* bounds, unsigned rows, unsigned tokens, unsigned, size_t first, unsigned count) {
@@ -317,7 +338,42 @@ void selected_bf16_projection_hawkeye_k16_major_prepared_correction_kernel(
         output,rows,k,indices,offset,count);
 }
 
+void selected_bf16_projection_hawkeye_float_correction_kernel(
+    const uint16_t* weights,const uint16_t* inputs,float* output,unsigned rows,unsigned k,
+    const unsigned* indices,unsigned offset,unsigned count) {
+    ++float_corrections;
+    if(preparations || eligibility_scans) invalid_range=true;
+    selected_bf16_projection_hawkeye_midpoint_correction_kernel<false>(
+        weights,inputs,output,rows,k,indices,offset,count,{});
+}
+void selected_bf16_projection_hawkeye_validated_float_kernel(
+    const uint16_t* weights,const uint16_t* inputs,const unsigned* wf,const unsigned* xf,
+    float* output,unsigned rows,unsigned k,const unsigned* indices,unsigned offset,unsigned count) {
+    ++validated_corrections;
+    if(eligibility_scans!=2u || preparations || wf!=eligibility_flags[0] || xf!=eligibility_flags[1] ||
+        rows!=eligibility_rows[0] || !owns(wf,size_t(rows+eligibility_rows[1])*sizeof(unsigned))) {
+        invalid_range=true;return;
+    }
+    const unsigned end=(std::min)(count,offset+exact_blocks*(256u/kSelectedHawkeyeReplayLanes));
+    for(unsigned j=offset;j<end;++j) {
+        const unsigned row=indices[j]%rows,token=indices[j]/rows;
+        if(token>=eligibility_rows[1]) { invalid_range=true;return; }
+        if(wf[row] && xf[token]) ++validated_fast_cells; else ++validated_fallback_cells;
+    }
+    selected_bf16_projection_hawkeye_midpoint_correction_kernel<false>(
+        weights,inputs,output,rows,k,indices,offset,count,{});
+}
+
 // QRT_ACTUAL_LAUNCHER
+
+void float_mode(const char* value,bool prevalidated=false) {
+    const char* name=prevalidated ? "QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY" : "QRT_QWEN36_HAWKEYE_FLOAT_REPLAY";
+#ifdef _WIN32
+    _putenv_s(name,value);
+#else
+    setenv(name,value,1);
+#endif
+}
 
 void k16_major_mode(const char* value) {
 #ifdef _WIN32
@@ -392,11 +448,14 @@ void reset() {
     magnitude_preparations=fail_magnitude=matrix_calls=fail_matrix=0;magnitude_fault=false;
     audit_collections=audit_dispatches=audit_reports=0;audit_changed_candidates=2;audit_mismatch=false;
     k16_major_preparations=k16_major_corrections=0;
+    eligibility_scans=float_corrections=validated_corrections=0;
+    validated_fast_cells=validated_fallback_cells=0;
 }
 int main() {
     device_mode(false);
     packed_mode(false);
     prepared_mode("0");
+    float_mode("0");float_mode("0",true);
     k16_major_mode("0");
     absolute_bound_mode("0");
     absolute_hipblaslt_mode("0");
@@ -736,5 +795,37 @@ int main() {
     if(run_prepared()!=hipSuccess || k16_major_preparations || k16_major_corrections ||
         preparations || allocations!=frees || invalid_grid || invalid_range)return 78;
     k16_major_mode("0");
+    prepared_mode("1");
+    for(bool validated:{false,true}) {
+        float_mode("invalid",validated);reset();output=prepared_initial;
+        if(run_prepared()!=hipErrorInvalidValue || allocations || corrections || output!=prepared_initial) return 79;
+        float_mode("1",validated);reset();output=prepared_initial;
+        if(run_prepared()!=hipSuccess || preparations || (validated ?
+            (eligibility_scans!=2u || !validated_corrections || validated_corrections!=corrections ||
+             !validated_fast_cells || !validated_fallback_cells || allocations!=2u) :
+            (eligibility_scans || !float_corrections || float_corrections!=corrections || allocations!=1u)) ||
+            allocations!=frees || invalid_grid || invalid_range || !allocation_records.empty()) return 80;
+        for(size_t i=0;i<total_elements;++i)
+            if(output[i]!=(i%37u ? 1.0f : float((i/1024u)*2u+i%1024u))) return 81;
+        auto sorted=corrected;std::sort(sorted.begin(),sorted.end());
+        if(std::adjacent_find(sorted.begin(),sorted.end())!=sorted.end()) return 82;
+        if(validated) {
+            for(unsigned failure:{1u,2u}) {
+                reset();fail_preparation=failure;output=prepared_initial;
+                if(run_prepared()!=hipErrorUnknown || eligibility_scans!=failure || collections || corrections ||
+                    allocations!=frees || syncs!=2u || output!=prepared_initial || invalid_range) return 83;
+            }
+            reset();fail_allocation=2u;output=prepared_initial;
+            if(run_prepared()!=hipErrorUnknown || eligibility_scans || allocations!=2u || frees!=1u ||
+                collections || output!=prepared_initial || !allocation_records.empty()) return 84;
+        }
+        reset();fail_sync=validated ? 2u : 3u;output=prepared_initial;
+        if(run_prepared()!=hipErrorUnknown || allocations!=frees || corrections ||
+            invalid_grid || invalid_range || !allocation_records.empty()) return 85;
+        float_mode("0",validated);
+    }
+    float_mode("1");float_mode("1",true);reset();output=prepared_initial;
+    if(run_prepared()!=hipErrorInvalidValue || allocations || corrections || output!=prepared_initial) return 86;
+    float_mode("0");float_mode("0",true);
     return 0;
 }

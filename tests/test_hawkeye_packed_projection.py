@@ -20,6 +20,7 @@ class HawkeyePackedProjectionTests(unittest.TestCase):
         packed = function(provider, 'void selected_bf16_projection_hawkeye_packed_correction_kernel(')
         source = r'''
 #include "native/providers/moe_accumulator/sm121_group16_modulo.h"
+#include "native/providers/moe_accumulator/sm121_canonical_normalize.h"
 #include <algorithm>
 #include <condition_variable>
 #include <mutex>
@@ -127,11 +128,14 @@ int main() {
 '''
         with tempfile.TemporaryDirectory(prefix='qrt-packed-projection-') as temporary:
             exe = str(Path(temporary) / 'check')
-            compiled = subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-O2',
-                            '-ffp-contract=off', '-fsanitize=address,undefined',
-                            '-I', str(ROOT), '-x', 'c++', '-', '-o', exe],
-                           input=source, text=True, capture_output=True, timeout=30)
-            self.assertEqual(compiled.returncode, 0, compiled.stderr)
-            result = subprocess.run([exe], text=True, capture_output=True, timeout=30)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn('packed_candidates_and_transpose=pass', result.stdout)
+            for compact in (0, 1):
+                with self.subTest(compact_normalize=compact):
+                    compiled = subprocess.run([os.environ.get('CXX', 'c++'), '-std=c++17', '-O2',
+                                    '-ffp-contract=off', '-fsanitize=address,undefined',
+                                    f'-DQRT_SM121_COMPACT_NORMALIZE={compact}',
+                                    '-I', str(ROOT), '-x', 'c++', '-', '-o', exe],
+                                   input=source, text=True, capture_output=True, timeout=30)
+                    self.assertEqual(compiled.returncode, 0, compiled.stderr)
+                    result = subprocess.run([exe], text=True, capture_output=True, timeout=30)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    self.assertIn('packed_candidates_and_transpose=pass', result.stdout)

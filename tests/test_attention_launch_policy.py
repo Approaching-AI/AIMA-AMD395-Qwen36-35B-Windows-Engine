@@ -49,6 +49,7 @@ void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
+void blackwell_float_alignment_scores_kernel() {}
 void blackwell_subgroup_tiled_scores_kernel() {}
 void blackwell_paired_query_scores_kernel() {}
 void blackwell_prepare_value_encoding_kernel() {}
@@ -577,6 +578,27 @@ int main() {
         for(unsigned failure=1u;failure<=5u;++failure) {
             launches=error_queries=memsets=0u;fail_launch=failure;
             if(direct_pv(8191u,layout,final)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 116;
+        }
+    }
+    auto float_qk=[&](unsigned layout=22u,unsigned lanes=1u,unsigned rows=1u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,17u,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,18u,
+            false,nullptr,layout==17u ? &wide_value : nullptr,18u,nullptr,nullptr,
+            nullptr,0u,lanes,rows,false,false,true);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned layout:{0u,2u,4u,7u,8u,13u,14u})
+        if(float_qk(layout)!=hipErrorInvalidValue || launches || memsets) return 117;
+    if(float_qk(22u,4u)!=hipErrorInvalidValue || float_qk(22u,1u,2u)!=hipErrorInvalidValue ||
+       launches || memsets) return 118;
+    for(unsigned layout:{15u,16u,17u,22u,23u,24u}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(float_qk(layout)!=hipSuccess || launch_grids[0]!=1u || launch_query_grids[0]!=3u ||
+           !std::strstr(launch_names[0],"blackwell_float_alignment_scores_kernel")) return 119;
+        const unsigned completed_launches=launches;
+        for(unsigned failure=1u;failure<=completed_launches;++failure) {
+            launches=error_queries=memsets=0u;fail_launch=failure;
+            if(float_qk(layout)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 120;
         }
     }
     return 0;
