@@ -37337,7 +37337,7 @@ __device__ bool selected_bf16_projection_hawkeye_candidate(
 // values stay untouched until admission, including in count-only diagnostics.
 // The window has at most maximum_candidates elements, so even a fully dense
 // selection cannot overflow its index buffer.
-template<bool RoundOutputs, bool WindowSums = false>
+template<bool RoundOutputs, bool WindowSums = false, bool SelectorDifference = false>
 __global__ __launch_bounds__(256)
 void selected_bf16_projection_hawkeye_compact_kernel(
     const float *absolute_product_sums,
@@ -37353,6 +37353,7 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     size_t element_offset,
     unsigned int window_elements
 ) {
+    static_assert(!SelectorDifference || (WindowSums && !RoundOutputs));
     __shared__ unsigned int block_candidate_count;
     __shared__ unsigned int block_candidate_base;
     if (threadIdx.x == 0u) block_candidate_count = 0u;
@@ -37360,12 +37361,18 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     const size_t local_index =
         static_cast<size_t>(blockIdx.x) * blockDim.x + threadIdx.x;
     const size_t index = element_offset + local_index;
-    const bool candidate = local_index < window_elements &&
+    const bool selected = local_index < window_elements &&
         selected_bf16_projection_hawkeye_candidate(
             outputs[index], index, rows, midpoint_radius, full_prefix_tokens,
             absolute_error_bound_ppb, absolute_product_sums,
             selected_input_l2_upper_bounds, weight_l2_upper_bounds,
             WindowSums ? element_offset : 0u);
+    const bool original_selected = SelectorDifference && local_index < window_elements &&
+        selected_bf16_projection_hawkeye_candidate(
+            outputs[index], index, rows, midpoint_radius, full_prefix_tokens,
+            absolute_error_bound_ppb, nullptr, selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds);
+    const bool candidate = SelectorDifference ? selected != original_selected : selected;
     // Reserve once per CTA rather than once per candidate. Ballot ranks keep
     // stores contiguous within each wave on both wave32 and wave64 targets.
     const unsigned int lane = threadIdx.x % warpSize;
@@ -37490,6 +37497,71 @@ void selected_bf16_projection_hawkeye_prepared_correction_kernel(
         prepared_inputs + token * reduction_size, prepared_weights + row * reduction_size, reduction_size)
         : qrt_sm121_subgroup::dot<lanes>(inputs + token * reduction_size, weights + row * reduction_size, reduction_size);
     if (!(threadIdx.x & (lanes - 1u))) outputs[index] = device_bf16_round_to_float(value);
+}
+
+// Diagnostic only: changed selector membership matters when it changes the
+// actual BF16 endpoint. Read the unrounded producer and preserve every output.
+// The two count words are reused after collection; compact indices stay intact.
+__global__ __launch_bounds__(256)
+void selected_bf16_projection_hawkeye_admission_audit_kernel(
+    const uint16_t* weights, const uint16_t* inputs,
+    const uint16_t* prepared_weights, const uint16_t* prepared_inputs,
+    const unsigned* weight_eligible, const unsigned* input_eligible,
+    const float* outputs, unsigned rows, unsigned reduction_size,
+    const unsigned* indices, unsigned candidate_offset, unsigned candidate_count,
+    unsigned* differences) {
+    constexpr unsigned lanes = kSelectedHawkeyeReplayLanes;
+    const unsigned slot = candidate_offset + blockIdx.x * (kSelectedHawkeyeCorrectionThreads / lanes) + threadIdx.x / lanes;
+    if (slot >= candidate_count) return;
+    const unsigned index = indices[slot], token = index / rows, row = index % rows;
+    const bool prepared = weight_eligible[row] && input_eligible[token];
+    const float exact = prepared ? qrt_sm121_prepared_projection::dot<lanes>(
+        prepared_inputs + size_t(token) * reduction_size, prepared_weights + size_t(row) * reduction_size, reduction_size)
+        : qrt_sm121_subgroup::dot<lanes>(inputs + size_t(token) * reduction_size, weights + size_t(row) * reduction_size, reduction_size);
+    if (!(threadIdx.x & (lanes - 1u)) &&
+        __float_as_uint(device_bf16_round_to_float(outputs[index])) !=
+        __float_as_uint(device_bf16_round_to_float(exact))) {
+        atomicAdd(differences, 1u);
+        atomicMin(differences + 1u, index);
+    }
+}
+
+hipError_t selected_hawkeye_report_admission_difference(
+    const uint16_t* weights, const uint16_t* inputs, const float* outputs,
+    const float* window_bounds, const float* input_bounds, const float* weight_bounds,
+    unsigned rows, unsigned reduction_size, unsigned index, size_t element_offset,
+    unsigned midpoint_radius, unsigned ppb) {
+    const size_t token = index / rows, row = index % rows;
+    std::vector<uint16_t> left(reduction_size), right(reduction_size);
+    float producer = 0.0f, absolute_sum = 0.0f, input_norm = 0.0f, weight_norm = 0.0f;
+    hipError_t status;
+    if ((status = hipMemcpy(left.data(), inputs + token * reduction_size,
+            left.size() * sizeof(uint16_t), hipMemcpyDeviceToHost)) != hipSuccess ||
+        (status = hipMemcpy(right.data(), weights + row * reduction_size,
+            right.size() * sizeof(uint16_t), hipMemcpyDeviceToHost)) != hipSuccess ||
+        (status = hipMemcpy(&producer, outputs + index, sizeof(float), hipMemcpyDeviceToHost)) != hipSuccess ||
+        (status = hipMemcpy(&absolute_sum, window_bounds + index - element_offset, sizeof(float), hipMemcpyDeviceToHost)) != hipSuccess ||
+        (status = hipMemcpy(&input_norm, input_bounds + token, sizeof(float), hipMemcpyDeviceToHost)) != hipSuccess ||
+        (status = hipMemcpy(&weight_norm, weight_bounds + row, sizeof(float), hipMemcpyDeviceToHost)) != hipSuccess)
+        return status;
+    const float canonical = qrt_q1_moe_hawkeye::accumulate_bf16_hopper_blackwell(
+        0.0f, left.data(), right.data(), reduction_size);
+    uint32_t producer_bits, canonical_bits, sum_bits, input_bits, weight_bits;
+    std::memcpy(&producer_bits, &producer, sizeof(uint32_t));
+    std::memcpy(&canonical_bits, &canonical, sizeof(uint32_t));
+    std::memcpy(&sum_bits, &absolute_sum, sizeof(uint32_t));
+    std::memcpy(&input_bits, &input_norm, sizeof(uint32_t));
+    std::memcpy(&weight_bits, &weight_norm, sizeof(uint32_t));
+    std::fprintf(stderr,"BATCH_MARK hawkeye_admission_first_difference index=%u token=%zu row=%zu rows=%u k=%u producer_bits=%08x cpu_canonical_bits=%08x absolute_sum_bits=%08x input_norm_bits=%08x weight_norm_bits=%08x midpoint_radius=%u ppb=%u producer=%.9g cpu_canonical=%.9g diagnostic_only=1 inference_acceptance=0\n",
+        index,token,row,rows,reduction_size,producer_bits,canonical_bits,sum_bits,input_bits,weight_bits,midpoint_radius,ppb,double(producer),double(canonical));
+    for (unsigned side = 0u; side < 2u; ++side) {
+        std::fprintf(stderr,"BATCH_MARK hawkeye_admission_operand side=%s words=%u bf16_hex=",side ? "weight" : "input",reduction_size);
+        const auto& operand = side ? right : left;
+        for (auto word : operand) std::fprintf(stderr,"%04x",unsigned(word));
+        std::fputc('\n',stderr);
+    }
+    std::fflush(stderr);
+    return hipSuccess;
 }
 
 // A transposed weight slab lets neighboring independent candidate threads
@@ -37733,6 +37805,10 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (absolute_hipblaslt_setting && *absolute_hipblaslt_setting &&
         std::strcmp(absolute_hipblaslt_setting,"0") && std::strcmp(absolute_hipblaslt_setting,"1"))
         return hipErrorInvalidValue;
+    const char* admission_audit_setting = std::getenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT");
+    if (admission_audit_setting && *admission_audit_setting &&
+        std::strcmp(admission_audit_setting,"0") && std::strcmp(admission_audit_setting,"1"))
+        return hipErrorInvalidValue;
 #if !defined(QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER)
     if (absolute_hipblaslt_setting && std::strcmp(absolute_hipblaslt_setting,"1") == 0)
         return hipErrorInvalidValue;
@@ -37820,6 +37896,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         absolute_bound_setting && std::strcmp(absolute_bound_setting,"1") == 0;
     const bool absolute_hipblaslt = absolute_product_bound && absolute_hipblaslt_setting &&
         std::strcmp(absolute_hipblaslt_setting,"1") == 0;
+    const bool admission_audit = absolute_product_bound && admission_audit_setting &&
+        std::strcmp(admission_audit_setting,"1") == 0;
     if (device_replay) requested_window_elements = (std::min)(requested_window_elements,
         qrt_hawkeye_dispatch::maximum_device_window_elements);
     const size_t elements = static_cast<size_t>(selected_token_count) * rows;
@@ -38017,6 +38095,63 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     std::chrono::steady_clock::now() - dispatch_start).count();
                 ++absolute_bound_windows;
                 if (result != hipSuccess) return result;
+                if (admission_audit) {
+                    // Audit both removed and added candidates against their
+                    // exact BF16 endpoints before changing this window. Reuse
+                    // the existing index arena and restore its counters below.
+                    const float* audit_bounds = window_product_bounds + (absolute_hipblaslt ? element_offset % rows : 0u);
+                    dispatch_start = std::chrono::steady_clock::now();
+                    hipLaunchKernelGGL(
+                        (selected_bf16_projection_hawkeye_compact_kernel<false, true, true>),
+                        dim3((window_elements + kSelectedHawkeyeCorrectionThreads - 1u) /
+                             kSelectedHawkeyeCorrectionThreads), dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
+                        audit_bounds, selected_input_l2_upper_bounds, weight_l2_upper_bounds,
+                        outputs, rows, midpoint_radius, full_prefix_tokens, absolute_error_bound_ppb,
+                        scratch, scratch + 2u, element_offset, window_elements);
+                    result = synchronize_bounded(dispatch_start);
+                    if (result != hipSuccess) return result;
+                    std::array<unsigned, 2> changed{};
+                    result = hipMemcpy(changed.data(), scratch, sizeof(changed), hipMemcpyDeviceToHost);
+                    if (result != hipSuccess) return result;
+                    ++host_count_reads;
+                    if (changed[0] > window_elements) return hipErrorInvalidConfiguration;
+                    std::array<unsigned, 2> differences{0u, UINT32_MAX};
+                    if (changed[0]) {
+                        result = hipMemsetAsync(scratch, 0, sizeof(unsigned), stream);
+                        if (result != hipSuccess) return result;
+                        result = hipMemsetAsync(scratch + 1u, 0xff, sizeof(unsigned), stream);
+                        if (result != hipSuccess) return result;
+                        for (unsigned offset = 0u; offset < changed[0]; offset += candidates_per_launch) {
+                            const unsigned count = (std::min)(changed[0] - offset, candidates_per_launch);
+                            dispatch_start = std::chrono::steady_clock::now();
+                            hipLaunchKernelGGL(selected_bf16_projection_hawkeye_admission_audit_kernel,
+                                dim3((count + subgroups_per_block - 1u) / subgroups_per_block),
+                                dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
+                                weights, selected_inputs, prepared_storage, prepared_inputs,
+                                prepared_flags, prepared_flags + rows, outputs, rows, reduction_size,
+                                scratch + 2u, offset, offset + count, scratch);
+                            result = synchronize_bounded(dispatch_start);
+                            if (result != hipSuccess) return result;
+                        }
+                        result = hipMemcpy(differences.data(), scratch, sizeof(differences), hipMemcpyDeviceToHost);
+                        if (result != hipSuccess) return result;
+                        ++host_count_reads;
+                    }
+                    std::fprintf(stderr,"BATCH_MARK hawkeye_admission_audit rows=%u tokens=%u k=%u window=%u offset=%zu changed_candidates=%u changed_bf16_endpoints=%u first_index=%u output_immutable=1 diagnostic_only=1 inference_acceptance=0\n",
+                        rows,selected_token_count,reduction_size,windows,element_offset,changed[0],differences[0],differences[1]);
+                    std::fflush(stderr);
+                    if (differences[0]) {
+                        if (differences[0] > changed[0] || differences[1] < element_offset ||
+                            size_t(differences[1]) - element_offset >= window_elements)
+                            return hipErrorInvalidConfiguration;
+                        result = selected_hawkeye_report_admission_difference(weights,selected_inputs,outputs,
+                            audit_bounds,selected_input_l2_upper_bounds,weight_l2_upper_bounds,
+                            rows,reduction_size,differences[1],element_offset,midpoint_radius,absolute_error_bound_ppb);
+                        return result != hipSuccess ? result : hipErrorInvalidConfiguration;
+                    }
+                    result = hipMemsetAsync(scratch, 0, 2u * sizeof(unsigned), stream);
+                    if (result != hipSuccess) return result;
+                }
                 dispatch_start = std::chrono::steady_clock::now();
                 hipLaunchKernelGGL(
                     (selected_bf16_projection_hawkeye_compact_kernel<false, true>),

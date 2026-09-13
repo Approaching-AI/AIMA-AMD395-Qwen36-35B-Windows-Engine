@@ -56,6 +56,8 @@ static std::vector<std::pair<void*,size_t>> allocation_records;
 static unsigned magnitude_preparations = 0, fail_magnitude = 0, matrix_calls = 0, fail_matrix = 0;
 static bool magnitude_fault = false;
 static uint16_t* magnitude_buffers[2]{};
+static unsigned audit_collections=0,audit_dispatches=0,audit_reports=0,audit_changed_candidates=2;
+static bool audit_mismatch=false;
 bool owns(const void* p,size_t bytes) {
     return std::any_of(allocation_records.begin(),allocation_records.end(),
         [&](const auto& record) { return record.first==p && record.second>=bytes; });
@@ -102,6 +104,7 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     }
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr ||
         std::strstr(name, "prepared_correction") != nullptr ||
+        std::strstr(name, "admission_audit") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
     const unsigned int limit = std::strstr(name, "device_correction") != nullptr
         ? qrt_hawkeye_dispatch::maximum_device_replay_blocks : exact
@@ -113,13 +116,12 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
 #define hipLaunchKernelGGL(kernel, blocks, threads, shared, stream, ...) \
     do { grid(#kernel, blocks, threads); kernel(__VA_ARGS__); } while (0)
 
-template<bool RoundOutputs, bool WindowSums = false>
+template<bool RoundOutputs, bool WindowSums = false, bool SelectorDifference = false>
 void selected_bf16_projection_hawkeye_compact_kernel(
     const float *sums, const float *input_bounds, const float *weight_bounds, float *output,
     unsigned int rows, unsigned int, unsigned int prefix, unsigned int,
     unsigned int *counts, unsigned int *indices, size_t offset, unsigned int count
 ) {
-    ++collections;
     if constexpr (WindowSums) {
         if (RoundOutputs || offset < bound_offset || offset + count > bound_offset + bound_count ||
             sums != bound_buffer + (offset-bound_offset))
@@ -134,6 +136,13 @@ void selected_bf16_projection_hawkeye_compact_kernel(
             weight_bounds != tracked_weight_bounds || base + offset + count > total_elements) invalid_range = true;
     }
     if (offset + count > total_elements) { invalid_range = true; return; }
+    if constexpr (SelectorDifference) {
+        ++audit_collections;
+        counts[0]=(std::min)(audit_changed_candidates,count);counts[1]=counts[0];
+        for(unsigned i=0u;i<counts[0];++i)indices[i]=unsigned(offset+i);
+        return;
+    }
+    ++collections;
     unsigned int block_count = 0;
     for (unsigned int j = 0; j < count; ++j) {
         const size_t i = offset + j;
@@ -150,6 +159,21 @@ void selected_bf16_projection_hawkeye_compact_kernel(
         ++rounds;
         for (unsigned j = 0; j < count; ++j) output[offset + j] = 1.0f;
     }
+}
+void selected_bf16_projection_hawkeye_admission_audit_kernel(
+    const uint16_t*,const uint16_t*,const uint16_t* pw,const uint16_t* px,
+    const unsigned* wf,const unsigned* xf,const float*,unsigned,unsigned,
+    const unsigned* indices,unsigned offset,unsigned count,unsigned* differences) {
+    ++audit_dispatches;
+    if(pw!=prepared_buffers[0] || px!=prepared_buffers[1] || wf!=prepared_flags[0] || xf!=prepared_flags[1])invalid_range=true;
+    if(count>offset+exact_blocks*(256u/kSelectedHawkeyeReplayLanes))invalid_range=true;
+    for(unsigned i=offset;i<count;++i) {
+        if(indices[i]>=total_elements)invalid_range=true;
+        if(audit_mismatch){++differences[0];differences[1]=(std::min)(differences[1],indices[i]);}
+    }
+}
+template<class... T> hipError_t selected_hawkeye_report_admission_difference(T...) {
+    ++audit_reports;return hipSuccess;
 }
 void round_f32_outputs_to_bf16_kernel(float *output, unsigned int count) {
     ++rounds;
@@ -309,6 +333,13 @@ void count_only(bool enabled) {
     else unsetenv("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY");
 #endif
 }
+void admission_audit_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT",value,1);
+#endif
+}
 void packed_mode(bool enabled) {
 #ifdef _WIN32
     _putenv_s("QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES", enabled ? "1" : "");
@@ -336,6 +367,7 @@ void reset() {
     bound_windows = fail_bound = 0; bound_fault = false;
     bound_buffer = nullptr; bound_offset = bound_count = 0;
     magnitude_preparations=fail_magnitude=matrix_calls=fail_matrix=0;magnitude_fault=false;
+    audit_collections=audit_dispatches=audit_reports=0;audit_changed_candidates=2;audit_mismatch=false;
 }
 int main() {
     device_mode(false);
@@ -343,6 +375,7 @@ int main() {
     prepared_mode("0");
     absolute_bound_mode("0");
     absolute_hipblaslt_mode("0");
+    admission_audit_mode("0");
     // Independently validate the native synthetic test's closed-form dot,
     // including zero signs, against the production scalar accumulator.
     for (unsigned int k : {16u, 2048u}) {
@@ -640,6 +673,24 @@ int main() {
     absolute_bound_mode("0");reset();output=prepared_initial;
     if(run_bound()!=hipSuccess || magnitude_preparations || matrix_calls || bound_windows || allocations!=frees ||
         invalid_range || invalid_grid)return 65;
-    absolute_hipblaslt_mode("0"); prepared_mode("0");
+    admission_audit_mode("invalid");reset();output=prepared_initial;
+    if(run_bound()!=hipErrorInvalidValue || allocations || syncs || output!=prepared_initial)return 66;
+    admission_audit_mode("1");absolute_bound_mode("1");reset();output=prepared_initial;
+    if(run_bound()!=hipSuccess || audit_collections!=16u || audit_dispatches!=16u || audit_reports ||
+        collections!=16u || allocations!=frees || invalid_grid || invalid_range)return 67;
+    for(size_t i=0;i<total_elements;++i)if(output[i]!=(i%37u?1.0f:float((i/1024u)*2u+i%1024u)))return 68;
+    reset();audit_changed_candidates=0;output=prepared_initial;
+    if(run_bound()!=hipSuccess || audit_collections!=16u || audit_dispatches || audit_reports ||
+        collections!=16u || allocations!=frees || invalid_grid || invalid_range)return 69;
+    reset();audit_mismatch=true;output=prepared_initial;
+    if(run_bound()!=hipErrorInvalidConfiguration || audit_collections!=1u || audit_dispatches!=1u ||
+        audit_reports!=1u || collections || rounds || corrections || output!=prepared_initial ||
+        allocations!=frees || invalid_grid || invalid_range)return 70;
+    reset();fail_sync=5u;output=prepared_initial;
+    if(run_bound()!=hipErrorUnknown || audit_collections!=1u || audit_dispatches || audit_reports ||
+        collections || rounds || corrections || output!=prepared_initial || allocations!=frees)return 71;
+    absolute_bound_mode("0");reset();output=prepared_initial;
+    if(run_bound()!=hipSuccess || audit_collections || audit_dispatches || audit_reports || allocations!=frees)return 72;
+    admission_audit_mode("0");absolute_hipblaslt_mode("0"); prepared_mode("0");
     return 0;
 }
