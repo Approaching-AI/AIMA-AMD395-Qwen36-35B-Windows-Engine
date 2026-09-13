@@ -39,9 +39,16 @@ static const float *tracked_sums = nullptr, *tracked_input_bounds = nullptr, *tr
 static const uint16_t *tracked_inputs = nullptr;
 static unsigned tracked_prefix = 0, tracked_k = 0;
 static size_t shape_aware_outputs = 0;
+static unsigned preparations = 0, fail_preparation = 0, fail_allocation = 0;
+static bool preparation_fault = false;
+static uint16_t* prepared_buffers[2]{};
+static unsigned* prepared_flags[2]{};
+static unsigned prepared_rows[2]{};
 
 hipError_t hipMalloc(void **p, size_t bytes) {
-    ++allocations; scratch_bytes = bytes; *p = std::malloc(bytes);
+    ++allocations; scratch_bytes = bytes;
+    if (allocations == fail_allocation) { *p = nullptr; return hipErrorUnknown; }
+    *p = std::malloc(bytes);
     return *p ? hipSuccess : hipErrorUnknown;
 }
 hipError_t hipFree(void *p) { ++frees; std::free(p); return hipSuccess; }
@@ -52,7 +59,10 @@ hipError_t hipMemcpy(void *to, const void *from, size_t n, int) {
     ++count_reads;
     std::memcpy(to, from, n); return hipSuccess;
 }
-hipError_t hipGetLastError() { return hipSuccess; }
+hipError_t hipGetLastError() {
+    const bool failed = preparation_fault; preparation_fault = false;
+    return failed ? hipErrorUnknown : hipSuccess;
+}
 hipError_t hipStreamSynchronize(hipStream_t) {
     return ++syncs == fail_sync ? hipErrorUnknown : hipSuccess;
 }
@@ -62,6 +72,7 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
         return;
     }
     const bool exact = std::strstr(name, "midpoint_correction") != nullptr ||
+        std::strstr(name, "prepared_correction") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
     const unsigned int limit = std::strstr(name, "device_correction") != nullptr
         ? qrt_hawkeye_dispatch::maximum_device_replay_blocks : exact
@@ -168,8 +179,37 @@ void selected_bf16_projection_hawkeye_packed_correction_kernel(
     }
 }
 
+namespace qrt_sm121_prepared_projection {
+void prepare_rows_kernel(const uint16_t*,uint16_t* encoded,unsigned* eligible,unsigned rows,unsigned width) {
+    if (preparations >= 2u) { invalid_range = true; return; }
+    prepared_buffers[preparations] = encoded; prepared_flags[preparations] = eligible;
+    prepared_rows[preparations] = rows;
+    if (++preparations == 2u && (encoded != prepared_buffers[0] + size_t(prepared_rows[0])*width ||
+        eligible != prepared_flags[0] + prepared_rows[0] ||
+        prepared_flags[0] != reinterpret_cast<unsigned*>(prepared_buffers[0] + size_t(prepared_rows[0]+rows)*width)))
+        invalid_range = true;
+    preparation_fault = preparations == fail_preparation;
+}
+}
+void selected_bf16_projection_hawkeye_prepared_correction_kernel(
+    const uint16_t* weights,const uint16_t* inputs,const uint16_t* pw,const uint16_t* px,
+    const unsigned* wf,const unsigned* xf,float* output,unsigned rows,unsigned k,
+    const unsigned* indices,unsigned offset,unsigned count) {
+    if (preparations != 2u || pw != prepared_buffers[0] || px != prepared_buffers[1] ||
+        wf != prepared_flags[0] || xf != prepared_flags[1]) invalid_range = true;
+    selected_bf16_projection_hawkeye_midpoint_correction_kernel<false>(
+        weights,inputs,output,rows,k,indices,offset,count,{});
+}
+
 // QRT_ACTUAL_LAUNCHER
 
+void prepared_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS",value,1);
+#endif
+}
 void count_only(bool enabled) {
 #ifdef _WIN32
     _putenv_s("QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY", enabled ? "1" : "");
@@ -200,10 +240,13 @@ void reset() {
     invalid_grid = invalid_range = false; corrected.clear();
     shape_aware_outputs = 0;
     count_reads = 0;
+    preparations = fail_preparation = fail_allocation = 0;
+    preparation_fault = false;
 }
 int main() {
     device_mode(false);
     packed_mode(false);
+    prepared_mode("0");
     // Independently validate the native synthetic test's closed-form dot,
     // including zero signs, against the production scalar accumulator.
     for (unsigned int k : {16u, 2048u}) {
@@ -398,5 +441,41 @@ int main() {
     if (invoke(output) != hipErrorInvalidConfiguration || output != initial || rounds || corrections ||
         count_reads != 3 || allocations != frees) return 39;
     count_only(false); device_mode(false);
+    prepared_mode("2"); reset(); output=initial;
+    if (invoke(output)!=hipErrorInvalidValue || allocations || syncs || output!=initial) return 40;
+    prepared_mode("1"); reset(); output=initial;
+    if (invoke(output)!=hipSuccess || preparations || allocations!=frees || invalid_grid || invalid_range) return 41;
+    total_elements=1024u*1024u;requested_blocks=4096u;
+    std::vector<float> prepared_initial(total_elements,1.001f);
+    for(size_t i=0;i<total_elements;i+=37u)prepared_initial[i]=1.00390625f;
+    auto run_prepared=[&] {
+        return launch_selected_bf16_projection_hawkeye_midpoint_correction(&value,&value,
+            nullptr,nullptr,nullptr,output.data(),1024u,1024u,16u,512u,0u,0u,requested_blocks,nullptr,65536u);
+    };
+    reset();output=prepared_initial;
+    if(run_prepared()!=hipSuccess || preparations!=2u || allocations!=2u || frees!=2u || invalid_range || invalid_grid)
+        return 42;
+    for(size_t i=0;i<total_elements;++i) {
+        const float expected=i%37u ? 1.0f : float((i/1024u)*2u+i%1024u);
+        if(output[i]!=expected)return 43;
+    }
+    for(unsigned failure:{1u,2u}) {
+        reset();fail_preparation=failure;output=prepared_initial;
+        if(run_prepared()!=hipErrorUnknown || preparations!=failure || allocations!=frees ||
+            collections || rounds || corrections || syncs!=2u || output!=prepared_initial)return 44;
+    }
+    reset();fail_sync=2u;output=prepared_initial;
+    if(run_prepared()!=hipErrorUnknown || preparations!=2u || allocations!=frees || collections ||
+        rounds || corrections || syncs!=3u || output!=prepared_initial)return 45;
+    reset();fail_allocation=2u;output=prepared_initial;
+    if(run_prepared()!=hipErrorUnknown || preparations || allocations!=2u || frees!=1u ||
+        collections || output!=prepared_initial)return 46;
+    for(const auto shape:{std::array<unsigned,3>{2048u,19u,4096u},{1024u,1u,16u},{1024u,8193u,16u}}) {
+        reset();total_elements=size_t(shape[0])*shape[1];output.assign(total_elements,1.001f);
+        if(launch_selected_bf16_projection_hawkeye_midpoint_correction(&value,&value,nullptr,nullptr,nullptr,
+            output.data(),shape[0],shape[1],shape[2],512u,0u,0u,4096u,nullptr)!=hipSuccess ||
+            preparations || allocations!=frees || invalid_grid || invalid_range)return 47;
+    }
+    prepared_mode("0");
     return 0;
 }

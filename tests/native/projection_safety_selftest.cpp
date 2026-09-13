@@ -262,7 +262,7 @@ void run_boundary_correction_case() {
     std::cout << "{\"type\":\"correction_boundary_case\",\"cells\":4,\"bf16_reference_mismatches\":0,\"both_signs\":true,\"redzones_pass\":true}" << std::endl;
 }
 
-void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false) {
+void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false, bool mixed_fallback = false) {
     const size_t elements = static_cast<size_t>(rows) * tokens;
     std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
     std::vector<uint16_t> inputs(static_cast<size_t>(tokens) * k + 2u * kGuard, kBf16Guard);
@@ -276,6 +276,15 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
     for (unsigned int token = 0u; token < tokens; ++token) {
         inputs[kGuard + static_cast<size_t>(token) * k + k - 1u] =
             bf16(static_cast<float>(static_cast<int>(token % 17u) - 8) / 16.0f);
+    }
+    if (mixed_fallback) {
+        // Each excluded value multiplies a zero in the opposite operand.
+        // The independent closed-form endpoint remains unchanged while
+        // adjacent candidate subgroups take prepared and original paths.
+        for (unsigned row = 0u; row < rows; row += 17u)
+            weights[kGuard + size_t(row) * k] = 0x0001u;
+        for (unsigned token = 0u; token < tokens; token += 19u)
+            inputs[kGuard + size_t(token) * k + 1u] = 0x8001u;
     }
     for (size_t i = 0u; i < elements; ++i) {
         output[kGuard + i] = (dense || i % 64u == 0u || i + 1u == elements)
@@ -325,6 +334,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
             "streamed correction modified read-only input or redzone");
     std::cout << "{\"type\":\"correction_case\",\"rows\":" << rows
               << ",\"tokens\":" << tokens << ",\"k\":" << k
+              << ",\"mixed_row_fallback\":" << (mixed_fallback ? "true" : "false")
               << ",\"candidates\":" << candidates << ",\"reference_cells\":" << elements
               << ",\"bf16_reference_mismatches\":0,\"redzones_pass\":true,\"wall_ms\":"
               << ms << "}" << std::endl;
@@ -342,7 +352,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -352,6 +362,14 @@ int main(int argc, char **argv) {
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
             if (mode == "--device-replay") {
                 cases += run_device_replay_suite();
+            } else if (mode == "--prepared-correction") {
+                require(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS") &&
+                    !std::strcmp(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS"), "1"), "prepared correction mode requires prepared operands");
+                run_correction_case(1025u, 1031u, 16u, false, true);
+                run_correction_case(1024u, 1024u, 512u, true, true);
+                run_correction_case(2048u, 1024u, 4096u, false, true);
+                run_correction_case(8192u, 7169u, 16u, false, true);
+                cases += 4u;
             } else if (mode == "--wmma-staging") {
                 for (const auto shape : {std::pair{17u, 7u}, std::pair{129u, 65u}, std::pair{8192u, 8192u}}) {
                     run_staging_case(shape.first, shape.second);
