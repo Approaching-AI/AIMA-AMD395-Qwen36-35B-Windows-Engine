@@ -2,6 +2,16 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The subsequent native HIP wait diagnostic finds no millisecond fixed completion
+penalty in its one-stream component workload. Source548385b observes flags1 in
+the untouched process; default, explicit Spin and explicit Auto have shortest
+kernel/event medians around32us. Blocking waits are slightly slower. All60
+cases pass final output samples and redzones across1920 completed submissions.
+Host intervals include submission. No model is loaded, and this does not
+establish product timing or all-stream API equivalence. Runtime flags and
+completion semantics remain unchanged. Evidence:
+`benchmarks/correctness/hip-completion-wait-20260913.json`.
+
 The current corrected runtime has not recovered the retained performance
 targets. The following runs use the actual model on baiying, with startup
 excluded from the first streamed callback clock. Each listed case generates
@@ -71,9 +81,11 @@ The same-DLL bound-disabled control matches all512 GB10 outputs and actual
 callbacks with exact144/logit10.375 at48017.509ms. No candidate performance
 result is retained. A conservative absolute-product sum on the tested cells
 does not establish that the existing empirical projection-error coefficients
-remain valid with tighter admission. The first tensor-level numerical
-difference has not been localized. Retain the Cauchy configuration and
-refresh the full-stack phase measurements. Evidence:
+remain valid with tighter admission. The subsequent admission audit localizes
+the first BF16 difference to layer0 linear OUT: the absolute-product magnitude
+bound is conservative, but its unchanged1000PPB multiplier misses the
+producer/canonical difference. Retain the Cauchy configuration; the completed
+phase profile is below. Evidence:
 `benchmarks/correctness/absolute-product-hipblaslt-20260913.json`.
 
 The refreshed synchronized profile uses this restored2e49049 control and
