@@ -37,6 +37,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool bounded_replay = bounded_option && std::strcmp(bounded_option,"1")==0;
     const char* scaled_option = std::getenv("QRT_PROJECTION_SAFETY_SCALED_REPLAY");
     const bool scaled_replay = scaled_option && std::strcmp(scaled_option,"1")==0;
+    const char* row_max_option = std::getenv("QRT_PROJECTION_SAFETY_ROW_MAX_REPLAY");
+    const bool row_max_replay = row_max_option && std::strcmp(row_max_option,"1")==0;
     std::vector<unsigned> selected_indices;
     double required_ppb = 0.0;
     for (size_t i = 0u; i < elements; ++i) {
@@ -54,7 +56,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -71,6 +73,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (row_max_replay) {
+        run_row_max_projection_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
+        return;
+    }
     if (scaled_replay) {
         run_scaled_projection_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
