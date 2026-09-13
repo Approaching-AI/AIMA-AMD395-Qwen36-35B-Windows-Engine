@@ -18,6 +18,7 @@ class MoeCompactionTests(unittest.TestCase):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
         definitions = function(s, 'struct MoeCorrectionBounds {') + ';\n'
         definitions += function(s, 'enum class MoeCorrectionPhase {') + ';\n'
+        definitions += 'template<unsigned Lanes>\n' + function(s, 'float moe_routed_replay_dot(') + '\n'
         helpers = '\n'.join(function(s, signature) for signature in (
             'float routed_silu_from_gate_bf16(',
             'bool\nrouted_gate_projection_needs_hawkeye_replay(',
@@ -52,6 +53,7 @@ constexpr uint32_t kMaximumMoeCompactionBlocks=64;
 constexpr uint32_t kMoeCompactionCapacity=kMaximumMoeCompactionBlocks*kNativeThreads;
 #define QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG 1
 #define QRT_MOE_ROUTED_REPLAY_LANES 4
+#define QRT_SM121_DOT_STAGING_GROUPS 4
 #define __shared__ static
 struct dim3 { unsigned x; explicit dim3(unsigned v=1):x(v){} };
 thread_local dim3 blockIdx, threadIdx, blockDim, gridDim;
@@ -79,15 +81,24 @@ float dot(const uint16_t *a,const uint16_t *b,unsigned k) {
     return value;
 }
 }
+namespace qrt_sm121_prepared_projection {
+template<unsigned Lanes, unsigned Groups>
+float dot(const uint16_t* a,const uint16_t* b,unsigned k) {
+    static_assert(Groups==4); return qrt_sm121_subgroup::dot<Lanes>(a,b,k);
+}
+}
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void *;
-enum class MoeL2 { Input, Weight };
+enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDown };
 struct State {
     bool compact_routed_hawkeye=false;
+    bool prepared_replay_active=false;
+    uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
+    uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
     uint32_t moe_compaction_blocks=kMoeCompactionBlocks;
     uint32_t sm121_moe_absolute_error_ppb=1000;
-    std::array<float *,2> moe_l2{};
+    std::array<float *,4> moe_l2{};
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr;
 } g_state;
 bool execute_kernels=true;

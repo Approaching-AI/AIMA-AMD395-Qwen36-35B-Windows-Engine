@@ -20,6 +20,7 @@
 #include "../moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
+#include "../moe_accumulator/sm121_prepared_projection.h"
 #include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
@@ -1708,7 +1709,33 @@ struct MoeCorrectionBounds {
     uint32_t first_block;
     uint32_t *compacted_indices = nullptr;
     uint32_t *compacted_count = nullptr;
+    const uint16_t *prepared_input = nullptr, *prepared_weights = nullptr;
+    const uint32_t *prepared_input_rows = nullptr, *prepared_weight_rows = nullptr;
 };
+
+template<unsigned Lanes>
+__device__ __forceinline__ float moe_routed_replay_dot(const uint16_t *inputs,
+    const uint16_t *weights, uint32_t input_row, uint32_t weight_row,
+    uint32_t columns, const MoeCorrectionBounds& bounds) {
+    if (bounds.prepared_input && bounds.prepared_weights &&
+        bounds.prepared_input_rows && bounds.prepared_weight_rows &&
+        bounds.prepared_input_rows[input_row] && bounds.prepared_weight_rows[weight_row])
+        return qrt_sm121_prepared_projection::dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
+            bounds.prepared_input + size_t(input_row) * columns,
+            bounds.prepared_weights + size_t(weight_row) * columns, columns);
+    return qrt_sm121_subgroup::dot<Lanes>(inputs + size_t(input_row) * columns,
+        weights + size_t(weight_row) * columns, columns);
+}
+
+// One layer's gate/up and down views share the same arenas in routed-stream
+// order. Original operands remain available for every ineligible row.
+constexpr size_t kMoePreparedWeightElements = size_t(kExperts) * 2u * kIntermediate * kHidden;
+constexpr size_t kMoePreparedInputElements = size_t(kRoutes) * kIntermediate;
+constexpr size_t kMoePreparedWeightRows = size_t(kExperts) * kHidden;
+constexpr size_t kMoePreparedInputRows = kRoutes;
+constexpr size_t kMoePreparedBytes =
+    (kMoePreparedWeightElements + kMoePreparedInputElements) * sizeof(uint16_t) +
+    (kMoePreparedWeightRows + kMoePreparedInputRows) * sizeof(uint32_t);
 
 enum class MoeCorrectionPhase { Local, Collect, Replay, Finalize };
 // The retained window contains 262,144 cells. An opt-in wider collection
@@ -1813,6 +1840,9 @@ struct ProviderState {
     uint32_t *moe_compacted_count = nullptr;
     uint32_t sm121_moe_absolute_error_ppb = 0u;
     bool scaled_l2 = false;
+    bool prepared_replay = false, prepared_replay_active = false;
+    uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
+    uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
     uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
@@ -3653,6 +3683,44 @@ void moe_bf16_row_l2_kernel(const uint16_t *values, float *norms,
         __syncthreads();
     }
     if (threadIdx.x == 0u) norms[row] = static_cast<float>(sqrt(partial[0])) * 1.00002f;
+}
+
+// Reuse the required FP64 norm scan to prepare lossless replay operands.
+// The norm's products, reduction tree and inflation are unchanged. Eligibility
+// uses a parallel integer OR without introducing another reduction barrier.
+__global__ __launch_bounds__(256)
+void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
+    uint16_t *encoded, uint32_t *eligible_rows,
+    uint32_t rows, uint32_t columns, uint32_t first_row) {
+    __shared__ double partial[kNativeThreads];
+    __shared__ uint32_t invalid[kNativeThreads];
+    const uint32_t row = first_row + blockIdx.x;
+    if (row >= rows) return;
+    double sum = 0.0;
+    uint32_t bad = 0u;
+    for (uint32_t k = threadIdx.x; k < columns; k += blockDim.x) {
+        const size_t index = size_t(row) * columns + k;
+        const uint16_t value = values[index];
+        const double v = static_cast<double>(bf16_to_float(value));
+        sum += v * v;
+        const bool valid = qrt_sm121_prepared_bf16::eligible(value);
+        encoded[index] = valid ? qrt_sm121_prepared_bf16::encode(value) : 0u;
+        bad |= !valid;
+    }
+    partial[threadIdx.x] = sum;
+    invalid[threadIdx.x] = bad;
+    __syncthreads();
+    for (uint32_t offset = kNativeThreads / 2u; offset; offset >>= 1u) {
+        if (threadIdx.x < offset) {
+            partial[threadIdx.x] += partial[threadIdx.x + offset];
+            invalid[threadIdx.x] |= invalid[threadIdx.x + offset];
+        }
+        __syncthreads();
+    }
+    if (threadIdx.x == 0u) {
+        norms[row] = static_cast<float>(sqrt(partial[0])) * 1.00002f;
+        eligible_rows[row] = invalid[0] == 0u;
+    }
 }
 
 // Same 256-lane row ownership and bounded launches; all device arithmetic is
@@ -5886,11 +5954,8 @@ void routed_gate_batched_hawkeye_correction_kernel(
             const int32_t expert = topk_ids[route];
             const size_t weight_row =
                 static_cast<size_t>(expert) * (2u * kIntermediate) + row;
-            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
-                input_bf16 + static_cast<size_t>(token) * kHidden,
-                gate_up_bf16 + weight_row * kHidden,
-                kHidden
-            );
+            const float exact = moe_routed_replay_dot<kReplayLanes>(
+                input_bf16, gate_up_bf16, token, uint32_t(weight_row), kHidden, bounds);
             if (lane == 0u) {
                 activated_bf16[candidate] = float_to_bf16(exact);
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
@@ -6046,11 +6111,8 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
             const size_t weight_row =
                 static_cast<size_t>(expert) * (2u * kIntermediate) +
                 kIntermediate + row;
-            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
-                input_bf16 + static_cast<size_t>(token) * kHidden,
-                gate_up_bf16 + weight_row * kHidden,
-                kHidden
-            );
+            const float exact = moe_routed_replay_dot<kReplayLanes>(
+                input_bf16, gate_up_bf16, token, uint32_t(weight_row), kHidden, bounds);
             if (lane == 0u) {
                 up_native_f32[candidate] = exact;
             }
@@ -11294,13 +11356,8 @@ void routed_down_batched_hawkeye_correction_kernel(
             const uint32_t route = candidate / kHidden;
             const uint32_t column = candidate - route * kHidden;
             const int32_t expert = topk_ids[route];
-            const float exact = qrt_sm121_subgroup::dot<kReplayLanes>(
-                routed_activated + static_cast<size_t>(route) * kIntermediate,
-                routed_down_weights +
-                    (static_cast<size_t>(expert) * kHidden + column) *
-                        kIntermediate,
-                kIntermediate
-            );
+            const float exact = moe_routed_replay_dot<kReplayLanes>(routed_activated,
+                routed_down_weights, route, uint32_t(expert) * kHidden + column, kIntermediate, bounds);
             if (lane == 0u) {
                 route_outputs[candidate] = exact;
             }
@@ -11856,6 +11913,10 @@ bool release_state() {
     if (!release_full_v3_execution_state()) {
         return false;
     }
+    if (g_state.prepared_replay_weights) (void)hipFree(g_state.prepared_replay_weights);
+    if (g_state.prepared_replay_inputs) (void)hipFree(g_state.prepared_replay_inputs);
+    if (g_state.prepared_replay_weight_rows) (void)hipFree(g_state.prepared_replay_weight_rows);
+    if (g_state.prepared_replay_input_rows) (void)hipFree(g_state.prepared_replay_input_rows);
     release_matrix_plan(&g_state.shared_down_plan);
     release_matrix_plan(&g_state.shared_projection_plan);
     release_matrix_plan(&g_state.shared_gate_plan);
@@ -12186,9 +12247,27 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
         set_error_text("invalid live MoE L2 surface");
         return false;
     }
+    const bool prepare_input = g_state.prepared_replay_active &&
+        (surface == MoeL2::Input || surface == MoeL2::RoutedActivated);
+    const bool prepare_weight = g_state.prepared_replay_active &&
+        (surface == MoeL2::RoutedGateUp || surface == MoeL2::RoutedDown);
+    uint16_t* encoded = prepare_input ? g_state.prepared_replay_inputs :
+        prepare_weight ? g_state.prepared_replay_weights : nullptr;
+    uint32_t* flags = prepare_input ? g_state.prepared_replay_input_rows :
+        prepare_weight ? g_state.prepared_replay_weight_rows : nullptr;
+    if ((prepare_input || prepare_weight) &&
+        (g_state.scaled_l2 || !encoded || !flags ||
+         size_t(rows) * columns > (prepare_input ? kMoePreparedInputElements : kMoePreparedWeightElements) ||
+         rows > (prepare_input ? kMoePreparedInputRows : kMoePreparedWeightRows))) {
+        set_error_text("invalid MoE prepared replay view");
+        return false;
+    }
     for (uint32_t first = 0; first < rows; first += 4096u) {
         const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
-        if (g_state.scaled_l2) {
+        if (encoded) {
+            hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel, dim3(count), dim3(kNativeThreads),
+                0, stream, values, g_state.moe_l2[slot], encoded, flags, rows, columns, first);
+        } else if (g_state.scaled_l2) {
             hipLaunchKernelGGL(moe_bf16_scaled_row_l2_kernel, dim3(count), dim3(kNativeThreads),
                 0, stream, values, g_state.moe_l2[slot], rows, columns, first);
         } else {
@@ -12258,12 +12337,20 @@ hipError_t launch_moe_routed_correction(
     for (uint32_t first = 0u; first < blocks; first += window_blocks) {
         const uint32_t count = (std::min)(blocks - first, window_blocks);
         const uint32_t replay_blocks = (std::min)(count, kMoeCompactionBlocks);
-        const MoeCorrectionBounds bounds{
+        MoeCorrectionBounds bounds{
             g_state.moe_l2[static_cast<size_t>(input)],
             g_state.moe_l2[static_cast<size_t>(weights)],
             static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
             first, g_state.moe_compacted_indices, g_state.moe_compacted_count
         };
+        if (g_state.prepared_replay_active &&
+            ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
+             (input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown))) {
+            bounds.prepared_input = g_state.prepared_replay_inputs;
+            bounds.prepared_weights = g_state.prepared_replay_weights;
+            bounds.prepared_input_rows = g_state.prepared_replay_input_rows;
+            bounds.prepared_weight_rows = g_state.prepared_replay_weight_rows;
+        }
         hipError_t status = hipMemsetAsync(bounds.compacted_count, 0, sizeof(uint32_t), stream);
         if (status != hipSuccess) return status;
         hipLaunchKernelGGL(collect, dim3(count), dim3(kNativeThreads), 0, stream,
@@ -12291,6 +12378,18 @@ bool allocate_optional_moe_compaction() {
                     "hipMalloc(moe_compacted_indices)") &&
         allocate(&g_state.moe_compacted_count, sizeof(uint32_t),
                  "hipMalloc(moe_compacted_count)");
+}
+
+bool allocate_optional_moe_prepared_replay() {
+    if (!g_state.prepared_replay) return true;
+    return allocate(&g_state.prepared_replay_weights, kMoePreparedWeightElements * sizeof(uint16_t),
+                    "hipMalloc(MoE prepared weights)") &&
+        allocate(&g_state.prepared_replay_inputs, kMoePreparedInputElements * sizeof(uint16_t),
+                 "hipMalloc(MoE prepared inputs)") &&
+        allocate(&g_state.prepared_replay_weight_rows, kMoePreparedWeightRows * sizeof(uint32_t),
+                 "hipMalloc(MoE prepared weight flags)") &&
+        allocate(&g_state.prepared_replay_input_rows, kMoePreparedInputRows * sizeof(uint32_t),
+                 "hipMalloc(MoE prepared input flags)");
 }
 
 bool allocate_optional_shared_projection_hawkeye() {
@@ -13460,6 +13559,19 @@ bool launch_routed_matrices_after_input_conversion(
     hipEvent_t tail_done = nullptr,
     const RoutedProfileEvents *routed_profile = nullptr
 ) {
+    struct PreparedReplayScope {
+        explicit PreparedReplayScope(uint32_t tokens) {
+            g_state.prepared_replay_active = g_state.prepared_replay && tokens == kTokens;
+        }
+        ~PreparedReplayScope() { g_state.prepared_replay_active = false; }
+    } prepared_replay_scope(token_count);
+    if (g_state.prepared_replay_active) {
+        std::fprintf(stderr,
+            "BATCH_MARK moe_prepared_replay tokens=%u workspace_bytes=%zu "
+            "refresh_in_norm_scan=1 row_fallback=1 staging_groups=%u\n",
+            token_count, kMoePreparedBytes, unsigned(QRT_SM121_DOT_STAGING_GROUPS));
+        std::fflush(stderr);
+    }
     if (!launch_moe_l2(g_state.input_bf16, MoeL2::Input, token_count, kHidden, stream) ||
         !launch_moe_l2(gate_up_bf16, MoeL2::RoutedGateUp,
                        kExperts * 2u * kIntermediate, kHidden, stream)) return false;
@@ -16437,6 +16549,18 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     const char *compact_routed = std::getenv("QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE");
     g_state.compact_routed_hawkeye = compact_routed != nullptr &&
         compact_routed[0] != '\0' && std::strcmp(compact_routed, "0") != 0;
+    const char* prepared_replay = std::getenv("QRT_QWEN36_MOE_PREPARED_REPLAY");
+    if (prepared_replay && *prepared_replay && std::strcmp(prepared_replay, "0") &&
+        std::strcmp(prepared_replay, "1")) {
+        set_error_text("QRT_QWEN36_MOE_PREPARED_REPLAY must be 0 or 1");
+        return 0;
+    }
+    g_state.prepared_replay = prepared_replay && std::strcmp(prepared_replay, "1") == 0;
+    if (g_state.prepared_replay && (kTokens != 8192u || !g_state.sm121_routed_hawkeye ||
+        !g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb || g_state.scaled_l2)) {
+        set_error_text("prepared replay requires q8192 compact SM121 routed correction and original L2 scans");
+        return 0;
+    }
     const char *parallel_gate = std::getenv("QRT_QWEN36_MOE_PARALLEL_GATE");
     if (parallel_gate != nullptr && parallel_gate[0] != '\0' &&
         std::strcmp(parallel_gate, "0") != 0 && std::strcmp(parallel_gate, "1") != 0) {
@@ -16444,6 +16568,10 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         return 0;
     }
     g_state.parallel_routed_gate = parallel_gate != nullptr && std::strcmp(parallel_gate, "1") == 0;
+    if (g_state.prepared_replay && g_state.parallel_routed_gate) {
+        set_error_text("prepared replay requires the original routed gate stream");
+        return 0;
+    }
     if (g_state.parallel_routed_gate && (!QRT_TRITON_MOE_BATCHED_HAWKEYE ||
         !QRT_TRITON_MOE_NATIVE_WMMA_GATE || !QRT_TRITON_MOE_NATIVE_WMMA_DOWN ||
         !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 ||
@@ -16772,6 +16900,7 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         !allocate(&g_state.shared_up_projection, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_up_projection)") ||
         !allocate_optional_moe_l2() ||
         !allocate_optional_moe_compaction() ||
+        !allocate_optional_moe_prepared_replay() ||
         !allocate_optional_shared_projection_hawkeye() ||
         !allocate(&g_state.shared_activated, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_activated)") ||
         !allocate(&g_state.shared_down_projection, kOutputElements * sizeof(uint16_t), "hipMalloc(shared_down_projection)") ||

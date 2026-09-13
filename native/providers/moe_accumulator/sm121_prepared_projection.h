@@ -49,12 +49,34 @@ __global__ void prepare_rows_kernel(const uint16_t* source, uint16_t* encoded,
     if (threadIdx.x == 0u) eligible_rows[row] = invalid == 0u;
 }
 
-template<unsigned Lanes>
+template<unsigned Lanes, unsigned StagingGroups = 1u>
 __device__ __forceinline__ float dot(const uint16_t* left, const uint16_t* right, unsigned count) {
     static_assert(Lanes == 4u || Lanes == 8u || Lanes == 16u);
+    static_assert(StagingGroups == 1u || StagingGroups == 4u || StagingGroups == 8u);
     constexpr unsigned items = 16u / Lanes;
     const unsigned lane = threadIdx.x & (Lanes - 1u);
     qrt_q1_moe_hawkeye::Value carry{0u, -133, false};
+    if constexpr (Lanes == 16u && StagingGroups > 1u) {
+        // Match routed MoE's existing load/product staging while retaining
+        // every original K16 carry boundary and its ascending order.
+#pragma unroll 1
+        for (unsigned base = 0u; base < count; base += 16u * StagingGroups) {
+            qrt_q1_moe_hawkeye::Value products[StagingGroups];
+#pragma unroll
+            for (unsigned group = 0u; group < StagingGroups; ++group) {
+                const unsigned k = base + group * 16u;
+                if (k < count) {
+                    const uint32_t p = qrt_sm121_prepared_bf16::multiply(left[k + lane], right[k + lane]);
+                    products[group] = {(p & 0xffffu) << 9u,
+                        int16_t(qrt_sm121_group16::packed_exponent(p)), (p & 0x80000000u) != 0u};
+                }
+            }
+#pragma unroll
+            for (unsigned group = 0u; group < StagingGroups; ++group)
+                if (base + group * 16u < count)
+                    carry = qrt_sm121_wave16::accumulate_product(carry, products[group]);
+        }
+    } else {
 #pragma unroll 1
     for (unsigned base = 0u; base < count; base += 16u) {
         using Packed = typename std::conditional<Lanes == 4u, uint64_t,
@@ -73,6 +95,7 @@ __device__ __forceinline__ float dot(const uint16_t* left, const uint16_t* right
         } else {
             carry = qrt_sm121_subgroup::accumulate_products<Lanes>(carry, products);
         }
+    }
     }
     return lane ? 0.0f : qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
 }

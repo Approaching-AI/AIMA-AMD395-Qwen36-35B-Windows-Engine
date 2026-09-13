@@ -133,7 +133,7 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     g_state.moe_compaction_blocks = window_blocks;
@@ -147,6 +147,16 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
         for (size_t i = kGuard; i < values->size() - kGuard; ++i) {
             (*values)[i] = bf16(static_cast<float>(static_cast<int>((i * 17u) % 127u) - 63) / 64.0f);
         }
+    }
+    if (mode == 4u) {
+        // Normal operands outside the compact range and subnormal rows must
+        // use the original dot; ordinary rows continue through preparation.
+        for (size_t i = kGuard; i + kGuard < input.size(); i += 3u * kHidden)
+            input[i] = 0x0001u;
+        for (size_t i = kGuard; i + kGuard < weights.size(); i += 7u * kHidden)
+            weights[i] = uint16_t(63u << 7u | 19u);
+        for (size_t i = kGuard; i + kGuard < down_weights.size(); i += 11u * kIntermediate)
+            down_weights[i] = uint16_t(192u << 7u | 11u);
     }
     std::vector<int32_t> ids(routes + 2u * kGuard, -1234567);
     std::vector<float> topk(routes + 2u * kGuard, 12345.25f);
@@ -181,6 +191,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     Device<int32_t> did(ids);
     Device<float> dt(topk), dn(native), dd(down), din(input_norm), dwn(weight_norm);
     Device<uint32_t> dix(index), dc(count);
+    std::vector<uint16_t> encoded_input(std::max(input.size(), activated.size()), kSentinel);
+    std::vector<uint16_t> encoded_weights(std::max(weights.size(), down_weights.size()), kSentinel);
+    std::vector<uint32_t> encoded_input_flags(routes + 2u * kGuard, 0x5a5a5a5au);
+    std::vector<uint32_t> encoded_weight_flags(2u * kHidden + 2u * kGuard, 0x5a5a5a5au);
+    std::vector<float> prepared_norm(std::max(size_t(routes), size_t(2u * kHidden)) + 2u * kGuard, 12345.25f);
+    Device<uint16_t> dei(encoded_input), dew(encoded_weights);
+    Device<uint32_t> defi(encoded_input_flags), defw(encoded_weight_flags);
+    Device<float> depn(prepared_norm);
     g_state.moe_compacted_indices = dix.data(); g_state.moe_compacted_count = dc.data();
     g_state.sm121_moe_absolute_error_ppb = 1000u;
     g_state.moe_l2[static_cast<size_t>(MoeL2::Input)] = din.data();
@@ -193,15 +211,31 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     hip_ok(hipEventCreate(&begin), "compaction begin"); hip_ok(hipEventCreate(&end), "compaction end");
     std::vector<float> expected_native, expected_down;
     std::vector<uint16_t> expected_activated;
-    float times[2]{};
-    for (uint32_t compact = 0u; compact < 2u; ++compact) {
+    float times[3]{};
+    auto prepare_view = [&](const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
+                            uint32_t rows, uint32_t columns) {
+        for (uint32_t first = 0u; first < rows; first += 4096u) {
+            hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel,
+                dim3(std::min(4096u, rows - first)), dim3(kNativeThreads), 0, stream,
+                raw, depn.data(), encoded, flags, rows, columns, first);
+            hip_ok(hipGetLastError(), "prepare routed replay view");
+        }
+    };
+    for (uint32_t compact = 0u; compact < (prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
-        const uint32_t radius = mode == 1u ? 32768u : mode == 2u ? 128u : 0u;
+        g_state.prepared_replay_active = compact == 2u;
+        g_state.prepared_replay_inputs = dei.data(); g_state.prepared_replay_weights = dew.data();
+        g_state.prepared_replay_input_rows = defi.data(); g_state.prepared_replay_weight_rows = defw.data();
+        const uint32_t radius = mode == 1u || mode == 4u ? 32768u : mode == 2u ? 128u : 0u;
         const uint32_t exponent = mode == 2u ? 124u : 0u;
         const uint32_t blocks = static_cast<uint32_t>((elements + kNativeThreads - 1u) / kNativeThreads);
         using P = MoeCorrectionPhase;
         hip_ok(hipEventRecord(begin, stream), "compaction timing begin");
+        if (compact == 2u) {
+            prepare_view(di.data(), dei.data(), defi.data(), tokens, kHidden);
+            prepare_view(dw.data(), dew.data(), defw.data(), 4u * kIntermediate, kHidden);
+        }
         hip_ok(launch_moe_routed_correction<false>(
             routed_gate_batched_hawkeye_correction_kernel<P::Local>, routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
             routed_gate_batched_hawkeye_correction_kernel<P::Replay>, routed_gate_batched_hawkeye_correction_kernel<P::Local>,
@@ -212,6 +246,10 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>, routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
             blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
             routes, radius, exponent), "compaction up");
+        if (compact == 2u) {
+            prepare_view(da.data(), dei.data(), defi.data(), routes, kIntermediate);
+            prepare_view(ddw.data(), dew.data(), defw.data(), 2u * kHidden, kIntermediate);
+        }
         hip_ok(launch_moe_routed_correction<false>(
             routed_down_batched_hawkeye_correction_kernel<P::Local>, routed_down_batched_hawkeye_correction_kernel<P::Collect>,
             routed_down_batched_hawkeye_correction_kernel<P::Replay>, routed_down_batched_hawkeye_correction_kernel<P::Local>,
@@ -238,6 +276,18 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                     actual_activated == expected_activated, "routed compaction differs from original kernel");
         }
     }
+    if (prepared) {
+        for (auto pair : {std::make_pair(dei.read(encoded_input.size()), encoded_input),
+                          std::make_pair(dew.read(encoded_weights.size()), encoded_weights)})
+            for (size_t i = 0u; i < kGuard; ++i)
+                require(pair.first[i] == pair.second[i] && pair.first[pair.first.size()-1u-i] == pair.second.back(),
+                        "prepared operand redzone changed");
+        for (auto pair : {std::make_pair(defi.read(encoded_input_flags.size()), encoded_input_flags),
+                          std::make_pair(defw.read(encoded_weight_flags.size()), encoded_weight_flags)})
+            for (size_t i = 0u; i < kGuard; ++i)
+                require(pair.first[i] == pair.second[i] && pair.first[pair.first.size()-1u-i] == pair.second.back(),
+                        "prepared eligibility redzone changed");
+    }
     require(std::memcmp(expected_native.data(), native.data(), (kGuard + kActivatedElements) * sizeof(float)) == 0,
             "gate accumulator or unused projection gap changed");
     for (size_t i = 0u; i < kGuard; ++i) {
@@ -258,13 +308,61 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     hip_ok(hipStreamDestroy(stream), "compaction stream destroy");
     g_state.moe_l2.fill(nullptr); g_state.moe_compacted_indices = nullptr; g_state.moe_compacted_count = nullptr;
     g_state.compact_routed_hawkeye = false;
+    g_state.prepared_replay_active = false;
+    g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
+    g_state.prepared_replay_input_rows = g_state.prepared_replay_weight_rows = nullptr;
     g_state.moe_compaction_blocks = kMoeCompactionBlocks;
     std::printf("{\"kind\":\"routed_compaction_comparison\",\"tokens\":%u,\"mode\":%u,\"projection_elements\":%zu,"
                 "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
+                "\"prepared_replay_checked\":%s,\"prepared_sequence_ms\":%.6f,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
+}
+
+void compare_prepared_norm(unsigned columns) {
+    constexpr unsigned first = 3u, tested_rows = 259u, rows = first + tested_rows;
+    const auto fixture = scaled_l2_test::fixture(tested_rows, columns);
+    std::vector<uint16_t> input(size_t(rows) * columns + 2u * kGuard, kSentinel);
+    std::copy(fixture.begin(), fixture.end(), input.begin() + kGuard + size_t(first) * columns);
+    std::vector<uint16_t> encoded(input.size(), kSentinel), expected(encoded);
+    std::vector<uint32_t> flags(rows + 2u * kGuard, 0x5a5a5a5au), expected_flags(flags);
+    std::vector<float> norms(rows + 2u * kGuard, 12345.25f);
+    Device<uint16_t> di(input), de(encoded);
+    Device<uint32_t> df(flags);
+    Device<float> original(norms), candidate(norms);
+    hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+        di.data(), original.data(), rows, columns, first);
+    hip_ok(hipGetLastError(), "original prepared norm control");
+    hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+        di.data(), candidate.data(), de.data(), df.data(), rows, columns, first);
+    hip_ok(hipGetLastError(), "fused prepared norm");
+    const auto a = original.read(norms.size()), b = candidate.read(norms.size());
+    require(std::memcmp(a.data(), b.data(), a.size() * sizeof(float)) == 0,
+            "prepared scan changed original FP64 norm bits");
+    unsigned eligible_rows = 0u;
+    for (unsigned row = first; row < rows; ++row) {
+        bool valid_row = true;
+        for (unsigned k = 0; k < columns; ++k) {
+            const size_t index = kGuard + size_t(row) * columns + k;
+            const bool valid = qrt_sm121_prepared_bf16::eligible(input[index]);
+            valid_row &= valid;
+            expected[index] = valid ? qrt_sm121_prepared_bf16::encode(input[index]) : 0u;
+        }
+        expected_flags[kGuard + row] = valid_row;
+        eligible_rows += valid_row;
+    }
+    require(de.read(encoded.size()) == expected && df.read(flags.size()) == expected_flags,
+            "prepared values, eligibility or redzones differ");
+    require(di.read(input.size()) == input, "prepared scan changed original operands");
+    for (size_t i = 0; i < norms.size(); ++i)
+        if (i < kGuard + first || i >= kGuard + rows)
+            require(a[i] == norms[i] && b[i] == norms[i], "prepared norm redzone changed");
+    std::printf("{\"kind\":\"prepared_moe_norm_scan\",\"rows\":%u,\"columns\":%u,"
+        "\"encoded_cells\":%zu,\"eligible_rows\":%u,\"norm_bit_differences\":0,"
+        "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+        tested_rows, columns, size_t(tested_rows) * columns, eligible_rows);
 }
 
 void compare_scaled_l2(unsigned columns) {
@@ -309,6 +407,15 @@ void compare_scaled_l2(unsigned columns) {
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--prepared-replay") == 0) {
+            moe_batch_test::compare_prepared_norm(512u);
+            moe_batch_test::compare_prepared_norm(2048u);
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true);
+            moe_batch_test::compare_routed_compaction(129u, 4u, kMaximumMoeCompactionBlocks, true);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks, true);
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--wide-compaction") == 0) {
             moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks);
             moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks);
