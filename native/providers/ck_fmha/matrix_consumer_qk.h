@@ -8,7 +8,7 @@ namespace qrt_matrix_consumer_qk {
 using namespace qrt_blackwell_attention;
 using Row=qrt_positive_integer_qk::Row;
 
-template<unsigned Columns, bool Positive=true>
+template<unsigned Columns, bool Positive=true, bool FloatFallback=false>
 __global__ void scores(const Row* query,const Row* key,float* output,
     unsigned query_start,unsigned query_count,unsigned stride,unsigned key_stride) {
     static_assert(Columns==16u || Columns==32u || Columns==64u);
@@ -67,7 +67,16 @@ __global__ void scores(const Row* query,const Row* key,float* output,
             const unsigned output_row=query_tile+row,key_row=key_tile+column;
             if (output_row<query_count && key_row<stride && key_row<=query_start+output_row) {
                 const int32_t values[4]={partials[0][cell],partials[1][cell],partials[2][cell],partials[3][cell]};
-                accumulators[item]=blackwell_integer_accumulate(accumulators[item],left[row].core,right[column].core,values);
+                if constexpr (FloatFallback) {
+                    const auto carry=qrt_q1_moe_hawkeye::value_from_float(accumulators[item],kBlackwellZeroExponent);
+                    qrt_sm121_group16::AlignedSum sum;
+                    qrt_sm121_matrix_float_fallback::sum(carry,left[row].core,right[column].core,values,
+                        left[row].core.original[17] && right[column].core.original[17],&sum);
+                    accumulators[item]=qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
+                        qrt_sm121_wave16::normalize(sum.value.magnitude,sum.value.negative,sum.max_exponent)));
+                } else {
+                    accumulators[item]=blackwell_integer_accumulate(accumulators[item],left[row].core,right[column].core,values);
+                }
             }
         }
         __syncthreads();

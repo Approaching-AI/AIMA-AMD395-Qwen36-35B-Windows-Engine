@@ -2,6 +2,7 @@
 #define QRT_POSITIVE_INTEGER_QK_H
 #include "blackwell_attention.h"
 #include "../moe_accumulator/sm121_positive_karatsuba.h"
+#include "../moe_accumulator/sm121_matrix_float_fallback.h"
 
 // Full-shape component experiment. No product dispatcher includes this file.
 namespace qrt_positive_integer_qk {
@@ -28,7 +29,7 @@ __host__ __device__ __forceinline__ void prepare(Row& row) {
     row.core.original[17] = 0u;
 }
 
-template<attention::IntegerRowKind Kind>
+template<attention::IntegerRowKind Kind, bool FloatMetadata=false>
 __global__ void prepare_rows(const uint16_t* input, Row* output,
     unsigned tokens, unsigned start, unsigned count) {
     static_assert(Kind == attention::IntegerRowKind::Query || Kind == attention::IntegerRowKind::Key);
@@ -37,7 +38,10 @@ __global__ void prepare_rows(const uint16_t* input, Row* output,
     Row result{};
     for (unsigned i = 0u; i < 16u; ++i)
         result.core.original[i] = input[attention::integer_row_input_index(Kind, row, i, tokens, start, count)];
-    prepare(result); output[row] = result;
+    prepare(result);
+    if constexpr (FloatMetadata)
+        result.core.original[17]=uint16_t(qrt_sm121_matrix_float_fallback::eligible(result.core.original));
+    output[row] = result;
 }
 
 __device__ __forceinline__ positive::Parts products(const Row& left, const Row& right) {
