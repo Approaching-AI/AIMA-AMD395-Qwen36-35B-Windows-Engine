@@ -2,7 +2,39 @@
 
 ## Current unreleased measurements, 2026-09-13
 
-Scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
+Scalar float GDN state at FLA source `2ee6215` passes same-DLL q8192
+OFF/8-column controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
+match all 512 original GB10 output tokens and actual callbacks, first 144
+and exact raw logit 10.375. Callback TTFT is 40531.9227 / 39620.1231 ms,
+a 911.7996 ms reduction in this single pair. Enabled TPOT is 100.946664 ms
+and model plus engine load is 21304.6899 ms. Use
+`QRT_FLA_GDN_SCALAR_FLOAT_STATE=8` in subsequent candidates; source default
+remains 0 pending broader qualification. Scalar WU/output 1, tiled KKT 2,
+whole/MoE `9f00db5` registered metadata 1 and both prevalidated replay
+options 1, CK `6c0c54c` scalar QK 1 and CLI `a797b62` remain common.
+Command file: `run-native-fla-scalar-state-product-r1.ps1 -StateColumns 0|8`.
+
+Each state CTA retains complete columns, reuses losslessly packed BF16
+operands and row eligibility, and computes the original decay once per
+token/chunk. Ordered K16 carry, integer fallback, BF16 residual/checkpoint
+boundaries, final FMA and FP32 state layout are unchanged. Both 4-column
+and 8-column versions preserve every output and final-state bit in q64,
+q65 and the original GB10 q7169 GDN capture, including sync/async parity.
+Full `make check` passes 364 Python tests with 2 skipped, 47 Rust tests,
+C smoke, clippy and public hygiene. WU/output lane markers now report the
+actual scalar lane count 1. State dispatch has its own explicit marker;
+checkpoint-capture calls retain their original kernel.
+
+Completed state event diagnostics fall from 1952.21936 to 1009.60123 ms
+across 240 segments. These measurements are inside the linear-core wall;
+actual callback TTFT remains the product clock. Continue structural work
+on the attention and projection walls. q8192 still exceeds 10 seconds and
+the immutable 4187.415605 ms target. New long-context, checkpoint, package,
+HTTP, soak and release acceptance remain open.
+Evidence: `benchmarks/correctness/fla-scalar-state-product-20260913.json`,
+SHA256 `758caabf0fbba86e772691902bd052ad2c98f06d1267d36d8fe062593a28d9c1`.
+
+The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
 and exact raw logit 10.375. Callback TTFT is 41738.0364 / 40707.8780 ms,
@@ -27,8 +59,8 @@ the outer selected route; separate scalar-matrix markers identify the
 actual WU/output dispatch.
 
 Completed existing event diagnostics show WU 827.83775 / 445.71661 ms and
-output 1778.16570 / 1131.34616 ms across 240 segments. Enabled persistent
-state remains 1967.73891 ms and is the next broader GDN target. These scopes
+output 1778.16570 / 1131.34616 ms across 240 segments. Its enabled persistent
+state took 1967.73891 ms before the state replacement recorded above. These scopes
 are inside the linear-core wall and do not replace callback TTFT. q8192
 remains above 10 seconds and the immutable 4187.415605 ms target; no new
 long-context, checkpoint, package, HTTP, soak or release acceptance follows.
