@@ -179,6 +179,15 @@ change in the resolved product environment. This remains an experimental
 build option; package savings, broader contexts and release gates are pending.
 See `benchmarks/correctness/compact-exp2-stack-20260913.json`.
 
+Four-lane prepared QK (`f2b21b1`) preserves all 32,160,016 native FP32 scores
+and 640 independent CPU dot comparisons, including partial/causal tiles,
+raw fallback and input/redzone checks. Both same-executable q7169 modes
+match all 29,364,224 external BF16 cells. However, completed query wall with
+V preparation increases from 906.5995 to 1090.3751 ms. Keep one lane; this
+experiment is not integrated into the provider or selected for product use.
+No q8192 result is attributed to it. See
+`benchmarks/correctness/subgroup-tiled-qk-20260913.json`.
+
 An instrumented q8192 run with whole584588a and CK/FLA/MoE8f436db, before
 wider query slabs and the V transpose, passes the same full GB10 boundary.
 Completed host clocks show 21470.5 ms for the attention pipeline,
