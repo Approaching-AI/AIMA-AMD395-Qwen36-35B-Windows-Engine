@@ -204,12 +204,17 @@ __device__ __forceinline__ Interval reciprocal_interval(Interval den, const unsi
 // FullRows is the final correctness fallback and includes all remaining scores.
 template<bool FullRows>
 __global__ void collect_denominator_refinement(const float* scores, const float* errors,
-    const float* maxima, const float* scales, const unsigned* needed_rows,
+    const float* maxima, const float* scales, const unsigned* needed_rows, const float* row_budgets,
     unsigned start, unsigned stride, const unsigned char* table, unsigned* indices, unsigned* count) {
     const unsigned lane = threadIdx.x, row = blockIdx.y * kQueryHeads + blockIdx.x;
     if (!needed_rows[row]) return;
     const unsigned tokens = start + blockIdx.y + 1u, tiles = (stride + 31u) / 32u;
-    const float threshold = (scales[size_t(row) * (tiles + 1u) + tiles] * 0x1p-24f) / float(tokens);
+    float threshold = 0.0f;
+    if constexpr (!FullRows) {
+        const float budget = row_budgets ? row_budgets[row]
+            : scales[size_t(row) * (tiles + 1u) + tiles] * 0x1p-24f;
+        threshold = budget / float(tokens);
+    }
     for (unsigned tile = 0u; tile < (tokens + 31u) / 32u; ++tile) {
         const unsigned key = tile * 32u + lane, cell = row * stride + key;
         bool selected = key < tokens && errors[cell] != 0.0f;

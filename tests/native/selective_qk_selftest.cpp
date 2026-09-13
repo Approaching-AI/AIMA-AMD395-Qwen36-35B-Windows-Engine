@@ -122,7 +122,7 @@ __global__ void inspect_scales(const float* canonical, const float* actual, cons
     count_metric(stats, DenominatorOutside, outside);
 }
 __global__ void denominator_guard(const float* accumulator, const float* scales, const float* den,
-    const float* canonical_output, float* output, unsigned* needed_rows, unsigned rows,
+    const float* canonical_output, float* output, unsigned* needed_rows, float* row_budgets, unsigned rows,
     unsigned tiles, const unsigned char* table, unsigned pass, unsigned* stats) {
     const unsigned i = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned uncertain = 0u, admitted_wrong = 0u;
@@ -135,6 +135,24 @@ __global__ void denominator_guard(const float* accumulator, const float* scales,
         const bool stable = isfinite(a) && isfinite(b) && f32_to_bf16(a) == f32_to_bf16(b);
         output[i] = center;
         if (!stable) { uncertain = 1u; atomicOr(needed_rows + row, 1u); }
+        if (carry != 0.0f) {
+            // Work selection only. Estimate how much denominator refinement
+            // this row needs from its nearest output BF16 midpoint. Reserve
+            // FP32/RCP headroom and use the tightest of all256 dimensions.
+            // The later interval certificate and exact-row fallback retain
+            // sole authority to admit an output; this estimate never does.
+            const float magnitude = fabsf(center);
+            const uint32_t rounded = uint32_t(f32_to_bf16(magnitude)) << 16u;
+            float budget = 0.0f;
+            if (magnitude > 0.0f && rounded < 0x7f800000u) {
+                const float lower = rounded ? __uint_as_float(rounded - 0x8000u) : 0.0f;
+                const float upper = __uint_as_float(rounded + 0x8000u);
+                const float distance = fminf(magnitude - lower, upper - magnitude);
+                const float relative = fmaxf(distance / magnitude - 0x1p-20f, 0.0f);
+                budget = (scales[size_t(row) * (tiles + 1u) + tiles] * relative) * 0.5f;
+            }
+            atomicMin(reinterpret_cast<unsigned*>(row_budgets) + row, __float_as_uint(budget));
+        }
         // Canonical comparison is diagnostic-only and never feeds selection.
         admitted_wrong = stable && f32_to_bf16(center) != f32_to_bf16(canonical_output[i]);
     }
@@ -180,7 +198,7 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
     const size_t output_capacity = size_t(batch) * kQueryHeads * kHeadDim;
     Buffer<float> es(score_capacity), ns(score_capacity), errors(score_capacity), ez(scale_capacity), nz(scale_capacity), maxima(scale_capacity);
     Buffer<uint16_t> ep(score_capacity), np(score_capacity);
-    Buffer<float> canonical(output_capacity), accumulator(output_capacity), output(output_capacity), den(size_t(batch) * kQueryHeads * 2u);
+    Buffer<float> canonical(output_capacity), accumulator(output_capacity), output(output_capacity), den(size_t(batch) * kQueryHeads * 2u), row_budgets(size_t(batch) * kQueryHeads);
     Buffer<unsigned> indices(score_capacity), count(1u), needed(size_t(batch) * kQueryHeads), stats(MetricCount);
     const unsigned allocation_queries = std::min(batch, tokens);
     Buffer<float> helper_scratch(split_scratch_elements(allocation_queries, tokens, 22u));
@@ -265,9 +283,10 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
             helper_output.data(), output.data(), dr.data(), start, cells, external, stats.data()); finish();
         for (unsigned pass = 0u; pass < 3u; ++pass) {
             check(hipMemset(needed.data(), 0, rows * 4u));
+            check(hipMemset(row_budgets.data(), 0x7f, rows * 4u));
             repair_pipeline_ms += timed([&] {
                 hipLaunchKernelGGL(denominator_guard, dim3((cells + 255u) / 256u), dim3(256u), 0u, nullptr,
-                    accumulator.data(), nz.data(), den.data(), canonical.data(), output.data(), needed.data(), rows,
+                    accumulator.data(), nz.data(), den.data(), canonical.data(), output.data(), needed.data(), row_budgets.data(), rows,
                     tiles, drecip.data(), pass, stats.data());
             });
             hipLaunchKernelGGL(inspect_rows, dim3((rows + 255u) / 256u), dim3(256u), 0u, nullptr,
@@ -277,10 +296,10 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
                 check(hipMemset(count.data(), 0, 4u));
                 if (pass == 0u) {
                     hipLaunchKernelGGL(HIP_KERNEL_NAME(route::collect_denominator_refinement<false>), dim3(kQueryHeads, queries), dim3(32u), 0u, nullptr,
-                        ns.data(), errors.data(), maxima.data(), nz.data(), needed.data(), start, stride, de.data(), indices.data(), count.data());
+                        ns.data(), errors.data(), maxima.data(), nz.data(), needed.data(), row_budgets.data(), start, stride, de.data(), indices.data(), count.data());
                 } else {
                     hipLaunchKernelGGL(HIP_KERNEL_NAME(route::collect_denominator_refinement<true>), dim3(kQueryHeads, queries), dim3(32u), 0u, nullptr,
-                        ns.data(), errors.data(), maxima.data(), nz.data(), needed.data(), start, stride, de.data(), indices.data(), count.data());
+                        ns.data(), errors.data(), maxima.data(), nz.data(), needed.data(), row_budgets.data(), start, stride, de.data(), indices.data(), count.data());
                 }
                 check(hipGetLastError()); repair(); probabilities();
             });
@@ -303,7 +322,7 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
         }
     }
     const auto result = stats.download();
-    for (auto* b : {&es, &ns, &errors, &ez, &nz, &maxima, &canonical, &accumulator, &output, &den, &helper_scratch, &helper_work, &helper_output}) b->guards();
+    for (auto* b : {&es, &ns, &errors, &ez, &nz, &maxima, &canonical, &accumulator, &output, &den, &row_budgets, &helper_scratch, &helper_work, &helper_output}) b->guards();
     for (auto* b : {&ep, &np, &dt, &dvt}) b->guards();
     for (auto* b : {&indices, &count, &needed, &stats}) b->guards();
     dq.immutable(q); dk.immutable(k); dv.immutable(v); dr.immutable(reference); de.immutable(exp2); drecip.immutable(reciprocal);
@@ -317,6 +336,7 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
         "\"candidate_canonical_pv_ms\":%.6f,\"redzones_pass\":true,\"immutable_inputs\":true,"
         "\"probability_route_cells\":%u,\"probability_route_same_denominator_bf16_differences\":%u,\"probability_route_external_bf16_differences\":%u,"
         "\"probability_route_completed_ms\":%.6f,\"value_transpose_ms\":%.6f,"
+        "\"denominator_refinement_budget\":\"output_BF16_margin_work_threshold\",\"strict_final_interval_and_row_fallback\":true,"
         "\"baseline_scores_are_compute_input\":false,\"external_reference_is_compute_input\":false,"
         "\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
         tokens, mode, external ? "true" : "false", result[ScoreCells], result[ScoreOutside], result[NativeScoreDifferent], as_float(result[ScoreMaximumRatio]),
