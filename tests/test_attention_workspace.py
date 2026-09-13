@@ -251,6 +251,7 @@ int main() {
     reset(); unsetenv("QRT_CK_SM121_MANTISSA_WMMA");
     for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u,
                                  16385u, 17408u, 17920u, 32768u, 33792u, 34304u,
+                                 65535u, 65536u, 65537u, 66560u, 67072u, 68097u,
                                  kSm121MaxTokens}) {
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "0", 1);
         if (sm121_attention_enabled(tokens)) return 14;
@@ -390,6 +391,10 @@ int main() {
     if(launch(32768,1)!=hipErrorLaunchTimeOut || queries!=1u || syncs!=1u) return 53;
     reset();
     if(launch(32768,1024)!=hipSuccess || queries!=32u || syncs!=queries) return 54;
+    reset();
+    if(launch(65536,1024)!=hipSuccess || queries!=32u || syncs!=queries) return 101;
+    reset();
+    if(launch(66560,512)!=hipSuccess || queries!=16u || syncs!=queries) return 102;
     for(const char* mode : {"1","2","3"}) {
         reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
         if(launch(0,65)!=hipSuccess || observed_layout!=21u+unsigned(*mode-'0') || queries!=3u || transposes!=1u) return 55;

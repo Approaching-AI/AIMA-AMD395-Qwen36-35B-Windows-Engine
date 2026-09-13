@@ -91,7 +91,8 @@ int QRT_CDECL emit(void*,uint32_t token,uint64_t elapsed){
 }
 ''' + coordinator + r'''
 int main(){
- std::vector<uint32_t> prompt(65536);for(size_t i=0;i<prompt.size();++i)prompt[i]=uint32_t(i%245000);
+ std::vector<uint32_t> prompt(qrt_sm121_attention_capacity::kTokens+1024u);
+ for(size_t i=0;i<prompt.size();++i)prompt[i]=uint32_t(i%245000);
  actual_prompt=prompt.data();auto result=std::make_unique<qrt_qwen36_whole_provider_result_t>();
  auto run=[&](size_t total){
   requested_total=total;seeds=suffixes=callbacks=releases=0;*result={};result->preload_wall_clock_ns=789;
@@ -100,7 +101,7 @@ int main(){
   r.expected_prompt_token_ids_fnv1a64=qrt_fnv1a64_bytes(prompt.data(),total*4);
   const int ok=run_qwen36_chunked_prefill(r,result.get(),qrt_now_ns());assert(!g_qwen36_chunked_prefill_total_tokens);return ok;
  };
- for(size_t total:{16384u,17408u,32768u,65536u}){
+ for(size_t total:{16384u,17408u,32768u,65536u,66560u,122880u,123904u,131072u}){
   assert(run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases);
   assert(result->resident_session_valid&&result->resident_session_prefix_token_count==total);
   assert(result->resident_session_generation==99&&result->output_tokens[0]==42&&result->output_token_capacity==512);
@@ -110,8 +111,13 @@ int main(){
  fail_seed=true;assert(!run(16384)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);fail_seed=false;
  for(unsigned failure:{1u,2u}){fail_suffix=failure;assert(!run(32768)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);}
  fail_suffix=0;bad_counter=true;assert(!run(16384)&&!callbacks&&releases==1);bad_counter=false;
+ // A failure after crossing the old 64k limit must discard every partially
+ // advanced owner and must not publish an intermediate callback.
+ fail_suffix=8u;assert(!run(66560)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
+ fail_suffix=0;
  cancel=true;assert(!run(17408)&&callbacks==1&&releases==1&&result->prefill_emit_rejected&&!result->resident_session_valid);cancel=false;
  assert(!run(16385)&&!seeds&&!callbacks&&!releases);
+ assert(!run(qrt_sm121_attention_capacity::kTokens+1024u)&&!seeds&&!callbacks&&!releases);
  assert(run(16384)&&callbacks==1&&result->completed);
 }
 '''

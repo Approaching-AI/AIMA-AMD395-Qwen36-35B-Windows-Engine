@@ -105,6 +105,11 @@ int main(){
  fail_allocate=false;assert(call(32768,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==33792&&live.size()==1);
  assert(call(32768,8192)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==40960);
  assert(call(32768,1)==hipSuccess&&copies==5);
+ retained=g_sm121_suffix.cells;fail_allocate=true;
+ assert(call(65536,1024)==hipErrorUnknown&&copies==0&&g_sm121_suffix.cells==retained&&live.size()==1);
+ fail_allocate=false;
+ assert(call(65536,1024)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==66560&&live.size()==1);
+ assert(call(66560,512)==hipSuccess&&copies==5&&g_sm121_suffix.capacity_tokens==67072&&live.size()==1);
  assert(call(32700,69)==hipSuccess&&copies==5);
  assert(call(kSm121MaxTokens-1024,1024)==hipSuccess&&g_sm121_suffix.capacity_tokens==kSm121MaxTokens&&live.size()==1);
  assert(call(16384,1024)==hipSuccess&&copies==5);

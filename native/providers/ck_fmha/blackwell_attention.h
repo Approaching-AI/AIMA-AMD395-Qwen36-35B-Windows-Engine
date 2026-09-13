@@ -1922,10 +1922,9 @@ __global__ void blackwell_prepare_value_encoding_kernel(
     if (index < elements) output[index] = qrt_sm121_prepared_bf16::encode_wide(input[index]);
 }
 
-// Include the registered 16k prefix, 1024-token suffix and 512-token decode
-// extent. A 16k-only bound selected ordinary CK for the combined prompt,
-// although the owner itself used exact QK/PV. Keep all split buffers and
-// dispatch checks on this same bound; this is not long-context acceptance.
+// Include the registered 64k prefix, 1024-token suffix and resident decode
+// tail. Keep all split buffers and dispatch checks on the shared bound so a
+// suffix cannot switch the owner to ordinary CK. Capacity is not acceptance.
 constexpr unsigned int kSplitMaxTokens = qrt_sm121_attention_capacity::kTokens;
 
 inline int prepare_value_encoding(const uint16_t* input, uint32_t* output,

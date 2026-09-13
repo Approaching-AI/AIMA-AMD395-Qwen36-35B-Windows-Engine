@@ -143,9 +143,10 @@ int main(){
    l.element_kind=Qwen36ResidentSessionElementKind::kF32;assert(!v.validate());l.element_kind=Qwen36ResidentSessionElementKind::kBf16;
    l.decode_tail_capacity_tokens=1023;assert(!v.validate());l.decode_tail_capacity_tokens=1536;}
  }
- // Change all owner metadata together, including the previously rejected 32k
- // owner. Guard memory capacity independently of alignment and state layout.
- for(unsigned prefix:{8192u,16384u,24576u,32768u,57344u,65536u,UINT32_MAX}){
+ // Change every layer together, including the 64k owner and the final aligned
+ // owner that fits. Guard capacity independently of alignment and state layout.
+ for(unsigned prefix:{8192u,16384u,24576u,32768u,57344u,65535u,65536u,65537u,
+                      122880u,131072u,UINT32_MAX}){
   session.prefix_tokens=v.prefix=prefix;
   for(unsigned i=0;i<40;++i){
    session.linear_layers[i].prefix_tokens=prefix;
