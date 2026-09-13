@@ -30,6 +30,7 @@
 #include "fmha_fwd.hpp"
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
 #include "blackwell_attention.h"
+#include "selective_qk.h"
 #endif
 
 #if defined(_WIN32)
@@ -187,6 +188,7 @@ unsigned char* g_sm121_exp2 = nullptr;
 unsigned char* g_sm121_rcp = nullptr;
 float* g_sm121_scores = nullptr;
 float* g_sm121_mantissa_scores = nullptr;
+float* g_sm121_selective_qk = nullptr;
 uint16_t* g_sm121_transposed_keys = nullptr;
 uint16_t* g_sm121_transposed_values = nullptr;
 uint32_t* g_sm121_prepared_values = nullptr;
@@ -206,6 +208,7 @@ constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121Matr
 constexpr size_t kSm121KeyElements =
     static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
 constexpr size_t kSm121TransposedValueElements = size_t(8192u) * kKvHeads * kHeadDim;
+constexpr size_t kSm121SelectiveQkElements = size_t(128u) * kQueryHeads * (2u * 8192u + 256u) + 1u;
 
 struct Sm121SuffixWorkspace {
     uint16_t* cells = nullptr;
@@ -345,6 +348,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(direct_pv_option,"1")) return int(hipErrorInvalidValue);
     const bool direct_pv_operands = direct_pv_option && std::strcmp(direct_pv_option,"1")==0 &&
         (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+    const char* selective_option = std::getenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
+    if (selective_option && *selective_option && std::strcmp(selective_option,"0") &&
+        std::strcmp(selective_option,"1")) return int(hipErrorInvalidValue);
+    const bool selective_qk = selective_option && std::strcmp(selective_option,"1")==0 &&
+        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -383,6 +391,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             kSm121MantissaElements * sizeof(float)));
         if (status != int(hipSuccess)) { g_sm121_mantissa_scores = nullptr; return status; }
     }
+    if (selective_qk && !g_sm121_selective_qk) {
+        status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_selective_qk),
+            kSm121SelectiveQkElements * sizeof(float)));
+        if (status != int(hipSuccess)) { g_sm121_selective_qk = nullptr; return status; }
+    }
     if (transpose_value && !g_sm121_transposed_values) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_transposed_values),
             kSm121TransposedValueElements * sizeof(uint16_t)));
@@ -420,6 +433,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
+        if (selective_qk) {
+            status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
+                query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
+                g_sm121_exp2, g_sm121_rcp, memory_layout, g_sm121_mantissa_scores, kSm121MantissaElements,
+                g_sm121_selective_qk, kSm121SelectiveQkElements, g_sm121_transposed_keys, key_stride,
+                transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
+                final_pv_bound, direct_pv_operands);
+        } else {
         status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
             query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
             g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, memory_layout,
@@ -429,6 +450,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
             nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands);
+        }
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -456,6 +478,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (direct_pv_operands)
         std::fprintf(stderr,"SM121_DIRECT_PV_OPERANDS query_start=%u query_count=%u token_major_values=1 additional_workspace_bytes=0\n",
             query_start,query_count);
+    if (selective_qk)
+        std::fprintf(stderr,"SM121_SELECTIVE_QK_PROBABILITY query_start=%u query_count=%u probability_endpoint_repair=1 approximate_denominator=1 workspace_bytes=%zu gb10_product_gate_required=1\n",
+            query_start,query_count,kSm121SelectiveQkElements*sizeof(float));
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);
@@ -1316,6 +1341,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_rcp);
         (void)hipFree(g_sm121_scores);
         (void)hipFree(g_sm121_mantissa_scores);
+        (void)hipFree(g_sm121_selective_qk);
         (void)hipFree(g_sm121_transposed_keys);
         (void)hipFree(g_sm121_transposed_values);
         (void)hipFree(g_sm121_prepared_values);
@@ -1323,6 +1349,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         g_sm121_rcp = nullptr;
         g_sm121_scores = nullptr;
         g_sm121_mantissa_scores = nullptr;
+        g_sm121_selective_qk = nullptr;
         g_sm121_transposed_keys = nullptr;
         g_sm121_transposed_values = nullptr;
         g_sm121_prepared_values = nullptr;

@@ -3,8 +3,9 @@
 
 #include "blackwell_attention.h"
 
-// Component route under numerical validation. No product dispatcher calls
-// these kernels yet. Full original scores are never inputs to selection.
+// Route under numerical validation. The strict denominator repair remains a
+// component diagnostic; an opt-in product trial isolates the probability path
+// with an approximate denominator. Full baseline scores never select work.
 namespace qrt_selective_qk {
 using namespace qrt_blackwell_attention;
 namespace bound = qrt_sm121_pv_bound;
@@ -163,17 +164,23 @@ __global__ void probabilities_and_denominators(const float* scores, const float*
         const unsigned key = tile * 32u + lane, cell = row * stride + key;
         const float next = maxima[size_t(row) * tiles + tile];
         const float alpha = blackwell_attention_exp(maximum - next, table);
-        const auto p = key < tokens ? probability_interval(scores[cell], errors[cell], next, table) : Interval{0.0f, 0.0f};
         const float value = key < tokens ? blackwell_attention_exp(fminf(scores[cell], next) - next, table) : 0.0f;
         if (key < stride) probabilities[cell] = f32_to_bf16(value);
-        const float a = wave_sum(p.low), b = wave_sum(p.high), c = wave_sum(value);
-        low = low * alpha + a; high = high * alpha + b; center = center * alpha + c;
+        const float c = wave_sum(value);
+        if (denominators) {
+            const auto p = key < tokens ? probability_interval(scores[cell], errors[cell], next, table) : Interval{0.0f, 0.0f};
+            const float a = wave_sum(p.low), b = wave_sum(p.high);
+            low = low * alpha + a; high = high * alpha + b;
+        }
+        center = center * alpha + c;
         if (lane == 0u) scales[size_t(row) * (tiles + 1u) + tile] = alpha;
         maximum = next;
     }
     if (lane == 0u) {
         scales[size_t(row) * (tiles + 1u) + tiles] = center;
-        denominators[size_t(row) * 2u] = low; denominators[size_t(row) * 2u + 1u] = high;
+        if (denominators) {
+            denominators[size_t(row) * 2u] = low; denominators[size_t(row) * 2u + 1u] = high;
+        }
     }
 }
 
@@ -214,6 +221,91 @@ __global__ void collect_denominator_refinement(const float* scores, const float*
         }
         collect(cell, selected, indices, count);
     }
+}
+
+inline size_t probability_scratch_elements(unsigned queries, unsigned stride) {
+    if (!queries || queries > 128u || stride < queries || stride > 8192u) return 0u;
+    const size_t rows = size_t(queries) * kQueryHeads;
+    return rows * stride * 2u + rows * ((stride + 31u) / 32u) + 1u;
+}
+
+// Experimental floating route: probabilities and alphas use certified score
+// repair; the unrounded denominator remains approximate. This helper makes no
+// canonical-output claim. Product acceptance requires the full GB10 token
+// boundary. All native-PV arithmetic/envelopes and exact-PV replay are shared
+// with the existing qualified path; no full exact-score buffer is consulted.
+inline int launch_probability_attention(const uint16_t* q, const uint16_t* k,
+    const uint16_t* v, float* output, hipStream_t stream, unsigned start, unsigned queries,
+    unsigned output_start, const unsigned char* exp2, const unsigned char* reciprocal,
+    unsigned layout, float* scratch, size_t scratch_elements, float* work, size_t work_elements,
+    const uint16_t* transposed_key, unsigned key_stride, const uint16_t* transposed_value,
+    unsigned value_stride, bool final_pv_bound, bool direct_pv_operands,
+    float* raw_accumulator = nullptr, float* raw_denominator = nullptr) {
+    if (!q || !k || !v || !output || !exp2 || !reciprocal || !scratch || !work || !transposed_key ||
+        !queries || queries > 128u || start >= 8192u || queries > 8192u - start ||
+        output_start >= 262144u || queries > 262144u - output_start || (layout != 22u && layout != 24u))
+        return int(hipErrorInvalidValue);
+    const unsigned stride = start + queries;
+    if (key_stride < stride || key_stride > 8192u ||
+        (transposed_value ? value_stride < stride || value_stride > kSplitMaxTokens : value_stride != 0u) ||
+        scratch_elements < split_scratch_elements(queries, stride, layout) ||
+        work_elements < probability_scratch_elements(queries, stride)) return int(hipErrorInvalidValue);
+    const size_t rows = size_t(queries) * kQueryHeads, cells = rows * stride;
+    auto* score_errors = work;
+    auto* score_indices = reinterpret_cast<unsigned*>(score_errors + cells);
+    auto* maxima = reinterpret_cast<float*>(score_indices + cells);
+    auto* score_count = reinterpret_cast<unsigned*>(maxima + rows * ((stride + 31u) / 32u));
+    auto* probabilities = reinterpret_cast<uint16_t*>(scratch + cells);
+    auto* scales = reinterpret_cast<float*>(probabilities + cells);
+    hipLaunchKernelGGL(native_scores,
+        dim3((stride + kIntegerMatrixColumns - 1u) / kIntegerMatrixColumns, kQueryHeads, (queries + 15u) / 16u),
+        dim3(kThreads), 0u, stream, q, transposed_key, scratch, score_errors, start, queries, stride, key_stride);
+    auto status = hipGetLastError(); if (status != hipSuccess) return int(status);
+    for (unsigned pass = 0u; pass < 2u; ++pass) {
+        status = hipMemsetAsync(score_count, 0, sizeof(unsigned), stream); if (status != hipSuccess) return int(status);
+        if (pass == 0u) {
+            hipLaunchKernelGGL(collect_maxima, dim3(kQueryHeads, queries), dim3(32u), 0u, stream,
+                scratch, score_errors, start, stride, score_indices, score_count);
+        } else {
+            hipLaunchKernelGGL(collect_probabilities, dim3(kQueryHeads, queries), dim3(32u), 0u, stream,
+                scratch, score_errors, maxima, start, stride, exp2, score_indices, score_count);
+        }
+        status = hipGetLastError(); if (status != hipSuccess) return int(status);
+        hipLaunchKernelGGL(repair_scores, dim3(256u), dim3(kThreads), 0u, stream,
+            q, k, scratch, score_errors, start, stride, score_indices, score_count);
+        status = hipGetLastError(); if (status != hipSuccess) return int(status);
+    }
+    hipLaunchKernelGGL(probabilities_and_denominators, dim3(kQueryHeads, queries), dim3(32u), 0u, stream,
+        scratch, score_errors, maxima, probabilities, scales, nullptr, start, stride, exp2);
+    status = hipGetLastError(); if (status != hipSuccess) return int(status);
+    auto* errors = scales + rows * ((stride + 31u) / 32u + 1u);
+    if (direct_pv_operands && final_pv_bound) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true, true>),
+            dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (queries + 15u) / 16u), dim3(kThreads), 0u, stream,
+            v, probabilities, scales, output, start, queries, output_start, stride,
+            reciprocal, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+    } else if (direct_pv_operands) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, false, true>),
+            dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (queries + 15u) / 16u), dim3(kThreads), 0u, stream,
+            v, probabilities, scales, output, start, queries, output_start, stride,
+            reciprocal, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+    } else if (final_pv_bound) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true>),
+            dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (queries + 15u) / 16u), dim3(kThreads), 0u, stream,
+            v, probabilities, scales, output, start, queries, output_start, stride,
+            reciprocal, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+    } else {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true>),
+            dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (queries + 15u) / 16u), dim3(kThreads), 0u, stream,
+            v, probabilities, scales, output, start, queries, output_start, stride,
+            reciprocal, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+    }
+    status = hipGetLastError(); if (status != hipSuccess) return int(status);
+    auto* indices = reinterpret_cast<unsigned*>(errors + rows * kHeadDim);
+    auto* count = indices + rows * kHeadDim;
+    return launch_compacted_pv_replay(v, probabilities, scales, output, start, queries, output_start,
+        stride, reciprocal, raw_accumulator, raw_denominator, errors, indices, count, stream, nullptr,
+        transposed_value, value_stride);
 }
 } // namespace qrt_selective_qk
 #endif

@@ -77,6 +77,7 @@ unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned direct_pv_queries = 0;
+unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
 unsigned preparations = 0;
@@ -167,16 +168,32 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     return queries == fail_query ? hipErrorUnknown : hipSuccess;
 }
 }
+namespace qrt_selective_qk {
+int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uint16_t* v,
+    float* output, hipStream_t stream, unsigned start, unsigned count, unsigned output_start,
+    const unsigned char* exp2, const unsigned char* reciprocal, unsigned layout,
+    float* scratch, size_t elements, float* work, size_t work_elements,
+    const uint16_t* transposed_key, unsigned key_stride, const uint16_t* transposed_value,
+    unsigned value_stride, bool final_bound, bool direct_pv) {
+    ++selective_qk_queries;
+    if(!work || work!=g_sm121_selective_qk || work_elements!=kSm121SelectiveQkElements ||
+       work_elements < size_t(count)*16u*(2u*(start+count)+(start+count+31u)/32u)+1u ||
+       (layout!=22u && layout!=24u) || start+count>8192u) std::abort();
+    return qrt_blackwell_attention::launch_queries(q,k,v,output,stream,start,count,output_start,
+        exp2,nullptr,nullptr,true,reciprocal,layout,scratch,elements,nullptr,nullptr,transposed_key,key_stride,
+        false,nullptr,nullptr,0u,nullptr,nullptr,transposed_value,value_stride,1u,1u,final_bound,direct_pv);
+}
+}
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values;
+           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
-    observed_layout = largest_batch = final_bound_queries = direct_pv_queries = 0;
+    observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = 0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -466,6 +483,29 @@ int main() {
     }
     unsetenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
     unsetenv("QRT_CK_SM121_FINAL_PV_BOUND");
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries) return 83;
+    }
+    setenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY","1",1);
+    for(const char* mode : {"1","2","3"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        if(launch(0,8192)!=hipSuccess || selective_qk_queries!=(*mode=='2' ? 0u : queries) ||
+           allocations!=(*mode=='2' ? 5u : 6u)) return 84;
+        reset();fail_query=2u;
+        if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u) return 85;
+        for(unsigned tokens : {1u,8193u,17408u}) {
+            reset();if(launch(0,tokens)!=hipSuccess || selective_qk_queries || g_sm121_selective_qk ||
+               allocations!=(tokens==1u ? 4u : 5u)) return 86;
+        }
+    }
+    reset();fail_allocation=6u;
+    if(launch(0,8192)!=hipErrorUnknown || g_sm121_selective_qk || transposes || queries || syncs || live.size()!=5u) return 87;
+    reset();
+    if(launch(0,8192)!=hipSuccess || allocations!=6u || selective_qk_queries!=64u) return 88;
+    transposes=queries=syncs=selective_qk_queries=0u;
+    if(launch(0,7169)!=hipSuccess || allocations!=6u || selective_qk_queries!=57u) return 89;
+    unsetenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");

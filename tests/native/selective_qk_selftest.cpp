@@ -14,14 +14,15 @@
 namespace {
 using namespace qrt_blackwell_attention;
 namespace route = qrt_selective_qk;
-constexpr unsigned batch = 32u, guard = 64u;
+constexpr unsigned batch = 128u, guard = 64u;
 enum Metric : unsigned {
     ScoreCells, ScoreOutside, NativeScoreDifferent, ScoreMaximumRatio,
     ProbabilityCells, ProbabilityDifferent, AlphaDifferent, DenominatorRows, DenominatorOutside,
     InitialUncertainCells, InitialRows, InitialAdmittedWrong,
     RefinedUncertainCells, RefinedRows, RefinedAdmittedWrong,
     FinalUncertainCells, FinalRows, FinalAdmittedWrong,
-    OutputCells, OutputDifferent, ExternalDifferent, Nonfinite, MetricCount
+    OutputCells, OutputDifferent, ExternalDifferent, Nonfinite,
+    HelperCells, HelperDifferent, HelperExternalDifferent, MetricCount
 };
 void require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 void check(hipError_t status) { if (status != hipSuccess) throw std::runtime_error(hipGetErrorString(status)); }
@@ -156,11 +157,22 @@ __global__ void inspect_final(const float* output, const float* canonical, const
     count_metric(stats, OutputCells, count); count_metric(stats, OutputDifferent, different);
     count_metric(stats, ExternalDifferent, external_different); count_metric(stats, Nonfinite, nonfinite);
 }
+__global__ void inspect_helper(const float* actual, const float* expected, const uint16_t* reference,
+    unsigned start, unsigned cells, bool external, unsigned* stats) {
+    unsigned count = 0u, different = 0u, external_different = 0u;
+    for (unsigned i = blockIdx.x * blockDim.x + threadIdx.x; i < cells; i += gridDim.x * blockDim.x) {
+        ++count; const auto value = f32_to_bf16(actual[i]);
+        different += !isfinite(actual[i]) || value != f32_to_bf16(expected[i]);
+        if (external) external_different += value != reference[size_t(start) * kQueryHeads * kHeadDim + i];
+    }
+    count_metric(stats, HelperCells, count); count_metric(stats, HelperDifferent, different);
+    count_metric(stats, HelperExternalDifferent, external_different);
+}
 float as_float(unsigned word) { float x; std::memcpy(&x, &word, 4u); return x; }
 void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const std::vector<uint16_t>& k,
     const std::vector<uint16_t>& v, const std::vector<uint16_t>& reference,
     const std::vector<unsigned char>& exp2, const std::vector<unsigned char>& reciprocal, bool external) {
-    Buffer<uint16_t> dq(q.size()), dk(k.size()), dv(v.size()), dt(k.size()), dr(reference.size());
+    Buffer<uint16_t> dq(q.size()), dk(k.size()), dv(v.size()), dt(k.size()), dvt(v.size()), dr(reference.size());
     Buffer<unsigned char> de(exp2.size()), drecip(reciprocal.size());
     dq.upload(q); dk.upload(k); dv.upload(v); dr.upload(reference); de.upload(exp2); drecip.upload(reciprocal);
     const size_t score_capacity = size_t(batch) * kQueryHeads * tokens;
@@ -170,9 +182,13 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
     Buffer<uint16_t> ep(score_capacity), np(score_capacity);
     Buffer<float> canonical(output_capacity), accumulator(output_capacity), output(output_capacity), den(size_t(batch) * kQueryHeads * 2u);
     Buffer<unsigned> indices(score_capacity), count(1u), needed(size_t(batch) * kQueryHeads), stats(MetricCount);
+    const unsigned allocation_queries = std::min(batch, tokens);
+    Buffer<float> helper_scratch(split_scratch_elements(allocation_queries, tokens, 22u));
+    Buffer<float> helper_work(route::probability_scratch_elements(allocation_queries, tokens)), helper_output(output_capacity);
     check(hipMemset(stats.data(), 0, MetricCount * 4u));
     double transpose_ms = timed([&] { check(hipError_t(transpose_keys(dk.data(), dt.data(), k.size(), tokens, nullptr))); });
-    double original_qk_ms = 0.0, original_probability_ms = 0.0, native_bound_ms = 0.0, repair_pipeline_ms = 0.0, canonical_pv_ms = 0.0;
+    const double value_transpose_ms = timed([&] { check(hipError_t(transpose_keys(dv.data(), dvt.data(), v.size(), tokens, nullptr))); });
+    double original_qk_ms = 0.0, original_probability_ms = 0.0, native_bound_ms = 0.0, repair_pipeline_ms = 0.0, canonical_pv_ms = 0.0, helper_ms = 0.0;
     uint64_t selected[4] = {}; unsigned cpu_dots = 0u;
     for (unsigned start = 0u; start < tokens; start += batch) {
         const unsigned queries = std::min(batch, tokens - start), stride = start + queries;
@@ -237,6 +253,16 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
             hipLaunchKernelGGL(blackwell_probability_value_kernel, dim3(kQueryHeads, queries), dim3(kHeadDim), 0u, nullptr,
                 dv.data(), np.data(), nz.data(), output.data(), start, 0u, stride, drecip.data(), accumulator.data(), nullptr, nullptr);
         });
+        const bool transposed_v = external || mode % 2u == 0u;
+        helper_ms += timed([&] {
+            check(hipError_t(route::launch_probability_attention(dq.data(), dk.data(), dv.data(), helper_output.data(), nullptr,
+                start, queries, 0u, de.data(), drecip.data(), mode % 2u ? 22u : 24u,
+                helper_scratch.data(), helper_scratch.size, helper_work.data(), helper_work.size,
+                dt.data(), tokens, transposed_v ? dvt.data() : nullptr, transposed_v ? tokens : 0u,
+                external || mode % 2u == 0u, external || mode % 3u != 0u)));
+        });
+        hipLaunchKernelGGL(inspect_helper, dim3(128u), dim3(256u), 0u, nullptr,
+            helper_output.data(), output.data(), dr.data(), start, cells, external, stats.data()); finish();
         for (unsigned pass = 0u; pass < 3u; ++pass) {
             check(hipMemset(needed.data(), 0, rows * 4u));
             repair_pipeline_ms += timed([&] {
@@ -268,7 +294,7 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
             output.data(), canonical.data(), dr.data(), start, cells, external, stats.data()); finish();
         const auto partial = stats.download();
         for (unsigned index : {ScoreOutside, ProbabilityDifferent, AlphaDifferent, DenominatorOutside,
-            InitialAdmittedWrong, RefinedAdmittedWrong, FinalAdmittedWrong, FinalUncertainCells, OutputDifferent, ExternalDifferent, Nonfinite}) {
+            InitialAdmittedWrong, RefinedAdmittedWrong, FinalAdmittedWrong, FinalUncertainCells, OutputDifferent, ExternalDifferent, Nonfinite, HelperDifferent}) {
             if (partial[index]) std::fprintf(stderr, "SELECTIVE_QK_FAILURE metric=%u count=%u start=%u\n", index, partial[index], start);
             require(partial[index] == 0u, "selective QK numerical check failed");
         }
@@ -277,11 +303,11 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
         }
     }
     const auto result = stats.download();
-    for (auto* b : {&es, &ns, &errors, &ez, &nz, &maxima, &canonical, &accumulator, &output, &den}) b->guards();
-    for (auto* b : {&ep, &np, &dt}) b->guards();
+    for (auto* b : {&es, &ns, &errors, &ez, &nz, &maxima, &canonical, &accumulator, &output, &den, &helper_scratch, &helper_work, &helper_output}) b->guards();
+    for (auto* b : {&ep, &np, &dt, &dvt}) b->guards();
     for (auto* b : {&indices, &count, &needed, &stats}) b->guards();
     dq.immutable(q); dk.immutable(k); dv.immutable(v); dr.immutable(reference); de.immutable(exp2); drecip.immutable(reciprocal);
-    std::printf("{\"kind\":\"selective_qk_component\",\"tokens\":%u,\"query_batch\":32,\"mode\":%u,\"external_reference\":%s,"
+    std::printf("{\"kind\":\"selective_qk_component\",\"tokens\":%u,\"query_batch\":128,\"mode\":%u,\"external_reference\":%s,"
         "\"score_cells\":%u,\"score_bound_violations\":%u,\"native_score_bit_differences\":%u,\"maximum_score_error_to_bound\":%.9g,"
         "\"cpu_dots\":%u,\"probability_cells\":%u,\"probability_bf16_differences\":%u,\"alpha_bit_differences\":%u,\"denominator_bound_violations\":%u,"
         "\"exact_score_counts\":[%llu,%llu,%llu,%llu],\"initial_uncertain_cells\":%u,\"initial_uncertain_heads\":%u,"
@@ -289,6 +315,8 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
         "\"output_cells\":%u,\"output_bf16_differences\":%u,\"external_bf16_differences\":%u,\"nonfinite\":%u,"
         "\"original_qk_ms\":%.6f,\"original_probability_ms\":%.6f,\"key_transpose_ms\":%.6f,\"native_bounded_qk_ms\":%.6f,\"repair_and_probability_pipeline_ms\":%.6f,"
         "\"candidate_canonical_pv_ms\":%.6f,\"redzones_pass\":true,\"immutable_inputs\":true,"
+        "\"probability_route_cells\":%u,\"probability_route_same_denominator_bf16_differences\":%u,\"probability_route_external_bf16_differences\":%u,"
+        "\"probability_route_completed_ms\":%.6f,\"value_transpose_ms\":%.6f,"
         "\"baseline_scores_are_compute_input\":false,\"external_reference_is_compute_input\":false,"
         "\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
         tokens, mode, external ? "true" : "false", result[ScoreCells], result[ScoreOutside], result[NativeScoreDifferent], as_float(result[ScoreMaximumRatio]),
@@ -296,7 +324,8 @@ void run(unsigned tokens, unsigned mode, const std::vector<uint16_t>& q, const s
         (unsigned long long)selected[0], (unsigned long long)selected[1], (unsigned long long)selected[2], (unsigned long long)selected[3],
         result[InitialUncertainCells], result[InitialRows], result[RefinedUncertainCells], result[RefinedRows], result[FinalUncertainCells],
         result[InitialAdmittedWrong] + result[RefinedAdmittedWrong] + result[FinalAdmittedWrong], result[OutputCells], result[OutputDifferent], result[ExternalDifferent], result[Nonfinite],
-        original_qk_ms, original_probability_ms, transpose_ms, native_bound_ms, repair_pipeline_ms, canonical_pv_ms);
+        original_qk_ms, original_probability_ms, transpose_ms, native_bound_ms, repair_pipeline_ms, canonical_pv_ms,
+        result[HelperCells], result[HelperDifferent], result[HelperExternalDifferent], helper_ms, value_transpose_ms);
     std::fflush(stdout);
 }
 }
