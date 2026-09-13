@@ -1,7 +1,9 @@
 #include "blackwell_cooperative.h"
+#include "blackwell_scalar_matrices.h"
 #include "blackwell_accumulator.h"
 #include "sm121_exp2_table.h"
 #include "../moe_accumulator/sm121_subgroup.h"
+#include <cstdio>
 
 namespace qrt_fla_blackwell_cooperative {
 namespace {
@@ -175,6 +177,17 @@ __global__ void state_kernel(const uint16_t* k, const uint16_t* u,
 hipError_t wu(const uint16_t* k, const uint16_t* v, const uint16_t* beta,
               const uint16_t* inverse, const float* g, uint16_t* w, uint16_t* u,
               unsigned count, const unsigned char* table, hipStream_t stream) {
+    const int scalar_mode = qrt_fla_blackwell_scalar::mode();
+    if (scalar_mode < 0) return hipErrorInvalidValue;
+    if (scalar_mode) {
+        hipLaunchKernelGGL(qrt_fla_blackwell_scalar::wu_kernel,
+            dim3(128u / tile_columns, 32u, (count + 63u) / 64u), dim3(threads),
+            0u, stream, k, v, beta, inverse, g, w, u, count, table);
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_SCALAR_FLOAT_MATRIX operation=wu tokens=%u columns=8 original_k16=1 additional_device_bytes=0 segment_completion_required=1\n", count);
+        return status;
+    }
     hipLaunchKernelGGL(wu_kernel, dim3(128u / tile_columns, 32u, (count + 63u) / 64u),
         dim3(threads), 0u, stream, k, v, beta, inverse, g, w, u, count, table);
     return hipGetLastError();
@@ -188,6 +201,17 @@ hipError_t scores(const uint16_t* q, const uint16_t* k, const float* g, uint16_t
 hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const float* g,
                   const uint16_t* scores, float* result, unsigned count,
                   const unsigned char* table, hipStream_t stream) {
+    const int scalar_mode = qrt_fla_blackwell_scalar::mode();
+    if (scalar_mode < 0) return hipErrorInvalidValue;
+    if (scalar_mode) {
+        hipLaunchKernelGGL(qrt_fla_blackwell_scalar::output_kernel,
+            dim3(128u / tile_columns, 32u, (count + 63u) / 64u), dim3(threads),
+            0u, stream, q, v, h, g, scores, result, count, table);
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_SCALAR_FLOAT_MATRIX operation=output tokens=%u columns=8 original_k16=1 additional_device_bytes=0 segment_completion_required=1\n", count);
+        return status;
+    }
     hipLaunchKernelGGL(output_kernel, dim3(128u / tile_columns, 32u, (count + 63u) / 64u),
         dim3(threads), 0u, stream, q, v, h, g, scores, result, count, table);
     return hipGetLastError();
