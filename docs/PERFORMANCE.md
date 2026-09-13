@@ -2,6 +2,25 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Whole and CK source `27cfc32` extend exact attention capacity from 65536 to
+131072, covering a 65536-token prefix, 1024 suffix inputs and the resident
+decode tail. The three fixed attention allocations grow by 306184192 bytes
+(292 MiB). Model position limits and numerical dispatch parameters stay
+unchanged. Local checks pass 371 Python tests with 2 skipped, 47 Rust tests,
+C smoke, clippy and hygiene; both native Windows builds pass.
+
+The new q8192 control on baiying with `D:\models\Qwen3.6-35B-A3B` preserves
+all 512 original GB10 outputs and callbacks, first 144 and exact logit 10.375.
+Callback TTFT is 39498.9559 ms, TPOT 101.624535 ms and model plus engine load
+21503.0635 ms. MoE `9f00db5`, FLA `2ee6215` state 8, CLI `a797b62` and all
+qualified numerical flags remain common with the 39620.1231 ms reference.
+This single capacity control does not establish a speed improvement. The
+separate real 65536+1024 prefix run is pending; 128k/256k plus suffix need
+larger capacity and their own qualification. Performance and release gates
+remain open. Command: `run-native-prefix64k-capacity-control-r1.ps1`.
+Evidence: `benchmarks/correctness/prefix64k-capacity-q8192-control-20260914.json`,
+SHA256 `0981bd909d6495e5a9e305767d7adc8912d289376b4f211537a31b186a1eb160`.
+
 Scalar float GDN state at FLA source `2ee6215` passes same-DLL q8192
 OFF/8-column controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144

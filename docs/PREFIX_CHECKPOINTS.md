@@ -1,5 +1,13 @@
 # Saved partial prefixes
 
+September 14 capacity control: whole/CK `27cfc32` increases the shared exact
+attention workspace to 131072 tokens. Host checks cover the 65536+1024
+boundary, decode extents and failed chunk rollback; the new binaries also
+preserve all 512 original q8192 outputs and callbacks. Real 64k prefix
+qualification is still pending. This changes neither saved-checkpoint
+admission nor the model position limit, and does not cover 128k/256k plus a
+suffix. See [capacity control](../benchmarks/correctness/prefix64k-capacity-q8192-control-20260914.json).
+
 Current scope, September13: saved partial checkpoints remain bounded to the
 declared short-owner cases below8192 tokens. The relocated r4 HTTP test passes
 four divergent branches after decode. Separate full-owner routes now pass all512

@@ -2,7 +2,7 @@
 
 Historical audit date: 2026-08-22
 
-## Current unreleased candidate, 2026-09-13
+## Current unreleased candidate, 2026-09-14
 
 The current candidate is **not release-ready**. The repaired r4 archive passes
 all eight cold cases, including q7169, all five short HTTP fixtures, and the
@@ -12,7 +12,8 @@ continuation. That newer configuration still needs renewed package, HTTP and
 soak qualification. The experimental chunked cold route also passes the
 declared 16k and q8192 boundaries, but remains disabled by default.
 
-Current q8192 callback TTFT is 39.620 seconds at FLA `2ee6215`, with all 512
+The new capacity control records q8192 callback TTFT of 39.499 seconds at
+whole/CK `27cfc32` and FLA `2ee6215`, with all 512
 original GB10 tokens and stream callbacks matched and exact first logit 10.375.
 It remains above the unchanged 4.187-second target and 10-second operating
 threshold. Larger contexts and retained
