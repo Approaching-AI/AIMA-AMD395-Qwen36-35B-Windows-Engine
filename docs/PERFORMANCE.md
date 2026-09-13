@@ -30,6 +30,7 @@ verify their fallback transaction and complete owner-state restoration.
 | same binary / 128 queries | cold 8192, ordinary path | 50764.6481 | 101.346222 | 20096.24 |
 | CK 9a7eaf4, 128 queries / V transpose disabled | cold 8192, ordinary path | 50888.006 | 101.364914 | 20059.2105 |
 | same binary / V transpose enabled | cold 8192, ordinary path | 49691.0931 | 101.291451 | 20017.5312 |
+| same 9a7eaf4 source, lossless compact exp2 table | cold 8192, ordinary path | 49519.006 | 101.043432 | 20072.6491 |
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
@@ -165,6 +166,18 @@ with 128 queries; the shipped default remains disabled. Decode and key
 extents beyond 8192 retain the original layout. No repeatability or release
 qualification is claimed. Evidence:
 `benchmarks/correctness/pv-transposed-view-20260913.json`.
+
+The existing lossless exp2 encoding now passes the full q8192/out512 gate
+with that stack: all 512 GB10 tokens and actual callbacks match, with exact
+first token 144/logit 10.375. Callback TTFT is 49519.006 ms. The 172.0871 ms
+difference from the comparable preceding run does not establish repeatable
+acceleration. Retain the format for its exact table storage reduction from
+183,174,448 to 38,909,480 bytes. The same decoder was checked over all
+328,728,576 covered values and 100,000 domain inputs; the current q7169 replay
+again matches all 29,364,224 external BF16 cells. Only CK binary/table paths
+change in the resolved product environment. This remains an experimental
+build option; package savings, broader contexts and release gates are pending.
+See `benchmarks/correctness/compact-exp2-stack-20260913.json`.
 
 An instrumented q8192 run with whole584588a and CK/FLA/MoE8f436db, before
 wider query slabs and the V transpose, passes the same full GB10 boundary.
