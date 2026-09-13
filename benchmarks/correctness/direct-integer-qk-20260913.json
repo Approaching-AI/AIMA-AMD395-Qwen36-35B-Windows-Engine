@@ -1,0 +1,2298 @@
+{
+  "schema_version": 1,
+  "kind": "direct_integer_qk_diagnostic",
+  "host": "baiying",
+  "model_reference": "D:\\models\\Qwen3.6-35B-A3B; original q7169 layer3 Q/K",
+  "source_delivery": {
+    "repo": "D:/projects/AIMA-public-direct-integer-qk-20260913",
+    "source_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+    "bundle": "direct-integer-qk-6142e45.bundle",
+    "bundle_sha256": "d3d8dac048002a14df5bf5bc1effb10f49fcfc773038ed854698dde6e409b9be",
+    "script": "run-native-direct-integer-qk-r1.ps1",
+    "script_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a"
+  },
+  "command_file": {
+    "name": "run-native-direct-integer-qk-r1.ps1",
+    "sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+    "text": "param([ValidateSet('build','selftest','capture')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-direct-integer-qk-20260913';$seed='D:\\projects\\AIMA-public-direct-pv-operands-20260913';$sha='6142e4596fe0198ac9de0554c0541634094da90a';$bundle='D:\\projects\\direct-integer-qk-6142e45.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd3d8dac048002a14df5bf5bc1effb10f49fcfc773038ed854698dde6e409b9be'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\direct-integer-qk';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\staged_integer_qk_selftest.cpp';$exe=Join-Path $build 'direct-integer-qk.exe'\n$sourceInputs=@();$sourceFiles=@($source,(Join-Path $repo 'native\\providers\\ck_fmha\\blackwell_attention.h'));foreach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn')){$sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName})}\nforeach($file in $sourceFiles){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated exact K256 integer QK controls';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','-DQRT_DIRECT_INTEGER_QK_PROBE=1','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=120\n}else{\n $metaPath=Join-Path $build 'build-provenance.json';$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $metaPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.executable=$exe;$spec.arguments=@('--selftest');$timeout=90\n if($Action -eq 'capture'){\n  $capRoot='D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1'\n  $q=Join-Path $capRoot 'layer3-full-full_attention_q_norm_rope-bf16.bin';$k=Join-Path $capRoot 'layer3-full-full_attention_k_norm_rope-bf16.bin'\n  $sources=@(@{file=$q;sha256='c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d'},@{file=$k;sha256='99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8'})\n  foreach($file in $sources){if((Get-FileHash $file.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw 'Original QK capture changed'}}\n  $spec.input_files=$sources;$spec.arguments=@('--q7169',$q,$k)\n  $spec.model='D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer3 QK, same-executable original-score comparison'\n  $spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83'\n  $spec.input_run_sha256='4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146'\n  $spec.input_whole_source='28c4f9df501e8e95ac357acc45d30daf48633bf8'\n }\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\direct-integer-qk-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 12}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText((Join-Path $build 'build-provenance.json'),($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $expected=if($Action -eq 'capture'){1}else{28}\n if($reports.Count -ne $expected){throw 'Incomplete direct/shared QK diagnostic'}\n foreach($report in $reports){if($report.raw_bit_mismatches -ne 0 -or -not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Direct/shared QK numerical or memory failure'}}\n}\n"
+  },
+  "runs": {
+    "build": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-DQRT_DIRECT_INTEGER_QK_PROBE=1",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+          "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+          "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+          "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+          "source_inputs": [
+            {
+              "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+            },
+            {
+              "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+            }
+          ],
+          "model": "none; generated exact K256 integer QK controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-13T07:11:55.1119620Z",
+          "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+            "arguments": [
+              "-std=c++17",
+              "-O3",
+              "-DQRT_DIRECT_INTEGER_QK_PROBE=1",
+              "-DQRT_SM121_DPP_REDUCTION=1",
+              "-DQRT_SM121_COMPACT_NORMALIZE=1",
+              "--offload-arch=gfx1151",
+              "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp",
+              "-o",
+              "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+            "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+            "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+            "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+            "source_inputs": [
+              {
+                "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+              },
+              {
+                "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+              },
+              {
+                "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+              },
+              {
+                "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+              },
+              {
+                "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+              },
+              {
+                "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+              },
+              {
+                "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+              },
+              {
+                "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+              },
+              {
+                "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+              },
+              {
+                "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+              },
+              {
+                "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+              },
+              {
+                "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+              },
+              {
+                "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+              },
+              {
+                "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+              },
+              {
+                "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+              },
+              {
+                "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+              },
+              {
+                "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+              },
+              {
+                "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+              },
+              {
+                "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+              },
+              {
+                "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+              },
+              {
+                "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+              },
+              {
+                "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+              },
+              {
+                "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+              },
+              {
+                "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+              },
+              {
+                "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+              },
+              {
+                "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+              },
+              {
+                "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              },
+              {
+                "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+              },
+              {
+                "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+              },
+              {
+                "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+              },
+              {
+                "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+              },
+              {
+                "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+              },
+              {
+                "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+              }
+            ],
+            "model": "none; generated exact K256 integer QK controls",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes"
+          },
+          "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:40:52.6290930+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24284610560,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146761908224,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533470056448,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 11944.5,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:40:52.6290930+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24281104384,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146737934336,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462085632,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "canonical_file_sha256": {
+        "run-record.json": "4799fab7c4256c8fafeb9285309398593d2f7198f3cbaf97602dd7ee646dc633",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "e28a37f4bed2258d39a0c7f2d96adef9ecb9e63b13ea84182167a2a854b15f06",
+        "build-provenance.json": "9c46bb02021fca548697a43fe74a44288d5fd1f5b89816c3fa0aca7afabf4897"
+      },
+      "stderr": "",
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+        "source_inputs": [
+          {
+            "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+          },
+          {
+            "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+        "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_DIRECT_INTEGER_QK_PROBE=1",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe"
+        ],
+        "run_record_sha256": "4799fab7c4256c8fafeb9285309398593d2f7198f3cbaf97602dd7ee646dc633",
+        "executable": {
+          "sha256": "de09ba9524a65cc2b6ca9b2aa072ec5a04d6d9b8fdc864354ddc01c6eeaa03ec",
+          "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe",
+          "bytes": 1371136
+        }
+      }
+    },
+    "selftest": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe",
+          "arguments": [
+            "--selftest"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+          "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+          "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+          "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+          "source_inputs": [
+            {
+              "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+            },
+            {
+              "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+            }
+          ],
+          "model": "none; generated exact K256 integer QK controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes",
+          "build_provenance_sha256": "9c46bb02021fca548697a43fe74a44288d5fd1f5b89816c3fa0aca7afabf4897"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-13T07:14:36.4716948Z",
+          "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe",
+            "arguments": [
+              "--selftest"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+            "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+            "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+            "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+            "source_inputs": [
+              {
+                "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+              },
+              {
+                "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+              },
+              {
+                "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+              },
+              {
+                "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+              },
+              {
+                "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+              },
+              {
+                "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+              },
+              {
+                "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+              },
+              {
+                "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+              },
+              {
+                "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+              },
+              {
+                "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+              },
+              {
+                "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+              },
+              {
+                "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+              },
+              {
+                "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+              },
+              {
+                "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+              },
+              {
+                "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+              },
+              {
+                "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+              },
+              {
+                "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+              },
+              {
+                "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+              },
+              {
+                "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+              },
+              {
+                "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+              },
+              {
+                "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+              },
+              {
+                "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+              },
+              {
+                "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+              },
+              {
+                "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+              },
+              {
+                "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+              },
+              {
+                "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+              },
+              {
+                "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              },
+              {
+                "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+              },
+              {
+                "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+              },
+              {
+                "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+              },
+              {
+                "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+              },
+              {
+                "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+              },
+              {
+                "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+              }
+            ],
+            "model": "none; generated exact K256 integer QK controls",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes",
+            "build_provenance_sha256": "9c46bb02021fca548697a43fe74a44288d5fd1f5b89816c3fa0aca7afabf4897"
+          },
+          "executable_sha256": "de09ba9524a65cc2b6ca9b2aa072ec5a04d6d9b8fdc864354ddc01c6eeaa03ec",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:40:52.6290930+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24351944704,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146754072576,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533471129600,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1083.779,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:40:52.6290930+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24314998784,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146717368320,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533462401024,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "canonical_file_sha256": {
+        "run-record.json": "669c6b6810a4556203cafdf09b926e9c231abfb78270540ea9e980ccf777c086",
+        "product.stdout.jsonl": "c89add8ba08131d3f80b41055c1174eeb19ed5cecfa84378ce9e6de0a45bf9b2",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "0a932cf5caf9ffdb81ae0035ed0c4f9d92a8083a14fabbe3c21ed56f6f3d4b03",
+        "reports.json": "3dc8ae2fe932e6e7ac5756f493c3baa48a1dcc1046e7f7e6d71a9cb5c070d395"
+      },
+      "stderr": "",
+      "reports": [
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": true,
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "direct_integer_qk_safety",
+          "direct_operands": false,
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "capture": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe",
+          "arguments": [
+            "--q7169",
+            "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+            "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+          "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+          "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+          "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+          "source_inputs": [
+            {
+              "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+            },
+            {
+              "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+            }
+          ],
+          "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer3 QK, same-executable original-score comparison",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes",
+          "build_provenance_sha256": "9c46bb02021fca548697a43fe74a44288d5fd1f5b89816c3fa0aca7afabf4897",
+          "input_files": [
+            {
+              "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+              "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+            },
+            {
+              "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+              "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+            }
+          ],
+          "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+          "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8"
+        },
+        "preflight": {
+          "host": "BAIYING",
+          "utc": "2026-09-13T07:15:35.9822026Z",
+          "command_file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\scripts\\baiying_guarded_inference.ps1",
+          "command_file_sha256": "cab93525618edd7378a8f0ecbb3075b0b751cc18fe6ea356d0e7f47afbc8a94b",
+          "spec": {
+            "executable": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\build\\direct-integer-qk\\direct-integer-qk.exe",
+            "arguments": [
+              "--q7169",
+              "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+              "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+            ],
+            "working_directory": "D:\\projects\\AIMA-public-direct-integer-qk-20260913",
+            "repo_commit": "6142e4596fe0198ac9de0554c0541634094da90a",
+            "command_file": "D:\\projects\\run-native-direct-integer-qk-r1.ps1",
+            "command_file_sha256": "85dddc71f987c5734b7bf505dc9aba2c8cb8451c9a6654eb5fa65950c2b35c0a",
+            "source_inputs": [
+              {
+                "sha256": "dd5aad3510943ef3594ec9d1c350da85d4ae1c62d7d2917ec98d7ccb8afeb07f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\tests\\native\\staged_integer_qk_selftest.cpp"
+              },
+              {
+                "sha256": "796301d8258564beb5f068f868a718e31e97a8768b6577188f462248742311ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\ck_fmha\\blackwell_attention.h"
+              },
+              {
+                "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+              },
+              {
+                "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+              },
+              {
+                "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+              },
+              {
+                "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+              },
+              {
+                "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+              },
+              {
+                "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+              },
+              {
+                "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+              },
+              {
+                "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+              },
+              {
+                "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+              },
+              {
+                "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+              },
+              {
+                "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+              },
+              {
+                "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+              },
+              {
+                "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+              },
+              {
+                "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+              },
+              {
+                "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+              },
+              {
+                "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+              },
+              {
+                "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+              },
+              {
+                "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+              },
+              {
+                "sha256": "a3419353f7ed6e424151c973ea6eb5a9afb0aca4d75f22e8d069933d9ea7ac3b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+              },
+              {
+                "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+              },
+              {
+                "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+              },
+              {
+                "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+              },
+              {
+                "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+              },
+              {
+                "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+              },
+              {
+                "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+              },
+              {
+                "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+              },
+              {
+                "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+              },
+              {
+                "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_accumulator.h"
+              },
+              {
+                "sha256": "40a2f085490d0b385603f6562bcc067c2ffa37d056b2d20a83305ea0ddc48a26",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_cooperative.h"
+              },
+              {
+                "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse.h"
+              },
+              {
+                "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_inverse_math.h"
+              },
+              {
+                "sha256": "69bd68ee8ec59f411b1a0a4f1f1505d7182a8a481130a00c3503a1e0240e9a31",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_kkt.h"
+              },
+              {
+                "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_l2norm.h"
+              },
+              {
+                "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_state.h"
+              },
+              {
+                "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\blackwell_wu_output.h"
+              },
+              {
+                "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\first_call_capture.h"
+              },
+              {
+                "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\fla_checkpoint.h"
+              },
+              {
+                "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_attention_rcp.h"
+              },
+              {
+                "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+              },
+              {
+                "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_exp2_table.h"
+              },
+              {
+                "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_attention.h"
+              },
+              {
+                "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_full.h"
+              },
+              {
+                "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_gdn.h"
+              },
+              {
+                "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_q1_math.h"
+              },
+              {
+                "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+              },
+              {
+                "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+                "file": "D:\\projects\\AIMA-public-direct-integer-qk-20260913\\native\\providers\\gdn\\sm121_silu_table.h"
+              }
+            ],
+            "model": "D:\\models\\Qwen3.6-35B-A3B; captured real q7169 layer3 QK, same-executable original-score comparison",
+            "model_loaded": false,
+            "inference_acceptance": false,
+            "performance_acceptance": false,
+            "purpose": "Compare direct global integer-core operands against shared prepacked integer QK and original scalar scores. Preserve original core arithmetic and fallback; no product dispatcher changes",
+            "build_provenance_sha256": "9c46bb02021fca548697a43fe74a44288d5fd1f5b89816c3fa0aca7afabf4897",
+            "input_files": [
+              {
+                "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+                "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+              },
+              {
+                "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+                "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+              }
+            ],
+            "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+            "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+            "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8"
+          },
+          "executable_sha256": "de09ba9524a65cc2b6ca9b2aa072ec5a04d6d9b8fdc864354ddc01c6eeaa03ec",
+          "input_fingerprints": {},
+          "boot": "2026-09-10T00:40:52.6290930+08:00",
+          "boot_identity": {
+            "kind": "kernel_general_boot_event",
+            "value": "122570:639245688798983488",
+            "record_id": 122570,
+            "utc": "2026-09-09T16:41:19.8983488Z",
+            "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+          },
+          "memory": {
+            "Length": 64,
+            "Load": 28,
+            "TotalPhysical": 33981009920,
+            "AvailablePhysical": 24350650368,
+            "TotalCommit": 156119142400,
+            "AvailableCommit": 146748702720,
+            "TotalVirtual": 140737488224256,
+            "AvailableVirtual": 138533469548544,
+            "AvailableExtendedVirtual": 0
+          },
+          "gpus": [
+            {
+              "Name": "AMD Radeon(TM) 8060S Graphics",
+              "Status": "OK",
+              "DriverVersion": "32.0.31036.15"
+            }
+          ],
+          "processes": [],
+          "checks": {
+            "no_engine_or_compiler": true,
+            "host_memory_reserve": true,
+            "commit_reserve": true,
+            "amd_gpu_ok": true,
+            "output_disk_reserve": true,
+            "source_commit_exact": true
+          },
+          "pass": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1949.992,
+        "summary_present": false,
+        "cli_pass": false,
+        "summary": null,
+        "after_boot": "2026-09-10T00:40:52.6290930+08:00",
+        "after_boot_identity": {
+          "kind": "kernel_general_boot_event",
+          "value": "122570:639245688798983488",
+          "record_id": 122570,
+          "utc": "2026-09-09T16:41:19.8983488Z",
+          "cim_boot": "2026-09-10T00:40:52.6290930+08:00"
+        },
+        "boot_clock_text_unchanged": true,
+        "after_memory": {
+          "Length": 64,
+          "Load": 28,
+          "TotalPhysical": 33981009920,
+          "AvailablePhysical": 24310431744,
+          "TotalCommit": 156119142400,
+          "AvailableCommit": 146713976832,
+          "TotalVirtual": 140737488224256,
+          "AvailableVirtual": 138533461491712,
+          "AvailableExtendedVirtual": 0
+        },
+        "after_gpus": [
+          {
+            "Name": "AMD Radeon(TM) 8060S Graphics",
+            "Status": "OK",
+            "DriverVersion": "32.0.31036.15"
+          }
+        ],
+        "after_processes": [],
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "numerical_acceptance_requires_external_oracle": true
+      },
+      "canonical_file_sha256": {
+        "run-record.json": "f80081dd11dbd030c03ccdad82d621fd2288faaee3c20ff26f06e47d256accb4",
+        "product.stdout.jsonl": "1defe72227ce8388c621afb5a8f3d44098e289d797007e748fd9136336789396",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "707a94e07d1f42fb16c61e33d9ebc13ca6513fb2dc5b11e89f818af78fc12cce",
+        "reports.json": "40ff2d208b940060860e87812dc058840fcf489f333256333f884242fc9b1da1"
+      },
+      "stderr": "",
+      "reports": [
+        {
+          "kind": "direct_integer_original_q7169",
+          "tokens": 7169,
+          "query_batch": 128,
+          "compared_score_cells": 836993056,
+          "cpu_dots": 456,
+          "raw_bit_mismatches": 0,
+          "original_query_ms": 440.6981,
+          "key_transpose_ms": 5.3572,
+          "direct_query_and_encoding_ms": 686.9097,
+          "shared_query_and_encoding_ms": 542.0772,
+          "key_encoding_ms": 0.2443,
+          "maximum_completed_slab_ms": [
+            23.4198,
+            18.7663
+          ],
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "source_audit": {
+    "compared_source": "126cdcb229fb172b70da1b0c95b4457adb0bc2c4",
+    "headers": {
+      "native/providers/moe_accumulator/sm121_integer_core.h": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d"
+    },
+    "original_tiled_qk_body_sha256": "176f666bf0bd805c8fc3c301d5321a3a373e91ca3bf574a4be817d2c534256fb",
+    "native_integer_probe_is_not_runtime_dispatched": true
+  },
+  "native_numerical_scope": {
+    "safety_cases": 28,
+    "safety_score_comparisons": 64364608,
+    "safety_cpu_dots": 1792,
+    "captured_score_comparisons": 836993056,
+    "captured_cpu_dots": 456,
+    "independent_cpu_scope": "CPU sampled dots use the existing wide scalar accumulator, independently of integer-core decomposition and GPU instruction scheduling. Full raw-score comparisons include inactive causal cells."
+  },
+  "completed_component_ms": {
+    "original_query_and_transpose_ms": 446.0553,
+    "direct_query_and_all_encoding_ms": 687.154,
+    "shared_query_and_all_encoding_ms": 542.3214999999999
+  },
+  "decision": "Leave direct integer QK outside product dispatch. Both direct and shared integer schedules preserve every compared original raw score and CPU sampled dot, but direct loading takes687.154ms including key/query encoding, shared takes542.3215ms, and original scalar takes446.0553ms including key transpose. Removing CTA barriers does not improve this QK schedule. Keep the qualified direct-PV product stack; next separate native-QK probability and denominator differences to evaluate broader elimination of exact score work.",
+  "limitations": [
+    "One fixed-order component comparison with common uploads, allocations and safety validation excluded is not a product performance result.",
+    "This run contains captured original Q/K, not a loaded model, generated tokens or a submitted GB10 inference result.",
+    "Existing scalar QK and integer-core arithmetic headers are unchanged against source126cdcb. This diagnostic adds no runtime dispatcher option.",
+    "No retained target, long-context, checkpoint, package, HTTP, soak or release acceptance follows."
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

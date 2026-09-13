@@ -69,6 +69,15 @@ upload, allocation, key transpose and safety validation. Neither pair is a
 sustained-throughput claim, and other contexts/package/HTTP/soak remain open.
 Evidence: `benchmarks/correctness/direct-pv-operands-20260913.json`.
 
+Direct integer QK does not share that gain. Source6142e45 passes28 native
+cases /64364608 raw-score comparisons and1792 CPU sampled dots. Both direct
+and shared integer schedules match836993056 originalq7169 raw scores and456
+CPU dots. With all operand preparation included, direct/shared completion is
+687.154/542.3215ms, against original scalar plus key transpose446.0553ms.
+Keep this component experiment outside product dispatch. The scalar QK and
+integer-core arithmetic are unchanged; no model or token result is submitted.
+Evidence: `benchmarks/correctness/direct-integer-qk-20260913.json`.
+
 The optional final PV envelope preserves native matrix arithmetic and enlarges
 the existing error envelope. Both q8192 runs above match all 512 GB10 outputs
 and actual callbacks with exact first token 144 / raw logit 10.375. The sole
