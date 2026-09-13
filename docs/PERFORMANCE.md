@@ -19,6 +19,20 @@ checkpoints, 128k/256k, current package/HTTP and soak gates remain open.
 Evidence: `benchmarks/correctness/prefix64k-current-stack-20260914.json`,
 SHA256 `a113d05400d2469ecc181c32d4244273af4eddcbfe8c94a886fe91a779cfd3ad`.
 
+The opt-in long-history direct PV provider at `4a5a5b0` passes 42 native
+kernel cases and the original 16k+1024 layer-3 component. All 4194304 BF16
+cells and same-DLL raw FP32 outputs agree between OFF/ON, including repeat,
+same-address refresh and negative checks. Four-call process walls are
+2966.147 / 2253.658 ms; these are component diagnostics. Long calls retain
+the original per-group error envelope, and the new option defaults to 0.
+
+Its original q8192 control matches all 512 outputs/callbacks and exact first
+144/logit 10.375. Callback TTFT is 39203.4717 ms, TPOT 101.690611 ms and load
+21282.1297 ms. The long option is inert at q8192; no speed change is inferred
+from this single control. The separate real 64k run is in progress.
+Evidence: `benchmarks/correctness/long-direct-pv-controls-20260914.json`,
+SHA256 `0d2deb5fba42aa21c2fba9225fd6309b4596324fac402605d9be21c345d147fb`.
+
 CK `d705a68` corrects a long-history application timeout without changing
 attention arithmetic. The first 64k attempt completed 24576 original inputs
 but stopped in layer 15 of the next chunk: 8128 of 8192 queries had drained
