@@ -55,6 +55,25 @@ long-context, package, HTTP, soak or release acceptance. Command file:
 Evidence: `benchmarks/correctness/prevalidated-float-pv-20260913.json`,
 SHA256 `3334d2061034d39818dabf8635ae724c0a999180da95868c7604c0cbd24a27d0`.
 
+
+The tiled dense projection component at source `6eb2eba` passes all 56
+native CPU/GPU comparisons and all 58728448 original GB10 q7169 QKV cells.
+Both 64-row and 128-row layouts preserve the 3791742 candidate identities,
+raw output bits, CPU eligibility, bitmap ownership and memory guards.
+Completed eligibility plus bitmap/replay is 49.4104 / 93.5343 / 142.6540 ms
+for original prevalidated4 / 64-row / 128-row, respectively. Each candidate
+adds a 7341056-byte bitmap; both are substantially slower in these single
+observations and remain outside the product dispatcher. Full local checks
+pass 365 Python tests with 2 skipped, 47 Rust tests, C smoke, clippy and
+public hygiene. No new product or release qualification is claimed.
+
+The experiment reuses original BF16 K64 slabs across a two-dimensional
+candidate tile and falls back to the original dot for dense tiles. Continue
+with structural changes to K16 arithmetic and reusable row metadata.
+Command file: `run-native-tiled-projection-whole-r1.ps1 -Action reference-test`.
+Evidence: `benchmarks/correctness/tiled-dense-projection-20260913.json`,
+SHA256 `b596dcc248a3125402b3f6680f36ba89784f489487504729c73e6fde87f8eb50`.
+
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
