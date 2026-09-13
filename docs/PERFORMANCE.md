@@ -2,6 +2,19 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Nonnegative three-part integer reconstruction is exact but slower. The
+primitive source91b069b passes1048576 independent CPU int64 dots with zero
+raw partial differences. Prepared QK source31d2b91 then passes28 generated
+cases/64364608 score slots and1792 CPU dots; original q7169 Q/K match
+836993056 score slots and456 CPU dots. All buffers/immutable inputs pass.
+Prepared positive QK plus key encoding takes631.0199ms, versus original
+scalar QK plus transpose440.4953ms. Four-IU8 on the same148-byte extended
+row layout takes597.7987ms. This component stays outside product dispatch.
+No model is loaded and no product tokens or performance are accepted.
+Next investigate a wider exact integer core and a smaller row layout together,
+so the replacement can reduce sparse reconstruction as well as matrix calls.
+Evidence: `benchmarks/correctness/positive-integer-qk-20260913.json`.
+
 The signed three-BF16 integer-core candidate is rejected at source1738c5f.
 Native1048576 cells contain566483 raw partial differences and263108
 reconstruction differences; four-IU8 reference partials, guards and inputs
