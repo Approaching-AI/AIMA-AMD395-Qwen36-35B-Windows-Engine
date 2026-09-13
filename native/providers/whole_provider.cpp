@@ -57348,6 +57348,20 @@ bool resident_bf16_matrix_matmul_impl(
         *failure = "resident BF16 matrix provider received a null surface";
         return false;
     }
+    const char* profile_setting = std::getenv("QRT_QWEN36_PROFILE_MATRIX_PRODUCER_WALL");
+    if (profile_setting && *profile_setting && std::strcmp(profile_setting, "0") &&
+        std::strcmp(profile_setting, "1")) {
+        *failure_stage = stage;
+        *failure = "matrix producer wall profile must be0 or1";
+        return false;
+    }
+    const bool profile_wall = token_count >= 1024u && profile_setting &&
+        std::strcmp(profile_setting, "1") == 0;
+    using ProfileClock = std::chrono::steady_clock;
+    const auto predecessor_start = profile_wall ? ProfileClock::now() : ProfileClock::time_point{};
+    if (profile_wall && !check_hip(hipStreamSynchronize(stream),
+            stage + "_profile_predecessor", failure_stage, failure)) return false;
+    const auto plan_start = profile_wall ? ProfileClock::now() : ProfileClock::time_point{};
     ResidentBf16MatrixProvider *provider = nullptr;
     ResidentBf16MatrixPlan *plan = nullptr;
     if (!ensure_resident_bf16_matrix_provider(
@@ -57368,7 +57382,8 @@ bool resident_bf16_matrix_matmul_impl(
         )) {
         return false;
     }
-    return check_hipblaslt(
+    const auto producer_start = profile_wall ? ProfileClock::now() : ProfileClock::time_point{};
+    const bool submitted = check_hipblaslt(
         hipblasLtMatmul(
             provider->handle,
             plan->operation,
@@ -57391,6 +57406,24 @@ bool resident_bf16_matrix_matmul_impl(
         failure_stage,
         failure
     );
+    if (!submitted) return false;
+    if (profile_wall) {
+        if (!check_hip(hipStreamSynchronize(stream), stage + "_profile_completed",
+                failure_stage, failure)) return false;
+        const auto completed_at = ProfileClock::now();
+        std::fprintf(stderr,
+            "BATCH_MARK resident_matrix_producer_wall stage=%s rows=%u tokens=%u k=%u "
+            "output_f32=%u heuristic_index=%u workspace_bytes=%zu "
+            "predecessor_wait_ms=%.6f plan_ready_ms=%.6f producer_completed_ms=%.6f "
+            "completed=1 diagnostic_only=1\n",
+            stage.c_str(), output_features, token_count, input_features,
+            output_f32 ? 1u : 0u, heuristic_index, plan->workspace_bytes,
+            std::chrono::duration<double, std::milli>(plan_start - predecessor_start).count(),
+            std::chrono::duration<double, std::milli>(producer_start - plan_start).count(),
+            std::chrono::duration<double, std::milli>(completed_at - producer_start).count());
+        std::fflush(stderr);
+    }
+    return true;
 }
 
 bool resident_bf16_matrix_matmul(
