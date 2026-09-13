@@ -262,7 +262,8 @@ void run_boundary_correction_case() {
     std::cout << "{\"type\":\"correction_boundary_case\",\"cells\":4,\"bf16_reference_mismatches\":0,\"both_signs\":true,\"redzones_pass\":true}" << std::endl;
 }
 
-void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false, bool mixed_fallback = false) {
+void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k, bool dense = false,
+                         bool mixed_fallback = false, bool absolute_bounds = false) {
     const size_t elements = static_cast<size_t>(rows) * tokens;
     std::vector<uint16_t> weights(static_cast<size_t>(rows) * k + 2u * kGuard, kBf16Guard);
     std::vector<uint16_t> inputs(static_cast<size_t>(tokens) * k + 2u * kGuard, kBf16Guard);
@@ -294,10 +295,19 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
     const auto expected_inputs = inputs;
     DeviceBuffer<uint16_t> dw(weights), di(inputs);
     DeviceBuffer<float> df(output);
+    // Conservative but deliberately loose Cauchy inputs make a useful control:
+    // admitted matrix bounds must address their own window and retain every
+    // midpoint/fallback cell without admitting all otherwise distant cells.
+    std::vector<float> input_norm(tokens + 2u * kGuard, kF32Guard), weight_norm(rows + 2u * kGuard, kF32Guard);
+    std::fill(input_norm.begin()+kGuard,input_norm.end()-kGuard,1.0e6f);
+    std::fill(weight_norm.begin()+kGuard,weight_norm.end()-kGuard,1.0e6f);
+    DeviceBuffer<float> din(input_norm), dwn(weight_norm);
     const auto start = std::chrono::steady_clock::now();
     hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(
-        dw.data(), di.data(), nullptr, nullptr, nullptr, df.data(), rows, tokens,
-        k, 512u, dense ? tokens : 0u, 0u, dense ? 64u : 8u, nullptr), "streamed_correction");
+        dw.data(), di.data(), nullptr, absolute_bounds ? din.data() : nullptr,
+        absolute_bounds ? dwn.data() : nullptr, df.data(), rows, tokens,
+        k, 512u, dense ? tokens : 0u, absolute_bounds ? 1000u : 0u, dense ? 64u : 8u, nullptr,
+        absolute_bounds && rows == 1025u ? 65537u : qrt_hawkeye_dispatch::maximum_window_elements), "streamed_correction");
     const double ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - start).count();
     df.read(output);
@@ -308,7 +318,8 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
     size_t candidates = 0u;
     for (size_t i = 0u; i < elements; ++i) {
         float expected = 1.0f;
-        if (dense || i % 64u == 0u || i + 1u == elements) {
+        if (dense || i % 64u == 0u || i + 1u == elements ||
+            (absolute_bounds && mixed_fallback && (i % rows % 17u == 0u || i / rows % 19u == 0u))) {
             ++candidates;
             const unsigned int row = static_cast<unsigned int>(i % rows);
             const unsigned int token = static_cast<unsigned int>(i / rows);
@@ -332,9 +343,13 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
     dw.read(weights); di.read(inputs);
     require(weights == expected_weights && inputs == expected_inputs,
             "streamed correction modified read-only input or redzone");
+    auto actual_input_norm=input_norm, actual_weight_norm=weight_norm;
+    din.read(actual_input_norm); dwn.read(actual_weight_norm);
+    require(actual_input_norm==input_norm && actual_weight_norm==weight_norm, "streamed correction modified bounds or redzones");
     std::cout << "{\"type\":\"correction_case\",\"rows\":" << rows
               << ",\"tokens\":" << tokens << ",\"k\":" << k
               << ",\"mixed_row_fallback\":" << (mixed_fallback ? "true" : "false")
+              << ",\"absolute_product_bound\":" << (absolute_bounds ? "true" : "false")
               << ",\"candidates\":" << candidates << ",\"reference_cells\":" << elements
               << ",\"bf16_reference_mismatches\":0,\"redzones_pass\":true,\"wall_ms\":"
               << ms << "}" << std::endl;
@@ -352,7 +367,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -362,13 +377,16 @@ int main(int argc, char **argv) {
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
             if (mode == "--device-replay") {
                 cases += run_device_replay_suite();
-            } else if (mode == "--prepared-correction") {
+            } else if (mode == "--prepared-correction" || mode == "--absolute-bound-correction") {
                 require(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS") &&
                     !std::strcmp(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS"), "1"), "prepared correction mode requires prepared operands");
-                run_correction_case(1025u, 1031u, 16u, false, true);
-                run_correction_case(1024u, 1024u, 512u, true, true);
-                run_correction_case(2048u, 1024u, 4096u, false, true);
-                run_correction_case(8192u, 7169u, 16u, false, true);
+                const bool bound=mode=="--absolute-bound-correction";
+                if(bound) require(std::getenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND") &&
+                    !std::strcmp(std::getenv("QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND"),"1"), "absolute bound mode requires matrix bounds");
+                run_correction_case(1025u, 1031u, 16u, false, true, bound);
+                run_correction_case(1024u, 1024u, 512u, true, true, bound);
+                run_correction_case(2048u, 1024u, 4096u, false, true, bound);
+                run_correction_case(8192u, 7169u, 16u, false, true, bound);
                 cases += 4u;
             } else if (mode == "--wmma-staging") {
                 for (const auto shape : {std::pair{17u, 7u}, std::pair{129u, 65u}, std::pair{8192u, 8192u}}) {
