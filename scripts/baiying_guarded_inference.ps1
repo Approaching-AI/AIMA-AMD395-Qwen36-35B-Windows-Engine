@@ -156,9 +156,19 @@ try {
     $reason = 'completed'
     try {
         $argumentLine = @($spec.arguments | ForEach-Object { Quote-Argument ([string]$_) }) -join ' '
-        $process = Start-Process -FilePath $spec.executable -ArgumentList $argumentLine `
-            -WorkingDirectory $spec.working_directory -PassThru -NoNewWindow `
-            -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath
+        $startParameters = @{
+            FilePath = $spec.executable
+            WorkingDirectory = $spec.working_directory
+            PassThru = $true
+            NoNewWindow = $true
+            RedirectStandardOutput = $stdoutPath
+            RedirectStandardError = $stderrPath
+        }
+        # Start-Process rejects an empty ArgumentList. Omitting that optional
+        # parameter starts a no-argument executable while retaining the same
+        # quoting, redirection and job ownership for every nonempty command.
+        if ($argumentLine.Length -gt 0) { $startParameters.ArgumentList = $argumentLine }
+        $process = Start-Process @startParameters
         try { [QrtRunGuard]::Assign($job, $process.Handle) }
         catch { if (-not $process.HasExited) { $process.Kill() }; throw }
         Write-Record 'launch.json' ([ordered]@{
