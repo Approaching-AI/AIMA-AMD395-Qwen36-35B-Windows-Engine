@@ -357,6 +357,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 } // namespace projection_safety_test
 
 #include "projection_scalar_replay_suite.h"
+#include "projection_tiled_replay_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "absolute_admission_audit_selftest.h"
