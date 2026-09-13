@@ -2,6 +2,36 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Tiled scalar KKT at FLA source `62d5fd4` passes complete same-DLL q8192
+OFF/ON controls on baiying, `D:\models\Qwen3.6-35B-A3B`. All 512 original
+GB10 output tokens and actual callbacks match, with first 144 and exact raw
+logit 10.375. Callback TTFT is 42180.7213 / 41931.5687 ms, a 249.1526 ms
+reduction in this single pair. Enabled TPOT is 100.911523 ms and load is
+21291.7237 ms. Use `QRT_FLA_GDN_TILED_KKT=2` in subsequent candidates;
+source default stays 0 pending broader qualification. Whole/MoE `9f00db5`
+registered metadata 1 and both prevalidated float options 1, CK `6c0c54c`
+scalar QK 1, and CLI `a797b62` remain common. Command file:
+`run-native-tiled-kkt-product-r1.ps1 -TiledKkt 0|2`.
+
+Each 8-query by 32-column tile reuses the original rounded beta*K rows and
+K columns. One thread owns each output; the ordered K16 carry, fallback,
+upper triangle and later gate kernel are preserved. All 18 native controls
+match 39845888 raw outputs and 4608 independent CPU dots. Generated q8192
+original / tiled integer / tiled float takes 19.1582 / 8.0214 / 5.1945 ms;
+only the complete token runs establish product gain. Full FLA q64, q65 and
+original GB10 q7169 comparisons preserve every output and final-state bit,
+with synchronous/asynchronous parity. Full `make check` passes 362 Python
+tests with 2 skipped, 47 Rust tests, C smoke, clippy and public hygiene.
+
+Existing completed stage events report KKT 561.36287 / 171.05978 ms across
+240 segments; enabled persistent-state and output stages still take
+2014.55534 and 1767.07512 ms. These diagnostics sit inside the linear-core
+scope and do not replace callback TTFT. Continue broader GDN matrix work.
+q8192 remains above 10 seconds and the immutable 4187.415605 ms target;
+long-context, prefix checkpoint, package, HTTP, soak and release remain open.
+Evidence: `benchmarks/correctness/tiled-kkt-product-20260913.json`,
+SHA256 `e0010a7c206f72178d32c52ebb5569721705c1b17b8762dcba2523c6cca0e9ff`.
+
 Registered immutable MoE weight metadata at whole/MoE source `9f00db5`
 passes same-DLL q8192 OFF/ON controls on baiying with the real model
 `D:\models\Qwen3.6-35B-A3B`. Both match all 512 original GB10 output tokens
