@@ -7,15 +7,17 @@ the missing reference-capture prerequisite; Windows capacity, complete owner
 execution and saved-checkpoint restoration still need their own verification.
 See [large-prefix reference evidence](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json).
 
-September 14 full-owner result: the current whole `27cfc32`, CK `d705a68`,
+September 14 full-owner result: the current whole `27cfc32`, CK `4a5a5b0`,
 MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` stack completes the
 original 65536+1024 case on baiying. All 512 outputs and stream callbacks
 match GB10, first 3709 and exact logit 5.9375; restoration and changed-prefix
 rejection pass. The complete owner's first token 16/logit 24.25 also matches.
-Warm callback TTFT is 59288.2245 ms and TPOT 355.413816 ms, both above target.
+Long direct PV operands retain the original envelope and preserve all 512
+outputs/callbacks. Warm callback TTFT is 52683.7323 ms and TPOT 355.022114 ms,
+both above target. The preceding qualified baseline is 59288.2245 ms TTFT.
 This uses complete owners with checkpoint capture disabled and does not
 expand saved-checkpoint admission. See
-[current 64k evidence](../benchmarks/correctness/prefix64k-current-stack-20260914.json).
+[current 64k evidence](../benchmarks/correctness/long-direct-pv-prefix64k-20260914.json).
 
 The first real 64k attempt with the expanded capacity stops after 24576
 completed inputs because a later attention window exceeds the old flat

@@ -2,22 +2,32 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-The current stack now passes the original 65536-prefix plus 1024-suffix
-GB10 boundary on baiying with `D:\models\Qwen3.6-35B-A3B`: all 512 outputs
-and actual callbacks match, first token 3709 and exact raw logit 5.9375.
-All eight owner chunks complete; its first token 16/logit 24.25 also matches.
-State restoration and changed-prefix rejection pass. Whole `27cfc32`, CK
-`d705a68`, MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` remain
-the qualified components. Command: `run-native-attention-history-deadline-product-r1.ps1`.
+The current stack passes the original 65536-prefix plus 1024-suffix GB10
+boundary on baiying with `D:\models\Qwen3.6-35B-A3B`: all 512 outputs and
+actual callbacks match, first token 3709 and exact raw logit 5.9375. All eight
+owner chunks complete with first token 16/logit 24.25. State restoration and
+changed-prefix rejection pass. Whole `27cfc32`, CK `4a5a5b0` with long direct
+PV operands enabled, MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62`
+are the qualified components for this case. Command:
+`run-native-long-direct-pv-product-r1.ps1 -LongDirectPvOperands 1`.
 
-Warm callback TTFT is 59288.2245 ms against the unchanged 5432.415542 ms
-target; TPOT is 355.413816 ms against 46.658882 ms. Load is 21268.7770 ms,
-within 30000 ms. The separate CLI seed phase, including the initial
-continuation, takes 2754458.5373 ms. Native wall is 3017196.708 ms and host
-guards pass. Correctness is qualified for this case; performance, saved
-checkpoints, 128k/256k, current package/HTTP and soak gates remain open.
-Evidence: `benchmarks/correctness/prefix64k-current-stack-20260914.json`,
-SHA256 `a113d05400d2469ecc181c32d4244273af4eddcbfe8c94a886fe91a779cfd3ad`.
+Warm callback TTFT is 52683.7323 ms, 6604.4922 ms below the 59288.2245 ms
+qualified CK `d705a68` baseline in this single pair. TPOT is 355.022114 ms;
+load is 21209.1856 ms, within 30000 ms. The CLI seed phase, including the
+initial continuation, is 2576915.3558 ms; native wall is 2832783.961 ms and
+host guards pass. Only CK identity and the long direct operand option differ
+from the baseline. Long calls retain the original per-group envelope and
+add no allocation. Use the enabled option for subsequent long-context
+candidates; its source default remains 0.
+
+The unchanged 64k targets are 5432.415542 ms TTFT and 46.658882 ms TPOT.
+Performance, saved checkpoints, Windows 128k/256k, current package/HTTP,
+one-hour soak and release remain open. Evidence:
+`benchmarks/correctness/long-direct-pv-prefix64k-20260914.json`, SHA256
+`6c3595aa3ea69bfc37cf553021ba4f0f10496279bbc30fe00207aaf45fbf3cfe`.
+The complete preceding 64k baseline remains in
+`benchmarks/correctness/prefix64k-current-stack-20260914.json`, SHA256
+`a113d05400d2469ecc181c32d4244273af4eddcbfe8c94a886fe91a779cfd3ad`.
 
 The opt-in long-history direct PV provider at `4a5a5b0` passes 42 native
 kernel cases and the original 16k+1024 layer-3 component. All 4194304 BF16
@@ -29,7 +39,7 @@ the original per-group error envelope, and the new option defaults to 0.
 Its original q8192 control matches all 512 outputs/callbacks and exact first
 144/logit 10.375. Callback TTFT is 39203.4717 ms, TPOT 101.690611 ms and load
 21282.1297 ms. The long option is inert at q8192; no speed change is inferred
-from this single control. The separate real 64k run is in progress.
+from this single control. The complete real 64k result is recorded above.
 Evidence: `benchmarks/correctness/long-direct-pv-controls-20260914.json`,
 SHA256 `0d2deb5fba42aa21c2fba9225fd6309b4596324fac402605d9be21c345d147fb`.
 
