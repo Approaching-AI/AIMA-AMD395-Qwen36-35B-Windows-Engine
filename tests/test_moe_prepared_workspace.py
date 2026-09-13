@@ -36,6 +36,7 @@ constexpr size_t kMoePreparedWeightElements=536870912, kMoePreparedInputElements
 constexpr size_t kMoePreparedWeightRows=524288, kMoePreparedInputRows=65536;
 struct State {
     bool prepared_replay=false,prepared_replay_active=false,scaled_l2=false;
+    bool prevalidated_float=false,prevalidated_float_active=false;
     unsigned sm121_moe_absolute_error_ppb=1000;
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
@@ -53,7 +54,9 @@ int hipFree(void* p) { assert(p);++free_calls;return 0; }
 bool release_full_v3_execution_state() { return drain_ok; }
 void set_error_text(const char*) {}
 void set_error(const char*,hipError_t) {}
-constexpr int moe_bf16_row_l2_kernel=0,moe_bf16_scaled_row_l2_kernel=1,moe_bf16_row_l2_prepared_kernel=2;
+constexpr int moe_bf16_row_l2_kernel=0,moe_bf16_scaled_row_l2_kernel=1;
+template<bool ValidateOnly> constexpr int moe_bf16_row_l2_prepared_kernel=ValidateOnly?3:2;
+#define HIP_KERNEL_NAME(...) __VA_ARGS__
 int expected_kernel=0;
 unsigned expected_rows=0,expected_columns=0,covered=0;
 uint16_t value;
@@ -64,6 +67,7 @@ template<class... Args> void launch(int kernel,dim3 grid,dim3 block,int shared,h
     assert(std::get<0>(a)==&value&&std::get<n-3>(a)==expected_rows&&std::get<n-2>(a)==expected_columns);
     assert(std::get<n-1>(a)==covered);covered+=grid.x;++launches;
     if constexpr(n==7) {
+        if(kernel==3)assert(std::get<2>(a)==nullptr);
         assert(std::get<2>(a)==g_state.prepared_replay_inputs||std::get<2>(a)==g_state.prepared_replay_weights);
         assert(std::get<3>(a)==g_state.prepared_replay_input_rows||std::get<3>(a)==g_state.prepared_replay_weight_rows);
     }
@@ -100,6 +104,29 @@ int main() {
     assert(!run(MoeL2::Input,8192,2048)&&launches==0);g_state.prepared_replay_input_rows=saved;
     assert(!run(MoeL2::Input,8192,8192)&&launches==0);
     expected_kernel=2;fail_launch=3;assert(!run(MoeL2::RoutedGateUp,262144,2048)&&launches==3);
+    fail_launch=0;assert(release_prefix());
+    const std::vector<size_t> flag_bytes{2097152,262144};
+    for(unsigned fault=1;fault<=3;++fault) {
+        g_state=State{};g_state.prevalidated_float=true;sizes.clear();free_calls=0;fail_allocation=fault;
+        assert(allocate_optional_moe_prepared_replay()==(fault==3));
+        assert(sizes==std::vector<size_t>(flag_bytes.begin(),flag_bytes.begin()+(fault==3?2:fault)));
+        assert(!g_state.prepared_replay_inputs&&!g_state.prepared_replay_weights);
+        drain_ok=false;assert(!release_prefix()&&free_calls==0);
+        drain_ok=true;assert(release_prefix()&&free_calls==(fault==3?2:fault-1));
+    }
+    g_state.prevalidated_float=true;g_state.prevalidated_float_active=true;
+    fail_allocation=0;sizes.clear();assert(allocate_optional_moe_prepared_replay());
+    expected_kernel=3;
+    assert(run(MoeL2::Input,8192,2048)&&covered==8192&&launches==2);
+    assert(run(MoeL2::RoutedGateUp,262144,2048)&&covered==262144&&launches==64);
+    assert(run(MoeL2::RoutedActivated,65536,512)&&covered==65536);
+    assert(run(MoeL2::RoutedDown,524288,512)&&covered==524288&&launches==128);
+    expected_kernel=0;assert(run(MoeL2::SharedInput,8192,2048)&&launches==2);
+    g_state.scaled_l2=true;assert(!run(MoeL2::Input,8192,2048)&&launches==0);g_state.scaled_l2=false;
+    saved=g_state.prepared_replay_input_rows;g_state.prepared_replay_input_rows=nullptr;
+    assert(!run(MoeL2::Input,8192,2048)&&launches==0);g_state.prepared_replay_input_rows=saved;
+    assert(!run(MoeL2::Input,8192,8192)&&launches==0);
+    expected_kernel=3;fail_launch=3;assert(!run(MoeL2::RoutedGateUp,262144,2048)&&launches==3);
     fail_launch=0;assert(release_prefix());
 }
 '''

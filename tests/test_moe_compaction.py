@@ -87,6 +87,21 @@ float dot(const uint16_t* a,const uint16_t* b,unsigned k) {
     static_assert(Groups==4); return qrt_sm121_subgroup::dot<Lanes>(a,b,k);
 }
 }
+namespace qrt_sm121_float_subgroup {
+template<unsigned Lanes, unsigned Groups>
+float dot(const uint16_t* a,const uint16_t* b,unsigned k) {
+    static_assert(Groups==4); return qrt_sm121_subgroup::dot<Lanes>(a,b,k);
+}
+}
+std::atomic<unsigned> validated_calls{0},fallback_calls{0};
+namespace qrt_sm121_scalar_projection {
+template<unsigned Lanes, unsigned Groups>
+float validated_dot(const uint16_t* a,const uint16_t* b,unsigned k,bool eligible) {
+    static_assert(Groups==4);
+    if((threadIdx.x&(Lanes-1u))==0) { if(eligible)++validated_calls;else ++fallback_calls; }
+    return qrt_sm121_subgroup::dot<Lanes>(a,b,k);
+}
+}
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void *;
@@ -94,6 +109,7 @@ enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDo
 struct State {
     bool compact_routed_hawkeye=false;
     bool prepared_replay_active=false;
+    bool float_replay_active=false,prevalidated_float_active=false;
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
     uint32_t moe_compaction_blocks=kMoeCompactionBlocks;
@@ -202,6 +218,12 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
 int main() {
     std::vector<uint32_t> indices(kMoeCompactionCapacity+17,0xabcdef),counter(18,0xabcdef);
     g_state.moe_compacted_indices=indices.data();g_state.moe_compacted_count=counter.data();
+    std::vector<uint32_t> input_flags(kRoutes),weight_flags(2*kHidden);
+    for(unsigned i=0;i<input_flags.size();++i)input_flags[i]=i%2;
+    for(unsigned i=0;i<weight_flags.size();++i)weight_flags[i]=i%3!=0;
+    g_state.prepared_replay_input_rows=input_flags.data();g_state.prepared_replay_weight_rows=weight_flags.data();
+    for(unsigned route_mode:{0u,1u,2u}) {
+    g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode==2;
     for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
     g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
@@ -233,6 +255,8 @@ int main() {
     g_state.moe_compaction_blocks=window;
     execute_kernels=true;
     }
+    }
+    assert(validated_calls>0&&fallback_calls>0);
     Data d(19);g_state.moe_compacted_count=nullptr;api_calls=0;
     assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
 }
