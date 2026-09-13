@@ -76,6 +76,7 @@ unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, sync
 unsigned fail_query = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
+unsigned direct_pv_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
 unsigned preparations = 0;
@@ -132,11 +133,16 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    const uint32_t* wide = nullptr, unsigned wide_tokens = 0u,
                    const void* = nullptr, const void* = nullptr,
                    const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u,
-                   unsigned = 1u, unsigned = 1u, bool final_pv_bound = false) {
+                   unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
+                   bool direct_pv_operands = false) {
     ++queries;
     if(final_pv_bound) {
         if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
         ++final_bound_queries;
+    }
+    if(direct_pv_operands) {
+        if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
+        ++direct_pv_queries;
     }
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
     const bool matrix = layout == 6u || layout == 7u || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
@@ -170,7 +176,7 @@ void reset() {
     qrt_ck_fmha_q8192_release();
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
-    observed_layout = largest_batch = final_bound_queries = 0;
+    observed_layout = largest_batch = final_bound_queries = direct_pv_queries = 0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -441,6 +447,24 @@ int main() {
             reset();if(launch(0,tokens)!=hipSuccess || final_bound_queries) return 78;
         }
     }
+    unsetenv("QRT_CK_SM121_FINAL_PV_BOUND");
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries) return 79;
+    }
+    setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS","1",1);
+    for(const char* mode : {"1","2","3"}) for(const char* final : {"0","1"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        setenv("QRT_CK_SM121_FINAL_PV_BOUND",final,1);
+        if(launch(0,8192)!=hipSuccess || direct_pv_queries!=(*mode=='2' ? 0u : queries) ||
+           final_bound_queries!=(*mode=='2' || *final=='0' ? 0u : queries) || allocations!=5u) return 80;
+        reset();fail_query=2u;
+        if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u) return 81;
+        for(unsigned tokens : {1u,8193u,17408u}) {
+            reset();if(launch(0,tokens)!=hipSuccess || direct_pv_queries || final_bound_queries) return 82;
+        }
+    }
+    unsetenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
     unsetenv("QRT_CK_SM121_FINAL_PV_BOUND");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");

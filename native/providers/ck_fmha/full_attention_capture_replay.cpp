@@ -344,6 +344,13 @@ int main(int argc, char** argv) {
         if (final_pv_bound && ((memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
             throw std::runtime_error("final PV bound requires global replay at <=8192 tokens");
         std::fprintf(stderr,"FINAL_PV_BOUND enabled=%u maximum_k16_groups=512\n",unsigned(final_pv_bound));
+        const char* direct_pv_option = std::getenv("QRT_ATTENTION_REPLAY_DIRECT_PV_OPERANDS");
+        if (direct_pv_option && *direct_pv_option && std::strcmp(direct_pv_option,"0") &&
+            std::strcmp(direct_pv_option,"1")) throw std::runtime_error("invalid direct PV operand option");
+        const bool direct_pv_operands = direct_pv_option && std::strcmp(direct_pv_option,"1")==0;
+        if (direct_pv_operands && ((memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
+            throw std::runtime_error("direct PV operands require global replay at <=8192 tokens");
+        std::fprintf(stderr,"DIRECT_PV_OPERANDS enabled=%u token_major_values=1\n",unsigned(direct_pv_operands));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
         const bool native_products = native_product_option && native_product_option[0] != '\0' &&
@@ -522,7 +529,8 @@ int main(int argc, char** argv) {
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
-                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound)));
+                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
+                direct_pv_operands)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {

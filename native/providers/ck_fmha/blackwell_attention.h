@@ -1622,7 +1622,8 @@ __global__ void blackwell_mantissa_scores_kernel(
     }
 }
 
-template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false>
+template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false,
+         bool FinalBound = false, bool DirectOperands = false>
 __global__ void blackwell_mantissa_value_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned int query_start, unsigned int query_count, unsigned int output_start,
@@ -1632,6 +1633,7 @@ __global__ void blackwell_mantissa_value_kernel(
     float* error_bounds) {
     static_assert(!BoundError || NativeMma);
     static_assert(!FinalBound || BoundError);
+    static_assert(!DirectOperands || (NativeMma && !Prepacked));
     using OperandRow = std::conditional_t<NativeMma, NativeOperandRow, IntegerOperandRow>;
     __shared__ OperandRow left[16], right[kIntegerMatrixColumns];
     const unsigned int lane = threadIdx.x % 32u, wave = threadIdx.x / 32u, head = blockIdx.y;
@@ -1643,6 +1645,25 @@ __global__ void blackwell_mantissa_value_kernel(
     const unsigned int end = ((last_tokens + 31u) / 32u) * 32u;
     MantissaF32x8 accumulator{}, errors{};
     for (unsigned int base = 0u; base < end; base += 16u) {
+        NativeOperandRow direct_left{}, direct_right{};
+        if constexpr (DirectOperands) {
+            // Each WMMA wave reads its own original operands into registers.
+            // Duplicate query loads replace CTA-wide shared publication and
+            // retirement barriers at every K16. Values retain token-major
+            // coalescing across columns. Matrix instructions, K32 rescaling,
+            // error arithmetic, masks and endpoint stores are unchanged.
+            const unsigned row = query_tile + lane % 16u;
+            const unsigned tokens = query_start + row + 1u;
+            const unsigned column = column_tile + wave * 16u + lane % 16u;
+#pragma unroll
+            for (unsigned i = 0u; i < 16u; ++i) {
+                const unsigned key = base + i;
+                direct_left.original[i] = row < query_count && key < tokens
+                    ? probabilities[(size_t(row) * kQueryHeads + head) * score_stride + key] : 0u;
+                direct_right.original[i] = key < last_tokens
+                    ? value[(size_t(key) * kKvHeads + kv_head) * kHeadDim + column] : 0u;
+            }
+        } else {
         if (wave == 0u && lane < 16u) {
             const unsigned int row = query_tile + lane, tokens = query_start + row + 1u;
             if constexpr (Prepacked) {
@@ -1675,6 +1696,7 @@ __global__ void blackwell_mantissa_value_kernel(
             }
         }
         __syncthreads();
+        }
         if constexpr (NativeMma) {
             if (base % 32u == 0u) {
 #pragma unroll
@@ -1695,10 +1717,12 @@ __global__ void blackwell_mantissa_value_kernel(
                     }
                 }
             }
-            const auto next = blackwell_native_mma(left[lane % 16u], right[wave * 16u + lane % 16u], accumulator);
+            const auto& matrix_left = DirectOperands ? direct_left : left[lane % 16u];
+            const auto& matrix_right = DirectOperands ? direct_right : right[wave * 16u + lane % 16u];
+            const auto next = blackwell_native_mma(matrix_left, matrix_right, accumulator);
             MantissaF32x8 magnitudes{};
             if constexpr (BoundError)
-                magnitudes = blackwell_native_mma<true>(left[lane % 16u], right[wave * 16u + lane % 16u], MantissaF32x8{});
+                magnitudes = blackwell_native_mma<true>(matrix_left, matrix_right, MantissaF32x8{});
 #pragma unroll
             for (unsigned element = 0u; element < 8u; ++element) {
                 const unsigned row = query_tile + 2u * element + lane / 16u;
@@ -1734,7 +1758,7 @@ __global__ void blackwell_mantissa_value_kernel(
             }
         }
         }
-        __syncthreads();
+        if constexpr (!DirectOperands) __syncthreads();
     }
 #pragma unroll
     for (unsigned int element = 0u; element < 8u; ++element) {
@@ -1921,7 +1945,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     SplitCompletionObserver* observer = nullptr,
     const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
     unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u,
-    bool final_pv_bound = false) {
+    bool final_pv_bound = false, bool direct_pv_operands = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -1932,6 +1956,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (final_pv_bound && ((memory_layout != 22u && memory_layout != 24u) ||
+            query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
+    if (direct_pv_operands && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if ((tiled_qk_lanes != 1u && tiled_qk_lanes != 4u) ||
         (tiled_qk_rows_per_thread != 1u && tiled_qk_rows_per_thread != 2u) ||
@@ -2084,7 +2110,17 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             } else if (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) {
                 auto* errors = scales + size_t(query_count) * kQueryHeads *
                     ((stride + 31u) / 32u + 1u);
-                if (final_pv_bound) {
+                if (direct_pv_operands && final_pv_bound) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true, true>),
+                    dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                    v, probabilities, scales, output, query_start, query_count, output_start, stride,
+                    rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+                } else if (direct_pv_operands) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, false, true>),
+                    dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                    v, probabilities, scales, output, query_start, query_count, output_start, stride,
+                    rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+                } else if (final_pv_bound) {
                 hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true>),
                     dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                     v, probabilities, scales, output, query_start, query_count, output_start, stride,

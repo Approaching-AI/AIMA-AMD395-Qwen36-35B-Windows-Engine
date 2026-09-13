@@ -60,7 +60,7 @@ void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
 template<bool TransposedValue = false> void blackwell_compacted_pv_replay_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
-template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false> void blackwell_mantissa_value_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false, bool DirectOperands = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_core_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
@@ -560,6 +560,25 @@ int main() {
     launches=error_queries=memsets=fail_launch=0u;
     if(final_pv(8192u,22u,false)!=hipSuccess || launches!=5u ||
        !std::strstr(launch_names[2],"blackwell_mantissa_value_kernel<true, false, true>")) return 112;
+    auto direct_pv=[&](unsigned start,unsigned layout=22u,bool final=false) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,1u,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+1u,
+            false,nullptr,nullptr,0u,nullptr,nullptr,nullptr,0u,1u,1u,final,true);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u})
+        if(direct_pv(0u,layout)!=hipErrorInvalidValue || launches || memsets) return 113;
+    if(direct_pv(8192u)!=hipErrorInvalidValue || launches || memsets) return 114;
+    for(unsigned layout:{22u,24u}) for(bool final:{false,true}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(direct_pv(8191u,layout,final)!=hipSuccess || launches!=5u || memsets!=1u ||
+           !std::strstr(launch_names[2],final ? "blackwell_mantissa_value_kernel<true, false, true, true, true>" :
+                                             "blackwell_mantissa_value_kernel<true, false, true, false, true>")) return 115;
+        for(unsigned failure=1u;failure<=5u;++failure) {
+            launches=error_queries=memsets=0u;fail_launch=failure;
+            if(direct_pv(8191u,layout,final)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 116;
+        }
+    }
     return 0;
 }
 '''

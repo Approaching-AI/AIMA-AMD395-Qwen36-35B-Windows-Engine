@@ -340,6 +340,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(final_bound_option,"1")) return int(hipErrorInvalidValue);
     const bool final_pv_bound = final_bound_option && std::strcmp(final_bound_option,"1")==0 &&
         (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+    const char* direct_pv_option = std::getenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
+    if (direct_pv_option && *direct_pv_option && std::strcmp(direct_pv_option,"0") &&
+        std::strcmp(direct_pv_option,"1")) return int(hipErrorInvalidValue);
+    const bool direct_pv_operands = direct_pv_option && std::strcmp(direct_pv_option,"1")==0 &&
+        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -423,7 +428,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
             prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
             nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
-            1u, 1u, final_pv_bound);
+            1u, 1u, final_pv_bound, direct_pv_operands);
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
             (void)hipStreamSynchronize(stream);
@@ -447,6 +452,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start,query_count,key_stride,kSm121TransposedValueElements*sizeof(uint16_t));
     if (final_pv_bound)
         std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",
+            query_start,query_count);
+    if (direct_pv_operands)
+        std::fprintf(stderr,"SM121_DIRECT_PV_OPERANDS query_start=%u query_count=%u token_major_values=1 additional_workspace_bytes=0\n",
             query_start,query_count);
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));

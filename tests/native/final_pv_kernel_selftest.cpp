@@ -25,7 +25,7 @@ void finish() {
         if (status == hipSuccess) break;
         if (status != hipErrorNotReady) check(status);
         if (std::chrono::steady_clock::now() >= deadline) throw std::runtime_error("PV completion deadline");
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::yield();
     }
     check(hipEventDestroy(event));
 }
@@ -64,10 +64,22 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     Device dv(value.size()*2u),dp(probability.size()*2u),ds(scales.size()*4u);
     Device dout(initial.size()*4u),da(initial.size()*4u),dd(den_initial.size()*4u),de(error_initial.size()*4u);
     upload(dv,value);upload(dp,probability);upload(ds,scales);
-    std::vector<float> outputs[2],accumulators[2],denominators[2],errors[2];
-    for(unsigned final=0;final<2u;++final) {
+    std::vector<float> outputs[4],accumulators[4],denominators[4],errors[4];
+    for(unsigned variant=0;variant<4u;++variant) {
         upload(dout,initial);upload(da,initial);upload(dd,den_initial);upload(de,error_initial);
-        if(final) {
+        if(variant==3u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true,false,true,true,true>),
+                dim3(kHeadDim/kIntegerMatrixColumns,kQueryHeads,(queries+15u)/16u),dim3(kThreads),0,nullptr,
+                dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,dout.as<float>()+guard,
+                start,queries,output_start,tokens,rcp.as<unsigned char>(),da.as<float>()+guard,dd.as<float>()+guard,
+                nullptr,nullptr,de.as<float>()+guard);
+        } else if(variant==2u) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true,false,true,false,true>),
+                dim3(kHeadDim/kIntegerMatrixColumns,kQueryHeads,(queries+15u)/16u),dim3(kThreads),0,nullptr,
+                dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,dout.as<float>()+guard,
+                start,queries,output_start,tokens,rcp.as<unsigned char>(),da.as<float>()+guard,dd.as<float>()+guard,
+                nullptr,nullptr,de.as<float>()+guard);
+        } else if(variant==1u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true,false,true,true>),
                 dim3(kHeadDim/kIntegerMatrixColumns,kQueryHeads,(queries+15u)/16u),dim3(kThreads),0,nullptr,
                 dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,dout.as<float>()+guard,
@@ -81,13 +93,17 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
                 nullptr,nullptr,de.as<float>()+guard);
         }
         check(hipGetLastError());finish();
-        outputs[final]=download<float>(dout,initial.size());accumulators[final]=download<float>(da,initial.size());
-        denominators[final]=download<float>(dd,den_initial.size());errors[final]=download<float>(de,error_initial.size());
+        outputs[variant]=download<float>(dout,initial.size());accumulators[variant]=download<float>(da,initial.size());
+        denominators[variant]=download<float>(dd,den_initial.size());errors[variant]=download<float>(de,error_initial.size());
     }
-    if(std::memcmp(outputs[0].data(),outputs[1].data(),initial.size()*4u) ||
-       std::memcmp(accumulators[0].data(),accumulators[1].data(),initial.size()*4u) ||
-       std::memcmp(denominators[0].data(),denominators[1].data(),den_initial.size()*4u))
-        throw std::runtime_error("native PV arithmetic changed");
+    for(unsigned variant=1;variant<4u;++variant)
+        if(std::memcmp(outputs[0].data(),outputs[variant].data(),initial.size()*4u) ||
+           std::memcmp(accumulators[0].data(),accumulators[variant].data(),initial.size()*4u) ||
+           std::memcmp(denominators[0].data(),denominators[variant].data(),den_initial.size()*4u))
+            throw std::runtime_error("native PV arithmetic changed");
+    for(unsigned variant=2;variant<4u;++variant)
+        if(std::memcmp(errors[variant-2u].data(),errors[variant].data(),error_initial.size()*4u))
+            throw std::runtime_error("direct operands changed admission bounds");
     for(size_t i=0;i<initial.size();++i) {
         const bool live=i>=guard+output_start*kQueryHeads*kHeadDim && i<guard+output_start*kQueryHeads*kHeadDim+cells;
         if(!live && (outputs[0][i]!=12345.0f || accumulators[0][i]!=12345.0f)) throw std::runtime_error("output guard changed");
@@ -106,8 +122,8 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
         dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,dout.as<float>()+guard,
         start,output_start,tokens,rcp.as<unsigned char>(),nullptr,nullptr,nullptr);
     check(hipGetLastError());finish();const auto exact=download<float>(dout,initial.size());
-    std::vector<bool> selected[2];unsigned counts[2]{};unsigned bad=0u;
-    for(unsigned final=0;final<2u;++final) {
+    std::vector<bool> selected[4];unsigned counts[4]{};unsigned bad=0u;
+    for(unsigned final=0;final<4u;++final) {
         std::vector<unsigned> scratch(cells+1u+2u*guard,0xa5a5a5a5u);Device indices(scratch.size()*4u);
         upload(indices,scratch);upload(dout,outputs[final]);upload(de,errors[final]);
         check(hipError_t(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
@@ -129,8 +145,10 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
         }
     }
     for(unsigned i=0;i<cells;++i) if(selected[0][i] && !selected[1][i]) throw std::runtime_error("candidate set shrank");
+    if(selected[0]!=selected[2] || selected[1]!=selected[3])
+        throw std::runtime_error("direct operands changed candidate ownership");
     immutable(dv,value);immutable(dp,probability);immutable(ds,scales);
-    std::printf("{\"kind\":\"final_pv_kernel\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"old_candidates\":%u,\"new_candidates\":%u,\"raw_bit_mismatches\":0,\"underestimates\":0,\"bf16_mismatches\":%u,\"candidate_superset\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+    std::printf("{\"kind\":\"final_pv_kernel\",\"variants\":4,\"direct_operand_variants\":2,\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"old_candidates\":%u,\"new_candidates\":%u,\"raw_bit_mismatches\":0,\"direct_bound_bit_mismatches\":0,\"direct_candidate_sets_equal\":true,\"underestimates\":0,\"bf16_mismatches\":%u,\"candidate_superset\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
         start,queries,mode,cells,counts[0],counts[1],bad);
     if(bad) throw std::runtime_error("selective PV differs from canonical BF16");
 }
