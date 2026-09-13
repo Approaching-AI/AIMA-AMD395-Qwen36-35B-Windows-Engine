@@ -2,19 +2,44 @@
 
 ## Current unreleased measurements, 2026-09-13
 
-Row-prevalidated replay at component source `75d5e56` passes 12 generated
-cases against independent original CPU arithmetic and all 58728448 real
-captured GB10 QKV BF16 cells. Every variant shares 3791742 sorted candidates;
-guards, inputs and all raw FP32 control cells match. Preparation plus replay
-for original prepared4 / scalar row-major / scalar transposed / prevalidated
-cooperative4 is 54.6064 / 54.7826 / 304.4780 / 50.3057 ms. One warmup and one
-timed sequence are used per variant; allocation, upload, candidate collection
-and validation are excluded. Only the prevalidated cooperative variant improves
-this component. Product performance remains unmeasured. The next source adds
-default-off `QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY` and
-`QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY`, with row flags instead of encoded
-operand storage and eligibility fused into existing MoE norm scans.
-Evidence: `benchmarks/correctness/scalar-projection-20260913.json`.
+Row-prevalidated cooperative float replay at whole/MoE source `d2f283f`
+passes complete same-DLL q8192 controls. Baseline / both enabled / dense only
+match all 512 original GB10 output tokens and actual callbacks, with first
+144 and exact raw logit 10.375. Callback TTFT is
+44254.7018 / 43324.5935 / 43506.9730 ms; dense correction host wall is
+8104.932 / 7328.709 / 7322.577 ms. Dense only saves 747.7288 ms and adding
+MoE saves another 182.3795 ms in this single comparison. Retain
+`QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY=1` and
+`QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY=1` for subsequent candidate runs;
+source defaults remain 0 pending broader qualification. Original per-pair
+float replay and prepared MoE stay 0. CK `6c0c54c` scalar QK 1, FLA `8f436db`
+and CLI `a797b62` remain common. Both-enabled TPOT is 101.887785 ms and
+load is 20043.4378 ms. q8192 remains above 10 seconds and the immutable
+4187.415605 ms target; no long-context, package, HTTP, soak or release
+qualification follows.
+
+Dense replay keeps only row flags; MoE produces its flags in the original
+FP64 norm scan with 2359296 additional bytes. Native checks pass 24 core
+cases, two bit-identical norm scans, four routed gate/up/down controls,
+four dense correction cases and all 58728448 real captured GB10 QKV BF16
+endpoints. Guards and immutable inputs pass. The legacy prepared-operands
+marker also follows flags-only storage in this source; the analyzer checks
+its exact byte count and requires separate prevalidated-float markers.
+Original raw evidence remains unchanged. The test-only follow-up `29fe4cb`
+keeps native/build sources identical and passes full `make check`: 47 Rust
+tests, 360 Python tests with 2 skipped, C smoke, clippy and public hygiene.
+The next measurement profiles completed phases of this qualified token case
+to identify the dominant remaining wall.
+Evidence: `benchmarks/correctness/prevalidated-float-product-20260913.json`,
+SHA256 `f9e7b6c1fc38765b9ef1a55984375a283d220755dd3a98936aa428fd795b8cdd`.
+
+The component comparison at source `75d5e56` retains provenance in
+`benchmarks/correctness/scalar-projection-20260913.json`: all 12 generated
+cases and all captured QKV endpoints match. Original prepared4 / scalar
+row-major / scalar transposed / prevalidated cooperative4 preparation plus
+replay is 54.6064 / 54.7826 / 304.4780 / 50.3057 ms. Those timings exclude
+allocation, upload and candidate collection; only the complete product
+controls above establish a q8192 gain.
 
 Cooperative scalar float replay at whole/MoE source `9112d0b` preserves
 correctness but is slower. Three real q8192 controls match all 512 GB10 output
