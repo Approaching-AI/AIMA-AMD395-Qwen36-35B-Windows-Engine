@@ -74,6 +74,25 @@ Command file: `run-native-tiled-projection-whole-r1.ps1 -Action reference-test`.
 Evidence: `benchmarks/correctness/tiled-dense-projection-20260913.json`,
 SHA256 `b596dcc248a3125402b3f6680f36ba89784f489487504729c73e6fde87f8eb50`.
 
+
+Reusable K16 row bounds at source `0fae245` also preserve all 58728448
+GB10 QKV cells and all 3791742 candidate identities. CPU checks cover all
+65536 BF16 encodings and 2097152 ordered groups; 20 native comparisons
+check 902732 complete carry states, metadata, guards and immutable inputs.
+Full local checks pass 367 Python tests with 2 skipped, 47 Rust tests,
+C smoke, clippy and public hygiene. The candidate is slower:
+52.7489 / 61.7995 ms including preparation and replay. It remains outside
+the product dispatcher, with no new token-loop or release acceptance.
+
+A separate untimed accounting pass records 97753728 ineligible fallback
+groups out of 485342976. Original input words all satisfy the old range;
+229376 QKV weight words do not, including 216676 with biased exponent 4.
+Continue investigating exact scalar alignment across this wider range and
+fallback control flow. Command file:
+`run-native-bounded-projection-whole-r1.ps1 -Action reference-test`.
+Evidence: `benchmarks/correctness/float-row-bounds-projection-20260913.json`,
+SHA256 `7b65cbe49c208b2c1361058357bd5b59784c0c87cb06ed17ea6b9c5c401c8591`.
+
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
