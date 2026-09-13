@@ -1401,6 +1401,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\triton_moe\routed_parallel_gate.h')).Hash.ToLowerInvariant()
     sm121_float_alignment_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_float_alignment.h')).Hash.ToLowerInvariant()
+    sm121_scalar_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scalar_projection.h')).Hash.ToLowerInvariant()
     sm121_float_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_float_subgroup.h')).Hash.ToLowerInvariant()
     sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `

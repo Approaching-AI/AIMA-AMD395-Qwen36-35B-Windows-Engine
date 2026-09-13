@@ -22,6 +22,7 @@
 #include "../moe_accumulator/sm121_subgroup.h"
 #include "../moe_accumulator/sm121_prepared_projection.h"
 #include "../moe_accumulator/sm121_float_subgroup.h"
+#include "../moe_accumulator/sm121_scalar_projection.h"
 #include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
@@ -1713,12 +1714,18 @@ struct MoeCorrectionBounds {
     const uint16_t *prepared_input = nullptr, *prepared_weights = nullptr;
     const uint32_t *prepared_input_rows = nullptr, *prepared_weight_rows = nullptr;
     bool float_replay = false;
+    bool prevalidated_float = false;
 };
 
 template<unsigned Lanes>
 __device__ __forceinline__ float moe_routed_replay_dot(const uint16_t *inputs,
     const uint16_t *weights, uint32_t input_row, uint32_t weight_row,
     uint32_t columns, const MoeCorrectionBounds& bounds) {
+    if (bounds.prevalidated_float)
+        return qrt_sm121_scalar_projection::validated_dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
+            inputs + size_t(input_row) * columns, weights + size_t(weight_row) * columns, columns,
+            bounds.prepared_input_rows && bounds.prepared_weight_rows &&
+            bounds.prepared_input_rows[input_row] && bounds.prepared_weight_rows[weight_row]);
     if (bounds.float_replay)
         return qrt_sm121_float_subgroup::dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
             inputs + size_t(input_row) * columns, weights + size_t(weight_row) * columns, columns);
@@ -1847,6 +1854,7 @@ struct ProviderState {
     bool scaled_l2 = false;
     bool prepared_replay = false, prepared_replay_active = false;
     bool float_replay = false, float_replay_active = false;
+    bool prevalidated_float = false, prevalidated_float_active = false;
     uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
     uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
@@ -3694,6 +3702,7 @@ void moe_bf16_row_l2_kernel(const uint16_t *values, float *norms,
 // Reuse the required FP64 norm scan to prepare lossless replay operands.
 // The norm's products, reduction tree and inflation are unchanged. Eligibility
 // uses a parallel integer OR without introducing another reduction barrier.
+template<bool ValidateOnly = false>
 __global__ __launch_bounds__(256)
 void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
     uint16_t *encoded, uint32_t *eligible_rows,
@@ -3709,8 +3718,9 @@ void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
         const uint16_t value = values[index];
         const double v = static_cast<double>(bf16_to_float(value));
         sum += v * v;
-        const bool valid = qrt_sm121_prepared_bf16::eligible(value);
-        encoded[index] = valid ? qrt_sm121_prepared_bf16::encode(value) : 0u;
+        const bool valid = ValidateOnly ? qrt_sm121_float_alignment::eligible(value)
+                                        : qrt_sm121_prepared_bf16::eligible(value);
+        if constexpr (!ValidateOnly) encoded[index] = valid ? qrt_sm121_prepared_bf16::encode(value) : 0u;
         bad |= !valid;
     }
     partial[threadIdx.x] = sum;
@@ -12253,16 +12263,17 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
         set_error_text("invalid live MoE L2 surface");
         return false;
     }
-    const bool prepare_input = g_state.prepared_replay_active &&
+    const bool prepare_rows = g_state.prepared_replay_active || g_state.prevalidated_float_active;
+    const bool prepare_input = prepare_rows &&
         (surface == MoeL2::Input || surface == MoeL2::RoutedActivated);
-    const bool prepare_weight = g_state.prepared_replay_active &&
+    const bool prepare_weight = prepare_rows &&
         (surface == MoeL2::RoutedGateUp || surface == MoeL2::RoutedDown);
     uint16_t* encoded = prepare_input ? g_state.prepared_replay_inputs :
         prepare_weight ? g_state.prepared_replay_weights : nullptr;
     uint32_t* flags = prepare_input ? g_state.prepared_replay_input_rows :
         prepare_weight ? g_state.prepared_replay_weight_rows : nullptr;
     if ((prepare_input || prepare_weight) &&
-        (g_state.scaled_l2 || !encoded || !flags ||
+        (g_state.scaled_l2 || (g_state.prepared_replay_active && !encoded) || !flags ||
          size_t(rows) * columns > (prepare_input ? kMoePreparedInputElements : kMoePreparedWeightElements) ||
          rows > (prepare_input ? kMoePreparedInputRows : kMoePreparedWeightRows))) {
         set_error_text("invalid MoE prepared replay view");
@@ -12270,8 +12281,11 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
     }
     for (uint32_t first = 0; first < rows; first += 4096u) {
         const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
-        if (encoded) {
-            hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel, dim3(count), dim3(kNativeThreads),
+        if (g_state.prevalidated_float_active && flags) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>), dim3(count), dim3(kNativeThreads),
+                0, stream, values, g_state.moe_l2[slot], nullptr, flags, rows, columns, first);
+        } else if (encoded) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<false>), dim3(count), dim3(kNativeThreads),
                 0, stream, values, g_state.moe_l2[slot], encoded, flags, rows, columns, first);
         } else if (g_state.scaled_l2) {
             hipLaunchKernelGGL(moe_bf16_scaled_row_l2_kernel, dim3(count), dim3(kNativeThreads),
@@ -12350,9 +12364,10 @@ hipError_t launch_moe_routed_correction(
             first, g_state.moe_compacted_indices, g_state.moe_compacted_count
         };
         bounds.float_replay = g_state.float_replay_active;
-        if (g_state.prepared_replay_active &&
+        if ((g_state.prepared_replay_active || g_state.prevalidated_float_active) &&
             ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
              (input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown))) {
+            bounds.prevalidated_float = g_state.prevalidated_float_active;
             bounds.prepared_input = g_state.prepared_replay_inputs;
             bounds.prepared_weights = g_state.prepared_replay_weights;
             bounds.prepared_input_rows = g_state.prepared_replay_input_rows;
@@ -12388,12 +12403,13 @@ bool allocate_optional_moe_compaction() {
 }
 
 bool allocate_optional_moe_prepared_replay() {
-    if (!g_state.prepared_replay) return true;
-    return allocate(&g_state.prepared_replay_weights, kMoePreparedWeightElements * sizeof(uint16_t),
+    if (!g_state.prepared_replay && !g_state.prevalidated_float) return true;
+    if (g_state.prepared_replay &&
+        !(allocate(&g_state.prepared_replay_weights, kMoePreparedWeightElements * sizeof(uint16_t),
                     "hipMalloc(MoE prepared weights)") &&
-        allocate(&g_state.prepared_replay_inputs, kMoePreparedInputElements * sizeof(uint16_t),
-                 "hipMalloc(MoE prepared inputs)") &&
-        allocate(&g_state.prepared_replay_weight_rows, kMoePreparedWeightRows * sizeof(uint32_t),
+          allocate(&g_state.prepared_replay_inputs, kMoePreparedInputElements * sizeof(uint16_t),
+                    "hipMalloc(MoE prepared inputs)"))) return false;
+    return allocate(&g_state.prepared_replay_weight_rows, kMoePreparedWeightRows * sizeof(uint32_t),
                  "hipMalloc(MoE prepared weight flags)") &&
         allocate(&g_state.prepared_replay_input_rows, kMoePreparedInputRows * sizeof(uint32_t),
                  "hipMalloc(MoE prepared input flags)");
@@ -13570,9 +13586,18 @@ bool launch_routed_matrices_after_input_conversion(
         explicit PreparedReplayScope(uint32_t tokens) {
             g_state.prepared_replay_active = g_state.prepared_replay && tokens == kTokens;
             g_state.float_replay_active = g_state.float_replay && tokens == kTokens;
+            g_state.prevalidated_float_active = g_state.prevalidated_float && tokens == kTokens;
         }
-        ~PreparedReplayScope() { g_state.prepared_replay_active = false; g_state.float_replay_active = false; }
+        ~PreparedReplayScope() {
+            g_state.prepared_replay_active = false; g_state.float_replay_active = false;
+            g_state.prevalidated_float_active = false;
+        }
     } prepared_replay_scope(token_count);
+    if (g_state.prevalidated_float_active) {
+        std::fprintf(stderr,"BATCH_MARK moe_prevalidated_float tokens=%u workspace_bytes=%zu lanes=%u staging_groups=%u fused_norm_scan=1 canonical_k16=1 original_fallback=1\n",
+            token_count,(kMoePreparedWeightRows+kMoePreparedInputRows)*sizeof(uint32_t),
+            unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS));
+    }
     if (g_state.float_replay_active) {
         std::fprintf(stderr,"BATCH_MARK moe_float_replay tokens=%u workspace_bytes=0 lanes=%u staging_groups=%u canonical_k16=1 original_fallback=1\n",
             token_count,unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS));
@@ -16583,6 +16608,16 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         set_error_text("prepared replay requires q8192 compact SM121 routed correction and original L2 scans");
         return 0;
     }
+    const char* validated_float = std::getenv("QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY");
+    if (validated_float && *validated_float && std::strcmp(validated_float,"0") && std::strcmp(validated_float,"1")) {
+        set_error_text("QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.prevalidated_float = validated_float && std::strcmp(validated_float,"1") == 0;
+    if (g_state.prevalidated_float && (kTokens != 8192u || !g_state.sm121_routed_hawkeye ||
+        !g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb || g_state.scaled_l2 ||
+        g_state.prepared_replay || g_state.float_replay)) {
+        set_error_text("prevalidated float replay requires exclusive q8192 compact SM121 replay and original L2 scans"); return 0;
+    }
     const char *parallel_gate = std::getenv("QRT_QWEN36_MOE_PARALLEL_GATE");
     if (parallel_gate != nullptr && parallel_gate[0] != '\0' &&
         std::strcmp(parallel_gate, "0") != 0 && std::strcmp(parallel_gate, "1") != 0) {
@@ -16590,6 +16625,9 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         return 0;
     }
     g_state.parallel_routed_gate = parallel_gate != nullptr && std::strcmp(parallel_gate, "1") == 0;
+    if (g_state.prevalidated_float && g_state.parallel_routed_gate) {
+        set_error_text("prevalidated float replay requires the original routed gate stream"); return 0;
+    }
     if (g_state.float_replay && g_state.parallel_routed_gate) {
         set_error_text("float replay requires the original routed gate stream"); return 0;
     }

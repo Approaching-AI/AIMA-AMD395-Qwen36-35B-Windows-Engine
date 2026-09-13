@@ -58,29 +58,44 @@ __device__ __forceinline__ float dot(const uint16_t* left, const uint16_t* right
     return qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
 }
 
-__device__ __forceinline__ float cooperative_dot(const uint16_t* left,
+template<unsigned Lanes, unsigned Staging = 1u>
+__device__ __forceinline__ float validated_dot(const uint16_t* left,
     const uint16_t* right, unsigned count, bool eligible) {
-    if (!eligible) return qrt_sm121_subgroup::dot<4u>(left, right, count);
-    const unsigned lane = threadIdx.x & 3u;
+    static_assert(Lanes == 4u || Lanes == 8u || Lanes == 16u);
+    static_assert(Staging == 1u || Staging == 4u || Staging == 8u);
+    if (!eligible) return qrt_sm121_subgroup::dot<Lanes, Staging>(left, right, count);
+    constexpr unsigned items = 16u / Lanes;
+    const unsigned lane = threadIdx.x & (Lanes - 1u);
     Value carry{0u, -133, false};
 #pragma unroll 1
-    for (unsigned base = 0u; base < count; base += 16u) {
-        uint64_t a, b;
-        __builtin_memcpy(&a, left + base + lane * 4u, 8u);
-        __builtin_memcpy(&b, right + base + lane * 4u, 8u);
-        qrt_sm121_float_subgroup::Product products[4];
+    for (unsigned base = 0u; base < count; base += 16u * Staging) {
+        qrt_sm121_float_subgroup::Product products[Staging][items];
 #pragma unroll
-        for (unsigned i = 0u; i < 4u; ++i) {
+        for (unsigned group = 0u; group < Staging; ++group) if (base + group * 16u < count) {
+            using Packed = typename std::conditional<Lanes == 4u, uint64_t,
+                typename std::conditional<Lanes == 8u, uint32_t, uint16_t>::type>::type;
+            Packed a, b;
+            __builtin_memcpy(&a, left + base + group * 16u + lane * items, sizeof(a));
+            __builtin_memcpy(&b, right + base + group * 16u + lane * items, sizeof(b));
+#pragma unroll
+            for (unsigned i = 0u; i < items; ++i) {
             const uint16_t x = uint16_t(a >> (i * 16u)), y = uint16_t(b >> (i * 16u));
             const bool zero = !(x & 0x7fffu) || !(y & 0x7fffu);
-            products[i] = {
+            products[group][i] = {
                 alignment::from_bits(uint32_t(x) << 16u) * alignment::from_bits(uint32_t(y) << 16u),
                 uint32_t(x) | (uint32_t(y) << 16u),
                 zero ? -133 : int((x >> 7u) & 255u) + int((y >> 7u) & 255u) - 254};
+            }
         }
-        carry = qrt_sm121_float_subgroup::accumulate<4u>(carry, products);
+#pragma unroll
+        for (unsigned group = 0u; group < Staging; ++group) if (base + group * 16u < count)
+            carry = qrt_sm121_float_subgroup::accumulate<Lanes>(carry, products[group]);
     }
     return lane ? 0.0f : qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
+}
+__device__ __forceinline__ float cooperative_dot(const uint16_t* left,
+    const uint16_t* right, unsigned count, bool eligible) {
+    return validated_dot<4u>(left, right, count, eligible);
 }
 } // namespace qrt_sm121_scalar_projection
 #endif

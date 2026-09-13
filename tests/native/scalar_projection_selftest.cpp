@@ -38,12 +38,14 @@ template<class T> struct Buffer {
 template<unsigned Variant>
 __global__ void execute(const uint16_t* a, const uint16_t* b, const uint16_t* transposed,
     const unsigned* fa, const unsigned* fb, uint32_t* output, unsigned rows, unsigned width) {
-    constexpr unsigned lanes = Variant == 3u ? 4u : 1u;
+    constexpr unsigned lanes = Variant == 3u ? 4u : Variant == 5u ? 8u : Variant >= 4u ? 16u : 1u;
     const unsigned row = (blockIdx.x * blockDim.x + threadIdx.x) / lanes;
     if (row >= rows) return;
     const bool eligible = fa[row] && fb[row];
     float value;
-    if constexpr (Variant == 3u)
+    if constexpr (Variant >= 4u)
+        value = scalar::validated_dot<lanes, Variant == 6u ? 8u : 4u>(a + size_t(row) * width, b + size_t(row) * width, width, eligible);
+    else if constexpr (Variant == 3u)
         value = scalar::cooperative_dot(a + size_t(row) * width, b + size_t(row) * width, width, eligible);
     else if constexpr (Variant == 2u)
         value = scalar::dot<true>(a + size_t(row) * width, transposed, rows, row, width, eligible);
@@ -86,12 +88,15 @@ void run(unsigned rows, unsigned width) {
     hipLaunchKernelGGL(scalar::eligible_rows_kernel, dim3(rows + 3u), dim3(256u), 0u, nullptr, db.data(), dfb.data(), rows, width);
     check(hipGetLastError()); complete();
     if (dfa.read() != af || dfb.read() != bf) throw std::runtime_error("row eligibility or flag guards differ");
-    for (unsigned variant : {1u, 2u, 3u}) {
+    for (unsigned variant : {1u, 2u, 3u, 4u, 5u, 6u}) {
         std::vector<uint32_t> initial(rows + 2u * guard, 0xa5a5a5a5u); Buffer<uint32_t> out(initial);
-        const dim3 grid((rows * (variant == 3u ? 4u : 1u) + 255u) / 256u + 1u);
+        const dim3 grid((rows * (variant == 3u ? 4u : variant == 5u ? 8u : variant >= 4u ? 16u : 1u) + 255u) / 256u + 1u);
         if (variant == 1u) hipLaunchKernelGGL(execute<1u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
         if (variant == 2u) hipLaunchKernelGGL(execute<2u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
         if (variant == 3u) hipLaunchKernelGGL(execute<3u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
+        if (variant == 4u) hipLaunchKernelGGL(execute<4u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
+        if (variant == 5u) hipLaunchKernelGGL(execute<5u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
+        if (variant == 6u) hipLaunchKernelGGL(execute<6u>, grid, dim3(256u), 0u, nullptr, da.data(), db.data(), dt.data(), dfa.data(), dfb.data(), out.data(), rows, width);
         check(hipGetLastError()); complete(); auto actual = out.read(); unsigned bad = 0u;
         for (unsigned row = 0u; row < rows; ++row) bad += actual[guard + row] != expected[row];
         for (unsigned i = 0u; i < guard; ++i)

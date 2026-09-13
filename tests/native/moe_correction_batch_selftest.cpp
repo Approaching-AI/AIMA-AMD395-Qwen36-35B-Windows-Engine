@@ -133,7 +133,7 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     g_state.moe_compaction_blocks = window_blocks;
@@ -211,29 +211,37 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     hip_ok(hipEventCreate(&begin), "compaction begin"); hip_ok(hipEventCreate(&end), "compaction end");
     std::vector<float> expected_native, expected_down;
     std::vector<uint16_t> expected_activated;
-    float times[4]{};
+    float times[5]{};
     auto prepare_view = [&](const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
                             uint32_t rows, uint32_t columns) {
         for (uint32_t first = 0u; first < rows; first += 4096u) {
-            hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel,
-                dim3(std::min(4096u, rows - first)), dim3(kNativeThreads), 0, stream,
-                raw, depn.data(), encoded, flags, rows, columns, first);
+            if (g_state.prevalidated_float_active) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),
+                    dim3(std::min(4096u, rows - first)), dim3(kNativeThreads), 0, stream,
+                    raw, depn.data(), nullptr, flags, rows, columns, first);
+            } else {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<false>),
+                    dim3(std::min(4096u, rows - first)), dim3(kNativeThreads), 0, stream,
+                    raw, depn.data(), encoded, flags, rows, columns, first);
+            }
             hip_ok(hipGetLastError(), "prepare routed replay view");
         }
     };
-    for (uint32_t compact = 0u; compact < (float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
+    for (uint32_t compact = 0u; compact < (prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
         g_state.prepared_replay_active = compact == 2u;
         g_state.float_replay_active = compact == 3u;
-        g_state.prepared_replay_inputs = dei.data(); g_state.prepared_replay_weights = dew.data();
+        g_state.prevalidated_float_active = compact == 4u;
+        g_state.prepared_replay_inputs = compact == 4u ? nullptr : dei.data();
+        g_state.prepared_replay_weights = compact == 4u ? nullptr : dew.data();
         g_state.prepared_replay_input_rows = defi.data(); g_state.prepared_replay_weight_rows = defw.data();
         const uint32_t radius = mode == 1u || mode == 4u ? 32768u : mode == 2u ? 128u : 0u;
         const uint32_t exponent = mode == 2u ? 124u : 0u;
         const uint32_t blocks = static_cast<uint32_t>((elements + kNativeThreads - 1u) / kNativeThreads);
         using P = MoeCorrectionPhase;
         hip_ok(hipEventRecord(begin, stream), "compaction timing begin");
-        if (compact == 2u) {
+        if (compact == 2u || compact == 4u) {
             prepare_view(di.data(), dei.data(), defi.data(), tokens, kHidden);
             prepare_view(dw.data(), dew.data(), defw.data(), 4u * kIntermediate, kHidden);
         }
@@ -247,7 +255,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>, routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
             blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
             routes, radius, exponent), "compaction up");
-        if (compact == 2u) {
+        if (compact == 2u || compact == 4u) {
             prepare_view(da.data(), dei.data(), defi.data(), routes, kIntermediate);
             prepare_view(ddw.data(), dew.data(), defw.data(), 2u * kHidden, kIntermediate);
         }
@@ -311,6 +319,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     g_state.compact_routed_hawkeye = false;
     g_state.prepared_replay_active = false;
     g_state.float_replay_active = false;
+    g_state.prevalidated_float_active = false;
     g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
     g_state.prepared_replay_input_rows = g_state.prepared_replay_weight_rows = nullptr;
     g_state.moe_compaction_blocks = kMoeCompactionBlocks;
@@ -318,13 +327,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                 "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
                 "\"prepared_replay_checked\":%s,\"prepared_sequence_ms\":%.6f,"
                 "\"float_replay_checked\":%s,\"float_sequence_ms\":%.6f,"
+                "\"prevalidated_float_checked\":%s,\"prevalidated_sequence_ms\":%.6f,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
 }
 
-void compare_prepared_norm(unsigned columns) {
+void compare_prepared_norm(unsigned columns, bool validate_only = false) {
     constexpr unsigned first = 3u, tested_rows = 259u, rows = first + tested_rows;
     const auto fixture = scaled_l2_test::fixture(tested_rows, columns);
     std::vector<uint16_t> input(size_t(rows) * columns + 2u * kGuard, kSentinel);
@@ -338,8 +348,13 @@ void compare_prepared_norm(unsigned columns) {
     hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
         di.data(), original.data(), rows, columns, first);
     hip_ok(hipGetLastError(), "original prepared norm control");
-    hipLaunchKernelGGL(moe_bf16_row_l2_prepared_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
-        di.data(), candidate.data(), de.data(), df.data(), rows, columns, first);
+    if (validate_only) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>), dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+            di.data(), candidate.data(), nullptr, df.data(), rows, columns, first);
+    } else {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<false>), dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+            di.data(), candidate.data(), de.data(), df.data(), rows, columns, first);
+    }
     hip_ok(hipGetLastError(), "fused prepared norm");
     const auto a = original.read(norms.size()), b = candidate.read(norms.size());
     require(std::memcmp(a.data(), b.data(), a.size() * sizeof(float)) == 0,
@@ -349,9 +364,10 @@ void compare_prepared_norm(unsigned columns) {
         bool valid_row = true;
         for (unsigned k = 0; k < columns; ++k) {
             const size_t index = kGuard + size_t(row) * columns + k;
-            const bool valid = qrt_sm121_prepared_bf16::eligible(input[index]);
+            const unsigned exponent = (input[index] >> 7u) & 255u;
+            const bool valid = !(input[index] & 0x7fffu) || (exponent >= 64u && exponent <= (validate_only ? 190u : 191u));
             valid_row &= valid;
-            expected[index] = valid ? qrt_sm121_prepared_bf16::encode(input[index]) : 0u;
+            if (!validate_only) expected[index] = valid ? qrt_sm121_prepared_bf16::encode(input[index]) : 0u;
         }
         expected_flags[kGuard + row] = valid_row;
         eligible_rows += valid_row;
@@ -363,9 +379,9 @@ void compare_prepared_norm(unsigned columns) {
         if (i < kGuard + first || i >= kGuard + rows)
             require(a[i] == norms[i] && b[i] == norms[i], "prepared norm redzone changed");
     std::printf("{\"kind\":\"prepared_moe_norm_scan\",\"rows\":%u,\"columns\":%u,"
-        "\"encoded_cells\":%zu,\"eligible_rows\":%u,\"norm_bit_differences\":0,"
+        "\"validate_only\":%s,\"encoded_cells\":%zu,\"eligible_rows\":%u,\"norm_bit_differences\":0,"
         "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-        tested_rows, columns, size_t(tested_rows) * columns, eligible_rows);
+        tested_rows, columns, validate_only ? "true" : "false", validate_only ? size_t(0u) : size_t(tested_rows) * columns, eligible_rows);
 }
 
 void compare_scaled_l2(unsigned columns) {
@@ -410,6 +426,15 @@ void compare_scaled_l2(unsigned columns) {
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--prevalidated-float") == 0) {
+            moe_batch_test::compare_prepared_norm(512u, true);
+            moe_batch_test::compare_prepared_norm(2048u, true);
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true, true, true);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true, true, true);
+            moe_batch_test::compare_routed_compaction(129u, 4u, kMaximumMoeCompactionBlocks, true, true, true);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks, true, true, true);
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--float-replay") == 0) {
             moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true, true);
             moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true, true);

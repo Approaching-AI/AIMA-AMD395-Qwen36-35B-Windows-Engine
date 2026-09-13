@@ -2,6 +2,20 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Row-prevalidated replay at component source `75d5e56` passes 12 generated
+cases against independent original CPU arithmetic and all 58728448 real
+captured GB10 QKV BF16 cells. Every variant shares 3791742 sorted candidates;
+guards, inputs and all raw FP32 control cells match. Preparation plus replay
+for original prepared4 / scalar row-major / scalar transposed / prevalidated
+cooperative4 is 54.6064 / 54.7826 / 304.4780 / 50.3057 ms. One warmup and one
+timed sequence are used per variant; allocation, upload, candidate collection
+and validation are excluded. Only the prevalidated cooperative variant improves
+this component. Product performance remains unmeasured. The next source adds
+default-off `QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY` and
+`QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY`, with row flags instead of encoded
+operand storage and eligibility fused into existing MoE norm scans.
+Evidence: `benchmarks/correctness/scalar-projection-20260913.json`.
+
 Cooperative scalar float replay at whole/MoE source `9112d0b` preserves
 correctness but is slower. Three real q8192 controls match all 512 GB10 output
 tokens and callbacks, with first token 144 and exact raw logit 10.375.
