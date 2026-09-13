@@ -47,6 +47,27 @@ verify their fallback transaction and complete owner-state restoration.
 | whole 2e49049, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48017.509 | 101.468183 | 20041.4914 |
 | whole 2e49049 / CK 6520982, final PV envelope disabled | cold 8192, ordinary path | 48223.2078 | 101.959194 | 20074.458 |
 | same binaries, final PV envelope enabled | cold 8192, ordinary path | 47785.5537 | 101.329395 | 20064.6161 |
+| whole 4fec3ea / CK 126cdcb, shared PV operand loading | cold 8192, ordinary path | 47770.6281 | 101.6759 | 20008.4729 |
+| same binaries, direct PV operand loading | cold 8192, ordinary path | 46055.3727 | 101.615746 | 20023.7468 |
+
+Direct PV operands remove per-K16 shared publication/retirement barriers while
+keeping the original BF16 inputs, matrix calls, ordered carries, final error
+envelope and exact replay. Both complete product runs match all512 GB10 outputs
+and actual callbacks with exact first144/logit10.375. Only
+`QRT_CK_SM121_DIRECT_PV_OPERANDS=0|1` changes in the resolved environment;
+whole prepared operands stay enabled with the original layout. This pair
+observes1715.2554ms lower callback TTFT. Keep the option enabled for subsequent
+qualified-stack experiments, with default0. No retained target is recovered.
+
+Native24 cases /4423680 cells compare four shared/direct and original/final
+envelope variants. Original output/carry/denominator bits agree, direct bounds
+and candidate sets equal their shared controls, and all17694720 canonical BF16
+comparisons pass. Originalq7169 attention matches every29364224 GB10 BF16 cell
+and all four qualified replay files in both modes. Completed query plus V
+preparation is773.9421/913.7159ms; this component comparison excludes common
+upload, allocation, key transpose and safety validation. Neither pair is a
+sustained-throughput claim, and other contexts/package/HTTP/soak remain open.
+Evidence: `benchmarks/correctness/direct-pv-operands-20260913.json`.
 
 The optional final PV envelope preserves native matrix arithmetic and enlarges
 the existing error envelope. Both q8192 runs above match all 512 GB10 outputs
