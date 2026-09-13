@@ -1,17 +1,27 @@
 # Saved partial prefixes
 
+September 14 full-owner result: the current whole `27cfc32`, CK `d705a68`,
+MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` stack completes the
+original 65536+1024 case on baiying. All 512 outputs and stream callbacks
+match GB10, first 3709 and exact logit 5.9375; restoration and changed-prefix
+rejection pass. The complete owner's first token 16/logit 24.25 also matches.
+Warm callback TTFT is 59288.2245 ms and TPOT 355.413816 ms, both above target.
+This uses complete owners with checkpoint capture disabled and does not
+expand saved-checkpoint admission. See
+[current 64k evidence](../benchmarks/correctness/prefix64k-current-stack-20260914.json).
+
 The first real 64k attempt with the expanded capacity stops after 24576
 completed inputs because a later attention window exceeds the old flat
 20-second execution budget. CK `d705a68` accounts for key-history work while
 preserving the q8192 bound, per-batch completion and mathematical kernels.
-Its q8192/512 control passes; real 64k qualification is still pending.
+Its q8192/512 control passes; the completed 64k rerun is recorded above.
 See [deadline evidence](../benchmarks/correctness/attention-history-deadline-20260914.json).
 
 September 14 capacity control: whole/CK `27cfc32` increases the shared exact
 attention workspace to 131072 tokens. Host checks cover the 65536+1024
 boundary, decode extents and failed chunk rollback; the new binaries also
-preserve all 512 original q8192 outputs and callbacks. Real 64k prefix
-qualification is still pending. This changes neither saved-checkpoint
+preserve all 512 original q8192 outputs and callbacks. The subsequent real
+64k result is recorded above. This changes neither saved-checkpoint
 admission nor the model position limit, and does not cover 128k/256k plus a
 suffix. See [capacity control](../benchmarks/correctness/prefix64k-capacity-q8192-control-20260914.json).
 
@@ -22,7 +32,8 @@ GB10 continuations at16384+1024 and32768+1024, including restoration and fallbac
 see [chunked prefill](../benchmarks/correctness/cold-prefill-chunks-20260913.json)
 and [32k projection admission](../benchmarks/correctness/prefix32k-admission-product-20260913.json).
 Those later results do not enlarge saved-checkpoint admission or qualify the
-current performance stack,64k, or a new release package. Earlier gaps below
+current performance stack or a new release package. The separate current
+64k result is recorded above. Earlier gaps below
 describe the binaries and route measured at that stage.
 
 This implementation is experimental and disabled unless

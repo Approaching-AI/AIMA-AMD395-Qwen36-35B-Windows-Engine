@@ -2,6 +2,23 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The current stack now passes the original 65536-prefix plus 1024-suffix
+GB10 boundary on baiying with `D:\models\Qwen3.6-35B-A3B`: all 512 outputs
+and actual callbacks match, first token 3709 and exact raw logit 5.9375.
+All eight owner chunks complete; its first token 16/logit 24.25 also matches.
+State restoration and changed-prefix rejection pass. Whole `27cfc32`, CK
+`d705a68`, MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` remain
+the qualified components. Command: `run-native-attention-history-deadline-product-r1.ps1`.
+
+Warm callback TTFT is 59288.2245 ms against the unchanged 5432.415542 ms
+target; TPOT is 355.413816 ms against 46.658882 ms. Load is 21268.7770 ms,
+within 30000 ms. The separate CLI seed phase, including the initial
+continuation, takes 2754458.5373 ms. Native wall is 3017196.708 ms and host
+guards pass. Correctness is qualified for this case; performance, saved
+checkpoints, 128k/256k, current package/HTTP and soak gates remain open.
+Evidence: `benchmarks/correctness/prefix64k-current-stack-20260914.json`,
+SHA256 `a113d05400d2469ecc181c32d4244273af4eddcbfe8c94a886fe91a779cfd3ad`.
+
 CK `d705a68` corrects a long-history application timeout without changing
 attention arithmetic. The first 64k attempt completed 24576 original inputs
 but stopped in layer 15 of the next chunk: 8128 of 8192 queries had drained
@@ -17,8 +34,8 @@ MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62`. All 512 outputs and
 callbacks match GB10, first 144 and exact logit 10.375. Callback TTFT is
 39324.1539 ms, TPOT 102.038706 ms and load 21327.8670 ms. Mathematical kernel
 and external CK source hashes are unchanged. All local checks pass, including
-injected-clock progress, failure-drain and overflow cases. The new real 64k
-run is pending; current package, HTTP, soak and retained-performance gates
+injected-clock progress, failure-drain and overflow cases. The real 64k
+rerun is recorded above; current package, HTTP, soak and retained-performance gates
 remain open. The refreshed Linux release is still `v1.5.1-native-vl.7`, with
 unchanged notes. Command: `run-native-attention-history-deadline-control-r1.ps1`.
 Evidence: `benchmarks/correctness/attention-history-deadline-20260914.json`,
@@ -37,7 +54,7 @@ Callback TTFT is 39498.9559 ms, TPOT 101.624535 ms and model plus engine load
 21503.0635 ms. MoE `9f00db5`, FLA `2ee6215` state 8, CLI `a797b62` and all
 qualified numerical flags remain common with the 39620.1231 ms reference.
 This single capacity control does not establish a speed improvement. The
-separate real 65536+1024 prefix run is pending; 128k/256k plus suffix need
+separate real 65536+1024 prefix result is recorded above; 128k/256k plus suffix need
 larger capacity and their own qualification. Performance and release gates
 remain open. Command: `run-native-prefix64k-capacity-control-r1.ps1`.
 Evidence: `benchmarks/correctness/prefix64k-capacity-q8192-control-20260914.json`,

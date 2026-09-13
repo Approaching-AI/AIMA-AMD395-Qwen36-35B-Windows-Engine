@@ -16,8 +16,10 @@ The new deadline control records q8192 callback TTFT of 39.324 seconds at
 whole `27cfc32`, CK `d705a68` and FLA `2ee6215`, with all 512
 original GB10 tokens and stream callbacks matched and exact first logit 10.375.
 It remains above the unchanged 4.187-second target and 10-second operating
-threshold. Larger contexts and retained
-performance remain open. See [current measurements](PERFORMANCE.md),
+threshold. The same stack now passes all 512 original 64k+1024 outputs and
+callbacks, exact first logit 5.9375, restoration and changed-prefix rejection.
+Its warm TTFT of 59.288 seconds and TPOT of 355.414 ms remain above target.
+128k/256k and retained performance remain open. See [current measurements](PERFORMANCE.md),
 [HTTP token/logit and stability evidence](HTTP_STABILITY.md), and
 `benchmarks/correctness/prefix32k-admission-product-20260913.json`. The older
 decision and tables below describe their recorded historical basis; they do
