@@ -313,7 +313,8 @@ def main():
     parser.add_argument("--model-root", type=Path, default=Path("/models"))
     parser.add_argument("--source-commit", required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--timeout-seconds", type=int, default=590)
+    parser.add_argument("--timeout-seconds", type=int, default=590,
+                        help="owned process deadline; up to 1800 for actual prompts above 66560, otherwise 600")
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--runtime-boundaries", action="store_true",
                         help="observe pinned target rows and require the complete frozen matrix")
@@ -332,7 +333,10 @@ def main():
         cases = explicit_cases(args.additional_cases, cases, args.maximum_prompt_tokens)
         if args.runtime_boundaries and any(case["output_count"] < 2 for case in cases):
             raise ValueError("runtime boundaries require the first generated input to execute")
-    if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= 600 or
+    # Large reference captures keep the same math and model configuration.
+    # Extend only their owned process budget; ordinary controls keep 600 seconds.
+    timeout_limit = 1800 if max(len(case["prompt_token_ids"]) for case in cases) > 66560 else 600
+    if (args.output_dir.exists() or not 1 <= args.timeout_seconds <= timeout_limit or
             len(args.source_commit) != 40 or any(x not in "0123456789abcdef" for x in args.source_commit)):
         raise ValueError("existing output, invalid source or invalid deadline")
     if args.worker and not args.execute:
@@ -354,6 +358,7 @@ def main():
                   completed=False, controls_qualified=False, windows_acceptance=False,
                   prefix_caching=False, native_tensor_inputs=False,
                   runtime_boundaries=args.runtime_boundaries,
+                  timeout_seconds=args.timeout_seconds, maximum_timeout_seconds=timeout_limit,
                   maximum_additional_prompt_tokens=args.maximum_prompt_tokens)
     if args.additional_cases is not None:
         record["additional_cases_file"] = str(args.additional_cases)

@@ -108,6 +108,36 @@ class Gb10TokenMatrixTests(unittest.TestCase):
             self.assertNotEqual(repeated.returncode, 0)
             self.assertEqual((output / "capture.json").read_bytes(), before)
 
+    def test_owned_deadline_expansion_requires_an_actual_large_prompt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            additional = root / "actual.json"
+            additional.write_text(json.dumps([dict(name="large-prefix-out512",
+                prompt_token_ids=[16602] * 263168, output_count=512)]))
+            for index, (large, deadline, succeeds) in enumerate((
+                    (False, 600, True), (False, 601, False),
+                    (True, 1800, True), (True, 1801, False), (True, 0, False))):
+                with self.subTest(large=large, deadline=deadline):
+                    output = root / str(index)
+                    command = [sys.executable, str(ROOT / "scripts/capture_gb10_token_matrix.py"),
+                        "--oracle-q7169", str(ORACLES[7169]),
+                        "--oracle-q8192", str(ORACLES[8192]), "--source-commit", "0" * 40,
+                        "--output-dir", str(output), "--timeout-seconds", str(deadline),
+                        "--maximum-prompt-tokens", "263168"]
+                    if large:
+                        command += ["--additional-cases", str(additional)]
+                    result = subprocess.run(command, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(result.returncode == 0, succeeds, result.stderr)
+                    if succeeds:
+                        record = json.loads((output / "capture.json").read_text())
+                        self.assertEqual(record["timeout_seconds"], deadline)
+                        self.assertEqual(record["maximum_timeout_seconds"], 1800 if large else 600)
+                        self.assertFalse(record["completed"])
+                        self.assertFalse(record["windows_acceptance"])
+                    else:
+                        self.assertIn("invalid deadline", result.stderr)
+                        self.assertFalse(output.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
