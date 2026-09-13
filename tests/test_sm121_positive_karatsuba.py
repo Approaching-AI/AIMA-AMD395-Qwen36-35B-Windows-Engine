@@ -14,9 +14,15 @@ class PositiveKaratsubaTests(unittest.TestCase):
 #include "sm121_positive_karatsuba.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 namespace k3 = qrt_sm121_positive_karatsuba;
 int signed_core(uint16_t value) { return value & 0x8000u ? int(value) - 65536 : int(value); }
 int main() {
+    for (unsigned value = 0u; value <= 510u; ++value) {
+        const uint16_t bits = k3::positive_half_bits(value);
+        _Float16 actual; std::memcpy(&actual, &bits, sizeof(bits));
+        if (float(actual) != float(value)) return 2;
+    }
     for (unsigned core = 0u; core < 65536u; ++core) {
         const auto d = k3::split(uint16_t(core));
         if (d.high * 256 + d.low != signed_core(uint16_t(core)) ||
