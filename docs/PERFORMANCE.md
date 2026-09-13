@@ -2,6 +2,28 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+CK `d705a68` corrects a long-history application timeout without changing
+attention arithmetic. The first 64k attempt completed 24576 original inputs
+but stopped in layer 15 of the next chunk: 8128 of 8192 queries had drained
+successfully at 20.081793 seconds, exceeding the old flat 20-second budget.
+No output or callback was emitted; that run has no inference acceptance.
+Each query window now receives a bounded budget based on its query count
+and ending key-history extent. q8192 keeps its original 20-second execution
+bound, and the long process retains a separate 3600-second hard timeout.
+Performance targets are unchanged.
+
+The rebuilt CK passes the original q8192/512 control with whole `27cfc32`,
+MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62`. All 512 outputs and
+callbacks match GB10, first 144 and exact logit 10.375. Callback TTFT is
+39324.1539 ms, TPOT 102.038706 ms and load 21327.8670 ms. Mathematical kernel
+and external CK source hashes are unchanged. All local checks pass, including
+injected-clock progress, failure-drain and overflow cases. The new real 64k
+run is pending; current package, HTTP, soak and retained-performance gates
+remain open. The refreshed Linux release is still `v1.5.1-native-vl.7`, with
+unchanged notes. Command: `run-native-attention-history-deadline-control-r1.ps1`.
+Evidence: `benchmarks/correctness/attention-history-deadline-20260914.json`,
+SHA256 `6ad4a9f91986bb0d3d3cd2fa3ab362dbf3748b2fb66593418451c8dda7818ab3`.
+
 Whole and CK source `27cfc32` extend exact attention capacity from 65536 to
 131072, covering a 65536-token prefix, 1024 suffix inputs and the resident
 decode tail. The three fixed attention allocations grow by 306184192 bytes

@@ -1,5 +1,12 @@
 # Saved partial prefixes
 
+The first real 64k attempt with the expanded capacity stops after 24576
+completed inputs because a later attention window exceeds the old flat
+20-second execution budget. CK `d705a68` accounts for key-history work while
+preserving the q8192 bound, per-batch completion and mathematical kernels.
+Its q8192/512 control passes; real 64k qualification is still pending.
+See [deadline evidence](../benchmarks/correctness/attention-history-deadline-20260914.json).
+
 September 14 capacity control: whole/CK `27cfc32` increases the shared exact
 attention workspace to 131072 tokens. Host checks cover the 65536+1024
 boundary, decode extents and failed chunk rollback; the new binaries also
