@@ -1,0 +1,42 @@
+{
+  "review_date": "2026-09-13",
+  "local_clean_commit": "51d606fff67f485ad816ecdc15aa38d11b270a68",
+  "native_source": "edb584ee16f0ee1fc5f902459598b9446d96387e",
+  "immutable_release_tag_commit": "9bd8a0fabcf2fc6ef1b882c10b04390c0e31fb00",
+  "release": "v1.5.1-native-vl.7",
+  "release_list_refresh_sha256": "abf8ebd8ce5f03547ed8680acc9f50dc4031e7bf6f3c71722ab5617a11343412",
+  "source_files": [
+    {
+      "file": "native/src/native_multimodal_cache.cpp",
+      "sha256": "311510c28521db5a9c2bb92bc545427ccb025da742007a631969e7dfdd072fcd",
+      "unchanged_from_native_source": true,
+      "primary_source": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/blob/edb584ee16f0ee1fc5f902459598b9446d96387e/native/src/native_multimodal_cache.cpp"
+    },
+    {
+      "file": "native/include/aima/native_multimodal_cache.h",
+      "sha256": "d65bac9d4d371568f5f8fe61d7b6586d4cc405af70d3b61539a804b67a5def34",
+      "unchanged_from_native_source": true,
+      "primary_source": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/blob/edb584ee16f0ee1fc5f902459598b9446d96387e/native/include/aima/native_multimodal_cache.h"
+    },
+    {
+      "file": "native/src/native_resident_engine.hip.cpp",
+      "sha256": "dc456410aad6d1e663f5266e062db97564bf82702ce684b1171f0d9098833339",
+      "unchanged_from_native_source": true,
+      "primary_source": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/blob/edb584ee16f0ee1fc5f902459598b9446d96387e/native/src/native_resident_engine.hip.cpp"
+    },
+    {
+      "file": "native/src/native_linear_prefill.hip.cpp",
+      "sha256": "d1de0d08524290cc3a431d09ea71c1aa221175262593aabbc4cd75be8fa70106",
+      "unchanged_from_native_source": true,
+      "primary_source": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/blob/edb584ee16f0ee1fc5f902459598b9446d96387e/native/src/native_linear_prefill.hip.cpp"
+    }
+  ],
+  "observations": [
+    "Longest saved complete eligible prefix; raw token LCP alone does not restore recurrent state.",
+    "At most three checkpoints; boundaries >=32 align down to32; an unaligned short checkpoint cannot resume beyond its current block.",
+    "Inherited checkpoints, self replacement, active KV extent and all31 state completion bits are explicitly handled.",
+    "Declared full-vocabulary gate is finite/top1/KLD<0.005; release explicitly disclaims universal BF16 partition bitwise identity.",
+    "Exact archive, portable manifest,19-cell matrix and one-hour360-request soak bind release acceptance; Windows must establish its own matching binary evidence."
+  ],
+  "windows_scope": "Reference review only. No arithmetic, token or logit threshold changed. Windows existing short-prefix HTTP and recorded16k/32k GB10 success do not qualify the current new dense operand candidate or64k; fresh complete product and final package work remains."
+}

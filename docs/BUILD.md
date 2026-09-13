@@ -189,6 +189,22 @@ strict-F32 synthetic probe found such differences and was not accepted as a
 passing test. Each producer is synchronized before its consumer.
 These are safety regressions, not GB10 or real-model inference acceptance.
 
+The experimental dense replay option
+`QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS=1` prepares lossless BF16 operand views
+for unchanged-plan projections with1024–8192 tokens,1024–9216 rows and
+K16-aligned reduction sizes up to4096. Each ineligible row uses original
+arithmetic. The option defaults to0 and does not apply to packed candidates,
+device-count replay, short changed dot plans or decode. Its bounded workspace
+is released after every correction call.
+
+For its native checks, compile `tests/native/prepared_projection_selftest.cpp`
+with the same DPP/compact-normalization settings as the provider. The existing
+`-ProjectionSafetyTest` executable also accepts `--prepared-correction` with
+the option enabled; it checks the actual selector and replay entry point,
+including mixed fallback rows and guarded outputs. Follow component checks
+with the original QKV reference and complete GB10 product request before
+retaining a performance result.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and

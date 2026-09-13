@@ -1,5 +1,15 @@
 # Saved partial prefixes
 
+Current scope, September13: saved partial checkpoints remain bounded to the
+declared short-owner cases below8192 tokens. The relocated r4 HTTP test passes
+four divergent branches after decode. Separate full-owner routes now pass all512
+GB10 continuations at16384+1024 and32768+1024, including restoration and fallback;
+see [chunked prefill](../benchmarks/correctness/cold-prefill-chunks-20260913.json)
+and [32k projection admission](../benchmarks/correctness/prefix32k-admission-product-20260913.json).
+Those later results do not enlarge saved-checkpoint admission or qualify the
+current performance stack,64k, or a new release package. Earlier gaps below
+describe the binaries and route measured at that stage.
+
 This implementation is experimental and disabled unless
 QRT_QWEN36_PREFIX_CHECKPOINTS=1. Native q7169 cold capture preserves all 32 GB10
 outputs and first-token logit, and all three model checkpoints are complete.

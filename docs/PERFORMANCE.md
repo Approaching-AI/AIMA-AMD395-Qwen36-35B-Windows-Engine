@@ -31,6 +31,29 @@ verify their fallback transaction and complete owner-state restoration.
 | CK 9a7eaf4, 128 queries / V transpose disabled | cold 8192, ordinary path | 50888.006 | 101.364914 | 20059.2105 |
 | same binary / V transpose enabled | cold 8192, ordinary path | 49691.0931 | 101.291451 | 20017.5312 |
 | same 9a7eaf4 source, lossless compact exp2 table | cold 8192, ordinary path | 49519.006 | 101.043432 | 20072.6491 |
+| whole 8cc97d6, prepared operands disabled | cold 8192, ordinary path | 49840.7445 | 101.842764 | 20028.7697 |
+| same binary, prepared operands enabled | cold 8192, ordinary path | 48202.0546 | 102.12639 | 20006.0793 |
+
+Dense projection replay now optionally prepares a lossless16-bit operand view
+once per correction call. A row containing an excluded BF16 value uses its
+original operands and exact dot. K16 order, all admission bounds and endpoint
+rounding remain unchanged. The same-DLL q8192 pair differs only in
+`QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS=0|1`; both pass all512 original GB10
+tokens and actual callbacks with first144/logit10.375 exactly. The observed
+callback reduction is1638.6899ms. Completed dense-correction host wall,
+including preparation, falls from9581.693 to8157.930ms; allocation and cleanup
+remain included in the actual callback clock. This is one run per setting,
+without a statistical repeatability claim.
+
+The native component checks cover6987 raw dots against independent CPU and
+original GPU arithmetic,12883520 prepared cells,62930951 integration outputs,
+mixed row fallback, immutable inputs and redzones. The originalq7169 QKV
+capture also matches all58728448 external BF16 cells. The optional allocation
+is bounded by the admitted shape and freed before return. Enable prepared
+operands in subsequent experiments with whole8cc97d6 and the existing compact
+CK9a7eaf4/FLA-MoE8f436db stack. Default remains disabled; this does not qualify
+other contexts, a new package or retained performance. Evidence:
+`benchmarks/correctness/prepared-projection-operands-20260913.json`.
 
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
