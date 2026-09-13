@@ -2,7 +2,36 @@
 
 ## Current unreleased measurements, 2026-09-13
 
-The current source's synchronized q8192 profile still matches all 512 GB10
+Registered immutable MoE weight metadata at whole/MoE source `9f00db5`
+passes same-DLL q8192 OFF/ON controls on baiying with the real model
+`D:\models\Qwen3.6-35B-A3B`. Both match all 512 original GB10 output tokens
+and actual callbacks, first token 144 and exact raw logit 10.375. Callback
+TTFT is 43272.7319 / 42224.5708 ms, a 1048.1611 ms reduction in this single
+pair. Model plus engine load is 20024.5016 / 21329.8927 ms, both within
+30000 ms; enabled TPOT is 101.249185 ms. Use
+`QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA=1` in subsequent candidates;
+source default remains 0 pending broader qualification. Both prevalidated
+float replay options remain 1, CK `6c0c54c` scalar QK 1, FLA `8f436db`, and
+CLI `a797b62` are common. The command file is
+`run-native-registered-metadata-product-r1.ps1 -RegisteredWeightMetadata 0|1`.
+
+Registration runs the original FP64 weight norm and eligibility scan during
+loading and owns 240 MiB for 40 layer pairs. The enabled run records one
+complete table before request entry, 80 matching metadata copies into the
+original scratch, and explicit invalidation after the final decode token.
+Invalidation clears every source identity before raw weights are released;
+new registration drains old readers before rebuilding. Partial failures
+never publish a table and retain ownership for drained cleanup. Full
+`make check` passes 361 Python tests with 2 skipped, 47 Rust tests, C smoke,
+clippy and public hygiene; sanitized lifecycle checks cover failures,
+address reuse and deferred frees. Source `9f00db5` also fixes the legacy
+prepared-operands marker to report encoded operands only. No new long-context,
+checkpoint, package, HTTP, soak or release qualification follows. q8192 is
+still above 10 seconds and the immutable 4187.415605 ms target.
+Evidence: `benchmarks/correctness/registered-weight-metadata-product-20260913.json`,
+SHA256 `06d156a6156fa29b462eb9a29a3a88daede41bbb10f92b03c67df4cd3c280bb6`.
+
+Source `d2f283f`'s synchronized q8192 profile still matches all 512 GB10
 tokens/callbacks and exact first logit. Completed host walls are 6607.706 ms
 for all 30 linear input projections, 10841.934 ms for their linear cores
 including output projection, 10502.727 ms for all 40 MoE calls, and
@@ -12,16 +41,6 @@ not establish a reliable additive breakdown. Instrumented callback TTFT
 45053.0266 ms does not replace the uninstrumented 43324.5935 ms result.
 Evidence: `benchmarks/correctness/prevalidated-float-wall-profile-20260913.json`,
 SHA256 `46cc00d8851eaf96bcb872cf6521d969db239c3566877a9d594df75767350b15`.
-
-The next default-off route, `QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA`,
-registers immutable routed weight norms and eligibility during model loading.
-It uses the same FP64 scan, stores 240 MiB for 40 layer pairs, and copies the
-matching metadata into the original request scratch. Explicit model-lifetime
-invalidation clears every source identity before raw weights are released;
-new registration drains old readers and publishes only a complete table.
-Partial failures retain ownership for drained cleanup. This route is not yet
-qualified on Windows or accepted as performance. Complete same-DLL q8192
-controls must verify GB10 outputs/callbacks, TTFT and the 30-second load limit.
 
 Row-prevalidated cooperative float replay at whole/MoE source `d2f283f`
 passes complete same-DLL q8192 controls. Baseline / both enabled / dense only
@@ -49,8 +68,7 @@ its exact byte count and requires separate prevalidated-float markers.
 Original raw evidence remains unchanged. The test-only follow-up `29fe4cb`
 keeps native/build sources identical and passes full `make check`: 47 Rust
 tests, 360 Python tests with 2 skipped, C smoke, clippy and public hygiene.
-The next measurement profiles completed phases of this qualified token case
-to identify the dominant remaining wall.
+The completed phase profile of this token case is recorded above.
 Evidence: `benchmarks/correctness/prevalidated-float-product-20260913.json`,
 SHA256 `f9e7b6c1fc38765b9ef1a55984375a283d220755dd3a98936aa428fd795b8cdd`.
 
