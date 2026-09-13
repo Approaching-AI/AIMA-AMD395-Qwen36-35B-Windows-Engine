@@ -2,6 +2,20 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The approximate-denominator product trial at sourcee9673f8 fails the GB10
+continuation boundary. On baiying with the real model, the enabled path returns
+244 instead of255 at output index1 and matches118/512 positions. First144 and
+raw logit10.3125 satisfy the first-token tolerance, but cannot qualify this run.
+All512 actual callbacks complete and host checks pass; native exit6 records
+the token-contract failure. Keep `QRT_CK_SM121_SELECTIVE_QK_PROBABILITY=0`.
+The disabled same-DLL control matches all512 outputs/callbacks and exact
+first144/logit10.375, with callback TTFT46169.357ms. The enabled elapsed time
+is diagnostic only. Component checks establish exact probabilities/alpha and
+agreement with canonical PV at the same approximate denominator;1726 captured
+BF16 context cells differ from GB10. Strict denominator correctness remains
+necessary for the next route. Evidence:
+`benchmarks/correctness/selective-qk-probability-20260913.json`.
+
 Selective QK source90609e4 now constructs its candidate from original Q/K,
 without reading baseline scores. All35 generated cases /6307840 output cells
 and all29364224 originalq7169 GB10 BF16 cells pass. Probability and alpha
@@ -10,9 +24,8 @@ strict denominator repair nevertheless recomputes403235056 of411213840
 scores (98.0597%). Native bounded QK takes99.5748ms and the repair/probability
 pipeline2512.3431ms; original QK/probability take431.8602/86.9274ms.
 Candidate PV is canonical for every cell in this component. This route remains
-outside product dispatch. The next trial isolates exact probabilities/alpha
-with the approximate denominator and requires a new complete GB10 product
-boundary before any acceptance. Evidence:
+outside product dispatch. The subsequent approximate-denominator product
+trial is recorded above. Evidence:
 `benchmarks/correctness/selective-qk-20260913.json`.
 
 The QK numerical decomposition at sourcee373d47 keeps the product unchanged.
@@ -23,8 +36,8 @@ affect22722 and1853 outputs respectively. All six variants are finite and
 all whole-allocation guards and immutable inputs pass. Exact QK constructs
 the diagnostic hybrids; these counts do not demonstrate avoided score work
 or product performance. The two earlier invalid-domain diagnostic attempts
-remain attached as failures. Next evaluate selective score repair and a
-separate denominator/output fallback. Evidence:
+remain attached as failures. The resulting selective score repair and
+denominator/output fallback are recorded above. Evidence:
 `benchmarks/correctness/qk-probability-decomposition-20260913.json`.
 
 The subsequent native HIP wait diagnostic finds no millisecond fixed completion
