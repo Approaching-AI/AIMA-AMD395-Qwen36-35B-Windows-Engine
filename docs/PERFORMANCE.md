@@ -2,6 +2,19 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The compact 18-bit core at source `609f468` is exact but remains slower.
+Its native primitive enumerates all 262144 core encodings and matches
+1048576 independent integer dots and all three raw matrix partials. Fourteen
+QK cases match 32182304 score slots and 896 CPU dots; original real q7169
+Q/K match 418496528 slots and 228 CPU dots. Guards and inputs pass. The
+132-byte row reduces generated replay work, but completed QK plus key
+preparation takes 554.0810 ms against original QK plus transpose 446.3313 ms.
+Keep this component outside product dispatch. No model load or token run is
+claimed. Next evaluate exact scalar FP32 multiplication and power-of-two
+scaling followed by integer truncation/reduction, preserving the canonical
+exponent choice and ordered K16 carries.
+Evidence: `benchmarks/correctness/wide-integer-qk-20260913.json`.
+
 Nonnegative three-part integer reconstruction is exact but slower. The
 primitive source91b069b passes1048576 independent CPU int64 dots with zero
 raw partial differences. Prepared QK source31d2b91 then passes28 generated
@@ -11,8 +24,7 @@ Prepared positive QK plus key encoding takes631.0199ms, versus original
 scalar QK plus transpose440.4953ms. Four-IU8 on the same148-byte extended
 row layout takes597.7987ms. This component stays outside product dispatch.
 No model is loaded and no product tokens or performance are accepted.
-Next investigate a wider exact integer core and a smaller row layout together,
-so the replacement can reduce sparse reconstruction as well as matrix calls.
+The wider-core follow-up and its measured decision are recorded above.
 Evidence: `benchmarks/correctness/positive-integer-qk-20260913.json`.
 
 The signed three-BF16 integer-core candidate is rejected at source1738c5f.
