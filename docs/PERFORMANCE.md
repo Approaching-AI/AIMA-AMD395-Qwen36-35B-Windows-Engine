@@ -2,6 +2,20 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Routed MoE prepared replay at source7af2c3c passes both complete q8192
+controls: all512 GB10 tokens/callbacks and exact first144/logit10.375. Only
+`QRT_QWEN36_MOE_PREPARED_REPLAY=0|1` changes. Disabled/enabled callback TTFT
+is45905.0608/46197.6074ms, TPOT101.531248/100.843159ms, and load
+20036.5836/20084.2981ms. Enabled preparation adds1143209984 bytes and
+292.5466ms in this single pair. Keep it disabled; no performance gain or new
+release qualification follows. Native fused scans preserve original FP64 norm
+bits across663040 encoded cells; four routed cases through1025 tokens preserve
+gate/up/down bits, including unsupported-row fallback and compaction windows.
+The next investigation targets the repeated exact K16 matrix core. The prior
+floating mantissa counterexample remains evidence; native arithmetic must be
+verified before any product dispatch. Evidence:
+`benchmarks/correctness/moe-prepared-replay-20260913.json`.
+
 Completed workspace and matrix attribution at wholea9f0d0f/5feb7e7 keeps
 CKe9673f8 selective QK0/direct PV1, FLA-MoE8f and CLIa797. Both real q8192
 runs pass all512 GB10 outputs/callbacks and exact first144/logit10.375.
@@ -13,7 +27,8 @@ All110 profiled matrix calls total3925.7338ms, with2.7024ms plan setup.
 The extra profile fences can alter stream overlap; these are diagnostic
 measurements, with no retained-performance acceptance. Callback TTFT is
 46105.0172/46045.1689ms, still far above the immutable target. Next evaluate
-reusable routed-MoE replay operands produced during required norm scans.
+reusable routed-MoE replay operands produced during required norm scans,
+with the completed negative result recorded above.
 Evidence: `benchmarks/correctness/dense-producer-wall-20260913.json`.
 
 Output-margin denominator refinement at sourcea25b1c3 passes all35 generated
