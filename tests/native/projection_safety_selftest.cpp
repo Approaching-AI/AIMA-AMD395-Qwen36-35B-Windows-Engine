@@ -359,6 +359,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_scalar_replay_suite.h"
 #include "projection_tiled_replay_suite.h"
 #include "projection_bounded_replay_suite.h"
+#include "projection_scaled_replay_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "absolute_admission_audit_selftest.h"
