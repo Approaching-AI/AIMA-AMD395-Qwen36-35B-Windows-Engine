@@ -58,6 +58,7 @@ static bool magnitude_fault = false;
 static uint16_t* magnitude_buffers[2]{};
 static unsigned audit_collections=0,audit_dispatches=0,audit_reports=0,audit_changed_candidates=2;
 static bool audit_mismatch=false;
+static unsigned k16_major_preparations=0, k16_major_corrections=0;
 bool owns(const void* p,size_t bytes) {
     return std::any_of(allocation_records.begin(),allocation_records.end(),
         [&](const auto& record) { return record.first==p && record.second>=bytes; });
@@ -250,6 +251,10 @@ void prepare_rows_kernel(const uint16_t*,uint16_t* encoded,unsigned* eligible,un
         invalid_range = true;
     preparation_fault = preparations == fail_preparation;
 }
+void prepare_k16_major_rows_kernel(const uint16_t* source,uint16_t* encoded,unsigned* eligible,unsigned rows,unsigned width) {
+    ++k16_major_preparations;
+    prepare_rows_kernel(source,encoded,eligible,rows,width);
+}
 }
 namespace qrt_bf16_absolute_product_matrix {
 void window_kernel(const uint16_t*, const uint16_t*, const unsigned* wf, const unsigned* xf,
@@ -302,7 +307,25 @@ void selected_bf16_projection_hawkeye_prepared_correction_kernel(
         weights,inputs,output,rows,k,indices,offset,count,{});
 }
 
+void selected_bf16_projection_hawkeye_k16_major_prepared_correction_kernel(
+    const uint16_t* weights,const uint16_t* inputs,const uint16_t* pw,const uint16_t* px,
+    const unsigned* wf,const unsigned* xf,float* output,unsigned rows,unsigned tokens,unsigned k,
+    const unsigned* indices,unsigned offset,unsigned count) {
+    if(k16_major_preparations!=2u || tokens!=prepared_rows[1] || rows!=prepared_rows[0])invalid_range=true;
+    ++k16_major_corrections;
+    selected_bf16_projection_hawkeye_prepared_correction_kernel(weights,inputs,pw,px,wf,xf,
+        output,rows,k,indices,offset,count);
+}
+
 // QRT_ACTUAL_LAUNCHER
+
+void k16_major_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR",value,1);
+#endif
+}
 
 void prepared_mode(const char* value) {
 #ifdef _WIN32
@@ -368,11 +391,13 @@ void reset() {
     bound_buffer = nullptr; bound_offset = bound_count = 0;
     magnitude_preparations=fail_magnitude=matrix_calls=fail_matrix=0;magnitude_fault=false;
     audit_collections=audit_dispatches=audit_reports=0;audit_changed_candidates=2;audit_mismatch=false;
+    k16_major_preparations=k16_major_corrections=0;
 }
 int main() {
     device_mode(false);
     packed_mode(false);
     prepared_mode("0");
+    k16_major_mode("0");
     absolute_bound_mode("0");
     absolute_hipblaslt_mode("0");
     admission_audit_mode("0");
@@ -691,6 +716,25 @@ int main() {
         collections || rounds || corrections || output!=prepared_initial || allocations!=frees)return 71;
     absolute_bound_mode("0");reset();output=prepared_initial;
     if(run_bound()!=hipSuccess || audit_collections || audit_dispatches || audit_reports || allocations!=frees)return 72;
-    admission_audit_mode("0");absolute_hipblaslt_mode("0"); prepared_mode("0");
+    admission_audit_mode("0");absolute_hipblaslt_mode("0");
+    k16_major_mode("invalid");reset();output=prepared_initial;
+    if(run_prepared()!=hipErrorInvalidValue || allocations || syncs || output!=prepared_initial)return 73;
+    k16_major_mode("1");reset();output=prepared_initial;
+    if(run_prepared()!=hipSuccess || k16_major_preparations!=2u || !k16_major_corrections ||
+        k16_major_corrections!=corrections || allocations!=2u || allocations!=frees || invalid_grid || invalid_range)return 74;
+    for(size_t i=0;i<total_elements;++i)if(output[i]!=(prepared_initial[i]==1.00390625f?
+        float((i/1024u)*2u+i%1024u):1.0f))return 75;
+    for(unsigned fail:{1u,2u}) {
+        reset();fail_preparation=fail;output=prepared_initial;
+        if(run_prepared()!=hipErrorUnknown || k16_major_preparations!=fail || collections || corrections ||
+            allocations!=frees || invalid_grid || invalid_range || output!=prepared_initial)return 76;
+    }
+    absolute_bound_mode("1");reset();output=prepared_initial;
+    if(run_bound()!=hipSuccess || k16_major_preparations || k16_major_corrections ||
+        bound_windows!=16u || allocations!=frees || invalid_grid || invalid_range)return 77;
+    absolute_bound_mode("0");prepared_mode("0");reset();output=prepared_initial;
+    if(run_prepared()!=hipSuccess || k16_major_preparations || k16_major_corrections ||
+        preparations || allocations!=frees || invalid_grid || invalid_range)return 78;
+    k16_major_mode("0");
     return 0;
 }
