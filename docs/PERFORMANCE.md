@@ -2,15 +2,28 @@
 
 ## Current unreleased measurements, 2026-09-13
 
-Cooperative scalar product/alignment at source `b666b1d` passes all 3563520
-intermediate K16 endpoints across 18 native cases: 4/8/16 lanes, 1/4/8 staging
-groups, and K272/2048/4096. Each case executes float and original fallback
-groups; all guards and inputs pass. The next source adds default-off
+Cooperative scalar float replay at whole/MoE source `9112d0b` preserves
+correctness but is slower. Three real q8192 controls match all 512 GB10 output
+tokens and callbacks, with first token 144 and exact raw logit 10.375.
+Baseline / both enabled / dense only callback TTFT is
+44229.9633 / 45788.2217 / 44865.9197 ms. Dense only adds 635.9564 ms;
+adding MoE to dense adds 922.3020 ms. Dense correction host wall is
+8097.165 / 8699.474 / 8706.942 ms. Keep both
 `QRT_QWEN36_HAWKEYE_FLOAT_REPLAY` and `QRT_QWEN36_MOE_FLOAT_REPLAY`
-for dense and routed-MoE product measurements. Dense activation replaces
-eligible prepared replay without allocating encoded operands; original
-selector bounds remain unchanged. No product gain is inferred from these
-generated checks. Evidence: `benchmarks/correctness/float-subgroup-20260913.json`.
+at 0. All three settings use the same whole/MoE DLLs, CK `6c0c54c` scalar
+QK 1, FLA `8f436db`, and CLI `a797b62`; load remains about 20 seconds.
+This is one observation per setting, without release qualification.
+
+Native checks also pass all 3563520 intermediate K16 endpoints, generated
+dense correction and routed gate/up/down cases, and every one of 58728448
+real captured GB10 QKV BF16 cells. Guards, immutable inputs and host checks
+pass. The derived analyzer's duplicated prepared-marker assertion was fixed
+to allow preparation to be skipped when float replay is active; original
+native evidence is preserved. The next investigation targets the amount of
+exact replay required by error admission and attention PV, while preserving
+the GB10 boundary. Evidence:
+`benchmarks/correctness/float-replay-product-20260913.json` and
+`benchmarks/correctness/float-subgroup-20260913.json`.
 
 Exact scalar float QK at CK source `6c0c54c` passes complete same-DLL
 q8192 OFF/ON validation: all 512 GB10 outputs and callbacks match, with exact
@@ -22,8 +35,8 @@ The source default remains 0 pending wider validation. Whole `4fec3ea`,
 FLA-MoE `8f436db`, CLI `a797b62`, selective QK 0 and direct PV 1 remain common.
 All host guards pass. q8192 is still above 10 seconds and the immutable
 4187.415605 ms target; long-context, package, HTTP, soak and release gates
-remain open. Next evaluate cooperative scalar product/alignment for dense
-and routed-MoE exact replay, preserving K16 order and original fallback.
+remain open. The cooperative dense/MoE follow-up and its negative performance
+result are recorded above.
 Evidence: `benchmarks/correctness/float-alignment-product-20260913.json`.
 
 Scalar FP32 products with canonical integer alignment at source `f15ea53`
