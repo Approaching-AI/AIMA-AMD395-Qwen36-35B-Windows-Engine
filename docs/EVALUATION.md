@@ -7,6 +7,28 @@ acceptance binds real prompt token IDs, the first generated token, and the
 first-token logit within 0.125. Decode and prefix continuation are compared
 token-for-token. Engine self-hashes are diagnostic only.
 
+The [September 14 large-prefix reference capture](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json)
+registers the original 131072- and 262144-token owners and their original
+1024-token suffixes. All ten cases complete with 2240 generated tokens and
+verified full-vocabulary first logits. Six existing controls and the two
+completed 128k cases from the preceding interrupted batch reproduce every
+output token and every first-logit byte. The new suffix references each contain
+512 outputs: first token 248045, raw logit 6.28125 at 128k and 5.78125 at 256k,
+with the unchanged 0.125 tolerance. The contracts are
+[`128k`](../contracts/gb10_long_prefix128k_actual_tokens_20260914_oracle.json) and
+[`256k`](../contracts/gb10_long_prefix256k_actual_tokens_20260914_oracle.json).
+
+The actual gb10-4t host is aitopatom-66c4, model
+`/mnt/data/models/Qwen3.6-35B-A3B`, capture/observer source `1c95113`, with the
+remaining dependencies and autotune profile pinned to the prior reference.
+Command file: `run-qrt-gb10-large-prefix-20260914-r2.py`. Both capture deadlines
+are explicit; the observer allows 900 seconds only above 132096 prompt tokens.
+The full batch exits 0 in 1260.435372 seconds with host guards and cache checks
+passing. The preceding 180-second observer failure and a separate artifact
+packaging failure are preserved. Compression recovers the identical completed
+files without repeating inference or changing capture data. These references
+do not qualify Windows capacity, prefix restoration, performance or release.
+
 The unreleased arbitrary-length gate additionally freezes the failing q7169
 fixture in `contracts/arbitrary_q7169_gb10_oracle.json`: prompt hashes, first
 token 82, raw logit 9.25 at the unchanged 0.125 tolerance, and all 32 reference

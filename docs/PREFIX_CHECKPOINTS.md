@@ -1,5 +1,12 @@
 # Saved partial prefixes
 
+September 14 reference coverage now includes complete original 128k/256k owners
+and their original 1024-token suffixes, each with 512 continuation outputs and
+raw first-logit authority. All earlier controls reproduce exactly. This closes
+the missing reference-capture prerequisite; Windows capacity, complete owner
+execution and saved-checkpoint restoration still need their own verification.
+See [large-prefix reference evidence](../benchmarks/correctness/gb10-large-prefix-actual-references-20260914.json).
+
 September 14 full-owner result: the current whole `27cfc32`, CK `d705a68`,
 MoE `9f00db5`, FLA `2ee6215` state 8 and CLI `a797b62` stack completes the
 original 65536+1024 case on baiying. All 512 outputs and stream callbacks
