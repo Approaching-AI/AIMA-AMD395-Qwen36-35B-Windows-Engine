@@ -34,6 +34,27 @@ HTTP, soak and release acceptance remain open.
 Evidence: `benchmarks/correctness/fla-scalar-state-product-20260913.json`,
 SHA256 `758caabf0fbba86e772691902bd052ad2c98f06d1267d36d8fe062593a28d9c1`.
 
+The prevalidated float PV component at source `08326fd` passes all 348
+native comparisons (51904512 output positions), including original raw
+output/accumulator/denominator equality, CPU metadata checks, candidate
+ownership and memory guards. Original, 1-thread and 4-thread routes each
+match all 29364224 GB10 q7169 attention cells and all four qualified replay
+files, retaining 2198673 candidate cells. Completed query plus V preparation
+is 645.9263 / 689.9965 / 638.8247 ms in these single observations. The
+1-thread route is slower; the 4-thread difference is only 7.1016 ms and
+does not establish a seconds-scale product gain. Keep the product PV
+dispatcher unchanged and investigate broader dense projection correction,
+which takes 7359.256 ms in the current qualified state-8 product run.
+
+This experiment reuses the consumed score slab for row eligibility,
+preserving separate probabilities, scales and candidate storage. It retains
+K16 rounding, K32 rescaling and the original fallback. Full local checks
+pass; it has no product environment dispatch and no new token-loop,
+long-context, package, HTTP, soak or release acceptance. Command file:
+`run-native-float-pv-replay-r1.ps1 -FloatPvLanes 0|1|4`.
+Evidence: `benchmarks/correctness/prevalidated-float-pv-20260913.json`,
+SHA256 `3334d2061034d39818dabf8635ae724c0a999180da95868c7604c0cbd24a27d0`.
+
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
 match all 512 original GB10 output tokens and actual callbacks, first 144
