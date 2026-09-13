@@ -37887,7 +37887,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     double maximum_dispatch_ms = 0.0;
     double absolute_bound_ms = 0.0;
     unsigned int absolute_bound_windows = 0u;
-    auto synchronize_bounded = [&](const auto &dispatch_start) -> hipError_t {
+    auto synchronize_bounded = [&](const auto &dispatch_start, bool matrix_window = false) -> hipError_t {
         hipError_t result = hipGetLastError();
         if (result != hipSuccess) return result;
         result = hipStreamSynchronize(stream);
@@ -37898,7 +37898,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         const double correction_ms = std::chrono::duration<double, std::milli>(
             completed_at - correction_start).count();
         maximum_dispatch_ms = (std::max)(maximum_dispatch_ms, dispatch_ms);
-        const bool within_time = device_replay
+        const bool within_time = matrix_window
+            ? qrt_hawkeye_dispatch::matrix_time_remaining(dispatch_ms, correction_ms) : device_replay
             ? qrt_hawkeye_dispatch::device_time_remaining(dispatch_ms, correction_ms)
             : qrt_hawkeye_dispatch::time_remaining(dispatch_ms, correction_ms);
         if (!within_time) {
@@ -38011,7 +38012,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         dim3(256u), 0, stream, weights, selected_inputs, prepared_flags, prepared_flags + rows,
                         window_product_bounds, rows, selected_token_count, reduction_size, element_offset, window_elements);
                 }
-                result = synchronize_bounded(dispatch_start);
+                result = synchronize_bounded(dispatch_start, absolute_hipblaslt);
                 absolute_bound_ms += std::chrono::duration<double, std::milli>(
                     std::chrono::steady_clock::now() - dispatch_start).count();
                 ++absolute_bound_windows;

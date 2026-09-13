@@ -27,6 +27,10 @@ constexpr double maximum_correction_ms = 10000.0;
 constexpr std::uint32_t maximum_device_window_elements = 4194304u;
 constexpr std::uint32_t maximum_device_replay_blocks = 1024u;
 constexpr double maximum_device_window_ms = 250.0;
+// A resident matrix window includes cold backend/plan setup plus the matrix
+// and outward finishing. Keep a separate completed unit from exact-dot work;
+// setup remains in both aggregate correction wall and actual product TTFT.
+constexpr double maximum_matrix_window_ms = 250.0;
 
 constexpr std::uint32_t window_elements(
     std::uint64_t remaining, std::uint32_t capacity = maximum_window_elements
@@ -53,6 +57,11 @@ constexpr bool time_remaining(double dispatch_ms, double correction_ms) {
 
 constexpr bool device_time_remaining(double window_ms, double correction_ms) {
     return window_ms <= maximum_device_window_ms &&
+        correction_ms <= maximum_correction_ms;
+}
+
+constexpr bool matrix_time_remaining(double window_ms, double correction_ms) {
+    return window_ms <= maximum_matrix_window_ms &&
         correction_ms <= maximum_correction_ms;
 }
 
