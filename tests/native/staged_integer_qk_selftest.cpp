@@ -12,6 +12,12 @@ namespace {
 using namespace qrt_blackwell_attention;
 using Row = qrt_sm121_integer_core::Row;
 constexpr unsigned guard = 64u;
+#ifdef QRT_DIRECT_INTEGER_QK_PROBE
+constexpr unsigned variants[] = {200u, 201u};
+#else
+constexpr unsigned variants[] = {8u, 16u, 104u, 108u};
+#endif
+constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
     void* pointer = nullptr;
@@ -67,11 +73,24 @@ template<unsigned Groups, bool CacheRows = false> void staged(const Row* q, cons
 }
 void staged_variant(unsigned variant, const Row* q, const Row* k, float* out,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
+#ifdef QRT_DIRECT_INTEGER_QK_PROBE
+    if(variant==200u) {
+        hipLaunchKernelGGL(blackwell_direct_integer_scores_kernel,
+            dim3((stride+kIntegerMatrixColumns-1u)/kIntegerMatrixColumns,kQueryHeads,(count+15u)/16u),
+            dim3(kThreads),0u,nullptr,q,k,out,start,count,stride,key_stride);
+    } else if(variant==201u) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_scores_kernel<false,true,true>),
+            dim3((stride+kIntegerMatrixColumns-1u)/kIntegerMatrixColumns,kQueryHeads,(count+15u)/16u),
+            dim3(kThreads),0u,nullptr,nullptr,nullptr,out,start,count,stride,key_stride,q,k);
+    } else throw std::runtime_error("invalid direct/shared integer variant");
+    check(hipGetLastError());
+#else
     if(variant==8u)staged<8u>(q,k,out,start,count,stride,key_stride);
     else if(variant==16u)staged<16u>(q,k,out,start,count,stride,key_stride);
     else if(variant==104u)staged<4u,true>(q,k,out,start,count,stride,key_stride);
     else if(variant==108u)staged<8u,true>(q,k,out,start,count,stride,key_stride);
     else throw std::runtime_error("invalid staging variant");
+#endif
 }
 void original(const uint16_t* q, const uint16_t* k, float* out,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
@@ -148,7 +167,7 @@ void run(Case c) {
     check(hipMemset(reference.pointer,0xa5,(cells+2u*guard)*4u));
     original(dq.as<uint16_t>()+guard,dt.as<uint16_t>()+guard,reference.as<float>()+guard,c.start,c.count,stride,c.tokens);
     finish();const auto a=download<uint32_t>(reference,cells+2u*guard);
-    for(unsigned variant:{8u,16u,104u,108u}) {
+    for(unsigned variant:variants) {
         const unsigned groups=variant%100u;
         check(hipMemset(candidate.pointer,0xa5,(cells+2u*guard)*4u));
         staged_variant(variant,prepared_q,prepared_k,candidate.as<float>()+guard,c.start,c.count,stride,c.tokens);
@@ -171,7 +190,11 @@ void run(Case c) {
                 throw std::runtime_error("QK differs from independent wide CPU accumulator");
         }
         unchanged(qp,qbefore);unchanged(kp,kbefore);
+#ifdef QRT_DIRECT_INTEGER_QK_PROBE
+        std::printf("{\"kind\":\"direct_integer_qk_safety\",\"direct_operands\":%s,\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",variant==200u?"true":"false",c.tokens,c.start,c.count,c.mode,cells);
+#else
         std::printf("{\"kind\":\"staged_integer_qk_safety\",\"groups_per_stage\":%u,\"shared_operand_rows\":%s,\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",groups,variant>100u?"true":"false",c.tokens,c.start,c.count,c.mode,cells);
+#endif
         std::fflush(stdout);
     }
     unchanged(dq,q);unchanged(dk,k);unchanged(dt,transposed);
@@ -191,6 +214,7 @@ __global__ void compare_scores(const uint32_t* expected, const uint32_t* actual,
 }
 void captured(const char* qfile,const char* kfile) {
     constexpr unsigned tokens=7169u,batch=128u;
+#ifndef QRT_DIRECT_INTEGER_QK_PROBE
     double sleep_minimum=1.0e30,sleep_maximum=0.0,sleep_total=0.0;
     for(unsigned i=0u;i<16u;++i) {
         const auto before=std::chrono::steady_clock::now();
@@ -199,6 +223,7 @@ void captured(const char* qfile,const char* kfile) {
         sleep_total+=wall;sleep_minimum=std::min(sleep_minimum,wall);sleep_maximum=std::max(sleep_maximum,wall);
     }
     std::fprintf(stderr,"HOST_WAIT_DIAGNOSTIC requested_sleep_ms=1 samples=16 minimum_ms=%.6f maximum_ms=%.6f mean_ms=%.6f measurement_polling=yield deadline_seconds=30\n",sleep_minimum,sleep_maximum,sleep_total/16.0);
+#endif
     const auto q=read_words(qfile,size_t(tokens)*kQueryHeads*kHeadDim);
     const auto k=read_words(kfile,size_t(tokens)*kKvHeads*kHeadDim);
     const size_t capacity=size_t(batch)*kQueryHeads*tokens;
@@ -217,8 +242,7 @@ void captured(const char* qfile,const char* kfile) {
     begin=std::chrono::steady_clock::now();
     prepare<IntegerRowKind::Key>(dk.as<uint16_t>(),kp.as<Row>(),tokens,0u,0u);
     finish();const double key_encoding_ms=elapsed(begin);
-    double original_ms=0.0,staged_ms[4]{},maximum_stage_ms[4]{};
-    const unsigned variants[]={8u,16u,104u,108u};
+    double original_ms=0.0,staged_ms[variant_count]{},maximum_stage_ms[variant_count]{};
     size_t compared=0u;unsigned cpu_dots=0u;
     for(unsigned start=0u;start<tokens;start+=batch) {
         const unsigned count=std::min(batch,tokens-start),stride=start+count;
@@ -226,7 +250,7 @@ void captured(const char* qfile,const char* kfile) {
         begin=std::chrono::steady_clock::now();
         original(dq.as<uint16_t>(),dt.as<uint16_t>(),reference.as<float>()+guard,start,count,stride,tokens);
         finish();original_ms+=elapsed(begin);
-        for(unsigned mode=0u;mode<4u;++mode) {
+        for(unsigned mode=0u;mode<variant_count;++mode) {
             begin=std::chrono::steady_clock::now();
             prepare<IntegerRowKind::Query>(dq.as<uint16_t>(),qp.as<Row>(),tokens,start,count);
             staged_variant(variants[mode],qp.as<Row>(),kp.as<Row>(),candidate.as<float>()+guard,start,count,stride,tokens);
@@ -255,7 +279,11 @@ void captured(const char* qfile,const char* kfile) {
         for(auto word:words)if(word!=0xa5a5a5a5u)throw std::runtime_error("captured QK redzone changed");
     }
     unchanged(dq,q);unchanged(dk,k);
+#ifdef QRT_DIRECT_INTEGER_QK_PROBE
+    std::printf("{\"kind\":\"direct_integer_original_q7169\",\"tokens\":7169,\"query_batch\":128,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"original_query_ms\":%.6f,\"key_transpose_ms\":%.6f,\"direct_query_and_encoding_ms\":%.6f,\"shared_query_and_encoding_ms\":%.6f,\"key_encoding_ms\":%.6f,\"maximum_completed_slab_ms\":[%.6f,%.6f],\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",compared,cpu_dots,original_ms,transpose_ms,staged_ms[0],staged_ms[1],key_encoding_ms,maximum_stage_ms[0],maximum_stage_ms[1]);
+#else
     std::printf("{\"kind\":\"staged_integer_original_q7169\",\"tokens\":7169,\"query_batch\":128,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"original_query_ms\":%.6f,\"key_transpose_ms\":%.6f,\"staged_8_query_and_encoding_ms\":%.6f,\"staged_16_query_and_encoding_ms\":%.6f,\"staged_shared_4_query_and_encoding_ms\":%.6f,\"staged_shared_8_query_and_encoding_ms\":%.6f,\"key_encoding_ms\":%.6f,\"maximum_completed_slab_ms\":[%.6f,%.6f,%.6f,%.6f],\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",compared,cpu_dots,original_ms,transpose_ms,staged_ms[0],staged_ms[1],staged_ms[2],staged_ms[3],key_encoding_ms,maximum_stage_ms[0],maximum_stage_ms[1],maximum_stage_ms[2],maximum_stage_ms[3]);
+#endif
 }
 }
 int main(int argc,char** argv) {

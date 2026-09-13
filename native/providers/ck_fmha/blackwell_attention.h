@@ -1339,6 +1339,64 @@ __device__ __forceinline__ float blackwell_integer_accumulate(
 
 struct NativeOperandRow { uint16_t original[18]; };
 
+// Component experiment: consume lossless integer-core rows directly from
+// their prepared global views. Each wave owns an N16 tile and its eight
+// original carry chains; no CTA publication/retirement barriers are needed.
+// Arithmetic and exceptional-row fallback use the existing integer core.
+// This kernel has no runtime dispatcher call site.
+__global__ void blackwell_direct_integer_scores_kernel(
+    const qrt_sm121_integer_core::Row* prepared_query,
+    const qrt_sm121_integer_core::Row* prepared_key, float* scores,
+    unsigned query_start, unsigned query_count, unsigned score_stride,
+    unsigned key_stride) {
+    const unsigned lane = threadIdx.x % 32u, wave = threadIdx.x / 32u;
+    const unsigned head = blockIdx.y, kv_head = head / (kQueryHeads / kKvHeads);
+    const unsigned query_tile = blockIdx.z * 16u;
+    const unsigned key_tile = blockIdx.x * kIntegerMatrixColumns;
+    const unsigned operand_row = query_tile + lane % 16u;
+    const unsigned key = key_tile + wave * 16u + lane % 16u;
+    const unsigned last_query = query_start + min(query_tile + 16u, query_count) - 1u;
+    MantissaF32x8 accumulator{};
+    if (key_tile <= last_query) {
+        for (unsigned group = 0u; group < kHeadDim / 16u; ++group) {
+            MantissaI32x4 lh{}, ll{}, rh{}, rl{};
+#pragma unroll
+            for (unsigned word = 0u; word < 4u; ++word) {
+                if (operand_row < query_count) {
+                    const auto& a = prepared_query[(size_t(operand_row) * kQueryHeads + head) * 16u + group];
+                    lh[word] = a.high[word]; ll[word] = a.low[word];
+                }
+                if (key < score_stride) {
+                    const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + key];
+                    rh[word] = b.high[word]; rl[word] = b.low[word];
+                }
+            }
+            const MantissaI32x8 zero{};
+            const auto hh = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true, lh, true, rh, zero, false);
+            const auto hl = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true, lh, false, rl, zero, false);
+            const auto lh_product = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false, ll, true, rh, zero, false);
+            const auto low = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false, ll, false, rl, zero, false);
+#pragma unroll
+            for (unsigned element = 0u; element < 8u; ++element) {
+                const unsigned row = query_tile + 2u * element + lane / 16u;
+                if (row < query_count && key < score_stride && key <= query_start + row) {
+                    const int32_t partials[4] = {hh[element], hl[element], lh_product[element], low[element]};
+                    const auto& a = prepared_query[(size_t(row) * kQueryHeads + head) * 16u + group];
+                    const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + key];
+                    accumulator[element] = blackwell_integer_accumulate(accumulator[element], a, b, partials);
+                }
+            }
+        }
+    }
+#pragma unroll
+    for (unsigned element = 0u; element < 8u; ++element) {
+        const unsigned row = query_tile + 2u * element + lane / 16u;
+        if (row < query_count && key < score_stride)
+            scores[(size_t(row) * kQueryHeads + head) * score_stride + key] =
+                key <= query_start + row ? accumulator[element] * kExactScale : -INFINITY;
+    }
+}
+
 // All waves first produce independent K16 integer products. Each lane then
 // consumes its cell's original ordered carry chain. Without row staging, eight
 // or sixteen groups need three or one producer/consumer barriers per K256 dot.
