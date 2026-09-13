@@ -17,7 +17,7 @@ namespace bound=qrt_sm121_pv_bound;
 using B16=unsigned short __attribute__((ext_vector_type(16)));
 using F8=float __attribute__((ext_vector_type(8)));
 constexpr unsigned guard=64u;
-struct Step { float center,absolute_dot,error; };
+struct Step { float center,absolute_dot,error,zero_c_product; };
 void check(hipError_t status) { if(status!=hipSuccess)throw std::runtime_error(hipGetErrorString(status)); }
 void require(bool condition,const char* message) { if(!condition)throw std::runtime_error(message); }
 void complete() {
@@ -55,6 +55,7 @@ template<class T> struct Device {
 
 // Trace actual dependent K16 WMMA calls. Absolute products use a separate
 // zero-C matrix operation; no CPU reference or expected output enters a kernel.
+template<unsigned CarryKind>
 __global__ void trace_groups(const uint16_t* input,const float* initial,
     Step* trace,unsigned width) {
     const unsigned lane=threadIdx.x,tile=blockIdx.x,groups=width/16u;
@@ -70,12 +71,18 @@ __global__ void trace_groups(const uint16_t* input,const float* initial,
         }
         const F8 zero{};
         const F8 absolute=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(aa,bb,zero);
-        const F8 next=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a,b,carry);
+        const F8 product=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a,b,zero);
+        F8 next{};
+        if constexpr(CarryKind==0u)next=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a,b,carry);
+        else for(unsigned j=0u;j<8u;++j) {
+            if constexpr(CarryKind==1u)next[j]=__fadd_rn(carry[j],product[j]);
+            else next[j]=__fadd_rz(carry[j],product[j]);
+        }
 #pragma unroll
         for(unsigned j=0u;j<8u;++j) {
             errors[j]=bound::group(errors[j],carry[j],absolute[j]);
             const unsigned cell=(2u*j+lane/16u)*16u+lane%16u;
-            trace[(size_t(tile)*groups+group)*256u+cell]={next[j],absolute[j],errors[j]};
+            trace[(size_t(tile)*groups+group)*256u+cell]={next[j],absolute[j],errors[j],product[j]};
         }
         carry=next;
     }
@@ -92,38 +99,61 @@ float hypothetical(float error,float carry,float absolute_dot,unsigned shift) {
     return bound::upper(error+bound::upper(magnitude*std::ldexp(1.0f,-int(shift)))+0x1p-118f);
 }
 float widen(uint16_t value){return bound::value(uint32_t(value)<<16u);}
+double add_reference(double a,double b,uint64_t& rounding_events) {
+    const double sum=a+b,recovered=sum-a;
+    const double residual=(a-(sum-recovered))+(b-recovered);
+    rounding_events+=residual!=0.0;
+    return sum;
+}
 struct Counts {
     uint64_t prefix_undercoverage=0,final_admitted=0,false_admissions=0;
+    uint64_t eligible_final_admitted=0,eligible_false_admissions=0;
 };
-void analyze(const char* kind,unsigned mode,const std::vector<uint16_t>& input,
+bool float_eligible(uint16_t value) {
+    const unsigned exponent=(value>>7u)&255u;
+    return !(value&0x7fffu)||(exponent>=64u&&exponent<=190u);
+}
+void analyze(const char* kind,unsigned mode,unsigned carry_kind,const std::vector<uint16_t>& input,
     const std::vector<float>& initial,unsigned width,const std::vector<uint16_t>& external={}) {
     const unsigned tiles=unsigned(initial.size()/256u),groups=width/16u;
     require(input.size()==size_t(tiles)*32u*width,"input dimensions");
     require(external.empty()||external.size()==initial.size(),"external dimensions");
     Device<uint16_t> di(input.size());Device<float> dc(initial.size());Device<Step> dt(size_t(tiles)*groups*256u);
     di.upload(input);dc.upload(initial);
-    hipLaunchKernelGGL(trace_groups,dim3(tiles),dim3(32u),0u,nullptr,di.data(),dc.data(),dt.data(),width);
+    if(carry_kind==0u)hipLaunchKernelGGL((trace_groups<0u>),dim3(tiles),dim3(32u),0u,nullptr,di.data(),dc.data(),dt.data(),width);
+    else if(carry_kind==1u)hipLaunchKernelGGL((trace_groups<1u>),dim3(tiles),dim3(32u),0u,nullptr,di.data(),dc.data(),dt.data(),width);
+    else hipLaunchKernelGGL((trace_groups<2u>),dim3(tiles),dim3(32u),0u,nullptr,di.data(),dc.data(),dt.data(),width);
     check(hipGetLastError());complete();const auto trace=dt.read();
-    di.guards();dc.guards();dt.guards();require(di.read()==input&&dc.read()==initial,"immutable inputs");
+    di.guards();dc.guards();dt.guards();const auto input_after=di.read();const auto initial_after=dc.read();
+    require(input_after==input&&!std::memcmp(initial_after.data(),initial.data(),initial.size()*sizeof(float)),"immutable input bits");
     Counts counts[4]{};uint64_t native_bf16_differences=0,external_differences=0;
     uint64_t rne_group_differences=0,positive_native_errors=0,negative_native_errors=0,nonfinite=0;
     uint64_t gpu_cpu_envelope_bit_differences=0;
+    uint64_t eligible_dots=0,eligible_native_bf16_differences=0;
+    uint64_t fp64_reference_rounding_events=0;
     double maximum_native_relative_error=0,maximum_canonical_error=0;
+    double maximum_eligible_zero_c_relative_error=0,maximum_eligible_native_relative_error=0;
     for(unsigned tile=0;tile<tiles;++tile)for(unsigned cell=0;cell<256u;++cell) {
         const unsigned row=cell/16u,column=cell%16u;
+        bool eligible=true;
+        for(unsigned k=0u;k<width;++k)eligible=eligible&&float_eligible(input[(size_t(tile)*32u+row)*width+k])&&float_eligible(input[(size_t(tile)*32u+16u+column)*width+k]);
+        eligible_dots+=eligible;
         auto carry=canonical::value_from_float(initial[tile*256u+cell],-133);
         float center=initial[tile*256u+cell],errors[4]{};
         for(unsigned group=0u;group<groups;++group) {
             const Step step=trace[(size_t(tile)*groups+group)*256u+cell];
             canonical::Value terms[17];terms[0]=carry;
-            double mathematical=double(center),magnitude=std::abs(double(center));
+            double products=0,absolute_products=0,mathematical=double(center);
             for(unsigned k=0;k<16u;++k) {
                 const uint16_t a=input[(size_t(tile)*32u+row)*width+group*16u+k];
                 const uint16_t b=input[(size_t(tile)*32u+16u+column)*width+group*16u+k];
                 terms[k+1u]=canonical::multiply_bf16(a,b,-133);
                 const double product=double(widen(a))*double(widen(b));
-                mathematical+=product;magnitude+=std::abs(product);
+                products=add_reference(products,product,fp64_reference_rounding_events);
+                mathematical=add_reference(mathematical,product,fp64_reference_rounding_events);
+                absolute_products+=std::abs(product);
             }
+            const double magnitude=std::abs(double(center))+absolute_products;
             carry=canonical::group_sum<26,-133>(terms,17u);
             const float exact=canonical::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
             const double native_error=double(step.center)-mathematical;
@@ -131,6 +161,8 @@ void analyze(const char* kind,unsigned mode,const std::vector<uint16_t>& input,
             positive_native_errors+=native_error>0;negative_native_errors+=native_error<0;
             rne_group_differences+=bound::bits(float(mathematical))!=bound::bits(step.center);
             if(magnitude>0&&std::isfinite(magnitude))maximum_native_relative_error=std::max(maximum_native_relative_error,std::abs(native_error)/magnitude);
+            if(eligible&&magnitude>0)maximum_eligible_native_relative_error=std::max(maximum_eligible_native_relative_error,std::abs(native_error)/magnitude);
+            if(eligible&&absolute_products>0)maximum_eligible_zero_c_relative_error=std::max(maximum_eligible_zero_c_relative_error,std::abs(double(step.zero_c_product)-products)/absolute_products);
             const double error=std::abs(double(step.center)-double(exact));
             maximum_canonical_error=std::max(maximum_canonical_error,error);
             errors[0]=bound::group(errors[0],center,step.absolute_dot);
@@ -144,19 +176,22 @@ void analyze(const char* kind,unsigned mode,const std::vector<uint16_t>& input,
                 if(group+1u==groups&&bound::same_bf16(step.center,errors[v])) {
                     ++counts[v].final_admitted;
                     counts[v].false_admissions+=bound::bf16(step.center)!=bound::bf16(exact);
+                    counts[v].eligible_final_admitted+=eligible;
+                    counts[v].eligible_false_admissions+=eligible&&bound::bf16(step.center)!=bound::bf16(exact);
                 }
             }
             center=step.center;
         }
         const uint16_t endpoint=bound::bf16(canonical::value_to_float(qrt_sm121_group16::finish_accumulator(carry)));
         native_bf16_differences+=bound::bf16(center)!=endpoint;
+        eligible_native_bf16_differences+=eligible&&bound::bf16(center)!=endpoint;
         if(!external.empty())external_differences+=endpoint!=external[tile*256u+cell];
     }
     for(unsigned v=0u;v<4u;++v) {
-        std::printf("{\"kind\":\"%s\",\"mode\":%u,\"envelope\":%u,\"coefficient_exponent\":%u,\"hypothesis_only\":%s,\"dots\":%zu,\"ordered_groups\":%zu,\"prefix_undercoverage\":%llu,\"final_admitted\":%llu,\"false_bf16_admissions\":%llu,\"native_bf16_differences\":%llu,\"external_reference_differences\":%llu,\"external_reference_cells\":%zu,\"native_group_rne_differences\":%llu,\"positive_native_group_errors\":%llu,\"negative_native_group_errors\":%llu,\"maximum_native_error_over_magnitude\":%.17g,\"maximum_canonical_error\":%.17g,\"nonfinite\":%llu,\"gpu_cpu_envelope_bit_differences\":%llu,\"fp64_group_reference_exact\":%s,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",kind,mode,v,v?25u-v:19u,v?"true":"false",initial.size(),initial.size()*groups,
+        std::printf("{\"kind\":\"%s\",\"mode\":%u,\"carry_kind\":%u,\"envelope\":%u,\"coefficient_exponent\":%u,\"hypothesis_only\":%s,\"dots\":%zu,\"ordered_groups\":%zu,\"prefix_undercoverage\":%llu,\"final_admitted\":%llu,\"false_bf16_admissions\":%llu,\"native_bf16_differences\":%llu,\"external_reference_differences\":%llu,\"external_reference_cells\":%zu,\"native_group_rne_differences\":%llu,\"positive_native_group_errors\":%llu,\"negative_native_group_errors\":%llu,\"maximum_native_error_over_magnitude\":%.17g,\"maximum_canonical_error\":%.17g,\"nonfinite\":%llu,\"gpu_cpu_envelope_bit_differences\":%llu,\"fp64_group_reference_exact\":%s,\"fp64_reference_rounding_events\":%llu,\"eligible_dots\":%llu,\"eligible_final_admitted\":%llu,\"eligible_false_admissions\":%llu,\"eligible_native_bf16_differences\":%llu,\"maximum_eligible_zero_c_error_over_absolute_dot\":%.17g,\"maximum_eligible_native_error_over_magnitude\":%.17g,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",kind,mode,carry_kind,v,v?25u-v:19u,v?"true":"false",initial.size(),initial.size()*groups,
             static_cast<unsigned long long>(counts[v].prefix_undercoverage),static_cast<unsigned long long>(counts[v].final_admitted),static_cast<unsigned long long>(counts[v].false_admissions),
             static_cast<unsigned long long>(native_bf16_differences),static_cast<unsigned long long>(external_differences),external.size(),static_cast<unsigned long long>(rne_group_differences),
-            static_cast<unsigned long long>(positive_native_errors),static_cast<unsigned long long>(negative_native_errors),maximum_native_relative_error,maximum_canonical_error,static_cast<unsigned long long>(nonfinite),static_cast<unsigned long long>(gpu_cpu_envelope_bit_differences),external.empty()?"true":"false");
+            static_cast<unsigned long long>(positive_native_errors),static_cast<unsigned long long>(negative_native_errors),maximum_native_relative_error,maximum_canonical_error,static_cast<unsigned long long>(nonfinite),static_cast<unsigned long long>(gpu_cpu_envelope_bit_differences),!fp64_reference_rounding_events?"true":"false",static_cast<unsigned long long>(fp64_reference_rounding_events),static_cast<unsigned long long>(eligible_dots),static_cast<unsigned long long>(counts[v].eligible_final_admitted),static_cast<unsigned long long>(counts[v].eligible_false_admissions),static_cast<unsigned long long>(eligible_native_bf16_differences),maximum_eligible_zero_c_relative_error,maximum_eligible_native_relative_error);
         std::fflush(stdout);
     }
     require(!counts[0].prefix_undercoverage&&!counts[0].false_admissions&&!external_differences&&!nonfinite,"established bound, reference or finite control failure");
@@ -176,7 +211,7 @@ void generated() {
             input[i]=value;
         }
         if(mode==5u)for(auto& value:initial)value=bound::value((random_word()&0x807fffffu)|(136u<<23u));
-        analyze("wmma_generated_projection_envelope",mode,input,initial,width);
+        for(unsigned carry_kind=0u;carry_kind<3u;++carry_kind)analyze("wmma_generated_projection_envelope",mode,carry_kind,input,initial,width);
     }
 }
 std::vector<uint16_t> read(const char* path,size_t count) {
@@ -196,7 +231,7 @@ void captured(const char* ipath,const char* wpath,const char* rpath) {
         std::copy_n(weights.data()+size_t(row)*width,width,paired.data()+(size_t(tile)*32u+16u+i)*width);
         for(unsigned q=0;q<16u;++q)external[tile*256u+q*16u+i]=reference[size_t((tile*113u+q*449u)%tokens)*rows+row];
     }
-    analyze("wmma_original_qkv_sampled_envelope",0u,paired,initial,width,external);
+    for(unsigned carry_kind=0u;carry_kind<3u;++carry_kind)analyze("wmma_original_qkv_sampled_envelope",0u,carry_kind,paired,initial,width,external);
 }
 }
 int main(int argc,char** argv)try {

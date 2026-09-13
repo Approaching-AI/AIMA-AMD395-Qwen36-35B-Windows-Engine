@@ -1,0 +1,2005 @@
+{
+  "schema_version": 1,
+  "kind": "ordered_wmma_projection_envelope_diagnostic",
+  "host": "baiying",
+  "source_commit": "fffc47e8d025f634bde1506292823a3017766914",
+  "source_delivery": {
+    "source_commit": "fffc47e8d025f634bde1506292823a3017766914",
+    "prerequisite_commit": "824a07fc798a6e67553b43dde61110bb5db32617",
+    "repo": "D:/projects/AIMA-public-wmma-projection-envelope-20260914",
+    "seed": "D:/projects/AIMA-public-matrix-float-qk-20260914",
+    "bundle": "wmma-projection-envelope-fffc47e.bundle",
+    "bundle_sha256": "d095060a3f793c92de75b7e07a93eee4bd10fe4f85de894f156acb760a990bf7",
+    "script": "run-native-wmma-projection-envelope-r1.ps1",
+    "script_sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+    "source_file": "tests/native/wmma_projection_envelope_probe.cpp",
+    "source_sha256": "b7234096bc6fd23a688d9cdda6435ac36c2ef8ab925f0b22ed187287877f405d",
+    "local_validation": "git diff --check and public hygiene pass; native-only diagnostic source; complete377 Python/47 Rust check remains at previous arithmetic824a07f",
+    "native_dispatched": false,
+    "product_dispatch_changed": false,
+    "performance_acceptance": false,
+    "documentation": {
+      "url": "https://docs.amd.com/api/khub/documents/UVVZM22UN7tMUeiW_4ShTQ/content",
+      "title": "RDNA3.5 Instruction Set Architecture Reference Guide",
+      "document_date": "2024-07-23",
+      "section": "7.9 WMMA",
+      "observation": "Floating WMMA uses round-to-nearest-even and internally uses DOT instructions; this does not establish a single correctly rounded exact dot product. No rounding mode changes are made."
+    }
+  },
+  "model": "D:\\models\\Qwen3.6-35B-A3B; deterministic16384 sampled original layer-zero QKV dots",
+  "command": {
+    "file": "run-native-wmma-projection-envelope-r1.ps1",
+    "sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+    "text": "param([ValidateSet('build','test','capture')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-wmma-projection-envelope-20260914';$seed='D:\\projects\\AIMA-public-matrix-float-qk-20260914'\n$sha='fffc47e8d025f634bde1506292823a3017766914';$bundle='D:\\projects\\wmma-projection-envelope-fffc47e.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd095060a3f793c92de75b7e07a93eee4bd10fe4f85de894f156acb760a990bf7'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\wmma-projection-envelope';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\wmma_projection_envelope_probe.cpp';$exe=Join-Path $build 'wmma-projection-envelope.exe'\n$sourceInputs=@();foreach($name in @(& git -C $repo ls-files 'native/providers/moe_accumulator/*.h' 'native/providers/ck_fmha/*.h' 'tests/native/wmma_projection_envelope_probe.cpp' 'scripts/baiying_guarded_inference.ps1' 'tests/powershell/test_guarded_inference_arguments.ps1')){$sourceInputs+=@{file=$name;sha256=(Get-FileHash (Join-Path $repo $name) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; ordered K16 WMMA projection envelope diagnostic; smaller bounds are hypotheses only';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','-Rpass-analysis=kernel-resource-usage','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=120\n}else{\n $metaPath=Join-Path $build 'build-provenance.json';$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $metaPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.executable=$exe;$timeout=120;$spec.arguments=@('--selftest')\n if($Action -eq 'capture'){\n  $inputTensor='D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin'\n  $weightTensor='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin'\n  $referenceTensor='D:\\projects\\sm121-qkv-reference-9510d980.bin'\n  $tensors=@(@{path=$inputTensor;sha256='6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161'},@{path=$weightTensor;sha256='b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f'},@{path=$referenceTensor;sha256='9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37'})\n  foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Original QKV tensor changed'}}\n  $spec.arguments=@('--real-qkv',$inputTensor,$weightTensor,$referenceTensor);$spec.tensor_inputs=$tensors\n  $spec.model='D:\\models\\Qwen3.6-35B-A3B; deterministic16384 sampled original layer-zero QKV dots'\n  $spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83'\n  $spec.gb10_reference_host='aitopatom-66c4';$spec.gb10_capture_sha256='5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b'\n  $spec.prompt_sha256='26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804'\n  $spec.reference_is_compute_input=$false;$spec.full_tensor_comparison=$false\n }\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\wmma-projection-envelope-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 12|ForEach-Object {$_.Substring(0,[Math]::Min(700,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native core action failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText((Join-Path $build 'build-provenance.json'),($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $expected=if($Action -eq 'capture'){4}else{24}\n if($reports.Count -ne $expected){throw 'Missing projection envelope cases'}\n foreach($report in $reports){\n  if(-not $report.redzones_pass -or -not $report.immutable_inputs -or $report.nonfinite -ne 0 -or $report.external_reference_differences -ne 0){throw 'Memory,finite or external reference failure'}\n  if($report.envelope -eq 0 -and ($report.prefix_undercoverage -ne 0 -or $report.false_bf16_admissions -ne 0)){throw 'Established envelope failed'}\n }\n}\n"
+  },
+  "native_runs": {
+    "build": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-Rpass-analysis=kernel-resource-usage",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\tests\\native\\wmma_projection_envelope_probe.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\build\\wmma-projection-envelope\\wmma-projection-envelope.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914",
+          "repo_commit": "fffc47e8d025f634bde1506292823a3017766914",
+          "command_file": "D:\\projects\\run-native-wmma-projection-envelope-r1.ps1",
+          "command_file_sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+          "source_inputs": [
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "native/providers/ck_fmha/attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "native/providers/ck_fmha/blackwell_attention.h"
+            },
+            {
+              "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+              "file": "native/providers/ck_fmha/decoded_window_qk.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "native/providers/ck_fmha/f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "native/providers/ck_fmha/float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "native/providers/ck_fmha/float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "native/providers/ck_fmha/float_subgroup_qk.h"
+            },
+            {
+              "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+              "file": "native/providers/ck_fmha/matrix_consumer_qk.h"
+            },
+            {
+              "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+              "file": "native/providers/ck_fmha/positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "native/providers/ck_fmha/selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "native/providers/ck_fmha/wide_integer_qk.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "native/providers/moe_accumulator/bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "native/providers/moe_accumulator/sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "native/providers/moe_accumulator/sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "native/providers/moe_accumulator/sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "native/providers/moe_accumulator/sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "native/providers/moe_accumulator/sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native/providers/moe_accumulator/sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "native/providers/moe_accumulator/sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "native/providers/moe_accumulator/sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "native/providers/moe_accumulator/sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "native/providers/moe_accumulator/sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "native/providers/moe_accumulator/sm121_row_maximum.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "native/providers/moe_accumulator/sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "native/providers/moe_accumulator/sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "native/providers/moe_accumulator/sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+              "file": "scripts/baiying_guarded_inference.ps1"
+            },
+            {
+              "sha256": "b7234096bc6fd23a688d9cdda6435ac36c2ef8ab925f0b22ed187287877f405d",
+              "file": "tests/native/wmma_projection_envelope_probe.cpp"
+            },
+            {
+              "sha256": "840c431364a2de1a638ced9d95703d0246c5e5f4b0edfc6b4a57505d9b9a116b",
+              "file": "tests/powershell/test_guarded_inference_arguments.ps1"
+            }
+          ],
+          "model": "none; ordered K16 WMMA projection envelope diagnostic; smaller bounds are hypotheses only",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2574.743,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "raw_sha256": {
+        "product.stderr.log": "f6474275264ab4e017264239858a67994bbe1e09a403197d9795e02b3087a2ee",
+        "dispatch.json": "36de14ea8d6d3caaf9c64c1169151d20a63570b155361de004f438800d0bf13a",
+        "build-provenance.json": "5ea9ff149bb25af5372febc6f881d9960ed612dbef8be8e9e62ca4d52d7fd173",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "launch.json": "c56eb5c6a551d6f33abf93af27353c6469e224841b1b41431ad37a694ad0412f",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "preflight.json": "b6c88bf2f94838a4a2b50862c51e95fd98645d4bfce6d2321125b9c42f1b22e0",
+        "run-record.json": "8d5b531f8cd99355bb7bb54862b9b49fae9f003620fc92d163e6c4c78639e6bb"
+      },
+      "provenance": {
+        "host": "BAIYING",
+        "repo_commit": "fffc47e8d025f634bde1506292823a3017766914",
+        "source_inputs": [
+          {
+            "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+            "file": "native/providers/ck_fmha/attention_deadline.h"
+          },
+          {
+            "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+            "file": "native/providers/ck_fmha/blackwell_attention.h"
+          },
+          {
+            "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+            "file": "native/providers/ck_fmha/decoded_window_qk.h"
+          },
+          {
+            "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+            "file": "native/providers/ck_fmha/f32_carry_qk.h"
+          },
+          {
+            "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+            "file": "native/providers/ck_fmha/float_alignment_qk.h"
+          },
+          {
+            "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+            "file": "native/providers/ck_fmha/float_pv_replay.h"
+          },
+          {
+            "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+            "file": "native/providers/ck_fmha/float_subgroup_qk.h"
+          },
+          {
+            "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+            "file": "native/providers/ck_fmha/matrix_consumer_qk.h"
+          },
+          {
+            "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+            "file": "native/providers/ck_fmha/positive_integer_qk.h"
+          },
+          {
+            "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+            "file": "native/providers/ck_fmha/selective_qk.h"
+          },
+          {
+            "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+            "file": "native/providers/ck_fmha/wide_integer_qk.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "native/providers/moe_accumulator/bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "native/providers/moe_accumulator/sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+            "file": "native/providers/moe_accumulator/sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "native/providers/moe_accumulator/sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "native/providers/moe_accumulator/sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "native/providers/moe_accumulator/sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "native/providers/moe_accumulator/sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "native/providers/moe_accumulator/sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "native/providers/moe_accumulator/sm121_native_product.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "native/providers/moe_accumulator/sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "native/providers/moe_accumulator/sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "native/providers/moe_accumulator/sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "native/providers/moe_accumulator/sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "native/providers/moe_accumulator/sm121_row_maximum.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "native/providers/moe_accumulator/sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "native/providers/moe_accumulator/sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "native/providers/moe_accumulator/sm121_wide_integer_core.h"
+          },
+          {
+            "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+            "file": "scripts/baiying_guarded_inference.ps1"
+          },
+          {
+            "sha256": "b7234096bc6fd23a688d9cdda6435ac36c2ef8ab925f0b22ed187287877f405d",
+            "file": "tests/native/wmma_projection_envelope_probe.cpp"
+          },
+          {
+            "sha256": "840c431364a2de1a638ced9d95703d0246c5e5f4b0edfc6b4a57505d9b9a116b",
+            "file": "tests/powershell/test_guarded_inference_arguments.ps1"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-wmma-projection-envelope-r1.ps1",
+        "command_file_sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-Rpass-analysis=kernel-resource-usage",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\tests\\native\\wmma_projection_envelope_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\build\\wmma-projection-envelope\\wmma-projection-envelope.exe"
+        ],
+        "run_record_sha256": "8d5b531f8cd99355bb7bb54862b9b49fae9f003620fc92d163e6c4c78639e6bb",
+        "executable": {
+          "sha256": "0fd9c5f88e42f275a4c6b20a96d8e68c69542af43fcde9bfb97f9f2ad0f9c6e0",
+          "file": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\build\\wmma-projection-envelope\\wmma-projection-envelope.exe",
+          "bytes": 309760
+        }
+      }
+    },
+    "test": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\build\\wmma-projection-envelope\\wmma-projection-envelope.exe",
+          "arguments": [
+            "--selftest"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914",
+          "repo_commit": "fffc47e8d025f634bde1506292823a3017766914",
+          "command_file": "D:\\projects\\run-native-wmma-projection-envelope-r1.ps1",
+          "command_file_sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+          "source_inputs": [
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "native/providers/ck_fmha/attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "native/providers/ck_fmha/blackwell_attention.h"
+            },
+            {
+              "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+              "file": "native/providers/ck_fmha/decoded_window_qk.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "native/providers/ck_fmha/f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "native/providers/ck_fmha/float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "native/providers/ck_fmha/float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "native/providers/ck_fmha/float_subgroup_qk.h"
+            },
+            {
+              "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+              "file": "native/providers/ck_fmha/matrix_consumer_qk.h"
+            },
+            {
+              "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+              "file": "native/providers/ck_fmha/positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "native/providers/ck_fmha/selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "native/providers/ck_fmha/wide_integer_qk.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "native/providers/moe_accumulator/bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "native/providers/moe_accumulator/sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "native/providers/moe_accumulator/sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "native/providers/moe_accumulator/sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "native/providers/moe_accumulator/sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "native/providers/moe_accumulator/sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native/providers/moe_accumulator/sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "native/providers/moe_accumulator/sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "native/providers/moe_accumulator/sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "native/providers/moe_accumulator/sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "native/providers/moe_accumulator/sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "native/providers/moe_accumulator/sm121_row_maximum.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "native/providers/moe_accumulator/sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "native/providers/moe_accumulator/sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "native/providers/moe_accumulator/sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+              "file": "scripts/baiying_guarded_inference.ps1"
+            },
+            {
+              "sha256": "b7234096bc6fd23a688d9cdda6435ac36c2ef8ab925f0b22ed187287877f405d",
+              "file": "tests/native/wmma_projection_envelope_probe.cpp"
+            },
+            {
+              "sha256": "840c431364a2de1a638ced9d95703d0246c5e5f4b0edfc6b4a57505d9b9a116b",
+              "file": "tests/powershell/test_guarded_inference_arguments.ps1"
+            }
+          ],
+          "model": "none; ordered K16 WMMA projection envelope diagnostic; smaller bounds are hypotheses only",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "build_provenance_sha256": "5ea9ff149bb25af5372febc6f881d9960ed612dbef8be8e9e62ca4d52d7fd173"
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 501.404,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "raw_sha256": {
+        "reports.json": "01c67342569419282cce27bad324783382683d904bd222f713632457eb5a91bb",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "e282f9b520f6a6ce96499ee0575fd57ab3cdd12839120d3e008e36bc5a013de9",
+        "product.stdout.jsonl": "7a8505b456e561eeddeff81b24ad8487870d363926ff5402db883867793b009e",
+        "launch.json": "19db202ea4dc438ffa0e9277bd89300d3053f7caa7f6e990da83495b1057ed0b",
+        "preflight.json": "286467dcb26fe6066aeedcd6e909a11feea7e11e395bc3cba581472ced1134e1",
+        "run-record.json": "1f6d66e8650b950ad133b2c788ebf5af217a923e48c90fc4f6218d2d97ac5003"
+      },
+      "reports": [
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 0,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 3741,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 4,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 188499,
+          "positive_native_group_errors": 131276,
+          "negative_native_group_errors": 130509,
+          "maximum_native_error_over_magnitude": 4.316509973623044e-07,
+          "maximum_canonical_error": 7.2479248046875e-05,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 0,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 10569,
+          "final_admitted": 4078,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 4,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 188499,
+          "positive_native_group_errors": 131276,
+          "negative_native_group_errors": 130509,
+          "maximum_native_error_over_magnitude": 4.316509973623044e-07,
+          "maximum_canonical_error": 7.2479248046875e-05,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 0,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 146,
+          "final_admitted": 4061,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 4,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 188499,
+          "positive_native_group_errors": 131276,
+          "negative_native_group_errors": 130509,
+          "maximum_native_error_over_magnitude": 4.316509973623044e-07,
+          "maximum_canonical_error": 7.2479248046875e-05,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 0,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 1,
+          "final_admitted": 4032,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 4,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 188499,
+          "positive_native_group_errors": 131276,
+          "negative_native_group_errors": 130509,
+          "maximum_native_error_over_magnitude": 4.316509973623044e-07,
+          "maximum_canonical_error": 7.2479248046875e-05,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 1,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 4021,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161602,
+          "positive_native_group_errors": 68668,
+          "negative_native_group_errors": 193371,
+          "maximum_native_error_over_magnitude": 4.0647410527164196e-07,
+          "maximum_canonical_error": 0.00037384033203125,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 1,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 224277,
+          "final_admitted": 4089,
+          "false_bf16_admissions": 1,
+          "native_bf16_differences": 3,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161602,
+          "positive_native_group_errors": 68668,
+          "negative_native_group_errors": 193371,
+          "maximum_native_error_over_magnitude": 4.0647410527164196e-07,
+          "maximum_canonical_error": 0.00037384033203125,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 1,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 6376,
+          "final_admitted": 4087,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161602,
+          "positive_native_group_errors": 68668,
+          "negative_native_group_errors": 193371,
+          "maximum_native_error_over_magnitude": 4.0647410527164196e-07,
+          "maximum_canonical_error": 0.00037384033203125,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 1,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 4084,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161602,
+          "positive_native_group_errors": 68668,
+          "negative_native_group_errors": 193371,
+          "maximum_native_error_over_magnitude": 4.0647410527164196e-07,
+          "maximum_canonical_error": 0.00037384033203125,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 2,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 4003,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 2,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161621,
+          "positive_native_group_errors": 192930,
+          "negative_native_group_errors": 69133,
+          "maximum_native_error_over_magnitude": 4.607180426498439e-07,
+          "maximum_canonical_error": 0.0004119873046875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 2,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 225826,
+          "final_admitted": 4095,
+          "false_bf16_admissions": 2,
+          "native_bf16_differences": 2,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161621,
+          "positive_native_group_errors": 192930,
+          "negative_native_group_errors": 69133,
+          "maximum_native_error_over_magnitude": 4.607180426498439e-07,
+          "maximum_canonical_error": 0.0004119873046875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 2,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 6587,
+          "final_admitted": 4090,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 2,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161621,
+          "positive_native_group_errors": 192930,
+          "negative_native_group_errors": 69133,
+          "maximum_native_error_over_magnitude": 4.607180426498439e-07,
+          "maximum_canonical_error": 0.0004119873046875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 2,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 5,
+          "final_admitted": 4083,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 2,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 161621,
+          "positive_native_group_errors": 192930,
+          "negative_native_group_errors": 69133,
+          "maximum_native_error_over_magnitude": 4.607180426498439e-07,
+          "maximum_canonical_error": 0.0004119873046875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 3,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 0,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3979,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 261299,
+          "positive_native_group_errors": 130235,
+          "negative_native_group_errors": 131064,
+          "maximum_native_error_over_magnitude": 5.753952454893491e-08,
+          "maximum_canonical_error": 5.960464477539063e-08,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 3,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 0,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3979,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 261299,
+          "positive_native_group_errors": 130235,
+          "negative_native_group_errors": 131064,
+          "maximum_native_error_over_magnitude": 5.753952454893491e-08,
+          "maximum_canonical_error": 5.960464477539063e-08,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 3,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 0,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3979,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 261299,
+          "positive_native_group_errors": 130235,
+          "negative_native_group_errors": 131064,
+          "maximum_native_error_over_magnitude": 5.753952454893491e-08,
+          "maximum_canonical_error": 5.960464477539063e-08,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 3,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 0,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 3979,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 261299,
+          "positive_native_group_errors": 130235,
+          "negative_native_group_errors": 131064,
+          "maximum_native_error_over_magnitude": 5.753952454893491e-08,
+          "maximum_canonical_error": 5.960464477539063e-08,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 4,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 536,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 0,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 8367,
+          "positive_native_group_errors": 13840,
+          "negative_native_group_errors": 13129,
+          "maximum_native_error_over_magnitude": 2.1661215669879376e-07,
+          "maximum_canonical_error": 6.67572021484375e-06,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 4,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 358,
+          "final_admitted": 573,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 0,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 8367,
+          "positive_native_group_errors": 13840,
+          "negative_native_group_errors": 13129,
+          "maximum_native_error_over_magnitude": 2.1661215669879376e-07,
+          "maximum_canonical_error": 6.67572021484375e-06,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 4,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 25,
+          "final_admitted": 572,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 0,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 8367,
+          "positive_native_group_errors": 13840,
+          "negative_native_group_errors": 13129,
+          "maximum_native_error_over_magnitude": 2.1661215669879376e-07,
+          "maximum_canonical_error": 6.67572021484375e-06,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 4,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 568,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 0,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 8367,
+          "positive_native_group_errors": 13840,
+          "negative_native_group_errors": 13129,
+          "maximum_native_error_over_magnitude": 2.1661215669879376e-07,
+          "maximum_canonical_error": 6.67572021484375e-06,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 5,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 0,
+          "final_admitted": 3915,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 1,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 197834,
+          "positive_native_group_errors": 132595,
+          "negative_native_group_errors": 129548,
+          "maximum_native_error_over_magnitude": 4.77763696958101e-07,
+          "maximum_canonical_error": 0.00537109375,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 5,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 80194,
+          "final_admitted": 4091,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 1,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 197834,
+          "positive_native_group_errors": 132595,
+          "negative_native_group_errors": 129548,
+          "maximum_native_error_over_magnitude": 4.77763696958101e-07,
+          "maximum_canonical_error": 0.00537109375,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 5,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 3120,
+          "final_admitted": 4087,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 1,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 197834,
+          "positive_native_group_errors": 132595,
+          "negative_native_group_errors": 129548,
+          "maximum_native_error_over_magnitude": 4.77763696958101e-07,
+          "maximum_canonical_error": 0.00537109375,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_generated_projection_envelope",
+          "mode": 5,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 4096,
+          "ordered_groups": 262144,
+          "prefix_undercoverage": 72,
+          "final_admitted": 4083,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 1,
+          "external_reference_differences": 0,
+          "external_reference_cells": 0,
+          "native_group_rne_differences": 197834,
+          "positive_native_group_errors": 132595,
+          "negative_native_group_errors": 129548,
+          "maximum_native_error_over_magnitude": 4.77763696958101e-07,
+          "maximum_canonical_error": 0.00537109375,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    },
+    "capture": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914\\build\\wmma-projection-envelope\\wmma-projection-envelope.exe",
+          "arguments": [
+            "--real-qkv",
+            "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+            "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+            "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-wmma-projection-envelope-20260914",
+          "repo_commit": "fffc47e8d025f634bde1506292823a3017766914",
+          "command_file": "D:\\projects\\run-native-wmma-projection-envelope-r1.ps1",
+          "command_file_sha256": "b76b3849d34b0f7a1e9d2b859846d117faf07d438dc8bc8019ebf40c1ab23bdd",
+          "source_inputs": [
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "native/providers/ck_fmha/attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "native/providers/ck_fmha/blackwell_attention.h"
+            },
+            {
+              "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+              "file": "native/providers/ck_fmha/decoded_window_qk.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "native/providers/ck_fmha/f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "native/providers/ck_fmha/float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "native/providers/ck_fmha/float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "native/providers/ck_fmha/float_subgroup_qk.h"
+            },
+            {
+              "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+              "file": "native/providers/ck_fmha/matrix_consumer_qk.h"
+            },
+            {
+              "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+              "file": "native/providers/ck_fmha/positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "native/providers/ck_fmha/selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "native/providers/ck_fmha/wide_integer_qk.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "native/providers/moe_accumulator/bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native/providers/moe_accumulator/bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "native/providers/moe_accumulator/bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "native/providers/moe_accumulator/bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "native/providers/moe_accumulator/sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "native/providers/moe_accumulator/sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "native/providers/moe_accumulator/sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "native/providers/moe_accumulator/sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "native/providers/moe_accumulator/sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "native/providers/moe_accumulator/sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "native/providers/moe_accumulator/sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "native/providers/moe_accumulator/sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native/providers/moe_accumulator/sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "native/providers/moe_accumulator/sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "native/providers/moe_accumulator/sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "native/providers/moe_accumulator/sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "native/providers/moe_accumulator/sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "native/providers/moe_accumulator/sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native/providers/moe_accumulator/sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native/providers/moe_accumulator/sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "native/providers/moe_accumulator/sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native/providers/moe_accumulator/sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native/providers/moe_accumulator/sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "native/providers/moe_accumulator/sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native/providers/moe_accumulator/sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "native/providers/moe_accumulator/sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native/providers/moe_accumulator/sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "native/providers/moe_accumulator/sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "native/providers/moe_accumulator/sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "native/providers/moe_accumulator/sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native/providers/moe_accumulator/sm121_router_exp.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "native/providers/moe_accumulator/sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "native/providers/moe_accumulator/sm121_row_maximum.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "native/providers/moe_accumulator/sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "native/providers/moe_accumulator/sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "native/providers/moe_accumulator/sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native/providers/moe_accumulator/sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native/providers/moe_accumulator/sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "native/providers/moe_accumulator/sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "native/providers/moe_accumulator/sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "native/providers/moe_accumulator/sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "native/providers/moe_accumulator/sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+              "file": "scripts/baiying_guarded_inference.ps1"
+            },
+            {
+              "sha256": "b7234096bc6fd23a688d9cdda6435ac36c2ef8ab925f0b22ed187287877f405d",
+              "file": "tests/native/wmma_projection_envelope_probe.cpp"
+            },
+            {
+              "sha256": "840c431364a2de1a638ced9d95703d0246c5e5f4b0edfc6b4a57505d9b9a116b",
+              "file": "tests/powershell/test_guarded_inference_arguments.ps1"
+            }
+          ],
+          "model": "D:\\models\\Qwen3.6-35B-A3B; deterministic16384 sampled original layer-zero QKV dots",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "build_provenance_sha256": "5ea9ff149bb25af5372febc6f881d9960ed612dbef8be8e9e62ca4d52d7fd173",
+          "tensor_inputs": [
+            {
+              "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+              "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+            },
+            {
+              "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+              "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+            },
+            {
+              "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+              "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+            }
+          ],
+          "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "gb10_reference_host": "aitopatom-66c4",
+          "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+          "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+          "reference_is_compute_input": false,
+          "full_tensor_comparison": false
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 383.48,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "raw_sha256": {
+        "reports.json": "8e9aebace1cd27628b6f9fd59dbb8bbc0d452439f1f9f10f68052a04c1e3bec0",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "59c2399c745b99f965c434c6932d0ef64af286920ca8c814a4ead0d62e37ae4b",
+        "product.stdout.jsonl": "dc220a71d01236d9622aadc6ba2cbbe5dda935e952210a7b436037048e37aac4",
+        "launch.json": "9c7fd788a0bdb5c53006c9d6bdbe18f7602e9e1a0ae4dbd37c56f15e4eb77051",
+        "preflight.json": "70c64b29986fe672225c48605f990dd93559ad500dffeed5aa8752645ee405ea",
+        "run-record.json": "3b1e663a61efc5db20b30409466be24c4ea52012177f696496ccae758e4bf6d7"
+      },
+      "reports": [
+        {
+          "kind": "wmma_original_qkv_sampled_envelope",
+          "mode": 0,
+          "envelope": 0,
+          "coefficient_exponent": 19,
+          "hypothesis_only": false,
+          "dots": 16384,
+          "ordered_groups": 2097152,
+          "prefix_undercoverage": 0,
+          "final_admitted": 14122,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 90,
+          "external_reference_differences": 0,
+          "external_reference_cells": 16384,
+          "native_group_rne_differences": 769487,
+          "positive_native_group_errors": 751120,
+          "negative_native_group_errors": 745538,
+          "maximum_native_error_over_magnitude": 0.03944402704733283,
+          "maximum_canonical_error": 0.000102996826171875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": false,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_original_qkv_sampled_envelope",
+          "mode": 0,
+          "envelope": 1,
+          "coefficient_exponent": 24,
+          "hypothesis_only": true,
+          "dots": 16384,
+          "ordered_groups": 2097152,
+          "prefix_undercoverage": 746,
+          "final_admitted": 16091,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 90,
+          "external_reference_differences": 0,
+          "external_reference_cells": 16384,
+          "native_group_rne_differences": 769487,
+          "positive_native_group_errors": 751120,
+          "negative_native_group_errors": 745538,
+          "maximum_native_error_over_magnitude": 0.03944402704733283,
+          "maximum_canonical_error": 0.000102996826171875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": false,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_original_qkv_sampled_envelope",
+          "mode": 0,
+          "envelope": 2,
+          "coefficient_exponent": 23,
+          "hypothesis_only": true,
+          "dots": 16384,
+          "ordered_groups": 2097152,
+          "prefix_undercoverage": 0,
+          "final_admitted": 16009,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 90,
+          "external_reference_differences": 0,
+          "external_reference_cells": 16384,
+          "native_group_rne_differences": 769487,
+          "positive_native_group_errors": 751120,
+          "negative_native_group_errors": 745538,
+          "maximum_native_error_over_magnitude": 0.03944402704733283,
+          "maximum_canonical_error": 0.000102996826171875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": false,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_original_qkv_sampled_envelope",
+          "mode": 0,
+          "envelope": 3,
+          "coefficient_exponent": 22,
+          "hypothesis_only": true,
+          "dots": 16384,
+          "ordered_groups": 2097152,
+          "prefix_undercoverage": 0,
+          "final_admitted": 15823,
+          "false_bf16_admissions": 0,
+          "native_bf16_differences": 90,
+          "external_reference_differences": 0,
+          "external_reference_cells": 16384,
+          "native_group_rne_differences": 769487,
+          "positive_native_group_errors": 751120,
+          "negative_native_group_errors": 745538,
+          "maximum_native_error_over_magnitude": 0.03944402704733283,
+          "maximum_canonical_error": 0.000102996826171875,
+          "nonfinite": 0,
+          "gpu_cpu_envelope_bit_differences": 0,
+          "fp64_group_reference_exact": false,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "generated_totals_by_envelope": [
+    {
+      "dots": 24576,
+      "ordered_groups": 1572864,
+      "prefix_undercoverage": 0,
+      "final_admitted": 16216,
+      "false_bf16_admissions": 0,
+      "native_bf16_differences": 3989
+    },
+    {
+      "dots": 24576,
+      "ordered_groups": 1572864,
+      "prefix_undercoverage": 541224,
+      "final_admitted": 16926,
+      "false_bf16_admissions": 3,
+      "native_bf16_differences": 3989
+    },
+    {
+      "dots": 24576,
+      "ordered_groups": 1572864,
+      "prefix_undercoverage": 16254,
+      "final_admitted": 16897,
+      "false_bf16_admissions": 0,
+      "native_bf16_differences": 3989
+    },
+    {
+      "dots": 24576,
+      "ordered_groups": 1572864,
+      "prefix_undercoverage": 78,
+      "final_admitted": 16850,
+      "false_bf16_admissions": 0,
+      "native_bf16_differences": 3989
+    }
+  ],
+  "conclusions": [
+    "The probe executes actual dependent BF16 K16 WMMA with a separate zero-C absolute-product matrix and the existing PV error envelope. Generated signed,positive,negative,cancelling,sparse-zero and large-carry cases cover24576 dots and1572864 ordered K16 groups. The existing2^-19 envelope has zero undercoverage or false BF16 admissions, with GPU and CPU envelope bits identical. Native BF16 itself differs on3989 generated endpoints, including3979 paired-cancellation endpoints.",
+    "The smaller2^-24/2^-23/2^-22 coefficients are diagnostic hypotheses only. Generated cases record541224/16254/78 underestimated prefix errors; the first coefficient also incorrectly admits3 BF16 endpoints. Every smaller coefficient is numerically invalid as a general replacement, regardless of the captured-model sample below. None is promoted or used to change product admission.",
+    "The original QKV probe covers16384 deterministic sampled dots,2097152 ordered groups, and all16384 independent GB10 BF16 reference endpoints exactly. The native WMMA center differs on90 final BF16 values. The existing envelope admits14122 endpoints with zero undercoverage and false admissions. Smaller coefficients admit16091/16009/15823 but the first misses746 prefix errors; the other two passing this sample does not override their generated counterexamples.",
+    "This is a sampled layer-zero QKV numerical probe, not a full58728448-cell tensor comparison or product measurement. The sample deliberately includes first112 weight rows plus distributed input/weight rows; it is not weighted to the whole tensor or current selected replay population. Its86.19384765625percent established-envelope acceptance cannot be used as a measured reduction in product replay work.",
+    "Generated ranges keep the independent FP64 single-group mathematical reference exact; native WMMA frequently differs from rounding that whole sum once to FP32. The original capture includes much wider exponents, so its FP64 arithmetic is diagnostic, not an exact-reference claim. Its maximum relative error includes tiny or flushed inputs and is not a normal-range error bound. The independent canonical wide integer accumulator and actual GB10 BF16 endpoint remain the captured correctness comparisons.",
+    "The current source adds only a native diagnostic. Native build,all host guards,git diff checks and public hygiene pass. The latest full377 Python/47 Rust/C ABI/clippy check remains attached to the preceding unchanged runtime arithmetic. Source,compiler,command and original input/reference hashes are attached. No new dependency,rounding-mode change,product dispatch,performance,prefix,package,HTTP,soak or release qualification follows.",
+    "Next investigate zero-C per-group matrix products followed by explicit scalar carry rounding as a structural projection candidate. Keep the fused-WMMA control,independent original K16 comparison and established envelope. First measure whether changing the source of carry error helps; do not merely shrink a coefficient to fit a sample."
+  ],
+  "product_dispatch_changed": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

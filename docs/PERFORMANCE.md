@@ -2,6 +2,24 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Ordered WMMA projection error probing at `fffc47e` preserves all 16384
+sampled original QKV GB10 BF16 endpoints. The existing conservative envelope
+covers all 2097152 captured K16 groups and accepts 14122 final endpoints.
+These samples are not weighted to the full tensor or current replay population,
+so their 86.2 percent acceptance is not a measured replay reduction.
+
+Generated signed, positive, negative, cancelling, sparse-zero and large-carry
+cases cover 1572864 groups. The established envelope has no undercoverage;
+three smaller coefficients miss 541224 / 16254 / 78 prefix errors, and the
+smallest incorrectly admits three BF16 endpoints. All three remain invalid
+despite two passing the captured sample. Native build, guards and local hygiene
+pass. This adds no product arithmetic or performance qualification.
+The next structural comparison uses zero-C matrix groups followed by explicit
+scalar carry rounding, with the original reference and established envelope.
+Command: `run-native-wmma-projection-envelope-r1.ps1 -Action build|test|capture`.
+Evidence: `benchmarks/correctness/wmma-projection-envelope-20260914.json`, SHA256
+`38e3a502d202f4a2e23378dca7a2119f0d1d333c5d1f7e7f2507d5180a7c8434`.
+
 The hybrid exact-integer/scalar-float QK experiment at `824a07f` passes
 128 native generated cases, 257735040 score comparisons and 8192 independent
 CPU dots. Eight original q7169 variants each preserve 418496528 raw scores
