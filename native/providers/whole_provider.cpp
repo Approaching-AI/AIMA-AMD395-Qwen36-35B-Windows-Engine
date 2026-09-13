@@ -37930,6 +37930,9 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         elements, requested_window_elements);
     const size_t scratch_bytes = (static_cast<size_t>(window_capacity) + 2u) *
         sizeof(unsigned int);
+    // The producer has already completed above. Measure allocation and
+    // release separately from correction work before choosing a reuse policy.
+    const auto workspace_allocation_start = std::chrono::steady_clock::now();
     unsigned int *scratch = nullptr;
     status = hipMalloc(reinterpret_cast<void **>(&scratch), scratch_bytes);
     if (status != hipSuccess) return status;
@@ -37975,6 +37978,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         }
     }
     uint16_t* magnitude_inputs = magnitude_storage ? magnitude_storage + size_t(rows) * reduction_size : nullptr;
+    const double workspace_allocation_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - workspace_allocation_start).count();
     const unsigned int bounded_blocks = (std::max)(1u, (std::min)(
         maximum_blocks_per_launch,
         kSelectedHawkeyeCorrectionMaximumBlocksPerLaunchLimit));
@@ -38320,11 +38325,25 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         // Drain before releasing either operand view on every error path.
         if (status != hipSuccess) (void)hipStreamSynchronize(stream);
     }
+    const auto workspace_free_start = std::chrono::steady_clock::now();
     const hipError_t magnitude_free_status = magnitude_storage ? hipFree(magnitude_storage) : hipSuccess;
     const hipError_t absolute_bound_free_status = window_product_bounds ? hipFree(window_product_bounds) : hipSuccess;
     const hipError_t prepared_free_status = prepared_storage ? hipFree(prepared_storage) : hipSuccess;
     const hipError_t transpose_free_status = transposed_weights ? hipFree(transposed_weights) : hipSuccess;
     const hipError_t free_status = hipFree(scratch);
+    const double workspace_free_ms = std::chrono::duration<double, std::milli>(
+        std::chrono::steady_clock::now() - workspace_free_start).count();
+    std::fprintf(stderr,
+        "BATCH_MARK hawkeye_workspace_wall rows=%u tokens=%u k=%u "
+        "prepared_operands=%u allocation_bytes=%zu allocation_ms=%.6f free_ms=%.6f "
+        "producer_completed_before_allocation=1 completed=%u diagnostic_only=1\n",
+        rows, selected_token_count, reduction_size, prepared_operands ? 1u : 0u,
+        scratch_bytes + transpose_bytes + prepared_bytes + absolute_bound_bytes + magnitude_bytes,
+        workspace_allocation_ms, workspace_free_ms,
+        status == hipSuccess && magnitude_free_status == hipSuccess &&
+            absolute_bound_free_status == hipSuccess && prepared_free_status == hipSuccess &&
+            transpose_free_status == hipSuccess && free_status == hipSuccess ? 1u : 0u);
+    std::fflush(stderr);
     return status != hipSuccess ? status : magnitude_free_status != hipSuccess ? magnitude_free_status :
         absolute_bound_free_status != hipSuccess ? absolute_bound_free_status :
         prepared_free_status != hipSuccess ? prepared_free_status :
