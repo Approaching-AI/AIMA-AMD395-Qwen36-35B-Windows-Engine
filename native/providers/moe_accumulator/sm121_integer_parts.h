@@ -84,8 +84,8 @@ QRT_INTEGER_INLINE bool products_divisible(const uint32_t* left, const uint32_t*
 // identical even when the intermediate exponent and magnitude differ.
 // This branch needs only row ranges and four hardware integer dot results;
 // it never reads or re-multiplies the sixteen original operand pairs.
-QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
-    const int32_t (&partials)[4], int left_minimum, int left_maximum,
+QRT_INTEGER_INLINE bool sum_exact_integer_product(qrt_q1_moe_hawkeye::Value carry,
+    int64_t mathematical, int left_minimum, int left_maximum,
     int right_minimum, int right_maximum, qrt_sm121_group16::AlignedSum* output,
     const uint32_t* left_trailing = nullptr, const uint32_t* right_trailing = nullptr) {
     if (left_minimum < 0 || right_minimum < 0) return false;
@@ -103,14 +103,22 @@ QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
     if (carry_bits && (carry_shift >= 32u ||
         (carry_bits & ((uint32_t(1) << carry_shift) - 1u)))) return false;
     const uint32_t aligned = carry_shift >= 32u ? 0u : carry_bits >> carry_shift;
-    const int64_t mathematical = int64_t(partials[0]) * 65536 +
-        (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
     const int64_t products = product_shift <= 0 ? mathematical * (int64_t(1) << (-product_shift)) :
         (mathematical < 0 ? -int64_t(uint64_t(-mathematical) >> product_shift) :
                             int64_t(uint64_t(mathematical) >> product_shift));
     const int64_t total = products + (carry.negative ? -int64_t(aligned) : int64_t(aligned));
     *output = {{static_cast<uint32_t>(total < 0 ? -total : total), total < 0}, maximum};
     return true;
+}
+
+QRT_INTEGER_INLINE bool sum_exact_range(qrt_q1_moe_hawkeye::Value carry,
+    const int32_t (&partials)[4], int left_minimum, int left_maximum,
+    int right_minimum, int right_maximum, qrt_sm121_group16::AlignedSum* output,
+    const uint32_t* left_trailing = nullptr, const uint32_t* right_trailing = nullptr) {
+    const int64_t mathematical = int64_t(partials[0]) * 65536 +
+        (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
+    return sum_exact_integer_product(carry, mathematical, left_minimum, left_maximum,
+        right_minimum, right_maximum, output, left_trailing, right_trailing);
 }
 
 QRT_INTEGER_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry, const uint32_t (&pairs)[16],

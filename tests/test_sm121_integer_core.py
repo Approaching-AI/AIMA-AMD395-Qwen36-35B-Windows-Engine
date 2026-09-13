@@ -72,8 +72,17 @@ int main(){
   if(group%29u==0u)values[0]={0xffffffu,0,bool(group&1u)};
   if(group%41u==0u)values[0]={0u,-133,false};
   const auto expected=qrt_sm121_group16::finish_accumulator(qrt_q1_moe_hawkeye::group_sum<26,-133>(values,17u));
+  // A separately accumulated signed-core dot exercises the staged input API;
+  // its expected result still comes from original BF16 products and wide sum.
+  int64_t staged_product=0;
+  for(unsigned i=0;i<16u;++i)staged_product+=int64_t(signed_core(a.original[i],a.unit))*signed_core(b.original[i],b.unit);
+  qrt_sm121_group16::AlignedSum staged{{123u,true},777};unsigned staged_pairs=99;
+  const bool staged_valid=sum_integer_product(values[0],a,b,staged_product,&staged,&staged_pairs);
   qrt_sm121_group16::AlignedSum actual{{123u,true},777};unsigned pairs=99;
   if(sum(values[0],a,b,parts,&actual,&pairs)){
+   assert(staged_valid&&staged_pairs==pairs);
+   const auto staged_value=canonical(staged);
+   assert(staged_value.significand==expected.significand&&staged_value.exponent==expected.exponent&&staged_value.negative==expected.negative);
    ++accepted;const auto result=canonical(actual);
    if(result.significand!=expected.significand||result.exponent!=expected.exponent||result.negative!=expected.negative){
     std::fprintf(stderr,"group=%u units=%d,%d exceptions=%x,%x pairs=%u shift=%d actual=%u,%d,%u expected=%u,%d,%u\n",group,a.unit,b.unit,a.exceptions,b.exceptions,pairs,actual.max_exponent-(a.unit+b.unit-254)-11,result.significand,result.exponent,result.negative,expected.significand,expected.exponent,expected.negative);
@@ -92,6 +101,7 @@ int main(){
    }
   }else{
    ++declined;assert(a.unit<0||b.unit<0);
+   assert(!staged_valid&&staged.value.magnitude==123u&&staged.value.negative&&staged.max_exponent==777&&staged_pairs==99u);
    assert(actual.value.magnitude==123u&&actual.value.negative&&actual.max_exponent==777&&pairs==99u);
   }
   assert(!std::memcmp(before_a,a.original,sizeof(before_a))&&!std::memcmp(before_b,b.original,sizeof(before_b)));

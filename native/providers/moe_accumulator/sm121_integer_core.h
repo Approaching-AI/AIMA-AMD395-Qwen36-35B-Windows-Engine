@@ -115,12 +115,14 @@ QRT_CORE_INLINE int signed_core(uint16_t value, int unit) {
     return encoded & 0x8000u ? int(encoded) - 65536 : int(encoded);
 }
 
-QRT_CORE_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry,
-    const Row& left, const Row& right, const int32_t (&partials)[4],
+// The integer product can be staged before the sequential carry chain. This
+// is exactly the weighted sum of the four IU8 partials, not a rounded float.
+QRT_CORE_INLINE bool sum_integer_product(qrt_q1_moe_hawkeye::Value carry,
+    const Row& left, const Row& right, int64_t mathematical,
     qrt_sm121_group16::AlignedSum* output, unsigned* replayed_pairs = nullptr) {
     if (left.unit < 0 || right.unit < 0) return false;
     const uint32_t exceptions = (left.exceptions | right.exceptions) & left.nonzero & right.nonzero;
-    if (!exceptions && qrt_sm121_integer_parts::sum_exact_range(carry, partials,
+    if (!exceptions && qrt_sm121_integer_parts::sum_exact_integer_product(carry, mathematical,
             left.unit, left.maximum, right.unit, right.maximum, output,
             left.trailing, right.trailing)) {
         if (replayed_pairs) *replayed_pairs = 0u;
@@ -130,8 +132,6 @@ QRT_CORE_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry,
     if (left.maximum + right.maximum - 254 > maximum)
         maximum = paired_maximum(left, right, maximum);
     const int shift = maximum - (left.unit + right.unit - 254) - 11;
-    const int64_t mathematical = int64_t(partials[0]) * 65536 +
-        (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
     // A nonzero encoded product has at most thirty bits. If it survives,
     // its original exponent also bounds any required left shift by25.
     if (shift < -25 && mathematical) return false;
@@ -174,6 +174,14 @@ QRT_CORE_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry,
     *output = {{uint32_t(total < 0 ? -total : total), total < 0}, maximum};
     if (replayed_pairs) *replayed_pairs = replays;
     return true;
+}
+
+QRT_CORE_INLINE bool sum(qrt_q1_moe_hawkeye::Value carry,
+    const Row& left, const Row& right, const int32_t (&partials)[4],
+    qrt_sm121_group16::AlignedSum* output, unsigned* replayed_pairs = nullptr) {
+    const int64_t mathematical = int64_t(partials[0]) * 65536 +
+        (int64_t(partials[1]) + partials[2]) * 256 + partials[3];
+    return sum_integer_product(carry, left, right, mathematical, output, replayed_pairs);
 }
 
 }  // namespace qrt_sm121_integer_core

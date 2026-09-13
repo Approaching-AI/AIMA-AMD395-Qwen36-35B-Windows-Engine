@@ -1138,8 +1138,8 @@ using MantissaF32x8 = float __attribute__((ext_vector_type(8)));
 struct MantissaMatrixParts { MantissaF32x8 value[4]; };
 
 // gfx1151 wave32 output: column=lane%16, row=2*element+lane/16.
-// The two lane halves replicate each sixteen-element input row. Four exact
-// partial matrix products share those operands across the 16x16 output tile.
+// The two lane halves replicate each sixteen-element input row. These four
+// floating partials are diagnostic: gfx1151 probes contain exactness failures.
 __device__ __forceinline__ MantissaMatrixParts blackwell_mantissa_products(
     const uint16_t (&left)[16][18], const uint16_t (&right)[16][18], unsigned int lane) {
     MantissaBf16x16 lh{}, ll{}, rh{}, rl{};
@@ -1338,6 +1338,83 @@ __device__ __forceinline__ float blackwell_integer_accumulate(
 }
 
 struct NativeOperandRow { uint16_t original[18]; };
+
+// All waves first produce independent K16 integer products. Each lane then
+// consumes its cell's original ordered carry chain. Staging eight or sixteen
+// groups reduces producer/consumer barriers from three per group to one or
+// three per complete K256 dot; no floating product or rounding is substituted.
+// This is a component experiment with no product dispatcher call site.
+template<unsigned GroupsPerStage>
+__global__ void blackwell_staged_integer_scores_kernel(
+    const qrt_sm121_integer_core::Row* prepared_query,
+    const qrt_sm121_integer_core::Row* prepared_key, float* scores,
+    unsigned query_start, unsigned query_count, unsigned score_stride,
+    unsigned key_stride) {
+    static_assert(GroupsPerStage == 8u || GroupsPerStage == 16u);
+    __shared__ int64_t products[GroupsPerStage][256];
+    const unsigned thread = threadIdx.x, lane = thread % 32u, wave = thread / 32u;
+    const unsigned head = blockIdx.y, kv_head = head / (kQueryHeads / kKvHeads);
+    const unsigned query_tile = blockIdx.z * 16u, key_tile = blockIdx.x * 16u;
+    const unsigned row = query_tile + thread / 16u, key = key_tile + thread % 16u;
+    const unsigned last_query = query_start + min(query_tile + 16u, query_count) - 1u;
+    const bool live = row < query_count && key < score_stride && key <= query_start + row;
+    float accumulator = 0.0f;
+    if (key_tile <= last_query) {
+        for (unsigned first_group = 0u; first_group < 16u; first_group += GroupsPerStage) {
+            for (unsigned local_group = wave; local_group < GroupsPerStage; local_group += 8u) {
+                const unsigned group = first_group + local_group;
+                const unsigned input_row = query_tile + lane % 16u;
+                const unsigned input_key = key_tile + lane % 16u;
+                MantissaI32x4 lh{}, ll{}, rh{}, rl{};
+#pragma unroll
+                for (unsigned word = 0u; word < 4u; ++word) {
+                    if (input_row < query_count) {
+                        const auto& a = prepared_query[(size_t(input_row) * kQueryHeads + head) * 16u + group];
+                        lh[word] = a.high[word]; ll[word] = a.low[word];
+                    }
+                    if (input_key < score_stride) {
+                        const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + input_key];
+                        rh[word] = b.high[word]; rl[word] = b.low[word];
+                    }
+                }
+                const MantissaI32x8 zero{};
+                const auto hh = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true, lh, true, rh, zero, false);
+                const auto hl = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(true, lh, false, rl, zero, false);
+                const auto lh_product = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false, ll, true, rh, zero, false);
+                const auto low = __builtin_amdgcn_wmma_i32_16x16x16_iu8_w32(false, ll, false, rl, zero, false);
+#pragma unroll
+                for (unsigned element = 0u; element < 8u; ++element) {
+                    const unsigned cell = (2u * element + lane / 16u) * 16u + lane % 16u;
+                    products[local_group][cell] = int64_t(hh[element]) * 65536 +
+                        (int64_t(hl[element]) + lh_product[element]) * 256 + low[element];
+                }
+            }
+            __syncthreads();
+            if (live) {
+                for (unsigned local_group = 0u; local_group < GroupsPerStage; ++local_group) {
+                    const unsigned group = first_group + local_group;
+                    const auto& a = prepared_query[(size_t(row) * kQueryHeads + head) * 16u + group];
+                    const auto& b = prepared_key[(size_t(kv_head) * 16u + group) * key_stride + key];
+                    const auto carry = qrt_q1_moe_hawkeye::value_from_float(accumulator, kBlackwellZeroExponent);
+                    qrt_sm121_group16::AlignedSum sum;
+                    if (!qrt_sm121_integer_core::sum_integer_product(carry, a, b, products[local_group][thread], &sum)) {
+                        uint32_t original[16];
+#pragma unroll
+                        for (unsigned i = 0u; i < 16u; ++i)
+                            original[i] = qrt_sm121_group16::pack_product(qrt_q1_moe_hawkeye::multiply_bf16(
+                                a.original[i], b.original[i], kBlackwellZeroExponent));
+                        sum = qrt_sm121_group16::sum_packed(carry, original);
+                    }
+                    accumulator = qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(
+                        qrt_sm121_wave16::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent)));
+                }
+            }
+            if (first_group + GroupsPerStage < 16u) __syncthreads();
+        }
+    }
+    if (row < query_count && key < score_stride)
+        scores[(size_t(row) * kQueryHeads + head) * score_stride + key] = live ? accumulator * kExactScale : -INFINITY;
+}
 
 // One wave produces four exact IU8 matrix partials, then all eight waves
 // process one output cell per lane. The original schedule assigns eight
