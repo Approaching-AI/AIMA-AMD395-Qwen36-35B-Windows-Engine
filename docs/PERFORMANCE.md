@@ -33,6 +33,25 @@ verify their fallback transaction and complete owner-state restoration.
 | same 9a7eaf4 source, lossless compact exp2 table | cold 8192, ordinary path | 49519.006 | 101.043432 | 20072.6491 |
 | whole 8cc97d6, prepared operands disabled | cold 8192, ordinary path | 49840.7445 | 101.842764 | 20028.7697 |
 | same binary, prepared operands enabled | cold 8192, ordinary path | 48202.0546 | 102.12639 | 20006.0793 |
+| whole 1a7f621, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48111.7024 | 101.159201 | 20065.8768 |
+
+The bounded absolute-product experiment has not passed its product request.
+Source1a7f621 uses WMMA to compute tighter per-cell admission metadata while
+retaining midpoint radii, PPB and exact arithmetic. Twelve native windows
+cover110430 cells with no underestimate against independent double sums;
+62930951 integration outputs and all58728448 original QKV BF16 cells pass.
+On the QKV capture, candidates fall3792033→2908868, but bound generation costs
+96.820ms and completed correction wall rises to158.23ms.
+
+On baiying, the actualq8192 candidate stops in layer3 before any token or
+callback: a9216-row QKV bound window completes in228.204ms, beyond the100ms
+dispatch limit. The process returns5 and releases its allocation pool.
+There is no candidate TTFT or product correctness result. The same-DLL
+bound-disabled control passes all512 GB10 outputs and callbacks with exact
+first144/logit10.375 at48111.7024ms. Only the bound flag differs. Keep the
+bound disabled in the selected stack and test the existing resident hipBLASLt
+backend for generating this metadata. Evidence:
+`benchmarks/correctness/absolute-product-admission-20260913.json`.
 
 Dense projection replay now optionally prepares a lossless16-bit operand view
 once per correction call. A row containing an excluded BF16 value uses its

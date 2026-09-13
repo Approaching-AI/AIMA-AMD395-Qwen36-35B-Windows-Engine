@@ -205,6 +205,23 @@ including mixed fallback rows and guarded outputs. Follow component checks
 with the original QKV reference and complete GB10 product request before
 retaining a performance result.
 
+`QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND=1` enables experimental per-cell
+absolute-product metadata on the prepared route when both L2 bounds are
+available and the caller has not supplied absolute sums. Excluded BF16 rows
+receive infinite bounds; midpoint radii and PPB do not change. Its WMMA
+implementation has passed native and original QKV checks but exceeded a
+q8192 dispatch deadline before producing any token. Leave it disabled for
+the selected product stack.
+
+The follow-up `QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT=1` option uses
+the existing resident matrix dependency with immutable BF16 magnitude views.
+It is active only with the bound option. A flat window owns up to64MiB plus
+two partial token columns, and a separate bounded allocation holds magnitude
+operands. The native `--absolute-product-hipblaslt` mode checks independent
+double sums, magnitude views and guards; `--absolute-bound-correction` checks
+the actual launcher with either backend. This follow-up remains under
+validation and is not a product-qualified configuration.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and
