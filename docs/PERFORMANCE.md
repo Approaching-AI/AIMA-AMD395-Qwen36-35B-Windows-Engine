@@ -2,6 +2,39 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
+q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
+match all 512 original GB10 output tokens and actual callbacks, first 144
+and exact raw logit 10.375. Callback TTFT is 41738.0364 / 40707.8780 ms,
+a 1030.1584 ms reduction in this single pair. Enabled TPOT is 101.156079 ms
+and model plus engine load is 21207.7142 ms. Use
+`QRT_FLA_GDN_SCALAR_FLOAT_MATRICES=1` in subsequent candidates; source
+default remains 0 pending broader qualification. Tiled KKT 2, whole/MoE
+`9f00db5` registered metadata 1 and both prevalidated float options 1,
+CK `6c0c54c` scalar QK 1 and CLI `a797b62` remain common. Command file:
+`run-native-fla-scalar-matrices-product-r1.ps1 -ScalarMatrices 0|1`.
+
+The new kernels reuse lossless packed BF16 rows and eligibility in shared
+memory, assigning one thread to each result. They preserve ordered K16
+carry, original fallback, BF16 boundaries and output FMA order. A WU CTA
+captures all V rows in its eight columns before writing U, retaining U=V
+ownership. q64, q65 and original GB10 q7169 comparisons preserve every
+output and final-state bit, with synchronous/asynchronous parity. Full
+`make check` passes 363 Python tests with 2 skipped, 47 Rust tests, C smoke,
+clippy and public hygiene. The enabled product records 240 WU and 240 output
+scalar-matrix launches. Its legacy `cooperative_lanes=4` field describes
+the outer selected route; separate scalar-matrix markers identify the
+actual WU/output dispatch.
+
+Completed existing event diagnostics show WU 827.83775 / 445.71661 ms and
+output 1778.16570 / 1131.34616 ms across 240 segments. Enabled persistent
+state remains 1967.73891 ms and is the next broader GDN target. These scopes
+are inside the linear-core wall and do not replace callback TTFT. q8192
+remains above 10 seconds and the immutable 4187.415605 ms target; no new
+long-context, checkpoint, package, HTTP, soak or release acceptance follows.
+Evidence: `benchmarks/correctness/fla-scalar-matrices-product-20260913.json`,
+SHA256 `9cff463f8495e0da995516f12f0812b3101a65a5233eaa08a48cf65377b508b7`.
+
 Tiled scalar KKT at FLA source `62d5fd4` passes complete same-DLL q8192
 OFF/ON controls on baiying, `D:\models\Qwen3.6-35B-A3B`. All 512 original
 GB10 output tokens and actual callbacks match, with first 144 and exact raw
