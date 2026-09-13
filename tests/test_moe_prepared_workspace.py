@@ -52,6 +52,9 @@ template<class T> bool allocate(T** p,size_t bytes,const char*) {
 }
 int hipFree(void* p) { assert(p);++free_calls;return 0; }
 bool release_full_v3_execution_state() { return drain_ok; }
+// The separate registration test owns immutable weight cache transitions.
+bool release_moe_weight_metadata() { return true; }
+int copy_registered_moe_weight_metadata(const uint16_t*,MoeL2,unsigned,unsigned,hipStream_t) { return 0; }
 void set_error_text(const char*) {}
 void set_error(const char*,hipError_t) {}
 constexpr int moe_bf16_row_l2_kernel=0,moe_bf16_scaled_row_l2_kernel=1;

@@ -38396,9 +38396,11 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             rows,selected_token_count,reduction_size,kSelectedHawkeyeReplayLanes,status==hipSuccess ? 1u : 0u);
         std::fflush(stderr);
     }
-    if (prepared_storage) {
+    if (prepared_operands) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_prepared_operands rows=%u tokens=%u k=%u workspace_bytes=%zu prepared_row_fallback=1 completed=%u k16_major=%u\n",
             rows,selected_token_count,reduction_size,prepared_bytes,status==hipSuccess ? 1u : 0u,prepared_k16_major ? 1u : 0u);
+    }
+    if (prepared_storage) {
         // A failed second preparation submission can leave the first pending.
         // Drain before releasing either operand view on every error path.
         if (status != hipSuccess) (void)hipStreamSynchronize(stream);
@@ -75803,6 +75805,59 @@ std::vector<WholeRepeatedLayerFixedWeightEntry>
     g_whole_repeated_layer_fixed_weights;
 std::vector<WholeRepeatedRoutedMatrixWeightEntry>
     g_whole_repeated_routed_matrix_weights;
+
+bool prewarm_registered_moe_weight_metadata(uint64_t* scratch_bytes, std::string* failure_stage, std::string* failure) {
+    const char* option = std::getenv("QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA");
+    if (!option || !*option || !std::strcmp(option,"0")) return true;
+    if (std::strcmp(option,"1")) {
+        *failure_stage = "moe_weight_metadata_option";
+        *failure = "QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA must be 0 or 1";
+        return false;
+    }
+#ifndef _WIN32
+    (void)scratch_bytes;
+    *failure_stage = "moe_weight_metadata_platform";
+    *failure = "registered selected-MoE metadata requires Windows";
+    return false;
+#else
+    auto& state = triton_selected_moe_provider_state();
+    std::lock_guard<std::mutex> lock(state.mutex);
+    using Register = int (__cdecl *)(const uint16_t* const*, const uint16_t* const*, uint32_t);
+    const auto prepare = state.module ? reinterpret_cast<Register>(
+        GetProcAddress(state.module,"qrt_triton_moe_q8192_register_weight_metadata")) : nullptr;
+    std::array<const uint16_t*,40u> gate{}, down{};
+    for (const auto& entry : g_whole_repeated_routed_matrix_weights) {
+        if (entry.layer_index >= gate.size() || gate[entry.layer_index] ||
+            entry.gate_up_bytes != UINT64_C(1073741824) || entry.down_bytes != UINT64_C(536870912)) {
+            *failure_stage = "moe_weight_metadata_shape";
+            *failure = "registered metadata requires all 40 immutable BF16 routed weight pairs";
+            return false;
+        }
+        gate[entry.layer_index] = entry.device_gate_up;
+        down[entry.layer_index] = entry.device_down;
+    }
+    if (!prepare || prepare(gate.data(),down.data(),uint32_t(gate.size())) != 1) {
+        *failure_stage = "moe_weight_metadata_prepare";
+        *failure = !prepare ? "selected-MoE provider lacks the metadata registration export" : state.last_error();
+        return false;
+    }
+    *scratch_bytes = state.scratch_bytes();
+    return true;
+#endif
+}
+
+void invalidate_registered_moe_weight_metadata() {
+#ifdef _WIN32
+    auto& state = triton_selected_moe_provider_state();
+    std::lock_guard<std::mutex> lock(state.mutex);
+    using Register = int (__cdecl *)(const uint16_t* const*, const uint16_t* const*, uint32_t);
+    const auto invalidate = state.module ? reinterpret_cast<Register>(
+        GetProcAddress(state.module,"qrt_triton_moe_q8192_register_weight_metadata")) : nullptr;
+    // Unregistration removes every source identity but defers metadata frees
+    // until the provider drains its readers. Raw weight addresses may be reused.
+    if (invalidate) (void)invalidate(nullptr,nullptr,0u);
+#endif
+}
 // MTP is introduced after the target prebound plan has taken pointers into
 // the global weight vectors.  Keep its borrowed aliases in thread-local
 // sidecars so adding the one model-native layer cannot reallocate those
@@ -77368,6 +77423,7 @@ void release_whole_repeated_layer_fixed_weights() {
 }
 
 void release_whole_repeated_routed_matrix_weights() {
+    invalidate_registered_moe_weight_metadata();
 #ifdef QRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER
     release_q1_moe_avx512bf16_host_provider();
 #endif
@@ -83708,6 +83764,10 @@ bool preload_whole_repeated_layer_fixed_weights(
                 failure_stage,
                 failure
             )) {
+            release_whole_repeated_layer_fixed_weights();
+            return false;
+        }
+        if (!prewarm_registered_moe_weight_metadata(&scratch_bytes, failure_stage, failure)) {
             release_whole_repeated_layer_fixed_weights();
             return false;
         }

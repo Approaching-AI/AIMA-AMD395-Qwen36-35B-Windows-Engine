@@ -8,6 +8,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -1704,6 +1705,13 @@ constexpr size_t kMoeL2Rows[] = {
     kTokens, kExperts, kTokens, kIntermediate, kIntermediate, kTokens,
     kHidden, kExperts * 2u * kIntermediate, kRoutes, kExperts * kHidden
 };
+struct MoeWeightMetadata {
+    const uint16_t* source = nullptr;
+    float* storage = nullptr;
+    uint32_t rows = 0u, columns = 0u;
+    MoeL2 surface = MoeL2::Count;
+};
+constexpr size_t kMoeWeightMetadataEntries = 80u; // Two routed matrices in each of 40 layers.
 struct MoeCorrectionBounds {
     const float *input_l2;
     const float *weight_l2;
@@ -1858,6 +1866,8 @@ struct ProviderState {
     uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
     uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
+    std::array<MoeWeightMetadata, kMoeWeightMetadataEntries> weight_metadata{};
+    bool weight_metadata_ready = false;
     uint32_t routed_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_projection_hawkeye_midpoint_radius = 0u;
     uint32_t routed_up_hawkeye_low_exponent_threshold = 0u;
@@ -11925,10 +11935,26 @@ bool release_full_v3_execution_state() {
     return true;
 }
 
+// Call only after all previous metadata readers have completed. Invalidation
+// alone never frees storage, so model-weight teardown cannot race a queued copy.
+bool release_moe_weight_metadata() {
+    g_state.weight_metadata_ready = false;
+    for (auto& entry : g_state.weight_metadata) {
+        entry.source = nullptr;
+        if (entry.storage) {
+            const hipError_t status = hipFree(entry.storage);
+            if (status != hipSuccess) { set_error("release MoE weight metadata", status); return false; }
+        }
+        entry = {};
+    }
+    return true;
+}
+
 bool release_state() {
     if (!release_full_v3_execution_state()) {
         return false;
     }
+    if (!release_moe_weight_metadata()) return false;
     if (g_state.prepared_replay_weights) (void)hipFree(g_state.prepared_replay_weights);
     if (g_state.prepared_replay_inputs) (void)hipFree(g_state.prepared_replay_inputs);
     if (g_state.prepared_replay_weight_rows) (void)hipFree(g_state.prepared_replay_weight_rows);
@@ -12255,14 +12281,45 @@ bool allocate_optional_moe_l2() {
     return true;
 }
 
+// Only explicitly registered, immutable model weights qualify. Activation
+// addresses and dimensions never create a cache entry. Copy into the original
+// per-call scratch so every existing correction consumer retains its ownership.
+int copy_registered_moe_weight_metadata(const uint16_t* values, MoeL2 surface,
+    uint32_t rows, uint32_t columns, hipStream_t stream) {
+    if (!g_state.weight_metadata_ready || g_state.scaled_l2 || g_state.prepared_replay_active ||
+        (surface != MoeL2::RoutedGateUp && surface != MoeL2::RoutedDown)) return 0;
+    for (const auto& entry : g_state.weight_metadata) {
+        if (entry.source != values || entry.surface != surface || entry.rows != rows || entry.columns != columns)
+            continue;
+        float* output = g_state.moe_l2[static_cast<size_t>(surface)];
+        if (!entry.storage || !output || (g_state.prevalidated_float_active &&
+            (!g_state.prepared_replay_weight_rows || rows > kMoePreparedWeightRows))) {
+            set_error_text("invalid registered MoE metadata view"); return -1;
+        }
+        hipError_t status = hipMemcpyAsync(output, entry.storage, size_t(rows) * sizeof(float),
+            hipMemcpyDeviceToDevice, stream);
+        if (status == hipSuccess && g_state.prevalidated_float_active)
+            status = hipMemcpyAsync(g_state.prepared_replay_weight_rows, entry.storage + rows,
+                size_t(rows) * sizeof(uint32_t), hipMemcpyDeviceToDevice, stream);
+        if (status != hipSuccess) { set_error("copy registered MoE weight metadata", status); return -1; }
+        std::fprintf(stderr,"BATCH_MARK moe_registered_weight_metadata_hit surface=%u rows=%u columns=%u norm_bytes=%zu flag_bytes=%zu original_norm_bits=1\n",
+            unsigned(surface),rows,columns,size_t(rows)*sizeof(float),
+            g_state.prevalidated_float_active ? size_t(rows)*sizeof(uint32_t) : 0u);
+        return 1;
+    }
+    return 0;
+}
+
 bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
                    uint32_t rows, uint32_t columns, hipStream_t stream) {
     if (g_state.sm121_moe_absolute_error_ppb == 0u) return true;
     const size_t slot = static_cast<size_t>(surface);
-    if (values == nullptr || rows > kMoeL2Rows[slot]) {
+    if (values == nullptr || slot >= static_cast<size_t>(MoeL2::Count) || rows > kMoeL2Rows[slot]) {
         set_error_text("invalid live MoE L2 surface");
         return false;
     }
+    const int cached = copy_registered_moe_weight_metadata(values, surface, rows, columns, stream);
+    if (cached) return cached > 0;
     const bool prepare_rows = g_state.prepared_replay_active || g_state.prevalidated_float_active;
     const bool prepare_input = prepare_rows &&
         (surface == MoeL2::Input || surface == MoeL2::RoutedActivated);
@@ -17068,6 +17125,80 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     return 1;
 }
 
+// Registration belongs to model loading, before requests can use these raw
+// pointers. The owner must unregister with count=0 before replacing or freeing
+// any registered weight. A new registration drains old readers and replaces
+// the complete table; allocation/scan failure never publishes a partial table.
+QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_register_weight_metadata(
+    const uint16_t* const* gate_up, const uint16_t* const* down, uint32_t count) {
+    FullV3InFlightGuard lifecycle_guard(true);
+    if (!count) {
+        if (gate_up || down) { set_error_text("invalid MoE metadata unregister request"); return 0; }
+        unsigned registered = 0u;
+        if (g_state.weight_metadata_ready)
+            for (const auto& entry : g_state.weight_metadata) registered += entry.source != nullptr;
+        g_state.weight_metadata_ready = false;
+        for (auto& entry : g_state.weight_metadata) entry.source = nullptr;
+        if (registered)
+            std::fprintf(stderr,"BATCH_MARK moe_registered_weight_metadata_invalidate entries=%u source_identities_cleared=1 frees_deferred_until_drain=1\n",registered);
+        return 1;
+    }
+    if (count > kMoeWeightMetadataEntries / 2u || !gate_up || !down || !g_state.prepared ||
+        g_state.full_v3_poisoned || kTokens != 8192u || !g_state.sm121_moe_absolute_error_ppb ||
+        g_state.scaled_l2 || g_state.prepared_replay) {
+        set_error_text("MoE metadata registration requires original q8192 norms and immutable routed weights"); return 0;
+    }
+    for (uint32_t i = 0u; i < count; ++i) {
+        if (!gate_up[i] || !down[i] || gate_up[i] == down[i]) {
+            set_error_text("incomplete MoE metadata weight pair"); return 0;
+        }
+        for (uint32_t j = 0u; j < i; ++j)
+            if (gate_up[i] == gate_up[j] || gate_up[i] == down[j] || down[i] == down[j] || down[i] == gate_up[j]) {
+                set_error_text("duplicate MoE metadata weight identity"); return 0;
+            }
+    }
+    g_state.weight_metadata_ready = false;
+    hipError_t status = hipDeviceSynchronize();
+    if (status != hipSuccess) {
+        g_state.full_v3_poisoned = true; set_error("drain MoE metadata readers", status); return 0;
+    }
+    if (!release_moe_weight_metadata()) return 0;
+    const auto start = std::chrono::steady_clock::now();
+    size_t bytes = 0u;
+    for (uint32_t i = 0u; i < count * 2u; ++i) {
+        auto& entry = g_state.weight_metadata[i];
+        entry.source = i % 2u ? down[i / 2u] : gate_up[i / 2u];
+        entry.surface = i % 2u ? MoeL2::RoutedDown : MoeL2::RoutedGateUp;
+        entry.rows = i % 2u ? kExperts * kHidden : kExperts * 2u * kIntermediate;
+        entry.columns = i % 2u ? kIntermediate : kHidden;
+        const size_t entry_bytes = size_t(entry.rows) * (sizeof(float) + sizeof(uint32_t));
+        if (!allocate(&entry.storage, entry_bytes, "allocate registered MoE metadata")) return 0;
+        bytes += entry_bytes;
+        auto* flags = reinterpret_cast<uint32_t*>(entry.storage + entry.rows);
+        for (uint32_t first = 0u; first < entry.rows; first += 4096u) {
+            const uint32_t batch = (std::min)(4096u, entry.rows - first);
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),
+                dim3(batch),dim3(kNativeThreads),0,nullptr,entry.source,entry.storage,nullptr,
+                flags,entry.rows,entry.columns,first);
+            status = hipGetLastError();
+            if (status != hipSuccess) {
+                g_state.full_v3_poisoned = true; set_error("scan registered MoE metadata", status); return 0;
+            }
+        }
+        status = hipStreamSynchronize(nullptr);
+        if (status != hipSuccess) {
+            g_state.full_v3_poisoned = true; set_error("complete registered MoE metadata", status); return 0;
+        }
+        if (std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count() > 20.0) {
+            set_error_text("MoE metadata preparation exceeded 20 seconds"); return 0;
+        }
+    }
+    g_state.weight_metadata_ready = true;
+    std::fprintf(stderr,"BATCH_MARK moe_registered_weight_metadata_prepare layers=%u entries=%u workspace_bytes=%zu elapsed_ms=%.6f original_norm_bits=1 flags_only=1 completed=1\n",
+        count,count*2u,bytes,std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count());
+    return 1;
+}
+
 QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_launch(
     const float *post_attention_f32,
     const uint16_t *gate_up_bf16,
@@ -18023,6 +18154,8 @@ QRT_TRITON_MOE_EXPORT uint64_t qrt_triton_moe_q8192_scratch_bytes() {
     if (g_state.cuda_router_ex2_fraction_lut != nullptr) {
         bytes += kCudaRouterEx2FractionBytes;
     }
+    for (const auto& entry : g_state.weight_metadata)
+        if (entry.storage) bytes += size_t(entry.rows) * (sizeof(float) + sizeof(uint32_t));
     return bytes;
 }
 

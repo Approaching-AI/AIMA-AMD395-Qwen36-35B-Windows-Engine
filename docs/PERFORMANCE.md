@@ -2,6 +2,27 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The current source's synchronized q8192 profile still matches all 512 GB10
+tokens/callbacks and exact first logit. Completed host walls are 6607.706 ms
+for all 30 linear input projections, 10841.934 ms for their linear cores
+including output projection, 10502.727 ms for all 40 MoE calls, and
+14292.800 ms for the full attention pipeline. These scopes are nested and
+must not be summed. Some GPU subintervals remain negative, so their sums do
+not establish a reliable additive breakdown. Instrumented callback TTFT
+45053.0266 ms does not replace the uninstrumented 43324.5935 ms result.
+Evidence: `benchmarks/correctness/prevalidated-float-wall-profile-20260913.json`,
+SHA256 `46cc00d8851eaf96bcb872cf6521d969db239c3566877a9d594df75767350b15`.
+
+The next default-off route, `QRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA`,
+registers immutable routed weight norms and eligibility during model loading.
+It uses the same FP64 scan, stores 240 MiB for 40 layer pairs, and copies the
+matching metadata into the original request scratch. Explicit model-lifetime
+invalidation clears every source identity before raw weights are released;
+new registration drains old readers and publishes only a complete table.
+Partial failures retain ownership for drained cleanup. This route is not yet
+qualified on Windows or accepted as performance. Complete same-DLL q8192
+controls must verify GB10 outputs/callbacks, TTFT and the 30-second load limit.
+
 Row-prevalidated cooperative float replay at whole/MoE source `d2f283f`
 passes complete same-DLL q8192 controls. Baseline / both enabled / dense only
 match all 512 original GB10 output tokens and actual callbacks, with first
