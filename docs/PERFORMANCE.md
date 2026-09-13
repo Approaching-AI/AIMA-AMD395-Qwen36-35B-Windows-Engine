@@ -2,6 +2,18 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+The QK numerical decomposition at sourcee373d47 keeps the product unchanged.
+On originalq7169 layer3 Q/K/V, canonical attention matches all29364224 GB10
+BF16 cells. Native QK changes45648 outputs. Exact prefix maxima and maximum
+anchors reduce this to24345; isolated probability and denominator changes
+affect22722 and1853 outputs respectively. All six variants are finite and
+all whole-allocation guards and immutable inputs pass. Exact QK constructs
+the diagnostic hybrids; these counts do not demonstrate avoided score work
+or product performance. The two earlier invalid-domain diagnostic attempts
+remain attached as failures. Next evaluate selective score repair and a
+separate denominator/output fallback. Evidence:
+`benchmarks/correctness/qk-probability-decomposition-20260913.json`.
+
 The subsequent native HIP wait diagnostic finds no millisecond fixed completion
 penalty in its one-stream component workload. Source548385b observes flags1 in
 the untouched process; default, explicit Spin and explicit Auto have shortest
