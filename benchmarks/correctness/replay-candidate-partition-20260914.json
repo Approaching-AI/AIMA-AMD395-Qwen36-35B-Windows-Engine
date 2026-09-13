@@ -1,0 +1,2852 @@
+{
+  "schema_version": 1,
+  "kind": "exact_replay_candidate_partition_components",
+  "host": "baiying",
+  "source_commit": "156badd88221cdb30ea899bb454264b68b342683",
+  "model": "D:\\models\\Qwen3.6-35B-A3B; original QKV captures only",
+  "source_delivery": {
+    "source_commit": "156badd88221cdb30ea899bb454264b68b342683",
+    "prerequisite_commit": "8b0462e6970a451e78832e8b9f7fc19f9e86260b",
+    "bundle": "replay-partition-156badd.bundle",
+    "bundle_sha256": "5724fc41035666309aa030c2b8caef557f29f1edf1bbf887e205d05ba5139e3d",
+    "script": "run-native-replay-partition-r1.ps1",
+    "script_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+    "repo": "D:/projects/AIMA-public-replay-partition-20260914",
+    "local_validation": {
+      "command": [
+        "make",
+        "check",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 113.50886333361268,
+      "log_sha256": "4505250c6cbf75373a1aedfb8d8e25bb597a887b6e8b4dcf052b89fd9c954dd9"
+    },
+    "files": {
+      "native/providers/moe_accumulator/sm121_replay_partition.h": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+      "tests/native/replay_partition_selftest.cpp": "21e09ae8f4d18a73b663eceb249ce63d0591a91d510aee508be28dc7b2e90e07",
+      "tests/native/projection_partition_replay_suite.h": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+      "tests/native/projection_safety_selftest.cpp": "9fc78e0c309b6db003c9c3b9655d8847ff551ea7670bf41f3620e45d04765fac",
+      "tests/native/projection_real_replay.h": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e"
+    },
+    "original_runtime_files_unchanged": {
+      "native/providers/whole_provider.cpp": "ec9cf8981d6d72a9960c48bdd00ad116783b874e2e0c9eb38d2a0f93c9cbc2fc",
+      "native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp": "d3fe09f4fb238e2e6fc7282638d25c3f194848fc3052e97eca47d75e33ad7345",
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "bc942508f6392c8451011f0345e10dc003b0153fd2d62dd7d53b6a45d4ecc1af",
+      "native/providers/moe_accumulator/sm121_canonical_normalize.h": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "native/providers/moe_accumulator/sm121_scalar_projection.h": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+      "native/providers/moe_accumulator/sm121_float_subgroup.h": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6"
+    },
+    "prepared_only": true,
+    "product_dispatch_changed": false,
+    "scope": "Component-only exact GPU partition of selected cell identities by existing arithmetic class. Compare all original GB10 QKV BF16 cells and unrounded FP32 values by cell identity. No product dispatcher or dot arithmetic changed."
+  },
+  "command": {
+    "file": "run-native-replay-partition-r1.ps1",
+    "sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+    "text": "param([ValidateSet('partition','real')][string]$Kind='partition',[ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$previous='D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\moe-prevalidated-ownership-l4-q8192-out512-r1\\run-record.json'\nif(-not (Test-Path $previous)){throw 'The preceding q8192 product record is not yet complete'}\n$previousRecord=[IO.File]::ReadAllText($previous)|ConvertFrom-Json\nif(-not $previousRecord.host_checks_pass){throw 'Inspect preceding host cleanup before dispatch'}\n$repo='D:\\projects\\AIMA-public-replay-partition-20260914';$seed='D:\\projects\\AIMA-public-range-projection-20260914'\n$sha='156badd88221cdb30ea899bb454264b68b342683';$bundle='D:\\projects\\replay-partition-156badd.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '5724fc41035666309aa030c2b8caef557f29f1edf1bbf887e205d05ba5139e3d'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo ('build\\'+$Kind);$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\replay_partition_selftest.cpp'\nif($Kind -eq 'real'){$source=Join-Path $repo 'tests\\native\\projection_safety_selftest.cpp'}\n$exe=Join-Path $build $(if($Kind -eq 'real'){'qrt-projection-safety.exe'}else{'replay-partition-'+$Kind+'.exe'})\n$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@();$sourceFiles=@($source,(Join-Path $repo 'native\\providers\\sm121_attention_capacity.h'))\nforeach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn','native\\providers\\ck_fmha','tests\\native')){\n $sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName})\n}\nif($Kind -eq 'real'){$sourceFiles+=@((Join-Path $repo 'native\\providers\\whole_provider.cpp'),(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'))}\nforeach($file in $sourceFiles){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; independent original K16 projection controls';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Partition the original selected cell identities by existing floating versus integer arithmetic eligibility. Test exact permutation, class ordering and redzones, then all original QKV BF16 cells and unrounded FP32 values by cell identity. Compare original/range arithmetic with and without GPU partition including its timing overhead. No product dispatch, selector or dot arithmetic is changed.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Kind -eq 'real'){\n $env:QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER='1';$env:QRT_QWEN36_HAWKEYE_DEVICE_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS='1';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR='0';$env:QRT_QWEN36_HAWKEYE_FLOAT_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT='1';$env:QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES='0';$env:QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH='4096';$env:QRT_PROJECTION_SAFETY_RANGE_REPLAY='0';$env:QRT_PROJECTION_SAFETY_PARTITION_REPLAY='1'\n}\nif($Action -eq 'build'){\n if($Kind -eq 'real'){\n  $spec.executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n  $spec.arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'),'-OutDir',$build,'-DppReduction','1','-CompactNormalize','1','-HawkeyeReplayLanes','4','-CompileTimeoutSeconds','180','-ProjectionSafetyTest');$timeout=210\n }else{\n  $link=Join-Path $build 'hipblaslt.lib';Copy-Item 'C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a' $link\n  $spec.link_inputs=@(@{file=$link;sha256=(Get-FileHash $link -Algorithm SHA256).Hash.ToLowerInvariant()})\n  $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n  $spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','-DQRT_CK_SM121_INTERPOLATED_EXP2=1','--offload-arch=gfx1151','-L',$build,$source,'-o',$exe,'-lhipblaslt');$timeout=120\n }\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n $expectedExe=if($Kind -eq 'real'){@($meta.artifacts|Where-Object {$_.name -eq 'qrt-projection-safety.exe'})[0].sha256}else{$meta.executable.sha256}\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $expectedExe){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$spec.executable=$exe;$spec.arguments=@();$timeout=120\n if($Kind -eq 'real'){\n  $inputTensor='D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin';$weightTensor='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin';$referenceTensor='D:\\projects\\sm121-qkv-reference-9510d980.bin'\n  $tensors=@(@{path=$inputTensor;sha256='6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161'},@{path=$weightTensor;sha256='b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f'},@{path=$referenceTensor;sha256='9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37'})\n  foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Original QKV tensor changed'}}\n  $spec.arguments=@('--real-qkv',$inputTensor,$weightTensor,$referenceTensor,'1000');$spec.tensor_inputs=$tensors\n  $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV';$spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83';$spec.gb10_reference_host='aitopatom-66c4';$spec.gb10_capture_sha256='5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b';$spec.prompt_sha256='26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804';$spec.reference_is_compute_input=$false;$spec.selector_error_bound_ppb=1000\n }\n}\n$out=Join-Path $repo ('build\\replay-partition-'+$Kind+'-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(1200,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native component action failed'}\nif($Action -eq 'build'){\n if($Kind -ne 'real'){\n  $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;link_inputs=$spec.link_inputs;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n  [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n }\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($Kind -eq 'real'){$reports=@($reports|Where-Object {$_.type -eq 'partition_projection_real_replay'})}\n $count=if($Kind -eq 'partition'){24}else{4}\n if($reports.Count -ne $count){throw 'Incomplete component cases'}\n foreach($report in $reports){\n  if(-not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Memory failure'}\n  if($Kind -eq 'partition' -and ($report.kind -ne 'exact_replay_partition' -or $report.permutation_mismatches -ne 0 -or $report.class_mismatches -ne 0)){throw 'Permutation or class failure'}\n  if($Kind -eq 'real' -and ($report.raw_bit_mismatches -ne 0 -or $report.unrounded_candidate_bit_mismatches -ne 0 -or $report.bf16_mismatches -ne 0 -or $report.elements -ne 58728448 -or $report.candidates -ne 3791742 -or -not $report.same_candidate_identities)){throw 'Original QKV mismatch'}\n }\n}\n"
+  },
+  "native_runs": {
+    "replay-partition-partition-build-r1": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+            "--offload-arch=gfx1151",
+            "-L",
+            "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition",
+            "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\replay_partition_selftest.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\replay-partition-partition.exe",
+            "-lhipblaslt"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-replay-partition-20260914",
+          "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+          "command_file": "D:\\projects\\run-native-replay-partition-r1.ps1",
+          "command_file_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+          "source_inputs": [
+            {
+              "sha256": "21e09ae8f4d18a73b663eceb249ce63d0591a91d510aee508be28dc7b2e90e07",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\replay_partition_selftest.cpp"
+            },
+            {
+              "sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\sm121_attention_capacity.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "278c146d8109d8e0510008aee5cdf6c48db458211eb1454d2c0f58caff482680",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\scaled_l2_reference.h"
+            }
+          ],
+          "model": "none; independent original K16 projection controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "purpose": "Partition the original selected cell identities by existing floating versus integer arithmetic eligibility. Test exact permutation, class ordering and redzones, then all original QKV BF16 cells and unrounded FP32 values by cell identity. Compare original/range arithmetic with and without GPU partition including its timing overhead. No product dispatch, selector or dot arithmetic is changed.",
+          "link_inputs": [
+            {
+              "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\hipblaslt.lib"
+            }
+          ]
+        },
+        "command_file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_guarded_inference.ps1",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1565.631,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "summary": null
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "2bf9e105d64330040f1564dd5aa7dc5ed4e51061fb449d1ea5892f2b4feee491",
+        "build-provenance.json": "cf9a433c24f82d73c72cf226e36dea2904854663b08c770d9d874db5326c6a56",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "run-record.json": "c30c382ee3588da7c98ad860a8b22f66c40b45975bfd295e5a845692b5172208"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+        "source_inputs": [
+          {
+            "sha256": "21e09ae8f4d18a73b663eceb249ce63d0591a91d510aee508be28dc7b2e90e07",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\replay_partition_selftest.cpp"
+          },
+          {
+            "sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\sm121_attention_capacity.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+          },
+          {
+            "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_state.h"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\fla_checkpoint.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_silu_table.h"
+          },
+          {
+            "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\attention_deadline.h"
+          },
+          {
+            "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+          },
+          {
+            "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+          },
+          {
+            "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_pv_replay.h"
+          },
+          {
+            "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+          },
+          {
+            "sha256": "278c146d8109d8e0510008aee5cdf6c48db458211eb1454d2c0f58caff482680",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+          },
+          {
+            "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\selective_qk.h"
+          },
+          {
+            "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+          },
+          {
+            "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_admission_audit_selftest.h"
+          },
+          {
+            "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_bound_suite.h"
+          },
+          {
+            "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+          },
+          {
+            "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\convolution_real_replay.h"
+          },
+          {
+            "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\f32_carry_cases.h"
+          },
+          {
+            "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\final_norm_real_replay.h"
+          },
+          {
+            "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\float_alignment_cases.h"
+          },
+          {
+            "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\hawkeye_device_replay_selftest.h"
+          },
+          {
+            "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_bounded_replay_suite.h"
+          },
+          {
+            "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_f32_carry_replay_suite.h"
+          },
+          {
+            "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_partition_replay_suite.h"
+          },
+          {
+            "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_range_replay_suite.h"
+          },
+          {
+            "sha256": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_real_replay.h"
+          },
+          {
+            "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_row_max_replay_suite.h"
+          },
+          {
+            "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scalar_replay_suite.h"
+          },
+          {
+            "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scaled_replay_suite.h"
+          },
+          {
+            "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_tiled_replay_suite.h"
+          },
+          {
+            "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\range_projection_cases.h"
+          },
+          {
+            "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\scaled_l2_reference.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-replay-partition-r1.ps1",
+        "command_file_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "-L",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\replay_partition_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\replay-partition-partition.exe",
+          "-lhipblaslt"
+        ],
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\hipblaslt.lib"
+          }
+        ],
+        "run_record_sha256": "c30c382ee3588da7c98ad860a8b22f66c40b45975bfd295e5a845692b5172208",
+        "executable": {
+          "sha256": "9a919b715c42dc050f12e8a286012cbf2a1b3c370ea25ce49fce801c63f63a27",
+          "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\replay-partition-partition.exe",
+          "bytes": 189952
+        }
+      }
+    },
+    "replay-partition-partition-test-r1": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\partition\\replay-partition-partition.exe",
+          "arguments": [],
+          "working_directory": "D:\\projects\\AIMA-public-replay-partition-20260914",
+          "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+          "command_file": "D:\\projects\\run-native-replay-partition-r1.ps1",
+          "command_file_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+          "source_inputs": [
+            {
+              "sha256": "21e09ae8f4d18a73b663eceb249ce63d0591a91d510aee508be28dc7b2e90e07",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\replay_partition_selftest.cpp"
+            },
+            {
+              "sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\sm121_attention_capacity.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "278c146d8109d8e0510008aee5cdf6c48db458211eb1454d2c0f58caff482680",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\scaled_l2_reference.h"
+            }
+          ],
+          "model": "none; independent original K16 projection controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "purpose": "Partition the original selected cell identities by existing floating versus integer arithmetic eligibility. Test exact permutation, class ordering and redzones, then all original QKV BF16 cells and unrounded FP32 values by cell identity. Compare original/range arithmetic with and without GPU partition including its timing overhead. No product dispatch, selector or dot arithmetic is changed.",
+          "build_provenance_sha256": "cf9a433c24f82d73c72cf226e36dea2904854663b08c770d9d874db5326c6a56"
+        },
+        "command_file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_guarded_inference.ps1",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 376.365,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "summary": null
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "30195d2d0be6eb8415307a944f248662da30010476406eaaf5c83d51168a56b1",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "0c21aa58f385432ccf3ff3e82eac1eb302cc43cc01ecd8acb3309bbe5934c37d",
+        "product.stdout.jsonl": "002f819a2d8e75610ad2b5b5567f89c2faa1813172df9c0674ffa2adbb2a0830",
+        "run-record.json": "6ac7f318700e252a943640eff09423a7aa566f28fe5a39fddc80750b6b5c6c6a"
+      },
+      "reports": [
+        {
+          "kind": "exact_replay_partition",
+          "count": 0,
+          "mode": 0,
+          "floating": 0,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 0,
+          "mode": 1,
+          "floating": 0,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 0,
+          "mode": 2,
+          "floating": 0,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 1,
+          "mode": 0,
+          "floating": 0,
+          "integer": 1,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 1,
+          "mode": 1,
+          "floating": 1,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 1,
+          "mode": 2,
+          "floating": 0,
+          "integer": 1,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 17,
+          "mode": 0,
+          "floating": 0,
+          "integer": 17,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 17,
+          "mode": 1,
+          "floating": 17,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 17,
+          "mode": 2,
+          "floating": 0,
+          "integer": 17,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 255,
+          "mode": 0,
+          "floating": 0,
+          "integer": 255,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 255,
+          "mode": 1,
+          "floating": 255,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 255,
+          "mode": 2,
+          "floating": 155,
+          "integer": 100,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 256,
+          "mode": 0,
+          "floating": 0,
+          "integer": 256,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 256,
+          "mode": 1,
+          "floating": 256,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 256,
+          "mode": 2,
+          "floating": 155,
+          "integer": 101,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 257,
+          "mode": 0,
+          "floating": 0,
+          "integer": 257,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 257,
+          "mode": 1,
+          "floating": 257,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 257,
+          "mode": 2,
+          "floating": 155,
+          "integer": 102,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 4099,
+          "mode": 0,
+          "floating": 0,
+          "integer": 4099,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 4099,
+          "mode": 1,
+          "floating": 4099,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 4099,
+          "mode": 2,
+          "floating": 2728,
+          "integer": 1371,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 65539,
+          "mode": 0,
+          "floating": 0,
+          "integer": 65539,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 65539,
+          "mode": 1,
+          "floating": 65539,
+          "integer": 0,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "exact_replay_partition",
+          "count": 65539,
+          "mode": 2,
+          "floating": 43927,
+          "integer": 21612,
+          "permutation_mismatches": 0,
+          "class_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "replay-partition-real-build-r1": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_build_whole_provider.ps1",
+            "-OutDir",
+            "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real",
+            "-DppReduction",
+            "1",
+            "-CompactNormalize",
+            "1",
+            "-HawkeyeReplayLanes",
+            "4",
+            "-CompileTimeoutSeconds",
+            "180",
+            "-ProjectionSafetyTest"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-replay-partition-20260914",
+          "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+          "command_file": "D:\\projects\\run-native-replay-partition-r1.ps1",
+          "command_file_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+          "source_inputs": [
+            {
+              "sha256": "9fc78e0c309b6db003c9c3b9655d8847ff551ea7670bf41f3620e45d04765fac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_safety_selftest.cpp"
+            },
+            {
+              "sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\sm121_attention_capacity.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "278c146d8109d8e0510008aee5cdf6c48db458211eb1454d2c0f58caff482680",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\scaled_l2_reference.h"
+            },
+            {
+              "sha256": "ec9cf8981d6d72a9960c48bdd00ad116783b874e2e0c9eb38d2a0f93c9cbc2fc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\whole_provider.cpp"
+            },
+            {
+              "sha256": "ac69f4019a5c7c2eeff6689253e8dce5306251ed1bcce956abeb2ee0365c16c4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_build_whole_provider.ps1"
+            }
+          ],
+          "model": "none; independent original K16 projection controls",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "purpose": "Partition the original selected cell identities by existing floating versus integer arithmetic eligibility. Test exact permutation, class ordering and redzones, then all original QKV BF16 cells and unrounded FP32 values by cell identity. Compare original/range arithmetic with and without GPU partition including its timing overhead. No product dispatch, selector or dot arithmetic is changed."
+        },
+        "command_file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_guarded_inference.ps1",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 95934.621,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "summary": null
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "a98cb2308268ae15c376f217a2ac09965941472da2ac87fbd9f9be607cef38fb",
+        "build-provenance.json": "b4afb542eae1788d0beb2fb0d269812ccbb58eed4e027088f717903e89d636d8",
+        "product.stdout.jsonl": "b948cea60ad605b6fb806c23f0fd523c068751dc5f0b44eba49a21130d506d53",
+        "run-record.json": "61fa57d74c0d1798679c9262da99b2796a76412a1a99c83c8c7f9c5566425c6e"
+      },
+      "build_provenance": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 180,
+        "source_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "ec9cf8981d6d72a9960c48bdd00ad116783b874e2e0c9eb38d2a0f93c9cbc2fc",
+        "projection_safety_test": true,
+        "hawkeye_device_replay_test_header_sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+        "attention_admission_replay": false,
+        "compile_source_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_safety_selftest.cpp",
+        "compile_source_sha256": "9fc78e0c309b6db003c9c3b9655d8847ff551ea7670bf41f3620e45d04765fac",
+        "hawkeye_dispatch_policy_sha256": "76c090e233e5709f914942237df3d7bbabe8c6b53de645c5602c88e99cc85132",
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "qrt_header_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\src\\qrt.h",
+        "qrt_header_sha256": "820b9e58c9517ba42eddd2604e10bb76e891de401a93b557436a97fbdeb762bb",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+        "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+        "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+        "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1452.9392
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 94025.6852
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\src",
+          "-I",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_safety_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real\\qrt-projection-safety.exe",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt-projection-safety.exe",
+            "bytes": 13788672,
+            "sha256": "1aebddafaab467a71b07e5d77ab17ab164b87f3e98d1078c1dbb1a78a26332ab"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "857da45dac9cd8f8c743770cf309b65612364819582c0dba05fcc48b5a24154f"
+          }
+        ]
+      }
+    },
+    "replay-partition-real-test-r1": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-replay-partition-20260914\\build\\real\\qrt-projection-safety.exe",
+          "arguments": [
+            "--real-qkv",
+            "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+            "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+            "D:\\projects\\sm121-qkv-reference-9510d980.bin",
+            "1000"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-replay-partition-20260914",
+          "repo_commit": "156badd88221cdb30ea899bb454264b68b342683",
+          "command_file": "D:\\projects\\run-native-replay-partition-r1.ps1",
+          "command_file_sha256": "6c5bb8e00bc27cf222da04b272d3041e3e21831c6fe46b07f1ef7d3983625c3e",
+          "source_inputs": [
+            {
+              "sha256": "9fc78e0c309b6db003c9c3b9655d8847ff551ea7670bf41f3620e45d04765fac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_safety_selftest.cpp"
+            },
+            {
+              "sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\sm121_attention_capacity.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "cf495247360fe9e5b1c3333b0437271dd4ebe316dbe4c122bd54c457fd41908d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "94ecf37be6be31e8faffabe7566cf70b72518f4b95800774b0f9a2feafa7c944",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "278c146d8109d8e0510008aee5cdf6c48db458211eb1454d2c0f58caff482680",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "dab827bab1ea963048b502ff0a05337db3504563aa75565581ac7dfdccb5205e",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\tests\\native\\scaled_l2_reference.h"
+            },
+            {
+              "sha256": "ec9cf8981d6d72a9960c48bdd00ad116783b874e2e0c9eb38d2a0f93c9cbc2fc",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\native\\providers\\whole_provider.cpp"
+            },
+            {
+              "sha256": "ac69f4019a5c7c2eeff6689253e8dce5306251ed1bcce956abeb2ee0365c16c4",
+              "file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_build_whole_provider.ps1"
+            }
+          ],
+          "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "product_dispatch_changed": false,
+          "purpose": "Partition the original selected cell identities by existing floating versus integer arithmetic eligibility. Test exact permutation, class ordering and redzones, then all original QKV BF16 cells and unrounded FP32 values by cell identity. Compare original/range arithmetic with and without GPU partition including its timing overhead. No product dispatch, selector or dot arithmetic is changed.",
+          "build_provenance_sha256": "b4afb542eae1788d0beb2fb0d269812ccbb58eed4e027088f717903e89d636d8",
+          "tensor_inputs": [
+            {
+              "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+              "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+            },
+            {
+              "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+              "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+            },
+            {
+              "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+              "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+            }
+          ],
+          "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "gb10_reference_host": "aitopatom-66c4",
+          "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+          "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+          "reference_is_compute_input": false,
+          "selector_error_bound_ppb": 1000
+        },
+        "command_file": "D:\\projects\\AIMA-public-replay-partition-20260914\\scripts\\baiying_guarded_inference.ps1",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2053.631,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "summary": {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-qkv",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_qkv_projection"
+        }
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "d3fbb205949715a8a6323a871cacef765051f07fa86598b715f956fe6161d83d",
+        "product.stderr.log": "0c358c3b09186d4580b8f44b35ae3536585da839db68c59a0b6419ac0780e4b0",
+        "dispatch.json": "409d37a726664f50c28dacec64fd2be446a448b9b04c03afee382bd6e1e5125f",
+        "product.stdout.jsonl": "8f7117c91f00f15d86a1e62b698af4cee2c38231b34d789460926bd69281ab38",
+        "run-record.json": "47062f7c4cd5811dcaa735b974d7157f46e73f820b68d963602599654ae2386d"
+      },
+      "reports": [
+        {
+          "type": "real_qkv_selector",
+          "elements": 58728448,
+          "initial_bf16_mismatches": 363182,
+          "midpoint_misses": 334661,
+          "bound_misses": 0,
+          "required_ppb_observed": 116,
+          "configured_ppb": 1000,
+          "prospective_candidates": 3791742,
+          "maximum_blocks": 4096,
+          "inference_acceptance": false
+        },
+        {
+          "type": "partition_projection_real_replay",
+          "variant": 0,
+          "rows": 8192,
+          "tokens": 7169,
+          "k": 2048,
+          "elements": 58728448,
+          "candidates": 3791742,
+          "eligible_weights": 8080,
+          "eligible_inputs": 7169,
+          "certified_weights": 8080,
+          "certified_inputs": 7169,
+          "certified_candidates": 3028041,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "gpu_partitioned": false,
+          "range_normalization": false,
+          "floating_candidates": 3028041,
+          "integer_candidates": 763701,
+          "partition_in_timed_sequence": false,
+          "raw_values_compared_by_cell": true,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 50.8645,
+          "warmup_sequences": 1,
+          "timed_sequences": 1,
+          "same_candidate_identities": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "partition_projection_real_replay",
+          "variant": 1,
+          "rows": 8192,
+          "tokens": 7169,
+          "k": 2048,
+          "elements": 58728448,
+          "candidates": 3791742,
+          "eligible_weights": 8080,
+          "eligible_inputs": 7169,
+          "certified_weights": 8080,
+          "certified_inputs": 7169,
+          "certified_candidates": 3028041,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "gpu_partitioned": true,
+          "range_normalization": false,
+          "floating_candidates": 3028041,
+          "integer_candidates": 763701,
+          "partition_in_timed_sequence": true,
+          "raw_values_compared_by_cell": true,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 43.2025,
+          "warmup_sequences": 1,
+          "timed_sequences": 1,
+          "same_candidate_identities": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "partition_projection_real_replay",
+          "variant": 2,
+          "rows": 8192,
+          "tokens": 7169,
+          "k": 2048,
+          "elements": 58728448,
+          "candidates": 3791742,
+          "eligible_weights": 8080,
+          "eligible_inputs": 7169,
+          "certified_weights": 8080,
+          "certified_inputs": 7169,
+          "certified_candidates": 3028041,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "gpu_partitioned": true,
+          "range_normalization": true,
+          "floating_candidates": 3028041,
+          "integer_candidates": 763701,
+          "partition_in_timed_sequence": true,
+          "raw_values_compared_by_cell": true,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 39.7011,
+          "warmup_sequences": 1,
+          "timed_sequences": 1,
+          "same_candidate_identities": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "partition_projection_real_replay",
+          "variant": 3,
+          "rows": 8192,
+          "tokens": 7169,
+          "k": 2048,
+          "elements": 58728448,
+          "candidates": 3791742,
+          "eligible_weights": 8080,
+          "eligible_inputs": 7169,
+          "certified_weights": 8080,
+          "certified_inputs": 7169,
+          "certified_candidates": 3028041,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "gpu_partitioned": false,
+          "range_normalization": true,
+          "floating_candidates": 3028041,
+          "integer_candidates": 763701,
+          "partition_in_timed_sequence": false,
+          "raw_values_compared_by_cell": true,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 48.3263,
+          "warmup_sequences": 1,
+          "timed_sequences": 1,
+          "same_candidate_identities": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-qkv",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_qkv_projection"
+        }
+      ]
+    }
+  },
+  "implementation": [
+    "GPU partition preserves the original unique selected cell identities. Floating eligible cells reserve from the front and integer fallback cells from the back of the same count-sized output using two globally aggregated counts. No selector or dot arithmetic is changed.",
+    "Variant0 uses original four-lane/one-group replay and original cell order; variant1 uses the same math with GPU partition; variant2 uses the previously certified range arithmetic with partition; variant3 uses range arithmetic with original ordering. Each uses one warmup and one timed completed sequence including common range metadata, raw accumulator writes and, when active, zeroed partition counters and GPU partition. Allocation, uploads, CPU candidate selection and CPU verification are outside that component timing.",
+    "All 24 generated partition cases cover empty, single, partial/full CTA and multiple CTA lengths through65539 with all-integer,all-floating and mixed flags. Native tests require exact permutation, contiguous class order, exact counts, immutable inputs and redzones.",
+    "The real replay compares all58728448 original GB10 BF16 cells and3791742 unrounded FP32 candidate values. Partitioned raw values are sorted by original cell identity for comparison, proving both candidate preservation and exact values. Original PPB1000 remains unchanged and reference tensors are comparison-only."
+  ],
+  "conclusions": [
+    "All local checks pass:375 Python tests with2 skips,47 Rust tests,C smoke,clippy and public hygiene. Native builds and all24 permutation cases pass with guards and source inputs intact.",
+    "All four real QKV variants preserve the external58728448 BF16 cells and3791742 raw FP32 candidate values. Partition counts are3028041 floating and763701 integer. Every identity and class position is checked.",
+    "Original/unmodified arithmetic takes50.8645ms interleaved and43.2025ms partitioned, a7.6620ms single-component reduction including GPU partition. Range arithmetic takes48.3263ms interleaved and39.7011ms partitioned. This supports a product experiment but is not an accepted product or repeatability result.",
+    "Next integrate candidate grouping into dense and MoE product collectors/replay with original arithmetic and original PPB1000 bounds, then require all512 original q8192 GB10 outputs and actual callbacks. Range normalization remains outside product dispatch during that comparison."
+  ],
+  "limitations": [
+    "No new q8192 token loop,model load,product timing,prefix,package,HTTP,soak or release acceptance follows. Current qualified q8192 remains four-lane MoE at38091.7431ms callback TTFT."
+  ],
+  "component_numerical_pass": true,
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

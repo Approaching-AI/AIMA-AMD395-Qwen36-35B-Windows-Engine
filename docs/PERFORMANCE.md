@@ -23,6 +23,23 @@ soak and release remain open. Command:
 Evidence: `benchmarks/correctness/moe-prevalidated-ownership-product-20260914.json`,
 SHA256 `c478df7f4139e5fe855c12bed7b61bd77627aa65818ca3d1aef93cb7cbc557f1`.
 
+Exact candidate partition at public source `156badd` passes all 24 native
+permutation cases and all original QKV checks: 58728448 GB10 BF16 cells,
+3791742 unrounded FP32 values, candidate identities, class order and memory
+guards. Counts are 3028041 floating and 763701 integer. Full local checks pass.
+With unchanged four-lane arithmetic, completed preparation plus replay is
+50.8645 / 43.2025 ms for original / grouped ordering. The range-arithmetic
+variants take 48.3263 / 39.7011 ms. GPU partition and raw capture writes are
+included; these are single component observations.
+
+Proceed with dense and MoE product grouping using original arithmetic and
+unchanged admission bounds, followed by original q8192/out512 GB10 validation.
+Range normalization stays outside product dispatch during that comparison.
+No new product performance or release acceptance follows. Command:
+`run-native-replay-partition-r1.ps1 -Kind partition|real -Action build|test`.
+Evidence: `benchmarks/correctness/replay-candidate-partition-20260914.json`,
+SHA256 `d550d9627c3426916e4fa44a8c97f70742f97ebbf811686c3b793248495be65e`.
+
 Range-certified projection at `8b0462e` preserves all 28 native dot controls,
 all 58728448 original GB10 QKV BF16 cells and 3791742 unrounded candidate
 values. The finite-range proof also passes 28835840 independent host
