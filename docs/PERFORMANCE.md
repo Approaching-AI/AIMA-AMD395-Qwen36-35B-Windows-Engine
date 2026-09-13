@@ -1,6 +1,6 @@
 # Real-model performance
 
-## Current unreleased measurements, 2026-09-13
+## Current unreleased measurements, 2026-09-14
 
 Scalar float GDN state at FLA source `2ee6215` passes same-DLL q8192
 OFF/8-column controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
@@ -92,6 +92,26 @@ fallback control flow. Command file:
 `run-native-bounded-projection-whole-r1.ps1 -Action reference-test`.
 Evidence: `benchmarks/correctness/float-row-bounds-projection-20260913.json`,
 SHA256 `7b65cbe49c208b2c1361058357bd5b59784c0c87cb06ed17ea6b9c5c401c8591`.
+
+
+The exponent-aligned scalar component at source `d13d36a` supports all
+normal BF16 source exponents while preserving original K16 arithmetic. It
+passes 2228224 exhaustive aligned-term combinations, 2097152 CPU carry
+steps, and 30 native cases with 1354098 complete carry comparisons. Both
+component variants preserve all 58728448 GB10 QKV cells, all raw output
+bits and all 3791742 candidate identities. The new route uses scalar
+arithmetic for every one of the 485342976 replayed groups, including the
+original tiny weights, with the same 61444-byte row-flag workspace.
+
+Completed preparation plus replay is 49.3512 / 46.9501 ms for original/new
+in one observation. The 2.4011 ms component gain does not establish a
+seconds-scale product improvement, so this helper remains outside the
+product dispatcher. Full checks pass 369 Python tests with 2 skipped,
+47 Rust tests, C smoke, clippy and public hygiene. Continue broader
+full-model replay experiments with the original GB10 token/logit boundary.
+Command file: `run-native-scaled-projection-whole-r1.ps1 -Action reference-test`.
+Evidence: `benchmarks/correctness/scaled-significand-projection-20260914.json`,
+SHA256 `ecc9711752b25a52ee4353be7d34549dd68d69219215230f228cfe1a337363a8`.
 
 The earlier scalar float GDN WU/output matrices at FLA source `186da01` pass same-DLL
 q8192 OFF/ON controls on baiying with `D:\models\Qwen3.6-35B-A3B`. Both
