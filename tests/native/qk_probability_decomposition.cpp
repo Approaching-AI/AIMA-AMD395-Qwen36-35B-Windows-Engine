@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <array>
 #include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -21,11 +22,11 @@ enum Metric : unsigned {
     ProbabilityCells, NativeProbabilityDifferent, CenteredProbabilityDifferent,
     AlphaCells, NativeAlphaDifferent, CenteredAlphaDifferent,
     DenominatorRows, NativeDenominatorDifferent, CenteredDenominatorDifferent,
-    NativeDenominatorMaximumRelative, CenteredDenominatorMaximumRelative,
+    NativeDenominatorMaximumRelative, CenteredDenominatorMaximumRelative, CenteredScoreClamps,
     BaseOutput = 16u, VariantFields = 3u, VariantCount = 6u,
     MetricCount = BaseOutput + VariantFields * VariantCount
 };
-const char* names[VariantCount] = {"canonical", "native_qk", "centered_native_qk",
+const char* names[VariantCount] = {"canonical", "native_qk", "centered_capped_native_qk",
     "centered_probability_only", "centered_denominator_only", "native_alpha_only"};
 void require(bool ok, const char* why) { if (!ok) throw std::runtime_error(why); }
 void check(hipError_t status) { if (status != hipSuccess) throw std::runtime_error(hipGetErrorString(status)); }
@@ -106,19 +107,26 @@ __global__ void inspect_scores(const float* original, const float* native,
 }
 __global__ void centered_probability(const float* exact_scores, const float* native_scores,
     uint16_t* probabilities, float* scales, unsigned start, unsigned stride,
-    const unsigned char* exp2_table) {
+    const unsigned char* exp2_table, unsigned* stats) {
     const unsigned lane = threadIdx.x, row = blockIdx.y * kQueryHeads + blockIdx.x;
     const unsigned live_tokens = start + blockIdx.y + 1u;
     const unsigned tile_stride = (stride + 31u) / 32u;
     float running_max = -INFINITY, running_sum = 1.0f;
+    unsigned clamps = 0u;
     for (unsigned tile = 0u; tile < (live_tokens + 31u) / 32u; ++tile) {
         const unsigned key = tile * 32u + lane;
         const float exact = key < live_tokens ? exact_scores[size_t(row) * stride + key] : -INFINITY;
         float maximum = fmaxf(running_max, exact);
         for (unsigned mask = 16u; mask; mask >>= 1u) maximum = fmaxf(maximum, __shfl_xor(maximum, mask, 32u));
         const float alpha = blackwell_attention_exp(running_max - maximum, exp2_table);
+        // The actual canonical score cannot exceed this exact prefix maximum.
+        // Project a native overestimate onto that valid score range before
+        // evaluating the nonpositive exp2 table. This is part of the diagnostic
+        // hybrid, not a new exp2 approximation or a runtime arithmetic change.
+        const float raw = key < live_tokens ? native_scores[size_t(row) * stride + key] : -INFINITY;
+        clamps += unsigned(key < live_tokens && raw > maximum);
         const float probability = key < live_tokens
-            ? blackwell_attention_exp(native_scores[size_t(row) * stride + key] - maximum, exp2_table) : 0.0f;
+            ? blackwell_attention_exp(fminf(raw, maximum) - maximum, exp2_table) : 0.0f;
         if (key < stride) probabilities[size_t(row) * stride + key] = f32_to_bf16(probability);
         float sum = probability;
         constexpr unsigned order[] = {1u, 4u, 2u, 16u, 8u};
@@ -128,6 +136,7 @@ __global__ void centered_probability(const float* exact_scores, const float* nat
         if (lane == 0u) scales[size_t(row) * (tile_stride + 1u) + tile] = alpha;
     }
     if (lane == 0u) scales[size_t(row) * (tile_stride + 1u) + tile_stride] = running_sum;
+    count_metric(stats, CenteredScoreClamps, clamps);
 }
 __global__ void inspect_probabilities(const uint16_t* exact, const uint16_t* native,
     const uint16_t* centered, unsigned start, unsigned queries, unsigned stride, unsigned* stats) {
@@ -239,7 +248,7 @@ int main(int argc, char** argv) try {
             ns.data(), np.data(), nz.data(), start, stride, de.data(), true);
         check(hipGetLastError());
         hipLaunchKernelGGL(centered_probability, dim3(kQueryHeads, count), dim3(32u), 0u, nullptr,
-            es.data(), ns.data(), cp.data(), cz.data(), start, stride, de.data());
+            es.data(), ns.data(), cp.data(), cz.data(), start, stride, de.data(), stats.data());
         check(hipGetLastError()); finish();
         hipLaunchKernelGGL(inspect_probabilities, dim3(128u), dim3(256u), 0u, nullptr,
             ep.data(), np.data(), cp.data(), start, count, stride, stats.data()); check(hipGetLastError());
@@ -268,18 +277,25 @@ int main(int argc, char** argv) try {
             const auto partial = stats.download();
             require(partial[BaseOutput] == 0u && partial[BaseOutput + 1u] == 0u, "canonical output failed external GB10 boundary");
             require(partial[CenteredAlphaDifferent] == 0u, "centered diagnostic changed canonical alpha");
+            for (unsigned variant = 0u; variant < VariantCount; ++variant)
+                require(partial[BaseOutput + variant * VariantFields + 1u] == 0u, "diagnostic produced nonfinite output");
             std::fprintf(stderr, "QK_DECOMPOSITION_PROGRESS completed_queries=%u total_queries=%u\n", start + count, tokens);
             std::fflush(stderr);
         }
     }
     const auto result = stats.download(), heads = affected.download();
     require(result[BaseOutput] == 0u && result[BaseOutput + 1u] == 0u && result[ScoreNonfinite] == 0u && result[CenteredAlphaDifferent] == 0u, "baseline or recentering failed");
+    require(std::isfinite(as_float(result[NativeDenominatorMaximumRelative])) &&
+        std::isfinite(as_float(result[CenteredDenominatorMaximumRelative])), "nonfinite denominator metric");
+    for (unsigned variant = 0u; variant < VariantCount; ++variant)
+        require(result[BaseOutput + variant * VariantFields + 1u] == 0u &&
+            std::isfinite(as_float(result[BaseOutput + variant * VariantFields + 2u])), "nonfinite output or metric");
     for (auto* b : {&es, &ns, &ez, &nz, &cz, &work, &canonical, &accumulator, &candidate}) b->guards();
     for (auto* b : {&ep, &np, &cp, &dt}) b->guards(); stats.guards(); affected.guards();
     dq.immutable(q); dk.immutable(k); dv.immutable(v); dr.immutable(reference); de.immutable(exp2); drecip.immutable(reciprocal);
-    std::printf("{\"kind\":\"qk_probability_decomposition\",\"tokens\":7169,\"query_batch\":32,\"score_cells\":%u,\"score_bit_differences\":%u,\"score_maximum_absolute_error\":%.9g,\"probability_cells\":%u,\"native_probability_bf16_differences\":%u,\"centered_probability_bf16_differences\":%u,\"alpha_cells\":%u,\"native_alpha_bit_differences\":%u,\"centered_alpha_bit_differences\":%u,\"denominator_rows\":%u,\"native_denominator_bit_differences\":%u,\"centered_denominator_bit_differences\":%u,\"native_denominator_maximum_relative_error\":%.9g,\"centered_denominator_maximum_relative_error\":%.9g,\"redzones_pass\":true,\"immutable_inputs\":true,\"external_reference_is_compute_input\":false,\"exact_qk_constructs_diagnostic_hybrids\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
+    std::printf("{\"kind\":\"qk_probability_decomposition\",\"tokens\":7169,\"query_batch\":32,\"score_cells\":%u,\"score_bit_differences\":%u,\"score_maximum_absolute_error\":%.9g,\"probability_cells\":%u,\"native_probability_bf16_differences\":%u,\"centered_probability_bf16_differences\":%u,\"centered_native_scores_capped\":%u,\"alpha_cells\":%u,\"native_alpha_bit_differences\":%u,\"centered_alpha_bit_differences\":%u,\"denominator_rows\":%u,\"native_denominator_bit_differences\":%u,\"centered_denominator_bit_differences\":%u,\"native_denominator_maximum_relative_error\":%.9g,\"centered_denominator_maximum_relative_error\":%.9g,\"redzones_pass\":true,\"immutable_inputs\":true,\"external_reference_is_compute_input\":false,\"exact_qk_constructs_diagnostic_hybrids\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
         result[ScoreCells], result[ScoreDifferent], as_float(result[ScoreMaximumError]), result[ProbabilityCells],
-        result[NativeProbabilityDifferent], result[CenteredProbabilityDifferent], result[AlphaCells], result[NativeAlphaDifferent],
+        result[NativeProbabilityDifferent], result[CenteredProbabilityDifferent], result[CenteredScoreClamps], result[AlphaCells], result[NativeAlphaDifferent],
         result[CenteredAlphaDifferent], result[DenominatorRows], result[NativeDenominatorDifferent], result[CenteredDenominatorDifferent],
         as_float(result[NativeDenominatorMaximumRelative]), as_float(result[CenteredDenominatorMaximumRelative]));
     for (unsigned variant = 0u; variant < VariantCount; ++variant) {
