@@ -31,13 +31,33 @@ namespace old = qrt_sm121_pv_bound;
 constexpr unsigned max_groups = 512u;
 constexpr uint32_t cap_bits = 0x71800000u; // 2^100
 
+// Keep individual FP32 rounding without the private-memory traffic generated
+// by volatile local metadata on gfx1151. The inference accumulator is untouched.
+QRT_PV_FINAL_INLINE float add(float a, float b) {
+#if defined(__HIP_DEVICE_COMPILE__) && defined(__AMDGCN__)
+    float result;
+    asm("v_add_f32 %0, %1, %2" : "=v"(result) : "v"(a), "v"(b));
+    return result;
+#else
+    volatile float result = a + b; return result;
+#endif
+}
+QRT_PV_FINAL_INLINE float multiply(float a, float b) {
+#if defined(__HIP_DEVICE_COMPILE__) && defined(__AMDGCN__)
+    float result;
+    asm("v_mul_f32 %0, %1, %2" : "=v"(result) : "v"(a), "v"(b));
+    return result;
+#else
+    volatile float result = a * b; return result;
+#endif
+}
+
 QRT_PV_FINAL_INLINE float cap(float x) {
     return old::bits(x) < cap_bits ? x : old::infinity();
 }
 
 QRT_PV_FINAL_INLINE float group(float state, float carry, float absolute_dot) {
-    volatile float partial = state + old::absolute(carry);
-    volatile float sum = partial + absolute_dot;
+    const float sum = add(add(state, old::absolute(carry)), absolute_dot);
     if ((old::bits(state) | old::bits(absolute_dot)) & 0x80000000u)
         return old::infinity();
     return cap(sum);
@@ -49,10 +69,10 @@ QRT_PV_FINAL_INLINE float rescale(float state, float carry, float alpha) {
         old::bits(alpha) > 0x3f800000u) return old::infinity();
     if (alpha == 0.0f) return 0.0f;
     if (alpha == 1.0f) return state;
-    volatile float scaled_state = state * alpha;
-    volatile float scaled_carry = old::absolute(carry) * alpha;
-    volatile float rounding = scaled_carry * 0.125f;
-    volatile float sum = scaled_state + rounding;
+    const float scaled_state = multiply(state, alpha);
+    const float scaled_carry = multiply(old::absolute(carry), alpha);
+    const float rounding = multiply(scaled_carry, 0.125f);
+    const float sum = add(scaled_state, rounding);
     return cap(sum);
 }
 
@@ -60,8 +80,8 @@ QRT_PV_FINAL_INLINE float finalize(float state, unsigned groups) {
     if (!groups || groups > max_groups || (groups & 1u) || old::bits(state) >= cap_bits)
         return old::infinity();
     const float inflation = 1.0f + float(groups) * 0x1p-15f;
-    volatile float scaled = state * 0x1p-19f;
-    volatile float inflated = scaled * inflation;
+    const float scaled = multiply(state, 0x1p-19f);
+    const float inflated = multiply(scaled, inflation);
     return old::upper(old::upper(inflated) + float(groups) * 0x1p-112f);
 }
 } // namespace qrt_sm121_pv_final_bound
