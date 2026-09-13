@@ -347,8 +347,15 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const char* direct_pv_option = std::getenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
     if (direct_pv_option && *direct_pv_option && std::strcmp(direct_pv_option,"0") &&
         std::strcmp(direct_pv_option,"1")) return int(hipErrorInvalidValue);
+    const char* long_direct_pv_option = std::getenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS");
+    if (long_direct_pv_option && *long_direct_pv_option && std::strcmp(long_direct_pv_option,"0") &&
+        std::strcmp(long_direct_pv_option,"1")) return int(hipErrorInvalidValue);
+    const bool long_direct_pv = long_direct_pv_option && std::strcmp(long_direct_pv_option,"1")==0;
+    // Extend only operand loading to an explicitly selected long-history run.
+    // Long calls retain the original per-group error envelope and exact replay;
+    // the final-envelope proof above remains limited to its512 K16 groups.
     const bool direct_pv_operands = direct_pv_option && std::strcmp(direct_pv_option,"1")==0 &&
-        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+        (compact_pv_mode==1u || compact_pv_mode==3u) && (query_start+query_count<=8192u || long_direct_pv);
     const char* selective_option = std::getenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
     if (selective_option && *selective_option && std::strcmp(selective_option,"0") &&
         std::strcmp(selective_option,"1")) return int(hipErrorInvalidValue);

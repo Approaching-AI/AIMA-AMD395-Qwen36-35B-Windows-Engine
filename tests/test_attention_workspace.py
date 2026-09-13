@@ -162,7 +162,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         ++final_bound_queries;
     }
     if(direct_pv_operands) {
-        if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
+        if((layout!=22u && layout!=24u) || start+count>kSm121MaxTokens) std::abort();
         ++direct_pv_queries;
     }
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
@@ -518,6 +518,25 @@ int main() {
             reset();if(launch(0,tokens)!=hipSuccess || direct_pv_queries || final_bound_queries) return 82;
         }
     }
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS",bad,1);
+        if(launch(65536,1024)!=hipErrorInvalidValue || allocations || queries || syncs) return 124;
+    }
+    setenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS","1",1);
+    for(const char* mode : {"1","2","3"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        for(unsigned start : {8192u,16384u,32768u,65536u,kSm121MaxTokens-1024u}) {
+            reset();
+            if(launch(start,1024)!=hipSuccess || queries!=32u || syncs!=queries || allocations!=5u ||
+               direct_pv_queries!=(*mode=='2' ? 0u : queries) || final_bound_queries) return 125;
+            reset();fail_query=2u;
+            if(launch(start,1024)!=hipErrorUnknown || queries!=2u || syncs!=queries) return 126;
+        }
+        reset();setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS","0",1);
+        if(launch(65536,1024)!=hipSuccess || direct_pv_queries || final_bound_queries) return 127;
+        setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS","1",1);
+    }
+    unsetenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS");
     unsetenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
     unsetenv("QRT_CK_SM121_FINAL_PV_BOUND");
     for(const char* bad : {"2","-1","true","1junk"," 1"}) {

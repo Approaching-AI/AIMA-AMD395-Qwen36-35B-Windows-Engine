@@ -2101,7 +2101,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if (final_pv_bound && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if (direct_pv_operands && ((memory_layout != 22u && memory_layout != 24u) ||
-            query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
+            query_start + query_count > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (float_pv_lanes && ((float_pv_lanes != 1u && float_pv_lanes != 4u) ||
             (memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u || value_stride > 8192u))

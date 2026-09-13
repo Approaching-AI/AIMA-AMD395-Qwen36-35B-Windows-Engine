@@ -154,15 +154,26 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
 }
 }
 int main(int argc,char** argv) try {
-    if(argc!=2) throw std::runtime_error("supply SHA-verified reciprocal table");
+    const bool long_history=argc==3 && std::strcmp(argv[2],"--long-history")==0;
+    if(argc!=2 && !long_history) throw std::runtime_error("supply SHA-verified reciprocal table and optional --long-history");
     hipDeviceProp_t properties{};check(hipGetDeviceProperties(&properties,0));
     if(std::strncmp(properties.gcnArchName,"gfx1151",7u)) throw std::runtime_error("requires gfx1151");
     std::vector<unsigned char> table(qrt_sm121_attention_rcp::table_bytes);
     std::ifstream file(argv[1],std::ios::binary);file.read(reinterpret_cast<char*>(table.data()),table.size());
     if(!file || file.peek()!=EOF || !qrt_sm121_attention_rcp::valid_layout(table.data(),table.size())) throw std::runtime_error("invalid table");
     Device rcp(table.size());upload(rcp,table);
-    for(auto shape : {std::pair<unsigned,unsigned>{0,1},{31,2},{17,32},{64,3},{17,65},{31,128},{8191,1},{8064,128}})
-        for(unsigned mode=0;mode<3u;++mode) run(shape.first,shape.second,mode,rcp);
+    if(long_history) {
+        // Exercise both sides of the historical limits and the final capacity
+        // word. The final envelope deliberately selects every long output;
+        // product long calls use the original envelope, whose bits and selected
+        // identities must agree between shared and direct operands here.
+        for(auto shape : {std::pair<unsigned,unsigned>{8192,1},{16383,2},{32767,2},
+                          {65535,2},{66559,2},{kSplitMaxTokens-1u,1}})
+            for(unsigned mode=0;mode<3u;++mode) run(shape.first,shape.second,mode,rcp);
+    } else {
+        for(auto shape : {std::pair<unsigned,unsigned>{0,1},{31,2},{17,32},{64,3},{17,65},{31,128},{8191,1},{8064,128}})
+            for(unsigned mode=0;mode<3u;++mode) run(shape.first,shape.second,mode,rcp);
+    }
     immutable(rcp,table);
     return 0;
 } catch(const std::exception& e) {std::fprintf(stderr,"final_pv_kernel_error=%s\n",e.what());return 2;}

@@ -578,7 +578,7 @@ int main() {
     launches=error_queries=memsets=fail_launch=0u;
     for(unsigned layout:{0u,2u,4u,13u,15u,23u})
         if(direct_pv(0u,layout)!=hipErrorInvalidValue || launches || memsets) return 113;
-    if(direct_pv(8192u)!=hipErrorInvalidValue || launches || memsets) return 114;
+    if(direct_pv(kSplitMaxTokens)!=hipErrorInvalidValue || launches || memsets) return 114;
     for(unsigned layout:{22u,24u}) for(bool final:{false,true}) {
         launches=error_queries=memsets=fail_launch=0u;
         if(direct_pv(8191u,layout,final)!=hipSuccess || launches!=5u || memsets!=1u ||
@@ -588,6 +588,17 @@ int main() {
             launches=error_queries=memsets=0u;fail_launch=failure;
             if(direct_pv(8191u,layout,final)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 116;
         }
+    }
+    for(unsigned start:{8192u,16383u,32767u,65535u,66559u,kSplitMaxTokens-1u}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(direct_pv(start)!=hipSuccess || launches!=5u || memsets!=1u ||
+           !std::strstr(launch_names[2],"blackwell_mantissa_value_kernel<true, false, true, false, true>")) return 140;
+        for(unsigned failure=1u;failure<=5u;++failure) {
+            launches=error_queries=memsets=0u;fail_launch=failure;
+            if(direct_pv(start)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 141;
+        }
+        launches=error_queries=memsets=fail_launch=0u;
+        if(direct_pv(start,22u,true)!=hipErrorInvalidValue || launches || memsets) return 142;
     }
     auto float_qk=[&](unsigned layout=22u,unsigned lanes=1u,unsigned rows=1u) {
         return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,17u,0u,
