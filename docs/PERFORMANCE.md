@@ -2,6 +2,20 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Completed workspace and matrix attribution at wholea9f0d0f/5feb7e7 keeps
+CKe9673f8 selective QK0/direct PV1, FLA-MoE8f and CLIa797. Both real q8192
+runs pass all512 GB10 outputs/callbacks and exact first144/logit10.375.
+The170 dense workspace allocations/frees total47.7403/48.6635ms; reuse of
+this measured surface cannot recover seconds. The apparent8001.004ms wait
+before linear QKV includes previous queued work. Separate completed intervals
+find6361.2797ms predecessor wait and1590.4194ms for its30 matrix calls.
+All110 profiled matrix calls total3925.7338ms, with2.7024ms plan setup.
+The extra profile fences can alter stream overlap; these are diagnostic
+measurements, with no retained-performance acceptance. Callback TTFT is
+46105.0172/46045.1689ms, still far above the immutable target. Next evaluate
+reusable routed-MoE replay operands produced during required norm scans.
+Evidence: `benchmarks/correctness/dense-producer-wall-20260913.json`.
+
 Output-margin denominator refinement at sourcea25b1c3 passes all35 generated
 cases /6307840 outputs and all29364224 originalq7169 GB10 BF16 cells.
 The output margin chooses work only; strict interval admission and complete
