@@ -76,7 +76,8 @@ __global__ void trace_groups(const uint16_t* input,const float* initial,
         if constexpr(CarryKind==0u)next=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a,b,carry);
         else for(unsigned j=0u;j<8u;++j) {
             if constexpr(CarryKind==1u)next[j]=__fadd_rn(carry[j],product[j]);
-            else next[j]=__fadd_rz(carry[j],product[j]);
+            // HIP 7.1 exposes directed addition through its OCML device API.
+            else next[j]=__ocml_add_rtz_f32(carry[j],product[j]);
         }
 #pragma unroll
         for(unsigned j=0u;j<8u;++j) {
