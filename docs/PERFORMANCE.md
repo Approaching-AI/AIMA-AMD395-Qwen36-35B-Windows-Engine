@@ -2,6 +2,26 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The component-only FP32 K16 carry experiment at `cb0f266` preserves all
+tested raw bits, but does not justify product promotion. Native checks cover
+2097152 ordered K16 groups, 24 generated projection cases, 42 generated QK
+cases and 1255489584 original q7169 QK score comparisons. All six QKV
+variants preserve 58728448 external GB10 BF16 cells and 3791742 unrounded
+candidate FP32 values, with unchanged PPB 1000 and passing memory guards.
+
+Completed QK time is 341.5882 / 315.7412 / 314.1448 ms for the qualified
+scalar-float carry / direct FP32 bits / explicit round-toward-zero variants.
+QKV preparation plus replay is 52.8446 / 52.8659 / 52.5744 ms with four
+lanes and one staged group; the corresponding sixteen-lane, four-group
+variants take 106.928 / 109.552 / 108.020 ms. These single component clocks
+include raw QKV capture writes and exclude allocation, uploads and CPU
+verification. Keep the new carry outside product dispatch and investigate
+current MoE work ownership separately. All local checks and native builds
+pass; no new token-loop or release acceptance follows. Command file:
+`run-native-f32-carry-r1.ps1 -Kind core|projection|qk|real -Action build|test|capture`.
+Evidence: `benchmarks/correctness/f32-carry-components-20260914.json`, SHA256
+`c8d57159d6bdb18e55b4d63da6bb03b492b4cfbdeb4a3ada48b1d6d68b14e2cd`.
+
 The current stack passes the original 65536-prefix plus 1024-suffix GB10
 boundary on baiying with `D:\models\Qwen3.6-35B-A3B`: all 512 outputs and
 actual callbacks match, first token 3709 and exact raw logit 5.9375. All eight
