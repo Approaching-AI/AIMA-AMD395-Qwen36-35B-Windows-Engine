@@ -21,6 +21,7 @@
 #include "../moe_accumulator/sm121_wave16.h"
 #include "../moe_accumulator/sm121_subgroup.h"
 #include "../moe_accumulator/sm121_prepared_projection.h"
+#include "../moe_accumulator/sm121_float_subgroup.h"
 #include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
 #include "../moe_accumulator/bf16_scaled_l2.h"
@@ -1711,12 +1712,16 @@ struct MoeCorrectionBounds {
     uint32_t *compacted_count = nullptr;
     const uint16_t *prepared_input = nullptr, *prepared_weights = nullptr;
     const uint32_t *prepared_input_rows = nullptr, *prepared_weight_rows = nullptr;
+    bool float_replay = false;
 };
 
 template<unsigned Lanes>
 __device__ __forceinline__ float moe_routed_replay_dot(const uint16_t *inputs,
     const uint16_t *weights, uint32_t input_row, uint32_t weight_row,
     uint32_t columns, const MoeCorrectionBounds& bounds) {
+    if (bounds.float_replay)
+        return qrt_sm121_float_subgroup::dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
+            inputs + size_t(input_row) * columns, weights + size_t(weight_row) * columns, columns);
     if (bounds.prepared_input && bounds.prepared_weights &&
         bounds.prepared_input_rows && bounds.prepared_weight_rows &&
         bounds.prepared_input_rows[input_row] && bounds.prepared_weight_rows[weight_row])
@@ -1841,6 +1846,7 @@ struct ProviderState {
     uint32_t sm121_moe_absolute_error_ppb = 0u;
     bool scaled_l2 = false;
     bool prepared_replay = false, prepared_replay_active = false;
+    bool float_replay = false, float_replay_active = false;
     uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
     uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
     std::array<float *, static_cast<size_t>(MoeL2::Count)> moe_l2{};
@@ -12343,6 +12349,7 @@ hipError_t launch_moe_routed_correction(
             static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
             first, g_state.moe_compacted_indices, g_state.moe_compacted_count
         };
+        bounds.float_replay = g_state.float_replay_active;
         if (g_state.prepared_replay_active &&
             ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
              (input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown))) {
@@ -13562,9 +13569,15 @@ bool launch_routed_matrices_after_input_conversion(
     struct PreparedReplayScope {
         explicit PreparedReplayScope(uint32_t tokens) {
             g_state.prepared_replay_active = g_state.prepared_replay && tokens == kTokens;
+            g_state.float_replay_active = g_state.float_replay && tokens == kTokens;
         }
-        ~PreparedReplayScope() { g_state.prepared_replay_active = false; }
+        ~PreparedReplayScope() { g_state.prepared_replay_active = false; g_state.float_replay_active = false; }
     } prepared_replay_scope(token_count);
+    if (g_state.float_replay_active) {
+        std::fprintf(stderr,"BATCH_MARK moe_float_replay tokens=%u workspace_bytes=0 lanes=%u staging_groups=%u canonical_k16=1 original_fallback=1\n",
+            token_count,unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS));
+        std::fflush(stderr);
+    }
     if (g_state.prepared_replay_active) {
         std::fprintf(stderr,
             "BATCH_MARK moe_prepared_replay tokens=%u workspace_bytes=%zu "
@@ -16549,6 +16562,15 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
     const char *compact_routed = std::getenv("QRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE");
     g_state.compact_routed_hawkeye = compact_routed != nullptr &&
         compact_routed[0] != '\0' && std::strcmp(compact_routed, "0") != 0;
+    const char* float_replay = std::getenv("QRT_QWEN36_MOE_FLOAT_REPLAY");
+    if (float_replay && *float_replay && std::strcmp(float_replay,"0") && std::strcmp(float_replay,"1")) {
+        set_error_text("QRT_QWEN36_MOE_FLOAT_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.float_replay = float_replay && std::strcmp(float_replay,"1") == 0;
+    if (g_state.float_replay && (kTokens != 8192u || !g_state.sm121_routed_hawkeye ||
+            !g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb)) {
+        set_error_text("float replay requires q8192 compact SM121 routed correction"); return 0;
+    }
     const char* prepared_replay = std::getenv("QRT_QWEN36_MOE_PREPARED_REPLAY");
     if (prepared_replay && *prepared_replay && std::strcmp(prepared_replay, "0") &&
         std::strcmp(prepared_replay, "1")) {
@@ -16568,6 +16590,9 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         return 0;
     }
     g_state.parallel_routed_gate = parallel_gate != nullptr && std::strcmp(parallel_gate, "1") == 0;
+    if (g_state.float_replay && g_state.parallel_routed_gate) {
+        set_error_text("float replay requires the original routed gate stream"); return 0;
+    }
     if (g_state.prepared_replay && g_state.parallel_routed_gate) {
         set_error_text("prepared replay requires the original routed gate stream");
         return 0;

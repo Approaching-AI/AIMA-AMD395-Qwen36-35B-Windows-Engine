@@ -133,7 +133,7 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     g_state.moe_compaction_blocks = window_blocks;
@@ -211,7 +211,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     hip_ok(hipEventCreate(&begin), "compaction begin"); hip_ok(hipEventCreate(&end), "compaction end");
     std::vector<float> expected_native, expected_down;
     std::vector<uint16_t> expected_activated;
-    float times[3]{};
+    float times[4]{};
     auto prepare_view = [&](const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
                             uint32_t rows, uint32_t columns) {
         for (uint32_t first = 0u; first < rows; first += 4096u) {
@@ -221,10 +221,11 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             hip_ok(hipGetLastError(), "prepare routed replay view");
         }
     };
-    for (uint32_t compact = 0u; compact < (prepared ? 3u : 2u); ++compact) {
+    for (uint32_t compact = 0u; compact < (float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
         g_state.prepared_replay_active = compact == 2u;
+        g_state.float_replay_active = compact == 3u;
         g_state.prepared_replay_inputs = dei.data(); g_state.prepared_replay_weights = dew.data();
         g_state.prepared_replay_input_rows = defi.data(); g_state.prepared_replay_weight_rows = defw.data();
         const uint32_t radius = mode == 1u || mode == 4u ? 32768u : mode == 2u ? 128u : 0u;
@@ -309,15 +310,17 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     g_state.moe_l2.fill(nullptr); g_state.moe_compacted_indices = nullptr; g_state.moe_compacted_count = nullptr;
     g_state.compact_routed_hawkeye = false;
     g_state.prepared_replay_active = false;
+    g_state.float_replay_active = false;
     g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
     g_state.prepared_replay_input_rows = g_state.prepared_replay_weight_rows = nullptr;
     g_state.moe_compaction_blocks = kMoeCompactionBlocks;
     std::printf("{\"kind\":\"routed_compaction_comparison\",\"tokens\":%u,\"mode\":%u,\"projection_elements\":%zu,"
                 "\"down_elements\":%zu,\"local_ms\":%.6f,\"compact_ms\":%.6f,\"raw_bit_mismatches\":0,"
                 "\"prepared_replay_checked\":%s,\"prepared_sequence_ms\":%.6f,"
+                "\"float_replay_checked\":%s,\"float_sequence_ms\":%.6f,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
 }
 
@@ -407,6 +410,13 @@ void compare_scaled_l2(unsigned columns) {
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--float-replay") == 0) {
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true, true);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true, true);
+            moe_batch_test::compare_routed_compaction(129u, 4u, kMaximumMoeCompactionBlocks, true, true);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks, true, true);
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--prepared-replay") == 0) {
             moe_batch_test::compare_prepared_norm(512u);
             moe_batch_test::compare_prepared_norm(2048u);

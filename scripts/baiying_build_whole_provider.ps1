@@ -283,6 +283,10 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     sm121_prefill_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_prefill_projection.h')).Hash.ToLowerInvariant()
+    sm121_float_alignment_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_float_alignment.h')).Hash.ToLowerInvariant()
+    sm121_float_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_float_subgroup.h')).Hash.ToLowerInvariant()
     sm121_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_subgroup.h')).Hash.ToLowerInvariant()
     sm121_paired_products_header_sha256 = (Get-FileHash -Algorithm SHA256 `

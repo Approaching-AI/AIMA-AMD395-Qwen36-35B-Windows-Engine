@@ -1,0 +1,810 @@
+{
+  "schema_version": 1,
+  "kind": "cooperative_scalar_float_alignment",
+  "host": "baiying",
+  "model": "none; generated reduction shapes",
+  "model_loaded": false,
+  "source_delivery": {
+    "repo": "D:/projects/AIMA-public-float-subgroup-20260913",
+    "source_commit": "b666b1d0a11f87ae470417d1d383fe1483bd962f",
+    "bundle": "float-subgroup-b666b1d.bundle",
+    "bundle_sha256": "d2968eb8bc8c618f30cf48889f96518c03603de8e3f44b0333e97faeebb1548b",
+    "script": "run-native-float-subgroup-r1.ps1",
+    "script_sha256": "54635c334feb59d2b2473351542409e5ce2562c7e4bcb661e7be27abfc507ffc",
+    "bundle_prerequisite": "6c0c54c3e540ad075f18e9cf77e5c9f759938f4a"
+  },
+  "commands": {
+    "run-native-float-subgroup-r1.ps1": {
+      "sha256": "54635c334feb59d2b2473351542409e5ce2562c7e4bcb661e7be27abfc507ffc",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-float-subgroup-20260913';$seed='D:\\projects\\AIMA-public-float-alignment-product-20260913';$sha='b666b1d0a11f87ae470417d1d383fe1483bd962f';$bundle='D:\\projects\\float-subgroup-b666b1d.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd2968eb8bc8c618f30cf48889f96518c03603de8e3f44b0333e97faeebb1548b'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\float-subgroup';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\float_subgroup_selftest.cpp';$exe=Join-Path $build 'float-subgroup.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceFiles=@($source,(Join-Path $repo 'tests\\native\\float_alignment_cases.h'));$sourceFiles+=@(Get-ChildItem (Join-Path $repo 'native\\providers\\moe_accumulator') -Filter '*.h' -File|ForEach-Object {$_.FullName})\n$sourceInputs=@();foreach($file in $sourceFiles){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated dense/MoE reduction shapes';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Validate every ordered K16 endpoint of scalar-product cooperative reductions for4/8/16 lanes and1/4/8 staging groups, K272/2048/4096, against independent original CPU arithmetic. Include original exceptional fallback and buffer guards. No product dispatch or timing acceptance.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=120\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$spec.executable=$exe;$timeout=90\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\float-subgroup-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native subgroup diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($reports.Count -ne 18){throw 'Incomplete subgroup diagnostic'}\n foreach($report in $reports){if($report.raw_bit_mismatches -ne 0 -or -not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Subgroup arithmetic or memory failure'}}\n}\n"
+    }
+  },
+  "native_runs": {
+    "build": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2000.446,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_subgroup_selftest.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-float-subgroup-20260913\\build\\float-subgroup\\float-subgroup.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-float-subgroup-20260913",
+          "repo_commit": "b666b1d0a11f87ae470417d1d383fe1483bd962f",
+          "command_file": "D:\\projects\\run-native-float-subgroup-r1.ps1",
+          "command_file_sha256": "54635c334feb59d2b2473351542409e5ce2562c7e4bcb661e7be27abfc507ffc",
+          "source_inputs": [
+            {
+              "sha256": "7fffdf15b48bdf33f50a763f8ba91640bc9d6ffc61d696aeeff52fcadb1f2b74",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_subgroup_selftest.cpp"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            }
+          ],
+          "model": "none; generated dense/MoE reduction shapes",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Validate every ordered K16 endpoint of scalar-product cooperative reductions for4/8/16 lanes and1/4/8 staging groups, K272/2048/4096, against independent original CPU arithmetic. Include original exceptional fallback and buffer guards. No product dispatch or timing acceptance."
+        },
+        "summary": null
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "8179fc011986149fe13f5d2069727088b72ed8403a37a7e046ee69689f77d4ca",
+        "build-provenance.json": "59a068368ffacfbfe1ead14bb3dec3fb4d26ed04fcc7a7867307eb2a8d7017f1",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "13e52d54523cfc234b4e38e5aa835a67a0ec9cd31bafb33c15ef91dad9ae8ae3"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "b666b1d0a11f87ae470417d1d383fe1483bd962f",
+        "source_inputs": [
+          {
+            "sha256": "7fffdf15b48bdf33f50a763f8ba91640bc9d6ffc61d696aeeff52fcadb1f2b74",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_subgroup_selftest.cpp"
+          },
+          {
+            "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_alignment_cases.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-float-subgroup-r1.ps1",
+        "command_file_sha256": "54635c334feb59d2b2473351542409e5ce2562c7e4bcb661e7be27abfc507ffc",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_subgroup_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-float-subgroup-20260913\\build\\float-subgroup\\float-subgroup.exe"
+        ],
+        "run_record_sha256": "13e52d54523cfc234b4e38e5aa835a67a0ec9cd31bafb33c15ef91dad9ae8ae3",
+        "executable": {
+          "sha256": "b6092f007d3455bd81d2e91d6e487b24ec28c572d1beabafcc5cbee9c02759f4",
+          "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\build\\float-subgroup\\float-subgroup.exe",
+          "bytes": 236032
+        }
+      }
+    },
+    "test": {
+      "run_record": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 470.017,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-float-subgroup-20260913\\build\\float-subgroup\\float-subgroup.exe",
+          "arguments": [],
+          "working_directory": "D:\\projects\\AIMA-public-float-subgroup-20260913",
+          "repo_commit": "b666b1d0a11f87ae470417d1d383fe1483bd962f",
+          "command_file": "D:\\projects\\run-native-float-subgroup-r1.ps1",
+          "command_file_sha256": "54635c334feb59d2b2473351542409e5ce2562c7e4bcb661e7be27abfc507ffc",
+          "source_inputs": [
+            {
+              "sha256": "7fffdf15b48bdf33f50a763f8ba91640bc9d6ffc61d696aeeff52fcadb1f2b74",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_subgroup_selftest.cpp"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-float-subgroup-20260913\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            }
+          ],
+          "model": "none; generated dense/MoE reduction shapes",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Validate every ordered K16 endpoint of scalar-product cooperative reductions for4/8/16 lanes and1/4/8 staging groups, K272/2048/4096, against independent original CPU arithmetic. Include original exceptional fallback and buffer guards. No product dispatch or timing acceptance.",
+          "build_provenance_sha256": "59a068368ffacfbfe1ead14bb3dec3fb4d26ed04fcc7a7867307eb2a8d7017f1"
+        },
+        "summary": null
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "d25972f80db4767cd934337e7394a94d4bdef46b6c0fe4fb2d3b5289cac048ba",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "510275232b0a1faf00001d826f1461b23b1a660dc8c5e50778f91a47d9111b7a",
+        "product.stdout.jsonl": "f2c62eb34090c3f8e57926961e1277ba34ecbb0ee06cb96b892edac8258498ad",
+        "run-record.json": "034ac2dd30204ccd9a27d75dd829a9bee9d4c975e6fc669bc7935edc928b8259"
+      },
+      "reports": [
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 1,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 4,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 8,
+          "staging_groups": 1,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 1,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 4,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 8,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "float_groups": 49928,
+          "fallback_groups": 19704,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 1,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 4,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 8,
+          "staging_groups": 1,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 1,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 4,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 8,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 188736,
+          "fallback_groups": 73408,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 1,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 4,
+          "staging_groups": 4,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 8,
+          "staging_groups": 1,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 1,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 4,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "float_subgroup_safety",
+          "lanes": 16,
+          "staging_groups": 8,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "float_groups": 189084,
+          "fallback_groups": 73060,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    }
+  },
+  "implementation": "Each cooperative lane owns its original BF16 pairs and scalar FP32 products. Exact power-of-two scaling followed by truncating integer conversion replaces per-product bit alignment; the carried Value stays in its original integer representation. Original unsigned subgroup reduction and canonical K16 normalization/order are preserved. Ineligible pairs and scale ranges use the original subgroup implementation. Zero products remain exact even when the other BF16 bit pattern is exceptional.",
+  "conclusions": [
+    "All 3563520 intermediate K16 endpoints and final dots agree with independent original CPU arithmetic across18 cases:4/8/16 lanes,1/4/8 staging groups, K272/2048/4096. Both float and original fallback groups execute in every case. Guards, immutable inputs and host checks pass.",
+    "K272 covers a partial staging block. Full K2048/4096 checks the reduction widths used by dense and routed-MoE replay. These generated checks submit no model or product output tokens and support no product timing claim.",
+    "Proceed to default-off dense and routed-MoE product switches and real q8192 ON/OFF validation, retaining the correctness-attached scalar QK option."
+  ],
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

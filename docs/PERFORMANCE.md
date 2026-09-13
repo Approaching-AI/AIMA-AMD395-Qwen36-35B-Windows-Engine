@@ -2,6 +2,16 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Cooperative scalar product/alignment at source `b666b1d` passes all 3563520
+intermediate K16 endpoints across 18 native cases: 4/8/16 lanes, 1/4/8 staging
+groups, and K272/2048/4096. Each case executes float and original fallback
+groups; all guards and inputs pass. The next source adds default-off
+`QRT_QWEN36_HAWKEYE_FLOAT_REPLAY` and `QRT_QWEN36_MOE_FLOAT_REPLAY`
+for dense and routed-MoE product measurements. Dense activation replaces
+eligible prepared replay without allocating encoded operands; original
+selector bounds remain unchanged. No product gain is inferred from these
+generated checks. Evidence: `benchmarks/correctness/float-subgroup-20260913.json`.
+
 Exact scalar float QK at CK source `6c0c54c` passes complete same-DLL
 q8192 OFF/ON validation: all 512 GB10 outputs and callbacks match, with exact
 first token 144 and raw logit 10.375. Callback TTFT is 46064.2854/44535.0777 ms,

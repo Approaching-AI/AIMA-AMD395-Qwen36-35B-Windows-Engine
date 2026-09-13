@@ -38,6 +38,7 @@
 #include "moe_accumulator/sm121_subgroup.h"
 #include "moe_accumulator/sm121_prefill_projection.h"
 #include "moe_accumulator/sm121_prepared_projection.h"
+#include "moe_accumulator/sm121_float_subgroup.h"
 #include "moe_accumulator/bf16_absolute_product_matrix.h"
 #include "moe_accumulator/bf16_absolute_product_views.h"
 #include "moe_accumulator/bf16_midpoint_selector.h"
@@ -37482,6 +37483,20 @@ void selected_bf16_projection_hawkeye_device_correction_kernel(
 }
 
 __global__ __launch_bounds__(256)
+void selected_bf16_projection_hawkeye_float_correction_kernel(
+    const uint16_t* weights, const uint16_t* inputs, float* outputs,
+    unsigned rows, unsigned reduction_size, const unsigned* indices,
+    unsigned candidate_offset, unsigned candidate_count) {
+    constexpr unsigned lanes = kSelectedHawkeyeReplayLanes;
+    const unsigned slot = candidate_offset + blockIdx.x * (kSelectedHawkeyeCorrectionThreads / lanes) + threadIdx.x / lanes;
+    if (slot >= candidate_count) return;
+    const size_t index = indices[slot], token = index / rows, row = index % rows;
+    const float value = qrt_sm121_float_subgroup::dot<lanes>(
+        inputs + token * reduction_size, weights + row * reduction_size, reduction_size);
+    if (!(threadIdx.x & (lanes - 1u))) outputs[index] = device_bf16_round_to_float(value);
+}
+
+__global__ __launch_bounds__(256)
 void selected_bf16_projection_hawkeye_prepared_correction_kernel(
     const uint16_t* weights, const uint16_t* inputs,
     const uint16_t* prepared_weights, const uint16_t* prepared_inputs,
@@ -37906,9 +37921,16 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const char* device_setting = std::getenv("QRT_QWEN36_HAWKEYE_DEVICE_REPLAY");
     const bool device_replay = !count_only && !packed_candidates &&
         reduction_size <= 4096u && device_setting && std::strcmp(device_setting, "1") == 0;
-    const bool prepared_operands = !shape_aware && !count_only && !packed_candidates && !device_replay &&
+    const bool prepared_requested = !shape_aware && !count_only && !packed_candidates && !device_replay &&
         selected_token_count >= 1024u && selected_token_count <= 8192u && rows >= 1024u && rows <= 9216u &&
         reduction_size <= 4096u && prepared_setting && std::strcmp(prepared_setting,"1") == 0;
+    const char* float_setting = std::getenv("QRT_QWEN36_HAWKEYE_FLOAT_REPLAY");
+    if (float_setting && *float_setting && std::strcmp(float_setting,"0") && std::strcmp(float_setting,"1"))
+        return hipErrorInvalidValue;
+    const bool float_replay = prepared_requested && float_setting && std::strcmp(float_setting,"1") == 0 &&
+        (!absolute_bound_setting || std::strcmp(absolute_bound_setting,"1") != 0) &&
+        (!k16_major_setting || std::strcmp(k16_major_setting,"1") != 0);
+    const bool prepared_operands = prepared_requested && !float_replay;
     // Reuse lossless preparation's whole-row eligibility. The matrix computes
     // selector metadata from original BF16 operands; excluded rows keep an
     // infinite bound. Midpoint radii, prefix admission and PPB stay unchanged.
@@ -38262,6 +38284,11 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
                         transposed_weights, selected_inputs, outputs, rows, reduction_size,
                         scratch + 2u, candidate_offset, candidate_offset + launch_candidates);
+                } else if (float_replay) {
+                    hipLaunchKernelGGL(selected_bf16_projection_hawkeye_float_correction_kernel,
+                        dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
+                        dim3(kSelectedHawkeyeCorrectionThreads),0,stream,weights,selected_inputs,
+                        outputs,rows,reduction_size,scratch+2u,candidate_offset,counts[0]);
                 } else if (prepared_k16_major) {
                     hipLaunchKernelGGL(selected_bf16_projection_hawkeye_k16_major_prepared_correction_kernel,
                         dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
@@ -38317,6 +38344,11 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             rows,selected_token_count,reduction_size,absolute_bound_bytes,absolute_bound_windows,
             absolute_bound_ms,absolute_error_bound_ppb,midpoint_radius,status==hipSuccess ? 1u : 0u,
             absolute_hipblaslt ? 1u : 0u,magnitude_bytes);
+    }
+    if (float_replay) {
+        std::fprintf(stderr,"BATCH_MARK hawkeye_float_replay rows=%u tokens=%u k=%u workspace_bytes=0 lanes=%u canonical_k16=1 original_fallback=1 completed=%u\n",
+            rows,selected_token_count,reduction_size,kSelectedHawkeyeReplayLanes,status==hipSuccess ? 1u : 0u);
+        std::fflush(stderr);
     }
     if (prepared_storage) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_prepared_operands rows=%u tokens=%u k=%u workspace_bytes=%zu prepared_row_fallback=1 completed=%u k16_major=%u\n",
