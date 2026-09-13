@@ -941,7 +941,7 @@ int launch_segment_async(
         }, &sequence_ms)) return 0;
         if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_AUX stage=wu_batched tokens=%d chunks=%u calls=1 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, chunks, static_cast<double>(sequence_ms),
-            qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
+            qrt_fla_blackwell_cooperative::matrix_lanes());
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_WU_BLACKWELL")) {
         if (!launch_blackwell_aux("wu", tokens, 1u, stream, [&](unsigned offset, unsigned) {
                 const unsigned count = (std::min)(kChunk, static_cast<unsigned>(valid_tokens) - offset);
@@ -999,7 +999,7 @@ int launch_segment_async(
         }, &sequence_ms)) return 0;
         if (!BlackwellSegmentGuard::active) std::fprintf(stderr, "FLA_AUX stage=output_batched tokens=%d chunks=%u calls=2 sequence_ms=%.6f guard_ms=100 cooperative_lanes=%u\n",
             tokens, chunks, static_cast<double>(sequence_ms),
-            qrt_fla_blackwell_cooperative::enabled() ? 4u : 16u);
+            qrt_fla_blackwell_cooperative::matrix_lanes());
     } else if (blackwell_aux_enabled("QRT_FLA_GDN_OUTPUT_BLACKWELL")) {
         // The recurrence completed on this stream. Its private residual
         // buffer is dead and is large enough for one BF16 QK score chunk.

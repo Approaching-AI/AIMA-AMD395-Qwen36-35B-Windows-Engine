@@ -1,5 +1,6 @@
 #include "blackwell_cooperative.h"
 #include "blackwell_scalar_matrices.h"
+#include "blackwell_scalar_state.h"
 #include "blackwell_accumulator.h"
 #include "sm121_exp2_table.h"
 #include "../moe_accumulator/sm121_subgroup.h"
@@ -219,6 +220,22 @@ hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const
 hipError_t state(const uint16_t* k, const uint16_t* u, const uint16_t* w, const float* g,
                  uint16_t* h, uint16_t* v_new, float* state, unsigned count,
                  const unsigned char* table, hipStream_t stream) {
+    const int scalar_columns = qrt_fla_blackwell_scalar::state_columns();
+    if (scalar_columns < 0) return hipErrorInvalidValue;
+    if (scalar_columns) {
+        if (scalar_columns == 4) {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_blackwell_scalar::state_kernel<4u>),
+                dim3(32u, 32u), dim3(threads), 0u, stream, k, u, w, g, h, v_new, state, count, table);
+        } else {
+            hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_blackwell_scalar::state_kernel<8u>),
+                dim3(16u, 32u), dim3(threads), 0u, stream, k, u, w, g, h, v_new, state, count, table);
+        }
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_SCALAR_FLOAT_STATE tokens=%u columns=%d original_k16=1 cached_decay=1 additional_device_bytes=0 capture=0 segment_completion_required=1\n",
+            count, scalar_columns);
+        return status;
+    }
     hipLaunchKernelGGL(HIP_KERNEL_NAME(state_kernel<false>), dim3(128u / state_columns, 32u), dim3(threads),
         0u, stream, k, u, w, g, h, v_new, state, count, table, qrt_fla_checkpoint::Segment{});
     return hipGetLastError();

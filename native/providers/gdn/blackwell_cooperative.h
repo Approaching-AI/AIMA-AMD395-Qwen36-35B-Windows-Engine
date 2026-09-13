@@ -14,6 +14,11 @@ inline bool enabled() {
     const char* value = std::getenv("QRT_FLA_GDN_COOPERATIVE_EXACT");
     return value && std::strcmp(value, "1") == 0;
 }
+inline unsigned matrix_lanes() {
+    if (!enabled()) return 16u;
+    const char* value = std::getenv("QRT_FLA_GDN_SCALAR_FLOAT_MATRICES");
+    return value && std::strcmp(value, "1") == 0 ? 1u : 4u;
+}
 hipError_t wu(const uint16_t*, const uint16_t*, const uint16_t*, const uint16_t*,
               const float*, uint16_t*, uint16_t*, unsigned, const unsigned char*, hipStream_t);
 hipError_t scores(const uint16_t*, const uint16_t*, const float*, uint16_t*,

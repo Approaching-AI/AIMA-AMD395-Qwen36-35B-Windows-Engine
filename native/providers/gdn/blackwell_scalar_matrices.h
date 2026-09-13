@@ -24,9 +24,9 @@ __device__ __forceinline__ uint32_t pack(uint16_t a, uint16_t b) {
 __device__ __forceinline__ float exponential(float x, const unsigned char* table) {
     return qrt_sm121_exp2::evaluate(table, x * 1.4426950408889634074f);
 }
-template<unsigned Width>
+template<unsigned Width, unsigned RightColumns = columns>
 __device__ __forceinline__ float dot(const uint32_t* left,
-    const uint32_t (&right)[Width / 2u][columns], unsigned column, bool valid) {
+    const uint32_t (&right)[Width / 2u][RightColumns], unsigned column, bool valid) {
     qrt_q1_moe_hawkeye::Value carry{0u,-133,false};
     for (unsigned base=0u;base<Width;base+=16u) {
         qrt_sm121_group16::AlignedSum sum;
