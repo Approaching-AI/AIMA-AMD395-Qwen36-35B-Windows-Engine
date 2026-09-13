@@ -353,6 +353,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(selective_option,"1")) return int(hipErrorInvalidValue);
     const bool selective_qk = selective_option && std::strcmp(selective_option,"1")==0 &&
         (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+    const char* float_alignment_option = std::getenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
+    if (float_alignment_option && *float_alignment_option && std::strcmp(float_alignment_option,"0") &&
+        std::strcmp(float_alignment_option,"1")) return int(hipErrorInvalidValue);
+    const bool float_alignment_qk = query_count > 1u && float_alignment_option &&
+        std::strcmp(float_alignment_option,"1") == 0;
+    if (float_alignment_qk && (!tiled_qk || selective_qk)) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -449,7 +455,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
             prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
             nullptr, nullptr, transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
-            1u, 1u, final_pv_bound, direct_pv_operands);
+            1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk);
         }
         if (status != int(hipSuccess)) {
             // QK can already be queued if submitting its PV consumer failed.
@@ -477,6 +483,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start,query_count);
     if (direct_pv_operands)
         std::fprintf(stderr,"SM121_DIRECT_PV_OPERANDS query_start=%u query_count=%u token_major_values=1 additional_workspace_bytes=0\n",
+            query_start,query_count);
+    if (float_alignment_qk)
+        std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (selective_qk)
         std::fprintf(stderr,"SM121_SELECTIVE_QK_PROBABILITY query_start=%u query_count=%u probability_endpoint_repair=1 approximate_denominator=1 workspace_bytes=%zu gb10_product_gate_required=1\n",

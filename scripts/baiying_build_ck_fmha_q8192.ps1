@@ -70,6 +70,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "..\moe_accumulator\sm121_integer_parts.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_pv_error_bound.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_prepared_bf16.h"),
+    (Join-Path $sourceDir "..\moe_accumulator\sm121_float_alignment.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_interpolated.h"),
     (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
@@ -264,6 +265,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_integer_parts.h')).Hash.ToLowerInvariant()
     sm121_pv_error_bound_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_pv_error_bound.h')).Hash.ToLowerInvariant()
+    sm121_float_alignment_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_float_alignment.h')).Hash.ToLowerInvariant()
     sm121_prepared_bf16_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_prepared_bf16.h')).Hash.ToLowerInvariant()
     sm121_exp2_header_sha256 = (Get-FileHash -Algorithm SHA256 `

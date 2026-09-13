@@ -54,7 +54,7 @@ double elapsed(std::chrono::steady_clock::time_point begin) {
 void staged_variant(unsigned variant, const uint16_t* q, const uint16_t* k, float* out,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
     if (variant) throw std::runtime_error("invalid float alignment variant");
-    hipLaunchKernelGGL(qrt_float_alignment_qk::scores,
+    hipLaunchKernelGGL(qrt_blackwell_attention::blackwell_float_alignment_scores_kernel,
         dim3((stride+kTiledExactKeys-1u)/kTiledExactKeys,kQueryHeads,(count+kTiledExactQueries-1u)/kTiledExactQueries),
         dim3(kThreads),0u,nullptr,q,k,out,start,count,stride,key_stride);
     check(hipGetLastError());

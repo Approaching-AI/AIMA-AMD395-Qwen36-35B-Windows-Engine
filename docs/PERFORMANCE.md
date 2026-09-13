@@ -2,6 +2,17 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Scalar FP32 products with canonical integer alignment at source `f15ea53`
+pass all 1048576 intermediate K16 endpoints and 65536 dots on gfx1151,
+including original fallback. Fourteen generated QK cases match 32182304
+score slots and 896 CPU dots; real q7169 Q/K match 418496528 slots and
+228 CPU dots. Guards and inputs pass. Query time is 338.3151 ms against
+447.4125 ms original, with the same 5.1814 ms key transpose. This is a single
+component observation, not retained product performance. The next source
+adds default-off `QRT_CK_SM121_FLOAT_ALIGNMENT_QK=0|1` for complete same-DLL
+q8192 GB10 validation; no release qualification follows yet. Evidence:
+`benchmarks/correctness/float-alignment-qk-20260913.json`.
+
 The compact 18-bit core at source `609f468` is exact but remains slower.
 Its native primitive enumerates all 262144 core encodings and matches
 1048576 independent integer dots and all three raw matrix partials. Fourteen
@@ -10,9 +21,7 @@ Q/K match 418496528 slots and 228 CPU dots. Guards and inputs pass. The
 132-byte row reduces generated replay work, but completed QK plus key
 preparation takes 554.0810 ms against original QK plus transpose 446.3313 ms.
 Keep this component outside product dispatch. No model load or token run is
-claimed. Next evaluate exact scalar FP32 multiplication and power-of-two
-scaling followed by integer truncation/reduction, preserving the canonical
-exponent choice and ordered K16 carries.
+claimed. The scalar FP32 follow-up and its component measurements are recorded above.
 Evidence: `benchmarks/correctness/wide-integer-qk-20260913.json`.
 
 Nonnegative three-part integer reconstruction is exact but slower. The
