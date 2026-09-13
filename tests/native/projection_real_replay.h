@@ -29,6 +29,9 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     hip_ok(hipDeviceSynchronize(), "real_l2_bounds_sync");
     dout.read(output); dix.read(input_bounds); dwx.read(weight_bounds);
     size_t initial_mismatches = 0u, midpoint_misses = 0u, bound_misses = 0u, candidates = 0u;
+    const char* scalar_option = std::getenv("QRT_PROJECTION_SAFETY_SCALAR_REPLAY");
+    const bool scalar_replay = scalar_option && std::strcmp(scalar_option, "1") == 0;
+    std::vector<unsigned> selected_indices;
     double required_ppb = 0.0;
     for (size_t i = 0u; i < elements; ++i) {
         const float value = output[kGuard + i];
@@ -45,6 +48,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
+        if (scalar_replay && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -61,6 +65,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (scalar_replay) {
+        run_scalar_projection_replays(dw, di, dout, weights, inputs, reference, output,
+            selected_indices, rows, tokens, k);
+        return;
+    }
     const auto start = std::chrono::steady_clock::now();
     hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(dw.data(), di.data(), nullptr,
         dix.data(), dwx.data(), dout.data(), rows, tokens, k, 512u, 0u, ppb, blocks, nullptr), "real_qkv_correction");
