@@ -39,6 +39,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool scaled_replay = scaled_option && std::strcmp(scaled_option,"1")==0;
     const char* row_max_option = std::getenv("QRT_PROJECTION_SAFETY_ROW_MAX_REPLAY");
     const bool row_max_replay = row_max_option && std::strcmp(row_max_option,"1")==0;
+    const char* f32_carry_option = std::getenv("QRT_PROJECTION_SAFETY_F32_CARRY_REPLAY");
+    const bool f32_carry_replay = f32_carry_option && std::strcmp(f32_carry_option,"1")==0;
     std::vector<unsigned> selected_indices;
     double required_ppb = 0.0;
     for (size_t i = 0u; i < elements; ++i) {
@@ -56,7 +58,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -73,6 +75,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (f32_carry_replay) {
+        run_f32_carry_projection_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
+        return;
+    }
     if (row_max_replay) {
         run_row_max_projection_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
