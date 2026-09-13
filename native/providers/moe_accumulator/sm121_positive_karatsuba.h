@@ -15,7 +15,7 @@ QRT_POSITIVE_INLINE Digits split(uint16_t core) {
 QRT_POSITIVE_INLINE unsigned sum_digit(uint16_t core) {
     return ((unsigned(core) >> 8u) ^ 128u) + (core & 255u);
 }
-// The caller supplies an integer0..510, so this exact FP16 encoding needs
+// The caller supplies an integer0..1022, so this exact FP16 encoding needs
 // neither floating conversion nor any rounding. Zero keeps its ordinary bits.
 QRT_POSITIVE_INLINE uint16_t positive_half_bits(unsigned value) {
 #if defined(__HIP_DEVICE_COMPILE__)
