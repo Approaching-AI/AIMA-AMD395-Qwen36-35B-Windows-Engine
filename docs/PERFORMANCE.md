@@ -2,6 +2,25 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Decoded-window QK at `7d25cfd` passes all 100 generated native cases,
+163826160 score comparisons and 6400 independent CPU dots. Five variants
+each match all 418496528 original q7169 score cells and 228 CPU dots,
+including redzones and immutable operands. The scalar-float control takes
+342.2474 ms. Decoded K32/K64/K128 with query16/key16 take
+313.9618 / 323.4431 / 322.4960 ms; K64 with query8/key32 takes 300.8436 ms.
+The common key transpose is 6.1160 ms. These are single completed component
+clocks, including staging and excluding allocation, uploads and verification.
+
+The best component reduction is 41.4038 ms, about 12.10 percent. Keep it
+outside product dispatch while investigating a broader exact integer
+matrix route with scalar correction work distributed across more threads.
+The five score variants and all source tensors are recorded; no new model
+load, token loop or product performance follows. Full local checks pass
+376 Python tests with two skips, 47 Rust tests, C smoke, clippy and hygiene.
+Command: `run-native-decoded-window-qk-r1.ps1 -Kind qk -Action build|test|capture`.
+Evidence: `benchmarks/correctness/decoded-window-qk-20260914.json`, SHA256
+`1482469310fc86b6623617d7e10cda602aadade56e463c52aa341a35250c6474`.
+
 Dense and MoE candidate grouping at source `a50f15d` passes both complete
 original q8192/out512 product runs on baiying with
 `D:\models\Qwen3.6-35B-A3B`. Both OFF and ON preserve all 512 GB10 outputs
