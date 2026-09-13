@@ -1,7 +1,7 @@
 #ifndef QRT_SM121_PREPARED_PROJECTION_H
 #define QRT_SM121_PREPARED_PROJECTION_H
-#include "sm121_prepared_bf16.h"
 #include "sm121_subgroup.h"
+#include "sm121_prepared_bf16.h"
 
 namespace qrt_sm121_prepared_projection {
 // Each original row stays available for both the matrix producer and the
