@@ -23,6 +23,25 @@ soak and release remain open. Command:
 Evidence: `benchmarks/correctness/moe-prevalidated-ownership-product-20260914.json`,
 SHA256 `c478df7f4139e5fe855c12bed7b61bd77627aa65818ca3d1aef93cb7cbc557f1`.
 
+Range-certified projection at `8b0462e` preserves all 28 native dot controls,
+all 58728448 original GB10 QKV BF16 cells and 3791742 unrounded candidate
+values. The finite-range proof also passes 28835840 independent host
+normalization comparisons; full local checks pass. Four-lane preparation
+plus replay is 52.7459 / 47.9062 ms for original / certified normalization,
+with 3028041 certified candidates. This single component gain does not
+establish a seconds-scale product benefit; retain the original dispatcher.
+
+Read-only inspection finds that the 112 old-ineligible weight rows contain
+229376 tiny normal BF16 values, with biased exponents 4 through 51. All
+8192 weight rows differ bytewise; the first-layer input has 257 unique rows.
+Do not generalize that embedding-only repetition to later layers. Next
+investigate grouping candidate work by its floating or integer arithmetic
+path. Source bounds, original dot order and PPB 1000 remain unchanged.
+Command: `run-native-range-projection-r1.ps1 -Kind projection|real -Action build|test`.
+No new token-loop or release acceptance follows. Evidence:
+`benchmarks/correctness/range-certified-projection-20260914.json`, SHA256
+`f5db34aee02363f5bd6432743e49a2cfd5c6b2be7de29092ecd6f076c5e2391b`.
+
 The component-only FP32 K16 carry experiment at `cb0f266` preserves all
 tested raw bits, but does not justify product promotion. Native checks cover
 2097152 ordered K16 groups, 24 generated projection cases, 42 generated QK
