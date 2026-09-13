@@ -39,6 +39,7 @@ constexpr unsigned kKvHeads = 2, kIntegerMatrixColumns = 128;
 constexpr unsigned kBlackwellSubgroups = 16;
 constexpr unsigned kCooperativeColumns = 64;
 constexpr unsigned kTiledExactQueries = 8, kTiledExactKeys = 32;
+constexpr unsigned kSubgroupTiledKeys = 8;
 constexpr unsigned kExactTileTokens = 32;
 ''' + attention_capacity() + row + packed + r'''
 void blackwell_exact_scores_kernel() {}
@@ -47,6 +48,7 @@ void blackwell_cooperative_value_kernel() {}
 void blackwell_transpose_keys_kernel() {}
 void blackwell_strided_scores_kernel() {}
 void blackwell_tiled_exact_scores_kernel() {}
+void blackwell_subgroup_tiled_scores_kernel() {}
 void blackwell_prepare_value_encoding_kernel() {}
 template<bool SparseCore = false> void blackwell_cell_parallel_integer_scores_kernel() {}
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
@@ -499,6 +501,22 @@ int main() {
     for(unsigned failure=1u;failure<=5u;++failure) {
         launches=error_queries=memsets=0u;fail_launch=failure;
         if(transposed_pv(&operand,17u)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 98;
+    }
+    auto subgroup_qk=[&](unsigned lanes,unsigned layout=22u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,1u,16u,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,observed_span,nullptr,nullptr,&operand,17u,
+            false,nullptr,nullptr,0u,nullptr,nullptr,nullptr,0u,lanes);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned lanes : {0u,2u,8u,16u})
+        if(subgroup_qk(lanes)!=hipErrorInvalidValue || launches || memsets) return 99;
+    for(unsigned layout : {0u,2u,4u,7u,8u,13u,14u})
+        if(subgroup_qk(4u,layout)!=hipErrorInvalidValue || launches || memsets) return 100;
+    if(subgroup_qk(4u)!=hipSuccess || launches!=5u || launch_grids[0]!=3u ||
+       !std::strstr(launch_names[0],"blackwell_subgroup_tiled_scores_kernel")) return 101;
+    for(unsigned failure=1u;failure<=5u;++failure) {
+        launches=error_queries=memsets=0u;fail_launch=failure;
+        if(subgroup_qk(4u)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 102;
     }
     return 0;
 }

@@ -313,6 +313,13 @@ int main(int argc, char** argv) {
         const unsigned count = parse(argv[9], 8192), batch = parse(argv[10], 128);
         const bool baseline = parse(argv[12], 1) != 0;
         const unsigned memory_layout = argc == 14 ? parse(argv[13], 24) : 0u;
+        const char* qk_lane_option = std::getenv("QRT_ATTENTION_REPLAY_QK_LANES");
+        const unsigned qk_lanes = qk_lane_option && *qk_lane_option ? parse(qk_lane_option, 4u) : 1u;
+        if ((qk_lanes != 1u && qk_lanes != 4u) || (qk_lanes == 4u &&
+            memory_layout != 15u && memory_layout != 16u && memory_layout != 17u &&
+            memory_layout != 22u && memory_layout != 23u && memory_layout != 24u))
+            throw std::runtime_error("invalid tiled QK subgroup option");
+        std::fprintf(stderr, "TILED_QK_SUBGROUP lanes=%u\n", qk_lanes);
         const char* native_product_option = std::getenv("QRT_CK_SM121_NATIVE_PRODUCTS");
         const char* host_phase_option = std::getenv("QRT_ATTENTION_REPLAY_HOST_PHASES");
         if (host_phase_option && *host_phase_option && std::strcmp(host_phase_option, "0") &&
@@ -504,7 +511,7 @@ int main(int argc, char** argv) {
                 transposed_data, tokens, native_products, prepacked ? &prepared : nullptr,
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
-                transposed_value_data, transpose_value ? tokens : 0u)));
+                transposed_value_data, transpose_value ? tokens : 0u, qk_lanes)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {
