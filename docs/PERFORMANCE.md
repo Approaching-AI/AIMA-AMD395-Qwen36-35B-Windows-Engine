@@ -2,6 +2,18 @@
 
 ## Current unreleased measurements, 2026-09-13
 
+Output-margin denominator refinement at sourcea25b1c3 passes all35 generated
+cases /6307840 outputs and all29364224 originalq7169 GB10 BF16 cells.
+The output margin chooses work only; strict interval admission and complete
+row fallback remain authoritative. Replay drops from98.0597% to88.7196%
+(364827389 of411213840 scores), but repair/probability still takes2408.1079ms,
+against original QK/probability431.5555/87.0005ms. This strict component stays
+outside product dispatch. Runtime helper math is unchanged and its previously
+failed approximate denominator remains disabled. The next structural check
+measures repeated prefill workspace allocation/free before choosing reuse.
+No model or product tokens are submitted by this component. Evidence:
+`benchmarks/correctness/denominator-output-budget-20260913.json`.
+
 The approximate-denominator product trial at sourcee9673f8 fails the GB10
 continuation boundary. On baiying with the real model, the enabled path returns
 244 instead of255 at output index1 and matches118/512 positions. First144 and
