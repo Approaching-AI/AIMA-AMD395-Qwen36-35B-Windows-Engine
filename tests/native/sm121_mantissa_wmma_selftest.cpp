@@ -1,4 +1,7 @@
 #include "../../native/providers/ck_fmha/blackwell_attention.h"
+#if defined(QRT_MANTISSA_ROW_CERTIFICATE_PROBE) && QRT_MANTISSA_ROW_CERTIFICATE_PROBE
+#include "../../native/providers/moe_accumulator/sm121_mantissa_row_certificate.h"
+#endif
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -32,9 +35,24 @@ __device__ __forceinline__ qrt_blackwell_attention::MantissaMatrixParts fp16_par
              __builtin_amdgcn_wmma_f32_16x16x16_f16_w32(ll, rl, zero)}};
 }
 constexpr const char* kProbeKind = "mantissa_fp16_wmma_selftest";
+#elif defined(QRT_MANTISSA_ROW_CERTIFICATE_PROBE) && QRT_MANTISSA_ROW_CERTIFICATE_PROBE
+constexpr const char* kProbeKind = "mantissa_row_certificate_wmma_selftest";
 #else
 constexpr const char* kProbeKind = "mantissa_wmma_selftest";
 #endif
+
+__host__ __device__ bool reconstruct(qrt_q1_moe_hawkeye::Value carry,
+    const uint32_t (&pairs)[16], const float (&partials)[4], qrt_sm121_group16::AlignedSum* sum) {
+#if defined(QRT_MANTISSA_ROW_CERTIFICATE_PROBE) && QRT_MANTISSA_ROW_CERTIFICATE_PROBE
+    uint16_t left[16],right[16];
+    for(unsigned i=0;i<16u;++i) {left[i]=uint16_t(pairs[i]);right[i]=uint16_t(pairs[i]>>16u);}
+    return qrt_sm121_mantissa_row_certificate::sum(
+        qrt_sm121_mantissa_row_certificate::prepare(left),qrt_sm121_mantissa_row_certificate::prepare(right),
+        carry,((left[0]^right[0])&0x8000u)!=0u,partials,sum);
+#else
+    return qrt_sm121_mantissa_parts::sum(carry,pairs,partials,sum);
+#endif
+}
 
 __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* output) {
     __shared__ uint16_t left[16][18], right[16][18];
@@ -63,7 +81,7 @@ __global__ void matrix_probe(const uint16_t* input, const float* carries, Cell* 
         for (unsigned i = 0; i < 4u; ++i) result.partials[i] = partials[i] = matrix.value[i][element];
         qrt_sm121_group16::AlignedSum sum{};
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
-        result.accepted = qrt_sm121_mantissa_parts::sum(carry, pairs, partials, &sum);
+        result.accepted = reconstruct(carry, pairs, partials, &sum);
         result.magnitude = sum.value.magnitude; result.negative = sum.value.negative; result.exponent = sum.max_exponent;
         output[index] = result;
     }
@@ -73,7 +91,13 @@ unsigned seed = 0x3958192u;
 unsigned random_word() { seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return seed; }
 float bf16(uint16_t v) { return qrt_sm121_native_product::from_bits(uint32_t(v) << 16u); }
 bool same(const qrt_sm121_group16::AlignedSum& a, const qrt_sm121_group16::AlignedSum& b) {
+#if defined(QRT_MANTISSA_ROW_CERTIFICATE_PROBE) && QRT_MANTISSA_ROW_CERTIFICATE_PROBE
+    const auto x=qrt_sm121_canonical::normalize(a.value.magnitude,a.value.negative,a.max_exponent);
+    const auto y=qrt_sm121_canonical::normalize(b.value.magnitude,b.value.negative,b.max_exponent);
+    return x.significand==y.significand && x.exponent==y.exponent && x.negative==y.negative;
+#else
     return a.max_exponent == b.max_exponent && a.value.magnitude == b.value.magnitude && a.value.negative == b.value.negative;
+#endif
 }
 int main() {
     std::vector<uint16_t> input(kCases * 512u);
@@ -124,7 +148,7 @@ int main() {
         const auto carry = qrt_q1_moe_hawkeye::value_from_float(carries[index], -133);
         const auto expected = qrt_sm121_group16::sum_packed(carry, products);
         qrt_sm121_group16::AlignedSum host{};
-        const bool valid = qrt_sm121_mantissa_parts::sum(carry, pairs, output[index].partials, &host);
+        const bool valid = reconstruct(carry, pairs, output[index].partials, &host);
         if (valid != bool(output[index].accepted)) ++status_bad;
         if (!valid) continue;
         ++accepted;

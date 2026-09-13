@@ -10,6 +10,10 @@
 #endif
 
 namespace qrt_sm121_mantissa_row_certificate {
+// Diagnostic reconstruction conditions, conditional on exact matrix partials.
+// CPU certificates do not establish that gfx1151 floating WMMA produces those
+// partials: both BF16 and FP16 have recorded counterexamples. This header is
+// not connected to a runtime admission path; native validation is required.
 struct Range {
     int minimum = 1000, maximum = -1000;
     bool valid = true;
