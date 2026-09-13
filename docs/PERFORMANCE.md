@@ -55,6 +55,16 @@ CK9a7eaf4/FLA-MoE8f436db stack. Default remains disabled; this does not qualify
 other contexts, a new package or retained performance. Evidence:
 `benchmarks/correctness/prepared-projection-operands-20260913.json`.
 
+A separate QK experiment lets one thread reuse a key operand across two
+independent query rows. Fourteen native cases check32182304 raw scores and896
+independent CPU dots with no differences. Same-executable originalq7169
+attention runs match all29364224 external BF16 cells: query plus V-preparation
+host wall is920.561ms for one row and893.9971ms for two. The single-pair
+26.5639ms component difference is not a product performance result. Keep the
+existing provider and prioritize reducing the amount of exact replay work;
+the new shared API defaults to one row and has no provider integration.
+See `benchmarks/correctness/paired-query-qk-20260913.json`.
+
 The same-binary window pair changes only
 `QRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS`. The wider collection and bounded
 persistent replay save 2883.694401 ms in this measured pair, using 15 MiB more
