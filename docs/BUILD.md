@@ -227,6 +227,22 @@ pass, but the completeq8192 continuation fails from output index115. Keep
 absolute-product admission disabled. A tested upper bound on the product sum
 does not independently validate the projection-error coefficient.
 
+The optional `QRT_CK_SM121_FINAL_PV_BOUND=1` route accumulates nonnegative PV
+error metadata and applies its conservative inflation at the end. It defaults
+to 0 and is active only for compact PV replay modes 1/3 (layouts 22/24), with
+the complete query span at or below 8192 tokens. Other spans and Q1 retain
+their original route. Native matrix accumulation, online K32 rescaling,
+reciprocal and exact replay remain unchanged; exceptional metadata selects
+exact replay. No additional dependency or workspace is required.
+
+Compile `tests/native/final_pv_bound_selftest.cpp` for the numerical envelope
+check and `tests/native/final_pv_kernel_selftest.cpp` for the complete native
+PV check. The latter takes the SHA-verified reciprocal table as its argument.
+Use the provider's DPP/compact-normalization/compact-exp2 compiler settings.
+The attention replay tool accepts `QRT_ATTENTION_REPLAY_FINAL_PV_BOUND=0|1`
+for original-tensor comparisons. Both settings have passed the complete
+q8192/out512 GB10 request; this does not qualify a new package or release.
+
 ## Model files
 
 The runtime expects `config.json`, `tokenizer.json`, tokenizer metadata, and

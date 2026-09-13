@@ -35,6 +35,28 @@ verify their fallback transaction and complete owner-state restoration.
 | same binary, prepared operands enabled | cold 8192, ordinary path | 48202.0546 | 102.12639 | 20006.0793 |
 | whole 1a7f621, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48111.7024 | 101.159201 | 20065.8768 |
 | whole 2e49049, absolute bound disabled / prepared enabled | cold 8192, ordinary path | 48017.509 | 101.468183 | 20041.4914 |
+| whole 2e49049 / CK 6520982, final PV envelope disabled | cold 8192, ordinary path | 48223.2078 | 101.959194 | 20074.458 |
+| same binaries, final PV envelope enabled | cold 8192, ordinary path | 47785.5537 | 101.329395 | 20064.6161 |
+
+The optional final PV envelope preserves native matrix arithmetic and enlarges
+the existing error envelope. Both q8192 runs above match all 512 GB10 outputs
+and actual callbacks with exact first token 144 / raw logit 10.375. The sole
+resolved environment change is `QRT_CK_SM121_FINAL_PV_BOUND=0|1`; dense
+absolute-product admission remains disabled. This one pair observes a
+437.6541 ms callback reduction. It does not establish a sustained speedup or
+recover the retained targets, and does not qualify other contexts or release.
+
+On the original q7169 attention capture, enabled/disabled completed query
+time plus V preparation is 886.8647 / 927.6509 ms, with all 29,364,224 GB10
+BF16 cells matching. Candidates increase from 2,181,900 to 2,198,673.
+The first implementation was slower at 1096.6938 / 903.2955 ms because its
+volatile metadata generated extra private-memory traffic. Explicit FP32
+register operations remove that overhead while preserving all captured output
+file hashes. The revised native checks cover 4,210,688 envelope comparisons
+and 4,423,680 kernel cells without shrinking bounds or candidate sets.
+Keep the route optional and move to changes capable of removing seconds from
+dominant attention/dense work. Evidence:
+`benchmarks/correctness/final-pv-bound-20260913.json`.
 
 The resident hipBLASLt follow-up also leaves absolute-product admission
 disabled in the selected stack. It passes110430 native double-reference
@@ -62,9 +84,9 @@ the linear core including its output projection. Coarse buckets and nested
 observers are not additive. GPU subphase intervals still include negatives;
 their raw values are retained without clamping or a validated additive
 attribution. The instrumented49635.3398ms callback is diagnostic and does
-not replace the48017.509ms uninstrumented observation. Next investigate an
-optimized approximate PV producer within attention while preserving exact
-QK, probability normalization and the existing replay gate. Evidence:
+not replace the48017.509ms uninstrumented observation. The final PV envelope
+above addresses part of this work; attention and dense execution still need
+broader changes while retaining their GB10 boundaries. Evidence:
 `benchmarks/correctness/prepared-stack-wall-profile-20260913.json`.
 
 The bounded absolute-product experiment has not passed its product request.

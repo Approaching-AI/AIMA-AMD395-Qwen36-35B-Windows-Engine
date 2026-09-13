@@ -30,7 +30,19 @@ evaluation arbitration explicit prevents a score-calibration tie break from
 changing ordinary OpenAI completions; production HTTP acceptance always runs
 with the global override disabled.
 
-## Unreleased correctness diagnostics (updated September 12)
+## Unreleased correctness diagnostics (updated September 13)
+
+The [final PV envelope evidence](../benchmarks/correctness/final-pv-bound-20260913.json)
+binds CK source `6520982`, its native binaries, both original-tensor runs and
+both q8192/out512 product runs on baiying. Its bound is checked against the
+retained recurrence, including conservative downward metadata rounding,
+underflow, long accumulation, exceptional values and the 512-group limit.
+Native checks confirm identical pre-replay accumulator bits, enlarged bounds,
+candidate supersets and canonical BF16 endpoints. Both real product settings
+match all 512 GB10 outputs and actual callbacks, with exact first 144/10.375.
+The evidence retains the initial launcher failure, stale local test harnesses
+and slower volatile implementation. It does not infer release, long-context,
+prefix-checkpoint or HTTP acceptance from these results.
 
 The [current q8192 phase profile](../benchmarks/correctness/q8192-phase-profile-20260912.json)
 retains all512 outputs and exact144/logit10.375 on whole337644f. Synchronized
