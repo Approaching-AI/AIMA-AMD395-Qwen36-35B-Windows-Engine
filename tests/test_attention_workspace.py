@@ -29,6 +29,7 @@ class AttentionWorkspaceTests(unittest.TestCase):
     def test_atomic_prepare_release_and_failed_submission_drain(self):
         source = (ROOT / "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp").read_text()
         header = (ROOT / "native/providers/ck_fmha/blackwell_attention.h").read_text()
+        deadline = (ROOT / "native/providers/ck_fmha/attention_deadline.h").read_text().replace("#pragma once", "")
         maximum = "constexpr unsigned int kSplitMaxTokens" + header.split(
             "constexpr unsigned int kSplitMaxTokens", 1)[1].split(";", 1)[0] + ";"
         globals_ = source.split("std::mutex g_sm121_mutex;", 1)[1].split(
@@ -61,7 +62,20 @@ std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
 #define QRT_CK_EXPORT
 #define QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL 1
-''' + globals_ + r'''
+''' + globals_ + deadline + r'''
+using AttentionBudget = qrt_sm121_attention_deadline::Budget;
+static_assert(AttentionBudget{0,8192,kSm121MaxTokens}.call_limit_seconds()==20.0);
+static_assert(AttentionBudget{0,32768,kSm121MaxTokens}.window_limit_seconds(8192)==20.0);
+static_assert(AttentionBudget{0,32768,kSm121MaxTokens}.window_limit_seconds(8193)==40.0);
+static_assert(AttentionBudget{0,32768,kSm121MaxTokens}.call_limit_seconds()==200.0);
+static_assert(AttentionBudget{24576,8192,kSm121MaxTokens}.window_limit_seconds(8128)==80.0);
+static_assert(AttentionBudget{65536,1024,kSm121MaxTokens}.call_limit_seconds()==40.0);
+static_assert(AttentionBudget{131071,1,kSm121MaxTokens}.call_limit_seconds()==20.0);
+static_assert(AttentionBudget{0,131072,kSm121MaxTokens}.call_limit_seconds()==2720.0);
+static_assert(AttentionBudget{~0u,1,kSm121MaxTokens}.call_limit_seconds()==0.0);
+static_assert(AttentionBudget{1,~0u,kSm121MaxTokens}.call_limit_seconds()==0.0);
+static_assert(AttentionBudget{0,0,kSm121MaxTokens}.window_limit_seconds(1)==0.0);
+static_assert(AttentionBudget{0,8192,kSm121MaxTokens}.window_limit_seconds(8193)==0.0);
 namespace qrt_sm121_exp2 {
 constexpr size_t table_bytes = 64;
 const unsigned char sha256[32]{};
@@ -389,6 +403,17 @@ int main() {
     if(launch(32768,1)!=hipSuccess || queries!=1u || syncs!=1u) return 52;
     reset();sync_ms=20001;
     if(launch(32768,1)!=hipErrorLaunchTimeOut || queries!=1u || syncs!=1u) return 53;
+    // The real long-prefix failure had drained8128/8192 queries at20.081793s.
+    // Its24k history needs a larger work allowance; the original q8192 bound
+    // and stalled first-window checks above still apply unchanged.
+    reset();sync_ms=79;
+    if(launch(24576,8192)!=hipSuccess || queries!=256u || syncs!=queries || clock_ms!=20224u) return 120;
+    reset();sync_ms=313;
+    if(launch(24576,8192)!=hipErrorLaunchTimeOut || queries!=256u || syncs!=queries) return 121;
+    reset();sync_ms=1250;
+    if(launch(65536,1024)!=hipSuccess || queries!=32u || syncs!=queries || clock_ms!=40000u) return 122;
+    reset();sync_ms=1251;
+    if(launch(65536,1024)!=hipErrorLaunchTimeOut || queries!=32u || syncs!=queries) return 123;
     reset();
     if(launch(32768,1024)!=hipSuccess || queries!=32u || syncs!=queries) return 54;
     reset();

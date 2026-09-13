@@ -30,6 +30,7 @@
 #include "fmha_fwd.hpp"
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
 #include "blackwell_attention.h"
+#include "attention_deadline.h"
 #include "selective_qk.h"
 #endif
 
@@ -365,12 +366,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
     const auto begin = std::chrono::steady_clock::now();
-    // Bound progress in 8192-query windows. A complete 32k prefill comprises
-    // four such windows; applying the old single-window deadline to the entire
-    // call rejected healthy, synchronized work before any output could finish.
-    constexpr unsigned deadline_window_queries = 8192u;
-    const double call_deadline_seconds = 20.0 *
-        ((query_count + deadline_window_queries - 1u) / deadline_window_queries);
+    // Retain the original q8192 deadline while accounting for the additional
+    // key history consumed by long-prefix query windows. Every batch still
+    // drains before the progress check, and the outer process has its own bound.
+    const qrt_sm121_attention_deadline::Budget deadline{
+        query_start, query_count, kSm121MaxTokens};
+    constexpr unsigned deadline_window_queries = decltype(deadline)::window_queries;
+    const double call_deadline_seconds = deadline.call_limit_seconds();
     auto window_begin = begin;
     const bool independent_dots = query_count > 1u;
     const char* mantissa_option = std::getenv("QRT_CK_SM121_MANTISSA_WMMA");
@@ -468,9 +470,12 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         const double call_seconds = std::chrono::duration<double>(now - begin).count();
         const double window_seconds = std::chrono::duration<double>(now - window_begin).count();
         const unsigned completed_queries = offset + std::min(query_batch, query_count - offset);
-        if (call_seconds > call_deadline_seconds || window_seconds > 20.0) {
-            std::fprintf(stderr, "SM121_FULL_ATTENTION_DEADLINE query_start=%u query_count=%u completed_queries=%u call_seconds=%.6f call_limit_seconds=%.1f window_seconds=%.6f window_limit_seconds=20 application_deadline=1 stream_drained=1\n",
-                query_start, query_count, completed_queries, call_seconds, call_deadline_seconds, window_seconds);
+        const double window_limit_seconds = deadline.window_limit_seconds(completed_queries);
+        if (!std::isfinite(call_seconds) || !std::isfinite(window_seconds) ||
+            call_seconds > call_deadline_seconds || window_seconds > window_limit_seconds) {
+            std::fprintf(stderr, "SM121_FULL_ATTENTION_DEADLINE query_start=%u query_count=%u completed_queries=%u call_seconds=%.6f call_limit_seconds=%.1f window_seconds=%.6f window_limit_seconds=%.1f history_work_budget=1 application_deadline=1 stream_drained=1\n",
+                query_start, query_count, completed_queries, call_seconds, call_deadline_seconds,
+                window_seconds, window_limit_seconds);
             return int(hipErrorLaunchTimeOut);
         }
         if (completed_queries % deadline_window_queries == 0u) window_begin = now;
