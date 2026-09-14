@@ -11,6 +11,20 @@ Both first tokens are 144 and raw logits are 10.375. First-token success
 and a faster incorrect continuation do not establish performance acceptance.
 Keep algorithm 0 and shared prevalidated replay enabled for subsequent work.
 
+The next structural experiment removes repeated range checks and original
+product backups from exact scalar replay after a stricter row certificate.
+Its initial source `57ddfe9` passes 30 native cases and 3762438 raw K16
+intermediate comparisons, including zero/cancellation and exceptional fallback.
+Host sanitizer checks pass all BF16 encodings and 2635512 certified group
+values. The valid biased-exponent range is 84 through 174 at K <= 4096;
+explicit counterexamples reject the initially considered wider lower range.
+No product dispatch changes yet. A complete captured-QKV comparison now
+includes the current implementation, previous range normalization and this
+new specialization, with identical candidate identities and three completed
+samples per variant.
+Evidence: `benchmarks/correctness/strong-float-replay-safety-20260914.json`,
+SHA256 `6a9a8d46a9bdb431d5b8f42d57c4df75c5153155ae999c7a9a50de1133983473`.
+
 Both native captured-QKV variants preserve all 67108864 BF16 cells, all
 original 7169 input rows plus 1023 independently comparable repeated rows,
 guards and immutable operands. Their full-model runs verify all 110 matrix
