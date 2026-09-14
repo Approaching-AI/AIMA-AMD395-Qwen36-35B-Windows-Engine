@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Capture the original SM121 BF16 rotary cache from model configuration.
 
-The payload covers every native context position. It contains no prompt IDs,
+The payload covers the selected native runtime positions. It contains no prompt IDs,
 weights, hidden states, logits or generated tokens. The original MRoPE class
 builds four times the configured context; a separate base-cache construction
 checks every emitted value against that full constructor's prefix.
@@ -9,6 +9,7 @@ checks every emitted value against that full constructor's prefix.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -20,7 +21,9 @@ from capture_sm121_exp2_table import file_sha
 
 DEVICE_LIMIT = 1 << 30
 ROWS = 262144
+RUNTIME_ROWS = 264736
 COLUMNS = 64
+RETAINED_PREFIX_SHA256 = "ba12ce218327d4cf23aac7dfacd8e9efbc99fd207611a8466227089838ef0e80"
 PARAMETERS = dict(mrope_interleaved=True, mrope_section=[11, 11, 10],
                   partial_rotary_factor=0.25, rope_theta=10000000, rope_type="default")
 
@@ -72,13 +75,17 @@ def execute(args, config):
     # This shape changes allocation only; compare the complete payload before
     # writing it, rather than assuming shape-independent pointwise arithmetic.
     with set_current_vllm_config(runtime_config), torch.device("cuda"):
-        control = RotaryEmbedding(256, COLUMNS, ROWS, PARAMETERS["rope_theta"],
+        control = RotaryEmbedding(256, COLUMNS, args.rows, PARAMETERS["rope_theta"],
                                   True, torch.bfloat16)
-    expected_prefix = full[:ROWS]
+    expected_prefix = full[:args.rows]
     differences = int(torch.count_nonzero(expected_prefix.view(torch.int16) !=
                                           control.cos_sin_cache.view(torch.int16)).item())
     if differences:
         raise ValueError("cache prefix depends on constructor extent")
+    payload = expected_prefix.contiguous().view(torch.uint16).cpu().numpy().tobytes()
+    retained_prefix_sha256 = hashlib.sha256(payload[:ROWS * COLUMNS * 2]).hexdigest()
+    if retained_prefix_sha256 != RETAINED_PREFIX_SHA256:
+        raise ValueError("original 262144-row cache fingerprint changed")
     # Verify the inverse frequencies separately: these FP32 constants explain
     # phase drift and remain useful when replacing the cache with native code.
     with torch.device("cuda"):
@@ -88,16 +95,17 @@ def execute(args, config):
     if torch.cuda.max_memory_allocated() > DEVICE_LIMIT:
         raise ValueError("rotary controls exceeded the device ceiling")
     files = []
-    for name, tensor in (("sm121-rope-bf16.bin", expected_prefix),
-                         ("sm121-rope-inverse-f32.bin", inverse)):
+    for name, data in (("sm121-rope-bf16.bin", payload),
+                       ("sm121-rope-inverse-f32.bin", inverse.contiguous().cpu().numpy().tobytes())):
         path = args.output_dir / name
         with path.open("xb") as stream:
-            stream.write(tensor.contiguous().cpu().numpy().tobytes() if tensor.dtype != torch.bfloat16
-                         else tensor.contiguous().view(torch.uint16).cpu().numpy().tobytes())
+            stream.write(data)
         files.append(dict(file=name, bytes=path.stat().st_size, sha256=file_sha(path)))
-    return dict(completed=True, rows=ROWS, columns=COLUMNS, dtype="bf16",
+    return dict(completed=True, rows=args.rows, columns=COLUMNS, dtype="bf16",
                 layout="position_cos32_sin32", original_cache_rows=4 * ROWS,
-                extent_control_elements=ROWS * COLUMNS, extent_control_bit_mismatches=differences,
+                extent_control_elements=args.rows * COLUMNS, extent_control_bit_mismatches=differences,
+                retained_prefix_rows=ROWS, retained_prefix_sha256=retained_prefix_sha256,
+                extension_rows=args.rows - ROWS,
                 original_constructor_peak_device_bytes=full_peak,
                 peak_device_bytes=torch.cuda.max_memory_allocated(),
                 torch_version=torch.__version__, rotary_class=type(original).__name__,
@@ -111,6 +119,7 @@ def main():
     parser.add_argument("--expected-config-sha256", required=True)
     parser.add_argument("--source-manifest", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
+    parser.add_argument("--rows", type=int, choices=(ROWS, RUNTIME_ROWS), default=ROWS)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--expected-host")
     parser.add_argument("--timeout-seconds", type=int, default=45)
@@ -137,7 +146,8 @@ def main():
                   model_config_sha256=file_sha(args.model_config),
                   source_manifest_sha256=file_sha(args.source_manifest),
                   model_weights_loaded=False, prompt_inputs=False, inference_acceptance=False,
-                  completed=False, maximum_device_bytes=DEVICE_LIMIT, rope_parameters=PARAMETERS)
+                  completed=False, maximum_device_bytes=DEVICE_LIMIT, rope_parameters=PARAMETERS,
+                  requested_rows=args.rows, model_max_position_embeddings=ROWS)
     (args.output_dir / "preflight.json").write_text(json.dumps(record, indent=2) + "\n")
     if args.execute:
         try:

@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class Sm121RopeCacheTests(unittest.TestCase):
-    def run_case(self, wrong_hash=False, wrong_geometry=False):
+    def run_case(self, wrong_hash=False, wrong_geometry=False, rows=None, invalid_rows=False):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             parameters = dict(mrope_interleaved=True, mrope_section=[11, 11, 10],
@@ -25,9 +25,10 @@ class Sm121RopeCacheTests(unittest.TestCase):
             result = subprocess.run([sys.executable, str(ROOT / "scripts/capture_sm121_rope_cache.py"),
                                      "--source-commit", "a" * 40, "--model-config", str(config),
                                      "--expected-config-sha256", "0" * 64 if wrong_hash else digest,
-                                     "--source-manifest", str(source), "--output-dir", str(output)],
+                                     "--source-manifest", str(source), "--output-dir", str(output),
+                                     *([] if rows is None else ["--rows", str(rows)])],
                                     text=True, capture_output=True, timeout=10)
-            if wrong_hash or wrong_geometry:
+            if wrong_hash or wrong_geometry or invalid_rows:
                 self.assertNotEqual(result.returncode, 0)
                 self.assertFalse(output.exists())
             else:
@@ -39,6 +40,8 @@ class Sm121RopeCacheTests(unittest.TestCase):
                 self.assertFalse(record['inference_acceptance'])
                 self.assertFalse((output / 'sm121-rope-bf16.bin').exists())
                 self.assertEqual(record['model_config_sha256'], digest)
+                self.assertEqual(record['model_max_position_embeddings'], 262144)
+                self.assertEqual(record['requested_rows'], 262144 if rows is None else rows)
 
     def test_dry_run_writes_no_cache(self):
         self.run_case()
@@ -48,3 +51,11 @@ class Sm121RopeCacheTests(unittest.TestCase):
 
     def test_geometry_mismatch_fails_before_execution(self):
         self.run_case(wrong_geometry=True)
+
+    def test_extended_runtime_does_not_rewrite_model_geometry(self):
+        self.run_case(rows=264736)
+
+    def test_unsupported_extents_fail_before_creating_output(self):
+        for rows in (0, 262143, 262145, 264737, 2**64):
+            with self.subTest(rows=rows):
+                self.run_case(rows=rows, invalid_rows=True)
