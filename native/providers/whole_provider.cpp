@@ -24,6 +24,7 @@
 #include "qrt_prefix_checkpoint.h"
 #include "prefix_checkpoint_policy.h"
 #include "gdn/fla_checkpoint.h"
+#include "gdn/gb10_gate_lookup.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
@@ -75,6 +76,7 @@
 #include <string>
 #include <thread>
 #include <tuple>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -41568,6 +41570,7 @@ struct Gb10GateLutLayer {
     std::string directory;
     bool loaded = false;
     float *q1_device_g = nullptr;
+    uint16_t *device_beta = nullptr;
 };
 
 struct Gb10GateLutStore {
@@ -41729,6 +41732,44 @@ void gb10_gate_lut_rows(
         std::memcpy(g_rows + head, &g_bits, sizeof(g_bits));
         beta_rows[head] = qrt_bf16_to_float(lut.beta_bf16_bits[b_bits]);
     }
+}
+
+bool load_gb10_gate_device_layer(
+    unsigned int layer_index, const uint32_t **g, const uint16_t **beta,
+    std::string *failure
+) {
+    static_assert(kGateRows == qrt_gb10_gate_lookup::heads);
+    const Gb10GateLutLayer *loaded = nullptr;
+    if (!g || !beta || !failure ||
+        !load_gb10_gate_lut_layer(layer_index, &loaded, failure)) return false;
+    *g = nullptr;
+    *beta = nullptr;
+    Gb10GateLutStore &store = gb10_gate_lut_store();
+    std::lock_guard<std::mutex> lock(store.mutex);
+    Gb10GateLutLayer &layer = store.layers[layer_index];
+    // Decode and prefill share the immutable G allocation. Publish each new
+    // pointer only after a successful upload; a failed beta allocation leaves
+    // an already valid G table available for retry and for the decode route.
+    const auto prepare = [&](auto **destination, const auto &host) -> bool {
+        if (*destination) return true;
+        void *device = nullptr;
+        const size_t bytes = host.size() * sizeof(host[0]);
+        hipError_t status = hipMalloc(&device, bytes);
+        if (status == hipSuccess)
+            status = hipMemcpy(device, host.data(), bytes, hipMemcpyHostToDevice);
+        if (status != hipSuccess) {
+            if (device) (void)hipFree(device);
+            *failure = std::string("GB10 prefill gate table upload: ") + hipGetErrorString(status);
+            return false;
+        }
+        *destination = static_cast<std::remove_reference_t<decltype(*destination)>>(device);
+        return true;
+    };
+    if (!prepare(&layer.q1_device_g, layer.g_f32_bits) ||
+        !prepare(&layer.device_beta, layer.beta_bf16_bits)) return false;
+    *g = reinterpret_cast<const uint32_t *>(layer.q1_device_g);
+    *beta = layer.device_beta;
+    return true;
 }
 
 struct Gb10Layer0RmsnormScaleLutStore {
@@ -118027,6 +118068,17 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         target_token_count <= kQ65536ColdProbePrefillTokens &&
         secondary_fla_chunk_gdn_dll != nullptr &&
         secondary_fla_chunk_gdn_dll[0] != '\0';
+    // Raw FLA performs its own Q/K normalization. Its legacy normalized
+    // postconv surface has no inference consumer; retain that surface only
+    // when diagnostics explicitly request it. The opt-in also moves the
+    // complete-domain gate lookup to the current GPU stream below.
+    const char *gate_input_capture = std::getenv("QRT_QWEN36_GATE_INPUT_CAPTURE_DIR");
+    const bool use_fla_device_preparation =
+        env_flag_enabled("QRT_QWEN36_FLA_DEVICE_PREPARATION") &&
+        use_secondary_fla_chunk_gdn_provider &&
+        !use_q262144_staged_linear_workspace && !materialize_host_diagnostics &&
+        env_u32_or_default("QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER", UINT_MAX) != descriptor.layer_index &&
+        !(gate_input_capture && *gate_input_capture);
     const unsigned int use_exact_q131_context_aiter_fused_gdn =
         use_aiter_fused_gdn_provider &&
                 resident_long_context_provider_requested(prefill_tokens)
@@ -121553,7 +121605,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 run->conv_window.output_bytes,
                 "hipMalloc(" + prefix + "_conv_output)"
             )) ||
-            (!use_q262144_staged_linear_workspace && !malloc_device(
+            (!use_q262144_staged_linear_workspace && !use_fla_device_preparation && !malloc_device(
                 &device_postconv,
                 run->postconv_window.output_bytes,
                 "hipMalloc(" + prefix + "_postconv_output)"
@@ -121764,29 +121816,31 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     << " diagnostic_only=1 numerical_correctness_claimed=0"
                     << std::endl;
             }
-            hipLaunchKernelGGL(
-                postconv_qk_kernel,
-                dim3(target_token_count, kKeyHeads),
-                dim3(kKeyDim),
-                0,
-                0,
-                device_conv,
-                device_postconv,
-                target_token_count
-            );
-            hipLaunchKernelGGL(
-                postconv_value_kernel,
-                dim3(
-                    (kValueFeatures + kThreads - 1u) / kThreads,
+            if (!use_fla_device_preparation) {
+                hipLaunchKernelGGL(
+                    postconv_qk_kernel,
+                    dim3(target_token_count, kKeyHeads),
+                    dim3(kKeyDim),
+                    0,
+                    0,
+                    device_conv,
+                    device_postconv,
                     target_token_count
-                ),
-                dim3(kThreads),
-                0,
-                0,
-                device_conv,
-                device_postconv,
-                target_token_count
-            );
+                );
+                hipLaunchKernelGGL(
+                    postconv_value_kernel,
+                    dim3(
+                        (kValueFeatures + kThreads - 1u) / kThreads,
+                        target_token_count
+                    ),
+                    dim3(kThreads),
+                    0,
+                    0,
+                    device_conv,
+                    device_postconv,
+                    target_token_count
+                );
+            }
         }
         if (!complete_linear_phase("convolution")) goto cleanup;
         const bool exact_early_gate_contract =
@@ -121845,7 +121899,22 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             goto cleanup;
         }
         std::vector<float> host_gate_contract;
-        if (exact_gate_handoff_contract) {
+        if (use_fla_device_preparation && use_gb10_gate_lut) {
+            const uint32_t *device_g = nullptr;
+            const uint16_t *device_beta = nullptr;
+            if (!load_gb10_gate_device_layer(descriptor.layer_index,
+                    &device_g, &device_beta, &run->failure)) {
+                run->failure_stage = prefix + "_device_gate_table";
+                goto cleanup;
+            }
+            if (!fail_hip(qrt_gb10_gate_lookup::launch(device_a, device_b,
+                    device_g, device_beta, device_gate, target_token_count),
+                    prefix + "_device_gate_lookup")) goto cleanup;
+            std::cerr << "BATCH_MARK resident_linear_fla_device_preparation"
+                      << " layer=" << descriptor.layer_index << " tokens=" << target_token_count
+                      << " normalized_postconv_allocated=0 gate_host_roundtrip_bytes=0"
+                      << " gate_lookup=complete_bf16_domain raw_log_gate=1" << std::endl;
+        } else if (exact_gate_handoff_contract) {
             std::vector<float> host_a(run->a_projection.output_elements, 0.0f);
             std::vector<float> host_b(run->b_projection.output_elements, 0.0f);
             std::vector<float> host_gate(

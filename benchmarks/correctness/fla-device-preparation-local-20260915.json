@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "kind": "fla_device_preparation_local_validation",
+  "validation": {
+    "source_base_commit": "dfbe56abc3b1b102a1135b916e3594a32bedbae3",
+    "source_sha256": {
+      "native/providers/whole_provider.cpp": "1c2249bf531feb833c64360f62c6c87298c1aeeba1073a14463785673e871f17",
+      "native/providers/gdn/gb10_gate_lookup.h": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+      "tests/native/gb10_gate_lookup_probe.cpp": "1f52092d6cb668acb54a23bc53c82caaee885cc00a07bfac5216506b37a731a6",
+      "scripts/baiying_build_whole_provider.ps1": "f475304803200369052b791cc4ed714e316a29803b939fc4e1c5b336feccd02c"
+    },
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 135.2364207925275,
+    "log": "fla-device-preparation-local-check-r1.log",
+    "log_sha256": "0722085b584eee3e29a5a6e3df46c5c496d1b79f7fb9b8d3ed2a21c6744ad451",
+    "rust_validation_reused": "tokenizer-vocab-cache-local-check-r1.json",
+    "rust_reuse_reason": "Rust, Cargo, C runtime and ABI files are unchanged since the 47 passing workspace tests and clippy for f1ea668."
+  },
+  "native_build_qualified": false,
+  "native_gate_lookup_qualified": false,
+  "product_correctness_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false,
+  "scope": "Existing405 Python tests with two skips, C smoke and hygiene pass. The new HIP gate-table kernel still requires its159 native complete-domain/tail cases and a same-DLL real-model OFF/ON comparison. Rust and the C runtime/ABI are unchanged since f1ea668 workspace tests. The QRT_QWEN36_FLA_DEVICE_PREPARATION option defaults off; trace and host diagnostics retain their required surfaces."
+}

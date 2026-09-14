@@ -233,6 +233,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\hawkeye_dispatch_policy.h')).Hash.ToLowerInvariant()
     gate_input_capture_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\gate_input_capture.h')).Hash.ToLowerInvariant()
+    gb10_gate_lookup_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\gdn\gb10_gate_lookup.h')).Hash.ToLowerInvariant()
     projection_output_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\projection_output_policy.h')).Hash.ToLowerInvariant()
     q8192_matrix_producer_policy_sha256 = (Get-FileHash -Algorithm SHA256 `

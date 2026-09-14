@@ -71,9 +71,25 @@ and all 12 owner-state rollbacks. Both services shut down normally. Evidence:
 SHA256 `268bee10b952b5cf50571d46e75f2c504b186e35521f8d66e8fe76fbb60299bc`.
 
 The one-hour same-process HTTP soak is running with the repaired service.
-Its previous setup failure produced no counted generation. Completion still
-needs its own numerical and cleanup evidence. Long contexts, immutable
-performance and release remain open.
+The first attempt timed out before generation on the former detokenize bug.
+A second attempt verified 544 raw GB10 tokens and one q8192 first logit, then
+its controller reused an exclusive-create progress filename. The service
+shut down normally. Revision 3 writes separate progress snapshots and starts
+a fresh full-hour window. The controller failure is preserved in
+`benchmarks/correctness/current-portable-soak-controller-failure-20260915.json`,
+SHA256 `2b5b1bd1cf5e0f4ad85072505aca5d5d137beef464c65eb7856bdc345bd55d8c`.
+Completion needs its own numerical and cleanup evidence; long contexts,
+immutable performance and release remain open.
+
+The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
+normalized postconv allocation and two unused kernels when raw FLA owns Q/K
+normalization. It moves the complete-domain GB10 gate lookup from the CPU to
+the current GPU stream, sharing decode's immutable G allocation. Host/trace
+captures retain their original surfaces. No dot arithmetic or selection bound
+changes. Existing 405 Python tests (two skips), C smoke and hygiene pass;
+Windows build, 159 native lookup cases and a same-DLL q8192/out512 OFF/ON
+comparison remain pending behind the running soak. No benefit is claimed.
+Local record: `benchmarks/correctness/fla-device-preparation-local-20260915.json`.
 
 Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
 and FLA `2ee6215` pass the current q8192 regression on baiying with
