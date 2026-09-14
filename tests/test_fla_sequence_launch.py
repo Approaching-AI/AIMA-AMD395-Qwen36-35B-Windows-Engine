@@ -25,6 +25,8 @@ class FlaSequenceLaunchTests(unittest.TestCase):
         source = r'''
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
+#include <cstring>
 #include <initializer_list>
 enum hipError_t { hipSuccess, hipErrorUnknown };
 using hipEvent_t = void*;
@@ -59,6 +61,7 @@ const unsigned char* exp2_table_device() {
 }
 ''' + scope + timing + auxiliary + r'''
 void reset() {
+    unsetenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES");
     creates = records = waits = drains = destroys = operations = 0u;
     fail_create = fail_record = fail_operation = UINT32_MAX;
     fail_wait = false; enabled = table = ordered = true; duration = 12.0f;
