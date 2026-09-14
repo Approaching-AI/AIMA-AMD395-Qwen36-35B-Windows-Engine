@@ -37,6 +37,18 @@ stack above. Local evidence:
 `benchmarks/correctness/runtime-context-bounds-local-20260914.json`, SHA256
 `9e144956381418f346cf1ed7cd34a6088d4357366efaab8682d3cc83c879f9bf`.
 
+The product CLI at `70d85fe` now records and validates the first suffix
+retry inside prefix fallback before the timed warm hit can replace its
+output. It compares every supplied GB10 output token, reads the token-bound
+first-logit extension, and requires prefix state restoration. The owner
+seed still emits exactly one token. C syntax, smoke, 394 Python tests
+with two skips and hygiene pass; 20 sanitized boundary cases include
+a wrong final token with a self-consistent provider digest. Unchanged
+Rust/Cargo reuse the prior 47 tests and clippy. Windows and real-model
+qualification remain pending. Evidence:
+`benchmarks/correctness/product-prefix-seed-retry-local-20260914.json`,
+SHA256 `067808fbbf16251e72d29c939b5f8ef9d5d2cf44134dac6a56797ecd747e82eb`.
+
 Compact staged-half routed MoE at `4a7f0c4` reduces complete q8192
 TTFT from 33507.2252 to 32939.7689 ms in the same-DLL off/on comparison,
 saving 567.4563 ms. Both baiying runs with `D:\models\Qwen3.6-35B-A3B`

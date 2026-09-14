@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "product_prefix_seed_retry_local_validation",
+  "source_commit": "70d85fe609a721f83fbf0a2bfc2acc4789506afd",
+  "source_sha256": {
+    "native/src/product_cli.c": "877f462c0838f9769b7a46b388e83b4423184d6ddd2d7fea705047055ae5c58c",
+    "tests/test_product_prefix_seed.py": "55c17d91914600e7c89d3cdf7feb5529773410389ffb0b1c47c072f1e8af8ea1"
+  },
+  "validation": {
+    "source_commit": "70d85fe609a721f83fbf0a2bfc2acc4789506afd",
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 122.0194953745231,
+    "log": "prefix-seed-retry-local-check-r1.log",
+    "log_sha256": "d7a3de91959393779c6e64b4c083fbf5c68dabaf0879f4b6432b55a0ef762e62",
+    "rust_validation_reused": true,
+    "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+    "rust_validation_record": "runtime-context-local-check-r1.json",
+    "c_product_cli_syntax_command": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Inative/src",
+      "-fsyntax-only",
+      "native/src/product_cli.c"
+    ],
+    "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+    "cargo_incremental": false
+  },
+  "validation_excerpt": [
+    "Ran 394 tests in 115.736s",
+    "OK (skipped=2)",
+    "public_hygiene=pass finding_count=0"
+  ],
+  "rust_reuse": {
+    "source_commit": "5875f997136650da899b6775f700464ec0019667",
+    "record": "runtime-context-local-check-r1.json",
+    "log_sha256": "4ce2a807d74c9ab421c9ee74f97ebff51e6a311bd2389d7f5dd64e87e2767b6d",
+    "changed_files": [
+      "benchmarks/correctness/runtime-context-bounds-local-20260914.json",
+      "docs/PERFORMANCE.md",
+      "native/src/product_cli.c",
+      "tests/test_product_prefix_seed.py"
+    ],
+    "tests": 47,
+    "clippy_pass": true
+  },
+  "behavior": {
+    "owner_output_capacity_unchanged": 1,
+    "retry_emitted_before_next_request": true,
+    "retry_output_ids_compared_to_supplied_gb10_ids": true,
+    "retry_logit_source": "hit_result.reserved.prefix_first_logit_v1",
+    "retry_state_restoration_checked": true,
+    "observed_row_type": "prefix_seed",
+    "failure_exit_code": 6
+  },
+  "fault_validation": {
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "cases": 20,
+    "valid_cases": 3,
+    "rejection_cases": 17,
+    "tail_token_rejected_with_self_consistent_provider_digest": true,
+    "old_missing_logit_and_owner_bound_logit_rejected": true,
+    "nonfinite_logit_rejected": true,
+    "output_count_overflow_guarded": true
+  },
+  "scope": "Local CLI acceptance-observation change only. The fallback still requests exactly one owner token and then the original suffix continuation. The retry tokens are not owner continuation tokens. No native Windows execution or model inference of this source has completed.",
+  "native_windows_validated": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
