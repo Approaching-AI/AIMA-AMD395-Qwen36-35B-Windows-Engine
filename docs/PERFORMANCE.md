@@ -26,6 +26,17 @@ open. The address fixtures alone establish no long-context inference claim.
 Evidence: `benchmarks/correctness/extended-attention-capacity-q8192-20260914.json`,
 SHA256 `e0100d3cde19c159dfde1d693d31e8793ffaaa7b31ffa74e9a9e67c80c24c646`.
 
+The subsequent source `5875f99` separates model metadata (262144) from
+runtime prompt (263168), request including output (263680), and attention
+storage (264736) limits. C request/provider checks and C/Rust server startup
+share these bounds. Complete local validation passes 393 Python tests with
+two skips, 47 Rust tests, clippy and C smoke, including the actual HTTP
+router's exact-limit and one-extra-prompt-token cases. This source has no
+Windows or real-model qualification yet and does not replace the measured
+stack above. Local evidence:
+`benchmarks/correctness/runtime-context-bounds-local-20260914.json`, SHA256
+`9e144956381418f346cf1ed7cd34a6088d4357366efaab8682d3cc83c879f9bf`.
+
 Compact staged-half routed MoE at `4a7f0c4` reduces complete q8192
 TTFT from 33507.2252 to 32939.7689 ms in the same-DLL off/on comparison,
 saving 567.4563 ms. Both baiying runs with `D:\models\Qwen3.6-35B-A3B`

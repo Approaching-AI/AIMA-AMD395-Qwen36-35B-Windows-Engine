@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "kind": "runtime_context_bounds_local_validation",
+  "source_commit": "5875f997136650da899b6775f700464ec0019667",
+  "source_sha256": {
+    "Makefile": "102b0d3bb7d1524b888ab50ae34d0921d46cb8865ab33c7fe730032e299d0cad",
+    "engine/qrt-cli/build.rs": "7e3e1c07ac11376f1932b5a674bb2a52ab813101e51b090b1aafaae9dee845e5",
+    "engine/qrt-server/build.rs": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+    "engine/qrt-server/src/api.rs": "1a921bc997bc4398db54cf6e8862c6dcff85eb4fe4f3f28e09fe0534d164bb50",
+    "engine/qrt-server/src/backend.rs": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+    "engine/qrt-server/src/lifecycle.rs": "c6182f803d35e748891a9cf8dd6bc74bd656e2a4bbb4b806c0119c5400eb8668",
+    "native/providers/sm121_attention_capacity.h": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+    "native/providers/whole_provider.cpp": "b3e1f97ed4c52a5ea8b1d0340d37823288c1e262da6391a2b2d93f5fb8f63c5d",
+    "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+    "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+    "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+    "native/src/qrt_server_bridge.c": "1b16426962d9acc6eea8aed78629e35e288540eba376ee78abfd8d5e01f2e536",
+    "native/src/qrt_server_bridge.h": "41f700ed4482d0b990d20873e513af36999de99f1f02228ef7d50fbd6c7af954",
+    "scripts/baiying_build_ck_fmha_q8192.ps1": "fcac300c5402ea773635ac7d9195d6277ed0bb908f2f1f1315d28ca57b51b461",
+    "scripts/baiying_build_qrt_server.ps1": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+    "scripts/baiying_build_whole_provider.ps1": "30c8942d480e67e59e11434dc8bdd89db60d8d3784740b8ac44e49f2c4fe126b",
+    "scripts/build-product-cli.ps1": "78509f2b64700a957207398b4b12539bba3aeb53d6ca80674a30c23b6a99a4ce",
+    "tests/native/server_prefix_routing.c": "35128fc4d21312424dea2f8d4efe8f4c74a63b7020b4cd542d25a311720c2248",
+    "tests/test_attention_workspace.py": "37f37d9537b12939bdcec8747d61191f358d39cb6b420e8d0cad109990c8a1e1",
+    "tests/test_native_route_contracts.py": "bfeacc2206608208a9204f95373240cc58012cd8c47d1f576bc45daed96eddcd",
+    "tests/test_runtime_context_limits.py": "96bdcf1aee684c0a7b705c9c5942c0a2ebc363a93227ed241ca70768816c16bd"
+  },
+  "validation": {
+    "source_commit": "5875f997136650da899b6775f700464ec0019667",
+    "command": [
+      "make",
+      "check",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 138.84557495824993,
+    "log": "runtime-context-local-check-r1.log",
+    "log_sha256": "4ce2a807d74c9ab421c9ee74f97ebff51e6a311bd2389d7f5dd64e87e2767b6d",
+    "rust_validation_reused": false,
+    "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+    "cargo_incremental": false
+  },
+  "validation_excerpt": [
+    "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s",
+    "test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s",
+    "Ran 393 tests in 114.016s",
+    "OK (skipped=2)",
+    "public_hygiene=pass finding_count=0"
+  ],
+  "model_max_position_embeddings": 262144,
+  "maximum_prompt_tokens": 263168,
+  "maximum_request_context_tokens": 263680,
+  "attention_capacity_tokens": 264736,
+  "conclusions": [
+    "Separate immutable model metadata from the runtime bounds needed for a256k prefix owner plus1024 real suffix inputs and512 outputs. C request eligibility,resident prefix state,exact product shape,and C/Rust server startup use the shared runtime constants. Attention capacity remains264736. The server reads its limit from the compiled C bridge instead of duplicating a Rust literal.",
+    "Executed C request tests cover zero,maximum,one-past-maximum,integer overflow,engine context,readiness,manifest/provider flags,strict opt-in and attached-prefix exclusion. The real non-Windows C bridge validates context before its explicit platform rejection. The Rust HTTP router accepts263168 prompt tokens plus512 output capacity and rejects one extra prompt token. These are controlled tests,not model inference.",
+    "Build dependencies and native CLI,server,whole and CK provenance include the new shared header. Complete local make check passes393 Python tests with two skips,47 Rust tests,clippy,C smoke and hygiene. Model configuration parsing keeps the original262144 value. Windows build and real-model validation of this source remain pending."
+  ],
+  "native_windows_validated": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
