@@ -103,10 +103,24 @@ performance are unchanged. Evidence:
 `benchmarks/correctness/blocked-half-weight-components-20260915.json`, SHA256
 `2de35fb86cfca751062e30c6f822df74a7688ba1e1d6e5e16db9607f79353e51`.
 
-Next investigate shared lossless operand preparation for selected PV replay,
-retaining every K16 rounding endpoint and K32 alpha rescale. Existing group
-flags and scalar-float PV results are comparison priors; a new route must
-beat the original integer replay with complete preparation costs included.
+Shared scaled-half PV `982acd4` passes 220 short and 20 long native reports,
+through query position 264735, preserving original output/accumulator/
+denominator bits, candidate ownership, full encodings and guards. Both real
+q7169 routes match all 29364224 GB10 BF16 cells and 2198673 selected cells,
+with 228 independent CPU recurrences. Including P/V encoding, three-sample
+replay medians are 95.0127 ms original and 245.1866 ms scaled-half. Keep the
+original compact integer PV; no runtime integration follows. Separate untimed
+diagnostics check 637019466 groups: 636913770 transformed and 105696 original
+fallback. C smoke, 403 Python tests with two skips and hygiene pass. Evidence:
+`benchmarks/correctness/shared-scaled-half-pv-components-20260915.json`, SHA256
+`9f48a8e49206199e1087d82022b3df21540c1d44c4c13e3c1adbf86ef54253c7`.
+
+Next resolve the measured linear pipeline wall before another replacement.
+The 7890.378 ms linear-core scope includes convolution/gates, FLA, gated norm,
+OUT projection and residual/postnorm; it is not a pure FLA clock. Existing
+FLA KKT/WU/state/output clocks omit norm, inverse and copy/cumsum stages.
+Add explicit operation boundaries and rerun the complete q8192 GB10 gate;
+do not treat nested or missing intervals as independent measured costs.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
