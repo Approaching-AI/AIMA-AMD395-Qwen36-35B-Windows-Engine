@@ -41,6 +41,7 @@
 #include "moe_accumulator/sm121_prepared_projection.h"
 #include "moe_accumulator/sm121_float_subgroup.h"
 #include "moe_accumulator/sm121_scalar_projection.h"
+#include "moe_accumulator/sm121_scaled_fallback.h"
 #include "moe_accumulator/sm121_replay_partition.h"
 #include "moe_accumulator/bf16_absolute_product_matrix.h"
 #include "moe_accumulator/bf16_absolute_product_views.h"
@@ -37515,6 +37516,21 @@ void selected_bf16_projection_hawkeye_validated_float_kernel(
 }
 
 __global__ __launch_bounds__(256)
+void selected_bf16_projection_hawkeye_scaled_fallback_kernel(
+    const uint16_t* weights, const uint16_t* inputs, const unsigned* weight_flags,
+    const unsigned* input_flags, float* outputs, unsigned rows, unsigned reduction_size,
+    const unsigned* indices, unsigned candidate_offset, unsigned candidate_count) {
+    constexpr unsigned lanes = kSelectedHawkeyeReplayLanes;
+    const unsigned slot = candidate_offset + blockIdx.x * (kSelectedHawkeyeCorrectionThreads / lanes) + threadIdx.x / lanes;
+    if (slot >= candidate_count) return;
+    const size_t index = indices[slot], token = index / rows, row = index % rows;
+    const float value = qrt_sm121_scaled_fallback::dot<lanes>(
+        inputs + token * reduction_size, weights + row * reduction_size, reduction_size,
+        weight_flags[row] & input_flags[token]);
+    if (!(threadIdx.x & (lanes - 1u))) outputs[index] = device_bf16_round_to_float(value);
+}
+
+__global__ __launch_bounds__(256)
 void selected_bf16_projection_hawkeye_prepared_correction_kernel(
     const uint16_t* weights, const uint16_t* inputs,
     const uint16_t* prepared_weights, const uint16_t* prepared_inputs,
@@ -37959,6 +37975,13 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (partition_setting && *partition_setting && std::strcmp(partition_setting,"0") && std::strcmp(partition_setting,"1"))
         return hipErrorInvalidValue;
     const bool partition_replay = validated_float && partition_setting && std::strcmp(partition_setting,"1") == 0;
+    const char* scaled_fallback_setting = std::getenv("QRT_QWEN36_HAWKEYE_SCALED_FALLBACK");
+    if (scaled_fallback_setting && *scaled_fallback_setting &&
+        std::strcmp(scaled_fallback_setting,"0") && std::strcmp(scaled_fallback_setting,"1"))
+        return hipErrorInvalidValue;
+    const bool scaled_fallback = validated_float && selected_token_count == 8192u &&
+        scaled_fallback_setting && std::strcmp(scaled_fallback_setting,"1") == 0;
+    if (scaled_fallback && (partition_replay || kSelectedHawkeyeReplayLanes != 4u)) return hipErrorInvalidValue;
     const bool prepared_operands = prepared_requested && !float_replay && !validated_float;
     // Reuse lossless preparation's whole-row eligibility. The matrix computes
     // selector metadata from original BF16 operands; excluded rows keep an
@@ -38079,11 +38102,13 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     status = [&]() -> hipError_t {
         if (validated_float) {
             const auto dispatch_start = std::chrono::steady_clock::now();
-            hipLaunchKernelGGL(qrt_sm121_scalar_projection::eligible_rows_kernel,
+            const auto classifier = scaled_fallback ? qrt_sm121_scaled_fallback::classify_rows
+                : qrt_sm121_scalar_projection::eligible_rows_kernel;
+            hipLaunchKernelGGL(classifier,
                 dim3(rows),dim3(kThreads),0,stream,weights,prepared_flags,rows,reduction_size);
             hipError_t result = hipGetLastError();
             if (result != hipSuccess) return result;
-            hipLaunchKernelGGL(qrt_sm121_scalar_projection::eligible_rows_kernel,
+            hipLaunchKernelGGL(classifier,
                 dim3(selected_token_count),dim3(kThreads),0,stream,selected_inputs,
                 prepared_flags+rows,selected_token_count,reduction_size);
             result = synchronize_bounded(dispatch_start);
@@ -38340,7 +38365,9 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         transposed_weights, selected_inputs, outputs, rows, reduction_size,
                         scratch + 2u, candidate_offset, candidate_offset + launch_candidates);
                 } else if (validated_float) {
-                    hipLaunchKernelGGL(selected_bf16_projection_hawkeye_validated_float_kernel,
+                    const auto replay = scaled_fallback ? selected_bf16_projection_hawkeye_scaled_fallback_kernel
+                        : selected_bf16_projection_hawkeye_validated_float_kernel;
+                    hipLaunchKernelGGL(replay,
                         dim3((launch_candidates + subgroups_per_block - 1u) / subgroups_per_block),
                         dim3(kSelectedHawkeyeCorrectionThreads),0,stream,weights,selected_inputs,
                         prepared_flags,prepared_flags+rows,outputs,rows,reduction_size,
@@ -38405,6 +38432,9 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             rows,selected_token_count,reduction_size,prepared_bytes,kSelectedHawkeyeReplayLanes,status==hipSuccess ? 1u : 0u,
             partition_replay ? 1u : 0u,partition_bytes);
     }
+    if (scaled_fallback)
+        std::fprintf(stderr,"BATCH_MARK hawkeye_scaled_fallback rows=%u tokens=%u k=%u lanes=4 original_float_range=1 normal_bf16_fallback=1 original_special_fallback=1 additional_workspace_bytes=0 completed=%u\n",
+            rows,selected_token_count,reduction_size,status==hipSuccess ? 1u : 0u);
     if (absolute_product_bound) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_absolute_product_bound rows=%u tokens=%u k=%u workspace_bytes=%zu windows=%u bound_host_ms=%.3f infinite_row_fallback=1 ppb=%u midpoint_radius=%u completed=%u hipblaslt=%u magnitude_bytes=%zu\n",
             rows,selected_token_count,reduction_size,absolute_bound_bytes,absolute_bound_windows,

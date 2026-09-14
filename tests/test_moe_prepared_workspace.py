@@ -39,6 +39,7 @@ constexpr size_t kMoePreparedWeightRows=524288, kMoePreparedInputRows=65536;
 struct State {
     bool prepared_replay=false,prepared_replay_active=false,scaled_l2=false;
     bool prevalidated_float=false,prevalidated_float_active=false;
+    bool scaled_significand_fallback=false;
     bool shared_prevalidated_float=false,shared_prevalidated_float_active=false;
     std::array<uint32_t*,10> shared_replay_rows{};
     unsigned sm121_moe_absolute_error_ppb=1000;
@@ -62,7 +63,7 @@ int copy_registered_moe_weight_metadata(const uint16_t*,MoeL2,unsigned,unsigned,
 void set_error_text(const char*) {}
 void set_error(const char*,hipError_t) {}
 constexpr int moe_bf16_row_l2_kernel=0,moe_bf16_scaled_row_l2_kernel=1;
-template<bool ValidateOnly> constexpr int moe_bf16_row_l2_prepared_kernel=ValidateOnly?3:2;
+template<bool ValidateOnly,bool ScaledFallback=false> constexpr int moe_bf16_row_l2_prepared_kernel=ScaledFallback?4:ValidateOnly?3:2;
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
 int expected_kernel=0;
 unsigned expected_rows=0,expected_columns=0,covered=0;
@@ -75,7 +76,7 @@ template<class... Args> void launch(int kernel,dim3 grid,dim3 block,int shared,h
     assert(std::get<0>(a)==&value&&std::get<n-3>(a)==expected_rows&&std::get<n-2>(a)==expected_columns);
     assert(std::get<n-1>(a)==covered);covered+=grid.x;++launches;
     if constexpr(n==7) {
-        if(kernel==3)assert(std::get<2>(a)==nullptr);
+        if(kernel==3||kernel==4)assert(std::get<2>(a)==nullptr);
         else assert(std::get<2>(a)==g_state.prepared_replay_inputs||std::get<2>(a)==g_state.prepared_replay_weights);
         assert(std::get<3>(a)==expected_flags);
     }
@@ -143,6 +144,12 @@ int main() {
     }
     assert(run(MoeL2::Input,8192,2048)&&covered==8192);
     assert(run(MoeL2::RoutedDown,524288,512)&&covered==524288);
+    g_state.scaled_significand_fallback=true;expected_kernel=4;
+    assert(run(MoeL2::Input,8192,2048)&&covered==8192);
+    assert(run(MoeL2::RoutedDown,524288,512)&&covered==524288);
+    assert(run(MoeL2::SharedInput,8192,2048)&&covered==8192);
+    fail_launch=2;assert(!run(MoeL2::SharedInput,8192,2048)&&launches==2);
+    fail_launch=0;g_state.scaled_significand_fallback=false;expected_kernel=3;
     g_state.scaled_l2=true;assert(!run(MoeL2::SharedInput,8192,2048)&&launches==0);g_state.scaled_l2=false;
     fail_launch=2;assert(!run(MoeL2::SharedInput,8192,2048)&&launches==2);
     fail_launch=0;free_calls=0;assert(release_prefix()&&free_calls==7);

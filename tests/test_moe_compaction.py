@@ -107,6 +107,12 @@ float validated_dot(const uint16_t* a,const uint16_t* b,unsigned k,bool eligible
     return qrt_sm121_subgroup::dot<Lanes>(a,b,k);
 }
 }
+namespace qrt_sm121_scaled_fallback {
+template<unsigned Lanes,unsigned Groups>
+float dot(const uint16_t* a,const uint16_t* b,unsigned k,unsigned flags) {
+    return qrt_sm121_scalar_projection::validated_dot<Lanes,Groups>(a,b,k,(flags&1u)!=0u);
+}
+}
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void *;
@@ -116,6 +122,7 @@ struct State {
     bool compact_routed_hawkeye=false;
     bool prepared_replay_active=false;
     bool float_replay_active=false,prevalidated_float_active=false,partition_replay=false;
+    bool scaled_significand_fallback=false;
     bool shared_prevalidated_float_active=false;
     std::array<uint32_t*,9> shared_replay_rows{};
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;

@@ -133,7 +133,7 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false, bool scaled_fallback = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     require(!partition || prevalidated, "partition requires prevalidated test rows");
@@ -217,7 +217,9 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                             uint32_t rows, uint32_t columns) {
         for (uint32_t first = 0u; first < rows; first += 4096u) {
             if (g_state.prevalidated_float_active) {
-                hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),
+                const auto classifier = g_state.scaled_significand_fallback
+                    ? moe_bf16_row_l2_prepared_kernel<true,true> : moe_bf16_row_l2_prepared_kernel<true>;
+                hipLaunchKernelGGL(classifier,
                     dim3(std::min(4096u, rows - first)), dim3(kNativeThreads), 0, stream,
                     raw, depn.data(), nullptr, flags, rows, columns, first);
             } else {
@@ -228,13 +230,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             hip_ok(hipGetLastError(), "prepare routed replay view");
         }
     };
-    for (uint32_t compact = 0u; compact < (partition ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
+    for (uint32_t compact = 0u; compact < ((partition || scaled_fallback) ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
         g_state.prepared_replay_active = compact == 2u;
         g_state.float_replay_active = compact == 3u;
         g_state.prevalidated_float_active = compact >= 4u;
-        g_state.partition_replay = compact == 5u;
+        g_state.partition_replay = compact == 5u && !scaled_fallback;
+        g_state.scaled_significand_fallback = compact == 5u && scaled_fallback;
         g_state.prepared_replay_inputs = compact >= 4u ? nullptr : dei.data();
         g_state.prepared_replay_weights = compact >= 4u ? nullptr : dew.data();
         g_state.prepared_replay_input_rows = defi.data(); g_state.prepared_replay_weight_rows = defw.data();
@@ -323,6 +326,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     g_state.float_replay_active = false;
     g_state.prevalidated_float_active = false;
     g_state.partition_replay = false;
+    g_state.scaled_significand_fallback = false;
     g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
     g_state.prepared_replay_input_rows = g_state.prepared_replay_weight_rows = nullptr;
     g_state.moe_compaction_blocks = kMoeCompactionBlocks;
@@ -332,13 +336,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                 "\"float_replay_checked\":%s,\"float_sequence_ms\":%.6f,"
                 "\"prevalidated_float_checked\":%s,\"prevalidated_sequence_ms\":%.6f,"
                 "\"partition_replay_checked\":%s,\"partition_sequence_ms\":%.6f,"
+                "\"scaled_fallback_checked\":%s,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], partition ? "true" : "false", times[5], unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], partition ? "true" : "false", times[5], scaled_fallback ? "true" : "false", unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
 }
 
-void compare_prepared_norm(unsigned columns, bool validate_only = false) {
+void compare_prepared_norm(unsigned columns, bool validate_only = false, bool scaled_fallback = false) {
     constexpr unsigned first = 3u, tested_rows = 259u, rows = first + tested_rows;
     const auto fixture = scaled_l2_test::fixture(tested_rows, columns);
     std::vector<uint16_t> input(size_t(rows) * columns + 2u * kGuard, kSentinel);
@@ -352,7 +357,10 @@ void compare_prepared_norm(unsigned columns, bool validate_only = false) {
     hipLaunchKernelGGL(moe_bf16_row_l2_kernel, dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
         di.data(), original.data(), rows, columns, first);
     hip_ok(hipGetLastError(), "original prepared norm control");
-    if (validate_only) {
+    if (scaled_fallback) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true,true>), dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
+            di.data(), candidate.data(), nullptr, df.data(), rows, columns, first);
+    } else if (validate_only) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>), dim3(tested_rows), dim3(kNativeThreads), 0, nullptr,
             di.data(), candidate.data(), nullptr, df.data(), rows, columns, first);
     } else {
@@ -365,15 +373,16 @@ void compare_prepared_norm(unsigned columns, bool validate_only = false) {
             "prepared scan changed original FP64 norm bits");
     unsigned eligible_rows = 0u;
     for (unsigned row = first; row < rows; ++row) {
-        bool valid_row = true;
+        bool valid_row = true, normal_row = true;
         for (unsigned k = 0; k < columns; ++k) {
             const size_t index = kGuard + size_t(row) * columns + k;
             const unsigned exponent = (input[index] >> 7u) & 255u;
             const bool valid = !(input[index] & 0x7fffu) || (exponent >= 64u && exponent <= (validate_only ? 190u : 191u));
             valid_row &= valid;
+            normal_row &= !(input[index] & 0x7fffu) || (exponent != 0u && exponent != 255u);
             if (!validate_only) expected[index] = valid ? qrt_sm121_prepared_bf16::encode(input[index]) : 0u;
         }
-        expected_flags[kGuard + row] = valid_row;
+        expected_flags[kGuard + row] = unsigned(valid_row) | ((scaled_fallback && normal_row) ? 2u : 0u);
         eligible_rows += valid_row;
     }
     require(de.read(encoded.size()) == expected && df.read(flags.size()) == expected_flags,
@@ -384,8 +393,9 @@ void compare_prepared_norm(unsigned columns, bool validate_only = false) {
             require(a[i] == norms[i] && b[i] == norms[i], "prepared norm redzone changed");
     std::printf("{\"kind\":\"prepared_moe_norm_scan\",\"rows\":%u,\"columns\":%u,"
         "\"validate_only\":%s,\"encoded_cells\":%zu,\"eligible_rows\":%u,\"norm_bit_differences\":0,"
+        "\"scaled_fallback\":%s,"
         "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-        tested_rows, columns, validate_only ? "true" : "false", validate_only ? size_t(0u) : size_t(tested_rows) * columns, eligible_rows);
+        tested_rows, columns, validate_only ? "true" : "false", validate_only ? size_t(0u) : size_t(tested_rows) * columns, eligible_rows, scaled_fallback ? "true" : "false");
 }
 
 void compare_scaled_l2(unsigned columns) {
@@ -432,6 +442,20 @@ void compare_scaled_l2(unsigned columns) {
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--scaled-fallback") == 0) {
+            moe_batch_test::compare_prepared_norm(512u, true, true);
+            moe_batch_test::compare_prepared_norm(2048u, true, true);
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true, true, true, false, true);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true, true, true, false, true);
+            moe_batch_test::compare_routed_compaction(129u, 4u, kMaximumMoeCompactionBlocks, true, true, true, false, true);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks, true, true, true, false, true);
+            for (bool down : {false, true}) {
+                moe_batch_test::compare_shared_prevalidated(129u, down, 1u, true);
+                moe_batch_test::compare_shared_prevalidated(513u, down, 2u, true);
+                moe_batch_test::compare_shared_prevalidated(8192u, down, 2u, true);
+            }
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--shared-prevalidated") == 0) {
             for (bool down : {false, true}) {
                 moe_batch_test::compare_shared_prevalidated(17u, down, 0u);

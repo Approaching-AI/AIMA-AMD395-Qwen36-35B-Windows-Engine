@@ -41,6 +41,7 @@ struct State {
     bool prepared=true,full_v3_poisoned=false,scaled_l2=false;
     bool prepared_replay=false,prepared_replay_active=false,prevalidated_float_active=false;
     bool weight_metadata_ready=false;
+    bool scaled_significand_fallback=false;
     unsigned sm121_moe_absolute_error_ppb=1000;
     std::array<MoeWeightMetadata,kMoeWeightMetadataEntries> weight_metadata{};
     std::array<float*,static_cast<size_t>(MoeL2::Count)> moe_l2{};
@@ -72,7 +73,7 @@ hipError_t hipStreamSynchronize(hipStream_t stream) {
     pending=false;return hipSuccess;
 }
 hipError_t hipGetLastError() { return scans==fail_launch ? hipErrorUnknown : hipSuccess; }
-template<bool ValidateOnly> void moe_bf16_row_l2_prepared_kernel(
+template<bool ValidateOnly,bool ScaledFallback=false> void moe_bf16_row_l2_prepared_kernel(
     const uint16_t* input,float* output,std::nullptr_t,uint32_t* flags,
     unsigned rows,unsigned columns,unsigned first) {
     static_assert(ValidateOnly);
@@ -80,7 +81,7 @@ template<bool ValidateOnly> void moe_bf16_row_l2_prepared_kernel(
     assert(first<rows && (columns==kHidden || columns==kIntermediate));
     for(unsigned r=first;r<std::min(rows,first+4096u);++r) {
         // Arithmetic is a stand-in; native norm tests own FP64 equivalence.
-        output[r]=float(input[0]+r);flags[r]=(input[0]+r)%3u!=0u;
+        output[r]=float(input[0]+r);flags[r]=unsigned((input[0]+r)%3u!=0u)|(ScaledFallback?2u:0u);
     }
     ++scans;pending=true;
 }
@@ -185,6 +186,12 @@ int main() {
     assert(hipDeviceSynchronize()==hipSuccess);
     fail_free=frees+1u;assert(!release_moe_weight_metadata() && live.size()==4 && !g_state.weight_metadata_ready);
     fail_free=0;assert(release_moe_weight_metadata() && live.empty());
+    reset();g_state.scaled_significand_fallback=true;
+    assert(prepare()==1 && allocations==4 && scans==4);bind();g_state.prevalidated_float_active=true;
+    assert(copy(&a)==1 && copies==2);
+    for(unsigned r=0;r<64;++r)assert(norms[r+1]==a+r && flags[r+1]==(unsigned((a+r)%3u!=0)|2u));
+    assert(flags.front()==0xa5a5a5a5u && flags.back()==0xa5a5a5a5u);
+    reset();
     std::puts("registered_metadata_faults_and_address_reuse=pass");
 }
 '''

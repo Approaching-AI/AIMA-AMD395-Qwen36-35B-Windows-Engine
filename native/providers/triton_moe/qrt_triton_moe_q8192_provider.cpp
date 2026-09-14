@@ -24,6 +24,7 @@
 #include "../moe_accumulator/sm121_prepared_projection.h"
 #include "../moe_accumulator/sm121_float_subgroup.h"
 #include "../moe_accumulator/sm121_scalar_projection.h"
+#include "../moe_accumulator/sm121_scaled_fallback.h"
 #include "../moe_accumulator/sm121_replay_partition.h"
 #include "../moe_accumulator/sm121_prefill_projection.h"
 #include "../moe_accumulator/bf16_midpoint_selector.h"
@@ -1730,6 +1731,7 @@ struct MoeCorrectionBounds {
     const uint32_t *prepared_input_rows = nullptr, *prepared_weight_rows = nullptr;
     bool float_replay = false;
     bool prevalidated_float = false;
+    bool scaled_significand_fallback = false;
     uint32_t partition_capacity = 0u;
 };
 
@@ -1762,6 +1764,11 @@ template<unsigned Lanes>
 __device__ __forceinline__ float moe_routed_replay_dot(const uint16_t *inputs,
     const uint16_t *weights, uint32_t input_row, uint32_t weight_row,
     uint32_t columns, const MoeCorrectionBounds& bounds) {
+    if (bounds.prevalidated_float && bounds.scaled_significand_fallback)
+        return qrt_sm121_scaled_fallback::dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
+            inputs + size_t(input_row) * columns, weights + size_t(weight_row) * columns, columns,
+            bounds.prepared_input_rows && bounds.prepared_weight_rows
+                ? bounds.prepared_input_rows[input_row] & bounds.prepared_weight_rows[weight_row] : 0u);
     if (bounds.prevalidated_float)
         return qrt_sm121_scalar_projection::validated_dot<Lanes, QRT_SM121_DOT_STAGING_GROUPS>(
             inputs + size_t(input_row) * columns, weights + size_t(weight_row) * columns, columns,
@@ -1896,6 +1903,7 @@ struct ProviderState {
     bool prepared_replay = false, prepared_replay_active = false;
     bool float_replay = false, float_replay_active = false;
     bool prevalidated_float = false, prevalidated_float_active = false;
+    bool scaled_significand_fallback = false;
     bool shared_prevalidated_float = false, shared_prevalidated_float_active = false;
     // Shared and routed pipelines overlap. Metadata must never share arenas.
     std::array<uint32_t *, static_cast<size_t>(MoeL2::Count)> shared_replay_rows{};
@@ -3749,11 +3757,12 @@ void moe_bf16_row_l2_kernel(const uint16_t *values, float *norms,
 // Reuse the required FP64 norm scan to prepare lossless replay operands.
 // The norm's products, reduction tree and inflation are unchanged. Eligibility
 // uses a parallel integer OR without introducing another reduction barrier.
-template<bool ValidateOnly = false>
+template<bool ValidateOnly = false, bool ScaledFallback = false>
 __global__ __launch_bounds__(256)
 void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
     uint16_t *encoded, uint32_t *eligible_rows,
     uint32_t rows, uint32_t columns, uint32_t first_row) {
+    static_assert(!ScaledFallback || ValidateOnly);
     __shared__ double partial[kNativeThreads];
     __shared__ uint32_t invalid[kNativeThreads];
     const uint32_t row = first_row + blockIdx.x;
@@ -3769,6 +3778,8 @@ void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
                                         : qrt_sm121_prepared_bf16::eligible(value);
         if constexpr (!ValidateOnly) encoded[index] = valid ? qrt_sm121_prepared_bf16::encode(value) : 0u;
         bad |= !valid;
+        if constexpr (ScaledFallback)
+            bad |= unsigned(!qrt_sm121_scaled_significand::eligible(value)) << 1u;
     }
     partial[threadIdx.x] = sum;
     invalid[threadIdx.x] = bad;
@@ -3782,7 +3793,7 @@ void moe_bf16_row_l2_prepared_kernel(const uint16_t *values, float *norms,
     }
     if (threadIdx.x == 0u) {
         norms[row] = static_cast<float>(sqrt(partial[0])) * 1.00002f;
-        eligible_rows[row] = invalid[0] == 0u;
+        eligible_rows[row] = ScaledFallback ? ((~invalid[0]) & 3u) : unsigned(invalid[0] == 0u);
     }
 }
 
@@ -12407,7 +12418,9 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
     for (uint32_t first = 0; first < rows; first += 4096u) {
         const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
         if ((g_state.prevalidated_float_active || prepare_shared) && flags) {
-            hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>), dim3(count), dim3(kNativeThreads),
+            const auto classifier = g_state.scaled_significand_fallback
+                ? moe_bf16_row_l2_prepared_kernel<true, true> : moe_bf16_row_l2_prepared_kernel<true>;
+            hipLaunchKernelGGL(classifier, dim3(count), dim3(kNativeThreads),
                 0, stream, values, g_state.moe_l2[slot], nullptr, flags, rows, columns, first);
         } else if (encoded) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<false>), dim3(count), dim3(kNativeThreads),
@@ -12450,6 +12463,7 @@ hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t str
             ((input == MoeL2::SharedInput && (weights == MoeL2::SharedGate || weights == MoeL2::SharedUp)) ||
              (input == MoeL2::SharedActivated && weights == MoeL2::SharedDown))) {
             bounds.prevalidated_float = true;
+            bounds.scaled_significand_fallback = g_state.scaled_significand_fallback;
             bounds.prepared_input_rows = g_state.shared_replay_rows[static_cast<size_t>(input)];
             bounds.prepared_weight_rows = g_state.shared_replay_rows[static_cast<size_t>(weights)];
             if (!bounds.prepared_input_rows || !bounds.prepared_weight_rows) return hipErrorInvalidValue;
@@ -12501,6 +12515,7 @@ hipError_t launch_moe_routed_correction(
             ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
              (input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown))) {
             bounds.prevalidated_float = g_state.prevalidated_float_active;
+            bounds.scaled_significand_fallback = bounds.prevalidated_float && g_state.scaled_significand_fallback;
             bounds.prepared_input = g_state.prepared_replay_inputs;
             bounds.prepared_weights = g_state.prepared_replay_weights;
             bounds.prepared_input_rows = g_state.prepared_replay_input_rows;
@@ -13740,6 +13755,8 @@ bool launch_routed_matrices_after_input_conversion(
         }
     } prepared_replay_scope(token_count);
     if (g_state.prevalidated_float_active) {
+        if (g_state.scaled_significand_fallback)
+            std::fprintf(stderr,"BATCH_MARK moe_scaled_fallback tokens=%u lanes=4 original_float_range=1 normal_bf16_fallback=1 original_special_fallback=1 additional_workspace_bytes=0\n",token_count);
         std::fprintf(stderr,"BATCH_MARK moe_prevalidated_float tokens=%u workspace_bytes=%zu lanes=%u staging_groups=%u fused_norm_scan=1 canonical_k16=1 original_fallback=1 partition_replay=%u additional_workspace_bytes=%u\n",
             token_count,(kMoePreparedWeightRows+kMoePreparedInputRows)*sizeof(uint32_t),
             unsigned(QRT_MOE_ROUTED_REPLAY_LANES),unsigned(QRT_SM121_DOT_STAGING_GROUPS),
@@ -16794,6 +16811,15 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         g_state.prepared_replay || g_state.float_replay)) {
         set_error_text("prevalidated float replay requires exclusive q8192 compact SM121 replay and original L2 scans"); return 0;
     }
+    const char* scaled_fallback = std::getenv("QRT_QWEN36_MOE_SCALED_FALLBACK");
+    if (scaled_fallback && *scaled_fallback && std::strcmp(scaled_fallback,"0") && std::strcmp(scaled_fallback,"1")) {
+        set_error_text("QRT_QWEN36_MOE_SCALED_FALLBACK must be 0 or 1"); return 0;
+    }
+    g_state.scaled_significand_fallback = scaled_fallback && std::strcmp(scaled_fallback,"1") == 0;
+    if (g_state.scaled_significand_fallback && (!g_state.prevalidated_float || g_state.partition_replay ||
+        QRT_MOE_ROUTED_REPLAY_LANES != 4u || QRT_SM121_DOT_STAGING_GROUPS != 1u)) {
+        set_error_text("scaled fallback requires four-lane prevalidated replay with one staged K16 group"); return 0;
+    }
     const char *parallel_gate = std::getenv("QRT_QWEN36_MOE_PARALLEL_GATE");
     if (parallel_gate != nullptr && parallel_gate[0] != '\0' &&
         std::strcmp(parallel_gate, "0") != 0 && std::strcmp(parallel_gate, "1") != 0) {
@@ -17297,7 +17323,9 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_register_weight_metadata(
         auto* flags = reinterpret_cast<uint32_t*>(entry.storage + entry.rows);
         for (uint32_t first = 0u; first < entry.rows; first += 4096u) {
             const uint32_t batch = (std::min)(4096u, entry.rows - first);
-            hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),
+            const auto classifier = g_state.scaled_significand_fallback
+                ? moe_bf16_row_l2_prepared_kernel<true, true> : moe_bf16_row_l2_prepared_kernel<true>;
+            hipLaunchKernelGGL(classifier,
                 dim3(batch),dim3(kNativeThreads),0,nullptr,entry.source,entry.storage,nullptr,
                 flags,entry.rows,entry.columns,first);
             status = hipGetLastError();

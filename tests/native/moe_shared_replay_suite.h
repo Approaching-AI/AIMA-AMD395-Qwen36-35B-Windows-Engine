@@ -1,7 +1,7 @@
 #pragma once
 #include "../../native/providers/moe_accumulator/sm121_pv_error_bound.h"
 namespace moe_batch_test {
-void compare_shared_prevalidated(uint32_t tokens, bool down, unsigned mode) {
+void compare_shared_prevalidated(uint32_t tokens, bool down, unsigned mode, bool scaled_fallback = false) {
     const unsigned rows = down ? kHidden : kIntermediate, columns = down ? kIntermediate : kHidden;
     const auto input_slot = down ? MoeL2::SharedActivated : MoeL2::SharedInput;
     const auto weight_slot = down ? MoeL2::SharedDown : (mode == 1u ? MoeL2::SharedUp : MoeL2::SharedGate);
@@ -40,9 +40,10 @@ void compare_shared_prevalidated(uint32_t tokens, bool down, unsigned mode) {
     g_state.shared_replay_rows[size_t(input_slot)] = dif.data(); g_state.shared_replay_rows[size_t(weight_slot)] = dwf.data();
     std::vector<float> original_input_norm, original_weight_norm;
     std::vector<uint16_t> original_output;
-    double times[2]{}; size_t selected = 0u, eligible = 0u;
-    for (unsigned variant = 0u; variant < 2u; ++variant) {
+    double times[3]{}; size_t selected = 0u, eligible = 0u, scaled_selected = 0u;
+    for (unsigned variant = 0u; variant < (scaled_fallback ? 3u : 2u); ++variant) {
         out.write(output); g_state.shared_prevalidated_float_active = variant != 0u;
+        g_state.scaled_significand_fallback = variant == 2u;
         const auto start = std::chrono::steady_clock::now();
         require(launch_moe_l2(di.data(), input_slot, tokens, columns, nullptr) &&
             launch_moe_l2(dw.data(), weight_slot, rows, columns, nullptr), "shared norm dispatch");
@@ -80,12 +81,18 @@ void compare_shared_prevalidated(uint32_t tokens, bool down, unsigned mode) {
                 ni[i] == 12345.25f && ni[kGuard + tokens + i] == 12345.25f &&
                 nw[i] == 12345.25f && nw[kGuard + rows + i] == 12345.25f, "shared norm/output guard");
         if (variant) {
+            selected = eligible = scaled_selected = 0u;
             input_flags = dif.read(input_flags.size()); weight_flags = dwf.read(weight_flags.size());
             auto check_flags = [&](const std::vector<uint16_t>& values, const std::vector<unsigned>& flags, unsigned count) {
                 for (unsigned row = 0u; row < count; ++row) {
-                    bool valid = true;
-                    for (unsigned k = 0u; k < columns; ++k) valid &= qrt_sm121_float_alignment::eligible(values[kGuard + size_t(row) * columns + k]);
-                    require(flags[kGuard + row] == unsigned(valid), "shared eligibility mismatch");
+                    bool valid = true, normal = true;
+                    for (unsigned k = 0u; k < columns; ++k) {
+                        const uint16_t x=values[kGuard + size_t(row) * columns + k];
+                        const unsigned e=(x>>7u)&255u;
+                        valid &= !(x&0x7fffu)||(e>=64u&&e<=190u);
+                        normal &= !(x&0x7fffu)||(e!=0u&&e!=255u);
+                    }
+                    require(flags[kGuard + row] == (unsigned(valid)|((variant==2u&&normal)?2u:0u)), "shared eligibility mismatch");
                 }
                 for (size_t i = 0u; i < kGuard; ++i)
                     require(flags[i] == 0xa5a5a5a5u && flags[kGuard + count + i] == 0xa5a5a5a5u, "shared flag guard");
@@ -97,12 +104,18 @@ void compare_shared_prevalidated(uint32_t tokens, bool down, unsigned mode) {
                 const bool candidate = distance <= (mode == 1u ? 32768u : 0u) ||
                     qrt_bf16_midpoint::within_error(native[kGuard + cell],
                         ni[kGuard + cell / rows] * nw[kGuard + cell % rows] * (1000.0f * 1e-9f));
-                selected += candidate; eligible += candidate && input_flags[kGuard + cell / rows] && weight_flags[kGuard + cell % rows];
+                const unsigned common=input_flags[kGuard + cell / rows]&weight_flags[kGuard + cell % rows];
+                selected += candidate; eligible += candidate && (common&1u);
+                scaled_selected += candidate && !(common&1u) && (common&2u);
             }
         }
     }
     require(di.read(input.size()) == input && dw.read(weights.size()) == weights && dn.read(native.size()) == native, "shared immutable operands");
     g_state.moe_l2.fill(nullptr); g_state.shared_replay_rows.fill(nullptr); g_state.shared_prevalidated_float_active = false;
+    g_state.scaled_significand_fallback = false;
+    if(scaled_fallback)
+        std::printf("{\"kind\":\"shared_scaled_fallback_comparison\",\"tokens\":%u,\"rows\":%u,\"mode\":%u,\"scaled_selected_cells_cpu\":%zu,\"scaled_host_ms\":%.6f,\"bf16_mismatches\":0,\"norm_bits_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"performance_acceptance\":false}\n",
+            tokens,rows,mode,scaled_selected,times[2]);
     std::printf("{\"kind\":\"shared_prevalidated_replay_comparison\",\"tokens\":%u,\"rows\":%u,\"columns\":%u,\"mode\":%u,\"weight_surface\":%u,\"elements\":%zu,\"independent_cpu_dot_classes\":77,\"selected_cells_cpu\":%zu,\"eligible_selected_cells_cpu\":%zu,\"original_host_ms\":%.6f,\"prevalidated_host_ms\":%.6f,\"norm_preparation_included\":true,\"norm_bits_equal\":true,\"bf16_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
         tokens, rows, columns, mode, unsigned(weight_slot), elements, selected, eligible, times[0], times[1]);
 }
