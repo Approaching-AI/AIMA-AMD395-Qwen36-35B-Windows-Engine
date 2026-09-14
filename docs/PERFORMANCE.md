@@ -37,6 +37,22 @@ attached. No repeatability, performance or release acceptance follows.
 Evidence: `benchmarks/correctness/scaled-fallback-product-20260914.json`, SHA256
 `76b0a207a31e0744236bd63c3ce566cae35b378ffe4e998ad33978ca96da2877`.
 
+A fresh profile of the selected stack requalifies all 512 GB10 tokens and
+callbacks with only four diagnostic flags changed. Completed attention phases
+sum to 8863.5135 ms: QK 3694.0812, probability 1368.1306, approximate PV
+1755.7638 and exact PV 1840.9749 ms. Dense OUT correction contributes
+3552.6770 ms across 40 calls and 164967882 selected cells; routed MoE
+gate/up/down corrections contribute 1530.198904 / 1962.433089 / 1570.502992 ms.
+These scopes are nested within layer totals, and shared MoE overlaps routed
+work. All ten negative residual/postnorm event intervals are excluded.
+Completed host attention core is 12910.9 ms; allocation/free is negligible.
+Instrumented TTFT 35495.3171 ms is diagnostic and does not replace the
+uninstrumented retained measurement. The next component comparison targets
+interleaved independent exact outputs with shared input loads, preserving
+original K16 recurrence and fallback before any provider integration.
+Evidence: `benchmarks/correctness/current-prepared-stack-profile-20260914.json`,
+SHA256 `f422fb486d5529c349e0f9732ebef8164d49e42c5bfe74219c8eb3102f2ebb5b`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
