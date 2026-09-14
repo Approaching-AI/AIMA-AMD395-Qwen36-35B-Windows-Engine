@@ -30,6 +30,16 @@ Evidence: `benchmarks/correctness/spatial-projection-comparison-20260914.json`,
 SHA256 `edaab7b28e021560ac9f6f26e78b42b17dea7db22dc95058516cba690dbf320d`.
 Broader reuse of exact arithmetic or provider replacement remains open.
 
+A new component experiment packs each certified BF16 product and its original
+exponent losslessly into one register, then checks four or eight K16 groups
+against a common carry exponent and sign. Accepted tiles retain every original
+truncation through exact integer increments; failed tiles replay the saved
+products with original per-group arithmetic. Excluded rows retain original
+fallback. The host wide-integer comparison passes 12720708 packed products,
+1318560 ordered carries and both accepted/rejected certificates with UBSan.
+Native safety and complete q8192 QKV comparison are pending. Product dispatch,
+admission bounds and all GB10 gates remain unchanged.
+
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
 the same DLL's control and QKV/Z-only algorithm 4 both preserve all 512
