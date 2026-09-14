@@ -298,6 +298,30 @@ clippy with explicit diff/hashes. Evidence:
 `benchmarks/correctness/scaled-half-qk-20260914.json`, SHA256
 `cd69c6e25e6d40b53291817141425715c19f567a89494c05a431a3156ebdef83`.
 
+Lossless scaled-half projection at `dc6bbd2` passes the complete q8192 QKV
+boundary but is slower than selected four-lane replay. Preparation-plus-replay
+medians are 60.3421 ms for the control, 139.339 ms for scaled single-lane and
+66.1409 ms for scaled four-lane. The single-lane samples vary substantially;
+all samples remain attached. Keep the selected product dispatcher.
+
+Direct integer carry alignment removes the earlier floating carry range
+restriction. Both host policies preserve 500000 raw states; fallback counts
+drop from 188610 to 80512 in the adversarial host distribution. Native tests
+cover six widths and 693378 raw states per lane configuration, including
+486020 transformed and 207358 original groups. All signs, exponents,
+encodings, guards, unaligned operands and production/audit parity pass.
+
+All 1048576 captured weight groups and 1048576 input groups support the new
+view, including the 112 weight rows outside the control floating predicate.
+The view occupies 75497472 bytes. Every warmup and timed attempt checks all
+67108864 GB10-comparable BF16 outputs and all 4331311 unrounded candidates;
+producer, selector and candidate identities remain unchanged. Preparation
+is included and variant order rotates. Local C smoke, 392 Python tests with
+two skips and hygiene pass; unchanged Rust/Cargo files reuse 47 tests and
+clippy with explicit diff/hashes. No product or release qualification follows.
+Evidence: `benchmarks/correctness/scaled-half-projection-20260914.json`, SHA256
+`6fcde1d0bfc968657b83c92d3486e8676ad7f4e01fc9abb2342f045336405433`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
