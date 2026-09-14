@@ -61,6 +61,8 @@ static bool audit_mismatch=false;
 static unsigned k16_major_preparations=0, k16_major_corrections=0;
 static unsigned eligibility_scans=0, float_corrections=0, validated_corrections=0;
 static unsigned validated_fast_cells=0, validated_fallback_cells=0;
+static unsigned scaled_scans=0, scaled_corrections=0;
+static unsigned scaled_fast_cells=0, scaled_normal_cells=0, scaled_special_cells=0;
 static unsigned* eligibility_flags[2]{};
 static unsigned eligibility_rows[2]{};
 static unsigned partitions=0, fail_partition=0;
@@ -113,6 +115,7 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
         std::strstr(name, "prepared_correction") != nullptr ||
         std::strstr(name, "float_correction") != nullptr ||
         std::strstr(name, "validated_float") != nullptr ||
+        std::strcmp(name, "replay") == 0 ||
         std::strstr(name, "admission_audit") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
     const unsigned int limit = std::strstr(name, "device_correction") != nullptr
@@ -279,6 +282,13 @@ void eligible_rows_kernel(const uint16_t*,unsigned* flags,unsigned rows,unsigned
     preparation_fault=eligibility_scans==fail_preparation;
 }
 }
+namespace qrt_sm121_scaled_fallback {
+void classify_rows(const uint16_t* source,unsigned* flags,unsigned rows,unsigned width) {
+    ++scaled_scans;
+    qrt_sm121_scalar_projection::eligible_rows_kernel(source,flags,rows,width);
+    for(unsigned r=0;r<rows;++r) flags[r]=r%3u==0u ? 0u : r%3u==1u ? 2u : 3u;
+}
+}
 namespace qrt_sm121_replay_partition {
 void indices_kernel(const unsigned* indices,unsigned* ordered,unsigned* counts,
     const unsigned* weights,const unsigned* inputs,unsigned rows,unsigned count) {
@@ -384,7 +394,33 @@ void selected_bf16_projection_hawkeye_validated_float_kernel(
         weights,inputs,output,rows,k,indices,offset,count,{});
 }
 
+void selected_bf16_projection_hawkeye_scaled_fallback_kernel(
+    const uint16_t* weights,const uint16_t* inputs,const unsigned* wf,const unsigned* xf,
+    float* output,unsigned rows,unsigned k,const unsigned* indices,unsigned offset,unsigned count) {
+    ++scaled_corrections;
+    if(scaled_scans!=2u || kSelectedHawkeyeReplayLanes!=4u) { invalid_range=true;return; }
+    const unsigned end=(std::min)(count,offset+exact_blocks*(256u/kSelectedHawkeyeReplayLanes));
+    for(unsigned j=offset;j<end;++j) {
+        const unsigned row=indices[j]%rows,token=indices[j]/rows;
+        if(token>=eligibility_rows[1] || wf[row]>3u || xf[token]>3u) { invalid_range=true;return; }
+        const unsigned common=wf[row]&xf[token];
+        if(common&1u) ++scaled_fast_cells;
+        else if(common&2u) ++scaled_normal_cells;
+        else ++scaled_special_cells;
+    }
+    selected_bf16_projection_hawkeye_validated_float_kernel(
+        weights,inputs,wf,xf,output,rows,k,indices,offset,count);
+}
+
 // QRT_ACTUAL_LAUNCHER
+
+void scaled_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_SCALED_FALLBACK",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_SCALED_FALLBACK",value,1);
+#endif
+}
 
 void partition_mode(const char* value) {
 #ifdef _WIN32
@@ -478,12 +514,14 @@ void reset() {
     eligibility_scans=float_corrections=validated_corrections=0;
     partitions=fail_partition=0;partition_fault=false;
     validated_fast_cells=validated_fallback_cells=0;
+    scaled_scans=scaled_corrections=scaled_fast_cells=scaled_normal_cells=scaled_special_cells=0;
 }
 int main() {
     device_mode(false);
     packed_mode(false);
     prepared_mode("0");
     float_mode("0");float_mode("0",true);
+    scaled_mode("0");
     k16_major_mode("0");
     absolute_bound_mode("0");
     absolute_hipblaslt_mode("0");
@@ -874,6 +912,44 @@ int main() {
             allocations!=frees || invalid_grid || invalid_range || !allocation_records.empty())return 91;
         for(size_t i=size_t(failure-1u)*65536u;i<total_elements;++i)if(output[i]!=prepared_initial[i])return 92;
     }
-    float_mode("0",true);partition_mode("0");
+    partition_mode("0");
+    scaled_mode("invalid");reset();output=prepared_initial;
+    if(run_prepared()!=hipErrorInvalidValue || allocations || corrections) return 93;
+    // Non-q8192 calls keep the retained dispatcher even with the option enabled.
+    scaled_mode("1");reset();output=prepared_initial;
+    if(run_prepared()!=hipSuccess || scaled_scans || scaled_corrections ||
+        invalid_grid || invalid_range || allocations!=frees) return 94;
+    total_elements=1024u*8192u;output.assign(total_elements,1.001f);
+    for(size_t i=0;i<total_elements;i+=37u)output[i]=1.00390625f;
+    const auto scaled_initial=output;requested_blocks=4096u;
+    auto run_scaled=[&] {
+        return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+            &value,&value,nullptr,nullptr,nullptr,output.data(),1024u,8192u,
+            16u,512u,0u,0u,requested_blocks,nullptr,65536u);
+    };
+    reset();
+    if(kSelectedHawkeyeReplayLanes!=4u) {
+        if(run_scaled()!=hipErrorInvalidValue || allocations || corrections) return 95;
+    } else {
+        if(run_scaled()!=hipSuccess || scaled_scans!=2u || !scaled_corrections ||
+            !scaled_fast_cells || !scaled_normal_cells || !scaled_special_cells ||
+            scaled_fast_cells+scaled_normal_cells+scaled_special_cells!=corrected.size() ||
+            invalid_grid || invalid_range || allocations!=2u || frees!=2u ||
+            !allocation_records.empty()) return 96;
+        for(size_t i=0;i<total_elements;++i)
+            if(output[i]!=(i%37u ? 1.0f : float((i/1024u)*2u+i%1024u))) return 97;
+        for(unsigned failure:{1u,2u}) {
+            reset();fail_preparation=failure;output=scaled_initial;
+            if(run_scaled()!=hipErrorUnknown || scaled_scans!=failure || collections ||
+                corrections || allocations!=frees || syncs!=2u || output!=scaled_initial ||
+                invalid_range || !allocation_records.empty()) return 98;
+        }
+        reset();fail_allocation=2u;output=scaled_initial;
+        if(run_scaled()!=hipErrorUnknown || scaled_scans || allocations!=2u || frees!=1u ||
+            collections || output!=scaled_initial || !allocation_records.empty()) return 99;
+        partition_mode("1");reset();output=scaled_initial;
+        if(run_scaled()!=hipErrorInvalidValue || allocations || corrections) return 100;
+    }
+    float_mode("0",true);partition_mode("0");scaled_mode("0");
     return 0;
 }
