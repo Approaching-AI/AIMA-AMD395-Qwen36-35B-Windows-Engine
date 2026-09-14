@@ -65,9 +65,25 @@ no retained speed follows from that pair. Evidence:
 `benchmarks/correctness/long-transposed-value-prefix16k-20260915.json`, SHA256
 `16e08b534ba68b4150299d8f95c0d86247dcd85e47324fc3958b9028ac4e14cd`.
 
-Current-stack completed-stage profiling is running. The next actual 128k
-prefix command is prepared with unchanged GB10 data and a 3600-second
-process bound; it has not started. Real 128k/256k remain unqualified.
+Current-stack profiling preserves all 512 GB10 outputs and callbacks.
+Only four diagnostic flags differ from the same-artifact q8192 control.
+Completed attention totals 8897.2974 ms: QK 3716.4445, probabilities
+1365.3326, approximate PV 1765.1039 and exact PV 1842.0845 ms; preparation
+is 51.2365 ms. Forty dense OUT corrections total 3463.853 ms, and MoE
+routed gate/up/down corrections 1195.073878 / 1347.092419 / 1014.207606 ms.
+These detail intervals are nested; shared MoE overlaps routed work. Ten
+negative residual/postnorm GPU intervals are excluded. Instrumented TTFT
+34529.1447 ms, TPOT 104.707169 ms and load 21349.6095 ms are diagnostic.
+Investigate a shared prepared-weight block layout for exact correction,
+retaining the original K16 carry and fallback. Profile evidence:
+`benchmarks/correctness/current-range-stack-profile-20260915.json`, SHA256
+`8209dbcfe8d47433f5313229fa26b1a038af577a53adf1d6f7a85dcbaf9d5d88`.
+
+The actual 128k prefix run `range-prefix128k-r1` is active on this stack,
+with long QK/V enabled, original GB10 data and a 3600-second process bound.
+At the 215-second observation it has completed 24576 owner tokens, with
+8192-token chunks 1 / 2 taking 60335.5 / 93288.4 ms. No complete owner or
+suffix output exists yet. Real 128k/256k remain unqualified.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
