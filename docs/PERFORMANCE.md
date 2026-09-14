@@ -2,33 +2,34 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-The three-carry WMMA comparison at `d7ed15d` passes all 72 generated and
-12 captured diagnostic reports. Each variant preserves the same 16384
-independent original QKV GB10 BF16 endpoints and the established error
-bound. Fused / scalar nearest-even / scalar toward-zero admit
-14122 / 14120 / 14121 endpoints. Native BF16 differences are 90 / 171 / 163;
-within the 16192 eligible dots they are 3 / 10 / 2. Explicit scalar carry
-therefore supplies no measured admission improvement and is not promoted.
+Directed projection intervals at `700f556` pass all 135 native generated
+and 15 sampled QKV reports, with CPU/GPU interval endpoints identical.
+The unique generated coverage is 36864 dots and 2359296 ordered K16 groups;
+wide exponents, exact lattices and disjoint row maxima are included.
+No interval undercoverage or false BF16 admission is observed.
 
-Every smaller-coefficient hypothesis still has generated counterexamples.
-The new TwoSum audit observes zero FP64 addition-rounding events in these
-particular generated and captured groups. Original wide integer arithmetic
-and actual GB10 endpoints remain the independent comparisons. The native
-HIP 7.1 build uses its installed `__ocml_add_rtz_f32` declaration; the initial
-absent-intrinsic build failure and premature test dispatch are preserved.
-All completed host guards pass, and dispatch now checks successful build
-provenance before test. No product or release qualification follows.
+The interval retains the conservative native-product coefficient, separately
+bounds canonical alignment losses and uses directed FP32 carry endpoints.
+Unsupported operands require original replay. All 16384 sampled canonical
+QKV endpoints match GB10; the new interval accepts 15105 versus 14122 for
+the fused conservative envelope. This 92.2 percent sample rate does not
+measure reduction in the existing 3791742 full-tensor candidate identities.
 
-Next test a structural interval recurrence that separately bounds matrix
-products and canonical alignment loss, then carries directed lower and upper
-FP32 endpoints. Keep the conservative native-product coefficient and full
-exact fallback; numerical checks precede a product decision.
-Command: `run-native-wmma-scalar-carry-envelope-r2.ps1 -Action build|test|capture`.
-Evidence: `benchmarks/correctness/wmma-scalar-carry-envelope-20260914.json`, SHA256
-`0266a7b786c9b56bcb18151c19da6cb11aa6cb2ac1d09a68d2a22da2e017a68f`.
+Full local checks pass 378 Python tests with two skips, 47 Rust tests, C ABI,
+clippy and hygiene. Independent sanitized tests cover 262144 canonical groups
+and more than 20000 directed additions against exact integer endpoints.
+No product dispatcher or admission threshold changes. Next run the complete
+original QKV tensor, filter only its existing candidates, compact all rejected
+identities for unchanged four-lane replay, and compare total cost and all GB10
+BF16 endpoints. Command:
+`run-native-projection-interval-r1.ps1 -Action build|test|capture`.
+Evidence: `benchmarks/correctness/projection-interval-20260914.json`, SHA256
+`827e683b3590f1f484dd1c0ae358eb38f9f09f3fa8047aee187d0ebfb402c9f2`.
 
-The fused-only diagnostic remains in `wmma-projection-envelope-20260914.json`;
-its narrower bounds also fail generated counterexamples.
+Earlier fused/scalar carry comparisons are preserved in
+`wmma-scalar-carry-envelope-20260914.json` and
+`wmma-projection-envelope-20260914.json`. Explicit scalar carry did not improve
+admission, and every smaller-coefficient hypothesis retains counterexamples.
 
 The hybrid exact-integer/scalar-float QK experiment at `824a07f` passes
 128 native generated cases, 257735040 score comparisons and 8192 independent
