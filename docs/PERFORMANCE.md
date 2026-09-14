@@ -125,6 +125,26 @@ retained-performance or release acceptance follows. Evidence:
 `benchmarks/correctness/matrix-cooperative-qk-20260914.json`, SHA256
 `21180a5971127fb7f7b888069d65c38745a39ae0e20228d3ef515875f6dc5fb3`.
 
+Discarded-bit interval certification at `522653f` preserves exact K16
+endpoints but makes matrix QK slower. Complete q7169 preparation-plus-query
+medians are 271.2800 ms for selected prepared QK, 551.2625 ms for the original
+matrix32 certificate, and 876.3462 / 794.8246 / 874.8079 ms for interval
+matrix16 / 32 / 64. CPU sampling classifies 2176 old certificates, 636 new
+certificates, 64 uncertain and 772 unsupported groups; these are not GPU
+counters. Keep this component outside product dispatch.
+
+Signed remainder bounds and directed integer division introduce no numerical
+tolerance. All 500000 sanitized host states pass, including 142929 independent
+bounds, 129633 certified results and 70360 additional certificates. Native
+checks preserve 163826160 generated score slots and 6400 CPU dots. Each of
+five complete captured variants preserves 418496528 unique scores across
+four executions, 1673986112 comparisons and 228 CPU dots. Encodings, source
+immutability, guards and unused score tails pass. Full local checks pass
+387 Python tests with two skips, 47 Rust tests, C smoke, clippy and hygiene.
+No product, retained-performance or release acceptance follows. Evidence:
+`benchmarks/correctness/matrix-interval-qk-20260914.json`, SHA256
+`85c25310ef7d123ad1f6e65e1e9e817f93d5ab46d3533cfdeede31a1d15b6802`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
