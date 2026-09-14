@@ -428,8 +428,19 @@ void compare_scaled_l2(unsigned columns) {
 }
 }
 
+#include "moe_shared_replay_suite.h"
+
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--shared-prevalidated") == 0) {
+            for (bool down : {false, true}) {
+                moe_batch_test::compare_shared_prevalidated(17u, down, 0u);
+                moe_batch_test::compare_shared_prevalidated(129u, down, 1u);
+                moe_batch_test::compare_shared_prevalidated(513u, down, 2u);
+                moe_batch_test::compare_shared_prevalidated(8192u, down, 0u);
+            }
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--partition-replay") == 0) {
             moe_batch_test::compare_prepared_norm(512u, true);
             moe_batch_test::compare_prepared_norm(2048u, true);

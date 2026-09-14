@@ -2,34 +2,38 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Directed projection intervals at `700f556` pass all 135 native generated
-and 15 sampled QKV reports, with CPU/GPU interval endpoints identical.
-The unique generated coverage is 36864 dots and 2359296 ordered K16 groups;
-wide exponents, exact lattices and disjoint row maxima are included.
-No interval undercoverage or false BF16 admission is observed.
+The complete QKV interval-filter experiment at `be477fa` preserves all
+58728448 GB10 BF16 cells and the original 3791742 selected identities.
+It certifies only 56913 candidates (1.50 percent), leaving 3734829 for exact
+replay. All replayed FP32 values match the control by identity, all 37 native
+safety cases pass, and source/output/partition guards remain intact.
 
-The interval retains the conservative native-product coefficient, separately
-bounds canonical alignment losses and uses directed FP32 carry endpoints.
-Unsupported operands require original replay. All 16384 sampled canonical
-QKV endpoints match GB10; the new interval accepts 15105 versus 14122 for
-the fused conservative envelope. This 92.2 percent sample rate does not
-measure reduction in the existing 3791742 full-tensor candidate identities.
+Total preparation plus filtering, compaction, count read and replay costs
+458.8400 ms versus 51.3805 ms for unchanged exact replay. This 407.4595 ms
+regression rules out product promotion on current evidence. The earlier
+92.2 percent unweighted sample did not predict reduction in actual candidates.
+Command: `run-native-projection-interval-filter-r1.ps1 -Kind filter|real -Action build|test`.
+Evidence: `benchmarks/correctness/projection-interval-filter-20260914.json`, SHA256
+`3baa42e6bad722e55c6dda32950babeb596728b5f5f20d4b8dc2f2e14ff8ecf2`.
 
-Full local checks pass 378 Python tests with two skips, 47 Rust tests, C ABI,
-clippy and hygiene. Independent sanitized tests cover 262144 canonical groups
-and more than 20000 directed additions against exact integer endpoints.
-No product dispatcher or admission threshold changes. Next run the complete
-original QKV tensor, filter only its existing candidates, compact all rejected
-identities for unchanged four-lane replay, and compare total cost and all GB10
-BF16 endpoints. Command:
-`run-native-projection-interval-r1.ps1 -Action build|test|capture`.
-Evidence: `benchmarks/correctness/projection-interval-20260914.json`, SHA256
-`827e683b3590f1f484dd1c0ae358eb38f9f09f3fa8047aee187d0ebfb402c9f2`.
+The existing same-run q8192 GB10-qualified profile has 40 complete nonnegative
+MoE detail reports. Routed gate / up / down correction totals are
+1714.231794 / 2052.170724 / 1571.298102 ms. Shared-stream intervals total
+4898.652916 ms and overlap routed work; do not add these scopes together.
+Source inspection finds shared projections still on the original sixteen-lane
+integer replay, while routed projections use validated four-lane float replay.
+An opt-in implementation now extends that exact path to q8192 shared
+projections with 77824 bytes of dedicated stream metadata and unchanged norms,
+selectors, K16 order and short-shape dispatch. Full local checks pass 378 Python
+tests (two skips), 47 Rust tests, C smoke, clippy and hygiene. Allocation-failure,
+drain-before-free and shared/routed pointer ownership tests also pass.
+Native numerical safety and the complete same-artifact q8192/out512 pair are
+pending; the option remains off by default.
 
-Earlier fused/scalar carry comparisons are preserved in
+Prior interval/carry probes remain in `projection-interval-20260914.json`,
 `wmma-scalar-carry-envelope-20260914.json` and
-`wmma-projection-envelope-20260914.json`. Explicit scalar carry did not improve
-admission, and every smaller-coefficient hypothesis retains counterexamples.
+`wmma-projection-envelope-20260914.json`. All narrower-coefficient
+counterexamples remain attached; no product or release gate is relaxed.
 
 The hybrid exact-integer/scalar-float QK experiment at `824a07f` passes
 128 native generated cases, 257735040 score comparisons and 8192 independent

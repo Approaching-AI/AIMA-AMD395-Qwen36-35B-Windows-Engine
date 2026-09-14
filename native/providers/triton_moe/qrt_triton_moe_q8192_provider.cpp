@@ -1706,6 +1706,12 @@ constexpr size_t kMoeL2Rows[] = {
     kTokens, kExperts, kTokens, kIntermediate, kIntermediate, kTokens,
     kHidden, kExperts * 2u * kIntermediate, kRoutes, kExperts * kHidden
 };
+constexpr bool shared_replay_surface(MoeL2 surface) {
+    return surface == MoeL2::SharedInput || surface == MoeL2::SharedGate ||
+        surface == MoeL2::SharedUp || surface == MoeL2::SharedActivated || surface == MoeL2::SharedDown;
+}
+constexpr size_t kSharedReplayFlagBytes =
+    (2u * kTokens + 2u * kIntermediate + kHidden) * sizeof(uint32_t);
 struct MoeWeightMetadata {
     const uint16_t* source = nullptr;
     float* storage = nullptr;
@@ -1890,6 +1896,9 @@ struct ProviderState {
     bool prepared_replay = false, prepared_replay_active = false;
     bool float_replay = false, float_replay_active = false;
     bool prevalidated_float = false, prevalidated_float_active = false;
+    bool shared_prevalidated_float = false, shared_prevalidated_float_active = false;
+    // Shared and routed pipelines overlap. Metadata must never share arenas.
+    std::array<uint32_t *, static_cast<size_t>(MoeL2::Count)> shared_replay_rows{};
     bool partition_replay = false;
     uint16_t *prepared_replay_weights = nullptr, *prepared_replay_inputs = nullptr;
     uint32_t *prepared_replay_weight_rows = nullptr, *prepared_replay_input_rows = nullptr;
@@ -11053,7 +11062,7 @@ void shared_down_full_hawkeye_kernel(
 // where gfx1151 and GB10 can choose adjacent endpoints.  Candidate cells are
 // compacted per block; only those cells replay the characterized Hopper K16
 // accumulation against the authoritative BF16 input and weight row.
-template<bool ShapeAware>
+template<bool ShapeAware, unsigned ReplayLanes = 16u>
 __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
     const float *native_projection,
     const uint16_t *input_bf16,
@@ -11090,7 +11099,8 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
     __syncthreads();
 
 #if QRT_TRITON_MOE_BATCHED_HAWKEYE
-    constexpr uint32_t kWave16 = 16u;
+    static_assert(ReplayLanes == 4u || ReplayLanes == 16u);
+    constexpr uint32_t kWave16 = ReplayLanes;
     constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
     const uint32_t subgroup = threadIdx.x / kWave16;
     const uint32_t lane = threadIdx.x & (kWave16 - 1u);
@@ -11100,14 +11110,16 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kIntermediate;
         const uint32_t row = candidate - token * kIntermediate;
-        const float exact = ShapeAware
-            ? qrt_sm121_prefill_projection::dot<16>(
+        float exact;
+        if constexpr (ShapeAware) exact = qrt_sm121_prefill_projection::dot<ReplayLanes>(
                 input_bf16 + static_cast<size_t>(token) * kHidden,
                 weights_bf16 + static_cast<size_t>(row) * kHidden,
                 kHidden, qrt_sm121_prefill_projection::plan(
                     qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count),
-                token, row)
-            : batched_hawkeye_wave16_dot_bf16_hopper(
+                token, row);
+        else if constexpr (ReplayLanes == 4u)
+            exact = moe_routed_replay_dot<4u>(input_bf16, weights_bf16, token, row, kHidden, bounds);
+        else exact = batched_hawkeye_wave16_dot_bf16_hopper(
                 input_bf16 + static_cast<size_t>(token) * kHidden,
                 weights_bf16 + static_cast<size_t>(row) * kHidden,
                 kHidden);
@@ -11144,7 +11156,7 @@ __global__ void shared_projection_hawkeye_midpoint_correction_kernel(
 // used only to select sparse BF16 midpoint candidates; every selected dot is
 // recomputed with the characterized Hopper accumulation order before the
 // authoritative BF16 endpoint is materialized.
-template<bool ShapeAware>
+template<bool ShapeAware, unsigned ReplayLanes = 16u>
 __global__ void shared_down_hawkeye_midpoint_correction_kernel(
     const float *native_projection,
     const uint16_t *activated_bf16,
@@ -11181,7 +11193,8 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
     __syncthreads();
 
 #if QRT_TRITON_MOE_BATCHED_HAWKEYE
-    constexpr uint32_t kWave16 = 16u;
+    static_assert(ReplayLanes == 4u || ReplayLanes == 16u);
+    constexpr uint32_t kWave16 = ReplayLanes;
     constexpr uint32_t kWave16Subgroups = kNativeThreads / kWave16;
     const uint32_t subgroup = threadIdx.x / kWave16;
     const uint32_t lane = threadIdx.x & (kWave16 - 1u);
@@ -11191,14 +11204,16 @@ __global__ void shared_down_hawkeye_midpoint_correction_kernel(
         const uint32_t candidate = candidate_indices[slot];
         const uint32_t token = candidate / kHidden;
         const uint32_t row = candidate - token * kHidden;
-        const float exact = ShapeAware
-            ? qrt_sm121_prefill_projection::dot<16>(
+        float exact;
+        if constexpr (ShapeAware) exact = qrt_sm121_prefill_projection::dot<ReplayLanes>(
                 activated_bf16 + static_cast<size_t>(token) * kIntermediate,
                 weights_bf16 + static_cast<size_t>(row) * kIntermediate,
                 kIntermediate, qrt_sm121_prefill_projection::plan(
                     qrt_sm121_prefill_projection::Stage::SharedDown, token_count),
-                token, row)
-            : batched_hawkeye_wave16_dot_bf16_hopper(
+                token, row);
+        else if constexpr (ReplayLanes == 4u)
+            exact = moe_routed_replay_dot<4u>(activated_bf16, weights_bf16, token, row, kIntermediate, bounds);
+        else exact = batched_hawkeye_wave16_dot_bf16_hopper(
                 activated_bf16 + static_cast<size_t>(token) * kIntermediate,
                 weights_bf16 + static_cast<size_t>(row) * kIntermediate,
                 kIntermediate);
@@ -12002,6 +12017,9 @@ bool release_state() {
     if (g_state.prepared_replay_inputs) (void)hipFree(g_state.prepared_replay_inputs);
     if (g_state.prepared_replay_weight_rows) (void)hipFree(g_state.prepared_replay_weight_rows);
     if (g_state.prepared_replay_input_rows) (void)hipFree(g_state.prepared_replay_input_rows);
+    for (uint32_t *buffer : g_state.shared_replay_rows) {
+        if (buffer != nullptr) (void)hipFree(buffer);
+    }
     release_matrix_plan(&g_state.shared_down_plan);
     release_matrix_plan(&g_state.shared_projection_plan);
     release_matrix_plan(&g_state.shared_gate_plan);
@@ -12372,6 +12390,13 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
         prepare_weight ? g_state.prepared_replay_weights : nullptr;
     uint32_t* flags = prepare_input ? g_state.prepared_replay_input_rows :
         prepare_weight ? g_state.prepared_replay_weight_rows : nullptr;
+    const bool prepare_shared = g_state.shared_prevalidated_float_active && shared_replay_surface(surface);
+    if (prepare_shared) {
+        flags = g_state.shared_replay_rows[slot];
+        if (g_state.scaled_l2 || !flags) {
+            set_error_text("invalid shared MoE replay metadata"); return false;
+        }
+    }
     if ((prepare_input || prepare_weight) &&
         (g_state.scaled_l2 || (g_state.prepared_replay_active && !encoded) || !flags ||
          size_t(rows) * columns > (prepare_input ? kMoePreparedInputElements : kMoePreparedWeightElements) ||
@@ -12381,7 +12406,7 @@ bool launch_moe_l2(const uint16_t *values, MoeL2 surface,
     }
     for (uint32_t first = 0; first < rows; first += 4096u) {
         const uint32_t count = rows - first < 4096u ? rows - first : 4096u;
-        if (g_state.prevalidated_float_active && flags) {
+        if ((g_state.prevalidated_float_active || prepare_shared) && flags) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>), dim3(count), dim3(kNativeThreads),
                 0, stream, values, g_state.moe_l2[slot], nullptr, flags, rows, columns, first);
         } else if (encoded) {
@@ -12415,12 +12440,20 @@ hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t str
     const uint32_t step = bounded ? MaximumBlocks : blocks;
     for (uint32_t first = 0; first < blocks; first += step) {
         const uint32_t count = blocks - first < step ? blocks - first : step;
-        const MoeCorrectionBounds bounds{
+        MoeCorrectionBounds bounds{
             g_state.moe_l2[static_cast<size_t>(input)],
             g_state.moe_l2[static_cast<size_t>(weights)],
             static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
             first
         };
+        if (g_state.shared_prevalidated_float_active &&
+            ((input == MoeL2::SharedInput && (weights == MoeL2::SharedGate || weights == MoeL2::SharedUp)) ||
+             (input == MoeL2::SharedActivated && weights == MoeL2::SharedDown))) {
+            bounds.prevalidated_float = true;
+            bounds.prepared_input_rows = g_state.shared_replay_rows[static_cast<size_t>(input)];
+            bounds.prepared_weight_rows = g_state.shared_replay_rows[static_cast<size_t>(weights)];
+            if (!bounds.prepared_input_rows || !bounds.prepared_weight_rows) return hipErrorInvalidValue;
+        }
         hipLaunchKernelGGL(kernel, dim3(count), dim3(kNativeThreads), 0, stream,
                           arguments..., bounds);
         const hipError_t status = hipGetLastError();
@@ -12516,6 +12549,16 @@ bool allocate_optional_moe_prepared_replay() {
                  "hipMalloc(MoE prepared weight flags)") &&
         allocate(&g_state.prepared_replay_input_rows, kMoePreparedInputRows * sizeof(uint32_t),
                  "hipMalloc(MoE prepared input flags)");
+}
+
+bool allocate_optional_moe_shared_replay() {
+    if (!g_state.shared_prevalidated_float) return true;
+    for (size_t i = 0; i < g_state.shared_replay_rows.size(); ++i) {
+        if (shared_replay_surface(static_cast<MoeL2>(i)) &&
+            !allocate(&g_state.shared_replay_rows[i], kMoeL2Rows[i] * sizeof(uint32_t),
+                "hipMalloc(shared MoE replay flags)")) return false;
+    }
+    return true;
 }
 
 bool allocate_optional_shared_projection_hawkeye() {
@@ -15591,6 +15634,14 @@ bool launch_shared_pipeline(
     hipStream_t stream,
     uint32_t token_count = kTokens
 ) {
+    g_state.shared_prevalidated_float_active = g_state.shared_prevalidated_float && token_count == kTokens &&
+        !qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+            qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count)) &&
+        !qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+            qrt_sm121_prefill_projection::Stage::SharedDown, token_count));
+    if (g_state.shared_prevalidated_float_active)
+        std::fprintf(stderr, "BATCH_MARK moe_shared_prevalidated_float tokens=%u lanes=4 workspace_bytes=%zu separate_stream_metadata=1 fused_norm_scan=1 canonical_k16=1 original_fallback=1\n",
+            token_count, kSharedReplayFlagBytes);
 #if QRT_TRITON_MOE_Q1024_EXACT_SHARED
     const uint16_t *gate_pointer = shared_gate_projection_bf16;
     const uint16_t *up_pointer = shared_up_projection_bf16;
@@ -15797,11 +15848,14 @@ bool launch_shared_pipeline(
             (shared_projection_elements + kNativeThreads - 1u) /
             kNativeThreads
         );
+        const auto projection_kernel = g_state.shared_prevalidated_float_active
+            ? shared_projection_hawkeye_midpoint_correction_kernel<false, 4u>
+            : (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count))
+                ? shared_projection_hawkeye_midpoint_correction_kernel<true>
+                : shared_projection_hawkeye_midpoint_correction_kernel<false>);
         const hipError_t correction_status = launch_moe_correction(
-            (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
-                        qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count))
-                        ? shared_projection_hawkeye_midpoint_correction_kernel<true>
-                        : shared_projection_hawkeye_midpoint_correction_kernel<false>),
+            projection_kernel,
             correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedGate,
             g_state.shared_gate_projection_f32,
             g_state.input_bf16,
@@ -15813,10 +15867,7 @@ bool launch_shared_pipeline(
         status = correction_status;
         if (status == hipSuccess) {
             const hipError_t correction_status = launch_moe_correction(
-                (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
-                        qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count))
-                        ? shared_projection_hawkeye_midpoint_correction_kernel<true>
-                        : shared_projection_hawkeye_midpoint_correction_kernel<false>),
+                projection_kernel,
                 correction_blocks, stream, MoeL2::SharedInput, MoeL2::SharedUp,
                 g_state.shared_up_projection_f32,
                 g_state.input_bf16,
@@ -15879,11 +15930,14 @@ bool launch_shared_pipeline(
         const uint32_t correction_blocks = static_cast<uint32_t>(
             (shared_down_elements + kNativeThreads - 1u) / kNativeThreads
         );
+        const auto down_kernel = g_state.shared_prevalidated_float_active
+            ? shared_down_hawkeye_midpoint_correction_kernel<false, 4u>
+            : (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
+                    qrt_sm121_prefill_projection::Stage::SharedDown, token_count))
+                ? shared_down_hawkeye_midpoint_correction_kernel<true>
+                : shared_down_hawkeye_midpoint_correction_kernel<false>);
         const hipError_t correction_status = launch_moe_correction(
-            (qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
-                        qrt_sm121_prefill_projection::Stage::SharedDown, token_count))
-                        ? shared_down_hawkeye_midpoint_correction_kernel<true>
-                        : shared_down_hawkeye_midpoint_correction_kernel<false>),
+            down_kernel,
             correction_blocks, stream, MoeL2::SharedActivated, MoeL2::SharedDown,
             g_state.shared_down_projection_f32,
             g_state.shared_activated,
@@ -16717,6 +16771,16 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         set_error_text("QRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY must be 0 or 1"); return 0;
     }
     g_state.prevalidated_float = validated_float && std::strcmp(validated_float,"1") == 0;
+    const char* shared_float = std::getenv("QRT_QWEN36_MOE_SHARED_PREVALIDATED_FLOAT_REPLAY");
+    if (shared_float && *shared_float && std::strcmp(shared_float,"0") && std::strcmp(shared_float,"1")) {
+        set_error_text("QRT_QWEN36_MOE_SHARED_PREVALIDATED_FLOAT_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.shared_prevalidated_float = shared_float && std::strcmp(shared_float,"1") == 0;
+    if (g_state.shared_prevalidated_float && (kTokens != 8192u || !QRT_TRITON_MOE_BATCHED_HAWKEYE ||
+        QRT_TRITON_MOE_Q1024_EXACT_SHARED || QRT_TRITON_MOE_FULL_SHARED_HAWKEYE ||
+        !g_state.sm121_moe_absolute_error_ppb || g_state.scaled_l2)) {
+        set_error_text("shared prevalidated replay requires q8192 batched correction and original L2 scans"); return 0;
+    }
     const char* partition_replay = std::getenv("QRT_QWEN36_MOE_PARTITION_REPLAY");
     if (partition_replay && *partition_replay && std::strcmp(partition_replay,"0") && std::strcmp(partition_replay,"1")) {
         set_error_text("QRT_QWEN36_MOE_PARTITION_REPLAY must be 0 or 1"); return 0;
@@ -17076,6 +17140,7 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         !allocate_optional_moe_l2() ||
         !allocate_optional_moe_compaction() ||
         !allocate_optional_moe_prepared_replay() ||
+        !allocate_optional_moe_shared_replay() ||
         !allocate_optional_shared_projection_hawkeye() ||
         !allocate(&g_state.shared_activated, kSharedProjectionElements * sizeof(uint16_t), "hipMalloc(shared_activated)") ||
         !allocate(&g_state.shared_down_projection, kOutputElements * sizeof(uint16_t), "hipMalloc(shared_down_projection)") ||

@@ -14,6 +14,8 @@ class MoePreparedWorkspaceTests(unittest.TestCase):
     def test_real_workspace_faults_and_scan_routing(self):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
         allocations = function(s, 'bool allocate_optional_moe_prepared_replay()')
+        allocations += '\n' + function(s, 'constexpr bool shared_replay_surface(')
+        allocations += '\n' + function(s, 'bool allocate_optional_moe_shared_replay()')
         scans = function(s, 'bool launch_moe_l2(')
         # Extract the real ordered release prefix: execution-state drain must
         # succeed before any prepared storage can be freed.
@@ -37,6 +39,8 @@ constexpr size_t kMoePreparedWeightRows=524288, kMoePreparedInputRows=65536;
 struct State {
     bool prepared_replay=false,prepared_replay_active=false,scaled_l2=false;
     bool prevalidated_float=false,prevalidated_float_active=false;
+    bool shared_prevalidated_float=false,shared_prevalidated_float_active=false;
+    std::array<uint32_t*,10> shared_replay_rows{};
     unsigned sm121_moe_absolute_error_ppb=1000;
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
@@ -62,6 +66,7 @@ template<bool ValidateOnly> constexpr int moe_bf16_row_l2_prepared_kernel=Valida
 #define HIP_KERNEL_NAME(...) __VA_ARGS__
 int expected_kernel=0;
 unsigned expected_rows=0,expected_columns=0,covered=0;
+uint32_t* expected_flags=nullptr;
 uint16_t value;
 hipStream_t stream=reinterpret_cast<void*>(uintptr_t(101));
 template<class... Args> void launch(int kernel,dim3 grid,dim3 block,int shared,hipStream_t q,Args... args) {
@@ -71,8 +76,8 @@ template<class... Args> void launch(int kernel,dim3 grid,dim3 block,int shared,h
     assert(std::get<n-1>(a)==covered);covered+=grid.x;++launches;
     if constexpr(n==7) {
         if(kernel==3)assert(std::get<2>(a)==nullptr);
-        assert(std::get<2>(a)==g_state.prepared_replay_inputs||std::get<2>(a)==g_state.prepared_replay_weights);
-        assert(std::get<3>(a)==g_state.prepared_replay_input_rows||std::get<3>(a)==g_state.prepared_replay_weight_rows);
+        else assert(std::get<2>(a)==g_state.prepared_replay_inputs||std::get<2>(a)==g_state.prepared_replay_weights);
+        assert(std::get<3>(a)==expected_flags);
     }
 }
 #define hipLaunchKernelGGL(...) launch(__VA_ARGS__)
@@ -93,6 +98,10 @@ int main() {
     g_state.prepared_replay=true;fail_allocation=0;sizes.clear();assert(allocate_optional_moe_prepared_replay());
     auto run=[&](MoeL2 surface,unsigned rows,unsigned columns) {
         launches=covered=0;expected_rows=rows;expected_columns=columns;
+        expected_flags=g_state.shared_prevalidated_float_active&&shared_replay_surface(surface)
+            ? g_state.shared_replay_rows[size_t(surface)]
+            : (surface==MoeL2::Input||surface==MoeL2::RoutedActivated)
+                ? g_state.prepared_replay_input_rows : g_state.prepared_replay_weight_rows;
         return launch_moe_l2(&value,surface,rows,columns,stream);
     };
     expected_kernel=0;assert(run(MoeL2::Input,8192,2048)&&covered==8192&&launches==2);
@@ -108,6 +117,35 @@ int main() {
     assert(!run(MoeL2::Input,8192,8192)&&launches==0);
     expected_kernel=2;fail_launch=3;assert(!run(MoeL2::RoutedGateUp,262144,2048)&&launches==3);
     fail_launch=0;assert(release_prefix());
+    const std::vector<size_t> shared_bytes{32768,2048,2048,32768,8192};
+    for(unsigned fault=1;fault<=6;++fault) {
+        g_state=State{};g_state.shared_prevalidated_float=true;sizes.clear();free_calls=0;fail_allocation=fault;
+        assert(allocate_optional_moe_shared_replay()==(fault==6));
+        assert(sizes==std::vector<size_t>(shared_bytes.begin(),shared_bytes.begin()+(fault==6?5:fault)));
+        assert(!g_state.prepared_replay_input_rows&&!g_state.prepared_replay_weight_rows);
+        drain_ok=false;assert(!release_prefix()&&free_calls==0);
+        drain_ok=true;assert(release_prefix()&&free_calls==(fault==6?5:fault-1));
+    }
+    g_state.prevalidated_float=true;g_state.prevalidated_float_active=true;
+    g_state.shared_prevalidated_float=true;g_state.shared_prevalidated_float_active=true;
+    sizes.clear();fail_allocation=0;assert(allocate_optional_moe_prepared_replay()&&allocate_optional_moe_shared_replay());
+    expected_kernel=3;
+    for(auto surface : {MoeL2::SharedInput,MoeL2::SharedGate,MoeL2::SharedUp,MoeL2::SharedActivated,MoeL2::SharedDown}) {
+        const unsigned rows=unsigned(kMoeL2Rows[size_t(surface)]);
+        const unsigned columns=surface==MoeL2::SharedActivated||surface==MoeL2::SharedDown?512:2048;
+        auto* flags=g_state.shared_replay_rows[size_t(surface)];
+        assert(flags&&flags!=g_state.prepared_replay_input_rows&&flags!=g_state.prepared_replay_weight_rows);
+        assert(run(surface,rows,columns)&&covered==rows);
+        g_state.shared_replay_rows[size_t(surface)]=nullptr;
+        assert(!run(surface,rows,columns)&&launches==0);
+        g_state.shared_replay_rows[size_t(surface)]=flags;
+        assert(!run(surface,rows+1,columns)&&launches==0);
+    }
+    assert(run(MoeL2::Input,8192,2048)&&covered==8192);
+    assert(run(MoeL2::RoutedDown,524288,512)&&covered==524288);
+    g_state.scaled_l2=true;assert(!run(MoeL2::SharedInput,8192,2048)&&launches==0);g_state.scaled_l2=false;
+    fail_launch=2;assert(!run(MoeL2::SharedInput,8192,2048)&&launches==2);
+    fail_launch=0;free_calls=0;assert(release_prefix()&&free_calls==7);
     const std::vector<size_t> flag_bytes{2097152,262144};
     for(unsigned fault=1;fault<=3;++fault) {
         g_state=State{};g_state.prevalidated_float=true;sizes.clear();free_calls=0;fail_allocation=fault;

@@ -110,16 +110,19 @@ float validated_dot(const uint16_t* a,const uint16_t* b,unsigned k,bool eligible
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void *;
-enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDown };
+enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDown,
+    SharedInput, SharedGate, SharedUp, SharedActivated, SharedDown };
 struct State {
     bool compact_routed_hawkeye=false;
     bool prepared_replay_active=false;
     bool float_replay_active=false,prevalidated_float_active=false,partition_replay=false;
+    bool shared_prevalidated_float_active=false;
+    std::array<uint32_t*,9> shared_replay_rows{};
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
     uint32_t moe_compaction_blocks=kMoeCompactionBlocks;
     uint32_t sm121_moe_absolute_error_ppb=1000;
-    std::array<float *,4> moe_l2{};
+    std::array<float *,9> moe_l2{};
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr;
 } g_state;
 bool execute_kernels=true;
