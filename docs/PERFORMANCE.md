@@ -59,11 +59,21 @@ paths match all 418496528 original q7169 score slots and 228 independent
 CPU dots per path. Guards, complete device metadata and inputs pass.
 Including preparation, the same-executable capture clocks are 348.3046 /
 276.4122 ms; these component observations are not model performance.
-C checks, 401 Python tests with two skips and hygiene pass. Provider
-integration and real long-prefix comparison are next; the measured CK above
+C checks, 401 Python tests with two skips and hygiene pass. The measured CK above
 still uses its original cold-only prepared-QK route. Component evidence:
 `benchmarks/correctness/prepared-decoded-qk-range-components-20260915.json`, SHA256
 `c9bcf414aca5faa7a2dff51d136bcf673d90e20b9f9430fd41c7f508c9381b83`.
+
+CK `42c2f0f` integrates that range owner behind default-off
+`QRT_CK_SM121_LONG_PREPARED_DECODED_QK`. The owner grows separately up to
+679039232 bytes, refreshes every call, preserves failed growth and retains
+32-query long slabs. Native CK build and the full local checks pass. Its
+real q8192 regression matches all 512 GB10 outputs and callbacks, first
+144/raw 10.375, with no long-QK or long-V allocation. TTFT is 32880.1059 ms,
+TPOT 101.126072 ms and load 21331.9965 ms. The same-DLL 16k off/on
+comparison is running; this cold regression does not qualify long routing.
+Evidence: `benchmarks/correctness/long-query-range-q8192-20260915.json`, SHA256
+`ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009`.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
