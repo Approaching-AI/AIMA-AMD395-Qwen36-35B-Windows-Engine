@@ -47,11 +47,22 @@ These scopes are nested within layer totals, and shared MoE overlaps routed
 work. All ten negative residual/postnorm event intervals are excluded.
 Completed host attention core is 12910.9 ms; allocation/free is negligible.
 Instrumented TTFT 35495.3171 ms is diagnostic and does not replace the
-uninstrumented retained measurement. The next component comparison targets
-interleaved independent exact outputs with shared input loads, preserving
-original K16 recurrence and fallback before any provider integration.
+uninstrumented retained measurement. This prompted the interleaved-output
+comparison below, preserving original K16 recurrence and fallback.
 Evidence: `benchmarks/correctness/current-prepared-stack-profile-20260914.json`,
 SHA256 `f422fb486d5529c349e0f9732ebef8164d49e42c5bfe74219c8eb3102f2ebb5b`.
+
+Interleaved exact outputs at `8d43545` preserve correctness but are slower.
+Complete q8192 QKV preparation-plus-replay medians are 59.0527 ms for the
+original, 67.2572 ms for two outputs and 79.4720 ms for four outputs per
+four-lane subgroup. All 67108864 GB10-comparable BF16 endpoints and 4331311
+raw selected accumulators match, with unchanged candidates, row flags and
+workspace. Twenty-four native cases preserve 2773512 ordered K16 states,
+shared/independent inputs, partial output groups, unaligned operands, guards
+and independent production parity. Full local checks pass. Keep the original
+runtime dispatcher; no product or release acceptance is inferred.
+Evidence: `benchmarks/correctness/interleaved-projection-comparison-20260914.json`,
+SHA256 `7bdd14e9971eab71f15af72f25d010037a4fe980fb0a7f08f99884ab062976da`.
 
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
