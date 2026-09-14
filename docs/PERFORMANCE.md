@@ -171,6 +171,31 @@ clippy with explicit diff and hashes. No product or release acceptance
 follows. Evidence: `benchmarks/correctness/pv-group-replay-20260914.json`, SHA256
 `93b03b125f746d277e090136e8a271c6934d6ba5687c07f2fc380629197701c1`.
 
+Lossless contiguous WMMA PV operands at `8d7a153` preserve the original
+q7169 result. Completed probability-plus-native-PV medians including V
+preparation are 201.8398 ms for original, 188.8048 ms for V only, 183.4203 ms
+for P and V, and 184.1490 ms for paired-K32 P and V. The best difference is
+18.4195 ms in this capture; it does not establish a seconds-scale product
+improvement. Keep the selected product dispatcher unchanged.
+
+All 384 native safety reports preserve 70778880 output and 832731648
+probability positions. Each of four complete captured variants preserves
+418496528 probability cells, all scales, raw approximate output/accumulator
+and error-bound bits across every warmup and three measured attempts.
+Actual candidate sets match all 2198673 identities. Each variant runs its
+own unchanged exact replay and preserves corrected raw output, accumulator
+and denominator bits, matching all 29364224 external GB10 BF16 cells. The
+control also has 228 independent CPU dots. Full CPU layout reconstruction,
+guards, prefixes, tails and immutable sources pass.
+
+Both preparation costs and probability dual writes are counted. Common
+QK, exact replay and validation are reported separately. Local C smoke,
+388 Python tests with two skips and hygiene pass; unchanged Rust/Cargo
+files reuse prior 47 tests and clippy with explicit hashes and diff.
+No product or release acceptance follows. Evidence:
+`benchmarks/correctness/wmma-pv-operands-20260914.json`, SHA256
+`96bfa8923d6388958046633d58ea11e20b2c148a0630f42d150fc9875ac7983d`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
