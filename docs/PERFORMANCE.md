@@ -67,8 +67,25 @@ Complete QKV preserves all 67108864 GB10-comparable BF16 endpoints and
 The runtime retains four lanes. Full local checks pass. Evidence:
 `benchmarks/correctness/dual-lane-projection-comparison-20260914.json`, SHA256
 `e43041d47fa3554be6e38be1bad7ea29cc6f14c828d29cc68d1f07414f713bbe`.
-Prepared QK operand representation and ordered carry reuse are the next
-structural experiment; original candidate admission and GB10 gates remain.
+Prepared packed QK at `a63d809` preserves all 418496528 original q7169 score
+cells and 228 independent CPU dots in each of eight variants. Final native
+safety passes 160 cases; every encoded word, row flag, input and guard passes.
+Complete preparation-plus-QK medians are 357.6721 ms for the current scalar
+control, 323.9206 ms for the earlier faster decoded geometry and 285.3475 ms
+for prepared K128 with 16 query rows, 16 keys and direct FP32 carry. The latter
+includes 2.2129 ms for all Q/K preparation and saves 72.3246 ms (20.22 percent)
+against the current component control. Original K16 arithmetic and complete
+fallback are unchanged. The failed r2 capture path was corrected before GPU
+computation; r3 uses the identical executable and original capture hashes.
+Evidence: `benchmarks/correctness/prepared-decoded-qk-20260914.json`, SHA256
+`1ef1bf444c5de61da77f0c18f77cf2a4b1955e930dbf2e93841e30e575b70b0c`.
+
+An opt-in provider integration uses `QRT_CK_SM121_PREPARED_DECODED_QK=1`
+for cold prefill through q8192 with the existing scalar-float and global PV
+options. It refreshes a 151584768-byte arena every layer/call under the existing
+workspace lock and drains failed submissions. Decode, suffix and larger calls
+keep their established route. The default is off. Complete same-DLL q8192
+GB10 token/callback qualification and product timing are still required.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,

@@ -673,6 +673,39 @@ int main() {
             if(staged(8192u-count,count,layout)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 146;
         }
     }
+    launches=error_queries=memsets=fail_launch=0u;
+    unsigned producer_seen[5]{};
+    SplitQkProducer producer{producer_seen, [](const void* state,const uint16_t* q,const uint16_t* k,float* out,
+        hipStream_t,unsigned start,unsigned count,unsigned stride,unsigned key_stride)->int {
+        if(!q || !k || !out || !count || stride!=start+count || key_stride<stride) return hipErrorInvalidValue;
+        auto* seen=const_cast<unsigned*>(static_cast<const unsigned*>(state));
+        ++seen[0];seen[1]=start;seen[2]=count;seen[3]=stride;seen[4]=key_stride;
+        record_launch("prepared_decoded_scores",blackwell_float_alignment_scores_kernel,dim3((stride+15u)/16u,16u,(count+15u)/16u),dim3(256u));
+        return hipGetLastError();
+    }};
+    auto produced=[&](const SplitQkProducer* selected,unsigned start,unsigned count,unsigned layout=22u,bool floating=true) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+count,
+            false,nullptr,nullptr,0u,nullptr,nullptr,nullptr,0u,1u,1u,false,false,floating,0u,false,selected);
+    };
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u})
+        if(produced(&producer,0u,32u,layout)!=hipErrorInvalidValue || launches || producer_seen[0]) return 147;
+    if(produced(&producer,8192u,1u)!=hipErrorInvalidValue ||
+       produced(&producer,0u,32u,22u,false)!=hipErrorInvalidValue || launches || producer_seen[0]) return 148;
+    SplitQkProducer invalid_state{nullptr,producer.launch},invalid_launch{producer_seen,nullptr};
+    if(produced(&invalid_state,0u,32u)!=hipErrorInvalidValue ||
+       produced(&invalid_launch,0u,32u)!=hipErrorInvalidValue || launches || producer_seen[0]) return 149;
+    for(unsigned layout:{22u,24u}) for(unsigned count:{1u,17u,128u}) {
+        launches=error_queries=memsets=fail_launch=producer_seen[0]=0u;
+        if(produced(&producer,8192u-count,count,layout)!=hipSuccess || launches!=5u || producer_seen[0]!=1u ||
+           producer_seen[1]!=8192u-count || producer_seen[2]!=count || producer_seen[3]!=8192u || producer_seen[4]!=8192u ||
+           std::strcmp(launch_names[0],"prepared_decoded_scores") || launch_query_grids[0]!=(count+15u)/16u) return 150;
+        for(unsigned failure=1u;failure<=5u;++failure) {
+            launches=error_queries=memsets=producer_seen[0]=0u;fail_launch=failure;
+            if(produced(&producer,8192u-count,count,layout)!=hipErrorUnknown || launches!=failure || producer_seen[0]!=1u)
+                return 151;
+        }
+    }
     return 0;
 }
 '''

@@ -63,6 +63,7 @@ std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
 #define QRT_CK_EXPORT
 #define QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL 1
+#include "''' + str(ROOT / 'native/providers/ck_fmha/prepared_decoded_qk_workspace.h') + r'''"
 ''' + globals_ + deadline + r'''
 using AttentionBudget = qrt_sm121_attention_deadline::Budget;
 static_assert(AttentionBudget{0,8192,kSm121MaxTokens}.call_limit_seconds()==20.0);
@@ -94,6 +95,7 @@ unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
+unsigned decoded_preparations=0, decoded_queries=0, fail_decoded_prepare=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -125,11 +127,27 @@ hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Val
                            unsigned char** output) {
     return hipMalloc(reinterpret_cast<void**>(output), bytes);
 }
+namespace qrt_prepared_decoded_qk {
+int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t) {
+    ++decoded_preparations;
+    if(!valid(workspace) || workspace.words!=g_sm121_prepared_decoded_qk || transposed!=g_sm121_transposed_keys)
+        std::abort();
+    if(fail_decoded_prepare) return hipErrorUnknown;
+    ++transposes;return hipSuccess;
+}
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned) {
+    return hipSuccess;
+}
+}
 namespace qrt_blackwell_attention {
 namespace exp2_backend = qrt_sm121_exp2;
 struct SplitCompletionObserver {
     void* state;
     int (*observe)(void*, unsigned, hipStream_t);
+};
+struct SplitQkProducer {
+    const void* state;
+    int (*launch)(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned);
 };
 int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
                           unsigned tokens, hipStream_t) {
@@ -159,8 +177,17 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    const void* = nullptr, SplitCompletionObserver* observer = nullptr,
                    const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u,
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
-                   bool direct_pv_operands = false, bool float_alignment_qk = false) {
+                   bool direct_pv_operands = false, bool float_alignment_qk = false,
+                   unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr) {
     ++queries;
+    if(producer) {
+        const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
+        if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
+           workspace->words!=g_sm121_prepared_decoded_qk || workspace->tokens!=key_stride ||
+           producer->launch!=qrt_prepared_decoded_qk::launch_workspace || !decoded_preparations ||
+           !float_alignment_qk || (layout!=22u && layout!=24u)) std::abort();
+        ++decoded_queries;
+    }
     if(float_alignment_qk) {
         if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
             std::abort();
@@ -225,7 +252,7 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk;
+           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -233,7 +260,7 @@ void reset() {
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
     fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = 0;
-    float_alignment_queries = 0;
+    float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -627,6 +654,45 @@ int main() {
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();
     if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 94;
+    setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_PREPARED_DECODED_QK",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 134;
+    }
+    setenv("QRT_CK_SM121_PREPARED_DECODED_QK","1",1);
+    for(unsigned tokens : {2u,7169u,8192u}) {
+        reset();
+        if(launch(0,tokens)!=hipSuccess || allocations!=6u || decoded_preparations!=1u ||
+           decoded_queries!=queries || transposes!=1u) return 135;
+    }
+    transposes=queries=syncs=decoded_queries=0u;
+    if(launch(0,7169)!=hipSuccess || allocations!=6u || decoded_preparations!=2u ||
+       decoded_queries!=57u || transposes!=1u) return 136;
+    for(unsigned tokens : {1u,8193u,17408u}) {
+        reset();
+        if(launch(0,tokens)!=hipSuccess || decoded_preparations || decoded_queries ||
+           g_sm121_prepared_decoded_qk || allocations!=(tokens==1u?4u:5u)) return 137;
+    }
+    reset();
+    if(launch(128u,128u)!=hipSuccess || decoded_preparations || decoded_queries ||
+       g_sm121_prepared_decoded_qk || allocations!=5u) return 138;
+    reset();fail_allocation=6u;
+    if(launch(0,8192)!=hipErrorUnknown || g_sm121_prepared_decoded_qk || transposes ||
+       queries || syncs || live.size()!=5u) return 139;
+    reset();fail_decoded_prepare=1u;
+    if(launch(0,8192)!=hipErrorUnknown || decoded_preparations!=1u || transposes ||
+       queries || syncs!=1u || live.size()!=6u) return 140;
+    reset();fail_query=2u;
+    if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u || decoded_queries!=2u) return 141;
+    for(const char* mode : {"0","2"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 142;
+    }
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    reset();setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","0",1);
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 143;
+    unsetenv("QRT_CK_SM121_PREPARED_DECODED_QK");
     unsetenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");

@@ -65,6 +65,11 @@ foreach ($required in @(
     (Join-Path $sourceDir "qrt_ck_fmha_q8192_provider.cpp"),
     (Join-Path $sourceDir "blackwell_attention.h"),
     (Join-Path $sourceDir "float_pv_replay.h"),
+    (Join-Path $sourceDir "prepared_decoded_qk.h"),
+    (Join-Path $sourceDir "prepared_decoded_qk_workspace.h"),
+    (Join-Path $sourceDir "decoded_window_qk.h"),
+    (Join-Path $sourceDir "..\moe_accumulator\sm121_decoded_bf16.h"),
+    (Join-Path $sourceDir "..\moe_accumulator\sm121_f32_carry.h"),
     (Join-Path $sourceDir "..\sm121_attention_capacity.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_native_product.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_mantissa_parts.h"),
@@ -251,6 +256,16 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir "..\sm121_attention_capacity.h")).Hash.ToLowerInvariant()
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
+    prepared_decoded_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "prepared_decoded_qk.h")).Hash.ToLowerInvariant()
+    prepared_decoded_qk_workspace_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "prepared_decoded_qk_workspace.h")).Hash.ToLowerInvariant()
+    decoded_window_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "decoded_window_qk.h")).Hash.ToLowerInvariant()
+    sm121_decoded_bf16_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\moe_accumulator\sm121_decoded_bf16.h")).Hash.ToLowerInvariant()
+    sm121_f32_carry_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\moe_accumulator\sm121_f32_carry.h")).Hash.ToLowerInvariant()
     float_pv_replay_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "float_pv_replay.h")).Hash.ToLowerInvariant()
     sm121_float_subgroup_header_sha256 = (Get-FileHash -Algorithm SHA256 `

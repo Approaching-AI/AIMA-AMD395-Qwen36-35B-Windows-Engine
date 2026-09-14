@@ -2070,6 +2070,13 @@ struct SplitCompletionObserver {
     void* state;
     int (*observe)(void*, unsigned, hipStream_t);
 };
+// An exact score producer submits every cell of the same score slab on this
+// stream. Its failure prevents all dependent probability and PV work.
+struct SplitQkProducer {
+    const void* state;
+    int (*launch)(const void*, const uint16_t*, const uint16_t*, float*, hipStream_t,
+        unsigned, unsigned, unsigned, unsigned);
+};
 inline int observe_split_stage(SplitCompletionObserver* observer, unsigned stage, hipStream_t stream) {
     return observer && observer->observe ? observer->observe(observer->state, stage, stream) : int(hipSuccess);
 }
@@ -2160,7 +2167,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u,
     bool final_pv_bound = false, bool direct_pv_operands = false,
     bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
-    bool staged_probability = false) {
+    bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -2170,6 +2177,9 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
+    if (qk_producer && (!qk_producer->state || !qk_producer->launch || !float_alignment_qk ||
+            (memory_layout != 22u && memory_layout != 24u) || query_start + query_count > 8192u))
+        return int(hipErrorInvalidValue);
     if (staged_probability && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if (final_pv_bound && ((memory_layout != 22u && memory_layout != 24u) ||
@@ -2230,7 +2240,11 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                 dim3((stride + 15u) / 16u, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                 q, transposed_key, score_scratch, query_start, query_count, stride, key_stride);
         } else if (memory_layout == 15u || memory_layout == 16u || memory_layout == 17u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) {
-            if (float_alignment_qk) {
+            if (qk_producer) {
+                const int producer_status = qk_producer->launch(qk_producer->state,
+                    q, transposed_key, score_scratch, stream, query_start, query_count, stride, key_stride);
+                if (producer_status != int(hipSuccess)) return producer_status;
+            } else if (float_alignment_qk) {
                 hipLaunchKernelGGL(blackwell_float_alignment_scores_kernel,
                     dim3((stride + kTiledExactKeys - 1u) / kTiledExactKeys, kQueryHeads,
                         (query_count + kTiledExactQueries - 1u) / kTiledExactQueries), dim3(kThreads), 0u, stream,

@@ -1,9 +1,11 @@
 #pragma once
 #include "decoded_window_qk.h"
 #include "../moe_accumulator/sm121_f32_carry.h"
+#include "prepared_decoded_qk_workspace.h"
 
-// Component experiment. Original BF16 operands remain available for every
-// exceptional row or unsupported carried value. Product dispatch is unchanged.
+// Original BF16 operands remain available for every exceptional row or
+// unsupported carried value. The provider enables this only for selected
+// cold prefill calls through q8192, refreshing metadata on every layer/call.
 namespace qrt_prepared_decoded_qk {
 using namespace qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
@@ -97,5 +99,38 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         }
         output[output_cell] = result;
     }
+}
+inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
+    uint16_t* transposed, const Workspace& workspace, hipStream_t stream) {
+    if (!query || !key || !transposed || !valid(workspace)) return int(hipErrorInvalidValue);
+    auto* q = workspace.words;
+    auto* k = q + query_words;
+    auto* qflags = k + key_words;
+    auto* kflags = qflags + query_flag_words;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<false>), dim3(workspace.tokens * kQueryHeads),
+        dim3(kHeadDim), 0u, stream, query, q, qflags, nullptr, workspace.tokens);
+    auto status = hipGetLastError();
+    if (status != hipSuccess) return int(status);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<true>), dim3(workspace.tokens * kKvHeads),
+        dim3(kHeadDim), 0u, stream, key, k, kflags, transposed, workspace.tokens);
+    return int(hipGetLastError());
+}
+inline int launch_workspace(const void* state, const uint16_t* query,
+    const uint16_t* transposed_key, float* output, hipStream_t stream,
+    unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
+    if (!state || !query || !transposed_key || !output) return int(hipErrorInvalidValue);
+    const auto& workspace = *static_cast<const Workspace*>(state);
+    if (!valid(workspace) || !count || count > 128u || start >= workspace.tokens ||
+        count > workspace.tokens - start || stride != start + count || key_stride != workspace.tokens)
+        return int(hipErrorInvalidValue);
+    const auto* q = workspace.words;
+    const auto* k = q + query_words;
+    const auto* qflags = k + key_words;
+    const auto* kflags = qflags + query_flag_words;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(scores<128u, true>),
+        dim3((stride + 15u) / 16u, kQueryHeads, (count + 15u) / 16u), dim3(kThreads),
+        0u, stream, query, transposed_key, q, k, qflags, kflags, output,
+        start, count, stride, key_stride);
+    return int(hipGetLastError());
 }
 } // namespace qrt_prepared_decoded_qk
