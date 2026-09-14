@@ -84,6 +84,7 @@ void variant(unsigned rows, unsigned width, Device& left, Device& right,
         const unsigned attempts = expected_count && Staging > 1u ? (width + 16u * Staging - 1u)/(16u * Staging) : 0u;
         if(values[row + guard].attempted != attempts || values[row + guard].accepted > attempts) throw std::runtime_error("tile statistics differ");
     }
+    check(hipMemset(output.value, 0xa5, (rows + 2u * guard) * sizeof(Result)));
     hipLaunchKernelGGL(HIP_KERNEL_NAME(execute<Lanes, Staging, false>), dim3((rows * Lanes + 255u) / 256u),
         dim3(256u), 0u, nullptr, left.data<uint16_t>(), right.data<uint16_t>(), flags.data<unsigned>(), output.data<Result>(),
         traces.data<uint32_t>(), rows, width);
