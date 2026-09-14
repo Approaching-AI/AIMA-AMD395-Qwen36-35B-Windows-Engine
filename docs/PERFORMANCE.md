@@ -2,6 +2,27 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The same-DLL product trial at `c16219f` rejects matrix algorithm 4. On baiying
+with `D:\models\Qwen3.6-35B-A3B`, algorithm 0 preserves all 512 original GB10
+outputs and actual callbacks, with TTFT 37413.9499 ms, TPOT 101.896379 ms and
+load 21304.8867 ms. Algorithm 4 takes 34435.7089 ms but only 37/512 tokens
+match; the first difference is index 4, actual 220 versus expected 79.
+Both first tokens are 144 and raw logits are 10.375. First-token success
+and a faster incorrect continuation do not establish performance acceptance.
+Keep algorithm 0 and shared prevalidated replay enabled for subsequent work.
+
+Both native captured-QKV variants preserve all 67108864 BF16 cells, all
+original 7169 input rows plus 1023 independently comparable repeated rows,
+guards and immutable operands. Their full-model runs verify all 110 matrix
+calls and, when enabled, load-time prewarming of four algorithm-4 plans.
+The internal layer that first diverges is not yet localized. Full local
+checks pass 379 Python tests (two skips), 47 Rust tests, C smoke, clippy
+and hygiene. The current stack still requires performance, prefix/context,
+package, HTTP and soak qualification. All release gates remain open.
+Command: `run-native-matrix-algorithm-product-r1.ps1`, source `c16219f`.
+Evidence: `benchmarks/correctness/matrix-algorithm-product-20260914.json`,
+SHA256 `dac900103ec9e2dcb02ab1ff9bf84ea6e821c2966d8c38174b45f207a7a47a36`.
+
 The full-q8192 matrix comparison at `d49e6a9` completes 128 choices on
 baiying: 72 available cases pass every generated BF16 endpoint and memory
 check, and 56 are unavailable before submission. Native FP32 algorithm 4
@@ -20,8 +41,9 @@ has not been attributed to a hardware cause.
 `QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM=4` is now an opt-in for these
 four FP32-output shapes. Load-time prewarming covers the same plans; default 0,
 explicit-index calls, BF16 outputs and other token counts keep their policy.
-The existing exact correction, PPB bounds and norms remain in place. Native
-captured-QKV and same-artifact q8192/out512 qualification are pending.
+The existing exact correction, PPB bounds and norms remain in place. The
+captured-QKV comparison passes, but the complete product trial above fails
+continuation correctness. Algorithm 4 remains an unqualified opt-in.
 Evidence: `benchmarks/correctness/matrix-producer-choices-20260914.json`,
 SHA256 `3a546ebf5a09d7fae2e1152defc42f42a85b963566ddf67bc0057a77c68a8700`.
 
