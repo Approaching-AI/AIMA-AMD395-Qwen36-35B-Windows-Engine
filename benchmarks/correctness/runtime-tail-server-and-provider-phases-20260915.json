@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "kind": "native_runtime_server_and_route_aware_provider_profiling",
+  "host": "baiying",
+  "model_loaded": false,
+  "server": {
+    "source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "build_provenance": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "dirty_tree": false,
+      "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\baiying_build_qrt_server.ps1",
+      "timeout_seconds": 840,
+      "validate_only": false,
+      "tests_run": true,
+      "wall_ms": 48827.4152,
+      "cargo": "C:\\Users\\sshuser\\.cargo\\bin\\cargo.exe",
+      "rustc_version": "rustc 1.95.0 (59807616e 2026-04-14)",
+      "executable": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server\\qrt.exe",
+      "executable_sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+    },
+    "run": {
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "working_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914",
+        "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "command_file": "D:\\projects\\run-native-runtime-tail-build-r1.ps1",
+        "command_file_sha256": "d1f74ad5be8d2200ae47c73b0ac1b9f78920dd09bdeab061670c684b216d2648",
+        "source_manifest_sha256": "2ee76a3068de0d8cc579bf17d90bab220dac369f035863054692c68e0bf3b95d",
+        "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "model": "none; native build and server unit tests",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "model_max_position_embeddings": 262144,
+        "maximum_prompt_tokens": 263168,
+        "maximum_request_context_tokens": 263680,
+        "attention_capacity_tokens": 264736,
+        "rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+        "rope_table_bytes": 33886208,
+        "rope_table_rows": 264736,
+        "rope_table_sha256": "1c4d86d492b587a5f4f433dad84c99722d2fee702bcf27d7af77c7fe6a5d2d6a",
+        "purpose": "Compile shared request/context bounds, the first prefix retry observation and runtime-tail RoPE loading through whole,CK,C CLI and Rust/C HTTP service. Preserve original model metadata and arithmetic. The selected extended table retains every original prefix byte and all rows match the unchanged GB10 constructor. The active128k native measurement must finish first. Builds alone establish no model qualification.",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\baiying_build_qrt_server.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server",
+          "-TimeoutSeconds",
+          "840"
+        ]
+      },
+      "wall_ms": 49329.462,
+      "exit_code": 0,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true
+    },
+    "canonical_raw_sha256": {
+      "build.stderr.txt": "701a41ede238609aa20760a4189791c7df13c4cccda8b727122a853c9e928f5a",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "dispatch.json": "1154d08b9e6ea34993eec9a284f842846e014c41eae62d273c7f13911cb85a38",
+      "build-provenance.json": "929f9207a7f417d64baa208a9df9c5356331c1322cffb8f2a61ed5e21d6326aa",
+      "build.stdout.txt": "d6f3c5979ebb94cdb2bba555acacdf3e93272fefe711c39daf5e04bf6e50eb40",
+      "product.stdout.jsonl": "1eba2cd071ae85d79659783e611670e73c302ab180e9d06635b73d0d67a9429b",
+      "launch.json": "b6e419ce5b0b0acefdf5bf5b17cb7b044913ed80e00b672f694b07145c7f452b",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "preflight.json": "5bb715ad4b3a34e1d3b18b79458c70d1e4008376eb21925b4476e52904342c55",
+      "metadata-reader-recovery.json": "1594bba3b2dd9c2bdffedf76b4ad2b157ea560b126cb403bbcfc7e878147897a",
+      "run-record.json": "244a08f5c5b224618c006a4c8415443d3438be3de895e87cd68024c0779855f5",
+      "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+    },
+    "native_rust_tests": 42,
+    "native_rust_failures": 0,
+    "metadata_reader_recovery": {
+      "reason": "Transport reader did not accept the UTF-8 BOM in the successful Windows build metadata. The immutable original metadata was decoded with utf-8-sig and the existing build logs were fetched; no build or test rerun.",
+      "native_build_rerun": false,
+      "metadata_sha256": "929f9207a7f417d64baa208a9df9c5356331c1322cffb8f2a61ed5e21d6326aa",
+      "transfers": [
+        {
+          "file": "build.stdout.txt",
+          "returncode": 0,
+          "stderr": "",
+          "wall_seconds": 0.3292765002697706
+        },
+        {
+          "file": "build.stderr.txt",
+          "returncode": 0,
+          "stderr": "",
+          "wall_seconds": 0.33715074975043535
+        }
+      ]
+    }
+  },
+  "provider_profile_fix": {
+    "source_commit": "84de7c0ecc132efeee244fb557bd27891da825b9",
+    "source_sha256": {
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "ff8cc3d06fbb17c2e8eababa5ff9d496c966cc7dd9fb0efb36abb38ee30b0570",
+      "tests/test_attention_workspace.py": "39aca5ad37f0067f18f7cc604b82e70f842b8d973f3191a4d7000c72331baf50"
+    },
+    "local_validation": {
+      "source_commit": "84de7c0ecc132efeee244fb557bd27891da825b9",
+      "command": [
+        "make",
+        "c-smoke",
+        "python-test",
+        "public-hygiene",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 129.05427354201674,
+      "log": "long-pv-provider-phases-local-check-r1.log",
+      "log_sha256": "0e0db3c2ee146e8d727c66480e873a571d9f1262374148ecb6cca8cad635de8d",
+      "rust_validation_reused": true,
+      "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+      "rust_validation_record": "runtime-context-local-check-r1.json",
+      "c_product_cli_syntax_command": [
+        "cc",
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Inative/src",
+        "-fsyntax-only",
+        "native/src/product_cli.c"
+      ],
+      "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+      "cargo_incremental": false
+    },
+    "validation_excerpt": [
+      "Ran 400 tests in 122.552s",
+      "OK (skipped=2)",
+      "public_hygiene=pass finding_count=0"
+    ],
+    "description": "The actual provider observer now requires stages 0/1/4 for all-cell PV and 0/1/2/3/4 for selective replay. Skipped stages must have zero counts and elapsed time. Completion logs report 3 or 5 stages per slab. Kernel arithmetic and default unprofiled dispatch are unchanged.",
+    "actual_provider_mock_cases": {
+      "long_profiles": 8,
+      "layouts": [
+        22,
+        24
+      ],
+      "query_starts": [
+        16384,
+        263168
+      ],
+      "query_count": 65,
+      "slabs": 3,
+      "all_cell_pv": [
+        false,
+        true
+      ],
+      "completion_failures_at_each_active_stage": true,
+      "unchanged_cold_profile_checked": true
+    },
+    "native_profiled_product_pending": true
+  },
+  "scope": "The Windows build includes the shared C context-limit getter and Rust server lifecycle. Server unit tests and local provider observer tests are not model inference, native HTTP, package or soak acceptance. Existing real q8192 and 16k product evidence remains attached to its own binary hashes.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

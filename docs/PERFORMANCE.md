@@ -43,8 +43,11 @@ The initial capture audit incorrectly required skipped stages; that failed
 run produced no numerical report. `3c6fa88` fixes the capture observer, and
 both controls were rebuilt and rerun. Its focused sanitized test passes;
 the unchanged full-suite baseline is explicitly reused (399 tests, two skips).
-A corresponding provider profiling combination issue is under repair; the
-product pair above has profiling disabled. Component evidence:
+Provider source `84de7c0` also corrects the corresponding stage-order and
+completion-count checks. Its actual-provider test covers both PV layouts and
+workspace owners, partial slabs and every active-stage completion failure.
+C checks, 400 Python tests with two skips and hygiene pass. A native profiled
+product run remains pending; the product pair above has profiling disabled. Component evidence:
 `benchmarks/correctness/long-all-cell-pv-components-20260915.json`, SHA256
 `8ba11178520e9e61e88ff7af80f8e86022ce26d1f713e7cfb6ae22df03c98503`.
 
@@ -66,8 +69,11 @@ row counts remain authoritative, including rejection beyond the older
 artifact. Local validation at `24c4304` passes 398 Python tests with two
 skips, C syntax/smoke and hygiene; unchanged Rust/Cargo reuse the prior 47
 tests and clippy. Native whole/CLI and the product cases above now qualify
-this source at their measured shapes. Windows Rust server and real
-128k/256k continuation remain open. Bound and table evidence:
+this source at their measured shapes. Windows Rust server `24c4304`
+also builds and passes 42 native unit tests, including the shared C context
+getter. Native HTTP and real 128k/256k continuation remain open. Server and
+provider-observer evidence: `benchmarks/correctness/runtime-tail-server-and-provider-phases-20260915.json`,
+SHA256 `6695c6b47bbf4e22dabc6b772a392519b0ddf0024ebc2feef05a43040b6eba59`. Bound and table evidence:
 `benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`, SHA256
 `fa98010efa0ed10ca54574e3ef0631daea24e540ae70f6980601ecd285cc357b`.
 
