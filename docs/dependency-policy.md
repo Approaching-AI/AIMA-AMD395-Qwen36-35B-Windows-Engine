@@ -42,7 +42,9 @@ growth preserves the previous buffer; successful growth briefly holds both
 allocations before releasing the previous owner. The fixed 8192-token short
 buffer and single-query decode keep their existing allocation behavior.
 The option defaults off. It adds no artifact, library or runtime dependency.
-Native and real-model qualification of this option is pending.
+Native component checks and the q8192/16k-prefix product boundaries pass
+at `7fcf8a1`. Larger contexts and package qualification remain pending. See
+`benchmarks/correctness/long-transposed-value-prefix16k-20260915.json`.
 
 `QRT_QWEN36_Q1_SM121_ATTENTION=1` adds the original 32-token online
 attention reduction to that decode path. It uses the existing reciprocal

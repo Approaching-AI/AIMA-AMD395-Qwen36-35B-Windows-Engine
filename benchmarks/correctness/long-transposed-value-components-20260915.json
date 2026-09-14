@@ -1,0 +1,3028 @@
+{
+  "schema_version": 1,
+  "kind": "long_transposed_exact_pv_components_and_provider_build",
+  "host": "baiying",
+  "source_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+  "model_loaded": false,
+  "source_delivery": {
+    "canonical_source_record": "long-value-native-source-r1.json",
+    "canonical_source_record_sha256": "41a3649f766afb0bd809662b50ebb298b6b4249b01f7c98cfb551db38f105ed7",
+    "documentation_snapshot_differences": {},
+    "source_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+    "bundle_head": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+    "repo": "D:/projects/AIMA-public-long-value-20260915",
+    "seed": "D:/projects/AIMA-public-long-all-pv-20260914",
+    "prerequisite_commit": "8aace167ecf94a80c1187cf3c32135f6a092e43d",
+    "bundle": "long-value-7fcf8a1.bundle",
+    "bundle_sha256": "027a39c4262802438bec392688719ce1bb25f334df3f5ebed79a94bbdf08c4a2",
+    "script": "run-native-long-value-r1.ps1",
+    "script_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+    "source_sha256": {
+      "benchmarks/correctness/compact-wide-integer-qk-20260915.json": "2cfd5526846532b8445ec5d858fd59b25cf3cd82f97e20e45be21103b0e656ab",
+      "benchmarks/correctness/compact-wide-integer-qk-local-20260914.json": "60721a7b7674e25a8f94b62d1efe040297f8bd5f4a655b4283513f3ad8b6eb98",
+      "benchmarks/correctness/long-all-cell-pv-components-20260915.json": "8ba11178520e9e61e88ff7af80f8e86022ce26d1f713e7cfb6ae22df03c98503",
+      "benchmarks/correctness/long-all-cell-pv-local-20260914.json": "80d8647f36dd7856b11ff09a96eb5155ba61df686d7a35ec8d1858c332ebf23b",
+      "benchmarks/correctness/prefix128k-baseline-incomplete-20260914.json": "45cb8e6d04e7a780c6bdd823a1325992c6dd25fa1d8e77f87b85729bd1fc1d20",
+      "benchmarks/correctness/runtime-tail-prefix16k-20260915.json": "1266d08e7416f5a80d5f272fe6c8182552acd102e211ebc5956c094af8f892f6",
+      "benchmarks/correctness/runtime-tail-q8192-20260915.json": "a166bae2143119b3a6b302b4f9440bef37e910bab7573413ea8a9f5f9daf7fe1",
+      "benchmarks/correctness/runtime-tail-server-and-provider-phases-20260915.json": "6695c6b47bbf4e22dabc6b772a392519b0ddf0024ebc2feef05a43040b6eba59",
+      "docs/PERFORMANCE.md": "af623ec9923a0bae812ca83626cdc980a492ad3018d85c033e63579174af6de6",
+      "docs/dependency-policy.md": "436c8f638c533af70007d56690578f55d23dcb917a2601b60d5c49f591eccc61",
+      "native/providers/ck_fmha/full_attention_capture_replay.cpp": "b8bd85d17925987b386398ce0c483d0d95c19f207df0233d7ce807217c57bf7c",
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "efb0db2d8cd7be64130e1a9c3f01a8f49106e30e5180224b3df7fa8a806f3331",
+      "native/providers/ck_fmha/wide_integer_qk.h": "b2a9ef1fb590bbeb60cb20ff013a870594902ea9211ebe38929cda9bbe63f278",
+      "native/providers/moe_accumulator/sm121_compact_wide_integer_core.h": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+      "tests/native/compact_wide_integer_qk_selftest.cpp": "0ad345f8a8478304804b45006dc0f2066f1b48f29380a379b266f2bc6de76d5c",
+      "tests/native/final_pv_kernel_selftest.cpp": "b359f721a034018c330a2786a77d4ac80905fa8ba61048b16862e0336f4d80a2",
+      "tests/test_attention_capture_phases.py": "cc9f3dbd962315cfd907cc631f969b90c2ec4155d0ba51d1c5757b00f6c2e590",
+      "tests/test_attention_workspace.py": "1725ad56be0f5a8fab598e753d9dcf3699713e3a05194780ccc12c0d2e5855a7",
+      "tests/test_sm121_compact_wide_integer_core.py": "05c0557db7b15f04a97078c127ef2e0669531fdcfc611c24042817e3d2cd9008"
+    }
+  },
+  "local_validation": {
+    "source_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 131.27546687517315,
+    "log": "long-value-local-check-r1.log",
+    "log_sha256": "3aa06ea93eaa94c665016c4c034c2c3c7a162320538a39e69b17a247fe5add5c",
+    "rust_validation_reused": true,
+    "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+    "rust_validation_record": "runtime-context-local-check-r1.json",
+    "c_product_cli_syntax_command": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Inative/src",
+      "-fsyntax-only",
+      "native/src/product_cli.c"
+    ],
+    "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+    "cargo_incremental": false
+  },
+  "local_validation_excerpt": [
+    "Ran 400 tests in 124.545s",
+    "OK (skipped=2)",
+    "public_hygiene=pass finding_count=0"
+  ],
+  "native_runs": {
+    "long-value-build-kernel-r1": {
+      "name": "long-value-build-kernel-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-long-value-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-long-value-20260915\\tests\\native\\final_pv_kernel_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\final-pv-kernel.exe",
+          "-L",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value",
+          "-lhipblaslt"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-long-value-20260915",
+        "repo_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+        "command_file": "D:\\projects\\run-native-long-value-r1.ps1",
+        "command_file_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+        "source_manifest_sha256": "41a3649f766afb0bd809662b50ebb298b6b4249b01f7c98cfb551db38f105ed7",
+        "model": "none; PV enumeration and arithmetic component",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "build-kernel",
+        "original_k16": true,
+        "additional_workspace_bytes": 0,
+        "context_capacity": 264736,
+        "tables": [
+          {
+            "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+            "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+          },
+          {
+            "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+            "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin"
+          }
+        ],
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\hipblaslt.lib"
+          }
+        ]
+      },
+      "launch": {
+        "pid": 12744,
+        "utc": "2026-09-14T16:45:16.8585399Z",
+        "timeout_seconds": 180,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 12754.996,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "aec806c8a3d1985b33dcf26daf90efee8063369a26873867034504f405f55525",
+        "dispatch.json": "8a135f9f821b8a2d4d4af934f07e2c6dc87b65905bbaa4cd0e0e2b0152fa3f86",
+        "launch.json": "998ce9cb8eb1fab0028a95f7449397d269515433edceeaa613d7191fbc81b57f",
+        "preflight.json": "2722ca25ed6ff320f9c5c19c4d41576ce64b217c6a04553634ea8561216c6db8",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "9061e1de0ae8d63a535bf888bf3a97affba832468e424347512b704f4d554f7c",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+        "dirty_tree": false,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_interpolated_exp2": true,
+        "source_inputs": [
+          {
+            "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+            "file": "native\\providers\\ck_fmha\\attention_deadline.h"
+          },
+          {
+            "sha256": "bfb4f733473b28a057cc5a724236a2ba6837e7046815f7d1966823a36d6eb7df",
+            "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+            "file": "native\\providers\\ck_fmha\\decoded_window_qk.h"
+          },
+          {
+            "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+            "file": "native\\providers\\ck_fmha\\f32_carry_qk.h"
+          },
+          {
+            "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+            "file": "native\\providers\\ck_fmha\\float_alignment_qk.h"
+          },
+          {
+            "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+            "file": "native\\providers\\ck_fmha\\float_pv_replay.h"
+          },
+          {
+            "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+            "file": "native\\providers\\ck_fmha\\float_subgroup_qk.h"
+          },
+          {
+            "sha256": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_api.cpp"
+          },
+          {
+            "sha256": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+          },
+          {
+            "sha256": "b8bd85d17925987b386398ce0c483d0d95c19f207df0233d7ce807217c57bf7c",
+            "file": "native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+            "file": "native\\providers\\ck_fmha\\matrix_consumer_qk.h"
+          },
+          {
+            "sha256": "bac7edfdb75a24d3a38b69db2019b8abb77ef41a946b796691b6616aeba38034",
+            "file": "native\\providers\\ck_fmha\\matrix_cooperative_qk.h"
+          },
+          {
+            "sha256": "a7be520171336e65eb71ab34a5a1408f0edb251ee49f49695be9bedeef22dd49",
+            "file": "native\\providers\\ck_fmha\\matrix_interval_qk.h"
+          },
+          {
+            "sha256": "7ac5d2ec0027607351a6db207bea9cebbd554921dc210ccd5e00f885760f56d2",
+            "file": "native\\providers\\ck_fmha\\matrix_packed_remainder_qk.h"
+          },
+          {
+            "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+            "file": "native\\providers\\ck_fmha\\positive_integer_qk.h"
+          },
+          {
+            "sha256": "f6244c2bc65175864c823239e0bde23d17f37aefc0b276d4fec3781fff4581a2",
+            "file": "native\\providers\\ck_fmha\\prepared_decoded_qk.h"
+          },
+          {
+            "sha256": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+            "file": "native\\providers\\ck_fmha\\prepared_decoded_qk_workspace.h"
+          },
+          {
+            "sha256": "45996743c23026c3164ed3a47292bba5555aa2b884e8df77cd0e272e852aa8a3",
+            "file": "native\\providers\\ck_fmha\\prepared_integer_pairs_qk.h"
+          },
+          {
+            "sha256": "63c564604c979ef04fe7ea98199e132b4dd1d03442f63579aeaa8558247c9107",
+            "file": "native\\providers\\ck_fmha\\pv_group_replay.h"
+          },
+          {
+            "sha256": "6c6ba2201614f1ef2db59db92ab4d1d8b469e406c760a0ba6be006a585f19484",
+            "file": "native\\providers\\ck_fmha\\q131072_tile8192_benchmark.cpp"
+          },
+          {
+            "sha256": "f2460a04bf2094790dc8ee1110c8891c8900d2a333038bfe526d35c33db6144d",
+            "file": "native\\providers\\ck_fmha\\q16384_ck_fmha_metamorphic_smoke.cpp"
+          },
+          {
+            "sha256": "6fbbe0a3d2e6c8f28270b5dca0cbb51a57029030e5ee2cfa3d7216439cfbd990",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_ck_fmha_smoke.cpp"
+          },
+          {
+            "sha256": "b99f2743bf3aa9eb6c228be7ad1cd64fb9d215b4bd544702ba4f8885710d5a5c",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_complete_full_attention_transformer_layer_smoke.cpp"
+          },
+          {
+            "sha256": "9eea2cded966066edd4ad67fd88200d7ab01b0bd8ccca222b2074ecbdec3ee79",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_ordered_forty_layer_owner_smoke.cpp"
+          },
+          {
+            "sha256": "2775ac62f66e7c81de1e96032042cb933399e0084982c1226f2bd138bd378b82",
+            "file": "native\\providers\\ck_fmha\\q65536_ck_fmha_prefix_smoke.cpp"
+          },
+          {
+            "sha256": "a177cb94715fdfd4243e82dde0710220e2c3eb42f6dcc6a6a04806e80888b672",
+            "file": "native\\providers\\ck_fmha\\q8192_ck_fmha_direct_smoke.cpp"
+          },
+          {
+            "sha256": "efb0db2d8cd7be64130e1a9c3f01a8f49106e30e5180224b3df7fa8a806f3331",
+            "file": "native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+          },
+          {
+            "sha256": "8991d818c4255ff861738fc8d7fa86492a16bcfe78e85b7913aa9a7f6492ac6e",
+            "file": "native\\providers\\ck_fmha\\qrt_qwen36_q16384_q1024_owner_provider.cpp"
+          },
+          {
+            "sha256": "da842c62869afd825354d62816bda3c2deba17ce3a8b62913797c9a1b19e6a1e",
+            "file": "native\\providers\\ck_fmha\\scalar_integer_qk.h"
+          },
+          {
+            "sha256": "ed37a684e1a6b3603890ec04e16cc8283816a009cd98b24e450a326d11d999d2",
+            "file": "native\\providers\\ck_fmha\\scaled_half_qk.h"
+          },
+          {
+            "sha256": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+            "file": "native\\providers\\ck_fmha\\selective_qk.h"
+          },
+          {
+            "sha256": "2cb718f113c89e8841bec18d7db0c88174d891747d987d28a05ba10f17eb45d2",
+            "file": "native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "b2a9ef1fb590bbeb60cb20ff013a870594902ea9211ebe38929cda9bbe63f278",
+            "file": "native\\providers\\ck_fmha\\wide_integer_qk.h"
+          },
+          {
+            "sha256": "ec504bfd5dac7d14766343df6f018e0b9b357ad3bc12a76babd7bd86646905c9",
+            "file": "native\\providers\\ck_fmha\\wmma_pv_operands.h"
+          },
+          {
+            "sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+            "file": "native\\providers\\gate_input_capture.h"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "2692fcda92101523ad11f094589e1275a5e99ae707dbc3f849d71679cf06093b",
+            "file": "native\\providers\\gdn\\blackwell_cooperative.cpp"
+          },
+          {
+            "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+            "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e",
+            "file": "native\\providers\\gdn\\blackwell_inverse.cpp"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+            "file": "native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07",
+            "file": "native\\providers\\gdn\\blackwell_l2norm.cpp"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+            "file": "native\\providers\\gdn\\blackwell_scalar_matrices.h"
+          },
+          {
+            "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+            "file": "native\\providers\\gdn\\blackwell_scalar_state.h"
+          },
+          {
+            "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564",
+            "file": "native\\providers\\gdn\\blackwell_state.cpp"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503",
+            "file": "native\\providers\\gdn\\blackwell_wu_output.cpp"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+            "file": "native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "native\\providers\\gdn\\fla_checkpoint.h"
+          },
+          {
+            "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f",
+            "file": "native\\providers\\gdn\\fla_output_capture_replay.cpp"
+          },
+          {
+            "sha256": "3ee6cbff4c75c75b69396ab94248c80e85913f1d508ce4cebca3c6fe77c000a9",
+            "file": "native\\providers\\gdn\\fla_seeded_capture_replay.cpp"
+          },
+          {
+            "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8",
+            "file": "native\\providers\\gdn\\fla_upstream_capture_replay.cpp"
+          },
+          {
+            "sha256": "6190a91d61cbd612986c9308179190c856058e4fee6090a77c1fec66001eb65b",
+            "file": "native\\providers\\gdn\\postnorm_capture_replay.cpp"
+          },
+          {
+            "sha256": "66f7cdd5144c9f2a1f679cdaf1da34effc97fce4d8151ef17cf4582ec613b58c",
+            "file": "native\\providers\\gdn\\q130560_chunked1024_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "eb96b6decc3a88fc51f4b59204982fbc77e7855b33c27475d306261fe88e8e9d",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_complete_linear_transformer_layer_smoke.cpp"
+          },
+          {
+            "sha256": "e4970c1aec647a63513f7b13c47a904f5f2eaca445772766a600b33dd4c17f89",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_connected_linear_core_smoke.cpp"
+          },
+          {
+            "sha256": "7e75bcee131157079e3fd01f5c4ae49ca52939a2d4de9c11452fe7a14ebd918e",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_full_linear_attention_sublayer_smoke.cpp"
+          },
+          {
+            "sha256": "389db73179fa7ff1eb1df0315f102dee7d290b46813a187cd0c2ac1c138bba42",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_qkv_convolution_halo_smoke.cpp"
+          },
+          {
+            "sha256": "b8120718d34603281eb8c2f50f213d11cc9bf965e77804bdb50b4780b2983d4d",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_seeded_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "19508dc07210fa8c1b30baee7487d813ea679f05d73cf89c1bfc7f6d5d4ef3a7",
+            "file": "native\\providers\\gdn\\q64_fla_chunk_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "e0090ffa7cc52ec0621a89e0328eed9ce3c6ad894618d3b4e22d646ebc9d3246",
+            "file": "native\\providers\\gdn\\q65536_chunked_seeded_bf16_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "14daf4e64a97ea101fa04dd3ba103738f984db9c8bba48201cfd8f097a59e5df",
+            "file": "native\\providers\\gdn\\q65536_fla_chunk_gdn_stream_smoke.cpp"
+          },
+          {
+            "sha256": "f332ae0f86d9aa301b2dc8cf5ec1db7146cb61eed0bd610908e702387809a112",
+            "file": "native\\providers\\gdn\\q8192_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "91db35d1bd2fa0dfa4d4dfd0f3bbdf8bfdcd73acbd0189f49b444d2d383e715f",
+            "file": "native\\providers\\gdn\\qrt_aiter_fused_gdn_q8192_provider.cpp"
+          },
+          {
+            "sha256": "927fa3151eedfaad0960c4a05d957c7b1c0ea6995be3ecc3a502eaa8c8cd942e",
+            "file": "native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "native\\providers\\gdn\\sm121_silu_table.h"
+          },
+          {
+            "sha256": "76c090e233e5709f914942237df3d7bbabe8c6b53de645c5602c88e99cc85132",
+            "file": "native\\providers\\hawkeye_dispatch_policy.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+            "file": "native\\providers\\moe_accumulator\\sm121_compact_wide_integer_core.h"
+          },
+          {
+            "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+            "file": "native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+            "file": "native\\providers\\moe_accumulator\\sm121_decoded_projection.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_interval.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+            "file": "native\\providers\\moe_accumulator\\sm121_interleaved_projection.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+            "file": "native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_group_plan.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+            "file": "native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "native\\providers\\moe_accumulator\\sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          },
+          {
+            "sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+            "file": "native\\providers\\prefill_chunks.h"
+          },
+          {
+            "sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+            "file": "native\\providers\\prefix_batch_suffix.h"
+          },
+          {
+            "sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+            "file": "native\\providers\\prefix_checkpoint_policy.h"
+          },
+          {
+            "sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+            "file": "native\\providers\\projection_output_policy.h"
+          },
+          {
+            "sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+            "file": "native\\providers\\q1_moe_avx512bf16_host_provider.cpp"
+          },
+          {
+            "sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+            "file": "native\\providers\\q1_moe_avx512bf16_host_provider.h"
+          },
+          {
+            "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+            "file": "native\\providers\\q8192_matrix_producer_policy.h"
+          },
+          {
+            "sha256": "05a75e8ba5e9d9801c36260f652949bf83404173094d2fe53773811b2a56e402",
+            "file": "native\\providers\\q8192_out_l1_policy.h"
+          },
+          {
+            "sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+            "file": "native\\providers\\q8192_out_l1_shadow_audit.h"
+          },
+          {
+            "sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+            "file": "native\\providers\\q8192_out_matrix_shadow_audit.h"
+          },
+          {
+            "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+            "file": "native\\providers\\sm121_attention_capacity.h"
+          },
+          {
+            "sha256": "91557c7401b763d56246f514faab776f8660df3c2ad645146377f7a6d856e51c",
+            "file": "native\\providers\\sm121_q1_attention_runtime.h"
+          },
+          {
+            "sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+            "file": "native\\providers\\sm121_q1_full_runtime.h"
+          },
+          {
+            "sha256": "deed90cf331e9f37ebf9e4aa484dc7bba6e1165d61347cfd899ea8d817f7302d",
+            "file": "native\\providers\\sm121_q1_moe_runtime.h"
+          },
+          {
+            "sha256": "2f0a5400cd97d0510c72fdb1ac43dd6bcd692b1d7bcf0eb9b2eff68d38b0d7f5",
+            "file": "native\\providers\\sm121_q1_runtime.h"
+          },
+          {
+            "sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+            "file": "native\\providers\\sm121_rope_cache.h"
+          },
+          {
+            "sha256": "9aa14e2ba76a96767efaeedb843bc0d48dd0faeb2ba017348f4902a59927d272",
+            "file": "native\\providers\\sm121_silu_runtime.h"
+          },
+          {
+            "sha256": "9ffd5f73e8ab77879f0315959c940164f63a6aa6898aa4fe30347de81f4ab8a8",
+            "file": "native\\providers\\triton_moe\\q8192_triton_selected_moe_smoke.cpp"
+          },
+          {
+            "sha256": "bf0e6b41aeaef2455cea6c97fa9fc35febc170b4a592e2b889d5b36a4ddb4276",
+            "file": "native\\providers\\triton_moe\\qrt_triton_moe_q8192_provider.cpp"
+          },
+          {
+            "sha256": "025733823f538a51c5d97e59163d0ac59b2e3faa0b5ff3e19071d23bb32b3ae6",
+            "file": "native\\providers\\triton_moe\\routed_consumer_audit.h"
+          },
+          {
+            "sha256": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+            "file": "native\\providers\\triton_moe\\routed_consumer_interval.h"
+          },
+          {
+            "sha256": "a33d7e5320b8614ea1fd0a4922482cab25672fab929d5f228d590077d8d94cae",
+            "file": "native\\providers\\triton_moe\\routed_parallel_gate.h"
+          },
+          {
+            "sha256": "eda10d0fa7687e3da8b2e9b725f7ba5df273cddbd4eb911e2a9cc103e4dfd0aa",
+            "file": "native\\providers\\whole_provider.cpp"
+          },
+          {
+            "sha256": "2fce1d0f751b2c2803eb2e4d3085b7e1876d54591977e39122723c2568a85e04",
+            "file": "native\\src\\main.c"
+          },
+          {
+            "sha256": "877f462c0838f9769b7a46b388e83b4423184d6ddd2d7fea705047055ae5c58c",
+            "file": "native\\src\\product_cli.c"
+          },
+          {
+            "sha256": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+            "file": "native\\src\\qrt.c"
+          },
+          {
+            "sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+            "file": "native\\src\\qrt.h"
+          },
+          {
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "file": "native\\src\\qrt_context_limits.h"
+          },
+          {
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+            "file": "native\\src\\qrt_prefix_checkpoint.h"
+          },
+          {
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+            "file": "native\\src\\qrt_prefix_logit.h"
+          },
+          {
+            "sha256": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+            "file": "native\\src\\qrt_qwen36_q1024_owner.h"
+          },
+          {
+            "sha256": "1b16426962d9acc6eea8aed78629e35e288540eba376ee78abfd8d5e01f2e536",
+            "file": "native\\src\\qrt_server_bridge.c"
+          },
+          {
+            "sha256": "41f700ed4482d0b990d20873e513af36999de99f1f02228ef7d50fbd6c7af954",
+            "file": "native\\src\\qrt_server_bridge.h"
+          },
+          {
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+            "file": "native\\src\\qwen36_baseline.c"
+          },
+          {
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+            "file": "native\\src\\qwen36_baseline.h"
+          },
+          {
+            "sha256": "fcac300c5402ea773635ac7d9195d6277ed0bb908f2f1f1315d28ca57b51b461",
+            "file": "scripts\\baiying_build_ck_fmha_q8192.ps1"
+          },
+          {
+            "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+            "file": "scripts\\baiying_guarded_inference.ps1"
+          },
+          {
+            "sha256": "b359f721a034018c330a2786a77d4ac80905fa8ba61048b16862e0336f4d80a2",
+            "file": "tests\\native\\final_pv_kernel_selftest.cpp"
+          },
+          {
+            "sha256": "2b99dab8ba9a088a13a3272136e1a169b4dd3ef89af3cb055f5c2fa225ccf70c",
+            "file": "tests\\native\\pv_group_replay_selftest.cpp"
+          },
+          {
+            "sha256": "9fa140c81eb771d53e8fd7dd46b606ad41856b2240736b7114d8c7653a0be722",
+            "file": "tests\\native\\wmma_pv_operands_selftest.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-long-value-r1.ps1",
+        "command_file_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-long-value-20260915\\tests\\native\\final_pv_kernel_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\final-pv-kernel.exe",
+          "-L",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value",
+          "-lhipblaslt"
+        ],
+        "run_record_sha256": "9061e1de0ae8d63a535bf888bf3a97affba832468e424347512b704f4d554f7c",
+        "artifact": {
+          "sha256": "7da645fea0cbe8eca1ea98a0468165a924e25e430838eedfab2b4602d1d39aac",
+          "file": "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\final-pv-kernel.exe",
+          "bytes": 1483776
+        }
+      }
+    },
+    "long-value-long-transposed-r1": {
+      "name": "long-value-long-transposed-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-long-value-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\final-pv-kernel.exe",
+        "arguments": [
+          "D:\\projects\\sm121-attention-rcp-d2e55754.bin",
+          "--long-transposed"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-long-value-20260915",
+        "repo_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+        "command_file": "D:\\projects\\run-native-long-value-r1.ps1",
+        "command_file_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+        "source_manifest_sha256": "41a3649f766afb0bd809662b50ebb298b6b4249b01f7c98cfb551db38f105ed7",
+        "model": "none; PV enumeration and arithmetic component",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "long-transposed",
+        "original_k16": true,
+        "additional_workspace_bytes": 0,
+        "context_capacity": 264736,
+        "tables": [
+          {
+            "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+            "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+          },
+          {
+            "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+            "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin"
+          }
+        ],
+        "build_provenance_sha256": "aec806c8a3d1985b33dcf26daf90efee8063369a26873867034504f405f55525"
+      },
+      "launch": {
+        "pid": 4868,
+        "utc": "2026-09-14T16:47:37.6683779Z",
+        "timeout_seconds": 300,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 48500.395,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "7da645fea0cbe8eca1ea98a0468165a924e25e430838eedfab2b4602d1d39aac",
+      "canonical_raw_sha256": {
+        "component-analysis.json": "d270dd7d33d5f5f6fb94dee78598292022fe3b3ce4ad95b53d9acfbe1c214ca0",
+        "dispatch.json": "cca1d1c4c2d7c93287a03118a4b4532f1442667666bb0c28cc82bc5bb9b42f24",
+        "launch.json": "0f3a98bd0b241aa7860ed07c1ca6ac401b42e3771f89344f57bc09827d4e1a34",
+        "preflight.json": "1d9a8eced00621f3a2319700dd775bdb33322711aaebb5325aee24df7d3d4e0e",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "ed9d9a00c6821d04fb5e12ea18f1c020a74fb1fd35fe7e15d8c3d951ace4bfef",
+        "run-record.json": "7e9d374400c5be811103fd8172f450f7647b4af87573a5b55d709a7ee96017a2",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports": [
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "value_tokens": 8224,
+          "transposed_bytes": 8421376,
+          "transpose_ms": 0.1559,
+          "original_compaction_replay_ms": 2.9783,
+          "transposed_compaction_replay_ms": 2.059,
+          "original_all_pv_ms": 12.3524,
+          "transposed_all_pv_ms": 8.5691,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "control_candidates": 28296,
+          "control_approximate_ms": 1.5517,
+          "control_compaction_replay_ms": 2.9783,
+          "all_exact_pv_ms": 12.3524,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "old_candidates": 28296,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "value_tokens": 8224,
+          "transposed_bytes": 8421376,
+          "transpose_ms": 0.1046,
+          "original_compaction_replay_ms": 3.0456,
+          "transposed_compaction_replay_ms": 2.1944,
+          "original_all_pv_ms": 12.9779,
+          "transposed_all_pv_ms": 8.7586,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "control_candidates": 28456,
+          "control_approximate_ms": 1.5635,
+          "control_compaction_replay_ms": 3.0456,
+          "all_exact_pv_ms": 12.9779,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "old_candidates": 28456,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "value_tokens": 8224,
+          "transposed_bytes": 8421376,
+          "transpose_ms": 0.1111,
+          "original_compaction_replay_ms": 12.7624,
+          "transposed_compaction_replay_ms": 7.8963,
+          "original_all_pv_ms": 13.3424,
+          "transposed_all_pv_ms": 8.9301,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "control_candidates": 106483,
+          "control_approximate_ms": 1.5421,
+          "control_compaction_replay_ms": 12.7624,
+          "all_exact_pv_ms": 13.3424,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 8192,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "old_candidates": 106483,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 0,
+          "cells": 8192,
+          "value_tokens": 16385,
+          "transposed_bytes": 16778240,
+          "transpose_ms": 0.1649,
+          "original_compaction_replay_ms": 0.6523,
+          "transposed_compaction_replay_ms": 0.7155,
+          "original_all_pv_ms": 1.0843,
+          "transposed_all_pv_ms": 1.2649,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 0,
+          "cells": 8192,
+          "control_candidates": 1636,
+          "control_approximate_ms": 1.1374,
+          "control_compaction_replay_ms": 0.6523,
+          "all_exact_pv_ms": 1.0843,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 0,
+          "cells": 8192,
+          "old_candidates": 1636,
+          "new_candidates": 8192,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 1,
+          "cells": 8192,
+          "value_tokens": 16385,
+          "transposed_bytes": 16778240,
+          "transpose_ms": 0.1564,
+          "original_compaction_replay_ms": 0.6767,
+          "transposed_compaction_replay_ms": 0.7023,
+          "original_all_pv_ms": 1.0837,
+          "transposed_all_pv_ms": 1.2952,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 1,
+          "cells": 8192,
+          "control_candidates": 1704,
+          "control_approximate_ms": 1.1309,
+          "control_compaction_replay_ms": 0.6767,
+          "all_exact_pv_ms": 1.0837,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 1,
+          "cells": 8192,
+          "old_candidates": 1704,
+          "new_candidates": 8192,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 2,
+          "cells": 8192,
+          "value_tokens": 16385,
+          "transposed_bytes": 16778240,
+          "transpose_ms": 0.175,
+          "original_compaction_replay_ms": 1.1412,
+          "transposed_compaction_replay_ms": 1.1101,
+          "original_all_pv_ms": 1.091,
+          "transposed_all_pv_ms": 1.2165,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 2,
+          "cells": 8192,
+          "control_candidates": 6620,
+          "control_approximate_ms": 1.1533,
+          "control_compaction_replay_ms": 1.1412,
+          "all_exact_pv_ms": 1.091,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 16383,
+          "queries": 2,
+          "mode": 2,
+          "cells": 8192,
+          "old_candidates": 6620,
+          "new_candidates": 8192,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "value_tokens": 65568,
+          "transposed_bytes": 67141632,
+          "transpose_ms": 0.8692,
+          "original_compaction_replay_ms": 53.4893,
+          "transposed_compaction_replay_ms": 18.14,
+          "original_all_pv_ms": 157.8385,
+          "transposed_all_pv_ms": 84.6202,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "control_candidates": 26760,
+          "control_approximate_ms": 12.6048,
+          "control_compaction_replay_ms": 53.4893,
+          "all_exact_pv_ms": 157.8385,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "old_candidates": 26760,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "value_tokens": 65568,
+          "transposed_bytes": 67141632,
+          "transpose_ms": 0.8176,
+          "original_compaction_replay_ms": 48.3904,
+          "transposed_compaction_replay_ms": 18.172,
+          "original_all_pv_ms": 153.1206,
+          "transposed_all_pv_ms": 85.3693,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "control_candidates": 26584,
+          "control_approximate_ms": 12.7041,
+          "control_compaction_replay_ms": 48.3904,
+          "all_exact_pv_ms": 153.1206,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "old_candidates": 26584,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "value_tokens": 65568,
+          "transposed_bytes": 67141632,
+          "transpose_ms": 0.8125,
+          "original_compaction_replay_ms": 233.1116,
+          "transposed_compaction_replay_ms": 70.2736,
+          "original_all_pv_ms": 156.8814,
+          "transposed_all_pv_ms": 83.488,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "control_candidates": 105881,
+          "control_approximate_ms": 12.4724,
+          "control_compaction_replay_ms": 233.1116,
+          "all_exact_pv_ms": 156.8814,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 65536,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "old_candidates": 105881,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "value_tokens": 131104,
+          "transposed_bytes": 134250496,
+          "transpose_ms": 1.5086,
+          "original_compaction_replay_ms": 143.9149,
+          "transposed_compaction_replay_ms": 39.1771,
+          "original_all_pv_ms": 485.6263,
+          "transposed_all_pv_ms": 184.6418,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "control_candidates": 28141,
+          "control_approximate_ms": 26.1938,
+          "control_compaction_replay_ms": 143.9149,
+          "all_exact_pv_ms": 485.6263,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "old_candidates": 28141,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "value_tokens": 131104,
+          "transposed_bytes": 134250496,
+          "transpose_ms": 1.5057,
+          "original_compaction_replay_ms": 145.9698,
+          "transposed_compaction_replay_ms": 41.5988,
+          "original_all_pv_ms": 492.0281,
+          "transposed_all_pv_ms": 180.7963,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "control_candidates": 28280,
+          "control_approximate_ms": 25.851,
+          "control_compaction_replay_ms": 145.9698,
+          "all_exact_pv_ms": 492.0281,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "old_candidates": 28280,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "value_tokens": 131104,
+          "transposed_bytes": 134250496,
+          "transpose_ms": 1.5485,
+          "original_compaction_replay_ms": 738.6528,
+          "transposed_compaction_replay_ms": 174.1549,
+          "original_all_pv_ms": 485.7246,
+          "transposed_all_pv_ms": 199.2824,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "control_candidates": 106605,
+          "control_approximate_ms": 26.705,
+          "control_compaction_replay_ms": 738.6528,
+          "all_exact_pv_ms": 485.7246,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 131072,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "old_candidates": 106605,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "value_tokens": 263200,
+          "transposed_bytes": 269516800,
+          "transpose_ms": 3.0076,
+          "original_compaction_replay_ms": 551.6611,
+          "transposed_compaction_replay_ms": 92.3772,
+          "original_all_pv_ms": 1442.1024,
+          "transposed_all_pv_ms": 434.9034,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "control_candidates": 30078,
+          "control_approximate_ms": 51.0003,
+          "control_compaction_replay_ms": 551.6611,
+          "all_exact_pv_ms": 1442.1024,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 0,
+          "cells": 131072,
+          "old_candidates": 30078,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "value_tokens": 263200,
+          "transposed_bytes": 269516800,
+          "transpose_ms": 2.9376,
+          "original_compaction_replay_ms": 601.9509,
+          "transposed_compaction_replay_ms": 93.676,
+          "original_all_pv_ms": 1421.4637,
+          "transposed_all_pv_ms": 419.1693,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "control_candidates": 30096,
+          "control_approximate_ms": 48.9828,
+          "control_compaction_replay_ms": 601.9509,
+          "all_exact_pv_ms": 1421.4637,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 1,
+          "cells": 131072,
+          "old_candidates": 30096,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "value_tokens": 263200,
+          "transposed_bytes": 269516800,
+          "transpose_ms": 2.9189,
+          "original_compaction_replay_ms": 2122.77,
+          "transposed_compaction_replay_ms": 362.149,
+          "original_all_pv_ms": 1449.9526,
+          "transposed_all_pv_ms": 423.5324,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "control_candidates": 107748,
+          "control_approximate_ms": 53.0686,
+          "control_compaction_replay_ms": 2122.77,
+          "all_exact_pv_ms": 1449.9526,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 263168,
+          "queries": 32,
+          "mode": 2,
+          "cells": 131072,
+          "old_candidates": 107748,
+          "new_candidates": 131072,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 0,
+          "cells": 4096,
+          "value_tokens": 264736,
+          "transposed_bytes": 271089664,
+          "transpose_ms": 2.844,
+          "original_compaction_replay_ms": 12.1799,
+          "transposed_compaction_replay_ms": 10.4253,
+          "original_all_pv_ms": 14.6263,
+          "transposed_all_pv_ms": 15.0589,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 0,
+          "cells": 4096,
+          "control_candidates": 868,
+          "control_approximate_ms": 20.5994,
+          "control_compaction_replay_ms": 12.1799,
+          "all_exact_pv_ms": 14.6263,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 0,
+          "cells": 4096,
+          "old_candidates": 868,
+          "new_candidates": 4096,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 1,
+          "cells": 4096,
+          "value_tokens": 264736,
+          "transposed_bytes": 271089664,
+          "transpose_ms": 2.8876,
+          "original_compaction_replay_ms": 12.097,
+          "transposed_compaction_replay_ms": 13.4008,
+          "original_all_pv_ms": 17.9538,
+          "transposed_all_pv_ms": 14.4521,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 1,
+          "cells": 4096,
+          "control_candidates": 884,
+          "control_approximate_ms": 21.8321,
+          "control_compaction_replay_ms": 12.097,
+          "all_exact_pv_ms": 17.9538,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 1,
+          "cells": 4096,
+          "old_candidates": 884,
+          "new_candidates": 4096,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "long_transposed_pv_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 2,
+          "cells": 4096,
+          "value_tokens": 264736,
+          "transposed_bytes": 271089664,
+          "transpose_ms": 2.837,
+          "original_compaction_replay_ms": 14.1412,
+          "transposed_compaction_replay_ms": 12.1064,
+          "original_all_pv_ms": 17.318,
+          "transposed_all_pv_ms": 14.4916,
+          "raw_bit_mismatches": 0,
+          "candidate_sets_equal": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "all_pv_replay_comparison",
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 2,
+          "cells": 4096,
+          "control_candidates": 3375,
+          "control_approximate_ms": 21.5284,
+          "control_compaction_replay_ms": 14.1412,
+          "all_exact_pv_ms": 17.318,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "final_pv_kernel",
+          "variants": 4,
+          "direct_operand_variants": 2,
+          "query_start": 264735,
+          "queries": 1,
+          "mode": 2,
+          "cells": 4096,
+          "old_candidates": 3375,
+          "new_candidates": 4096,
+          "raw_bit_mismatches": 0,
+          "direct_bound_bit_mismatches": 0,
+          "direct_candidate_sets_equal": true,
+          "underestimates": 0,
+          "bf16_mismatches": 0,
+          "candidate_superset": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "long-value-build-ck-r1": {
+      "name": "long-value-build-ck-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-long-value-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-long-value-20260915\\scripts\\baiying_build_ck_fmha_q8192.ps1",
+          "-CkRoot",
+          "D:\\projects\\composable-kernel-fdf4bb7",
+          "-Sm121InterpolatedExp2",
+          "-DppReduction",
+          "1",
+          "-CompactNormalize",
+          "1",
+          "-OutPath",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\qrt_ck_fmha_sm121.dll",
+          "-HipccPath",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-long-value-20260915",
+        "repo_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+        "command_file": "D:\\projects\\run-native-long-value-r1.ps1",
+        "command_file_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+        "source_manifest_sha256": "41a3649f766afb0bd809662b50ebb298b6b4249b01f7c98cfb551db38f105ed7",
+        "model": "none; PV enumeration and arithmetic component",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "build-ck",
+        "original_k16": true,
+        "additional_workspace_bytes": 0,
+        "context_capacity": 264736,
+        "tables": [
+          {
+            "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39",
+            "file": "D:\\projects\\sm121-attention-rcp-d2e55754.bin"
+          },
+          {
+            "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+            "file": "D:\\projects\\sm121-exp2-interpolated-b5752a88.bin"
+          }
+        ],
+        "ck_source_manifest_sha256": "412419e0747ae26380362f90a161070611d37a0666f4b7727edb33e71aa5e7d3",
+        "ck_source_files": 5350
+      },
+      "launch": {
+        "pid": 9796,
+        "utc": "2026-09-14T16:50:02.7564344Z",
+        "timeout_seconds": 210,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 45391.021,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "0245ef23bcdc93b31c066e8b712fa20e52366b45813594a98dab0185c4d287bd",
+        "dispatch.json": "e644b9980bd260f8e7ba3ad524bf1455ba986b0389cea4d160e880254f6ea7d7",
+        "launch.json": "36ea46793dfb3937a929c2240e11aa360ce6ab2484d0b5df3887bb20b192b4a9",
+        "preflight.json": "7baa1ee3b9d92a9231237f10d9aeee108a6bf87558fa890aecb965273061c77d",
+        "product.stderr.log": "a27463d55d409c02902eaff6ad2201bdb574bd48e8ab0fc8b800569e3297c4e5",
+        "product.stdout.jsonl": "dfb8fa83956666b071f0b9aa0082039d11276eeea6f6c421e2c18a3c4f782b8d",
+        "run-record.json": "b190c2545dac8149d712315774ab3140e3853b381bd50629869449c1d952af2f",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+        "dirty_tree": false,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_interpolated_exp2": true,
+        "source_inputs": [
+          {
+            "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+            "file": "native\\providers\\ck_fmha\\attention_deadline.h"
+          },
+          {
+            "sha256": "bfb4f733473b28a057cc5a724236a2ba6837e7046815f7d1966823a36d6eb7df",
+            "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+            "file": "native\\providers\\ck_fmha\\decoded_window_qk.h"
+          },
+          {
+            "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+            "file": "native\\providers\\ck_fmha\\f32_carry_qk.h"
+          },
+          {
+            "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+            "file": "native\\providers\\ck_fmha\\float_alignment_qk.h"
+          },
+          {
+            "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+            "file": "native\\providers\\ck_fmha\\float_pv_replay.h"
+          },
+          {
+            "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+            "file": "native\\providers\\ck_fmha\\float_subgroup_qk.h"
+          },
+          {
+            "sha256": "60a145abeda7d8b403f81dc5e0408d2e3028b8cdb100b3f8b9d7c2b622c16548",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_api.cpp"
+          },
+          {
+            "sha256": "34abfc8e9187f6ca07deba430fa975adab0f67d054b0e829d230450b62252799",
+            "file": "native\\providers\\ck_fmha\\fmha_fwd_gfx1151_d256_bf16_f32out.cpp"
+          },
+          {
+            "sha256": "b8bd85d17925987b386398ce0c483d0d95c19f207df0233d7ce807217c57bf7c",
+            "file": "native\\providers\\ck_fmha\\full_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+            "file": "native\\providers\\ck_fmha\\matrix_consumer_qk.h"
+          },
+          {
+            "sha256": "bac7edfdb75a24d3a38b69db2019b8abb77ef41a946b796691b6616aeba38034",
+            "file": "native\\providers\\ck_fmha\\matrix_cooperative_qk.h"
+          },
+          {
+            "sha256": "a7be520171336e65eb71ab34a5a1408f0edb251ee49f49695be9bedeef22dd49",
+            "file": "native\\providers\\ck_fmha\\matrix_interval_qk.h"
+          },
+          {
+            "sha256": "7ac5d2ec0027607351a6db207bea9cebbd554921dc210ccd5e00f885760f56d2",
+            "file": "native\\providers\\ck_fmha\\matrix_packed_remainder_qk.h"
+          },
+          {
+            "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+            "file": "native\\providers\\ck_fmha\\positive_integer_qk.h"
+          },
+          {
+            "sha256": "f6244c2bc65175864c823239e0bde23d17f37aefc0b276d4fec3781fff4581a2",
+            "file": "native\\providers\\ck_fmha\\prepared_decoded_qk.h"
+          },
+          {
+            "sha256": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+            "file": "native\\providers\\ck_fmha\\prepared_decoded_qk_workspace.h"
+          },
+          {
+            "sha256": "45996743c23026c3164ed3a47292bba5555aa2b884e8df77cd0e272e852aa8a3",
+            "file": "native\\providers\\ck_fmha\\prepared_integer_pairs_qk.h"
+          },
+          {
+            "sha256": "63c564604c979ef04fe7ea98199e132b4dd1d03442f63579aeaa8558247c9107",
+            "file": "native\\providers\\ck_fmha\\pv_group_replay.h"
+          },
+          {
+            "sha256": "6c6ba2201614f1ef2db59db92ab4d1d8b469e406c760a0ba6be006a585f19484",
+            "file": "native\\providers\\ck_fmha\\q131072_tile8192_benchmark.cpp"
+          },
+          {
+            "sha256": "f2460a04bf2094790dc8ee1110c8891c8900d2a333038bfe526d35c33db6144d",
+            "file": "native\\providers\\ck_fmha\\q16384_ck_fmha_metamorphic_smoke.cpp"
+          },
+          {
+            "sha256": "6fbbe0a3d2e6c8f28270b5dca0cbb51a57029030e5ee2cfa3d7216439cfbd990",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_ck_fmha_smoke.cpp"
+          },
+          {
+            "sha256": "b99f2743bf3aa9eb6c228be7ad1cd64fb9d215b4bd544702ba4f8885710d5a5c",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_complete_full_attention_transformer_layer_smoke.cpp"
+          },
+          {
+            "sha256": "9eea2cded966066edd4ad67fd88200d7ab01b0bd8ccca222b2074ecbdec3ee79",
+            "file": "native\\providers\\ck_fmha\\q16384_suffix1024_ordered_forty_layer_owner_smoke.cpp"
+          },
+          {
+            "sha256": "2775ac62f66e7c81de1e96032042cb933399e0084982c1226f2bd138bd378b82",
+            "file": "native\\providers\\ck_fmha\\q65536_ck_fmha_prefix_smoke.cpp"
+          },
+          {
+            "sha256": "a177cb94715fdfd4243e82dde0710220e2c3eb42f6dcc6a6a04806e80888b672",
+            "file": "native\\providers\\ck_fmha\\q8192_ck_fmha_direct_smoke.cpp"
+          },
+          {
+            "sha256": "efb0db2d8cd7be64130e1a9c3f01a8f49106e30e5180224b3df7fa8a806f3331",
+            "file": "native\\providers\\ck_fmha\\qrt_ck_fmha_q8192_provider.cpp"
+          },
+          {
+            "sha256": "8991d818c4255ff861738fc8d7fa86492a16bcfe78e85b7913aa9a7f6492ac6e",
+            "file": "native\\providers\\ck_fmha\\qrt_qwen36_q16384_q1024_owner_provider.cpp"
+          },
+          {
+            "sha256": "da842c62869afd825354d62816bda3c2deba17ce3a8b62913797c9a1b19e6a1e",
+            "file": "native\\providers\\ck_fmha\\scalar_integer_qk.h"
+          },
+          {
+            "sha256": "ed37a684e1a6b3603890ec04e16cc8283816a009cd98b24e450a326d11d999d2",
+            "file": "native\\providers\\ck_fmha\\scaled_half_qk.h"
+          },
+          {
+            "sha256": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+            "file": "native\\providers\\ck_fmha\\selective_qk.h"
+          },
+          {
+            "sha256": "2cb718f113c89e8841bec18d7db0c88174d891747d987d28a05ba10f17eb45d2",
+            "file": "native\\providers\\ck_fmha\\suffix_attention_capture_replay.cpp"
+          },
+          {
+            "sha256": "b2a9ef1fb590bbeb60cb20ff013a870594902ea9211ebe38929cda9bbe63f278",
+            "file": "native\\providers\\ck_fmha\\wide_integer_qk.h"
+          },
+          {
+            "sha256": "ec504bfd5dac7d14766343df6f018e0b9b357ad3bc12a76babd7bd86646905c9",
+            "file": "native\\providers\\ck_fmha\\wmma_pv_operands.h"
+          },
+          {
+            "sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+            "file": "native\\providers\\gate_input_capture.h"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "2692fcda92101523ad11f094589e1275a5e99ae707dbc3f849d71679cf06093b",
+            "file": "native\\providers\\gdn\\blackwell_cooperative.cpp"
+          },
+          {
+            "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+            "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "daa28f39654a7fb102c5cf8f44fa9ad1bde8df47fc6662eb398cb0136fb72c7e",
+            "file": "native\\providers\\gdn\\blackwell_inverse.cpp"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+            "file": "native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "bb6d61d0584c377c06e2aacc682a6fe4d752887986671f54645a3b9e616c8b07",
+            "file": "native\\providers\\gdn\\blackwell_l2norm.cpp"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+            "file": "native\\providers\\gdn\\blackwell_scalar_matrices.h"
+          },
+          {
+            "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+            "file": "native\\providers\\gdn\\blackwell_scalar_state.h"
+          },
+          {
+            "sha256": "5990b1fdacb25840be7e38451a60b3f71f000067d2f0b5d051df71666a0b0564",
+            "file": "native\\providers\\gdn\\blackwell_state.cpp"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "cdc11bd66b3b821ad9a389ac024c983c3dfef22863c0b2b44b55f6536f2d3503",
+            "file": "native\\providers\\gdn\\blackwell_wu_output.cpp"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+            "file": "native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "native\\providers\\gdn\\fla_checkpoint.h"
+          },
+          {
+            "sha256": "98afbd9c4caed9f836dc868dd0262d75d299663cc8c65c401dcc8734c0f4ca5f",
+            "file": "native\\providers\\gdn\\fla_output_capture_replay.cpp"
+          },
+          {
+            "sha256": "3ee6cbff4c75c75b69396ab94248c80e85913f1d508ce4cebca3c6fe77c000a9",
+            "file": "native\\providers\\gdn\\fla_seeded_capture_replay.cpp"
+          },
+          {
+            "sha256": "8bff519f586c9abb3b9cca06cc471586a10982605f7ecc5e220a18a2ae0b64b8",
+            "file": "native\\providers\\gdn\\fla_upstream_capture_replay.cpp"
+          },
+          {
+            "sha256": "6190a91d61cbd612986c9308179190c856058e4fee6090a77c1fec66001eb65b",
+            "file": "native\\providers\\gdn\\postnorm_capture_replay.cpp"
+          },
+          {
+            "sha256": "66f7cdd5144c9f2a1f679cdaf1da34effc97fce4d8151ef17cf4582ec613b58c",
+            "file": "native\\providers\\gdn\\q130560_chunked1024_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "eb96b6decc3a88fc51f4b59204982fbc77e7855b33c27475d306261fe88e8e9d",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_complete_linear_transformer_layer_smoke.cpp"
+          },
+          {
+            "sha256": "e4970c1aec647a63513f7b13c47a904f5f2eaca445772766a600b33dd4c17f89",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_connected_linear_core_smoke.cpp"
+          },
+          {
+            "sha256": "7e75bcee131157079e3fd01f5c4ae49ca52939a2d4de9c11452fe7a14ebd918e",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_full_linear_attention_sublayer_smoke.cpp"
+          },
+          {
+            "sha256": "389db73179fa7ff1eb1df0315f102dee7d290b46813a187cd0c2ac1c138bba42",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_qkv_convolution_halo_smoke.cpp"
+          },
+          {
+            "sha256": "b8120718d34603281eb8c2f50f213d11cc9bf965e77804bdb50b4780b2983d4d",
+            "file": "native\\providers\\gdn\\q16384_suffix1024_seeded_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "19508dc07210fa8c1b30baee7487d813ea679f05d73cf89c1bfc7f6d5d4ef3a7",
+            "file": "native\\providers\\gdn\\q64_fla_chunk_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "e0090ffa7cc52ec0621a89e0328eed9ce3c6ad894618d3b4e22d646ebc9d3246",
+            "file": "native\\providers\\gdn\\q65536_chunked_seeded_bf16_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "14daf4e64a97ea101fa04dd3ba103738f984db9c8bba48201cfd8f097a59e5df",
+            "file": "native\\providers\\gdn\\q65536_fla_chunk_gdn_stream_smoke.cpp"
+          },
+          {
+            "sha256": "f332ae0f86d9aa301b2dc8cf5ec1db7146cb61eed0bd610908e702387809a112",
+            "file": "native\\providers\\gdn\\q8192_aiter_fused_gdn_smoke.cpp"
+          },
+          {
+            "sha256": "91db35d1bd2fa0dfa4d4dfd0f3bbdf8bfdcd73acbd0189f49b444d2d383e715f",
+            "file": "native\\providers\\gdn\\qrt_aiter_fused_gdn_q8192_provider.cpp"
+          },
+          {
+            "sha256": "927fa3151eedfaad0960c4a05d957c7b1c0ea6995be3ecc3a502eaa8c8cd942e",
+            "file": "native\\providers\\gdn\\qrt_fla_chunk_gdn_q8192_provider.cpp"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "native\\providers\\gdn\\sm121_silu_table.h"
+          },
+          {
+            "sha256": "76c090e233e5709f914942237df3d7bbabe8c6b53de645c5602c88e99cc85132",
+            "file": "native\\providers\\hawkeye_dispatch_policy.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+            "file": "native\\providers\\moe_accumulator\\sm121_compact_wide_integer_core.h"
+          },
+          {
+            "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+            "file": "native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+            "file": "native\\providers\\moe_accumulator\\sm121_decoded_projection.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_interval.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+            "file": "native\\providers\\moe_accumulator\\sm121_interleaved_projection.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+            "file": "native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+            "file": "native\\providers\\moe_accumulator\\sm121_pv_group_plan.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+            "file": "native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "native\\providers\\moe_accumulator\\sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          },
+          {
+            "sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+            "file": "native\\providers\\prefill_chunks.h"
+          },
+          {
+            "sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+            "file": "native\\providers\\prefix_batch_suffix.h"
+          },
+          {
+            "sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+            "file": "native\\providers\\prefix_checkpoint_policy.h"
+          },
+          {
+            "sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+            "file": "native\\providers\\projection_output_policy.h"
+          },
+          {
+            "sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+            "file": "native\\providers\\q1_moe_avx512bf16_host_provider.cpp"
+          },
+          {
+            "sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+            "file": "native\\providers\\q1_moe_avx512bf16_host_provider.h"
+          },
+          {
+            "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+            "file": "native\\providers\\q8192_matrix_producer_policy.h"
+          },
+          {
+            "sha256": "05a75e8ba5e9d9801c36260f652949bf83404173094d2fe53773811b2a56e402",
+            "file": "native\\providers\\q8192_out_l1_policy.h"
+          },
+          {
+            "sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+            "file": "native\\providers\\q8192_out_l1_shadow_audit.h"
+          },
+          {
+            "sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+            "file": "native\\providers\\q8192_out_matrix_shadow_audit.h"
+          },
+          {
+            "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+            "file": "native\\providers\\sm121_attention_capacity.h"
+          },
+          {
+            "sha256": "91557c7401b763d56246f514faab776f8660df3c2ad645146377f7a6d856e51c",
+            "file": "native\\providers\\sm121_q1_attention_runtime.h"
+          },
+          {
+            "sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+            "file": "native\\providers\\sm121_q1_full_runtime.h"
+          },
+          {
+            "sha256": "deed90cf331e9f37ebf9e4aa484dc7bba6e1165d61347cfd899ea8d817f7302d",
+            "file": "native\\providers\\sm121_q1_moe_runtime.h"
+          },
+          {
+            "sha256": "2f0a5400cd97d0510c72fdb1ac43dd6bcd692b1d7bcf0eb9b2eff68d38b0d7f5",
+            "file": "native\\providers\\sm121_q1_runtime.h"
+          },
+          {
+            "sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+            "file": "native\\providers\\sm121_rope_cache.h"
+          },
+          {
+            "sha256": "9aa14e2ba76a96767efaeedb843bc0d48dd0faeb2ba017348f4902a59927d272",
+            "file": "native\\providers\\sm121_silu_runtime.h"
+          },
+          {
+            "sha256": "9ffd5f73e8ab77879f0315959c940164f63a6aa6898aa4fe30347de81f4ab8a8",
+            "file": "native\\providers\\triton_moe\\q8192_triton_selected_moe_smoke.cpp"
+          },
+          {
+            "sha256": "bf0e6b41aeaef2455cea6c97fa9fc35febc170b4a592e2b889d5b36a4ddb4276",
+            "file": "native\\providers\\triton_moe\\qrt_triton_moe_q8192_provider.cpp"
+          },
+          {
+            "sha256": "025733823f538a51c5d97e59163d0ac59b2e3faa0b5ff3e19071d23bb32b3ae6",
+            "file": "native\\providers\\triton_moe\\routed_consumer_audit.h"
+          },
+          {
+            "sha256": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+            "file": "native\\providers\\triton_moe\\routed_consumer_interval.h"
+          },
+          {
+            "sha256": "a33d7e5320b8614ea1fd0a4922482cab25672fab929d5f228d590077d8d94cae",
+            "file": "native\\providers\\triton_moe\\routed_parallel_gate.h"
+          },
+          {
+            "sha256": "eda10d0fa7687e3da8b2e9b725f7ba5df273cddbd4eb911e2a9cc103e4dfd0aa",
+            "file": "native\\providers\\whole_provider.cpp"
+          },
+          {
+            "sha256": "2fce1d0f751b2c2803eb2e4d3085b7e1876d54591977e39122723c2568a85e04",
+            "file": "native\\src\\main.c"
+          },
+          {
+            "sha256": "877f462c0838f9769b7a46b388e83b4423184d6ddd2d7fea705047055ae5c58c",
+            "file": "native\\src\\product_cli.c"
+          },
+          {
+            "sha256": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+            "file": "native\\src\\qrt.c"
+          },
+          {
+            "sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+            "file": "native\\src\\qrt.h"
+          },
+          {
+            "sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+            "file": "native\\src\\qrt_context_limits.h"
+          },
+          {
+            "sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+            "file": "native\\src\\qrt_prefix_checkpoint.h"
+          },
+          {
+            "sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+            "file": "native\\src\\qrt_prefix_logit.h"
+          },
+          {
+            "sha256": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+            "file": "native\\src\\qrt_qwen36_q1024_owner.h"
+          },
+          {
+            "sha256": "1b16426962d9acc6eea8aed78629e35e288540eba376ee78abfd8d5e01f2e536",
+            "file": "native\\src\\qrt_server_bridge.c"
+          },
+          {
+            "sha256": "41f700ed4482d0b990d20873e513af36999de99f1f02228ef7d50fbd6c7af954",
+            "file": "native\\src\\qrt_server_bridge.h"
+          },
+          {
+            "sha256": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+            "file": "native\\src\\qwen36_baseline.c"
+          },
+          {
+            "sha256": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+            "file": "native\\src\\qwen36_baseline.h"
+          },
+          {
+            "sha256": "fcac300c5402ea773635ac7d9195d6277ed0bb908f2f1f1315d28ca57b51b461",
+            "file": "scripts\\baiying_build_ck_fmha_q8192.ps1"
+          },
+          {
+            "sha256": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+            "file": "scripts\\baiying_guarded_inference.ps1"
+          },
+          {
+            "sha256": "b359f721a034018c330a2786a77d4ac80905fa8ba61048b16862e0336f4d80a2",
+            "file": "tests\\native\\final_pv_kernel_selftest.cpp"
+          },
+          {
+            "sha256": "2b99dab8ba9a088a13a3272136e1a169b4dd3ef89af3cb055f5c2fa225ccf70c",
+            "file": "tests\\native\\pv_group_replay_selftest.cpp"
+          },
+          {
+            "sha256": "9fa140c81eb771d53e8fd7dd46b606ad41856b2240736b7114d8c7653a0be722",
+            "file": "tests\\native\\wmma_pv_operands_selftest.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-long-value-r1.ps1",
+        "command_file_sha256": "ae885fa00c48aea34ac570d21ec2d40dd6979fd83772e43287af4461e5da6951",
+        "compiler": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-long-value-20260915\\scripts\\baiying_build_ck_fmha_q8192.ps1",
+          "-CkRoot",
+          "D:\\projects\\composable-kernel-fdf4bb7",
+          "-Sm121InterpolatedExp2",
+          "-DppReduction",
+          "1",
+          "-CompactNormalize",
+          "1",
+          "-OutPath",
+          "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\qrt_ck_fmha_sm121.dll",
+          "-HipccPath",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe"
+        ],
+        "run_record_sha256": "b190c2545dac8149d712315774ab3140e3853b381bd50629869449c1d952af2f",
+        "artifact": {
+          "sha256": "1d34da25b1836be17bdd8234d001f1d79de6b0458c7bef95b2724e668cdc0743",
+          "file": "D:\\projects\\AIMA-public-long-value-20260915\\build\\long-value\\qrt_ck_fmha_sm121.dll",
+          "bytes": 1663488
+        }
+      }
+    }
+  },
+  "component_boundary": {
+    "host": "baiying",
+    "source_commit": "7fcf8a1515330646b71a96af6caa86d72c43cd6d",
+    "native_wall_ms": 48500.395,
+    "cases": 18,
+    "output_cells": 1609728,
+    "raw_bit_mismatches": 0,
+    "candidate_sets_equal": true,
+    "maximum_query_start": 264735,
+    "maximum_transposed_bytes": 271089664,
+    "comparison": [
+      {
+        "query_start": 8192,
+        "queries": 32,
+        "mode": 0,
+        "original_selective_ms": 2.9783,
+        "transposed_selective_plus_prepare_ms": 2.2149,
+        "original_all_ms": 12.3524,
+        "transposed_all_plus_prepare_ms": 8.725000000000001
+      },
+      {
+        "query_start": 8192,
+        "queries": 32,
+        "mode": 1,
+        "original_selective_ms": 3.0456,
+        "transposed_selective_plus_prepare_ms": 2.299,
+        "original_all_ms": 12.9779,
+        "transposed_all_plus_prepare_ms": 8.863199999999999
+      },
+      {
+        "query_start": 8192,
+        "queries": 32,
+        "mode": 2,
+        "original_selective_ms": 12.7624,
+        "transposed_selective_plus_prepare_ms": 8.0074,
+        "original_all_ms": 13.3424,
+        "transposed_all_plus_prepare_ms": 9.0412
+      },
+      {
+        "query_start": 16383,
+        "queries": 2,
+        "mode": 0,
+        "original_selective_ms": 0.6523,
+        "transposed_selective_plus_prepare_ms": 0.8804000000000001,
+        "original_all_ms": 1.0843,
+        "transposed_all_plus_prepare_ms": 1.4298
+      },
+      {
+        "query_start": 16383,
+        "queries": 2,
+        "mode": 1,
+        "original_selective_ms": 0.6767,
+        "transposed_selective_plus_prepare_ms": 0.8587,
+        "original_all_ms": 1.0837,
+        "transposed_all_plus_prepare_ms": 1.4516
+      },
+      {
+        "query_start": 16383,
+        "queries": 2,
+        "mode": 2,
+        "original_selective_ms": 1.1412,
+        "transposed_selective_plus_prepare_ms": 1.2851000000000001,
+        "original_all_ms": 1.091,
+        "transposed_all_plus_prepare_ms": 1.3915
+      },
+      {
+        "query_start": 65536,
+        "queries": 32,
+        "mode": 0,
+        "original_selective_ms": 53.4893,
+        "transposed_selective_plus_prepare_ms": 19.0092,
+        "original_all_ms": 157.8385,
+        "transposed_all_plus_prepare_ms": 85.4894
+      },
+      {
+        "query_start": 65536,
+        "queries": 32,
+        "mode": 1,
+        "original_selective_ms": 48.3904,
+        "transposed_selective_plus_prepare_ms": 18.9896,
+        "original_all_ms": 153.1206,
+        "transposed_all_plus_prepare_ms": 86.1869
+      },
+      {
+        "query_start": 65536,
+        "queries": 32,
+        "mode": 2,
+        "original_selective_ms": 233.1116,
+        "transposed_selective_plus_prepare_ms": 71.0861,
+        "original_all_ms": 156.8814,
+        "transposed_all_plus_prepare_ms": 84.3005
+      },
+      {
+        "query_start": 131072,
+        "queries": 32,
+        "mode": 0,
+        "original_selective_ms": 143.9149,
+        "transposed_selective_plus_prepare_ms": 40.685700000000004,
+        "original_all_ms": 485.6263,
+        "transposed_all_plus_prepare_ms": 186.1504
+      },
+      {
+        "query_start": 131072,
+        "queries": 32,
+        "mode": 1,
+        "original_selective_ms": 145.9698,
+        "transposed_selective_plus_prepare_ms": 43.104499999999994,
+        "original_all_ms": 492.0281,
+        "transposed_all_plus_prepare_ms": 182.302
+      },
+      {
+        "query_start": 131072,
+        "queries": 32,
+        "mode": 2,
+        "original_selective_ms": 738.6528,
+        "transposed_selective_plus_prepare_ms": 175.7034,
+        "original_all_ms": 485.7246,
+        "transposed_all_plus_prepare_ms": 200.83089999999999
+      },
+      {
+        "query_start": 263168,
+        "queries": 32,
+        "mode": 0,
+        "original_selective_ms": 551.6611,
+        "transposed_selective_plus_prepare_ms": 95.3848,
+        "original_all_ms": 1442.1024,
+        "transposed_all_plus_prepare_ms": 437.911
+      },
+      {
+        "query_start": 263168,
+        "queries": 32,
+        "mode": 1,
+        "original_selective_ms": 601.9509,
+        "transposed_selective_plus_prepare_ms": 96.6136,
+        "original_all_ms": 1421.4637,
+        "transposed_all_plus_prepare_ms": 422.1069
+      },
+      {
+        "query_start": 263168,
+        "queries": 32,
+        "mode": 2,
+        "original_selective_ms": 2122.77,
+        "transposed_selective_plus_prepare_ms": 365.0679,
+        "original_all_ms": 1449.9526,
+        "transposed_all_plus_prepare_ms": 426.4513
+      },
+      {
+        "query_start": 264735,
+        "queries": 1,
+        "mode": 0,
+        "original_selective_ms": 12.1799,
+        "transposed_selective_plus_prepare_ms": 13.2693,
+        "original_all_ms": 14.6263,
+        "transposed_all_plus_prepare_ms": 17.9029
+      },
+      {
+        "query_start": 264735,
+        "queries": 1,
+        "mode": 1,
+        "original_selective_ms": 12.097,
+        "transposed_selective_plus_prepare_ms": 16.2884,
+        "original_all_ms": 17.9538,
+        "transposed_all_plus_prepare_ms": 17.3397
+      },
+      {
+        "query_start": 264735,
+        "queries": 1,
+        "mode": 2,
+        "original_selective_ms": 14.1412,
+        "transposed_selective_plus_prepare_ms": 14.9434,
+        "original_all_ms": 17.318,
+        "transposed_all_plus_prepare_ms": 17.3286
+      }
+    ],
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "workspace": {
+    "option": "QRT_CK_SM121_LONG_TRANSPOSE_VALUE",
+    "default_enabled": false,
+    "requires_existing_transpose_option": true,
+    "compact_pv_modes": [
+      1,
+      3
+    ],
+    "maximum_tokens": 264736,
+    "maximum_device_bytes": 271089664,
+    "growth_tokens": 8192,
+    "fixed_short_owner_unchanged": true,
+    "every_call_refresh": true,
+    "failed_growth_retains_previous_owner": true,
+    "no_single_query_decode_allocation": true
+  },
+  "actual_provider_host_validation": {
+    "long_profiles": 16,
+    "pv_layouts": [
+      22,
+      24
+    ],
+    "all_cell_and_selective_routes": true,
+    "transposed_and_original_views": true,
+    "base_and_extended_attention_owners": true,
+    "partial_final_slabs": true,
+    "growth_failure_retry_and_short_long_coexistence": true,
+    "every_active_stage_completion_failure": true
+  },
+  "implementation": "The existing exact PV kernel reads an optional dimension-major BF16 value view. Original token-major values still feed approximate PV. Original K16 integer carries, K32 scaling, reciprocal arithmetic, admission bounds and selected candidate identities are unchanged. The provider owns a separate lazy long buffer under its existing mutex; no new library or table is added.",
+  "findings": [
+    "All 18 generated cases pass 1609728 output cells, raw all-cell accumulators and denominators, selective raw output, candidate ownership, transposed input layout, source immutability and guards. The maximum query position is 264735.",
+    "The twelve 32-query cases are faster after including one transpose in each selective-replay clock. At query_start 263168, mode 0 changes from 551.6611 to 95.3848 ms. This excludes the unchanged approximate-PV stage; it is not complete attention or model time.",
+    "Selective replay in the two-query and one-query edge cases becomes slower after including transpose preparation. Product single-query decode keeps its old route; whole-model timing determines whether the long multi-query option is useful.",
+    "Source also includes the route-aware provider profiling fix. Native compilation succeeds; actual observer ordering, skipped-stage counts and failure drain are checked with mocked HIP. A profiled native product remains separate."
+  ],
+  "scope": "Generated component data only, without model load, GB10 token generation or inference acceptance. Preparation and replay timings are single observations. Real q8192 and long-prefix measurements are required before selecting the runtime option.",
+  "inference_acceptance": false,
+  "retained_performance_acceptance": false,
+  "release_qualified": false
+}
