@@ -70,16 +70,29 @@ and all 12 owner-state rollbacks. Both services shut down normally. Evidence:
 `benchmarks/correctness/tokenizer-vocabulary-cache-protocol-prefix-20260915.json`,
 SHA256 `268bee10b952b5cf50571d46e75f2c504b186e35521f8d66e8fe76fbb60299bc`.
 
-The one-hour same-process HTTP soak is running with the repaired service.
-The first attempt timed out before generation on the former detokenize bug.
-A second attempt verified 544 raw GB10 tokens and one q8192 first logit, then
-its controller reused an exclusive-create progress filename. The service
-shut down normally. Revision 3 writes separate progress snapshots and starts
-a fresh full-hour window. The controller failure is preserved in
-`benchmarks/correctness/current-portable-soak-controller-failure-20260915.json`,
-SHA256 `2b5b1bd1cf5e0f4ad85072505aca5d5d137beef464c65eb7856bdc345bd55d8c`.
-Completion needs its own numerical and cleanup evidence; long contexts,
-immutable performance and release remain open.
+The repaired service passes a same-process HTTP soak with a 3625.232714-second
+active window: 63 requests in 21 complete cycles verify 13344 raw GB10 output
+IDs, 42 prompt-bound q8192 first logits and 21 SSE text/usage/finish cases.
+Offline replay verifies the saved response bytes and queue accounting.
+The service exits 0 normally without forced cleanup; all host guards pass.
+Load is 21087.0874 ms. q8192/out512 nonstream/stream median TTFT is
+29579.4646/29573.4978 ms, median TPOT 100.032222/100.154117 ms.
+All 722 health/memory samples complete below 19.628 ms. After the first cycle,
+private bytes change from 62900523008 to 62976548864; this includes caches and
+allocator state and does not prove absence of leaks. Evidence:
+`benchmarks/correctness/current-portable-one-hour-soak-20260915.json`, SHA256
+`0b0a5904bb377ec223b84ffd43c4c0fca31a392972a5b6480802ce79ee66daec`.
+The previous setup/controller failures remain preserved separately. Long
+contexts, immutable performance and release remain open.
+
+An actual C-core/Rust Windows probe confirms a separate configuration bug:
+Rust's first process-environment assignment is invisible to the existing C
+early-prefill flag reader. Further override/removal leave stale CRT values;
+the same C runtime's setter updates both views. Seven cases include four
+stale reads, with no model or GPU work. This does not yet explain the CLI/HTTP
+timing difference. Startup propagation needs repair and fresh HTTP regression.
+Evidence: `benchmarks/correctness/windows-runtime-environment-stale-core-20260915.json`,
+SHA256 `9ada0c5c799a3cc8ac73f92015489e606a49f0bdc49f701f3aab788bd3ea0111`.
 
 The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
 normalized postconv allocation and two unused kernels when raw FLA owns Q/K
