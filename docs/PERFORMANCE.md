@@ -140,10 +140,10 @@ inside the recurrent host interval. Ten full-attention residual/postnorm
 GPU intervals are also excluded; none rejects the valid GB10 boundary.
 
 Full-attention OUT is 2736.685 ms; the 40 dense OUT corrections nested in
-linear/full OUT total 3455.015 ms. Proceed with cooperative tile reuse of
-prepared operands across the original dense correction candidates. Preserve
-ascending K16 carries and original fallback; compare complete captured
-product shapes including tile preparation and selection before integration.
+linear/full OUT total 3455.015 ms. The subsequent cooperative tile comparisons
+below preserve ascending K16 carries and original fallback, but regress both
+QKV and OUT after full operand preparation. Keep current staged2 dispatch;
+inspect exact QK computation for a broader reduction in the measured wall.
 Retained performance, 128k/256k, package/HTTP/soak and release remain open.
 Evidence: `benchmarks/correctness/completed-linear-pipeline-profile-20260915.json`,
 SHA256 `e9fbcf0beb1e8c5c623954b10477bc0eb97f1f6d93eed9e3391779a9706d5404`.
@@ -161,8 +161,7 @@ and captured comparison pass with host guards. Evidence:
 `benchmarks/correctness/cooperative-half-projection-qkv-components-20260915.json`,
 SHA256 `3958cf9bff4e58ba40e1ed1de150275866b3b975c940de4b0160d6779701f0cb`.
 
-Before closing this family, compare the separate, denser OUT shape. Fresh
-GB10 layer3 OUT references use the same captured real gated input and original
+The separate, denser OUT shape uses fresh GB10 layer3 OUT references use the same captured real gated input and original
 model weight at q7169 and q8192; four evaluations per shape are identical.
 Both use `nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN`.
 The q7169 output matches its historical capture byte-for-byte and q8192
@@ -170,6 +169,23 @@ matches the corresponding repeated-input reference. These are conditional
 operator goldens, not whole-model or retained-performance acceptance. Evidence:
 `benchmarks/correctness/gb10-dense-out-q8192-reference-20260915.json`, SHA256
 `d6085ca9a0be1ecd3c13c602c5c38de2401e08f4a9637cdff50aa435bbdd9103`.
+
+The denser OUT comparison at `21eb841` also retains current staged2. All four
+q8192 configurations match all 16777216 fresh GB10 BF16 cells and 8470282
+unrounded selected values on every attempt. Matrix algorithm 0, PPB 10000 and
+the original midpoint selector are unchanged. Current staged2 / 16x16 K128 /
+32x16 K128 / 32x16 K256 medians, including operand encoding, bitmap and replay,
+are 156.463 / 255.887 / 271.235 / 342.253 ms over three rotated samples after
+one warmup. Full encodings, immutable inputs and guards pass; native build/test
+complete in 102064.098 / 7210.125 ms. Local C smoke, 404 Python tests with two
+skips and hygiene pass. This shared-tile implementation remains a component;
+product dispatch and release qualification do not change. The prior selective
+QK route already certified probabilities/alphas, but strict denominator
+refinement replayed 88.7196% of scores and its approximate denominator failed
+GB10 continuation. Repeating that design does not address the measured cost;
+continue with the original exact QK arithmetic as the numerical boundary.
+Evidence: `benchmarks/correctness/cooperative-half-out-components-20260915.json`,
+SHA256 `070fa589e1f24af3935e9a364cfb3c16c32c5cb857d4786279b19eb2cb4cad62`.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
