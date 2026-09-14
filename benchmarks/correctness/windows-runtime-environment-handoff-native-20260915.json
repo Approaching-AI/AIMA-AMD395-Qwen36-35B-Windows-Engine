@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "kind": "windows_native_runtime_environment_propagation_repair",
+  "host": "baiying",
+  "model": "none",
+  "source": {
+    "canonical_source_record": "windows-environment-handoff-native-source-r1.json",
+    "canonical_source_record_sha256": "6dac0b3b2a49bd3acaca8ac7eb624349ff4a43e6e0b5ffe750d610046fe235a6",
+    "documentation_snapshot_differences": {},
+    "source_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "bundle_head": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "repo": "D:/projects/AIMA-public-runtime-environment-20260915",
+    "seed": "D:/projects/AIMA-public-tokenizer-cache-20260915",
+    "prerequisite_commit": "f1ea66834c1158deea0ce067f35e9827c295039a",
+    "bundle": "windows-environment-handoff-e7d605f.bundle",
+    "bundle_sha256": "b0b058dba376907023bebb2f2515ab07d41a15888691a7a5eb803d9cb7f37775",
+    "script": "run-native-windows-environment-handoff-r1.ps1",
+    "script_sha256": "01661fc11ba31ce60d83f6b7e0476f0f85197acf01b8d5c4f3536f373c6d1648",
+    "source_sha256": {
+      "Cargo.lock": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+      "Cargo.toml": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+      "engine/qrt-server/Cargo.toml": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+      "engine/qrt-server/build.rs": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+      "engine/qrt-server/src/api.rs": "5d3d8bc56281f21c1d356cb031ebebcc4cf7a99151d5a3244e4d8ae1f4fa90e5",
+      "engine/qrt-server/src/backend.rs": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+      "engine/qrt-server/src/chat.rs": "f03a5601d84761e005d3134238a5d0d701b7ba7c8bdbee4aaf41f21c238a7e10",
+      "engine/qrt-server/src/environment.rs": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+      "engine/qrt-server/src/lib.rs": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+      "engine/qrt-server/src/lifecycle.rs": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+      "engine/qrt-server/src/main.rs": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+      "engine/qrt-server/src/tokenizer.rs": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+      "native/src/main.c": "2fce1d0f751b2c2803eb2e4d3085b7e1876d54591977e39122723c2568a85e04",
+      "native/src/product_cli.c": "877f462c0838f9769b7a46b388e83b4423184d6ddd2d7fea705047055ae5c58c",
+      "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+      "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_qwen36_q1024_owner.h": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+      "native/src/qrt_server_bridge.c": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+      "native/src/qrt_server_bridge.h": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+      "scripts/baiying_build_qrt_server.ps1": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+      "scripts/baiying_guarded_inference.ps1": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+      "tests/native/windows_runtime_environment_probe.c": "0afb8b0bab6a934189e6d3eb0053184ad8dcfba1ab6dcf346609d738db8e45fc",
+      "tests/native/windows_runtime_environment_probe.rs": "19d4f89c3665f7ec62a24001206f377a4696f7ada660ebfd3e1ab3980e82068d"
+    },
+    "local_validation": {
+      "commands": [
+        {
+          "command": [
+            "cargo",
+            "test",
+            "--workspace",
+            "--no-fail-fast"
+          ],
+          "returncode": 0,
+          "wall_seconds": 21.550500875338912
+        },
+        {
+          "command": [
+            "cargo",
+            "clippy",
+            "--workspace",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "returncode": 0,
+          "wall_seconds": 8.39658912550658
+        },
+        {
+          "command": [
+            "cargo",
+            "fmt",
+            "--package",
+            "qrt-server",
+            "--",
+            "--check"
+          ],
+          "returncode": 0,
+          "wall_seconds": 0.08428899943828583
+        },
+        {
+          "command": [
+            "make",
+            "c-smoke",
+            "public-hygiene",
+            "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+          ],
+          "returncode": 0,
+          "wall_seconds": 7.487151499837637
+        }
+      ],
+      "log_sha256": "e6f80eb67b6c6673c3a5d53d826e2939dbb91199a07d271930d2f8e9a428206f",
+      "pass_all": true
+    }
+  },
+  "local_validation": {
+    "file": "benchmarks/correctness/windows-runtime-environment-handoff-local-20260915.json",
+    "bytes": 3082,
+    "sha256": "256d9a0f1a381f9b638a0a10d1edd28c219ee54b2ac2ad01b14bc9e836038ed6"
+  },
+  "prior_actual_core_reproduction": {
+    "file": "benchmarks/correctness/windows-runtime-environment-stale-core-20260915.json",
+    "bytes": 16207,
+    "sha256": "9ada0c5c799a3cc8ac73f92015489e606a49f0bdc49f701f3aab788bd3ea0111"
+  },
+  "native_regression_probe": {
+    "name": "windows-environment-handoff-probe-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-runtime-environment-20260915\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\cmd.exe",
+      "arguments": [
+        "/d",
+        "/s",
+        "/c",
+        "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\build-and-run.bat"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-runtime-environment-20260915",
+      "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "command_file": "D:\\projects\\run-native-windows-environment-handoff-r1.ps1",
+      "command_file_sha256": "01661fc11ba31ce60d83f6b7e0476f0f85197acf01b8d5c4f3536f373c6d1648",
+      "source_manifest_sha256": "6dac0b3b2a49bd3acaca8ac7eb624349ff4a43e6e0b5ffe750d610046fe235a6",
+      "model": "none; Windows runtime environment handoff test or service build",
+      "model_loaded": false,
+      "gpu_work_submitted": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "prior_native_run_record_sha256": "bd727e3285d8e8b6dc6077ce3e6e4f9290dc551e1067d9c33675e3e75e447097",
+      "generated_command_file": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\build-and-run.bat",
+      "generated_command_file_sha256": "66a94a94a532170a040506ae0b7538b8bf5b6f3175df7117803bc79364fb8f79",
+      "generated_command_text": "@echo off\r\ncall \"D:\\BuildTools\\Common7\\Tools\\VsDevCmd.bat\" -arch=x64 -host_arch=x64\r\nif errorlevel 1 exit /b 11\r\ncl /nologo /std:c11 /O2 /W4 /DQRT_STATIC /D_CRT_SECURE_NO_WARNINGS /c /I\"D:\\projects\\AIMA-public-runtime-environment-20260915\\native\\src\" \"D:\\projects\\AIMA-public-runtime-environment-20260915\\tests\\native\\windows_runtime_environment_probe.c\" /Fo\"D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\probe.obj\"\r\nif errorlevel 1 exit /b 12\r\ncl /nologo /std:c11 /O2 /W4 /DQRT_STATIC /D_CRT_SECURE_NO_WARNINGS /c /I\"D:\\projects\\AIMA-public-runtime-environment-20260915\\native\\src\" \"D:\\projects\\AIMA-public-runtime-environment-20260915\\native\\src\\qwen36_baseline.c\" /Fo\"D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\baseline.obj\"\r\nif errorlevel 1 exit /b 13\r\n\"C:\\Users\\sshuser\\.cargo\\bin\\rustc.exe\" --edition=2021 --crate-name windows_runtime_environment_probe -C opt-level=2 -C \"link-arg=D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\probe.obj\" -C \"link-arg=D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\baseline.obj\" -C link-arg=/STACK:268435456 \"D:\\projects\\AIMA-public-runtime-environment-20260915\\tests\\native\\windows_runtime_environment_probe.rs\" -o \"D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\windows-runtime-environment-probe.exe\"\r\nif errorlevel 1 exit /b 14\r\n\"D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\windows-runtime-environment-probe.exe\"\r\nexit /b %errorlevel%\r\n",
+      "rustc_version": "rustc 1.95.0 (59807616e 2026-04-14)"
+    },
+    "launch": {
+      "pid": 13376,
+      "utc": "2026-09-14T22:35:43.6191890Z",
+      "timeout_seconds": 180,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 10798.09,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "97ac98b1a92c286054cce55239cfccdfc23a5517bd07fe693072c9ca96c7dabb",
+    "canonical_raw_sha256": {
+      "build-provenance.json": "e684b42bc30b7ebc5483cf30d08930d2f27a870d0bd6a9f6b2614956e7846e30",
+      "dispatch.json": "778bafd9f22a73f26aed45546cbcf5258fbbcdbf7a7089e9f1952352dea3a976",
+      "launch.json": "c8859a870fb84f8f7f9140c3eb52dd75c358b25784d36566e38e67e7191e0d46",
+      "preflight.json": "1f2e09785665b8282beb20227194dbde7e4c3851a7c3b7de19051478e3f43a6e",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "344d0a1dea945c23268796754636759c86ffb9b9792ee75cb35cfa644506a5ef",
+      "run-record.json": "5167179180433cba15f9ca38c11e107a1d1b3031ac02be201e8034ed8544cf75",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+    },
+    "build_provenance": {
+      "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "executable": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\windows-environment-handoff-probe-build-r1\\windows-runtime-environment-probe.exe",
+      "executable_sha256": "ab90f4d29226cd40ad1fd527741fff35f714686c29c5a23fd33c957abc8a2e54",
+      "bytes": 170496,
+      "model_loaded": false
+    },
+    "reports": [
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "original_rust_assignment_reproduces_stale_core",
+        "os_value": "1",
+        "crt_value": null,
+        "actual_core_early_prefill_enabled": false,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "production_setter_enables_actual_core",
+        "os_value": "1",
+        "crt_value": "1",
+        "actual_core_early_prefill_enabled": true,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "production_override_disables_actual_core",
+        "os_value": "0",
+        "crt_value": "0",
+        "actual_core_early_prefill_enabled": false,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "empty_process_value_clears_crt_flag",
+        "os_value": "",
+        "crt_value": null,
+        "actual_core_early_prefill_enabled": false,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "repeated_assignment_enables_actual_core",
+        "os_value": "1",
+        "crt_value": "1",
+        "actual_core_early_prefill_enabled": true,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "invalid_inputs_leave_current_flag_unchanged",
+        "os_value": "1",
+        "crt_value": "1",
+        "actual_core_early_prefill_enabled": true,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed",
+        "stage": "final_empty_value_disables_actual_core",
+        "os_value": "",
+        "crt_value": null,
+        "actual_core_early_prefill_enabled": false,
+        "pass": true
+      },
+      {
+        "kind": "windows_runtime_environment_fixed_summary",
+        "core_cases": 7,
+        "invalid_rust_inputs": 4,
+        "invalid_native_inputs": 4,
+        "unicode_wide_value_match": true,
+        "long_value_units": 8192,
+        "empty_value_semantics_preserved": true,
+        "production_rust_setter_used": true,
+        "actual_c_core_reader_used": true,
+        "model_loaded": false,
+        "gpu_work_submitted": false
+      }
+    ]
+  },
+  "native_server_build": {
+    "name": "windows-environment-handoff-server-build-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-runtime-environment-20260915\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        "D:\\projects\\AIMA-public-runtime-environment-20260915\\scripts\\baiying_build_qrt_server.ps1",
+        "-OutDir",
+        "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\environment-handoff-server",
+        "-TimeoutSeconds",
+        "840"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-runtime-environment-20260915",
+      "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "command_file": "D:\\projects\\run-native-windows-environment-handoff-r1.ps1",
+      "command_file_sha256": "01661fc11ba31ce60d83f6b7e0476f0f85197acf01b8d5c4f3536f373c6d1648",
+      "source_manifest_sha256": "6dac0b3b2a49bd3acaca8ac7eb624349ff4a43e6e0b5ffe750d610046fe235a6",
+      "model": "none; Windows runtime environment handoff test or service build",
+      "model_loaded": false,
+      "gpu_work_submitted": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "prior_native_run_record_sha256": "bd727e3285d8e8b6dc6077ce3e6e4f9290dc551e1067d9c33675e3e75e447097",
+      "cached_dependency_source": "D:\\projects\\AIMA-public-tokenizer-cache-20260915\\build\\tokenizer-cache-server\\cargo-target",
+      "cache_copy_exit_code": null,
+      "cache_copy_wall_ms": 632.4331000000001
+    },
+    "launch": {
+      "pid": 8016,
+      "utc": "2026-09-14T22:37:14.1464822Z",
+      "timeout_seconds": 900,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 41802.894,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+    "canonical_raw_sha256": {
+      "build-provenance.json": "0fccafc14c57dfb8903b8c1d4d08f16271ad6799ba2d1e3796b7393f06500bdd",
+      "build.stderr.txt": "2990bb3a9d93c64b8deefaadca773ea2173cd69119681817cf95c339de7ffdc9",
+      "build.stdout.txt": "b3e108128d39a7a8f6a1acb70daa24e1d696f7be27223658f99b04406ebf5175",
+      "dispatch.json": "abbbe6ff3a8d88d8417407fbe07db6b4ecce63df70d39c98b4de6a296cdfa9fe",
+      "launch.json": "5dc87a507645c02d7ab4853007df0f4bf9ebb4210457e12e010754914f63a3cd",
+      "preflight.json": "19affd762c2af47cf7718a93dc9680545af643990219297a454ed80921a47ddf",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "35ba8e326143d2bb8fd5fdc0043ab59b715d58036610b66a34f8b456fe54f659",
+      "run-record.json": "c4b9227ca660fb53351ec6291a3b6c3f270668f735791d9bf34d8134442acfa1",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+    },
+    "build_provenance": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "dirty_tree": false,
+      "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "command_file": "D:\\projects\\AIMA-public-runtime-environment-20260915\\scripts\\baiying_build_qrt_server.ps1",
+      "timeout_seconds": 840,
+      "validate_only": false,
+      "tests_run": true,
+      "wall_ms": 41311.4198,
+      "cargo": "C:\\Users\\sshuser\\.cargo\\bin\\cargo.exe",
+      "rustc_version": "rustc 1.95.0 (59807616e 2026-04-14)",
+      "executable": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\environment-handoff-server\\qrt.exe",
+      "executable_sha256": "b900dfb252dcd3abe6aa44d0444cf7facb445a97e2ccb02f08af90697a62d380"
+    }
+  },
+  "changed_runtime_source_files": [
+    "engine/qrt-server/src/environment.rs",
+    "engine/qrt-server/src/lib.rs",
+    "engine/qrt-server/src/lifecycle.rs",
+    "native/src/qrt_server_bridge.c",
+    "native/src/qrt_server_bridge.h"
+  ],
+  "server_sha256": "b900dfb252dcd3abe6aa44d0444cf7facb445a97e2ccb02f08af90697a62d380",
+  "windows_server_tests": 42,
+  "actual_rust_setter_and_c_core_reader_verified": true,
+  "empty_process_value_semantics_preserved": true,
+  "unicode_and_long_wide_values_verified": true,
+  "invalid_inputs_leave_flag_unchanged": true,
+  "inference_math_changed": false,
+  "cargo_dependencies_changed": false,
+  "scope": "The regression links the production environment.rs setter to the actual C bridge and existing C-core early-prefill reader. It first reproduces the old Rust-only failure, then verifies startup assignments, overrides, empty values, invalid arguments and wide values. Empty OS values remain present for Rust while the CRT entry is cleared, matching native CLI flag semantics. The built Windows service passes all42 server tests. No real model request is included here; the repaired environment can activate options previously hidden from the C core, so existing HTTP evidence is not transferred to the new executable.",
+  "http_numeric_and_protocol_regression_pending": true,
+  "model_loaded": false,
+  "inference_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false
+}

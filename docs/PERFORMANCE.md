@@ -90,18 +90,64 @@ Rust's first process-environment assignment is invisible to the existing C
 early-prefill flag reader. Further override/removal leave stale CRT values;
 the same C runtime's setter updates both views. Seven cases include four
 stale reads, with no model or GPU work. This does not yet explain the CLI/HTTP
-timing difference. Startup propagation needs repair and fresh HTTP regression.
+timing difference. Source `e7d605f` repairs startup propagation through the
+same C runtime, then preserves Rust's OS string and empty-value semantics.
+All 47 local Rust tests, C smoke, clippy and hygiene pass. Native regression
+also verifies the actual core reader, invalid inputs, Unicode and 8192-unit
+values. The Windows service build passes all 42 server tests. Evidence:
+`benchmarks/correctness/windows-runtime-environment-handoff-native-20260915.json`,
+SHA256 `cacd36ff5a44876b04d6636b3cf7fb264c2ff970f1f727466ece896918bb3378`.
 Evidence: `benchmarks/correctness/windows-runtime-environment-stale-core-20260915.json`,
 SHA256 `9ada0c5c799a3cc8ac73f92015489e606a49f0bdc49f701f3aab788bd3ea0111`.
+
+The R3 portable package changes only `engine/qrt.exe` among 268 assets and
+retains identical profile bytes. All 281 release-file hashes and relocation
+checks pass. The 132007801-byte archive has SHA256
+`cd098cc2b830f6f7d475e342702fdb8656954c7b16b67a7e519d1261cbdf7c56`.
+Both real q8192/out32 HTTP requests now exercise the early-prefill callback
+and pass the original raw IDs, both first logits and SSE comparison. Load is
+21509.6126 ms; nonstream/stream TTFT is 30219.4665/29676.6777 ms and TPOT
+108.597532/99.423623 ms. The prior CLI/HTTP timing gap remains unexplained.
+Evidence: `benchmarks/correctness/windows-runtime-environment-portable-http-20260915.json`,
+SHA256 `2bc375fbc6717de638126795afb4da752fd58fc3f6572372148ca3a0691ae743`.
+New protocol regression passes 18 checks in 31 requests; full512 detokenize
+finishes in 40.1152 ms including capture, within its five-second bound.
+Four saved-prefix branches pass all 256 raw GB10 IDs, 12 first logits, four
+SSE cases and 12 private owner-state rollbacks. Owner replacement, cold
+fallback and the five short protocol prompts also pass. Evidence:
+`benchmarks/correctness/windows-runtime-environment-protocol-prefix-20260915.json`,
+SHA256 `a07e4cffe7e463fdcf416e2eec1cbbaf588d1ded0e00d6468e6e9b51e3b0d9ca`.
+
+The same R3 service recovers from TCP resets during native q8192 prefill and
+after the first nonempty SSE text. Reset-to-idle time is 30.1569 / 0.2402 s;
+prefill cancellation is observed at the first callback, without an immediate
+GPU abort. A subsequent cold request matches all 32 GB10 IDs and first logit
+144 / 10.375. Its TTFT is 29544.9332 ms, TPOT 98.248458 ms and load
+21215.6723 ms. Queue accounting, 142 health samples and normal shutdown pass.
+Cancelled generations receive no numerical acceptance. Evidence:
+`benchmarks/correctness/windows-runtime-environment-disconnect-20260915.json`,
+SHA256 `d9d6e01352c0df09a8ac66858330a0e0c06430f55334d07b7c6b05b2ee1aa67d`.
+A fresh R3 one-hour soak is running with an actual early-prefill callback
+check on every q8192 request. Its result is pending; the earlier R2 soak
+does not qualify this changed executable or its repaired C configuration.
 
 The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
 normalized postconv allocation and two unused kernels when raw FLA owns Q/K
 normalization. It moves the complete-domain GB10 gate lookup from the CPU to
 the current GPU stream, sharing decode's immutable G allocation. Host/trace
 captures retain their original surfaces. No dot arithmetic or selection bound
-changes. Existing 405 Python tests (two skips), C smoke and hygiene pass;
-Windows build, 159 native lookup cases and a same-DLL q8192/out512 OFF/ON
-comparison remain pending behind the running soak. No benefit is claimed.
+changes. Existing 405 Python tests (two skips), C smoke and hygiene pass.
+The Windows whole build and 159 native cases pass, comparing 630724160 raw
+output cells with no bit mismatch and unchanged guarded inputs/tables.
+Evidence: `benchmarks/correctness/fla-device-preparation-native-20260915.json`,
+SHA256 `5096abb69fcdbb4806bf4c4b7315396092adf421c02692298c3eb1fe06e7db3a`.
+The same-DLL q8192/out512 OFF/ON pair matches all 512 GB10 IDs and actual
+callbacks in each run, first 144/raw 10.375. TTFT is 32940.2100/32518.3415 ms,
+TPOT 101.195048/101.251283 ms and load 21260.8878/21325.6390 ms. The observed
+421.8685 ms reduction leaves q8192 above 10 seconds; the option stays default
+off after this single pair. All 30 preparation markers occur only in ON.
+Evidence: `benchmarks/correctness/fla-device-preparation-q8192-20260915.json`,
+SHA256 `38f34c0f865ccb20a9746b220447d1aa8ad73172c7d55b95134cd81353aa9dfd`.
 Local record: `benchmarks/correctness/fla-device-preparation-local-20260915.json`.
 
 Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
@@ -1722,9 +1768,9 @@ is accepted from these component diagnostics. Evidence:
 `benchmarks/correctness/integer-matrix-contract-20260913.json`.
 
 Routed MoE prepared replay at source7af2c3c passes both complete q8192
-controls: all512 GB10 tokens/callbacks and exact first144/logit10.375. Only
+controls: all 512 GB10 tokens/callbacks and exact first144/logit10.375. Only
 `QRT_QWEN36_MOE_PREPARED_REPLAY=0|1` changes. Disabled/enabled callback TTFT
-is45905.0608/46197.6074ms, TPOT101.531248/100.843159ms, and load
+is45905.0608/46197.6074ms, TPOT 101.531248/100.843159ms, and load
 20036.5836/20084.2981ms. Enabled preparation adds1143209984 bytes and
 292.5466ms in this single pair. Keep it disabled; no performance gain or new
 release qualification follows. Native fused scans preserve original FP64 norm
@@ -1737,11 +1783,11 @@ verified before any product dispatch. Evidence:
 
 Completed workspace and matrix attribution at wholea9f0d0f/5feb7e7 keeps
 CKe9673f8 selective QK0/direct PV1, FLA-MoE8f and CLIa797. Both real q8192
-runs pass all512 GB10 outputs/callbacks and exact first144/logit10.375.
+runs pass all 512 GB10 outputs/callbacks and exact first144/logit10.375.
 The170 dense workspace allocations/frees total47.7403/48.6635ms; reuse of
 this measured surface cannot recover seconds. The apparent8001.004ms wait
 before linear QKV includes previous queued work. Separate completed intervals
-find6361.2797ms predecessor wait and1590.4194ms for its30 matrix calls.
+find6361.2797ms predecessor wait and 1590.4194ms for its30 matrix calls.
 All110 profiled matrix calls total3925.7338ms, with2.7024ms plan setup.
 The extra profile fences can alter stream overlap; these are diagnostic
 measurements, with no retained-performance acceptance. Callback TTFT is
@@ -1768,7 +1814,7 @@ continuation boundary. On baiying with the real model, the enabled path returns
 raw logit10.3125 satisfy the first-token tolerance, but cannot qualify this run.
 All512 actual callbacks complete and host checks pass; native exit6 records
 the token-contract failure. Keep `QRT_CK_SM121_SELECTIVE_QK_PROBABILITY=0`.
-The disabled same-DLL control matches all512 outputs/callbacks and exact
+The disabled same-DLL control matches all 512 outputs/callbacks and exact
 first144/logit10.375, with callback TTFT46169.357ms. The enabled elapsed time
 is diagnostic only. Component checks establish exact probabilities/alpha and
 agreement with canonical PV at the same approximate denominator;1726 captured
@@ -1850,7 +1896,7 @@ verify their fallback transaction and complete owner-state restoration.
 
 Direct PV operands remove per-K16 shared publication/retirement barriers while
 keeping the original BF16 inputs, matrix calls, ordered carries, final error
-envelope and exact replay. Both complete product runs match all512 GB10 outputs
+envelope and exact replay. Both complete product runs match all 512 GB10 outputs
 and actual callbacks with exact first144/logit10.375. Only
 `QRT_CK_SM121_DIRECT_PV_OPERANDS=0|1` changes in the resolved environment;
 whole prepared operands stay enabled with the original layout. This pair
@@ -1905,7 +1951,7 @@ first mismatch is zero-based index115, expected271 versus actual196;
 only130 of512 positions match. Its first144/logit10.3125 passes the0.125
 first-logit tolerance, which does not qualify the failed continuation.
 
-The same-DLL bound-disabled control matches all512 GB10 outputs and actual
+The same-DLL bound-disabled control matches all 512 GB10 outputs and actual
 callbacks with exact144/logit10.375 at48017.509ms. No candidate performance
 result is retained. A conservative absolute-product sum on the tested cells
 does not establish that the existing empirical projection-error coefficients
@@ -1917,7 +1963,7 @@ phase profile is below. Evidence:
 `benchmarks/correctness/absolute-product-hipblaslt-20260913.json`.
 
 The refreshed synchronized profile uses this restored2e49049 control and
-passes all512 GB10 outputs/callbacks with exact first144/logit10.375.
+passes all 512 GB10 outputs/callbacks with exact first144/logit10.375.
 Completed host observations are18334.4ms for the full attention pipeline,
 10690.656ms for MoE,6890.107ms for linear projections and10894.705ms for
 the linear core including its output projection. Coarse buckets and nested
@@ -1941,7 +1987,7 @@ On baiying, the actualq8192 candidate stops in layer3 before any token or
 callback: a9216-row QKV bound window completes in228.204ms, beyond the100ms
 dispatch limit. The process returns5 and releases its allocation pool.
 There is no candidate TTFT or product correctness result. The same-DLL
-bound-disabled control passes all512 GB10 outputs and callbacks with exact
+bound-disabled control passes all 512 GB10 outputs and callbacks with exact
 first144/logit10.375 at48111.7024ms. Only the bound flag differs. Keep the
 bound disabled in the selected stack; the resident backend follow-up above
 also fails product correctness. Evidence:
@@ -1951,7 +1997,7 @@ Dense projection replay now optionally prepares a lossless16-bit operand view
 once per correction call. A row containing an excluded BF16 value uses its
 original operands and exact dot. K16 order, all admission bounds and endpoint
 rounding remain unchanged. The same-DLL q8192 pair differs only in
-`QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS=0|1`; both pass all512 original GB10
+`QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS=0|1`; both pass all 512 original GB10
 tokens and actual callbacks with first144/logit10.375 exactly. The observed
 callback reduction is1638.6899ms. Completed dense-correction host wall,
 including preparation, falls from9581.693 to8157.930ms; allocation and cleanup
@@ -2077,7 +2123,7 @@ denominator files.
 
 The same CK binary at q8192/out512 gives callback52167.1323ms with32 queries
 and50764.6481ms with128, a1402.4842ms improvement in this single paired run.
-Both pass all512 original GB10 outputs and actual callbacks, with exact first
+Both pass all 512 original GB10 outputs and actual callbacks, with exact first
 token144/logit10.375. Candidate TPOT is101.346222ms and load20096.24ms.
 128 queries becomes the next experimental configuration; the shipped default
 remains32. No immutable performance or broader release gate is qualified.

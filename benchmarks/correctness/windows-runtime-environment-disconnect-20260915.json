@@ -1,0 +1,3779 @@
+{
+  "schema_version": 1,
+  "kind": "current_portable_prefill_decode_disconnect_recovery",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source": {
+    "source_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "repo": "D:/projects/AIMA-public-runtime-environment-20260915",
+    "config_sha256": "7abd27c54631c3a29f5d6deb4f066804f8410137377e8f4f8e95d95a791ae5f0",
+    "runtime_manifest_sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729",
+    "actions": {
+      "disconnect": {
+        "worker": "verify_current_package_disconnect_r1.py",
+        "worker_sha256": "5044b109ef6d7bdf7a428b65e7df306ec8ef3d711f20feb48a58ae409f99fea5",
+        "script": "run-native-current-package-disconnect-r1.ps1",
+        "script_sha256": "107e79d57aefa292a9d4bb56c6a7c34ad340275305cf1a510ec74fef23b2c2f5",
+        "response_directory": "D:/projects/AIMA-public-runtime-environment-20260915/build/current-package-disconnect-requests-r1",
+        "port": 18157
+      }
+    },
+    "dispatcher": "dispatch_current_package_disconnect_r1.py",
+    "dispatcher_sha256": "9f1b130499d0b506288663d95d6264d45e59650191b102925bf281299d03b31f",
+    "published": false
+  },
+  "source_record_sha256": "49671f3d90c15977e9cc8ec48437c1a0e72b53b648b0290afd80007e1b38fa72",
+  "component_commits": {
+    "server": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "cli": "24c4304a16a1665701d05444619d46b832c73e43",
+    "whole": "24c4304a16a1665701d05444619d46b832c73e43",
+    "ck": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+    "moe": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+    "fla": "2ee62152cc808e97974f7d3d4346255a4438a213"
+  },
+  "native": {
+    "name": "current-package-disconnect-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-runtime-environment-20260915\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Program Files\\Python313\\python.exe",
+      "arguments": [
+        "D:\\projects\\verify_current_package_disconnect_r1.py"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-runtime-environment-20260915",
+      "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "command_file": "D:\\projects\\run-native-current-package-disconnect-r1.ps1",
+      "command_file_sha256": "107e79d57aefa292a9d4bb56c6a7c34ad340275305cf1a510ec74fef23b2c2f5",
+      "controller_file": "D:\\projects\\verify_current_package_disconnect_r1.py",
+      "controller_sha256": "5044b109ef6d7bdf7a428b65e7df306ec8ef3d711f20feb48a58ae409f99fea5",
+      "config_sha256": "7abd27c54631c3a29f5d6deb4f066804f8410137377e8f4f8e95d95a791ae5f0",
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "inference_acceptance": false,
+      "purpose": "Disconnect actual q8192 SSE during native prefill and during decode, then require a fresh q8192/out32 generation with all original GB10 IDs and first logit. Aborted generations have no numerical acceptance. Verify queue recovery and normal service shutdown."
+    },
+    "launch": {
+      "pid": 6224,
+      "utc": "2026-09-14T22:54:54.0442060Z",
+      "timeout_seconds": 300,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 115933.09,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+    "canonical_raw_sha256": {
+      "dispatch.json": "319592f5a593c6e61f006d592b36e1d0626e765402e75977cb25f3bc0ea0e803",
+      "launch.json": "646a549e55f76eacbbf731e238012262ae97ad7074264b4af73d9fbfd24ad189",
+      "preflight.json": "c3aa6e477ca80a24c6d0facb3729409d54c8cb77d562098f9db73055800c41ea",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "0ee621087a56fea061f4ef070c267708760f4a9bbf77637f29580b90e2a34895",
+      "run-record.json": "4d5519c3f5cfd87114f6a22312bde3af8d82530f6bca56898933634b2a9c1261",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    },
+    "reports": [
+      {
+        "phase": "during_prefill",
+        "completed": true,
+        "wall_seconds": 30.24852170003578
+      },
+      {
+        "phase": "during_decode",
+        "completed": true,
+        "wall_seconds": 30.277791399974376
+      },
+      {
+        "status": "current_package_prefill_decode_disconnect_recovery_pass",
+        "error": null,
+        "wall_ms": 115346.58090001903,
+        "server_exit_code": 0
+      }
+    ]
+  },
+  "result": {
+    "schema_version": 1,
+    "status": "current_package_prefill_decode_disconnect_recovery_pass",
+    "host": "baiying",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "server_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "controller_sha256": "5044b109ef6d7bdf7a428b65e7df306ec8ef3d711f20feb48a58ae409f99fea5",
+    "config_sha256": "7abd27c54631c3a29f5d6deb4f066804f8410137377e8f4f8e95d95a791ae5f0",
+    "runtime_manifest_sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729",
+    "profile_sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+    "performance_qualified": false,
+    "release_qualified": false,
+    "cancellations": [
+      {
+        "index": 0,
+        "label": "during_prefill",
+        "requested_output_tokens": 512,
+        "prompt_u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "request_body_sha256": "6e729e942680e276fd8142e385d20df6b825360e5d62eae47cf44f99e9c1ce73",
+        "started_elapsed_seconds": 21.671337399980985,
+        "partial_sse_file": "during_prefill.partial-sse",
+        "transport_close": "TCP reset",
+        "health_active": {
+          "capabilities": {
+            "batch_size": 1,
+            "bounded_fifo_queue": true,
+            "continuous_prompt_lengths": true,
+            "prefix_cache": true,
+            "streaming": true,
+            "tool_calls": true
+          },
+          "load": {
+            "engine_create_ms": 1.1606,
+            "provider_dll_ms": 11.4534,
+            "provider_preload_reported_ms": 21202.4004,
+            "provider_preload_stored_entries": 256,
+            "provider_preload_wall_ms": 21203.0489,
+            "total_ms": 21215.6723
+          },
+          "max_model_len": 262144,
+          "max_output_tokens": 512,
+          "model": "qwen3.6-35b-a3b",
+          "pid": 10900,
+          "queue": {
+            "accepting_requests": true,
+            "active_requests": 1,
+            "completed_total": 0,
+            "max_waiting_requests": 1,
+            "queued_total": 0,
+            "rejected_total": 0,
+            "shutdown_rejected_total": 0,
+            "started_total": 1,
+            "timed_out_total": 0,
+            "wait_max_ms": 0.0,
+            "wait_mean_ms": 0.0,
+            "wait_timeout_seconds": 15,
+            "waiting_requests": 0
+          },
+          "ready": true,
+          "started_at": "1789426516",
+          "status": "ok"
+        },
+        "native_prefill_started_marker": "BATCH_MARK direct_hip_early_entry_phase phase=token_embedding_hidden",
+        "phase_before_reset": "native_request_active_before_first_callback",
+        "reset_elapsed_seconds": 21.76296070002718,
+        "partial_sse_bytes": 0,
+        "partial_sse_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "health_idle": {
+          "capabilities": {
+            "batch_size": 1,
+            "bounded_fifo_queue": true,
+            "continuous_prompt_lengths": true,
+            "prefix_cache": true,
+            "streaming": true,
+            "tool_calls": true
+          },
+          "load": {
+            "engine_create_ms": 1.1606,
+            "provider_dll_ms": 11.4534,
+            "provider_preload_reported_ms": 21202.4004,
+            "provider_preload_stored_entries": 256,
+            "provider_preload_wall_ms": 21203.0489,
+            "total_ms": 21215.6723
+          },
+          "max_model_len": 262144,
+          "max_output_tokens": 512,
+          "model": "qwen3.6-35b-a3b",
+          "pid": 10900,
+          "queue": {
+            "accepting_requests": true,
+            "active_requests": 0,
+            "completed_total": 1,
+            "max_waiting_requests": 1,
+            "queued_total": 0,
+            "rejected_total": 0,
+            "shutdown_rejected_total": 0,
+            "started_total": 1,
+            "timed_out_total": 0,
+            "wait_max_ms": 0.0,
+            "wait_mean_ms": 0.0,
+            "wait_timeout_seconds": 15,
+            "waiting_requests": 0
+          },
+          "ready": true,
+          "started_at": "1789426516",
+          "status": "ok"
+        },
+        "idle_elapsed_seconds": 51.919859100016765,
+        "early_prefill_marker": "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=0 rejected=1 token_id=144 token_step_ms=30187.6 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=0"
+      },
+      {
+        "index": 1,
+        "label": "during_decode",
+        "requested_output_tokens": 512,
+        "prompt_u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+        "request_body_sha256": "6e729e942680e276fd8142e385d20df6b825360e5d62eae47cf44f99e9c1ce73",
+        "started_elapsed_seconds": 51.93217610003194,
+        "partial_sse_file": "during_decode.partial-sse",
+        "transport_close": "TCP reset",
+        "health_active": {
+          "capabilities": {
+            "batch_size": 1,
+            "bounded_fifo_queue": true,
+            "continuous_prompt_lengths": true,
+            "prefix_cache": true,
+            "streaming": true,
+            "tool_calls": true
+          },
+          "load": {
+            "engine_create_ms": 1.1606,
+            "provider_dll_ms": 11.4534,
+            "provider_preload_reported_ms": 21202.4004,
+            "provider_preload_stored_entries": 256,
+            "provider_preload_wall_ms": 21203.0489,
+            "total_ms": 21215.6723
+          },
+          "max_model_len": 262144,
+          "max_output_tokens": 512,
+          "model": "qwen3.6-35b-a3b",
+          "pid": 10900,
+          "queue": {
+            "accepting_requests": true,
+            "active_requests": 1,
+            "completed_total": 1,
+            "max_waiting_requests": 1,
+            "queued_total": 0,
+            "rejected_total": 0,
+            "shutdown_rejected_total": 0,
+            "started_total": 2,
+            "timed_out_total": 0,
+            "wait_max_ms": 0.0,
+            "wait_mean_ms": 0.0,
+            "wait_timeout_seconds": 15,
+            "waiting_requests": 0
+          },
+          "ready": true,
+          "started_at": "1789426516",
+          "status": "ok"
+        },
+        "http_status": 200,
+        "first_nonempty_sse_text": "\u052d",
+        "phase_before_reset": "actual_sse_text_received",
+        "reset_elapsed_seconds": 81.96973690000596,
+        "partial_sse_bytes": 271,
+        "partial_sse_sha256": "28c33db6e196de416f7e012b677e210a4fe39415c97aa296f3a86f3c50b1b245",
+        "health_idle": {
+          "capabilities": {
+            "batch_size": 1,
+            "bounded_fifo_queue": true,
+            "continuous_prompt_lengths": true,
+            "prefix_cache": true,
+            "streaming": true,
+            "tool_calls": true
+          },
+          "load": {
+            "engine_create_ms": 1.1606,
+            "provider_dll_ms": 11.4534,
+            "provider_preload_reported_ms": 21202.4004,
+            "provider_preload_stored_entries": 256,
+            "provider_preload_wall_ms": 21203.0489,
+            "total_ms": 21215.6723
+          },
+          "max_model_len": 262144,
+          "max_output_tokens": 512,
+          "model": "qwen3.6-35b-a3b",
+          "pid": 10900,
+          "queue": {
+            "accepting_requests": true,
+            "active_requests": 0,
+            "completed_total": 2,
+            "max_waiting_requests": 1,
+            "queued_total": 0,
+            "rejected_total": 0,
+            "shutdown_rejected_total": 0,
+            "started_total": 2,
+            "timed_out_total": 0,
+            "wait_max_ms": 0.0,
+            "wait_mean_ms": 0.0,
+            "wait_timeout_seconds": 15,
+            "waiting_requests": 0
+          },
+          "ready": true,
+          "started_at": "1789426516",
+          "status": "ok"
+        },
+        "idle_elapsed_seconds": 82.20996750000631,
+        "early_prefill_marker": "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=1 rejected=0 token_id=144 token_step_ms=29517.3 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=1"
+      }
+    ],
+    "health_samples": [
+      {
+        "elapsed_seconds": 21.69738760002656,
+        "wall_ms": 16.671499994117767,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 21.776570299989544,
+        "wall_ms": 13.198799977544695,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 21.999428700015415,
+        "wall_ms": 22.657699999399483,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 22.219751099997666,
+        "wall_ms": 19.879199971910566,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 22.442110200005118,
+        "wall_ms": 22.078500012867153,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 22.664702599984594,
+        "wall_ms": 22.417399974074215,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 22.88495310000144,
+        "wall_ms": 19.9556999723427,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 23.105606299999636,
+        "wall_ms": 20.572800014633685,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 23.325578099989798,
+        "wall_ms": 19.526399963069707,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 23.54737300000852,
+        "wall_ms": 21.233599982224405,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 23.7682102000108,
+        "wall_ms": 20.465100009460002,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 23.98978539998643,
+        "wall_ms": 21.181599993724376,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 24.211377200030256,
+        "wall_ms": 21.04030002374202,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 24.43246869998984,
+        "wall_ms": 20.76929999748245,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 24.654171100002714,
+        "wall_ms": 21.624599990900606,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 24.87472570000682,
+        "wall_ms": 19.987999985460192,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 25.09553250001045,
+        "wall_ms": 20.673600025475025,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 25.320018100028392,
+        "wall_ms": 24.146400042809546,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 25.542283100017812,
+        "wall_ms": 21.876799990423024,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 25.765864600019995,
+        "wall_ms": 22.8730000089854,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 25.988157799991313,
+        "wall_ms": 21.833800012245774,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 26.210439199989196,
+        "wall_ms": 22.18089997768402,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 26.433980200032238,
+        "wall_ms": 23.113799979910254,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 26.63705190003384,
+        "wall_ms": 2.6656999834813178,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 26.85879810003098,
+        "wall_ms": 21.16889995522797,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 27.080899900000077,
+        "wall_ms": 21.475000015925616,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 27.300947599986102,
+        "wall_ms": 19.627199973911047,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 27.522162300010677,
+        "wall_ms": 20.66680003190413,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 27.74406729999464,
+        "wall_ms": 21.44350000889972,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 27.96547679998912,
+        "wall_ms": 21.016000013332814,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 28.191859200014733,
+        "wall_ms": 25.595700019039214,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 28.412612900021486,
+        "wall_ms": 20.340000046417117,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 28.63640740001574,
+        "wall_ms": 23.627899994608015,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 28.8609535000287,
+        "wall_ms": 24.390600039623678,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 29.082776300027035,
+        "wall_ms": 21.465199999511242,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 29.306877800030634,
+        "wall_ms": 23.948000045493245,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 29.528639600030147,
+        "wall_ms": 21.356399985961616,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 29.75003380002454,
+        "wall_ms": 20.843900041654706,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 29.97120020003058,
+        "wall_ms": 20.615600049495697,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 30.193396100017708,
+        "wall_ms": 21.88940002815798,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 30.41399139998248,
+        "wall_ms": 20.32899996265769,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 30.63509900000645,
+        "wall_ms": 20.639199996367097,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 30.855408800009172,
+        "wall_ms": 20.148699986748397,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 31.07681360002607,
+        "wall_ms": 20.73670004028827,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 31.301663300022483,
+        "wall_ms": 24.606899998616427,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 31.523285900009796,
+        "wall_ms": 21.218999987468123,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 31.74664050003048,
+        "wall_ms": 23.23770005023107,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 31.967210000031628,
+        "wall_ms": 20.440999942366034,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 32.19119739998132,
+        "wall_ms": 23.24039995437488,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 32.4122786000371,
+        "wall_ms": 20.85199998691678,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 32.63287269999273,
+        "wall_ms": 20.123599970247597,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 32.85372760001337,
+        "wall_ms": 20.74990002438426,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 33.075027799990494,
+        "wall_ms": 20.753599994350225,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 33.295501000015065,
+        "wall_ms": 20.287899998947978,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 33.515903800027445,
+        "wall_ms": 20.105800009332597,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 33.736776500009,
+        "wall_ms": 20.410299999639392,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 33.95833689998835,
+        "wall_ms": 21.42840001033619,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 34.183250100002624,
+        "wall_ms": 24.36500001931563,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 34.404064400005154,
+        "wall_ms": 20.458800019696355,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 34.6280270999996,
+        "wall_ms": 22.50119997188449,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 34.84960930002853,
+        "wall_ms": 21.12610003678128,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 35.072618899983354,
+        "wall_ms": 22.827599954325706,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 35.29682590003358,
+        "wall_ms": 23.914799967315048,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 35.51798669999698,
+        "wall_ms": 20.9111999720335,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 35.73785129998578,
+        "wall_ms": 19.49179999064654,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 35.95793879998382,
+        "wall_ms": 19.572700024582446,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 36.17960279999534,
+        "wall_ms": 21.187499980442226,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 36.40006740001263,
+        "wall_ms": 20.116600033361465,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 36.62168759998167,
+        "wall_ms": 21.19269996182993,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 36.8418154999963,
+        "wall_ms": 19.954600022174418,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 37.06591890001437,
+        "wall_ms": 23.069299990311265,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 37.288538500026334,
+        "wall_ms": 22.16799999587238,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 37.511898900032975,
+        "wall_ms": 23.25789997121319,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 37.73459010000806,
+        "wall_ms": 22.221599996555597,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 37.93716090003727,
+        "wall_ms": 2.112099959049374,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 38.16413839999586,
+        "wall_ms": 26.65399998659268,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 38.386025200015865,
+        "wall_ms": 21.606700029224157,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 38.60765730001731,
+        "wall_ms": 21.131900022737682,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 38.828652299998794,
+        "wall_ms": 20.5648000119254,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 39.049603199993726,
+        "wall_ms": 20.667899982072413,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 39.27015490003396,
+        "wall_ms": 19.970799970906228,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 39.491837100009434,
+        "wall_ms": 21.41049999045208,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 39.71230160002597,
+        "wall_ms": 20.05930000450462,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 39.934083900006954,
+        "wall_ms": 21.33509999839589,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 40.15719659999013,
+        "wall_ms": 22.78100000694394,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 40.37910479999846,
+        "wall_ms": 21.433299989439547,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 40.60369120002724,
+        "wall_ms": 24.120900023262948,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 40.82475720002549,
+        "wall_ms": 20.7632000092417,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 41.04700820002472,
+        "wall_ms": 21.640000049956143,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 41.27097640000284,
+        "wall_ms": 23.808800033293664,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 41.49270260002231,
+        "wall_ms": 21.327399997971952,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 41.714832000026945,
+        "wall_ms": 21.6816000174731,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 41.93638710002415,
+        "wall_ms": 21.27430000109598,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 42.15861919999588,
+        "wall_ms": 21.64779999293387,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 42.37960769998608,
+        "wall_ms": 20.520699967164546,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 42.601882499991916,
+        "wall_ms": 21.839099994394928,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 42.82327870000154,
+        "wall_ms": 20.874999987427145,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 43.048682300024666,
+        "wall_ms": 25.084700027946383,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 43.26991239999188,
+        "wall_ms": 20.987599971704185,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 43.491583700000774,
+        "wall_ms": 21.345900022424757,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 43.714373100025114,
+        "wall_ms": 22.5693000247702,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 43.935157100029755,
+        "wall_ms": 20.364199997857213,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 44.159561700013,
+        "wall_ms": 24.09260004060343,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 44.38185579999117,
+        "wall_ms": 21.870700002182275,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 44.60398690000875,
+        "wall_ms": 22.00470003299415,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 44.824818500026595,
+        "wall_ms": 20.568600040860474,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 45.04635550000239,
+        "wall_ms": 21.134599985089153,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 45.26867510000011,
+        "wall_ms": 22.03310001641512,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 45.49022199999308,
+        "wall_ms": 20.932799961883575,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 45.71254640002735,
+        "wall_ms": 21.909200004301965,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 45.93502620002255,
+        "wall_ms": 21.21360000455752,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 46.15856090001762,
+        "wall_ms": 22.942400013562292,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 46.38045390002662,
+        "wall_ms": 21.72020002035424,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 46.60452729999088,
+        "wall_ms": 23.797900008503348,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 46.826324600027874,
+        "wall_ms": 21.282500005327165,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 47.05098130000988,
+        "wall_ms": 24.475199985317886,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 47.27179999998771,
+        "wall_ms": 20.335700013674796,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 47.49392809998244,
+        "wall_ms": 21.62079996196553,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 47.71617209998658,
+        "wall_ms": 21.66859997669235,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 47.93764319998445,
+        "wall_ms": 21.16879995446652,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 48.15880829998059,
+        "wall_ms": 20.870099950116128,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 48.38081250002142,
+        "wall_ms": 21.549199998844415,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 48.60302540002158,
+        "wall_ms": 21.708300046157092,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 48.82386940001743,
+        "wall_ms": 20.71599999908358,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 49.0474089999916,
+        "wall_ms": 22.9414000059478,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 49.26891580002848,
+        "wall_ms": 21.08760003466159,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 49.49345110001741,
+        "wall_ms": 23.860300017986447,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 49.71520720003173,
+        "wall_ms": 21.479600050952286,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 49.93752179999137,
+        "wall_ms": 21.898399980273098,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 50.1606516999891,
+        "wall_ms": 23.018800013232976,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 50.38203869998688,
+        "wall_ms": 21.18999999947846,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 50.60384490003344,
+        "wall_ms": 21.674999967217445,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 50.82532559998799,
+        "wall_ms": 20.910599967464805,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.046575199987274,
+        "wall_ms": 20.975999999791384,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.268916800036095,
+        "wall_ms": 22.219099977519363,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.473158499982674,
+        "wall_ms": 3.971399972215295,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.69837410002947,
+        "wall_ms": 24.908100022003055,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 0,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.9198470999836,
+        "wall_ms": 21.002099965699017,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 1,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 1,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 51.967402299982496,
+        "wall_ms": 16.65770000545308,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 1,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 2,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 81.98557439999422,
+        "wall_ms": 14.342900016345084,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 1,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 2,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 82.20994670002256,
+        "wall_ms": 23.10280001256615,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 2,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 2,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      },
+      {
+        "elapsed_seconds": 114.88944589998573,
+        "wall_ms": 16.807999985758215,
+        "pid": 10900,
+        "ready": true,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 3,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 3,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        }
+      }
+    ],
+    "preflight": {
+      "pass": true,
+      "runtime_artifacts_verified": 268,
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\engine\\qrt.exe",
+          "sha256": "b900dfb252dcd3abe6aa44d0444cf7facb445a97e2ccb02f08af90697a62d380"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime.env",
+          "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime-manifest.json",
+          "sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729"
+        }
+      },
+      "server_checkout_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "execution_limits": {
+        "readiness_seconds": 45,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    },
+    "command": [
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\engine\\qrt.exe",
+      "serve",
+      "--model",
+      "D:/models/Qwen3.6-35B-A3B",
+      "--provider",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\whole-provider\\qrt_qwen36_whole_provider.dll",
+      "--env-file",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime.env",
+      "--arbitrary-moe-provider",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+      "--arbitrary-moe-kernel-dir",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q1024-moe\\moe-kernels",
+      "--smooth-tail-moe-root",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\smooth-tail",
+      "--model-id",
+      "qwen3.6-35b-a3b",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18157",
+      "--max-model-len",
+      "262144",
+      "--max-queue-depth",
+      "1",
+      "--queue-timeout-seconds",
+      "15",
+      "--state-file",
+      "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\current-package-disconnect-requests-r1\\service.json",
+      "--set-env",
+      "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1"
+    ],
+    "pid": 10900,
+    "health_before": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.1606,
+        "provider_dll_ms": 11.4534,
+        "provider_preload_reported_ms": 21202.4004,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 21203.0489,
+        "total_ms": 21215.6723
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 10900,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 0,
+        "completed_total": 0,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 0,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789426516",
+      "status": "ok"
+    },
+    "ready_wall_ms": 21658.510000037495,
+    "current_cancellation": {
+      "index": 1,
+      "label": "during_decode",
+      "requested_output_tokens": 512,
+      "prompt_u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+      "request_body_sha256": "6e729e942680e276fd8142e385d20df6b825360e5d62eae47cf44f99e9c1ce73",
+      "started_elapsed_seconds": 51.93217610003194,
+      "partial_sse_file": "during_decode.partial-sse",
+      "transport_close": "TCP reset",
+      "health_active": {
+        "capabilities": {
+          "batch_size": 1,
+          "bounded_fifo_queue": true,
+          "continuous_prompt_lengths": true,
+          "prefix_cache": true,
+          "streaming": true,
+          "tool_calls": true
+        },
+        "load": {
+          "engine_create_ms": 1.1606,
+          "provider_dll_ms": 11.4534,
+          "provider_preload_reported_ms": 21202.4004,
+          "provider_preload_stored_entries": 256,
+          "provider_preload_wall_ms": 21203.0489,
+          "total_ms": 21215.6723
+        },
+        "max_model_len": 262144,
+        "max_output_tokens": 512,
+        "model": "qwen3.6-35b-a3b",
+        "pid": 10900,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 1,
+          "completed_total": 1,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 2,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        },
+        "ready": true,
+        "started_at": "1789426516",
+        "status": "ok"
+      },
+      "http_status": 200,
+      "first_nonempty_sse_text": "\u052d",
+      "phase_before_reset": "actual_sse_text_received",
+      "reset_elapsed_seconds": 81.96973690000596,
+      "partial_sse_bytes": 271,
+      "partial_sse_sha256": "28c33db6e196de416f7e012b677e210a4fe39415c97aa296f3a86f3c50b1b245",
+      "health_idle": {
+        "capabilities": {
+          "batch_size": 1,
+          "bounded_fifo_queue": true,
+          "continuous_prompt_lengths": true,
+          "prefix_cache": true,
+          "streaming": true,
+          "tool_calls": true
+        },
+        "load": {
+          "engine_create_ms": 1.1606,
+          "provider_dll_ms": 11.4534,
+          "provider_preload_reported_ms": 21202.4004,
+          "provider_preload_stored_entries": 256,
+          "provider_preload_wall_ms": 21203.0489,
+          "total_ms": 21215.6723
+        },
+        "max_model_len": 262144,
+        "max_output_tokens": 512,
+        "model": "qwen3.6-35b-a3b",
+        "pid": 10900,
+        "queue": {
+          "accepting_requests": true,
+          "active_requests": 0,
+          "completed_total": 2,
+          "max_waiting_requests": 1,
+          "queued_total": 0,
+          "rejected_total": 0,
+          "shutdown_rejected_total": 0,
+          "started_total": 2,
+          "timed_out_total": 0,
+          "wait_max_ms": 0.0,
+          "wait_mean_ms": 0.0,
+          "wait_timeout_seconds": 15,
+          "waiting_requests": 0
+        },
+        "ready": true,
+        "started_at": "1789426516",
+        "status": "ok"
+      },
+      "idle_elapsed_seconds": 82.20996750000631,
+      "early_prefill_marker": "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=1 rejected=0 token_id=144 token_step_ms=29517.3 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=1"
+    },
+    "recovery_request_wall_ms": 32649.027900013607,
+    "health_after": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.1606,
+        "provider_dll_ms": 11.4534,
+        "provider_preload_reported_ms": 21202.4004,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 21203.0489,
+        "total_ms": 21215.6723
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 10900,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 0,
+        "completed_total": 3,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 3,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789426516",
+      "status": "ok"
+    },
+    "shutdown_response": {
+      "pid": 10900,
+      "status": "stopping"
+    },
+    "first_token_observations": [
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 0,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": false,
+        "output_token_id": null,
+        "first_token_raw_logit": null,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      },
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 0,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": false,
+        "output_token_id": null,
+        "first_token_raw_logit": null,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      },
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": true,
+        "output_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      }
+    ],
+    "early_prefill_markers": [
+      "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=0 rejected=1 token_id=144 token_step_ms=30187.6 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=0",
+      "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=1 rejected=0 token_id=144 token_step_ms=29517.3 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=1",
+      "BATCH_MARK qwen36_whole_provider_prefill_early_emit attempted=1 completed=1 rejected=0 token_id=144 token_step_ms=29544.9 after_contract_validation=1 before_resident_session_finalize=1 callback_synchronous=1 weight_bits=16 quantized=0 dflash_active=0 mtp_active=0 speculative_decode=0 pass=1"
+    ],
+    "recovery_all32_gb10_ids_match": true,
+    "recovery_first_logit_pass": true,
+    "recovery_metrics": {
+      "decode_total_ms": 3045.7022,
+      "queue_wait_ms": 0.0,
+      "request_ms": 32625.09,
+      "timing_contract_version": 2,
+      "tpot_ms": 98.24845806451613,
+      "tpot_samples": 31,
+      "ttft_ms": 29544.9332
+    },
+    "aborted_generations_claimed_correct": false,
+    "server_exit_code": 0,
+    "deadline_failures": [],
+    "wall_ms": 115346.58090001903
+  },
+  "service_state": {
+    "schema_version": 1,
+    "status": "stopped",
+    "pid": 10900,
+    "address": "127.0.0.1:18157",
+    "model": "qwen3.6-35b-a3b",
+    "model_path": "D:/models/Qwen3.6-35B-A3B",
+    "provider_dll": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\whole-provider\\qrt_qwen36_whole_provider.dll",
+    "arbitrary_moe_provider_dll": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+    "arbitrary_moe_kernel_dir": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\q1024-moe\\moe-kernels",
+    "smooth_tail_moe_root": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\smooth-tail",
+    "max_model_len": 262144,
+    "max_queue_depth": 1,
+    "queue_timeout_seconds": 15,
+    "repo_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "host": "BAIYING",
+    "started_unix_seconds": 1789426494,
+    "ready_unix_seconds": 1789426516,
+    "stopped_unix_seconds": 1789426609,
+    "message": null
+  },
+  "archive_and_basic_http": {
+    "file": "benchmarks/correctness/windows-runtime-environment-portable-http-20260915.json",
+    "bytes": 105469,
+    "sha256": "2bc375fbc6717de638126795afb4da752fd58fc3f6572372148ca3a0691ae743"
+  },
+  "command_file": {
+    "file": "run-native-current-package-disconnect-r1.ps1",
+    "sha256": "107e79d57aefa292a9d4bb56c6a7c34ad340275305cf1a510ec74fef23b2c2f5",
+    "text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-environment-20260915';$sha='e7d605f6d88422d8067bbb8b82bff586b84386c6'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$controller='D:\\projects\\verify_current_package_disconnect_r1.py';$config='D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\current-package-http-config-r3.json'\n$out='D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\current-package-disconnect-r1';$specPath=$out+'.json'\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw ('Existing evidence: '+$p)}}\nif((Get-FileHash $controller -Algorithm SHA256).Hash.ToLowerInvariant() -ne '5044b109ef6d7bdf7a428b65e7df306ec8ef3d711f20feb48a58ae409f99fea5'){throw 'Controller changed'}\nif((Get-FileHash $config -Algorithm SHA256).Hash.ToLowerInvariant() -ne '7abd27c54631c3a29f5d6deb4f066804f8410137377e8f4f8e95d95a791ae5f0'){throw 'Package config changed'}\n$spec=[ordered]@{executable='C:\\Program Files\\Python313\\python.exe';arguments=@($controller);working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();controller_file=$controller;controller_sha256=(Get-FileHash $controller -Algorithm SHA256).Hash.ToLowerInvariant();config_sha256=(Get-FileHash $config -Algorithm SHA256).Hash.ToLowerInvariant();model='D:/models/Qwen3.6-35B-A3B';inference_acceptance=$false;purpose='Disconnect actual q8192 SSE during native prefill and during decode, then require a fresh q8192/out32 generation with all original GB10 IDs and first logit. Aborted generations have no numerical acceptance. Verify queue recovery and normal service shutdown.'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 300|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'HTTP protocol check failed'}\n"
+  },
+  "controller": {
+    "file": "verify_current_package_disconnect_r1.py",
+    "sha256": "5044b109ef6d7bdf7a428b65e7df306ec8ef3d711f20feb48a58ae409f99fea5",
+    "text": "from pathlib import Path\nimport hashlib,http.client,json,os,socket,struct,subprocess,sys,threading,time\nR=Path('D:/projects/AIMA-public-runtime-environment-20260915');sys.path.insert(0,str(R/'scripts'))\nimport verify_baiying_q8192_http as guard\nassert os.name=='nt' and socket.gethostname().split('.')[0].lower()=='baiying'\nO=R/'build/current-package-disconnect-requests-r1';O.mkdir(exist_ok=False)\nconfig_path=R/'build/current-package-http-config-r3.json'\nassert guard.fingerprint(config_path)=='7abd27c54631c3a29f5d6deb4f066804f8410137377e8f4f8e95d95a791ae5f0'\nconfig=guard.read_json(config_path);config['port']=18157\nreport=dict(schema_version=1,status='failed',host=socket.gethostname(),model=config['model'],\n    server_commit=config['server_commit'],controller_sha256=guard.fingerprint(__file__),\n    config_sha256=guard.fingerprint(config_path),runtime_manifest_sha256=config['files']['runtime_manifest']['sha256'],\n    profile_sha256=config['files']['env']['sha256'],performance_qualified=False,release_qualified=False,\n    cancellations=[],health_samples=[])\nprompt,expected,report['preflight']=guard.preflight(config);guard.require_windows_job()\ncommand=guard.server_command(config,O);report['command']=command\nclient=guard.Client(18157);process=None;identified=False;stop=threading.Event();deadlines=[]\nstdout=O/'server.stdout.log';stderr=O/'server.stderr.log';start=time.monotonic()\ndef elapsed():return time.monotonic()-start\ndef early_markers():\n    return [line for line in stderr.read_text(encoding='utf-8').splitlines()\n            if line.startswith('BATCH_MARK qwen36_whole_provider_prefill_early_emit ')]\ndef health_until(predicate,seconds):\n    end=time.monotonic()+seconds\n    while time.monotonic()<end:\n        before=time.monotonic();h=client.json('/health',timeout=2)\n        report['health_samples'].append(dict(elapsed_seconds=elapsed(),wall_ms=(time.monotonic()-before)*1000,\n            pid=h['pid'],ready=h['ready'],queue=h['queue']))\n        assert h['pid']==process.pid and h['ready']\n        if predicate(h):return h\n        time.sleep(.2)\n    raise AssertionError('Expected native request state did not complete before its deadline')\ndef reset_connection(connection,response=None):\n    # Windows SO_LINGER consists of two unsigned shorts. A reset models a\n    # disconnected client even while the SSE response has no first body yet.\n    if connection.sock is not None:\n        connection.sock.setsockopt(socket.SOL_SOCKET,socket.SO_LINGER,struct.pack('HH',1,0))\n    if response is not None:response.close()\n    connection.close()\ndef cancel_request(index,after_text):\n    label='during_decode' if after_text else 'during_prefill'\n    previous=early_markers();assert len(previous)==index\n    payload=dict(model=config['model_id'],prompt=prompt,max_tokens=512,temperature=0,top_p=1,\n        ignore_eos=True,stream=True,stream_options={'include_usage':True})\n    body=json.dumps(payload,separators=(',',':')).encode('utf-8')\n    connection=http.client.HTTPConnection('127.0.0.1',18157,timeout=120)\n    record=dict(index=index,label=label,requested_output_tokens=512,\n        prompt_u32le_sha256=guard.token_digest(prompt),request_body_sha256=hashlib.sha256(body).hexdigest(),\n        started_elapsed_seconds=elapsed(),partial_sse_file=label+'.partial-sse',transport_close='TCP reset')\n    report['current_cancellation']=record\n    partial=bytearray();response=None\n    try:\n        connection.request('POST','/v1/completions',body=body,headers={'Content-Type':'application/json'})\n        record['health_active']=health_until(lambda h:h['queue']['active_requests']==1,5)\n        if after_text:\n            response=connection.getresponse();assert response.status==200;record['http_status']=response.status\n            while True:\n                line=response.readline(65537);assert line and len(line)<=65536\n                partial.extend(line);assert len(partial)<=1048576 and elapsed()-record['started_elapsed_seconds']<120\n                if line.startswith(b'data:'):\n                    data=line[5:].strip();assert data!=b'[DONE]'\n                    chunk=json.loads(data);assert 'error' not in chunk\n                    text=''.join(choice.get('text','') for choice in chunk['choices'])\n                    if text:\n                        record['first_nonempty_sse_text']=text\n                        break\n            record['phase_before_reset']='actual_sse_text_received'\n        else:\n            entry_deadline=time.monotonic()+5\n            entry_marker='BATCH_MARK direct_hip_early_entry_phase phase=token_embedding_hidden '\n            while entry_marker not in stderr.read_text(encoding='utf-8'):\n                assert time.monotonic()<entry_deadline,'native prefill entry not observed'\n                time.sleep(.05)\n            record['native_prefill_started_marker']=entry_marker.strip()\n            assert early_markers()==previous,'first callback already ran before prefill disconnect'\n            record['phase_before_reset']='native_request_active_before_first_callback'\n        record['reset_elapsed_seconds']=elapsed()\n    finally:\n        reset_connection(connection,response)\n        (O/record['partial_sse_file']).write_bytes(partial)\n        record['partial_sse_bytes']=len(partial)\n        record['partial_sse_sha256']=hashlib.sha256(partial).hexdigest()\n    record['health_idle']=health_until(lambda h:h['queue']['active_requests']==0 and\n        h['queue']['waiting_requests']==0 and h['queue']['completed_total']==index+1,12 if after_text else 45)\n    record['idle_elapsed_seconds']=elapsed()\n    assert record['health_idle']['queue']['started_total']==index+1\n    markers=early_markers();assert len(markers)==index+1\n    record['early_prefill_marker']=markers[-1]\n    if after_text:assert 'attempted=1 completed=1 rejected=0' in markers[-1]\n    else:assert 'attempted=1 completed=0 rejected=1' in markers[-1]\n    report['cancellations'].append(record);guard.save_json(O/(label+'.json'),record)\n    print(json.dumps(dict(phase=label,completed=True,wall_seconds=record['idle_elapsed_seconds']-record['started_elapsed_seconds'])),flush=True)\ntry:\n    with stdout.open('xb') as out,stderr.open('xb') as err:\n        environment={k:v for k,v in os.environ.items() if not k.upper().startswith('QRT_')}\n        process=subprocess.Popen(command,cwd=config['working_directory'],env=environment,stdin=subprocess.DEVNULL,stdout=out,stderr=err)\n        report['pid']=process.pid\n        def watchdog():\n            while not stop.wait(.25):\n                if elapsed()>240 or sum(p.stat().st_size for p in (stdout,stderr))>32*1024*1024:\n                    deadlines.append('controller wall or log limit')\n                    if process.poll() is None:process.kill()\n                    return\n        thread=threading.Thread(target=watchdog,daemon=True);thread.start()\n        while True:\n            assert process.poll() is None and elapsed()<45,'readiness failed'\n            try:h=client.json('/health',timeout=.5)\n            except (OSError,ValueError):time.sleep(.25);continue\n            assert h['pid']==process.pid and h['ready'];identified=True;report['health_before']=h;break\n        report['ready_wall_ms']=elapsed()*1000\n        expected_text=client.json('/detokenize',dict(model=config['model_id'],tokens=expected,skip_special_tokens=True),timeout=5)['prompt']\n        cancel_request(0,False)\n        cancel_request(1,True)\n        before=time.monotonic()\n        completion=client.json('/v1/completions',dict(model=config['model_id'],prompt=prompt,max_tokens=32,\n            temperature=0,top_p=1,ignore_eos=True),timeout=120)\n        guard.check_completion(completion,expected,expected_text);guard.check_timing_contract(completion['qrt_metrics'])\n        guard.save_json(O/'recovery-completion.json',completion)\n        report['recovery_request_wall_ms']=(time.monotonic()-before)*1000\n        report['health_after']=health_until(lambda h:h['queue']['active_requests']==0 and h['queue']['completed_total']==3,5)\n        q=report['health_after']['queue'];assert q['started_total']==3 and q['waiting_requests']==q['timed_out_total']==q['rejected_total']==0\n        report['shutdown_response']=client.json('/admin/shutdown',{},timeout=2);process.wait(timeout=8);assert process.returncode==0\n        observations=[json.loads(line) for line in stderr.read_text(encoding='utf-8').splitlines()\n            if line.startswith('{\"type\":\"qrt_server_first_token_observation\"')]\n        assert len(observations)==3 and not observations[0]['available'] and not observations[1]['available']\n        good=observations[-1];assert good['available'] and not good['prefix_route_used'] and good['input_tokens']==8192 and good['output_tokens']==32\n        assert good['prompt_token_ids_fnv1a64']==guard.token_fnv(prompt,14695981039346656037)\n        assert good['output_token_id']==144 and abs(good['first_token_raw_logit']-10.375)<=.125\n        markers=early_markers();assert len(markers)==3 and 'attempted=1 completed=1 rejected=0' in markers[-1]\n        report.update(status='current_package_prefill_decode_disconnect_recovery_pass',first_token_observations=observations,\n            early_prefill_markers=markers,recovery_all32_gb10_ids_match=True,recovery_first_logit_pass=True,\n            recovery_metrics=completion['qrt_metrics'],aborted_generations_claimed_correct=False)\nexcept Exception as error:\n    report['error']=f'{type(error).__name__}: {error}'\nfinally:\n    if process is not None:\n        if process.poll() is None and identified:\n            try:report['cleanup_shutdown_response']=client.json('/admin/shutdown',{},timeout=2);process.wait(timeout=10)\n            except (OSError,ValueError,subprocess.TimeoutExpired) as error:report['cleanup_error']=str(error)\n        if process.poll() is None:process.kill();process.wait(timeout=5);report['forced_owned_process_cleanup']=True\n        report['server_exit_code']=process.returncode\n    stop.set();report['deadline_failures']=deadlines;report['wall_ms']=elapsed()*1000\n    guard.save_json(O/'result.json',report)\nprint(json.dumps({k:report.get(k) for k in ('status','error','wall_ms','server_exit_code')}),flush=True)\nraise SystemExit(0 if report['status']=='current_package_prefill_decode_disconnect_recovery_pass' else 2)\n"
+  },
+  "reference": {
+    "file": "contracts/hprefill_q8192_gb10_oracle.json",
+    "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
+    "prompt_file_sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54",
+    "prompt_u32le_sha256": "dda20edc609f935f34d3d41ca4a84ffefa66726676756fe26ff3bef4fbff0b96",
+    "text_control_body_sha256": "a89fde5947405349e3ccd38f2906cc74d7fbf1e85d819be74e7770577fbbe0bb"
+  },
+  "canonical_files": {
+    "during_decode.json": {
+      "bytes": 3283,
+      "sha256": "6ef658bcd9cce03692c7010b132ab34479e0abdb8038042394a22283382b2f94"
+    },
+    "during_decode.partial-sse": {
+      "bytes": 271,
+      "sha256": "28c33db6e196de416f7e012b677e210a4fe39415c97aa296f3a86f3c50b1b245"
+    },
+    "during_prefill.json": {
+      "bytes": 3349,
+      "sha256": "6ab69ef437b31713112637a9b8b7c61ba5d0bc78521844d39fa39c156e6b1bf6"
+    },
+    "during_prefill.partial-sse": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "recovery-completion.json": {
+      "bytes": 1203,
+      "sha256": "1cd13f545b9902128dd4865a9acbf34af0d1473ded8f7a4102a666ea89686021"
+    },
+    "result.json": {
+      "bytes": 103981,
+      "sha256": "3f34c227072cf810189e7566770efa9927d23abce444f468bdf19fe028529474"
+    },
+    "server.stderr.log": {
+      "bytes": 2540069,
+      "sha256": "0be4c357f8002d14e26e60a41c3a2cf1f20a071f944a86f84f644d0db505500c"
+    },
+    "server.stdout.log": {
+      "bytes": 515,
+      "sha256": "5b577e462525c0ef2991559cb2b30625e54cdba4f810d57a75524c4a23b837cc"
+    },
+    "service.json": {
+      "bytes": 1384,
+      "sha256": "12a73b32d54f30f07a0ec9d7b105db6589e1fa1f5d6da57d49ea6d13f410f157"
+    }
+  },
+  "partial_sse_bodies": {
+    "during_prefill.partial-sse": "",
+    "during_decode.partial-sse": ": keep-alive\n\n: keep-alive\n\ndata: {\"choices\":[{\"finish_reason\":null,\"index\":0,\"logprobs\":null,\"text\":\"\u052d\"}],\"created\":1789426576,\"id\":\"cmpl-18d551f69b5d4ef0-2\",\"model\":\"qwen3.6-35b-a3b\",\"object\":\"text_completion\",\"system_fingerprint\":\"fp_qrt_native_qwen36\",\"usage\":null}\n"
+  },
+  "recovery_completion": {
+    "choices": [
+      {
+        "finish_reason": "length",
+        "index": 0,
+        "logprobs": null,
+        "stop_reason": null,
+        "text": "\u052dsZp  \b  \b  \b  \b  \b  \b  \b  \b  \b",
+        "token_ids": [
+          144,
+          255,
+          82,
+          57,
+          79,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196
+        ]
+      }
+    ],
+    "created": 1789426609,
+    "id": "cmpl-18d551fda8d5ef7c-3",
+    "model": "qwen3.6-35b-a3b",
+    "object": "text_completion",
+    "qrt_metrics": {
+      "decode_total_ms": 3045.7022,
+      "queue_wait_ms": 0.0,
+      "request_ms": 32625.09,
+      "timing_contract_version": 2,
+      "tpot_ms": 98.24845806451613,
+      "tpot_samples": 31,
+      "ttft_ms": 29544.9332
+    },
+    "system_fingerprint": "fp_qrt_native_qwen36",
+    "usage": {
+      "completion_tokens": 32,
+      "prompt_tokens": 8192,
+      "total_tokens": 8224
+    }
+  },
+  "cancellation_latency": [
+    {
+      "phase": "during_prefill",
+      "reset_to_idle_seconds": 30.156898399989586
+    },
+    {
+      "phase": "during_decode",
+      "reset_to_idle_seconds": 0.24023060000035912
+    }
+  ],
+  "acceptance": {
+    "prefill_tcp_reset_before_first_callback": true,
+    "decode_tcp_reset_after_real_sse_text": true,
+    "same_process_recovers": true,
+    "recovery_raw_gb10_ids": 32,
+    "recovery_prompt_bound_first_logit": true,
+    "normal_shutdown": true,
+    "aborted_generation_numerical_acceptance": false,
+    "long_context_qualified": false,
+    "soak_qualified": false,
+    "performance_qualified": false,
+    "release_qualified": false,
+    "published": false
+  },
+  "scope": "Two actual q8192/out512 requests reset their TCP connections during native prefill and after the first nonempty SSE text. The prefill disconnect is observed at the first callback, about30 seconds later, not an immediate GPU abort. Both requests drain without stale queue ownership, and a subsequent cold q8192/out32 request in the same process matches all original GB10 raw IDs and its prompt-bound first logit. Saved partial SSE bodies establish disconnect phase only; neither cancelled generation receives numerical acceptance. The service shuts down normally. This bounded recovery check does not establish long-context, renewed one-hour-soak, retained-performance or release acceptance."
+}
