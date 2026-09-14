@@ -196,6 +196,30 @@ No product or release acceptance follows. Evidence:
 `benchmarks/correctness/wmma-pv-operands-20260914.json`, SHA256
 `96bfa8923d6388958046633d58ea11e20b2c148a0630f42d150fc9875ac7983d`.
 
+Exact packed low-bit matrix compensation at `cce5c22` passes the complete
+q7169 score boundary, but the matrix schedule remains slower than selected
+QK. Completed preparation-plus-query medians are 271.4099 ms for selected
+prepared QK, 633.8454 / 582.4176 ms for dense / affected-pair packed repair,
+623.4462 / 604.7792 ms with the old fast certificate first, and 677.8834 ms
+for original sparse-core compensation. Keep the selected product dispatcher.
+
+The arithmetic subtracts exact signed low16 remainders from matrix sums and
+repairs original BF16 encoding exceptions individually. It introduces no
+tolerance. Four host policies preserve all 500000 raw carried states each;
+1048576 arbitrary packed halfword pairs pass. Sampling 65536 original QK
+dots covers 1048576 groups, all in range, with zero aligned-sum mismatches.
+These CPU counts do not establish GPU savings. Native checks preserve
+196591392 generated scores and 7680 CPU dots. Each of six complete captured
+variants preserves 418496528 unique scores over four executions, 1673986112
+comparisons and 228 CPU dots. All encodings, guards, unused tails and source
+immutability pass.
+
+Local C smoke, 389 Python tests with two skips and hygiene pass; unchanged
+Rust/Cargo surfaces reuse the prior 47 tests and clippy with explicit diff
+and hashes. No product or release acceptance follows. Evidence:
+`benchmarks/correctness/matrix-packed-remainder-qk-20260914.json`, SHA256
+`b06489fb1b0eb84a1530f75bbcdf256b6992229191a90882e33b6d10088646dc`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
