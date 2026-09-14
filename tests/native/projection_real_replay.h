@@ -12,13 +12,18 @@ template<class T> std::vector<T> read_replay_tensor(const char *path, size_t ele
 }
 
 void run_real_qkv(const char *input_path, const char *weight_path, const char *reference_path,
-                  unsigned int ppb, bool extend_q8192 = false) {
-    constexpr unsigned int rows = 8192u, source_tokens = 7169u, k = 2048u;
+                  unsigned int ppb, bool extend_q8192 = false, bool output_projection = false) {
+    constexpr unsigned int source_tokens = 7169u;
+    const unsigned rows = output_projection ? 2048u : 8192u, k = output_projection ? 4096u : 2048u;
+    const char* cooperative = std::getenv("QRT_PROJECTION_SAFETY_COOPERATIVE_HALF_REPLAY");
+    require(!output_projection || (extend_q8192 && ppb == 10000u && cooperative &&
+        !std::strcmp(cooperative,"1")), "real OUT requires the full-shape cooperative comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
     auto inputs = read_replay_tensor<uint16_t>(input_path, static_cast<size_t>(source_tokens) * k, kBf16Guard);
     auto weights = read_replay_tensor<uint16_t>(weight_path, static_cast<size_t>(rows) * k, kBf16Guard);
-    auto reference = read_replay_tensor<uint16_t>(reference_path, size_t(rows) * source_tokens, kBf16Guard);
+    auto reference = read_replay_tensor<uint16_t>(reference_path,
+        size_t(rows) * (output_projection ? tokens : source_tokens), kBf16Guard);
     if (extend_q8192) {
         // Projection rows are independent. Keep all original 7169 tokens and
         // repeat the first 1023 input rows to exercise the exact product shape.
@@ -28,13 +33,20 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
             std::copy_n(data.data() + kGuard, size_t(tokens - source_tokens) * width,
                 data.data() + kGuard + size_t(source_tokens) * width);
         };
-        extend(inputs, k); extend(reference, rows);
+        extend(inputs, k);
+        if (!output_projection) extend(reference, rows);
     }
     std::vector<float> output(elements + 2u * kGuard, kF32Guard);
     std::vector<float> input_bounds(tokens + 2u * kGuard, kF32Guard), weight_bounds(rows + 2u * kGuard, kF32Guard);
     DeviceBuffer<uint16_t> di(inputs), dw(weights);
     DeviceBuffer<float> dout(output), dix(input_bounds), dwx(weight_bounds);
-    hip_ok(launch_selected_bf16_projection_wmma_checked(dw.data(), di.data(), dout.data(), rows, tokens, 0u, 0u, nullptr), "real_wmma");
+    if (output_projection) {
+        std::string stage, failure;
+        const bool produced = resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
+            dw.data(),di.data(),dout.data(),rows,k,tokens,0u,nullptr,
+            "real_out_producer",&stage,&failure);
+        require(produced, (stage+": "+failure).c_str());
+    } else hip_ok(launch_selected_bf16_projection_wmma_checked(dw.data(), di.data(), dout.data(), rows, tokens, 0u, 0u, nullptr), "real_wmma");
     hip_ok(hipDeviceSynchronize(), "real_wmma_sync");
     hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel, dim3(tokens), dim3(256u), 0u, nullptr, di.data(), dix.data(), tokens, k);
     hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel, dim3(rows), dim3(256u), 0u, nullptr, dw.data(), dwx.data(), rows, k);
@@ -108,7 +120,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         }
     }
     const unsigned int blocks = selected_hawkeye_correction_maximum_blocks_per_launch();
-    std::cout << "{\"type\":\"real_qkv_selector\",\"elements\":" << elements
+    std::cout << "{\"type\":\"" << (output_projection ? "real_out_selector" : "real_qkv_selector") << "\",\"elements\":" << elements
               << ",\"initial_bf16_mismatches\":" << initial_mismatches
               << ",\"midpoint_misses\":" << midpoint_misses << ",\"bound_misses\":" << bound_misses
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
