@@ -133,10 +133,12 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false, bool scaled_fallback = false) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false, bool scaled_fallback = false, bool staged_half = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     require(!partition || prevalidated, "partition requires prevalidated test rows");
+    require(!staged_half || (prevalidated && !partition && !scaled_fallback && QRT_MOE_ROUTED_REPLAY_LANES == 4u),
+            "staged half test requires exclusive four-lane prevalidated replay");
     g_state.moe_compaction_blocks = window_blocks;
     const uint32_t routes = tokens * kTopK;
     const size_t elements = static_cast<size_t>(routes) * kIntermediate;
@@ -200,6 +202,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     Device<uint16_t> dei(encoded_input), dew(encoded_weights);
     Device<uint32_t> defi(encoded_input_flags), defw(encoded_weight_flags);
     Device<float> depn(prepared_norm);
+    using StagedRow = qrt_sm121_staged_half_projection::Row;
+    StagedRow staged_sentinel{};std::memset(&staged_sentinel,0xa5,sizeof(staged_sentinel));
+    const size_t staged_input_groups=staged_half?(encoded_input.size()-2u*kGuard)/16u:0u;
+    const size_t staged_weight_groups=staged_half?(encoded_weights.size()-2u*kGuard)/16u:0u;
+    std::vector<StagedRow> staged_input(staged_input_groups+2u*kGuard,staged_sentinel);
+    std::vector<StagedRow> staged_weight(staged_weight_groups+2u*kGuard,staged_sentinel);
+    Device<StagedRow> dsi(staged_input),dsw(staged_weight);
+    size_t staged_supported=0u,staged_unsupported=0u;
     g_state.moe_compacted_indices = dix.data(); g_state.moe_compacted_count = dc.data();
     g_state.sm121_moe_absolute_error_ppb = 1000u;
     g_state.moe_l2[static_cast<size_t>(MoeL2::Input)] = din.data();
@@ -213,8 +223,9 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     std::vector<float> expected_native, expected_down;
     std::vector<uint16_t> expected_activated;
     float times[6]{};
-    auto prepare_view = [&](const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
+    auto prepare_view = [&](MoeL2 surface,const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
                             uint32_t rows, uint32_t columns) {
+        require(prepare_moe_staged_half(raw,surface,rows,columns,stream),"prepare staged routed view");
         for (uint32_t first = 0u; first < rows; first += 4096u) {
             if (g_state.prevalidated_float_active) {
                 const auto classifier = g_state.scaled_significand_fallback
@@ -230,16 +241,19 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             hip_ok(hipGetLastError(), "prepare routed replay view");
         }
     };
-    for (uint32_t compact = 0u; compact < ((partition || scaled_fallback) ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
+    for (uint32_t compact = 0u; compact < ((partition || scaled_fallback || staged_half) ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
         g_state.prepared_replay_active = compact == 2u;
         g_state.float_replay_active = compact == 3u;
         g_state.prevalidated_float_active = compact >= 4u;
-        g_state.partition_replay = compact == 5u && !scaled_fallback;
+        g_state.partition_replay = compact == 5u && partition;
         g_state.scaled_significand_fallback = compact == 5u && scaled_fallback;
-        g_state.prepared_replay_inputs = compact >= 4u ? nullptr : dei.data();
-        g_state.prepared_replay_weights = compact >= 4u ? nullptr : dew.data();
+        g_state.staged_half_replay_active = compact == 5u && staged_half;
+        g_state.prepared_replay_inputs = g_state.staged_half_replay_active
+            ? reinterpret_cast<uint16_t*>(dsi.data()) : compact >= 4u ? nullptr : dei.data();
+        g_state.prepared_replay_weights = g_state.staged_half_replay_active
+            ? reinterpret_cast<uint16_t*>(dsw.data()) : compact >= 4u ? nullptr : dew.data();
         g_state.prepared_replay_input_rows = defi.data(); g_state.prepared_replay_weight_rows = defw.data();
         const uint32_t radius = mode == 1u || mode == 4u ? 32768u : mode == 2u ? 128u : 0u;
         const uint32_t exponent = mode == 2u ? 124u : 0u;
@@ -247,8 +261,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
         using P = MoeCorrectionPhase;
         hip_ok(hipEventRecord(begin, stream), "compaction timing begin");
         if (compact == 2u || compact >= 4u) {
-            prepare_view(di.data(), dei.data(), defi.data(), tokens, kHidden);
-            prepare_view(dw.data(), dew.data(), defw.data(), 4u * kIntermediate, kHidden);
+            prepare_view(MoeL2::Input, di.data(), dei.data(), defi.data(), tokens, kHidden);
+            prepare_view(MoeL2::RoutedGateUp, dw.data(), dew.data(), defw.data(), 4u * kIntermediate, kHidden);
         }
         hip_ok(launch_moe_routed_correction<false>(
             routed_gate_batched_hawkeye_correction_kernel<P::Local>, routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
@@ -261,8 +275,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
             routes, radius, exponent), "compaction up");
         if (compact == 2u || compact >= 4u) {
-            prepare_view(da.data(), dei.data(), defi.data(), routes, kIntermediate);
-            prepare_view(ddw.data(), dew.data(), defw.data(), 2u * kHidden, kIntermediate);
+            prepare_view(MoeL2::RoutedActivated, da.data(), dei.data(), defi.data(), routes, kIntermediate);
+            prepare_view(MoeL2::RoutedDown, ddw.data(), dew.data(), defw.data(), 2u * kHidden, kIntermediate);
         }
         hip_ok(launch_moe_routed_correction<false>(
             routed_down_batched_hawkeye_correction_kernel<P::Local>, routed_down_batched_hawkeye_correction_kernel<P::Collect>,
@@ -288,6 +302,29 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             require(std::memcmp(actual_native.data(), expected_native.data(), native.size() * sizeof(float)) == 0 &&
                     std::memcmp(actual_down.data(), expected_down.data(), down.size() * sizeof(float)) == 0 &&
                     actual_activated == expected_activated, "routed compaction differs from original kernel");
+        }
+        if(g_state.staged_half_replay_active) {
+            // The same arenas have been rewritten from gate/up to activated/
+            // down. Check the final live views and guards after measured work.
+            auto check_view=[&](Device<StagedRow>& device,size_t storage_rows,const std::vector<uint16_t>& raw,size_t groups) {
+                const auto actual=device.read(storage_rows);
+                for(size_t i=0u;i<kGuard;++i)
+                    require(!std::memcmp(&actual[i],&staged_sentinel,sizeof(StagedRow)) &&
+                            !std::memcmp(&actual[storage_rows-1u-i],&staged_sentinel,sizeof(StagedRow)),
+                            "staged routed view redzone changed");
+                for(size_t group=0u;group<groups;++group) {
+                    const auto& row=actual[kGuard+group];
+                    const bool supported=qrt_sm121_scaled_half_products::unit(row)!=-32768;
+                    staged_supported+=supported;staged_unsupported+=!supported;
+                    for(unsigned i=0u;i<16u;++i)
+                        require(qrt_sm121_scaled_half_products::original(row,i)==raw[kGuard+16u*group+i],
+                                "staged routed live view does not reconstruct original BF16");
+                }
+            };
+            check_view(dsi,staged_input.size(),expected_activated,elements/16u);
+            check_view(dsw,staged_weight.size(),down_weights,(down_weights.size()-2u*kGuard)/16u);
+            require(staged_supported>0u && (mode!=4u || staged_unsupported>0u),
+                    "staged routed fixture missed supported or fallback views");
         }
     }
     if (prepared) {
@@ -325,6 +362,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     g_state.prepared_replay_active = false;
     g_state.float_replay_active = false;
     g_state.prevalidated_float_active = false;
+    g_state.staged_half_replay_active = false;
     g_state.partition_replay = false;
     g_state.scaled_significand_fallback = false;
     g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
@@ -337,9 +375,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                 "\"prevalidated_float_checked\":%s,\"prevalidated_sequence_ms\":%.6f,"
                 "\"partition_replay_checked\":%s,\"partition_sequence_ms\":%.6f,"
                 "\"scaled_fallback_checked\":%s,"
+                "\"staged_half_checked\":%s,\"staged_half_sequence_ms\":%.6f,"
+                "\"staged_supported_final_groups\":%zu,\"staged_unsupported_final_groups\":%zu,"
+                "\"staged_preparation_included\":%s,\"staged_live_views_roundtrip\":%s,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
-                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], partition ? "true" : "false", times[5], scaled_fallback ? "true" : "false", unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
+                tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], partition ? "true" : "false", times[5], scaled_fallback ? "true" : "false",
+                staged_half ? "true" : "false",staged_half?times[5]:0.0f,staged_supported,staged_unsupported,
+                staged_half ? "true" : "false",staged_half ? "true" : "false", unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
 }
 
@@ -442,6 +485,15 @@ void compare_scaled_l2(unsigned columns) {
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--staged-half") == 0) {
+            moe_batch_test::compare_prepared_norm(512u, true);
+            moe_batch_test::compare_prepared_norm(2048u, true);
+            moe_batch_test::compare_routed_compaction(1u, 0u, kMaximumMoeCompactionBlocks, true, true, true, false, false, true);
+            moe_batch_test::compare_routed_compaction(65u, 2u, kMaximumMoeCompactionBlocks, true, true, true, false, false, true);
+            moe_batch_test::compare_routed_compaction(129u, 4u, kMaximumMoeCompactionBlocks, true, true, true, false, false, true);
+            moe_batch_test::compare_routed_compaction(1025u, 3u, kMaximumMoeCompactionBlocks, true, true, true, false, false, true);
+            return 0;
+        }
         if (argc == 2 && std::strcmp(argv[1], "--scaled-fallback") == 0) {
             moe_batch_test::compare_prepared_norm(512u, true, true);
             moe_batch_test::compare_prepared_norm(2048u, true, true);

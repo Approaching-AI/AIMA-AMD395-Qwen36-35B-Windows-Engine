@@ -114,6 +114,19 @@ float dot(const uint16_t* a,const uint16_t* b,unsigned k,unsigned flags) {
     return qrt_sm121_scalar_projection::validated_dot<Lanes,Groups>(a,b,k,(flags&1u)!=0u);
 }
 }
+std::atomic<unsigned> staged_calls{0};
+namespace qrt_sm121_staged_half_projection {
+// Arithmetic is checked on gfx1151; these explicit rows expose stale views,
+// row-stride errors and incorrect expert/activation indices to the host test.
+struct Row { uint16_t raw[16];uint32_t control; };
+template<unsigned Groups> float dot(const Row* a,const Row* b,unsigned columns) {
+    static_assert(Groups==2);
+    if((threadIdx.x&3u)==0u) {++dots;++staged_calls;}
+    float value=0;
+    for(unsigned c=0;c<columns;++c)value+=bf16_to_float(a[c/16].raw[c%16])*bf16_to_float(b[c/16].raw[c%16]);
+    return value;
+}
+}
 namespace qrt_routed_consumer_audit {
 template<class... T> void observe(T...) { assert(false); }
 }
@@ -134,6 +147,7 @@ struct State {
     bool compact_routed_hawkeye=false;
     bool prepared_replay_active=false;
     bool float_replay_active=false,prevalidated_float_active=false,partition_replay=false;
+    bool staged_half_replay_active=false;
     bool scaled_significand_fallback=false;
     bool shared_prevalidated_float_active=false;
     std::array<uint32_t*,9> shared_replay_rows{};
@@ -223,6 +237,19 @@ struct Data {
 hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     unsigned blocks=(routes*kIntermediate+kNativeThreads-1)/kNativeThreads;
     g_state.moe_l2={d.input_norm.data(),d.weight_norm.data()};
+    g_state.moe_l2[size_t(MoeL2::RoutedActivated)]=d.input_norm.data();
+    g_state.moe_l2[size_t(MoeL2::RoutedDown)]=d.weight_norm.data();
+    using Row=qrt_sm121_staged_half_projection::Row;
+    std::vector<Row> staged_input(d.input.size()/16),staged_weight(d.weights.size()/16);
+    auto pack=[](std::vector<Row>& out,const std::vector<uint16_t>& values,size_t elements) {
+        assert(elements%16==0&&elements/16<=out.size());
+        for(size_t i=0;i<elements;++i)out[i/16].raw[i%16]=values[i];
+    };
+    if(g_state.staged_half_replay_active) {
+        pack(staged_input,d.input,d.input.size());pack(staged_weight,d.weights,d.weights.size());
+        g_state.prepared_replay_inputs=reinterpret_cast<uint16_t*>(staged_input.data());
+        g_state.prepared_replay_weights=reinterpret_cast<uint16_t*>(staged_weight.data());
+    }
     using P=MoeCorrectionPhase;
     auto status=launch_moe_routed_correction<false>(
         routed_gate_batched_hawkeye_correction_kernel<P::Local>,routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
@@ -237,10 +264,13 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
         d.activated.data(),d.lut.data(),routes,radius,exponent,d.up_debug.data(),d.up_f32.data(),&d.debug_count,0u);
     if(status!=hipSuccess)return status;
     blocks=(routes*kHidden+kNativeThreads-1)/kNativeThreads;
+    if(g_state.staged_half_replay_active) {
+        pack(staged_input,d.activated,routes*kIntermediate);pack(staged_weight,d.down_weights,d.down_weights.size());
+    }
     return launch_moe_routed_correction<false>(
         routed_down_batched_hawkeye_correction_kernel<P::Local>,routed_down_batched_hawkeye_correction_kernel<P::Collect>,
         routed_down_batched_hawkeye_correction_kernel<P::Replay>,routed_down_batched_hawkeye_correction_kernel<P::Local>,
-        blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,d.down.data(),d.topk.data(),d.ids.data(),d.activated.data(),
+        blocks,wanted_stream,MoeL2::RoutedActivated,MoeL2::RoutedDown,d.down.data(),d.topk.data(),d.ids.data(),d.activated.data(),
         d.down_weights.data(),routes,radius,exponent);
 }
 int main() {
@@ -250,8 +280,10 @@ int main() {
     for(unsigned i=0;i<input_flags.size();++i)input_flags[i]=i%2;
     for(unsigned i=0;i<weight_flags.size();++i)weight_flags[i]=i%3!=0;
     g_state.prepared_replay_input_rows=input_flags.data();g_state.prepared_replay_weight_rows=weight_flags.data();
-    for(unsigned route_mode:{0u,1u,2u,3u}) {
+    for(unsigned route_mode:{0u,1u,2u,3u,4u}) {
+    std::fill(counter.begin(),counter.end(),0xabcdef);
     g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode>=2;g_state.partition_replay=route_mode==3;
+    g_state.staged_half_replay_active=route_mode==4;
     for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
     g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
@@ -284,7 +316,7 @@ int main() {
     execute_kernels=true;
     }
     }
-    assert(validated_calls>0&&fallback_calls>0);
+    assert(validated_calls>0&&fallback_calls>0&&staged_calls>0);
     Data d(19);g_state.moe_compacted_count=nullptr;api_calls=0;
     assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
 }
