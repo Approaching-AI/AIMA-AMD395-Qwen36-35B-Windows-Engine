@@ -122,7 +122,7 @@ int main() {
 #include <vector>
 #include <cstdlib>
 using hipStream_t = void*;
-constexpr unsigned QRT_QWEN36_MAX_POSITION_EMBEDDINGS = 262144;
+#include "qrt_context_limits.h"
 unsigned setting = 1000, fail_call = 0, offset = 0;
 const uint16_t *expected_weights, *expected_inputs;
 uint16_t *expected_outputs;
@@ -163,8 +163,16 @@ int main() {
     }
     fail_call = 2;
     if (run(maximum) || offset != 8192 || calls != std::vector<unsigned>{8192, 8192}) return 3;
+    // Stop at the first admitted tile: exercise the real upper gate without
+    // allocating multi-gigabyte full-context input/output fixtures.
+    fail_call = 1;
+    for (unsigned tokens : {262144u, 262145u, QRT_QWEN36_MAX_PROMPT_TOKENS}) {
+        if (run(tokens) || offset != 0u || calls != std::vector<unsigned>{8192u}) return 4;
+    }
     fail_call = 0;
-    if (run(QRT_QWEN36_MAX_POSITION_EMBEDDINGS + 1) || !calls.empty()) return 4;
+    for (unsigned tokens : {QRT_QWEN36_MAX_PROMPT_TOKENS + 1u, UINT32_MAX}) {
+        if (run(tokens) || !calls.empty()) return 4;
+    }
     setting = 0;
     if (!run(maximum) || calls != std::vector<unsigned>{maximum}) return 5;
     return 0;
@@ -173,6 +181,7 @@ int main() {
         with tempfile.TemporaryDirectory(prefix="qrt-output-tiles-") as tmp:
             executable = str(Path(tmp) / "tiles")
             subprocess.run([os.environ.get("CXX", "c++"), "-std=c++17", "-O2",
+                            "-I", str(ROOT / "native/src"),
                             "-Wall", "-Wextra", "-Werror", "-x", "c++", "-", "-o", executable],
                            input=harness, text=True, check=True, timeout=30)
             subprocess.run([executable], check=True, timeout=10)
