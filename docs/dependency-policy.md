@@ -1,3 +1,16 @@
+# Optional caller-side document checker
+
+`scripts/check-agent-documents.py` uses only Python 3.10+ standard-library
+ZIP, XML, JSON and hashing modules. It detects missing or malformed DOCX
+outputs and optionally recovers text without accepting a fake container.
+It runs on the caller's machine and adds no inference runtime dependency.
+The portable archive includes the script, `docs/API.md` and
+`docs/AGENT-INTEGRATION.md`; their exact sizes and hashes are recorded in
+`FILE-SHA256SUMS.json`. No Python interpreter or Office library is bundled.
+The helper comes from the Apache-2.0 Linux sibling `.9` tag identified in
+the integration guide. Its container checks do not substitute for rendered
+layout or content review.
+
 # Optional SM121 exponential compatibility data
 
 The optional `QRT_QWEN36_Q1_SM121_FULL=1` decode path also consumes the

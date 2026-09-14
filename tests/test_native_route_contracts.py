@@ -1455,7 +1455,7 @@ class NativeRouteContractTests(unittest.TestCase):
         for fragment in (
             "pub arbitrary_moe_provider: Option<PathBuf>",
             'command.arg("--arbitrary-moe-provider").arg(provider)',
-            'std::env::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_PROVIDER", "1")',
+            'crate::environment::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_PROVIDER", "1")?',
         ):
             self.assertIn(fragment, self.lifecycle)
         for fragment in (

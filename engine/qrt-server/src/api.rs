@@ -19,7 +19,7 @@ use crate::backend::{BackendError, GenerationResult, InferenceBackend, LoadMetri
 use crate::chat::{
     apply_tool_progress_policy, normalize_input_tool_arguments, parse_assistant_output,
     parse_assistant_text, render_qwen_chat, select_tools, ChatMessage, ParsedAssistant,
-    ReasoningStream, SelectedTools, ToolChoiceMode,
+    ReasoningStream, SelectedTools, ToolChoiceMode, ToolProgress,
 };
 use crate::tokenizer::{TokenCodec, TokenizerError};
 
@@ -678,10 +678,7 @@ async fn chat_completions(
             {
                 return error.into_response();
             }
-            let finish_reason = if parsed.tool_progress.no_progress && parsed.tool_calls.is_empty()
-            {
-                "stop"
-            } else if parsed.tool_calls.is_empty() {
+            let finish_reason = if parsed.tool_calls.is_empty() {
                 finalized.finish_reason
             } else {
                 "tool_calls"
@@ -1192,8 +1189,6 @@ async fn chat_stream_response(
                                     Value::Null,
                                 )));
                             }
-                        } else if parsed.tool_progress.no_progress {
-                            finish_reason = "stop";
                         }
                         let mut metadata = chat_chunk(&stream_id, &model, json!({}), Value::Null);
                         metadata["qrt_tool_progress"] = json!(parsed.tool_progress);
@@ -1622,9 +1617,7 @@ fn enforce_tool_choice(
         ));
     }
     if parsed.tool_progress.no_progress && parsed.tool_calls.is_empty() {
-        // Explicit retry exhaustion is a successful protocol result, not a
-        // fabricated tool call or an internal failure hidden from the caller.
-        return Ok(());
+        return Err(ApiError::tool_no_progress(&parsed.tool_progress));
     }
     if !allow_parallel_tools && parsed.tool_calls.len() > 1 {
         return Err(ApiError::internal(
@@ -1915,6 +1908,7 @@ struct ApiError {
     param: Option<&'static str>,
     code: Option<&'static str>,
     retry_after_seconds: Option<u64>,
+    tool_progress: Option<Box<ToolProgress>>,
 }
 
 impl ApiError {
@@ -1932,12 +1926,23 @@ impl ApiError {
             param,
             code,
             retry_after_seconds: None,
+            tool_progress: None,
         }
     }
 
     fn with_retry_after(mut self, seconds: u64) -> Self {
         self.retry_after_seconds = Some(seconds.max(1));
         self
+    }
+
+    fn tool_no_progress(progress: &ToolProgress) -> Self {
+        let mut error = Self::invalid(
+            "Repeated tool calls made no progress. Complete a repair or choose a different action before retrying. This response does not indicate task completion.",
+            None,
+            Some("tool_call_no_progress"),
+        );
+        error.tool_progress = Some(Box::new(progress.clone()));
+        error
     }
 
     fn queue_full(max_waiting_requests: usize) -> Self {
@@ -2019,14 +2024,18 @@ impl ApiError {
     }
 
     fn body(&self) -> Value {
-        json!({
+        let mut body = json!({
             "error": {
                 "message": self.message,
                 "type": self.kind,
                 "param": self.param,
                 "code": self.code,
             }
-        })
+        });
+        if let Some(progress) = &self.tool_progress {
+            body["qrt_tool_progress"] = json!(progress);
+        }
+        body
     }
 }
 
@@ -2368,7 +2377,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn exhausted_tools_return_explicit_stop_even_if_tool_required() {
+    async fn exhausted_tools_return_an_error_even_if_tool_required() {
         let output = "<tool_call>{\"name\":\"exec\",\"arguments\":{\"cmd\":\"same\"}}</tool_call>";
         for stream in [false, true] {
             let request = json!({"model":"test-model","messages":[
@@ -2379,24 +2388,150 @@ mod tests {
                 {"role":"tool","tool_call_id":"b","content":""}
             ],"max_tokens":output.len(),"stream":stream,"tools":[{"type":"function","function":{"name":"exec"}}],"tool_choice":"required"});
             let (status, body) = chat_test_response(output, request).await;
-            assert_eq!(status, StatusCode::OK, "{}", String::from_utf8_lossy(&body));
             if stream {
+                assert_eq!(status, StatusCode::OK);
                 let chunks = sse_values(&body);
                 assert!(chunks
                     .iter()
                     .any(|c| c["qrt_tool_progress"]["no_progress"] == true));
                 assert!(chunks
                     .iter()
-                    .any(|c| c["choices"][0]["finish_reason"] == "stop"));
+                    .any(|c| c["error"]["code"] == "tool_call_no_progress"));
+                assert!(chunks
+                    .iter()
+                    .all(|c| c["choices"][0]["finish_reason"].is_null()));
+                assert_eq!(
+                    String::from_utf8_lossy(&body)
+                        .matches("data: [DONE]")
+                        .count(),
+                    1
+                );
                 assert!(!chunks
                     .iter()
                     .any(|c| c["choices"][0]["delta"]["tool_calls"].is_array()));
             } else {
+                assert_eq!(status, StatusCode::BAD_REQUEST);
                 let full: Value = serde_json::from_slice(&body).unwrap();
                 assert_eq!(full["qrt_tool_progress"]["no_progress"], true);
-                assert_eq!(full["choices"][0]["finish_reason"], "stop");
-                assert!(full["choices"][0]["message"]["tool_calls"].is_null());
+                assert_eq!(full["error"]["code"], "tool_call_no_progress");
+                assert!(full.get("choices").is_none());
             }
+        }
+    }
+
+    #[tokio::test]
+    async fn repaired_and_mixed_tool_calls_survive_json_and_sse() {
+        let same = "<tool_call>{\"name\":\"exec\",\"arguments\":{\"cmd\":\"verify\"}}</tool_call>";
+        let different =
+            "<tool_call>{\"name\":\"exec\",\"arguments\":{\"cmd\":\"inspect\"}}</tool_call>";
+        for stream in [false, true] {
+            for repair in [
+                None,
+                Some("Saved the repaired file"),
+                Some("{\"stdout\":\"\",\"exit_code\":0}"),
+            ] {
+                let mut messages = json!([
+                    {"role":"user","content":"Repair and verify."},
+                    {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":{"cmd":"verify"}}}]},
+                    {"role":"tool","tool_call_id":"a","content":"Error: syntax"},
+                    {"role":"assistant","tool_calls":[{"id":"b","type":"function","function":{"name":"exec","arguments":"{\"cmd\":\"verify\"}"}}]},
+                    {"role":"tool","tool_call_id":"b","content":"Error: syntax"}
+                ]);
+                if let Some(result) = repair {
+                    messages.as_array_mut().unwrap().extend([
+                        json!({"role":"assistant","tool_calls":[{"id":"repair","type":"function","function":{"name":"exec","arguments":{"cmd":"repair"}}}]}),
+                        json!({"role":"tool","tool_call_id":"repair","content":result}),
+                    ]);
+                }
+                let output = if repair.is_some() {
+                    same.to_owned()
+                } else {
+                    format!("{same}{different}")
+                };
+                let request = json!({"model":"test-model","messages":messages,"max_tokens":output.len(),
+                    "stream":stream,"tools":[{"type":"function","function":{"name":"exec"}}],"tool_choice":"required"});
+                let (status, body) = chat_test_response(&output, request).await;
+                assert_eq!(status, StatusCode::OK, "{}", String::from_utf8_lossy(&body));
+                let (calls, progress) = if stream {
+                    let chunks = sse_values(&body);
+                    assert!(chunks.iter().all(|chunk| chunk.get("error").is_none()));
+                    assert!(chunks
+                        .iter()
+                        .any(|chunk| chunk["choices"][0]["finish_reason"] == "tool_calls"));
+                    let calls: Vec<_> = chunks
+                        .iter()
+                        .filter_map(|chunk| chunk["choices"][0]["delta"]["tool_calls"].as_array())
+                        .flatten()
+                        .cloned()
+                        .collect();
+                    let progress = chunks
+                        .iter()
+                        .find_map(|chunk| chunk.get("qrt_tool_progress"))
+                        .unwrap()
+                        .clone();
+                    (calls, progress)
+                } else {
+                    let full: Value = serde_json::from_slice(&body).unwrap();
+                    assert_eq!(full["choices"][0]["finish_reason"], "tool_calls");
+                    (
+                        full["choices"][0]["message"]["tool_calls"]
+                            .as_array()
+                            .unwrap()
+                            .clone(),
+                        full["qrt_tool_progress"].clone(),
+                    )
+                };
+                assert_eq!(calls.len(), 1);
+                let args: Value =
+                    serde_json::from_str(calls[0]["function"]["arguments"].as_str().unwrap())
+                        .unwrap();
+                assert_eq!(
+                    args["cmd"],
+                    if repair.is_some() {
+                        "verify"
+                    } else {
+                        "inspect"
+                    }
+                );
+                assert_eq!(progress["history_no_progress_results"], 2);
+                assert_eq!(
+                    progress["history_no_progress_streak"],
+                    if repair.is_some() { 0 } else { 2 }
+                );
+                assert_eq!(progress["no_progress"], repair.is_none());
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn duplicate_tool_results_fail_before_chat_or_tokenization() {
+        let messages = json!([
+            {"role":"user","content":"Verify."},
+            {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":{}}}]},
+            {"role":"tool","tool_call_id":"a","content":"Saved"},
+            {"role":"tool","tool_call_id":"a","content":"Saved again"}
+        ]);
+        for path in ["/v1/chat/completions", "/tokenize"] {
+            let response = test_app("unused")
+                .oneshot(
+                    Request::post(path)
+                        .header("content-type", "application/json")
+                        .body(Body::from(
+                            json!({"model":"test-model","messages":messages,"max_tokens":8})
+                                .to_string(),
+                        ))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+            let body: Value =
+                serde_json::from_slice(&response.into_body().collect().await.unwrap().to_bytes())
+                    .unwrap();
+            assert!(body["error"]["message"]
+                .as_str()
+                .unwrap()
+                .contains("must not repeat"));
         }
     }
 

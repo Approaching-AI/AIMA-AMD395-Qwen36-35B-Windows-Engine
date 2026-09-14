@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "kind": "windows_service_tool_repair_windows_and_caller_docx_checks",
+  "host": "JiaweiMnideMini.lan",
+  "parent_commit": "32a3061c13b53d217a48006aa3c86ec1935e526a",
+  "source_sha256": {
+    "README.md": "a3d00936a51f06d5f378ba5536ef79613a3d9cfb9927087d385f7bf40a665764",
+    "README.zh-CN.md": "9d6c9c43ac9052edddf4858cf3eca7e5c32c7b4dd115936456daefba4f3ca9bd",
+    "docs/AGENT-INTEGRATION.md": "9176392639dc8f4ce4f972f86775917e77df55ed4ce7395fd1f25410c922f178",
+    "docs/API.md": "9f04af81d50f25bf5b168e7930dd37a136da0a391b9825f095ff50a33a44d6aa",
+    "docs/dependency-policy.md": "7c23e2a3c770eb90f25c6a31d0858d09fa62cdf7dec280e32b6a082fc82b6338",
+    "engine/qrt-server/src/api.rs": "6bce96fefea59bd88352c5b74c90ef022e2d990dfc91998f861e331457bc3dd0",
+    "engine/qrt-server/src/chat.rs": "98348662646687961c69d35e76f3622a9a6d02690e12efa65cdcfcbf301741d2",
+    "scripts/check-agent-documents.py": "a7c00eedf65467995dec99801cc0688a36cc03fb63884f4991d0f54fe2e59d78",
+    "scripts/package-runtime.ps1": "afd5730e677ef2dd34bb7fad2789f6d4f018fc0322db22cd04260b54678e432a",
+    "scripts/verify_qrt_openai_server.py": "869b3c4068cc53291602f5b7898db01e3c9b48d1df7cc4f2833c51c7f672c81a",
+    "tests/test_agent_documents.py": "6eaeb94c4d04885820fdd45afae21ff867366490d3adc28097718271012135f2",
+    "tests/test_native_route_contracts.py": "3c2ae055c338ca8545739ac9114bbcad607701b82865eade303b8b0b957291b0",
+    "tests/test_tool_recovery_verifier.py": "3a252cb7614dc3510f4aee9dd8a5d9c6349ce87f5b97976ed7a25b6d61e45b34"
+  },
+  "upstream": {
+    "release": "v1.5.1-native-vl.9",
+    "published_at": "2026-09-14T09:54:52Z",
+    "tag_commit": "a1a41b529811a5d65a6bc349d820be85d6b9e0c2",
+    "native_source": "29f67beda7199575c62020d2b95e24c0a754c9a9",
+    "refresh_record_sha256": "cfe413f5fd3c2ada2aa874582569385807953343bcbad3bba4bc5a4c193b0b67",
+    "url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.9",
+    "imported_checker": {
+      "tag": "v1.5.1-native-vl.9",
+      "commit": "a1a41b529811a5d65a6bc349d820be85d6b9e0c2",
+      "files": [
+        {
+          "file": "scripts/check-agent-documents.py",
+          "upstream_sha256": "8fc2f42d661e8890aad962ce77b4f63ede119234e45c2fad2fefaa9f78860d77"
+        },
+        {
+          "file": "tests/test_agent_documents.py",
+          "upstream_sha256": "36702960f35c802a1557bfb38f54304cbc025952196d2485546546dbdfbedfa0"
+        }
+      ]
+    },
+    "windows_checker_adaptation": "ASCII JSON escapes preserve Unicode names on legacy Windows console encodings; recovered text remains UTF-8."
+  },
+  "baseline_regression_reproduction": {
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "qrt-server",
+      "--lib"
+    ],
+    "returncode": 101,
+    "wall_seconds": 8.01292529143393,
+    "baseline_source_commit": "32a3061",
+    "new_regression_tests_only": true,
+    "log_sha256": "4922eb1c77288b038b6e1d3538561110c979f8cf3088bd4dc006e9927d7b71d3"
+  },
+  "baseline_observed_failures": 5,
+  "legacy_console_reproduction": {
+    "command": [
+      "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_agent_documents.py"
+    ],
+    "returncode": 1,
+    "wall_seconds": 0.07776029221713543,
+    "unchanged_upstream_helper_sha256": "8fc2f42d661e8890aad962ce77b4f63ede119234e45c2fad2fefaa9f78860d77",
+    "log_sha256": "396bc65a5b223f0f5f09fb3b629ced30921469f75d66057b3574ad8cb6c2a356"
+  },
+  "corrected_validation": {
+    "checks": [
+      {
+        "command": [
+          "cargo",
+          "fmt",
+          "--all",
+          "--",
+          "--check"
+        ],
+        "returncode": 0,
+        "wall_seconds": 0.13623495772480965
+      },
+      {
+        "command": [
+          "make",
+          "check",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 126.56282141711563
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "returncode": 0,
+        "wall_seconds": 0.04612662456929684
+      }
+    ],
+    "pass_all": true,
+    "log_sha256": "3cdb79a12e656d14a0a1834c2f227e1d717851797cdbb77866dbcf44c52dfd05"
+  },
+  "intermediate_validation": [
+    {
+      "record": "tool-recovery-local-r1.json",
+      "sha256": "9b427be757de1710351e875599802acae40fe4f5f0e57da7d5ac4f96dc010f79",
+      "result": {
+        "checks": [
+          {
+            "command": [
+              "cargo",
+              "fmt",
+              "--all",
+              "--",
+              "--check"
+            ],
+            "returncode": 0,
+            "wall_seconds": 0.2655736254528165
+          },
+          {
+            "command": [
+              "make",
+              "check",
+              "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+            ],
+            "returncode": 2,
+            "wall_seconds": 14.349859917536378
+          }
+        ],
+        "pass_all": false,
+        "log_sha256": "4080789f4842290bc555315d59e0d40e9c1aadf511737c36163daada7f77c8ae"
+      }
+    },
+    {
+      "record": "tool-recovery-local-r2.json",
+      "sha256": "bc94eded9956b43b7e5dec3dd36a793f79ce373ae848e77464cfe865f2997e8b",
+      "result": {
+        "checks": [
+          {
+            "command": [
+              "cargo",
+              "fmt",
+              "--all",
+              "--",
+              "--check"
+            ],
+            "returncode": 0,
+            "wall_seconds": 0.08271333295851946
+          },
+          {
+            "command": [
+              "make",
+              "check",
+              "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+            ],
+            "returncode": 2,
+            "wall_seconds": 143.98592966701835
+          }
+        ],
+        "pass_all": false,
+        "log_sha256": "0ec5bbbe16bcb62a28b7109aa5c51537e0538dda71d6d5dbfb2a7217ad094b56"
+      }
+    }
+  ],
+  "intermediate_fixes": [
+    "Store optional error diagnostics behind a Box to preserve the error type size contract checked by clippy.",
+    "Update the old source-contract assertion to require the actual CRT-aware environment setter introduced in e7d605f."
+  ],
+  "acceptance": {
+    "server_rust_tests": 49,
+    "cli_rust_tests": 5,
+    "python_tests": 416,
+    "python_conditional_skips": 2,
+    "document_tests": 9,
+    "http_verifier_boundary_tests": 2,
+    "c_smoke": true,
+    "clippy_all_targets_deny_warnings": true,
+    "format": true,
+    "public_hygiene": true,
+    "completed_repair_current_window": true,
+    "lifetime_counts_preserved": true,
+    "late_parallel_result_ordering": true,
+    "replayed_ids_rejected": true,
+    "exhausted_http400_and_sse_error": true,
+    "mixed_calls_retained": true,
+    "caller_container_checks": true,
+    "unicode_console_and_actual_cli_exit_codes": true,
+    "packaging_source_includes_helper_and_guides": true,
+    "native_windows_build_qualified": false,
+    "real_model_qualified": false,
+    "packaged_archive_qualified": false,
+    "performance_qualified": false,
+    "release_qualified": false,
+    "published": false
+  },
+  "runtime_math_changed": false,
+  "runtime_dependencies_changed": false,
+  "scope": "Five regression tests fail against the prior service implementation, then all local tests pass after the CPU protocol repair. Failure diagnostics remain cumulative while only the current issuing-turn window suppresses unchanged calls. Completed different silent repairs reopen verification. Error turns return explicit HTTP/SSE errors instead of ordinary successful completion. The imported caller checker also reproduces and repairs legacy-console Unicode output failure. These tests use scripted backends or generated local document containers. No real model, native Windows build, rendered document quality, agent end-to-end task or release acceptance is inferred. Native archive validation remains required."
+}

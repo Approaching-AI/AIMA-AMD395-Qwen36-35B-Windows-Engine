@@ -108,6 +108,9 @@ for chunk in stream:
 
 See [API and operational behavior](docs/API.md) for tool calls, errors, queue
 semantics, context limits, and health fields.
+The [agent integration guide](docs/AGENT-INTEGRATION.md) covers repaired tool
+retries, explicit exhausted-turn errors and the optional DOCX checker included
+in the portable archive.
 
 ## Published qualification
 

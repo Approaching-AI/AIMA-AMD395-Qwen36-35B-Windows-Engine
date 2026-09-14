@@ -61,6 +61,9 @@ pub struct ParsedAssistant {
 pub struct ToolProgress {
     pub parsed_tool_calls: usize,
     pub duplicate_calls_suppressed: usize,
+    pub history_signature_occurrences: usize,
+    pub history_no_progress_results: usize,
+    pub history_no_progress_streak: usize,
     pub exhausted_history_calls_suppressed: usize,
     pub parallel_calls_suppressed: usize,
     pub no_progress: bool,
@@ -98,9 +101,54 @@ fn tool_signature(name: &str, arguments: &Value) -> (String, String) {
     (name.to_owned(), canonical_json(arguments))
 }
 
+fn tool_result_confirms_silent_success(value: &Value) -> bool {
+    match value {
+        Value::String(text) => {
+            let normalized = text.trim().replace("\r\n", "\n").to_ascii_lowercase();
+            if matches!(
+                normalized.as_str(),
+                "exit code: 0"
+                    | "process exited with code 0"
+                    | "exit code: 0\nfinal output:"
+                    | "process exited with code 0\nfinal output:"
+            ) {
+                return true;
+            }
+            serde_json::from_str::<Value>(text).is_ok_and(|decoded| {
+                !decoded.is_string() && tool_result_confirms_silent_success(&decoded)
+            })
+        }
+        Value::Object(map) => {
+            let mut zero_exit = false;
+            for (key, value) in map {
+                match key.as_str() {
+                    "exit_code" | "returncode" => {
+                        if value.as_i64() != Some(0) {
+                            return false;
+                        }
+                        zero_exit = true;
+                    }
+                    "stdout" | "stderr" | "output" => {
+                        if !value.is_null() && !value.as_str().is_some_and(|v| v.trim().is_empty())
+                        {
+                            return false;
+                        }
+                    }
+                    _ => return false,
+                }
+            }
+            zero_exit
+        }
+        _ => false,
+    }
+}
+
 /// Conservative machine-readable failures only. Useful text that mentions
 /// errors is not classified as a failed tool result.
 fn tool_result_no_progress(value: &Value) -> bool {
+    if tool_result_confirms_silent_success(value) {
+        return true;
+    }
     match value {
         Value::Null => true,
         Value::String(text) => {
@@ -115,6 +163,18 @@ fn tool_result_no_progress(value: &Value) -> bool {
                 }
             }
             let lower = trimmed.to_ascii_lowercase();
+            // Recognize command-wrapper status lines, including a traceback
+            // followed by its exit status. A sentence merely mentioning a
+            // nonzero status is not machine-readable failure evidence.
+            if lower.lines().any(|line| {
+                let line = line.trim();
+                line.strip_prefix("exit code:")
+                    .or_else(|| line.strip_prefix("process exited with code"))
+                    .and_then(|code| code.trim().parse::<i64>().ok())
+                    .is_some_and(|code| code != 0)
+            }) {
+                return true;
+            }
             matches!(
                 lower.as_str(),
                 "no output" | "<no output>" | "exit code: 0" | "process exited with code 0"
@@ -146,6 +206,15 @@ fn tool_result_no_progress(value: &Value) -> bool {
                         .and_then(Value::as_i64)
                         .is_some_and(|code| code != 0)
                 })
+                || map
+                    .get("status")
+                    .and_then(Value::as_str)
+                    .is_some_and(|status| {
+                        matches!(
+                            status.to_ascii_lowercase().as_str(),
+                            "error" | "failed" | "failure"
+                        )
+                    })
             {
                 return true;
             }
@@ -160,17 +229,21 @@ fn tool_result_no_progress(value: &Value) -> bool {
 }
 
 /// The caller still owns semantic retry/fallback decisions and idempotency.
-/// A first failure permits one retry; two failed/empty results suppress the
-/// same normalized call. Duplicate result IDs never consume two retries.
+/// A first failure permits one retry within the current progress window.
+/// Only completed tool results reopen it. Issuing turns, rather than result
+/// arrival order, prevent late or parallel replies from erasing new failures.
 pub fn apply_tool_progress_policy(
     parsed: &mut ParsedAssistant,
     messages: &[ChatMessage],
     allow_parallel: bool,
 ) {
     let mut calls = HashMap::new();
-    let mut failures = HashMap::new();
+    let mut occurrences = HashMap::new();
+    let mut failures: HashMap<_, Vec<usize>> = HashMap::new();
+    let mut latest_progress_turn = None;
+    let mut silent_progress = HashMap::new();
     let mut results_seen = HashSet::new();
-    for message in messages {
+    for (turn, message) in messages.iter().enumerate() {
         if message.role == "assistant" {
             for call in message.tool_calls.iter().flatten() {
                 if call.kind != "function" {
@@ -179,33 +252,68 @@ pub fn apply_tool_progress_policy(
                 if let Some(id) = &call.id {
                     let arguments = arguments_object(&call.function.arguments);
                     if let Ok(arguments) = arguments {
-                        // Duplicate IDs are ambiguous and must not be counted
-                        // as independent evidence of repeated failures.
+                        // The template rejects ambiguous IDs before inference.
+                        // Keep internal policy use conservative as well.
                         calls.entry(id.clone()).or_insert_with(|| {
-                            tool_signature(&call.function.name, &Value::Object(arguments.clone()))
+                            let signature = tool_signature(
+                                &call.function.name,
+                                &Value::Object(arguments.clone()),
+                            );
+                            *occurrences.entry(signature.clone()).or_insert(0usize) += 1;
+                            (signature, turn)
                         });
                     }
                 }
             }
         } else if message.role == "tool" {
             if let Some(id) = &message.tool_call_id {
-                if results_seen.insert(id.clone()) && tool_result_no_progress(&message.content) {
-                    if let Some(signature) = calls.get(id) {
-                        *failures.entry(signature.clone()).or_insert(0usize) += 1;
+                if results_seen.insert(id.clone()) {
+                    if let Some((signature, call_turn)) = calls.get(id) {
+                        if tool_result_no_progress(&message.content) {
+                            failures
+                                .entry(signature.clone())
+                                .or_default()
+                                .push(*call_turn);
+                            if tool_result_confirms_silent_success(&message.content) {
+                                let latest = silent_progress
+                                    .entry(signature.clone())
+                                    .or_insert(*call_turn);
+                                *latest = (*latest).max(*call_turn);
+                            }
+                        } else {
+                            latest_progress_turn =
+                                Some(latest_progress_turn.unwrap_or(0).max(*call_turn));
+                        }
                     }
                 }
             }
         }
     }
+    // At most two distinct signatures are needed to find the latest silent
+    // repair different from a proposed call, avoiding a history-squared scan.
+    let mut silent_boundaries: Vec<_> = silent_progress.into_iter().collect();
+    silent_boundaries.sort_unstable_by_key(|(_, turn)| std::cmp::Reverse(*turn));
+    silent_boundaries.truncate(2);
     parsed.tool_calls.retain(|call| {
         let Ok(arguments) = serde_json::from_str(&call.function.arguments) else {
             return false;
         };
-        let exhausted = failures
-            .get(&tool_signature(&call.function.name, &arguments))
-            .copied()
-            .unwrap_or(0)
-            >= 2;
+        let signature = tool_signature(&call.function.name, &arguments);
+        let silent_boundary = silent_boundaries
+            .iter()
+            .find(|(other, _)| *other != signature)
+            .map(|(_, turn)| *turn);
+        let boundary = latest_progress_turn.max(silent_boundary);
+        let failed_turns = failures.get(&signature).map(Vec::as_slice).unwrap_or(&[]);
+        let streak = failed_turns
+            .iter()
+            .filter(|turn| boundary.is_none_or(|start| **turn >= start))
+            .count();
+        parsed.tool_progress.history_signature_occurrences +=
+            occurrences.get(&signature).copied().unwrap_or(0);
+        parsed.tool_progress.history_no_progress_results += failed_turns.len();
+        parsed.tool_progress.history_no_progress_streak += streak;
+        let exhausted = streak >= 2;
         if exhausted {
             parsed.tool_progress.exhausted_history_calls_suppressed += 1;
             parsed.tool_progress.no_progress = true;
@@ -257,6 +365,10 @@ pub enum ChatTemplateError {
     UnknownTool(String),
     #[error("assistant tool call arguments must be a JSON object or an object-encoded string")]
     InvalidToolArguments,
+    #[error("assistant function calls require unique, nonempty IDs")]
+    InvalidToolCallId,
+    #[error("tool results require a preceding assistant call and must not repeat its ID")]
+    InvalidToolResultId,
     #[error("no user query was found in messages")]
     NoUserQuery,
 }
@@ -336,6 +448,30 @@ pub fn render_qwen_chat(
 ) -> Result<String, ChatTemplateError> {
     if messages.is_empty() {
         return Err(ChatTemplateError::NoMessages);
+    }
+    let mut issued_ids = HashSet::new();
+    let mut completed_ids = HashSet::new();
+    for message in messages {
+        if message.role == "assistant" {
+            for call in message.tool_calls.iter().flatten() {
+                let id = call
+                    .id
+                    .as_deref()
+                    .filter(|id| !id.trim().is_empty())
+                    .ok_or(ChatTemplateError::InvalidToolCallId)?;
+                if !issued_ids.insert(id) {
+                    return Err(ChatTemplateError::InvalidToolCallId);
+                }
+            }
+        } else if message.role == "tool" {
+            let id = message
+                .tool_call_id
+                .as_deref()
+                .ok_or(ChatTemplateError::InvalidToolResultId)?;
+            if !issued_ids.contains(id) || !completed_ids.insert(id) {
+                return Err(ChatTemplateError::InvalidToolResultId);
+            }
+        }
     }
     let rendered_contents: Vec<String> = messages
         .iter()
@@ -828,6 +964,160 @@ mod tests {
             "<tool_call>{}</tool_call>",
             json!({"name": name, "arguments": arguments})
         )
+    }
+
+    fn append_tool(history: &mut Vec<ChatMessage>, command: &str, result: Value) {
+        let id = format!("call_{}", history.len());
+        history.extend(serde_json::from_value::<Vec<ChatMessage>>(json!([
+            {"role":"assistant","tool_calls":[{"id":id,"type":"function","function":{"name":"exec","arguments":{"command":command}}}]},
+            {"role":"tool","tool_call_id":id,"content":result}
+        ])).unwrap());
+    }
+
+    fn failed_verification_history() -> Vec<ChatMessage> {
+        let mut history = serde_json::from_value(json!([
+            {"role":"user","content":"Repair the script and verify it."}
+        ]))
+        .unwrap();
+        append_tool(&mut history, "verify", json!("Error: syntax"));
+        append_tool(&mut history, "verify", json!("Error: syntax"));
+        history
+    }
+
+    fn proposed_verification(history: &[ChatMessage]) -> ParsedAssistant {
+        let mut parsed = parse_assistant_output(
+            &generated_call("exec", json!({"command":"verify"})),
+            false,
+            "repair",
+        );
+        apply_tool_progress_policy(&mut parsed, history, true);
+        parsed
+    }
+
+    #[test]
+    fn completed_repairs_reopen_the_verification_retry_window() {
+        for result in [
+            json!("Edited and saved the script"),
+            json!("Exit code: 0"),
+            json!("Process exited with code 0\nFinal output:"),
+            json!({"stdout":"", "stderr":"", "exit_code":0}),
+            json!("{\"output\":null,\"returncode\":0}"),
+        ] {
+            let mut history = failed_verification_history();
+            assert!(proposed_verification(&history).tool_calls.is_empty());
+            append_tool(&mut history, "repair", result.clone());
+            let recovered = proposed_verification(&history);
+            assert_eq!(recovered.tool_calls.len(), 1, "{result}");
+            assert_eq!(recovered.tool_progress.history_signature_occurrences, 2);
+            assert_eq!(recovered.tool_progress.history_no_progress_results, 2);
+            assert_eq!(recovered.tool_progress.history_no_progress_streak, 0);
+            append_tool(&mut history, "verify", json!("Error: still failing"));
+            let pending_retry = proposed_verification(&history);
+            assert_eq!(pending_retry.tool_calls.len(), 1);
+            assert_eq!(pending_retry.tool_progress.history_no_progress_streak, 1);
+            append_tool(&mut history, "verify", json!("Error: still failing"));
+            assert!(proposed_verification(&history).tool_calls.is_empty());
+            append_tool(
+                &mut history,
+                "another repair",
+                json!("Saved another repair"),
+            );
+            let recovered = proposed_verification(&history);
+            assert_eq!(recovered.tool_calls.len(), 1);
+            assert_eq!(recovered.tool_progress.history_no_progress_results, 4);
+            assert_eq!(recovered.tool_progress.history_no_progress_streak, 0);
+        }
+    }
+
+    #[test]
+    fn late_and_parallel_results_use_the_issuing_turn() {
+        let mut late = failed_verification_history();
+        append_tool(&mut late, "old repair", json!("Saved an old repair"));
+        let delayed = late.pop().unwrap();
+        append_tool(&mut late, "verify", json!("Error: newer failure"));
+        append_tool(&mut late, "verify", json!("Error: newer failure"));
+        late.push(delayed);
+        assert!(proposed_verification(&late).tool_calls.is_empty());
+        for repair_first in [false, true] {
+            let mut history = failed_verification_history();
+            let batch: Vec<ChatMessage> = serde_json::from_value(json!([
+                {"role":"assistant","tool_calls":[
+                    {"id":"batch_verify","type":"function","function":{"name":"exec","arguments":{"command":"verify"}}},
+                    {"id":"batch_repair","type":"function","function":{"name":"exec","arguments":{"command":"repair"}}}]},
+                {"role":"tool","tool_call_id":"batch_verify","content":"Error: failing"},
+                {"role":"tool","tool_call_id":"batch_repair","content":"Saved the repair"}
+            ])).unwrap();
+            history.push(batch[0].clone());
+            history.push(batch[if repair_first { 2 } else { 1 }].clone());
+            history.push(batch[if repair_first { 1 } else { 2 }].clone());
+            let observed = proposed_verification(&history);
+            assert_eq!(observed.tool_calls.len(), 1);
+            assert_eq!(observed.tool_progress.history_no_progress_results, 3);
+            assert_eq!(observed.tool_progress.history_no_progress_streak, 1);
+        }
+    }
+
+    #[test]
+    fn failed_pending_and_claimed_repairs_do_not_reopen_the_window() {
+        for result in [
+            json!(""),
+            json!("Error: repair failed"),
+            json!("Exit code: 1"),
+            json!({"stdout":"", "exit_code":1}),
+            json!({"stdout":"", "error":"failed", "exit_code":0}),
+            json!({"stdout":"", "exit_code":0, "unknown":"ambiguous"}),
+        ] {
+            let mut history = failed_verification_history();
+            append_tool(&mut history, "repair", result);
+            assert!(proposed_verification(&history).tool_calls.is_empty());
+        }
+        let mut pending = failed_verification_history();
+        append_tool(&mut pending, "repair", json!("Saved the repair"));
+        pending.pop();
+        assert!(proposed_verification(&pending).tool_calls.is_empty());
+        pending.extend(
+            serde_json::from_value::<Vec<ChatMessage>>(json!([
+                {"role":"user","content":"Continue."},
+                {"role":"assistant","content":"The repair is complete."}
+            ]))
+            .unwrap(),
+        );
+        assert!(proposed_verification(&pending).tool_calls.is_empty());
+    }
+
+    #[test]
+    fn result_replays_and_unbound_results_are_rejected_by_the_template() {
+        let original = failed_verification_history();
+        let mut duplicate = original.clone();
+        duplicate.push(original.last().unwrap().clone());
+        let mut missing_id = original.clone();
+        missing_id.last_mut().unwrap().tool_call_id = None;
+        let mut unknown = original.clone();
+        unknown.last_mut().unwrap().tool_call_id = Some("not-issued".to_owned());
+        let mut repeated_call = original.clone();
+        repeated_call.push(original[1].clone());
+        for history in [duplicate, missing_id, unknown, repeated_call] {
+            assert!(render_qwen_chat(&history, &[], false, false).is_err());
+        }
+    }
+
+    #[test]
+    fn status_only_and_failed_wrappers_do_not_confirm_repeated_progress() {
+        for result in [
+            json!("SyntaxError\nExit code: 1"),
+            json!("Process exited with code 1\nFinal output:"),
+            json!("Process exited with code 0\nFinal output:"),
+            json!({"exit_code":0}),
+            json!({"status":"failed"}),
+        ] {
+            let mut history = Vec::new();
+            append_tool(&mut history, "verify", result.clone());
+            append_tool(&mut history, "verify", result.clone());
+            assert!(
+                proposed_verification(&history).tool_calls.is_empty(),
+                "{result}"
+            );
+        }
     }
 
     #[test]

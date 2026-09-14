@@ -1657,6 +1657,100 @@ class Verifier:
             response_sha256=sha256_bytes(response.body),
         )
 
+    def check_tool_recovery_pair(self, nonstream: HttpResponse, streamed: HttpResponse,
+                                 exhausted: bool) -> dict[str, Any]:
+        full = json.loads(nonstream.body)
+        self.require(nonstream.status == (400 if exhausted else 200), "tool recovery JSON status differs")
+        self.require(streamed.status == 200, "tool recovery SSE status differs")
+        events = self.parse_sse(streamed.body)
+        self.require(bool(events) and events[-1] == "[DONE]" and events.count("[DONE]") == 1,
+                     "tool recovery stream must end with exactly one DONE")
+        chunks = [json.loads(event) for event in events[:-1]]
+        errors = [chunk["error"] for chunk in chunks if "error" in chunk]
+        finishes = [choice["finish_reason"] for chunk in chunks for choice in chunk.get("choices", [])
+                    if choice.get("finish_reason") is not None]
+        progress = full.get("qrt_tool_progress")
+        stream_progress = [chunk["qrt_tool_progress"] for chunk in chunks if "qrt_tool_progress" in chunk]
+        self.require(isinstance(progress, dict) and stream_progress == [progress], "tool recovery metadata differs")
+        self.require(progress.get("history_signature_occurrences") == 2
+                     and progress.get("history_no_progress_results") == 2
+                     and progress.get("history_no_progress_streak") == (2 if exhausted else 0)
+                     and progress.get("exhausted_history_calls_suppressed") == int(exhausted)
+                     and progress.get("no_progress") is exhausted, "tool recovery window or lifetime counts differ")
+        fragments = [call for chunk in chunks for choice in chunk.get("choices", [])
+                     for call in choice.get("delta", {}).get("tool_calls", [])]
+        if exhausted:
+            self.require(full.get("error", {}).get("code") == "tool_call_no_progress" and "choices" not in full,
+                         "exhausted tools must return an explicit JSON error")
+            self.require(len(errors) == 1 and errors[0].get("code") == "tool_call_no_progress"
+                         and not finishes and not fragments, "exhausted SSE must fail without a successful terminal or call")
+        else:
+            self.require("error" not in full and not errors and finishes == ["tool_calls"],
+                         "repaired tools must complete with tool_calls")
+            choices = full.get("choices", [])
+            self.require(len(choices) == 1 and choices[0].get("finish_reason") == "tool_calls",
+                         "repaired JSON must complete with one choice")
+            calls = choices[0].get("message", {}).get("tool_calls", [])
+            self.require(len(calls) == 1, "repaired JSON must return one admitted call")
+            self.require(calls[0].get("type") == "function"
+                         and calls[0].get("function", {}).get("name") == "get_weather"
+                         and json.loads(calls[0]["function"]["arguments"]) == {"city": "Paris"},
+                         "repaired JSON returned a different verification call")
+            assembled: dict[int, dict[str, str]] = {}
+            for fragment in fragments:
+                call = assembled.setdefault(fragment["index"], {"name": "", "arguments": ""})
+                function = fragment.get("function", {})
+                call["name"] += function.get("name", "")
+                call["arguments"] += function.get("arguments", "")
+            self.require(len(assembled) == 1, "repaired SSE must return one admitted call")
+            call = next(iter(assembled.values()))
+            self.require(call["name"] == "get_weather" and json.loads(call["arguments"]) == {"city": "Paris"},
+                         "repaired SSE returned a different verification call")
+        return dict(nonstream_sha256=sha256_bytes(nonstream.body), stream_sha256=sha256_bytes(streamed.body),
+                    stream_events=len(events), tool_progress=progress, exhausted=exhausted)
+
+    def verify_tool_recovery(self, max_tokens: int) -> None:
+        tools = [{"type": "function", "function": {"name": "get_weather",
+            "description": "Get the current weather for one city.", "parameters": {
+                "type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}}]
+        history: list[dict[str, Any]] = [{"role": "user", "content": "Call get_weather for Paris."}]
+        for index in range(2):
+            call_id = f"history-{index}"
+            history.extend([
+                {"role": "assistant", "content": None, "tool_calls": [{"id": call_id, "type": "function",
+                 "function": {"name": "get_weather", "arguments": '{"city":"Paris"}'}}]},
+                {"role": "tool", "tool_call_id": call_id, "content": "Error: weather service unavailable"},
+            ])
+        final_user = {"role": "user", "content": "Call get_weather again with city exactly Paris. Return the function call only."}
+        base = dict(model=self.model, max_completion_tokens=max_tokens, temperature=0, top_p=1,
+                    thinking={"type": "disabled"}, parallel_tool_calls=False,
+                    tool_choice={"type": "function", "function": {"name": "get_weather"}})
+        for label, repair in [("exhausted", None), ("completed_repair", "Saved the repaired service configuration."),
+                              ("silent_repair", "Exit code: 0")]:
+            messages = list(history)
+            current_tools = list(tools)
+            if repair is not None:
+                messages.extend([
+                    {"role": "assistant", "content": None, "tool_calls": [{"id": "repair", "type": "function",
+                     "function": {"name": "repair_environment", "arguments": "{}"}}]},
+                    {"role": "tool", "tool_call_id": "repair", "content": repair},
+                ])
+                current_tools.append({"type": "function", "function": {"name": "repair_environment",
+                    "description": "Repair service configuration.", "parameters": {"type": "object", "properties": {}}}})
+            payload = dict(base, messages=messages + [final_user], tools=current_tools)
+            nonstream = self.request("POST", "/v1/chat/completions", payload)
+            streamed = self.request("POST", "/v1/chat/completions", dict(payload, stream=True))
+            details = self.check_tool_recovery_pair(nonstream, streamed, repair is None)
+            self.record("tool_recovery_" + label, **details)
+        replayed = history + [history[-1], final_user]
+        for path in ("/v1/chat/completions", "/tokenize"):
+            payload = dict(base, messages=replayed, tools=tools) if path.endswith("completions") else dict(model=self.model, messages=replayed)
+            response = self.request("POST", path, payload)
+            error = json.loads(response.body).get("error", {})
+            self.require(response.status == 400 and "must not repeat" in error.get("message", ""),
+                         "replayed tool result must be rejected before generation/tokenization")
+        self.record("tool_result_replay_rejected", endpoints=2)
+
     def report(self, skipped_generation: bool, started: float) -> dict[str, Any]:
         return {
             "schema_version": 1,
@@ -1768,6 +1862,7 @@ def main() -> int:
             verifier.verify_chat_stream(min(args.max_completion_tokens, 32))
             verifier.verify_tool_call_and_continuation(args.max_completion_tokens)
             verifier.verify_tool_call_stream(args.max_completion_tokens)
+            verifier.verify_tool_recovery(args.max_completion_tokens)
             verifier.verify_bounded_request_queue(
                 args.queue_concurrency,
                 args.prompt_token_id,

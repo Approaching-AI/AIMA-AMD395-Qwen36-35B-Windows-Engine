@@ -74,15 +74,32 @@ calls. `parallel_tool_calls: false` admits only the first valid unique call.
 
 `qrt_tool_progress` in JSON and the SSE metadata chunk reports duplicate and
 parallel suppression, exhausted-history suppression, and `no_progress`.
-Two explicit failed/empty tool results for the same function/arguments exhaust
-one permitted retry; that call is then suppressed. Tool results are matched by
-call ID and a duplicate result ID is counted once. Classification is deliberately
-conservative: arbitrary useful text mentioning an error is not failure evidence.
-When all generated calls are exhausted, the response ends with `stop` and
-`no_progress: true`, even for `tool_choice: "required"`. A distinct fallback
-call may still be returned. The caller owns semantic retry strategy, idempotency
-across HTTP retries, side-effect authorization, and the final blocked/best-effort
-user response; the engine does not execute tools or infer progress from the world.
+For the proposed signatures, `history_signature_occurrences` and
+`history_no_progress_results` preserve lifetime counts;
+`history_no_progress_streak` counts failed/empty results in the current retry
+window. Two such results exhaust one permitted retry for that signature.
+A completed useful tool result reopens the window. A different command with
+an explicit zero exit status can also confirm a silent repair; repeating the
+same output-free command retains its own limit. Failed or pending repairs,
+user reminders and assistant claims do not reopen it.
+
+The window follows the assistant turn that issued each call. A late old
+result cannot erase newer failures, and parallel result arrival order does
+not change the decision. Assistant function-call IDs must be nonempty and
+unique. Each tool result must reference a preceding call exactly once;
+missing, unknown and replayed result IDs return HTTP 400 before tokenization
+or inference. Useful text merely mentioning an error remains useful.
+
+When all proposed calls are exhausted, nonstreaming returns HTTP 400 with
+`error.code: "tool_call_no_progress"` and `qrt_tool_progress` diagnostics.
+SSE may already have HTTP 200 headers: it emits an error event followed by
+`[DONE]`, without a successful terminal `finish_reason`. These responses
+indicate a failed turn, including with `tool_choice: "required"`; clients
+must inspect errors instead of treating HTTP 200 or `[DONE]` as completion.
+Mixed responses retain other admitted calls and finish with `tool_calls`.
+The caller owns retry strategy, idempotency and side-effect authorization.
+See [the agent integration guide](AGENT-INTEGRATION.md) for document checks
+and the boundary between inference and completed caller work.
 
 ## Sampling and limits
 

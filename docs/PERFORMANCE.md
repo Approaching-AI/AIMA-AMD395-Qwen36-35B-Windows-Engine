@@ -131,6 +131,23 @@ A fresh R3 one-hour soak is running with an actual early-prefill callback
 check on every q8192 request. Its result is pending; the earlier R2 soak
 does not qualify this changed executable or its repaired C configuration.
 
+The September15 upstream refresh identifies Linux `.9`, published September14.
+The Windows CPU protocol candidate now reopens tool retries after completed
+repairs, retains lifetime diagnostics, orders results by their issuing turn
+and rejects replayed IDs. All exhausted proposals return HTTP400 or an SSE
+error followed by DONE without a successful finish; mixed calls retain their
+admitted actions. Five new regressions first fail on the previous implementation.
+The imported caller-side DOCX checker additionally fixes Unicode JSON output
+on legacy Windows console encodings. Its actual CLI returns0/2 correctly for
+real/fake containers, and recovery cannot turn a fake DOCX into a passing file.
+The packager now includes the checker and its API/integration guides.
+All54 Rust tests,416 Python tests with two conditional skips, C smoke, clippy,
+format and hygiene pass. Evidence:
+`benchmarks/correctness/tool-recovery-and-document-checker-local-20260915.json`,
+SHA256 `3e236824edc98613008ba3f232f933b2199156873dd04c8a30c4dfbc58122ddb`.
+These are local CPU/document checks; the new service still needs its native
+Windows build, real HTTP recovery cases and relocated archive validation.
+
 The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
 normalized postconv allocation and two unused kernels when raw FLA owns Q/K
 normalization. It moves the complete-domain GB10 gate lookup from the CPU to

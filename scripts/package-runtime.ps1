@@ -167,6 +167,16 @@ foreach ($minimum in $kernelMinimums) {
     }
 }
 
+$callerAssets = @(
+    'docs/API.md',
+    'docs/AGENT-INTEGRATION.md',
+    'scripts/check-agent-documents.py'
+)
+foreach ($relative in $callerAssets) {
+    if (-not (Test-Path -LiteralPath (Join-Path $repo $relative) -PathType Leaf)) {
+        throw "Missing caller integration asset: $relative"
+    }
+}
 New-Item -ItemType Directory -Path $stage | Out-Null
 foreach ($artifact in $validatedRuntimeArtifacts) {
     $destination = Join-Path $stage $artifact.relative
@@ -183,6 +193,11 @@ foreach ($name in @(
 }
 Copy-Item -LiteralPath (Join-Path $repo "third_party") `
     -Destination (Join-Path $stage "third_party") -Recurse
+foreach ($relative in $callerAssets) {
+    $destination = Join-Path $stage $relative
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $destination) | Out-Null
+    Copy-Item -LiteralPath (Join-Path $repo $relative) -Destination $destination
+}
 
 $fileRecords = foreach ($file in Get-ChildItem -LiteralPath $stage `
         -Recurse -File | Sort-Object FullName) {

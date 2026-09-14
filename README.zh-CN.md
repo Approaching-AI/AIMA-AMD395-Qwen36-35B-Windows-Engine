@@ -69,6 +69,8 @@ for chunk in client.chat.completions.create(
 ```
 
 API、tool calling、错误码、队列和上下文限制详见 [API.md](docs/API.md)。
+修复后的工具重试、明确的耗尽错误，以及安装包内可选的 DOCX 检查器，见
+[Agent 接入说明](docs/AGENT-INTEGRATION.md)。
 
 ## 已公布的真实模型数据
 
