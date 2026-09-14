@@ -1,0 +1,2066 @@
+{
+  "schema_version": 1,
+  "kind": "cooperative_prepared_operand_dense_projection_components",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "model_loaded": false,
+  "sources": {
+    "safety": {
+      "canonical_source_record": "cooperative-half-projection-safety-native-source-r1.json",
+      "canonical_source_record_sha256": "1b1cb52f42f0728f56d03c6164c0b7b543e39d097f0ca3711a4336aca640b076",
+      "documentation_snapshot_differences": {},
+      "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+      "repo": "D:/projects/AIMA-public-cooperative-half-projection-20260915",
+      "seed": "D:/projects/AIMA-public-linear-completed-profile-20260915",
+      "prerequisite_commit": "7fc5b2ddabb319098802138e6dceabac51898d12",
+      "bundle": "cooperative-half-projection-3d24755.bundle",
+      "bundle_sha256": "c4a2cbec1a71db4d756291c88df10abfe97c3f3b7bb59c536bdc6cb6b9f3d8b4",
+      "script": "run-native-cooperative-half-projection-safety-r1.ps1",
+      "script_sha256": "efb7fa2b5a0595b7316a47fbbbd0000113e34df3332a1e44c6e6d9d775f04794",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_blocked_half_layout.h": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+        "native/providers/moe_accumulator/sm121_blocked_half_projection.h": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+        "native/providers/moe_accumulator/sm121_cooperative_half_projection.h": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+        "native/providers/moe_accumulator/sm121_scaled_half_products.h": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "native/providers/moe_accumulator/sm121_scaled_half_projection.h": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "native/providers/moe_accumulator/sm121_staged_half_projection.h": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "tests/native/blocked_half_projection_selftest.cpp": "1f0606a52d7b0bda15dbb1148574aa706d64e27726f8815bb4df9511e22f3584",
+        "tests/native/cooperative_half_projection_selftest.cpp": "0b4bc1e663782475bc33a018bcf76433aaafd9b8d5d6d9e70eaa1dab832d9708",
+        "tests/native/projection_blocked_half_replay_suite.h": "0b777b8ad7af3c39da33406a0c129fff1997aca3aa28c6c1d4ebfb0d16ba8e60",
+        "tests/native/projection_cooperative_half_replay_suite.h": "948f16a76c24183121bef208c7d84de9cee59f3d1745a8e79a835df97c95b99f",
+        "tests/native/projection_real_replay.h": "7641c04ab7d43648e45e450c414bcbfcb4e41e03e5d370539e8bbd1f3d4de75c",
+        "tests/native/projection_safety_selftest.cpp": "64ab37711a0dac12a27d8bd850ec1e7018712ad354858b47fe1338f1d2a1a3d6",
+        "tests/native/projection_staged_half_replay_suite.h": "419086e593cd1694a4268d82f76086aca2c2fe219120f7b809552dd25b2fbc4c",
+        "tests/native/staged_half_projection_selftest.cpp": "2941c20d86b12cc2b1929acc68b0f481ebc0bbae2289cd992b1891099e2d86a9",
+        "tests/test_blocked_half_layout.py": "f5fa941b3fab59b033b6d6c6bc157ff03cd6a839c797ecc061f69889f5ae54b1",
+        "tests/test_cooperative_half_projection.py": "111e17f882380bc21a458921a358b1aca55ca9119d8d74e52b4c7d20b1433e96"
+      },
+      "unchanged_production_source_sha256": "ab45f01e3c73557a00ed6d5bba610bd8bf8870f4651c7d0b8805f05eb857f8b6"
+    },
+    "replay": {
+      "canonical_source_record": "cooperative-half-projection-replay-native-source-r1.json",
+      "canonical_source_record_sha256": "98a33365a760e53d77ceb9ff219e0ed6301abfac00b9f957c59bcde68b2601ea",
+      "documentation_snapshot_differences": {},
+      "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+      "repo": "D:/projects/AIMA-public-cooperative-half-projection-20260915",
+      "seed": "D:/projects/AIMA-public-linear-completed-profile-20260915",
+      "prerequisite_commit": "7fc5b2ddabb319098802138e6dceabac51898d12",
+      "bundle": "cooperative-half-projection-3d24755.bundle",
+      "bundle_sha256": "c4a2cbec1a71db4d756291c88df10abfe97c3f3b7bb59c536bdc6cb6b9f3d8b4",
+      "script": "run-native-cooperative-half-projection-replay-r1.ps1",
+      "script_sha256": "d341b2de7302eb2d5f9141409cdf6e8a32bae8c5bfd6af224d162da8bd70d7a8",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_blocked_half_layout.h": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+        "native/providers/moe_accumulator/sm121_blocked_half_projection.h": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+        "native/providers/moe_accumulator/sm121_cooperative_half_projection.h": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+        "native/providers/moe_accumulator/sm121_scaled_half_products.h": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "native/providers/moe_accumulator/sm121_scaled_half_projection.h": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "native/providers/moe_accumulator/sm121_staged_half_projection.h": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "tests/native/blocked_half_projection_selftest.cpp": "1f0606a52d7b0bda15dbb1148574aa706d64e27726f8815bb4df9511e22f3584",
+        "tests/native/cooperative_half_projection_selftest.cpp": "0b4bc1e663782475bc33a018bcf76433aaafd9b8d5d6d9e70eaa1dab832d9708",
+        "tests/native/projection_blocked_half_replay_suite.h": "0b777b8ad7af3c39da33406a0c129fff1997aca3aa28c6c1d4ebfb0d16ba8e60",
+        "tests/native/projection_cooperative_half_replay_suite.h": "948f16a76c24183121bef208c7d84de9cee59f3d1745a8e79a835df97c95b99f",
+        "tests/native/projection_real_replay.h": "7641c04ab7d43648e45e450c414bcbfcb4e41e03e5d370539e8bbd1f3d4de75c",
+        "tests/native/projection_safety_selftest.cpp": "64ab37711a0dac12a27d8bd850ec1e7018712ad354858b47fe1338f1d2a1a3d6",
+        "tests/native/projection_staged_half_replay_suite.h": "419086e593cd1694a4268d82f76086aca2c2fe219120f7b809552dd25b2fbc4c",
+        "tests/native/staged_half_projection_selftest.cpp": "2941c20d86b12cc2b1929acc68b0f481ebc0bbae2289cd992b1891099e2d86a9",
+        "tests/test_blocked_half_layout.py": "f5fa941b3fab59b033b6d6c6bc157ff03cd6a839c797ecc061f69889f5ae54b1",
+        "tests/test_cooperative_half_projection.py": "111e17f882380bc21a458921a358b1aca55ca9119d8d74e52b4c7d20b1433e96"
+      },
+      "unchanged_production_source_sha256": "ab45f01e3c73557a00ed6d5bba610bd8bf8870f4651c7d0b8805f05eb857f8b6"
+    }
+  },
+  "local_validation": {
+    "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 133.241603333503,
+    "log": "cooperative-half-projection-local-check-r1.log",
+    "log_sha256": "edf4552a28d6f9a65a6ef391b2548aab1d35f60d87d49677f4a196c88d1203ac",
+    "rust_validation_reused": true,
+    "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+    "rust_validation_record": "runtime-context-local-check-r1.json",
+    "rust_reuse_reason": "No Rust, Cargo, C runtime or ABI source changed; new component and native comparison fixtures only."
+  },
+  "native_runs": {
+    "safety-build": {
+      "name": "cooperative-half-projection-safety-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\cooperative_half_projection_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-safety\\cooperative-half-projection-safety.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "command_file": "D:\\projects\\run-native-cooperative-half-projection-safety-r1.ps1",
+        "command_file_sha256": "efb7fa2b5a0595b7316a47fbbbd0000113e34df3332a1e44c6e6d9d775f04794",
+        "model": "none; generated dense/MoE reduction shapes",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "Compare deterministic compact groups of64 candidates sharing prepared operand slabs. Six shapes, four candidate densities and three tile configurations verify all original CPU K16 states and output bits, inactive outputs, source and bitmap guards, complete prepared encodings and production/trace parity. Component only."
+      },
+      "launch": {
+        "pid": 12384,
+        "utc": "2026-09-14T19:25:35.2919371Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 3253.34,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "f6c951299b6f88f9fc9e8ba71ce526fce0a5813f6d1dcd21c0dbf0d0e8b5254d",
+        "dispatch.json": "6d0b89a98f6285de5697563b01ffd7bca1205013f256cd87a629091b758380c0",
+        "launch.json": "af1c0d0ed3c30b142c6838cdd1ad2462a52a61e5bcb23faf0a97445ac2a85b37",
+        "preflight.json": "e1a15784386e71115fcaff4f9c4ca9c34399491d5d571d2c9c6f9a5a9d3dd30e",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "c7beb324b8a7bfbd23e86d4816ebffafc98b2a90b9a8aaa63d4132d978ff812e",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "source_inputs": [
+          {
+            "sha256": "0b4bc1e663782475bc33a018bcf76433aaafd9b8d5d6d9e70eaa1dab832d9708",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\cooperative_half_projection_selftest.cpp"
+          },
+          {
+            "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\strong_float_replay_cases.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_blocked_half_layout.h"
+          },
+          {
+            "sha256": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_blocked_half_projection.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_compact_wide_integer_core.h"
+          },
+          {
+            "sha256": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_cooperative_half_projection.h"
+          },
+          {
+            "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_decoded_projection.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_integer_interval.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_interleaved_projection.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_pv_group_plan.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-cooperative-half-projection-safety-r1.ps1",
+        "command_file_sha256": "efb7fa2b5a0595b7316a47fbbbd0000113e34df3332a1e44c6e6d9d775f04794",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\cooperative_half_projection_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-safety\\cooperative-half-projection-safety.exe"
+        ],
+        "run_record_sha256": "c7beb324b8a7bfbd23e86d4816ebffafc98b2a90b9a8aaa63d4132d978ff812e",
+        "executable": {
+          "sha256": "76aa461a728da72a1b358f7659c75c398b413ac3c44b52a8fbb3411150659b41",
+          "file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-safety\\cooperative-half-projection-safety.exe",
+          "bytes": 412160
+        }
+      }
+    },
+    "safety-test": {
+      "name": "cooperative-half-projection-safety-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-safety\\cooperative-half-projection-safety.exe",
+        "arguments": [],
+        "working_directory": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "command_file": "D:\\projects\\run-native-cooperative-half-projection-safety-r1.ps1",
+        "command_file_sha256": "efb7fa2b5a0595b7316a47fbbbd0000113e34df3332a1e44c6e6d9d775f04794",
+        "model": "none; generated dense/MoE reduction shapes",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "Compare deterministic compact groups of64 candidates sharing prepared operand slabs. Six shapes, four candidate densities and three tile configurations verify all original CPU K16 states and output bits, inactive outputs, source and bitmap guards, complete prepared encodings and production/trace parity. Component only.",
+        "build_provenance_sha256": "f6c951299b6f88f9fc9e8ba71ce526fce0a5813f6d1dcd21c0dbf0d0e8b5254d"
+      },
+      "launch": {
+        "pid": 2964,
+        "utc": "2026-09-14T19:26:33.5309496Z",
+        "timeout_seconds": 90,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 487.792,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "76aa461a728da72a1b358f7659c75c398b413ac3c44b52a8fbb3411150659b41",
+      "canonical_raw_sha256": {
+        "dispatch.json": "2b78ba20cf182f8927925aebedc6dee8ebb0402bc5ede30a30001e2c8d358e37",
+        "launch.json": "ad94ca7bf704d2d37ac000334efa608938d5017f488cbf99d9106295751c82ec",
+        "preflight.json": "d2be91b42208523f0800553ac0114e3d153dbdeb0c1ddfd4a9d80ec26d1a7cf4",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "36cc5570fe8f75990587708cf1df76e7804e840fa20e183565253de17984f118",
+        "reports.json": "8393969b990f2f82cdaaad9a61c76c2e324d2c107bac3112b6e3638eddf883f6",
+        "run-record.json": "4a691273520c834b516c934d4e955b2dcbc363b83ee8e058f14c1e113b91ca40",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports": [
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 1,
+          "tokens": 1,
+          "k": 16,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 1,
+          "k16_states": 1,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 9,
+          "k16_states": 153,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 9,
+          "k16_states": 153,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 9,
+          "k16_states": 153,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 81,
+          "k16_states": 1377,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 81,
+          "k16_states": 1377,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 81,
+          "k16_states": 1377,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 323,
+          "k16_states": 5491,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 323,
+          "k16_states": 5491,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 19,
+          "k": 272,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 323,
+          "k16_states": 5491,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 16,
+          "k16_states": 2048,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 16,
+          "k16_states": 2048,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 16,
+          "k16_states": 2048,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 140,
+          "k16_states": 17920,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 140,
+          "k16_states": 17920,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 140,
+          "k16_states": 17920,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 561,
+          "k16_states": 71808,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 561,
+          "k16_states": 71808,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 33,
+          "tokens": 17,
+          "k": 2048,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 561,
+          "k16_states": 71808,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 32,
+          "k16_states": 8192,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 32,
+          "k16_states": 8192,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 32,
+          "k16_states": 8192,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 289,
+          "k16_states": 73984,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 289,
+          "k16_states": 73984,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 289,
+          "k16_states": 73984,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 1155,
+          "k16_states": 295680,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 1155,
+          "k16_states": 295680,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 35,
+          "tokens": 33,
+          "k": 4096,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 1155,
+          "k16_states": 295680,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 8,
+          "k16_states": 4096,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 8,
+          "k16_states": 4096,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 8,
+          "k16_states": 4096,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 72,
+          "k16_states": 36864,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 72,
+          "k16_states": 36864,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 72,
+          "k16_states": 36864,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 289,
+          "k16_states": 147968,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 289,
+          "k16_states": 147968,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 17,
+          "tokens": 17,
+          "k": 8192,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 289,
+          "k16_states": 147968,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 0,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 1,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 2,
+          "pattern": 0,
+          "candidates": 0,
+          "k16_states": 0,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 0,
+          "pattern": 1,
+          "candidates": 6,
+          "k16_states": 1542,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 1,
+          "pattern": 1,
+          "candidates": 6,
+          "k16_states": 1542,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 2,
+          "pattern": 1,
+          "candidates": 6,
+          "k16_states": 1542,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 0,
+          "pattern": 2,
+          "candidates": 49,
+          "k16_states": 12593,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 1,
+          "pattern": 2,
+          "candidates": 49,
+          "k16_states": 12593,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 2,
+          "pattern": 2,
+          "candidates": 49,
+          "k16_states": 12593,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 0,
+          "pattern": 3,
+          "candidates": 195,
+          "k16_states": 50115,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 1,
+          "pattern": 3,
+          "candidates": 195,
+          "k16_states": 50115,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "cooperative_half_projection",
+          "rows": 65,
+          "tokens": 3,
+          "k": 4112,
+          "variant": 2,
+          "pattern": 3,
+          "candidates": 195,
+          "k16_states": 50115,
+          "raw_bit_mismatches": 0,
+          "production_trace_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "replay-build": {
+      "name": "cooperative-half-projection-replay-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_build_whole_provider.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety",
+          "-DppReduction",
+          "1",
+          "-CompactNormalize",
+          "1",
+          "-HawkeyeReplayLanes",
+          "4",
+          "-CompileTimeoutSeconds",
+          "240",
+          "-ProjectionSafetyTest"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "command_file": "D:\\projects\\run-native-cooperative-half-projection-replay-r1.ps1",
+        "command_file_sha256": "d341b2de7302eb2d5f9141409cdf6e8a32bae8c5bfd6af224d162da8bd70d7a8",
+        "model": "none; native compile",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "cooperative_variants": [
+          0,
+          1,
+          2
+        ],
+        "purpose": "Compare current staged2 and three cooperative prepared-operand tiles on the complete captured q8192 QKV shape. Preserve all4331311 original candidates and compare all67108864 external GB10 BF16 endpoints and raw unrounded values every attempt. Time full encoding, bitmap construction and replay, one warmup and three rotated samples, with immutable sources, metadata and guards. Component only; no runtime integration.",
+        "matrix_producer_algorithm": 4
+      },
+      "launch": {
+        "pid": 13384,
+        "utc": "2026-09-14T19:27:09.6311106Z",
+        "timeout_seconds": 270,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 101891.503,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "7ff0273474332eb0406420cc40fb9bf1b082a456ecc495c5c6afbcfe42edf653",
+        "dispatch.json": "0cd3295904aead8508cec31155bb2693ad26a02cce0623ec626bdf52c9f33a85",
+        "launch.json": "9d24186f22bb873db4279f53b28c8d34d07f460caf6b1d402ca26216bb19758a",
+        "preflight.json": "a2260d6984c4d8bd93ae72d6be13703d4cdaaaf93407ea5e2a9b703ab2e25f62",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "7bd5185cef93e30803115279b19122bac4caf1d97c83c6ce9de48edbcd75b673",
+        "run-record.json": "f3939a7da57d4e8800f458501fe58742f188d941e908e3e7ca424bd11e9a1779",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build_provenance": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 240,
+        "source_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "ab45f01e3c73557a00ed6d5bba610bd8bf8870f4651c7d0b8805f05eb857f8b6",
+        "projection_safety_test": true,
+        "hawkeye_device_replay_test_header_sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+        "attention_admission_replay": false,
+        "compile_source_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\projection_safety_selftest.cpp",
+        "compile_source_sha256": "64ab37711a0dac12a27d8bd850ec1e7018712ad354858b47fe1338f1d2a1a3d6",
+        "hawkeye_dispatch_policy_sha256": "76c090e233e5709f914942237df3d7bbabe8c6b53de645c5602c88e99cc85132",
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+        "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+        "q8192_out_l1_policy_sha256": "05a75e8ba5e9d9801c36260f652949bf83404173094d2fe53773811b2a56e402",
+        "q8192_out_l1_shadow_audit_sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+        "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "qrt_header_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\src\\qrt.h",
+        "qrt_header_sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "sm121_rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+        "sm121_q1_full_runtime_header_sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+        "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+        "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+        "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_scaled_fallback_header_sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+        "sm121_staged_half_projection_header_sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "sm121_scaled_half_projection_header_sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "sm121_scaled_half_products_header_sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "sm121_scaled_projection_header_sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+        "sm121_scaled_significand_header_sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+        "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1462.6475
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 99964.3335
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\src",
+          "-I",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\native\\providers",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\tests\\native\\projection_safety_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety\\qrt-projection-safety.exe",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt-projection-safety.exe",
+            "bytes": 14577152,
+            "sha256": "e8da54bcc29b8d0c93ccc084beff408da1668edbe5bc0d482c97c4a44bc63ca7"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "d598432521e439e1db7ca4e8d231dcc13e16728f12abb0a3637c9ee91cc92334"
+          }
+        ]
+      }
+    },
+    "replay-test": {
+      "name": "cooperative-half-projection-replay-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915\\build\\cooperative-half-projection-replay-safety\\qrt-projection-safety.exe",
+        "arguments": [
+          "--real-qkv-q8192",
+          "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+          "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+          "D:\\projects\\sm121-qkv-reference-9510d980.bin",
+          "1000"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-cooperative-half-projection-20260915",
+        "repo_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+        "command_file": "D:\\projects\\run-native-cooperative-half-projection-replay-r1.ps1",
+        "command_file_sha256": "d341b2de7302eb2d5f9141409cdf6e8a32bae8c5bfd6af224d162da8bd70d7a8",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "cooperative_variants": [
+          0,
+          1,
+          2
+        ],
+        "purpose": "Compare current staged2 and three cooperative prepared-operand tiles on the complete captured q8192 QKV shape. Preserve all4331311 original candidates and compare all67108864 external GB10 BF16 endpoints and raw unrounded values every attempt. Time full encoding, bitmap construction and replay, one warmup and three rotated samples, with immutable sources, metadata and guards. Component only; no runtime integration.",
+        "matrix_producer_algorithm": 4,
+        "build_run_sha256": "f3939a7da57d4e8800f458501fe58742f188d941e908e3e7ca424bd11e9a1779",
+        "build_provenance_sha256": "7ff0273474332eb0406420cc40fb9bf1b082a456ecc495c5c6afbcfe42edf653",
+        "tensor_inputs": [
+          {
+            "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+            "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+          },
+          {
+            "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+            "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+          },
+          {
+            "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+            "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "gb10_reference_host": "aitopatom-66c4",
+        "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+        "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+        "reference_is_compute_input": false,
+        "selector_error_bound_ppb": 1000,
+        "tokens": 8192,
+        "source_tokens": 7169,
+        "repeated_input_rows": 1023
+      },
+      "launch": {
+        "pid": 1296,
+        "utc": "2026-09-14T19:31:06.8849023Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 7069.842,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "e8da54bcc29b8d0c93ccc084beff408da1668edbe5bc0d482c97c4a44bc63ca7",
+      "canonical_raw_sha256": {
+        "dispatch.json": "1ad63029fe461755897358e6043d2a56b5863bcb27e619477724e151685b4a23",
+        "launch.json": "b5353daf0d9a63fad69527cb7b31dc503fc2989dcad7a6b70843e9f1c65834bc",
+        "preflight.json": "9fb56fef69c478273d7ec6cc642e2275aa4bfe3c5c045466cb4daf48030b7ba2",
+        "product.stderr.log": "68250d10d799393a6b22a10c21ee14c91abaa714ccbf1bad14ff44051a06bc30",
+        "product.stdout.jsonl": "f59d4d74d40dcb08289f1b4b6a469ffdcd5a1dd929320f3ba83fad87cec1a13c",
+        "reports.json": "aa4029f85bdffe5a03423db83679b9dc82b60f46f937489b5842b623696aa7e2",
+        "run-record.json": "0d7fbd5c98441152999d2d9cb10d89c2d310c8334a67bf1897fd93daace5ce9b",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports": [
+        {
+          "type": "real_qkv_selector",
+          "elements": 67108864,
+          "initial_bf16_mismatches": 430461,
+          "midpoint_misses": 389572,
+          "bound_misses": 0,
+          "required_ppb_observed": 227,
+          "configured_ppb": 1000,
+          "prospective_candidates": 4331311,
+          "maximum_blocks": 4096,
+          "inference_acceptance": false
+        },
+        {
+          "type": "cooperative_half_projection_real_replay",
+          "variant": 0,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "tile_rows": 0,
+          "tile_tokens": 0,
+          "k_tile": 0,
+          "shared_bytes": 0,
+          "active_ctas": 67677,
+          "occupied_tiles": 0,
+          "mask_bytes": 0,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "preparation_bitmap_replay_host_ms": 42.0426,
+          "completed_host_samples_ms": [
+            42.0482,
+            41.9806,
+            42.0426
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "rotated_variant_order": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "cooperative_half_projection_real_replay",
+          "variant": 1,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "tile_rows": 16,
+          "tile_tokens": 16,
+          "k_tile": 128,
+          "shared_bytes": 9476,
+          "active_ctas": 268465,
+          "occupied_tiles": 262127,
+          "mask_bytes": 8388608,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "preparation_bitmap_replay_host_ms": 344.64,
+          "completed_host_samples_ms": [
+            343.787,
+            344.64,
+            348.214
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "rotated_variant_order": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "cooperative_half_projection_real_replay",
+          "variant": 2,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "tile_rows": 32,
+          "tile_tokens": 16,
+          "k_tile": 128,
+          "shared_bytes": 14084,
+          "active_ctas": 143648,
+          "occupied_tiles": 131072,
+          "mask_bytes": 8388608,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "preparation_bitmap_replay_host_ms": 199.67,
+          "completed_host_samples_ms": [
+            201.465,
+            197.951,
+            199.67
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "rotated_variant_order": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "cooperative_half_projection_real_replay",
+          "variant": 3,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "tile_rows": 32,
+          "tile_tokens": 16,
+          "k_tile": 256,
+          "shared_bytes": 27908,
+          "active_ctas": 143648,
+          "occupied_tiles": 131072,
+          "mask_bytes": 8388608,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "preparation_bitmap_replay_host_ms": 227.107,
+          "completed_host_samples_ms": [
+            227.107,
+            227.214,
+            224.063
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "rotated_variant_order": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-qkv-q8192",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_qkv_projection"
+        }
+      ]
+    }
+  },
+  "preparation_bitmap_replay_median_ms": {
+    "0": 42.0426,
+    "1": 344.64,
+    "2": 199.67,
+    "3": 227.107
+  },
+  "q8192_external_bf16_cells_per_attempt": 67108864,
+  "original_unrounded_candidates": 4331311,
+  "original_k16_states_checked": 2189499,
+  "current_product_wall": {
+    "file": "benchmarks/correctness/completed-linear-pipeline-profile-20260915.json",
+    "bytes": 132549,
+    "sha256": "e9fbcf0beb1e8c5c623954b10477bc0eb97f1f6d93eed9e3391779a9706d5404"
+  },
+  "decision": "Retain current staged2 QKV; all three cooperative tiles are slower including encoding and bitmap preparation. Do not integrate this QKV route. Compare the separate dense OUT shape against a freshly verified GB10 reference before deciding whether it merits any further component work.",
+  "scope": "One executable, unchanged captured real-model rows and original selector. Three rotated completed samples after one warmup per configuration. Complete original floating and external BF16 comparisons on every attempt. This is component evidence and does not change product dispatch, retained performance or release qualification.",
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

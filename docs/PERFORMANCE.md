@@ -148,6 +148,29 @@ Retained performance, 128k/256k, package/HTTP/soak and release remain open.
 Evidence: `benchmarks/correctness/completed-linear-pipeline-profile-20260915.json`,
 SHA256 `e9fbcf0beb1e8c5c623954b10477bc0eb97f1f6d93eed9e3391779a9706d5404`.
 
+Cooperative prepared-operand tiles `3d24755` pass 72 native reports and
+2189499 independent original K16 states, including empty, sparse and full
+candidate masks, tail rows/groups, every output bit and production/trace parity.
+All four q8192 QKV configurations preserve 67108864 external GB10 BF16 cells
+and 4331311 raw correction candidates on every attempt. Current staged2 /
+16x16 K128 / 32x16 K128 / 32x16 K256 preparation-plus-bitmap/replay medians
+are 42.0426 / 344.640 / 199.670 / 227.107 ms over three rotated samples.
+Retain current staged2 QKV; no shared-tile integration follows. Full local
+checks pass 404 tests with two skips, C smoke and hygiene. Native build/test
+and captured comparison pass with host guards. Evidence:
+`benchmarks/correctness/cooperative-half-projection-qkv-components-20260915.json`,
+SHA256 `3958cf9bff4e58ba40e1ed1de150275866b3b975c940de4b0160d6779701f0cb`.
+
+Before closing this family, compare the separate, denser OUT shape. Fresh
+GB10 layer3 OUT references use the same captured real gated input and original
+model weight at q7169 and q8192; four evaluations per shape are identical.
+Both use `nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN`.
+The q7169 output matches its historical capture byte-for-byte and q8192
+matches the corresponding repeated-input reference. These are conditional
+operator goldens, not whole-model or retained-performance acceptance. Evidence:
+`benchmarks/correctness/gb10-dense-out-q8192-reference-20260915.json`, SHA256
+`d6085ca9a0be1ecd3c13c602c5c38de2401e08f4a9637cdff50aa435bbdd9103`.
+
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
 18363.0420 ms and seed plus retry from 198834.0260 to 225885.3303 ms.

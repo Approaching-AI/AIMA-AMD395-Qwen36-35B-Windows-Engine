@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "kind": "gb10_conditional_full_attention_out_projection_reference",
+  "host": "aitopatom-66c4",
+  "service_alias": "gb10-4t",
+  "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+  "whole_model_loaded": false,
+  "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+  "command": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--rm",
+      "--name",
+      "qrt-gb10-dense-out-20260915-r1",
+      "--hostname",
+      "aitopatom-66c4",
+      "--network",
+      "none",
+      "--gpus",
+      "all",
+      "--memory",
+      "6g",
+      "--cpus",
+      "2",
+      "--shm-size",
+      "1g",
+      "-v",
+      "<private-home>/qrt-gb10-dense-out-inputs-20260915-r1:/inputs:ro",
+      "-v",
+      "<private-home>/qrt-gb10-dense-out-20260915-r1:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=5",
+      "150",
+      "python3",
+      "run.py"
+    ],
+    "command_file": "<private-home>/run-qrt-gb10-dense-out-20260915-r1.py",
+    "command_file_sha256": "a1e97ed25aaeb8eedbcb79e93aa64fd43dfcc131901b867a64571fd4f5002f01",
+    "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+    "reason": "completed",
+    "returncode": 0,
+    "minimum_host_available_bytes": 120699555840,
+    "seconds": 4.024260122037958,
+    "after_compute_processes": "",
+    "after_compute_query_returncode": 0
+  },
+  "worker": {
+    "host": "aitopatom-66c4",
+    "source_commit": "3d24755c6ccc6b327e6ce56f476962636870db9a",
+    "script_sha256": "88bcef3293c8db1bad3188094b08cbb88531998028beaab134e5ec0fc2b32549",
+    "model": "/models",
+    "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+    "torch_version": "2.10.0a0+a36e1d39eb.nv26.01.42222806",
+    "cuda_version": "13.1",
+    "weight_key": "model.language_model.layers.3.self_attn.o_proj.weight",
+    "weight_shard": "model-00003-of-00026.safetensors",
+    "weight_offset": 3305469048,
+    "weight": {
+      "file": "out-weight-bf16.bin",
+      "bytes": 16777216,
+      "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab",
+      "shape": [
+        2048,
+        4096
+      ],
+      "dtype": "bf16"
+    },
+    "input_case": "real q7169 layer3 gated-context capture; repeat first1023 rows for q8192",
+    "input_sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65",
+    "results": [
+      {
+        "tokens": 7169,
+        "input_sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65",
+        "output": {
+          "file": "out-q7169-bf16.bin",
+          "bytes": 29364224,
+          "sha256": "9ce51a00180f6626c6679bf7dbffb9221732773a30766a311a5b7b01a3ac51f3",
+          "shape": [
+            7169,
+            2048
+          ],
+          "dtype": "bf16"
+        },
+        "profile_kernels": [
+          {
+            "name": "nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN",
+            "grid": [
+              280,
+              2,
+              1
+            ],
+            "block": [
+              64,
+              4,
+              1
+            ]
+          }
+        ],
+        "identical_repeated_evaluations": 4,
+        "repeated_q7169_reference_mismatches": null,
+        "trace_sha256": "1cc309f17b70981a4435dade227a51c7fb6e3b479fa4b1fdc912112d805233d7"
+      },
+      {
+        "tokens": 8192,
+        "input_sha256": "a4d92c33c680c7fb4403f81d5db7974e1abb5ceecde522ea6c46aaa6336ff741",
+        "output": {
+          "file": "out-q8192-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa",
+          "shape": [
+            8192,
+            2048
+          ],
+          "dtype": "bf16"
+        },
+        "profile_kernels": [
+          {
+            "name": "nvjet_sm121_tst_mma_128x208x64_2_32x104x64_tmaAB_bz_TNNN",
+            "grid": [
+              320,
+              2,
+              1
+            ],
+            "block": [
+              64,
+              4,
+              1
+            ]
+          }
+        ],
+        "identical_repeated_evaluations": 4,
+        "repeated_q7169_reference_mismatches": 0,
+        "trace_sha256": "d542d936b591a746cb8998d38c4245026cec8fc34949ae03b7fd27bb80e07b9a"
+      }
+    ],
+    "model_loaded": false,
+    "whole_model_correctness_claimed": false,
+    "reference_output_used_only_for_comparison": true
+  },
+  "canonical_files": {
+    "dispatch.json": {
+      "bytes": 1161,
+      "sha256": "9a8f99e00007b9ef0e3bafc4357232c29161f2145f82dddae47fa6cac4016e34"
+    },
+    "output/out-q7169-bf16.bin": {
+      "bytes": 29364224,
+      "sha256": "9ce51a00180f6626c6679bf7dbffb9221732773a30766a311a5b7b01a3ac51f3"
+    },
+    "output/out-q8192-bf16.bin": {
+      "bytes": 33554432,
+      "sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa"
+    },
+    "output/out-weight-bf16.bin": {
+      "bytes": 16777216,
+      "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab"
+    },
+    "output/result.json": {
+      "bytes": 2802,
+      "sha256": "e4b160f5cf509d4e799d12cac6569de659def4d254bfbbad04afdca41f02d8b9"
+    },
+    "run.py": {
+      "bytes": 3487,
+      "sha256": "88bcef3293c8db1bad3188094b08cbb88531998028beaab134e5ec0fc2b32549"
+    },
+    "stderr.log": {
+      "bytes": 259,
+      "sha256": "3acea72cb30e9868fd711b19a33c57e7e302b9fb7412ac2ce0723d8a5f77f4a0"
+    },
+    "stdout.log": {
+      "bytes": 2156,
+      "sha256": "565fa51a6fbe57b07fd83181002f266db062a67def5b5c073db55be0cb4fa657"
+    }
+  },
+  "archive": {
+    "bytes": 63744140,
+    "sha256": "2495e181fec5cf0f6ae66007ae065bb8dec302f9159b3b0fee269e54ddb30249"
+  },
+  "canonical_package_manifest_sha256": "aabffcc93ca8f0bf5dfb073feb5378fb9b07597468952175a3919394c546b0c0",
+  "input_capture": {
+    "host": "baiying",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "source_commit": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+    "file": "fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+    "sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65",
+    "bytes": 58728448,
+    "original_capture_command": "prepare-fla-model-q7169-fa-out-r1.ps1",
+    "original_capture_command_sha256": "62568f249e6312ccf1a0f9a7bafee1a3d7405aeaf5e6138b3d55e68010ca31fe",
+    "original_dispatch_sha256": "42a3f9f84d9d43dbad34d06bcaefac4ae666b7f159a620ca4e3b02053a1e312f"
+  },
+  "q7169_original_output_capture_identical": true,
+  "q8192_repetition_reference_identical": true,
+  "reference_is_compute_input": false,
+  "scope": "GB10 BF16 F.linear on the same captured real layer3 gated input and original model OUT weight. q8192 repeats the first1023 of7169 input rows. Four evaluations per shape are identical; both use the recorded SM121 matrix kernel. This conditional operator reference does not assert correctness of the old whole-model capture or establish a new end-to-end inference or performance result.",
+  "whole_model_correctness_claimed": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
