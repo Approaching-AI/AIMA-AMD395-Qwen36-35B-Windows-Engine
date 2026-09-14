@@ -18,9 +18,8 @@ remain common. Norms, selectors, exact arithmetic and all bounds are unchanged.
 
 OUT-only algorithm 4 fails at index 4, actual 220 versus expected 79, with
 37/512 matches. Its full output sequence exactly matches the prior all-shape
-failure. OUT therefore keeps algorithm 0. The particular internal layer and
-underlying numerical cause remain unresolved. No broad algorithm-4 acceptance
-is implied. Full local checks pass 380 Python tests (two skips), 47 Rust tests,
+failure. OUT therefore keeps algorithm 0. The subsequent shadow diagnostic below localizes four linear OUT
+admission misses. No broad algorithm-4 acceptance is implied. Full local checks pass 380 Python tests (two skips), 47 Rust tests,
 C ABI smoke, clippy and hygiene. This single product comparison does not
 establish repeatability, retained performance or release readiness.
 Command: `run-native-matrix-scope-product-r1.ps1` with control/qkv/out arguments.
@@ -41,14 +40,27 @@ it does not establish a hardware defect or explain OUT continuation failure.
 Evidence: `benchmarks/correctness/hipblaslt-dyadic-standalone-20260914.json`,
 SHA256 `66337f9be1e6799a286b57e1300d1cf615de16e8dcc11b06aeedcb9b1fd44370`.
 
-The next real-model diagnostic keeps QKV/Z 4 and OUT 0 driving inference.
-`QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT=1` separately produces and corrects
-algorithm-4 OUT outputs on the same inputs at both attention families. It
-compares every BF16 endpoint, classifies up to 4096 differences per OUT with
-original integer wave16 arithmetic, cross-checks the first one on CPU and
-checks all diagnostic redzones. The original output is read-only to this
-audit. All original bounds remain unchanged. Native results are pending;
-instrumented timings cannot establish performance acceptance.
+The shadow diagnostic at `02f02eb` localizes four OUT admission misses.
+QKV/Z 4 and OUT 0 drive inference and preserve all 512 original GB10 outputs
+and callbacks, first 144/raw 10.375. Separate guarded algorithm-4 outputs use
+the same real inputs, norms and correction. All 40 OUT projections compare
+671088640 BF16 endpoints. Linear-attention layers 10/16/22 differ in 1/1/2
+cells; the other 27 linear layers and all ten full-attention layers match.
+Original integer wave16 arithmetic validates all four control endpoints and
+rejects all four shadow endpoints, each missed by the original selector.
+The first differing cell in each affected layer also matches CPU raw bits.
+Every diagnostic redzone passes; shadow outputs never drive inference.
+
+These observations localize selector undercoverage with algorithm 4 at
+linear OUT PPB1000/radius512. They do not establish a universal bound or a
+hardware defect. The next same-DLL product comparison uniformly tests linear
+OUT PPB2000 with algorithm 4; full-attention OUT retains PPB10000 and all
+other settings are common. The control keeps QKV4/OUT0. Both runs disable
+shadow instrumentation and require the full GB10 boundary before any timing
+comparison. The shadow run's TTFT39488.1618 ms is diagnostic only.
+Native build completes in 91685.814 ms and full local checks pass.
+Evidence: `benchmarks/correctness/out-matrix-shadow-20260914.json`,
+SHA256 `752eb62c5cd7921c10fadbe45bd1a32120a3770f5dc8799b50c4f1050d6a559c`.
 
 The same-DLL product trial at `c16219f` rejects matrix algorithm 4. On baiying
 with `D:\models\Qwen3.6-35B-A3B`, algorithm 0 preserves all 512 original GB10
@@ -76,8 +88,8 @@ Both native captured-QKV variants preserve all 67108864 BF16 cells, all
 original 7169 input rows plus 1023 independently comparable repeated rows,
 guards and immutable operands. Their full-model runs verify all 110 matrix
 calls and, when enabled, load-time prewarming of four algorithm-4 plans.
-The internal layer that first diverges is not yet localized. Full local
-checks pass 379 Python tests (two skips), 47 Rust tests, C smoke, clippy
+That initial run did not localize its internal divergence; the later shadow
+diagnostic resolves this gap. Full local checks pass 379 Python tests (two skips), 47 Rust tests, C smoke, clippy
 and hygiene. The current stack still requires performance, prefix/context,
 package, HTTP and soak qualification. All release gates remain open.
 Command: `run-native-matrix-algorithm-product-r1.ps1`, source `c16219f`.
@@ -104,7 +116,7 @@ four FP32-output shapes. Load-time prewarming covers the same plans; default 0,
 explicit-index calls, BF16 outputs and other token counts keep their policy.
 The existing exact correction, PPB bounds and norms remain in place. The
 captured-QKV comparison passes, but the complete product trial above fails
-continuation correctness. Algorithm 4 remains an unqualified opt-in.
+continuation correctness. OUT algorithm 4 remains an unqualified opt-in pending stronger admission.
 Evidence: `benchmarks/correctness/matrix-producer-choices-20260914.json`,
 SHA256 `3a546ebf5a09d7fae2e1152defc42f42a85b963566ddf67bc0057a77c68a8700`.
 

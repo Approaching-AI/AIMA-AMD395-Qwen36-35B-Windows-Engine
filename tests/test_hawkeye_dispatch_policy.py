@@ -6,7 +6,10 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import function
+try:
+    from .test_attention_workspace import function
+except ImportError:
+    from test_attention_workspace import function
 
 ROOT = Path(__file__).resolve().parents[1]
 
