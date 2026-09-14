@@ -2,16 +2,45 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Prepared decoded QK at `9e6e296` reduces complete q8192 TTFT by 1247.7049 ms.
+Compact staged-half dense replay at `0aa358b` reduces complete q8192 TTFT
+from 34160.5916 to 33633.9952 ms in the same-DLL off/on comparison, saving
+526.5964 ms. Both runs on baiying with `D:\models\Qwen3.6-35B-A3B` match
+all 512 original GB10 output tokens and actual callbacks, first 144/raw
+10.375. TPOT is 101.697641 / 100.786339 ms and model plus engine load is
+21170.0292 / 21157.2727 ms. The only environment difference is
+`QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY=0/1`.
+
+Use whole `0aa358b` with that option on for subsequent experiments, keeping
+QKV4/OUT0, linear OUT PPB1000, MoE `1958c2c`, prepared-QK CK `9e6e296`,
+FLA `2ee6215` and CLI `a797b62`. The source default remains off. This
+single product pair does not establish repeatability or the immutable speed,
+context/prefix, package, HTTP, soak and release gates. TTFT remains above
+10 seconds, so continue broader replacements rather than local parameter tuning.
+
+All 110 applicable dense calls preserve original candidate counts, windows,
+exact dispatch counts and host count reads. Preparation of both lossless
+operands is included in correction and TTFT; the largest actual view is
+94371840 bytes and is freed after each call. Dense correction reductions are
+263.792 / 70.187 / 83.752 ms for linear QKV / Z / attention QKV and
+85.644 ms for the 40 OUT calls. These are nested diagnostic scopes. The
+component improvement is therefore substantially smaller in the whole model.
+Native build, actual host-owner fault tests, C smoke, 392 Python tests with
+two skips and hygiene pass. Unchanged Rust/Cargo sources reuse the prior
+47 tests and clippy with explicit hashes and diff. Evidence:
+`benchmarks/correctness/staged-half-dense-product-20260914.json`, SHA256
+`d7a82cd60f3f33356dd7645fa276840fc2756de88af0dfff48a6be49683913a8`.
+
+The earlier prepared decoded QK comparison at `9e6e296` reduced complete
+q8192 TTFT by 1247.7049 ms.
 The same CK DLL with the option off/on records 35434.9430 / 34187.2381 ms,
 TPOT 101.231987 / 101.500243 ms and model plus engine load
 21227.4292 / 21355.9752 ms. Both runs on baiying with
 `D:\models\Qwen3.6-35B-A3B` preserve the original prompt, all 512 GB10 tokens
 and actual streaming callbacks, first token 144 and raw logit 10.375.
 The only environment difference is `QRT_CK_SM121_PREPARED_DECODED_QK=0/1`;
-profiling and shadow audits are disabled. Keep the option on for subsequent
-experiments with whole `02f02eb` QKV4/OUT0, linear OUT PPB1000, shared
-prevalidated MoE `1958c2c`, FLA `2ee6215` and CLI `a797b62`.
+profiling and shadow audits were disabled. That pair used whole `02f02eb`
+QKV4/OUT0, linear OUT PPB1000, shared prevalidated MoE `1958c2c`,
+FLA `2ee6215` and CLI `a797b62`.
 This pair establishes a correctness-attached gain, without establishing
 repeatability or the immutable retained-performance, context, package, HTTP
 and soak gates. Release remains unqualified. Evidence:
