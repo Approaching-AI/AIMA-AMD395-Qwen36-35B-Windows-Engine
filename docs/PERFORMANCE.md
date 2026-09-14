@@ -2,6 +2,22 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Prepared decoded QK at `9e6e296` reduces complete q8192 TTFT by 1247.7049 ms.
+The same CK DLL with the option off/on records 35434.9430 / 34187.2381 ms,
+TPOT 101.231987 / 101.500243 ms and model plus engine load
+21227.4292 / 21355.9752 ms. Both runs on baiying with
+`D:\models\Qwen3.6-35B-A3B` preserve the original prompt, all 512 GB10 tokens
+and actual streaming callbacks, first token 144 and raw logit 10.375.
+The only environment difference is `QRT_CK_SM121_PREPARED_DECODED_QK=0/1`;
+profiling and shadow audits are disabled. Keep the option on for subsequent
+experiments with whole `02f02eb` QKV4/OUT0, linear OUT PPB1000, shared
+prevalidated MoE `1958c2c`, FLA `2ee6215` and CLI `a797b62`.
+This pair establishes a correctness-attached gain, without establishing
+repeatability or the immutable retained-performance, context, package, HTTP
+and soak gates. Release remains unqualified. Evidence:
+`benchmarks/correctness/prepared-decoded-qk-product-20260914.json`, SHA256
+`bc262fd953a27d67d8a03519de937bf1cbca108ec784d63d33e9d5c1e1f34a1b`.
+
 The same-DLL OUT admission comparison at `02f02eb` recovers correctness but
 rejects the performance tradeoff. QKV4/OUT0 with linear OUT PPB1000 and
 QKV4/OUT4 with uniform linear OUT PPB2000 both preserve all 512 GB10 outputs
@@ -84,8 +100,12 @@ An opt-in provider integration uses `QRT_CK_SM121_PREPARED_DECODED_QK=1`
 for cold prefill through q8192 with the existing scalar-float and global PV
 options. It refreshes a 151584768-byte arena every layer/call under the existing
 workspace lock and drains failed submissions. Decode, suffix and larger calls
-keep their established route. The default is off. Complete same-DLL q8192
-GB10 token/callback qualification and product timing are still required.
+keep their established route. The default is off; the selected experiment
+explicitly enables it after the complete same-DLL q8192 qualification above.
+The initial native build exposed ambiguous imported attention constants;
+explicit namespace qualification repairs compilation without changing
+arithmetic. Both build records, final DLL identity and full local validation
+are attached to the product evidence.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
