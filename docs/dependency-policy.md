@@ -22,9 +22,16 @@ GB10 MRoPE constructor and a separate construction at the requested extent.
 Model configuration remains 262,144 positions. This variant reuses Windows
 CNG and the existing offline CUDA reference tools; it adds no runtime library.
 The rebuilt Windows runtime passes the real q8192/out512 and 16k-prefix
-regressions with this table; larger contexts and packaging remain pending.
-See `benchmarks/correctness/runtime-tail-q8192-20260915.json` and
-`benchmarks/correctness/runtime-tail-prefix16k-20260915.json`.
+regressions with this table. The current portable package also passes relocation,
+all 268 runtime-asset hashes, real HTTP/protocol/prefix and five short cold cases.
+The expanded RoPE retains its generic packaged basename; the interpolated CK
+exponential table adds one 38,909,480-byte artifact. The complete unpublished
+ZIP is 131,997,808 bytes, containing 281 release files. This packaging change
+adds no library dependency. Larger context and sustained-soak qualification
+remain open. See `benchmarks/correctness/current-portable-http-20260915.json`,
+`benchmarks/correctness/current-portable-protocol-prefix-20260915.json`,
+`benchmarks/correctness/current-portable-short-matrix-20260915.json` and the
+separate real q8192/16k-prefix evidence.
 
 ## Optional long-context prepared QK workspace
 

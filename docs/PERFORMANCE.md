@@ -2,6 +2,46 @@
 
 ## Current unreleased measurements, 2026-09-15
 
+The unpublished portable package `v1.0.2-current-stack.20260915.r1` now
+combines whole/server/CLI `24c4304`, CK `42c2f0f`, MoE `4a7f0c4` and FLA
+`2ee6215`. Its 268 runtime assets and 281 release files pass hash, size and
+archive CRC checks after relocation with the original staging directory
+unavailable. Only 33 path values change in the 506-option runtime profile.
+The 131997808-byte ZIP has SHA256
+`5c8ea7a76a2ac368a306641104c277978a67f4770d62b7002b1e0b6354edc458`.
+It remains unpublished and has no retained-performance or release acceptance.
+
+Two real q8192/out32 HTTP requests pass: all 32 nonstream GB10 token IDs,
+both prompt-bound first logits (144/raw 10.375), and matching SSE text and
+usage. Load is 21009.5133 ms; nonstream/stream TTFT is 30129.7631 /
+29492.5287 ms and TPOT 109.277645 / 99.455355 ms. These are out32 HTTP
+observations, not an out512 comparison. Evidence:
+`benchmarks/correctness/current-portable-http-20260915.json`, SHA256
+`9025c0046d90104956b0ea9dfb3e8cf72c5a642423cf8d4eef978ad500ed1bd3`.
+
+The same package passes 17 protocol checks in 30 captured HTTP requests,
+including tools, thinking, FIFO, timeout, overflow and graceful shutdown.
+The active q8192 request finishes with all 32 GB10 IDs and first logit while
+waiting requests are cancelled. Four saved-prefix branches pass 256 raw
+output IDs, 12 first logits and four SSE comparisons in 15 requests. All
+12 private transactions restore the owner after 31 committed decode inputs;
+owner replacement and subsequent cold fallback also pass. Prefix checkpoints
+remain opt-in and SSE exposes no raw token IDs. Both processes stop normally
+with host guards passing. Evidence:
+`benchmarks/correctness/current-portable-protocol-prefix-20260915.json`, SHA256
+`aecf32749d6d213bc567c4f85e6ba3514436fb6d97b11820546592ee2d172032`.
+
+Five short cold CLI cases from actual HTTP prompt IDs pass all 640 GB10
+output IDs, all actual callbacks and exact first logits. They cover plain
+text, chat, tool call, tool continuation and a 512-token thinking sequence.
+Each uses the packaged CLI and providers in a new process, with no dispatch
+or numerical overrides. Load spans 21298.7011–21394.3392 ms; callback TTFT
+2733.1037–3545.0566 ms. Evidence:
+`benchmarks/correctness/current-portable-short-matrix-20260915.json`, SHA256
+`28e7d27f0bb752187db51df83a9e039bfc96f78052d68285e0bab4a8ff759b34`.
+The eight-case full cold matrix is in progress. Long contexts, sustained
+soak, the immutable performance thresholds and release remain open.
+
 Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
 and FLA `2ee6215` pass the current q8192 regression on baiying with
 `D:\models\Qwen3.6-35B-A3B`. All 512 original GB10 output IDs and actual
@@ -144,7 +184,7 @@ linear/full OUT total 3455.015 ms. The subsequent cooperative tile comparisons
 below preserve ascending K16 carries and original fallback, but regress both
 QKV and OUT after full operand preparation. Keep current staged2 dispatch;
 inspect exact QK computation for a broader reduction in the measured wall.
-Retained performance, 128k/256k, package/HTTP/soak and release remain open.
+Retained performance, 128k/256k, remaining package coverage, soak and release remain open.
 Evidence: `benchmarks/correctness/completed-linear-pipeline-profile-20260915.json`,
 SHA256 `e9fbcf0beb1e8c5c623954b10477bc0eb97f1f6d93eed9e3391779a9706d5404`.
 
@@ -203,8 +243,8 @@ new K64 / new K128 / new K256 are 278.8748 / 265.4747 / 311.7844 / 309.8679 /
 410.9197 ms at q8192. The q8192 extension repeats the first 1023 captured Q/K
 rows; it establishes component cost, not a new model run. Every new variant
 is slower; keep current QK. The old compact control's small component gain
-also remains outside product dispatch. Next refresh the current 24c/42c/4a7/2ee
-portable package and HTTP regression. Retained performance, long contexts,
+also remains outside product dispatch. The current 24c/42c/4a7/2ee
+package and HTTP results above renew that functional boundary. Retained performance, long contexts,
 soak and release qualification remain open. Evidence:
 `benchmarks/correctness/half-f32-qk-components-20260915.json`, SHA256
 `33ebfed12e6180c260a19c28fc949bfd691133f707fdc9278cf5dfbb3106bdbd`.
@@ -256,7 +296,8 @@ skips, C syntax/smoke and hygiene; unchanged Rust/Cargo reuse the prior 47
 tests and clippy. Native whole/CLI and the product cases above now qualify
 this source at their measured shapes. Windows Rust server `24c4304`
 also builds and passes 42 native unit tests, including the shared C context
-getter. Native HTTP and real 128k/256k continuation remain open. Server and
+getter. Current-package native HTTP is qualified above; real 128k/256k
+continuation remains open. Server and
 provider-observer evidence: `benchmarks/correctness/runtime-tail-server-and-provider-phases-20260915.json`,
 SHA256 `6695c6b47bbf4e22dabc6b772a392519b0ddf0024ebc2feef05a43040b6eba59`. Bound and table evidence:
 `benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`, SHA256

@@ -1,0 +1,2633 @@
+{
+  "schema_version": 1,
+  "kind": "current_mixed_stack_portable_archive_and_real_http_regression",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "source": {
+    "source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "repo": "D:/projects/AIMA-public-runtime-tail-20260914",
+    "input": "current-package-input-r1.json",
+    "input_sha256": "164d53b8af567d828873ea016a02711cb9f17e12b4bf5f843db62333347a743d",
+    "worker": "stage_current_package_r1.py",
+    "worker_sha256": "88cdc7ce537e510f72fda4e5a354e092e1c40c3c40bbf3fcacf81edf6dde35e6",
+    "script": "run-native-current-package-r1.ps1",
+    "script_sha256": "67f957b4a892ddf3d67ea7066f9e0c02353232f3442a3331a8cd8e570c6b03c9",
+    "environment": "current-package-selected-runtime-r1.env",
+    "environment_sha256": "c098f967a7cf803198ff2c6866e3dedfc8e4ada5326234de4fc04c755534232c",
+    "components": {
+      "server": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-server/build-provenance.json",
+          "sha256": "929f9207a7f417d64baa208a9df9c5356331c1322cffb8f2a61ed5e21d6326aa"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "package_path": "engine/qrt.exe"
+      },
+      "cli": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/product-cli/build-provenance.json",
+          "sha256": "6608778b2638340447b05e0af677e4d11febca515128757430dea9bab2b3b757"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\product-cli\\qrt-product.exe",
+          "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+        },
+        "package_path": "product-cli/qrt-product.exe"
+      },
+      "whole": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/build-provenance.json",
+          "sha256": "8280270c4c48115cbc11921b39ec11d4a9a832d67a2b11fc24568ccbf9b79a4f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469",
+          "bytes": 13112320
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll"
+      },
+      "ck": {
+        "commit": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-long-decoded-qk-20260915/build/long-decoded-qk/build-ck-provenance.json",
+          "sha256": "449a7be6c4c1482e9d62ba387736a58ccb9c11c9d825a282af436560c0da8d97"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-long-decoded-qk-20260915\\build\\long-decoded-qk\\qrt_ck_fmha_sm121.dll",
+          "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b",
+          "bytes": 1674752
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll"
+      },
+      "moe": {
+        "commit": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/build-provenance.json",
+          "sha256": "5a8ce889b2166319242fa6cda9f4ba061cb9927cd088f5e65e1ef92020772d8f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+          "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+          "bytes": 818688
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll"
+      },
+      "fla": {
+        "commit": "2ee62152cc808e97974f7d3d4346255a4438a213",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/build-provenance.json",
+          "sha256": "156ac3a3026604b2e970a609ec5496cbde8e1924ba5dde789179d270b4070975"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+          "bytes": 645120
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll"
+      }
+    },
+    "source_product_evidence": {
+      "file": "benchmarks/correctness/long-query-range-q8192-20260915.json",
+      "sha256": "ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009"
+    },
+    "source_prefix_evidence": {
+      "file": "benchmarks/correctness/long-query-range-prefix16k-20260915.json",
+      "sha256": "004c76c50435db7aae7ce38af572a9f73c25d4e3b0db5d391d31c33b8f99eb8f"
+    },
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "native_dispatched": false,
+    "published": false
+  },
+  "stage_controller": {
+    "file": "stage_current_package_r1.py",
+    "sha256": "88cdc7ce537e510f72fda4e5a354e092e1c40c3c40bbf3fcacf81edf6dde35e6",
+    "text": "from pathlib import Path, PurePosixPath\nimport hashlib, json, os, platform, shutil, subprocess, sys, time, zipfile\n\nassert os.name == 'nt' and platform.node().split('.')[0].lower() == 'baiying'\ndef digest(path):\n    with Path(path).open('rb') as f: return hashlib.file_digest(f, 'sha256').hexdigest()\ndef read(path): return json.loads(Path(path).read_text(encoding='utf-8-sig'))\ndef write(path, value):\n    with Path(path).open('x', encoding='utf-8') as f: json.dump(value, f, indent=2); f.write('\\n')\ndef verify(path, expected, size=None):\n    path = Path(path)\n    assert path.is_file() and digest(path) == expected, str(path)\n    if size is not None: assert path.stat().st_size == size, str(path)\n    return path\n\ninput_path = Path(__file__).with_name('current-package-input-r1.json')\nverify(input_path, '164d53b8af567d828873ea016a02711cb9f17e12b4bf5f843db62333347a743d')\nconfig = read(input_path)\nrepo = Path(config['repo']); source = config['source_commit']\nassert subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True,timeout=10).strip() == source\nassert not subprocess.check_output(['git','-C',str(repo),'status','--porcelain'],text=True,timeout=10).strip()\npackage_script = verify(repo/'scripts/package-runtime.ps1', config['package_script_sha256'])\nhttp_script = verify(repo/'scripts/verify_baiying_q8192_http.py', config['http_script_sha256'])\nbase = Path(config['base_root'])\nmanifest_path = verify(base/'runtime-manifest.json', config['base_manifest_sha256'])\nold = read(manifest_path)\nassert old['dirty_tree'] is False and old['offload_arch'] == 'gfx1151'\nfor kind, component in config['components'].items():\n    meta = read(verify(component['metadata']['path'], component['metadata']['sha256']))\n    assert meta['repo_commit'] == component['commit'] and meta['dirty_tree'] is False\n    if kind == 'server': assert meta['tests_run'] is True\nfor record in config['replacements'].values(): verify(record['path'], record['sha256'], record.get('bytes'))\nenvironment_path = verify(config['source_environment']['path'], config['source_environment']['sha256'])\nenvironment = environment_path.read_text(encoding='utf-8-sig')\nsource_values = dict(line.split('=',1) for line in environment.splitlines() if line and not line.startswith('#'))\nassert len(source_values) == 506\n\nstage = repo/'build/runtime-current-package-r1'; stage.mkdir(exist_ok=False)\nentries = {}\nfor old_entry in old['artifacts']:\n    relative = old_entry['path']\n    parts = PurePosixPath(relative.replace('\\\\','/'))\n    assert not parts.is_absolute() and '..' not in parts.parts\n    original = verify(base/relative, old_entry['sha256'], old_entry['bytes'])\n    destination = stage/relative; destination.parent.mkdir(parents=True, exist_ok=True)\n    record = config['replacements'].get(relative)\n    shutil.copyfile(record['path'] if record else original, destination)\n    entries[relative] = dict(path=relative, bytes=destination.stat().st_size, sha256=digest(destination))\nfor relative, record in config['replacements'].items():\n    if relative in entries: continue\n    destination = stage/relative; destination.parent.mkdir(parents=True, exist_ok=True)\n    shutil.copyfile(record['path'],destination)\n    entries[relative] = dict(path=relative, bytes=destination.stat().st_size, sha256=digest(destination))\n\npath_mapping = {Path(record['path']): relative for relative, record in config['replacements'].items()}\npath_mapping[Path(config['components']['fla']['artifact']['path']).parent] = 'fla'\nrewrites = []; lines = []\nfor line in environment.splitlines():\n    if not line or line.startswith('#'): lines.append(line); continue\n    key, value = line.split('=',1)\n    original_value = value\n    candidate = Path(value)\n    if value and candidate.is_absolute():\n        relative = path_mapping.get(candidate)\n        if relative is None:\n            assert candidate.is_relative_to(base), (key,value)\n            relative = candidate.relative_to(base).as_posix()\n        assert (stage/relative).exists(), (key,relative)\n        value = '${RUNTIME_DIR}/' + relative\n        rewrites.append(dict(key=key, original=original_value, portable=value))\n    lines.append(key+'='+value)\nassert len(rewrites) == 33\nprofile = stage/'runtime.env'; profile.write_text('\\n'.join(lines)+'\\n',encoding='utf-8',newline='\\n')\nportable_values = dict(line.split('=',1) for line in lines if line and not line.startswith('#'))\nassert portable_values.keys() == source_values.keys()\nchanged_keys = {r['key'] for r in rewrites}\nassert all(portable_values[k] == source_values[k] for k in source_values if k not in changed_keys)\nentries['runtime.env'] = dict(path='runtime.env',bytes=profile.stat().st_size,sha256=digest(profile))\n\nmanifest = {k:old[k] for k in ('schema_version','host','dirty_tree','offload_arch',\n    'composable_kernel_tree_sha256','composable_kernel_source_file_count')}\nmanifest.update(repo_commit=source, component_commits={k:v['commit'] for k,v in config['components'].items()},\n    source_component_builds=config['components'], artifacts=list(entries.values()),\n    parent_manifest_sha256=digest(manifest_path), source_profile_sha256=digest(environment_path),\n    source_product_evidence=config['source_product_evidence'], source_prefix_evidence=config['source_prefix_evidence'],\n    purpose='Current correctness-passing stack in an unpublished portable package; performance and release gates remain open',\n    profile_paths_portable=True, relocation_qualified=False, inference_qualified=False,\n    performance_qualified=False, release_qualified=False, published=False,\n    model_context_tokens=262144, maximum_prompt_tokens=263168, maximum_request_tokens=263680,\n    attention_capacity_tokens=264736)\nwrite(stage/'runtime-manifest.json',manifest)\nargs=['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(package_script),\n      '-RuntimeDir',str(stage),'-OutDir',str(repo/'build/current-package-archive-r1'),\n      '-Version',config['version'],'-CkProviderRelativePath','ck-fmha/qrt_ck_fmha_sm121.dll']\nstarted=time.monotonic()\npackaged=subprocess.run(args,capture_output=True,text=True,errors='replace',check=True,timeout=240)\npackage=json.loads(packaged.stdout)\narchive=verify(package['archive'],package['sha256'],package['bytes'])\nextract=repo/'build/relocated current package r1';extract.mkdir(exist_ok=False)\nwith zipfile.ZipFile(archive) as z:\n    assert z.testzip() is None and len(z.infolist()) < 2000\n    for entry in z.infolist():\n        path=PurePosixPath(entry.filename)\n        assert not path.is_absolute() and '..' not in path.parts\n    z.extractall(extract)\nruntime=extract/archive.stem\nrelease=read(runtime/'FILE-SHA256SUMS.json');assert release['source_commit']==source\nfor record in release['files']: verify(runtime/record['path'],record['sha256'],record['bytes'])\nfor record in entries.values(): verify(runtime/record['path'],record['sha256'],record['bytes'])\nhidden=repo/'build/current-package-source-archived-r1';assert not hidden.exists();stage.rename(hidden)\nassert not stage.exists()\nhttp=config['reference_config'];http.update(server_commit=config['components']['server']['commit'],\n    working_directory=str(repo),port=18151,execution_limits=dict(readiness_seconds=45,request_seconds=120,controller_seconds=360))\nfor key,relative in [('server','engine/qrt.exe'),('provider','whole-provider/qrt_qwen36_whole_provider.dll'),\n                     ('env','runtime.env'),('runtime_manifest','runtime-manifest.json')]:\n    path=runtime/relative;http['files'][key]=dict(path=str(path),sha256=digest(path))\noracle=repo/'contracts/hprefill_q8192_gb10_oracle.json'\nverify(oracle,http['files']['oracle']['sha256']);http['files']['oracle']['path']=str(oracle)\nhttp_path=repo/'build/current-package-http-config-r1.json';write(http_path,http)\nreport=dict(schema_version=1,host=platform.node(),source_commit=source,input_sha256=digest(input_path),\n    controller_file=str(Path(__file__)),controller_sha256=digest(__file__),package_command=args,\n    package_and_relocation_wall_seconds=time.monotonic()-started,package=package,package_stderr=packaged.stderr,\n    parent_manifest_sha256=digest(manifest_path),stage_manifest_sha256=digest(runtime/'runtime-manifest.json'),\n    archive_crc_pass=True,release_file_hashes_pass=True,runtime_file_hashes_pass=True,\n    release_files=len(release['files']),runtime_artifacts=len(entries),portable_path_rewrites=rewrites,\n    numeric_environment_options_unchanged=True,original_staging_directory_unavailable=True,\n    archived_staging_directory=str(hidden),relocated_runtime_directory=str(runtime),\n    relocated_profile_sha256=digest(runtime/'runtime.env'),release_file_manifest_sha256=digest(runtime/'FILE-SHA256SUMS.json'),\n    config_sha256=digest(http_path),model_copied=False,inference_acceptance=False,performance_qualified=False,\n    release_qualified=False,published=False)\nwrite(repo/'build/current-package-archive-report-r1.json',report)\nsubprocess.run([sys.executable,str(http_script),'--config',str(http_path),'--out',str(repo/'build/current-package-cpu-preflight-r1')],check=True,timeout=90)\nprint(json.dumps(dict(status='current_package_staged_and_relocated',archive_bytes=archive.stat().st_size,\n    archive_sha256=digest(archive),release_files=len(release['files']),runtime_artifacts=len(entries),\n    portable_paths=len(rewrites),original_staging_directory_unavailable=True,published=False)))\n"
+  },
+  "command_file": {
+    "file": "run-native-current-package-r1.ps1",
+    "sha256": "67f957b4a892ddf3d67ea7066f9e0c02353232f3442a3331a8cd8e570c6b03c9",
+    "text": "param([Parameter(Mandatory=$true)][ValidateSet('stage','test')][string]$Action)\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-tail-20260914';$sha='24c4304a16a1665701d05444619d46b832c73e43'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$out=Join-Path $repo ('build\\current-package-'+$Action+'-r1');$specPath=Join-Path $repo ('build\\current-package-'+$Action+'-r1.json')\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw ('Existing evidence: '+$p)}}\n$spec=[ordered]@{executable='C:\\Program Files\\Python313\\python.exe';working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();model='D:/models/Qwen3.6-35B-A3B';inference_acceptance=$false;purpose='Current24c/42c/4a7/2ee portable package, followed by actual HTTP correctness and transport. Numeric environment options match the qualified q8192 control. Performance and release thresholds remain unchanged; no publication.'}\nif($Action -eq 'stage'){\n $command='D:\\projects\\stage_current_package_r1.py';$spec.arguments=@($command);$spec.model='none; stage verified runtime and CPU preflight';$spec.model_loaded=$false;$timeout=360\n}else{\n $command=Join-Path $repo 'scripts\\verify_baiying_q8192_http.py';$config=Join-Path $repo 'build\\current-package-http-config-r1.json';$spec.config_sha256=(Get-FileHash $config -Algorithm SHA256).Hash.ToLowerInvariant();$spec.arguments=@($command,'--execute','--config',$config,'--out',(Join-Path $repo 'build\\current-package-requests-r1'));$timeout=420\n}\nif($Action -eq 'stage' -and (Get-FileHash $command -Algorithm SHA256).Hash.ToLowerInvariant() -ne '88cdc7ce537e510f72fda4e5a354e092e1c40c3c40bbf3fcacf81edf6dde35e6'){throw 'Stage controller changed'}\n$spec.controller_file=$command;$spec.controller_sha256=(Get-FileHash $command -Algorithm SHA256).Hash.ToLowerInvariant()\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 5}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('HTTP '+$Action+' failed')}\n"
+  },
+  "inputs": {
+    "schema_version": 1,
+    "host": "baiying",
+    "repo": "D:/projects/AIMA-public-runtime-tail-20260914",
+    "source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "base_root": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3",
+    "base_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+    "components": {
+      "server": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-server/build-provenance.json",
+          "sha256": "929f9207a7f417d64baa208a9df9c5356331c1322cffb8f2a61ed5e21d6326aa"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "package_path": "engine/qrt.exe"
+      },
+      "cli": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/product-cli/build-provenance.json",
+          "sha256": "6608778b2638340447b05e0af677e4d11febca515128757430dea9bab2b3b757"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\product-cli\\qrt-product.exe",
+          "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+        },
+        "package_path": "product-cli/qrt-product.exe"
+      },
+      "whole": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/build-provenance.json",
+          "sha256": "8280270c4c48115cbc11921b39ec11d4a9a832d67a2b11fc24568ccbf9b79a4f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469",
+          "bytes": 13112320
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll"
+      },
+      "ck": {
+        "commit": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-long-decoded-qk-20260915/build/long-decoded-qk/build-ck-provenance.json",
+          "sha256": "449a7be6c4c1482e9d62ba387736a58ccb9c11c9d825a282af436560c0da8d97"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-long-decoded-qk-20260915\\build\\long-decoded-qk\\qrt_ck_fmha_sm121.dll",
+          "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b",
+          "bytes": 1674752
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll"
+      },
+      "moe": {
+        "commit": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/build-provenance.json",
+          "sha256": "5a8ce889b2166319242fa6cda9f4ba061cb9927cd088f5e65e1ef92020772d8f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+          "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+          "bytes": 818688
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll"
+      },
+      "fla": {
+        "commit": "2ee62152cc808e97974f7d3d4346255a4438a213",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/build-provenance.json",
+          "sha256": "156ac3a3026604b2e970a609ec5496cbde8e1924ba5dde789179d270b4070975"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+          "bytes": 645120
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll"
+      }
+    },
+    "replacements": {
+      "engine/qrt.exe": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server\\qrt.exe",
+        "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+      },
+      "product-cli/qrt-product.exe": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\product-cli\\qrt-product.exe",
+        "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+      },
+      "whole-provider/qrt_qwen36_whole_provider.dll": {
+        "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/qrt_qwen36_whole_provider.dll",
+        "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469",
+        "bytes": 13112320
+      },
+      "ck-fmha/qrt_ck_fmha_sm121.dll": {
+        "path": "D:\\projects\\AIMA-public-long-decoded-qk-20260915\\build\\long-decoded-qk\\qrt_ck_fmha_sm121.dll",
+        "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b",
+        "bytes": 1674752
+      },
+      "q8192-moe/qrt_triton_moe_q8192_provider.dll": {
+        "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+        "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+        "bytes": 818688
+      },
+      "fla/qrt_fla_chunk_gdn_provider.dll": {
+        "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+        "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+        "bytes": 645120
+      },
+      "tables/layer0-embedding-inverse-f32.bin": {
+        "path": "D:/projects/layer0-embedding-dynamic-inverse-20260912-r1.bin",
+        "sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9",
+        "bytes": 993280
+      },
+      "tables/sm121-rope-bf16.bin": {
+        "path": "D:/projects/sm121-rope-bf16-264736-1c4d86d4.bin",
+        "sha256": "1c4d86d492b587a5f4f433dad84c99722d2fee702bcf27d7af77c7fe6a5d2d6a",
+        "bytes": 33886208
+      },
+      "tables/sm121-exp2-interpolated-b5752a88.bin": {
+        "path": "D:/projects/sm121-exp2-interpolated-b5752a88.bin",
+        "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec",
+        "bytes": 38909480
+      }
+    },
+    "source_environment": {
+      "path": "D:/projects/current-package-selected-runtime-r1.env",
+      "sha256": "c098f967a7cf803198ff2c6866e3dedfc8e4ada5326234de4fc04c755534232c"
+    },
+    "reference_config": {
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-short-dense-projections-20260912\\build\\relocated archive r4\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r4\\engine\\qrt.exe",
+          "sha256": "5e3e0c21370505aba8a8af0d2d73af7af66ac0a19cc393bd7fe664e6d3e2a7a2"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-short-dense-projections-20260912\\build\\relocated archive r4\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r4\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "1d5837cd9ea164a6c13f5a83fe60112066b09849c0f027fd598027bb84723dea"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-short-dense-projections-20260912\\build\\relocated archive r4\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r4\\runtime.env",
+          "sha256": "88e5812cb826af938c3555f593e59b5b51f784956dee93f062c60630f79b191d"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-short-dense-projections-20260912\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-short-dense-projections-20260912\\build\\relocated archive r4\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r4\\runtime-manifest.json",
+          "sha256": "72426b849f7d29f167d78291d762f77f72bf37de7fe7244b0024f6c67e53d4e3"
+        }
+      },
+      "port": 18141,
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "model_id": "qwen3.6-35b-a3b",
+      "server_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+      "working_directory": "D:\\projects\\AIMA-public-prefix-after-decode-20260912",
+      "require_first_token_logit": true,
+      "execution_limits": {
+        "readiness_seconds": 35,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    },
+    "version": "1.0.2-current-stack.20260915.r1",
+    "package_script_sha256": "017f820fe46161b949f26b74736c2fe33295820564440948a3ad764f684c5483",
+    "http_script_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+    "source_product_evidence": {
+      "file": "benchmarks/correctness/long-query-range-q8192-20260915.json",
+      "sha256": "ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009"
+    },
+    "source_prefix_evidence": {
+      "file": "benchmarks/correctness/long-query-range-prefix16k-20260915.json",
+      "sha256": "004c76c50435db7aae7ce38af572a9f73c25d4e3b0db5d391d31c33b8f99eb8f"
+    },
+    "published": false,
+    "performance_qualified": false,
+    "release_qualified": false
+  },
+  "native_stage": {
+    "name": "current-package-stage-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Program Files\\Python313\\python.exe",
+      "working_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914",
+      "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "command_file": "D:\\projects\\run-native-current-package-r1.ps1",
+      "command_file_sha256": "67f957b4a892ddf3d67ea7066f9e0c02353232f3442a3331a8cd8e570c6b03c9",
+      "model": "none; stage verified runtime and CPU preflight",
+      "inference_acceptance": false,
+      "purpose": "Current24c/42c/4a7/2ee portable package, followed by actual HTTP correctness and transport. Numeric environment options match the qualified q8192 control. Performance and release thresholds remain unchanged; no publication.",
+      "arguments": [
+        "D:\\projects\\stage_current_package_r1.py"
+      ],
+      "model_loaded": false,
+      "controller_file": "D:\\projects\\stage_current_package_r1.py",
+      "controller_sha256": "88cdc7ce537e510f72fda4e5a354e092e1c40c3c40bbf3fcacf81edf6dde35e6"
+    },
+    "launch": {
+      "pid": 13544,
+      "utc": "2026-09-14T20:21:06.9790922Z",
+      "timeout_seconds": 360,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 20009.165,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+    "canonical_raw_sha256": {
+      "FILE-SHA256SUMS.json": "37ad605cc9bae4a1e3b3c1183fa445d7978a554595ce0db2290d49605027e913",
+      "archive-report.json": "5671edc992c12ee56ffc9a2d124817b6d4041de449ec6cf24d2015ce9e37e7ef",
+      "config.json": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+      "cpu-preflight.json": "e6750fe4a33f1ba6005bc18a240a6c1383fd3977874e5bb7be0163de02176e3f",
+      "dispatch.json": "5e8a23dee681860b68c3d581811573787e3bda6dc0632c447b0e691c13a0f111",
+      "launch.json": "f70c3ec8301f1f727d7bb049db4288f18015276d221c9ca0da01b622d6ec60ac",
+      "preflight.json": "7ae1e07a75f6b540bb114768f939e5d5078a25d17a9315fb6075aed70c05cbf2",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "5888ae019904cceb92b55d85325f99d416fe852a3e4ca8226e1547305233763b",
+      "run-record.json": "fa4ac2a04bacb75074298386ed328558aa1ceda54d8dbadf15bd21f463ee8d74",
+      "runtime-manifest.json": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635",
+      "runtime.env": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    },
+    "reports": [
+      {
+        "status": "cpu_preflight_pass",
+        "error": null,
+        "gpu_executed": false,
+        "full_product_gate_pass": false
+      },
+      {
+        "status": "current_package_staged_and_relocated",
+        "archive_bytes": 131997808,
+        "archive_sha256": "5c8ea7a76a2ac368a306641104c277978a67f4770d62b7002b1e0b6354edc458",
+        "release_files": 281,
+        "runtime_artifacts": 268,
+        "portable_paths": 33,
+        "original_staging_directory_unavailable": true,
+        "published": false
+      }
+    ]
+  },
+  "native_http": {
+    "name": "current-package-test-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Program Files\\Python313\\python.exe",
+      "working_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914",
+      "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "command_file": "D:\\projects\\run-native-current-package-r1.ps1",
+      "command_file_sha256": "67f957b4a892ddf3d67ea7066f9e0c02353232f3442a3331a8cd8e570c6b03c9",
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "inference_acceptance": false,
+      "purpose": "Current24c/42c/4a7/2ee portable package, followed by actual HTTP correctness and transport. Numeric environment options match the qualified q8192 control. Performance and release thresholds remain unchanged; no publication.",
+      "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+      "arguments": [
+        "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\verify_baiying_q8192_http.py",
+        "--execute",
+        "--config",
+        "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-http-config-r1.json",
+        "--out",
+        "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-requests-r1"
+      ],
+      "controller_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\verify_baiying_q8192_http.py",
+      "controller_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5"
+    },
+    "launch": {
+      "pid": 7472,
+      "utc": "2026-09-14T20:22:15.0204345Z",
+      "timeout_seconds": 420,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 90381.916,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+    "canonical_raw_sha256": {
+      "dispatch.json": "3beb69d742895341bc3be3de2dcf7733ee3955773c78e553ff05b16fabbbf497",
+      "launch.json": "7ae9a647fa5a25676a3f973ed3f81cf821d47a51bd755b65c2e3d4bb1c3bd986",
+      "offline-boundary-replay-r1.json": "c8bca895e0ca83a9d3c437e5ca20d0a8894d1a061aebfd116c4e306cb00ba997",
+      "preflight.json": "234ad52e5f76e150556505cffc44e4da1c3a5c8408cbae4eef11f02cc4b5c170",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "b41955a854c2351013957ab4ef8961070c050a1aa94f72b3875f8d4e21845557",
+      "run-record.json": "d51d85e74bd16249763fa4d0f19487bd2a43cb7612d881c4212e5c565c7e0c0a"
+    },
+    "reports": [
+      {
+        "status": "http_token_transport_pass",
+        "error": null,
+        "gpu_executed": true,
+        "full_product_gate_pass": false
+      }
+    ]
+  },
+  "archive": {
+    "schema_version": 1,
+    "host": "baiying",
+    "source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "input_sha256": "164d53b8af567d828873ea016a02711cb9f17e12b4bf5f843db62333347a743d",
+    "controller_file": "D:\\projects\\stage_current_package_r1.py",
+    "controller_sha256": "88cdc7ce537e510f72fda4e5a354e092e1c40c3c40bbf3fcacf81edf6dde35e6",
+    "package_command": [
+      "powershell.exe",
+      "-NoProfile",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\package-runtime.ps1",
+      "-RuntimeDir",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-current-package-r1",
+      "-OutDir",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-archive-r1",
+      "-Version",
+      "1.0.2-current-stack.20260915.r1",
+      "-CkProviderRelativePath",
+      "ck-fmha/qrt_ck_fmha_sm121.dll"
+    ],
+    "package_and_relocation_wall_seconds": 16.86019119998673,
+    "package": {
+      "archive": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-archive-r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1.zip",
+      "bytes": 131997808,
+      "sha256": "5c8ea7a76a2ac368a306641104c277978a67f4770d62b7002b1e0b6354edc458",
+      "checksum_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-archive-r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1.zip.sha256",
+      "source_commit": "24c4304a16a1665701d05444619d46b832c73e43"
+    },
+    "package_stderr": "",
+    "parent_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+    "stage_manifest_sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635",
+    "archive_crc_pass": true,
+    "release_file_hashes_pass": true,
+    "runtime_file_hashes_pass": true,
+    "release_files": 281,
+    "runtime_artifacts": 268,
+    "portable_path_rewrites": [
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/aot/gfx1151",
+        "portable": "${RUNTIME_DIR}/aot/gfx1151"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL",
+        "original": "D:/projects/AIMA-public-long-decoded-qk-20260915/build/long-decoded-qk/qrt_ck_fmha_sm121.dll",
+        "portable": "${RUNTIME_DIR}/ck-fmha/qrt_ck_fmha_sm121.dll"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL",
+        "original": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+        "portable": "${RUNTIME_DIR}/q8192-moe/qrt_triton_moe_q8192_provider.dll"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_KERNEL_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/q8192-moe",
+        "portable": "${RUNTIME_DIR}/q8192-moe"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_DLL",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/aiter-gdn/qrt_aiter_fused_gdn_q8192_provider.dll",
+        "portable": "${RUNTIME_DIR}/aiter-gdn/qrt_aiter_fused_gdn_q8192_provider.dll"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_KERNEL_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/aiter-gdn",
+        "portable": "${RUNTIME_DIR}/aiter-gdn"
+      },
+      {
+        "key": "QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_DLL",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/q1024-moe/qrt_triton_moe_q1024_exact_provider_slots64.dll",
+        "portable": "${RUNTIME_DIR}/q1024-moe/qrt_triton_moe_q1024_exact_provider_slots64.dll"
+      },
+      {
+        "key": "QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_KERNEL_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/q1024-moe/moe-kernels",
+        "portable": "${RUNTIME_DIR}/q1024-moe/moe-kernels"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL",
+        "original": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+        "portable": "${RUNTIME_DIR}/fla/qrt_fla_chunk_gdn_provider.dll"
+      },
+      {
+        "key": "QRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR",
+        "original": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla",
+        "portable": "${RUNTIME_DIR}/fla"
+      },
+      {
+        "key": "QRT_FLA_GDN_SM121_EXP2_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-exp2-negative-f490940d.bin"
+      },
+      {
+        "key": "QRT_FLA_GDN_SM121_RSQRT_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-rsqrt-positive-ca0230a8.bin"
+      },
+      {
+        "key": "QRT_QWEN36_GB10_GATE_LUT_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/gates",
+        "portable": "${RUNTIME_DIR}/tables/gates"
+      },
+      {
+        "key": "QRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH",
+        "original": "D:/projects/layer0-embedding-dynamic-inverse-20260912-r1.bin",
+        "portable": "${RUNTIME_DIR}/tables/layer0-embedding-inverse-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_SM121_SILU_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-silu-bf16-673f8dd1.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-silu-bf16-673f8dd1.bin"
+      },
+      {
+        "key": "QRT_QWEN36_GB10_GATED_SILU_F32_LUT_PATH",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/full-gated-silu-f32-lut-f32.bin",
+        "portable": "${RUNTIME_DIR}/tables/full-gated-silu-f32-lut-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_GFX1151_SM121_RSQRT_CORRECTION_PATH",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+        "portable": "${RUNTIME_DIR}/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin"
+      },
+      {
+        "key": "QRT_QWEN36_CUDA_ROUTER_EX2_FRACTION_LUT_PATH",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/cuda-router-ex2-fraction-f32.bin",
+        "portable": "${RUNTIME_DIR}/tables/cuda-router-ex2-fraction-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/cuda-vllm-silu-bf16-domain.bin",
+        "portable": "${RUNTIME_DIR}/tables/cuda-vllm-silu-bf16-domain.bin"
+      },
+      {
+        "key": "QRT_QWEN36_GB10_FULL_ATTENTION_ROPE_CACHE_PATH",
+        "original": "D:/projects/sm121-rope-bf16-264736-1c4d86d4.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-rope-bf16.bin"
+      },
+      {
+        "key": "QRT_CK_FMHA_SM121_EXP2_TABLE",
+        "original": "D:/projects/sm121-exp2-interpolated-b5752a88.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-exp2-interpolated-b5752a88.bin"
+      },
+      {
+        "key": "QRT_CK_FMHA_SM121_RCP_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-attention-rcp-d2e55754.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-attention-rcp-d2e55754.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_RCP_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-attention-rcp-d2e55754.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-attention-rcp-d2e55754.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_ROPE_TABLE",
+        "original": "D:/projects/sm121-rope-bf16-264736-1c4d86d4.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-rope-bf16.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_ROUTER_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/cuda-router-ex2-fraction-f32.bin",
+        "portable": "${RUNTIME_DIR}/tables/cuda-router-ex2-fraction-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_MOE_SILU_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/cuda-vllm-silu-bf16-domain.bin",
+        "portable": "${RUNTIME_DIR}/tables/cuda-vllm-silu-bf16-domain.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_EXP2_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-exp2-negative-f490940d.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_RSQRT_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-rsqrt-positive-ca0230a8.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_BETA_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sigmoid-beta-f32.bin",
+        "portable": "${RUNTIME_DIR}/tables/sigmoid-beta-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_GATE_LUT_DIR",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/gates",
+        "portable": "${RUNTIME_DIR}/tables/gates"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_SILU_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/sm121-silu-bf16-673f8dd1.bin",
+        "portable": "${RUNTIME_DIR}/tables/sm121-silu-bf16-673f8dd1.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_GATED_SILU_TABLE",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/full-gated-silu-f32-lut-f32.bin",
+        "portable": "${RUNTIME_DIR}/tables/full-gated-silu-f32-lut-f32.bin"
+      },
+      {
+        "key": "QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION",
+        "original": "D:/projects/AIMA-public-prefix-after-decode-20260912/build/relocated archive r1/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-strict-http.r3/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+        "portable": "${RUNTIME_DIR}/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin"
+      }
+    ],
+    "numeric_environment_options_unchanged": true,
+    "original_staging_directory_unavailable": true,
+    "archived_staging_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-source-archived-r1",
+    "relocated_runtime_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1",
+    "relocated_profile_sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+    "release_file_manifest_sha256": "37ad605cc9bae4a1e3b3c1183fa445d7978a554595ce0db2290d49605027e913",
+    "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+    "model_copied": false,
+    "inference_acceptance": false,
+    "performance_qualified": false,
+    "release_qualified": false,
+    "published": false
+  },
+  "runtime_manifest": {
+    "schema_version": 1,
+    "host": "baiying",
+    "dirty_tree": false,
+    "offload_arch": "gfx1151",
+    "composable_kernel_tree_sha256": "c537a0d6f8fcfc49deadcf338798d63f2a9aab203abdd4ebb89a5660538ba1bb",
+    "composable_kernel_source_file_count": 1201,
+    "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "component_commits": {
+      "server": "24c4304a16a1665701d05444619d46b832c73e43",
+      "cli": "24c4304a16a1665701d05444619d46b832c73e43",
+      "whole": "24c4304a16a1665701d05444619d46b832c73e43",
+      "ck": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+      "moe": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+      "fla": "2ee62152cc808e97974f7d3d4346255a4438a213"
+    },
+    "source_component_builds": {
+      "server": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-server/build-provenance.json",
+          "sha256": "929f9207a7f417d64baa208a9df9c5356331c1322cffb8f2a61ed5e21d6326aa"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\runtime-tail-server\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "package_path": "engine/qrt.exe"
+      },
+      "cli": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/product-cli/build-provenance.json",
+          "sha256": "6608778b2638340447b05e0af677e4d11febca515128757430dea9bab2b3b757"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\product-cli\\qrt-product.exe",
+          "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+        },
+        "package_path": "product-cli/qrt-product.exe"
+      },
+      "whole": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/build-provenance.json",
+          "sha256": "8280270c4c48115cbc11921b39ec11d4a9a832d67a2b11fc24568ccbf9b79a4f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469",
+          "bytes": 13112320
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll"
+      },
+      "ck": {
+        "commit": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-long-decoded-qk-20260915/build/long-decoded-qk/build-ck-provenance.json",
+          "sha256": "449a7be6c4c1482e9d62ba387736a58ccb9c11c9d825a282af436560c0da8d97"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-long-decoded-qk-20260915\\build\\long-decoded-qk\\qrt_ck_fmha_sm121.dll",
+          "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b",
+          "bytes": 1674752
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll"
+      },
+      "moe": {
+        "commit": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/build-provenance.json",
+          "sha256": "5a8ce889b2166319242fa6cda9f4ba061cb9927cd088f5e65e1ef92020772d8f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+          "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+          "bytes": 818688
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll"
+      },
+      "fla": {
+        "commit": "2ee62152cc808e97974f7d3d4346255a4438a213",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/build-provenance.json",
+          "sha256": "156ac3a3026604b2e970a609ec5496cbde8e1924ba5dde789179d270b4070975"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+          "bytes": 645120
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll"
+      }
+    },
+    "artifacts": [
+      {
+        "path": "aiter-gdn/metadata.json",
+        "bytes": 2173,
+        "sha256": "f254fd6a50443c32b6228b7662f4ed9efb4c0f682a909b1d30a964e0689c3c28"
+      },
+      {
+        "path": "aiter-gdn/q1024_seeded_aiter_fused_gdn.hsaco",
+        "bytes": 13760,
+        "sha256": "05509ee3990ba3eff42f9df0e73bc06696db3524ed2b7cbece90a98606d0c35c"
+      },
+      {
+        "path": "aiter-gdn/q262144_aiter_fused_gdn_bf16.hsaco",
+        "bytes": 10984,
+        "sha256": "9aab9bc2192a4c54e4f9c92c3244c2f49f0ad5feb5471d738e3b8834b2f337e0"
+      },
+      {
+        "path": "aiter-gdn/q32768_seeded_aiter_fused_gdn_bf16.hsaco",
+        "bytes": 14832,
+        "sha256": "3f27997e6ab335d1e4cab3055bcebe4557369ab575822d0bad8023cab12ef580"
+      },
+      {
+        "path": "aiter-gdn/q8192_aiter_fused_gdn.hsaco",
+        "bytes": 9544,
+        "sha256": "1273317893db05ca33f29fdbc04677ea6d1036833ebab061f8414a9f303ea511"
+      },
+      {
+        "path": "aiter-gdn/qrt_aiter_fused_gdn_q8192_provider.dll",
+        "bytes": 152064,
+        "sha256": "075ba49ccde3c7a73b5a09e8e25a677c19ee2234965465a7148de11e9cd49727"
+      },
+      {
+        "path": "aiter-gdn/seeded-metadata.json",
+        "bytes": 2388,
+        "sha256": "3cc31a3f2e0a1dae18d65c89e2c77e02badf121d55e60fd6ac67004a85146dd5"
+      },
+      {
+        "path": "aot/gfx1151/kernel_unified_attention_3d.compiler.json",
+        "bytes": 1098,
+        "sha256": "00b14594e7b8fd28f50f70714936eca5ecf97093f255d2b0cb7e1c895106e150"
+      },
+      {
+        "path": "aot/gfx1151/kernel_unified_attention_3d.hsaco",
+        "bytes": 17232,
+        "sha256": "7ec8018503d558fdf50dca33cb61ae87be094c519a9cd6bc394cf96d1afb29ff"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_down_sum.hsaco",
+        "bytes": 6920,
+        "sha256": "4760439fdce74da05aec4747eccd317227829d50fdcb97a63c72ba5df342d125"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_metadata.json",
+        "bytes": 1322,
+        "sha256": "921b1d0c2cba594e61aac8f92c3f0788e741466fcabd1e91505f13c8cd9c3669"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4.hsaco",
+        "bytes": 9688,
+        "sha256": "79fe33614d7ee71b169f18bb8cdb36f572e1c26448c551ec746ab175f1a17546"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q16384.hsaco",
+        "bytes": 9688,
+        "sha256": "c4b62525afa570e13a69a0d9a85c65e08bb62143ef58d666e4859b136125931a"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q16384_tail1536.hsaco",
+        "bytes": 9472,
+        "sha256": "66354eba39110679cf1bfdae916b4c6672457647f62aa35fa1fe93355c7fc8bc"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q16384_tail512.hsaco",
+        "bytes": 9472,
+        "sha256": "0da373e85ef3626076b348cb74c059dacdfa26ef1882a3a0b7d0acc13a2f5d0f"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q32768.hsaco",
+        "bytes": 9688,
+        "sha256": "d629c5a06cd53742e01258c1678893c98f12748979cd8cd3cd6b972e7a334d03"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q32768_tail1536.hsaco",
+        "bytes": 9480,
+        "sha256": "22c90720a3475f8809ed2be7a4365ca6426629695cc8b26eff7580ef5b905edb"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_q32768_tail512.hsaco",
+        "bytes": 9472,
+        "sha256": "ddd0f8b67427dd64486250b81cd65aa3142db3a9387e9fef6969e6da5632fe54"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_n64_d16_w4_tail512.hsaco",
+        "bytes": 9472,
+        "sha256": "5d49997fdbd2ee273b6c1befc8871f566f6a6e761e81864d46f70ea6783bc746"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q16384_metadata.json",
+        "bytes": 1330,
+        "sha256": "d197c1a17c27ba86af33c7d924d5e6fd4ab6660b7f2e4a736498061b1422d69b"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q16384_tail1536_metadata.json",
+        "bytes": 1341,
+        "sha256": "f7efa97f431c96860078dfd8b0370fde405972d5dbf4f564d47a42d01969567a"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q16384_tail512_metadata.json",
+        "bytes": 1339,
+        "sha256": "d98bdb83b4ef644d77f62de897278b4ce7edb33751755ff88306487257679104"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q32768_metadata.json",
+        "bytes": 1330,
+        "sha256": "fb142cd2fa3e486556fe8dec5d1eb05e08f94356b428026eb68d2949c75fa37c"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q32768_tail1536_metadata.json",
+        "bytes": 1336,
+        "sha256": "b8380ea54fbfb076b78691806d0a43da97be2af825bbfdb94b45b77f548fe36f"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_pv_q32768_tail512_metadata.json",
+        "bytes": 1339,
+        "sha256": "4adea1c246d044adff61584019fdfbf8cbf75cb31e83ed38f18c271ecec2508b"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_metadata.json",
+        "bytes": 1306,
+        "sha256": "3d395cbdbadcc3caa90780f9a82f09e7c22619c6a36241720c8cd28a43dcc9e8"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8.hsaco",
+        "bytes": 16152,
+        "sha256": "0c71a6a78f7646bb1ed6431f25861587f86faad38644f918411ce611631691f9"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q16384.hsaco",
+        "bytes": 16152,
+        "sha256": "2a4eac9cb700e5de3132cce47e5d8b95ba9a030a3c1f00d8f79cc7569f3eb333"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q16384_tail1536.hsaco",
+        "bytes": 16152,
+        "sha256": "24fdb43ea3573179a9ec6384062ef19af4aec5f5054f3589d7c8e328cdf8cf17"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q16384_tail512.hsaco",
+        "bytes": 16152,
+        "sha256": "882ae3449982e77f5879ca04a1f462bee75b970328e4ecc73799649b580bf82c"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q32768.hsaco",
+        "bytes": 16152,
+        "sha256": "4929829df1ad597d3bb0001e84900b7dc3fe50394615359fba3c08363dee0172"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q32768_tail1536.hsaco",
+        "bytes": 16296,
+        "sha256": "7b7a55d7dbbf9a52dc5ef6b3826fcdd25f2cb8f8e5576e6d7b39cbae612d1525"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_q32768_tail512.hsaco",
+        "bytes": 16152,
+        "sha256": "fd3a5942ac97a448265b1e81175409071ed8a10f8c49f1d6033567f87d3d1ece"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_n32_w8_tail512.hsaco",
+        "bytes": 16152,
+        "sha256": "57dbffd944a1ff18efbfcb09fb3510a7cc24fc034c05f63deb4e7448dd279ecc"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q16384_metadata.json",
+        "bytes": 1315,
+        "sha256": "efac4996262f278aa6b8b0e42b8d6176a2b1dbfa6f726fa229a0da0d9bb1fca3"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q16384_tail1536_metadata.json",
+        "bytes": 1326,
+        "sha256": "fc075befd68f8b9b8bf0fc53334d3df5c0dd39c128604d6996e15384f4830e11"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q16384_tail512_metadata.json",
+        "bytes": 1324,
+        "sha256": "9eb56f182ede15a4fa4eb419cd886104f771a0292c323b90142051871fa191ad"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q32768_metadata.json",
+        "bytes": 1316,
+        "sha256": "f67ff257a6b20dafbc466d27f9bf0953708d8034f1a844e5be932b5a720ecf6a"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q32768_tail1536_metadata.json",
+        "bytes": 1357,
+        "sha256": "488a236bbb6c952903230ad7cb51c51b45f737e040b7c21c8fc4dc3a8e4fb5ed"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qk_q32768_tail512_metadata.json",
+        "bytes": 1325,
+        "sha256": "e263b1695c0771f5e685336802e44b07ff6ca022591b2400e3994d0fcd391387"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qkv_metadata.json",
+        "bytes": 1521,
+        "sha256": "e4eb916c4f4d324b288294e24919788d06a20f326cb6270eea6c8055c7a9dad1"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_full_attention_qkv_w8.hsaco",
+        "bytes": 7952,
+        "sha256": "a74ba3b8f650f0e019f6aff270aca7db3363064dd1d0ee72813a396dc2def1ff"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_gate_up_silu.hsaco",
+        "bytes": 8848,
+        "sha256": "7d4b3f9a0625df6bf6a7bd19eeaf6601a4062ac98c44451842780983d0054aa9"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_gate_up_silu_w8.hsaco",
+        "bytes": 8136,
+        "sha256": "d8121b0d85c0a2c5e80e9a2b49177d72890a78d128a7fa309978b89829b87cad"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_linear_qkvz_ab_direct_f32_w8.hsaco",
+        "bytes": 7040,
+        "sha256": "d4ac40fee960bc398191af93450a5da31567aa729835bc9d824d077de2c8f686"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_linear_qkvz_ab_metadata.json",
+        "bytes": 2514,
+        "sha256": "52fe208a23998aa02260983fc4ca2f157810914df5b5d29bdc22a2f64f552105"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_linear_qkvz_ab_w8.hsaco",
+        "bytes": 6784,
+        "sha256": "e4a67f935aba9812c3d7c6f60820cb39616ee3f635c412e19d48d8b27531b52e"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_lm_head_metadata.json",
+        "bytes": 1391,
+        "sha256": "bcc522da65bbccdb9470f08c0313a7f26b3cec1349d55b87cb1fcb3f75d0c82f"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_lm_head_w8.hsaco",
+        "bytes": 6424,
+        "sha256": "ce2fc2545c25fbb4286fc57aa9abad8d1c35ec4efcc02d11d72c94e1e4e85b40"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_metadata.json",
+        "bytes": 4637,
+        "sha256": "3de28491e75de37db66dabc82616d60b13bd5c0cdb2338486461478faabacbb8"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_output_matvec_metadata.json",
+        "bytes": 1570,
+        "sha256": "590d3513c923b53cc9e41d1a984f2521e1c35f4f36e96cf84111087390348d72"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_output_matvec_w8.hsaco",
+        "bytes": 7616,
+        "sha256": "f4c82a4a3097c72ab70b43bb04f6b2546f8a8caefceb849f1587fcac271b7a0c"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_shared_down.hsaco",
+        "bytes": 6488,
+        "sha256": "f4c6f2ef82493194deb4c10a93ccd2825779e1cccb86422dd10880d85c0c47a2"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_shared_gate_logit.hsaco",
+        "bytes": 7392,
+        "sha256": "8cc8a08d3ed1d66f36a0d063ed501af38f676bbe48a3c4a1e2bb52db0750248d"
+      },
+      {
+        "path": "aot/gfx1151/q1_triton_0626_shared_gate_up_silu.hsaco",
+        "bytes": 8896,
+        "sha256": "ded15a610818641d0c0739cdd931c5893d98b1c95aefbe1daafdd3c04100325f"
+      },
+      {
+        "path": "aot/gfx1151/q1024_seeded_aiter_fused_gdn.hsaco",
+        "bytes": 13752,
+        "sha256": "8a2711f9b047075f5d6ffb909c2bd93bf559e9e2cc8332386bd57f0e341562ee"
+      },
+      {
+        "path": "aot/gfx1151/q1024_seeded_aiter_fused_gdn.json",
+        "bytes": 2388,
+        "sha256": "437831a0b733e2d2be4fda2702cefe92a922f8ed2727f7770f65ccff1e24334c"
+      },
+      {
+        "path": "aot/gfx1151/q1024_selected_moe_bf16_endpoint_metadata.json",
+        "bytes": 903,
+        "sha256": "a07075a742424d8a76072f5754ac02dcb090ae0dc0132caae56acb68f6ac4a6e"
+      },
+      {
+        "path": "aot/gfx1151/q1024_selected_moe_down_bf16_endpoint.hsaco",
+        "bytes": 14944,
+        "sha256": "7ef97a552863728c906bcb6a23ac20991830b39191d18208ad6a6eef4e34ed46"
+      },
+      {
+        "path": "aot/gfx1151/q1024_selected_moe_route_scatter.hsaco",
+        "bytes": 6416,
+        "sha256": "2859b650f413d6e7f8610f8f2e9d9d2fcdf1f611c9615e2411f40ac1ba00dc20"
+      },
+      {
+        "path": "aot/gfx1151/q1024_selected_moe_route_scatter_metadata.json",
+        "bytes": 874,
+        "sha256": "68047d6f477749e2dc39f53f6ae57b5b67414605729151ba335f127d22efec54"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_down_sum.hsaco",
+        "bytes": 6968,
+        "sha256": "d2262872e5901f621cd76d71a55ebf1546e5942dc45bc628c08d1988d1c76669"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_gate_up_silu_w8.hsaco",
+        "bytes": 8184,
+        "sha256": "27e225f8531b69c5422d9a0e58c2a0a9d6e88b8bdc34fbf44084b3b3f9af4efb"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_metadata.json",
+        "bytes": 4144,
+        "sha256": "bc0527412bb3f043d4668adf2e35f1564d5cd1e8663fc369b91d80718a87609e"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_packed_down_sum.hsaco",
+        "bytes": 7360,
+        "sha256": "caafc7c36a87389d13dc53bc6956f605c83cfd0c298b744e5fc87ee50616e5f1"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_packed_gate_up_silu_w8.hsaco",
+        "bytes": 8408,
+        "sha256": "cab98c2af402e3ac10e26ff81d255fc6938987a8611da9b377a0b72ef5421108"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_shared_down.hsaco",
+        "bytes": 6560,
+        "sha256": "59660c53509b2e890cbfa2aa27dd8246d856bb1262e7a5ce6a74e71f800befb0"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_shared_gate_logit.hsaco",
+        "bytes": 7408,
+        "sha256": "ef4e89749c46eb71c0078d740ff8fd038aba645621c2e654f9e4b11acc915163"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_shared_gate_up_silu.hsaco",
+        "bytes": 8952,
+        "sha256": "3084f09e1f317ea02db6679d9049c72dd66f5ff708353d83ef74bdba3134eb39"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_sorted_packed_down.hsaco",
+        "bytes": 8192,
+        "sha256": "ec9aba8cb22ee49694325536f5673ec3639f957988b72d8477aaeb1aa1c034b8"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_sorted_packed_gate_up_silu_w8.hsaco",
+        "bytes": 8816,
+        "sha256": "4df95a052274e382842484025f8180c8ae11bd2702d1f3e52b3e6544a0fcb8df"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_exact_sorted_packed_route_combine.hsaco",
+        "bytes": 6168,
+        "sha256": "8475ae6efaf95471bd7f08c4984ff70e86c38bdfddf2c2a4bcf9b5772f0668ca"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_pv_n64_d16_w4_q16384_tail1536.hsaco",
+        "bytes": 10328,
+        "sha256": "5c7e57052c8cc38928b2cc651790b90723d12d63c2b17f85ea9e239ff30786b4"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_pv_q16384_tail1536_metadata.json",
+        "bytes": 1489,
+        "sha256": "c4ed677053a36c51b7091eb622bfd8ecb5648ba1b6ad07bc943a877be3f5ed2f"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qk_n32_w8_q16384_tail1536.hsaco",
+        "bytes": 17296,
+        "sha256": "5106f3130f809723069abe052132509c58e4c3fbfd3019286069c528ee7553c4"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qk_q16384_tail1536_metadata.json",
+        "bytes": 1473,
+        "sha256": "de7efbd7a859349320aeef748486beb355ed59ab16f4131fc37e98fd08ee89b9"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qkv_exact_metadata.json",
+        "bytes": 1620,
+        "sha256": "9ea852a4bd88b8087fb40d1891d0cef590276e5d108d118c7a19ab9de7e64e87"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qkv_exact_tokenpack8_metadata.json",
+        "bytes": 1664,
+        "sha256": "0e769d9bec59341ca8b6eb09c6fe32f0b53e064af9d52256c8c757938bb51817"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qkv_exact_tokenpack8_w8.hsaco",
+        "bytes": 11888,
+        "sha256": "281a2eeea35ad1acde6f699e24a85e2783419822bdd3e186189c99d497318e3b"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_full_attention_qkv_exact_w8.hsaco",
+        "bytes": 8096,
+        "sha256": "15f95e5f4f31c15e5fc5041b78e9145b33c30c0c1b6ed45c8996dc1297d8032f"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_linear_qkvz_ab_direct_f32_tokenpack4_metadata.json",
+        "bytes": 1131,
+        "sha256": "3f9d9fbc5b8e1b81757bbc2a49c7de1b6f5ede58a03e5c10ce7720956204ea5d"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_linear_qkvz_ab_direct_f32_tokenpack4_w8.hsaco",
+        "bytes": 8960,
+        "sha256": "43ff7d43f2c264920da2070327faa03146d5209a3d375a7a91bd987f43855bc4"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_linear_qkvz_ab_direct_f32_w8.hsaco",
+        "bytes": 7208,
+        "sha256": "e237b3464bfad8b21ee920187ff64817418843dd6430a6fd22be7352e85c2fe2"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_linear_qkvz_ab_metadata.json",
+        "bytes": 1099,
+        "sha256": "9ff9d7036088eb65e7b91955e3fb86828c40ad866b8ae6210e07a189c6b3ab18"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_packed_exact_metadata.json",
+        "bytes": 1326,
+        "sha256": "0ec614fe343b7be59a862f6cbaf0cf2186ec349a4367575041c72788a13ea497"
+      },
+      {
+        "path": "aot/gfx1151/q1024_triton_0626_sorted_packed_exact_metadata.json",
+        "bytes": 1772,
+        "sha256": "c722ba5d73f5ddd34af3d3ad7eef98b7520d37e2ecc49c346630c32b88da3e12"
+      },
+      {
+        "path": "aot/gfx1151/q262144_aiter_fused_gdn_bf16.hsaco",
+        "bytes": 10984,
+        "sha256": "9aab9bc2192a4c54e4f9c92c3244c2f49f0ad5feb5471d738e3b8834b2f337e0"
+      },
+      {
+        "path": "aot/gfx1151/q32768_aiter_unified_attention_metadata.json",
+        "bytes": 6829,
+        "sha256": "eb21b3cde2e859c44af912329384f6dde4d51c3aa34f4f8d05a114d75fb413b1"
+      },
+      {
+        "path": "aot/gfx1151/q32768_seeded_aiter_fused_gdn_bf16.hsaco",
+        "bytes": 14832,
+        "sha256": "7acbb2cfd32e5eb5a8252bbbb6abf7f6420b84b9cd70e52d6fc01409fe6a8834"
+      },
+      {
+        "path": "aot/gfx1151/q8192_aiter_fused_gdn.hsaco",
+        "bytes": 9544,
+        "sha256": "1273317893db05ca33f29fdbc04677ea6d1036833ebab061f8414a9f303ea511"
+      },
+      {
+        "path": "aot/gfx1151/q8192_aiter_fused_gdn.json",
+        "bytes": 8566,
+        "sha256": "932cf5777244ede7a1cf151a64dc36d0dfaeff039853b5ec235465f051aff6b0"
+      },
+      {
+        "path": "aot/gfx1151/q8192_ck_tile_fmha_bf16_f32out.json",
+        "bytes": 15621,
+        "sha256": "80cc0f8733ce967c149a145e97065c75ad41d6061e3e47e5ed4943aeb9ee7feb"
+      },
+      {
+        "path": "aot/gfx1151/q8192_full_attention_qk1_pv4_bm32_bn16_sg2_w4.hsaco",
+        "bytes": 83192,
+        "sha256": "10b1d3d1ed8d8b047446bac994b9b84e21950f9ea1f8a8a54271f212bbad5d73"
+      },
+      {
+        "path": "aot/gfx1151/q8192_full_attention_qk1_pv4_bm32_bn16_sg2_w4.json",
+        "bytes": 2532,
+        "sha256": "928cc5e6ab57857d8092c49fd3d2cb5734819479c8ef7ae39381e56f8ad91b5d"
+      },
+      {
+        "path": "aot/gfx1151/q8192_full_attention_qk1_pv4_bm32_w4.hsaco",
+        "bytes": 79704,
+        "sha256": "15397e8c28fc3b31cae0928172aef6502e577c2c483dc45e23255d4d5f79acec"
+      },
+      {
+        "path": "aot/gfx1151/q8192_full_attention_qk1_pv4_bm32_w4.json",
+        "bytes": 2611,
+        "sha256": "7fad9626a10bf954802f65916e998accf461262417c5d48c06e0bb37a4c881de"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_down.hsaco",
+        "bytes": 11384,
+        "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_gate_up_silu.hsaco",
+        "bytes": 17752,
+        "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_route_count.hsaco",
+        "bytes": 4816,
+        "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 5040,
+        "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 4960,
+        "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+      },
+      {
+        "path": "aot/gfx1151/q8192_selected_moe_route_scatter.hsaco",
+        "bytes": 5608,
+        "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_conditional_exact_down_metadata.json",
+        "bytes": 1379,
+        "sha256": "fa4a231efbf41222c1b4de6e997a629a1069db2317d26ed6d5a916bea1f79ea8"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+        "bytes": 7504,
+        "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_row_major_sorted_conditional_exact_gate_metadata.json",
+        "bytes": 1748,
+        "sha256": "20b011505c1b617e41b86d84e93c8855ae54598f66e33b2776703e7e8b7d790b"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+        "bytes": 7736,
+        "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+        "bytes": 6824,
+        "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_zero_correction_gate_finalize_metadata.json",
+        "bytes": 1555,
+        "sha256": "f3665744189482631bc889e4819861ba08b114e20a50e03a1081072c53ec73c2"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+        "bytes": 6696,
+        "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu_metadata.json",
+        "bytes": 1735,
+        "sha256": "8cd90ab2fa6ee138be33c4b54410942224abbdb9e91d319e1deae7278e3586ea"
+      },
+      {
+        "path": "aot/gfx1151/q8192_triton_selected_moe_f32out.json",
+        "bytes": 5614,
+        "sha256": "41e77d3afdecba63ee15c63e5f585f44ae29a6220e296e2752dcc18cfd24dc14"
+      },
+      {
+        "path": "aot/gfx1151/reduce_segments.compiler.json",
+        "bytes": 1085,
+        "sha256": "84cafb5b765a2f01cff1f3d7ac58f5215566e1aafe085a842491c5056424b790"
+      },
+      {
+        "path": "aot/gfx1151/reduce_segments.hsaco",
+        "bytes": 13192,
+        "sha256": "97acbb914c098e431ce20e533a135d371b9adaf2c425debeb1c04dbd44035188"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/metadata.json",
+        "bytes": 5448,
+        "sha256": "3e3548bc392b30a617d9b78084477e70fc4ca6db3688ae85f7d1ce80cceb6013"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_bf16_endpoint_metadata.json",
+        "bytes": 903,
+        "sha256": "a07075a742424d8a76072f5754ac02dcb090ae0dc0132caae56acb68f6ac4a6e"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "235eb752b3d0294155c1d1614728e6a8f8c7f66b3cb2a55e76b0643ec65afd74"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_down_bf16_endpoint.hsaco",
+        "bytes": 14944,
+        "sha256": "7ef97a552863728c906bcb6a23ac20991830b39191d18208ad6a6eef4e34ed46"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "170cd0c78f2627dbaf440c66f568681f5f71138554b3837d8c4d22718ee54b37"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "c8ecb636c77e61b7cf029702f613071bcd9bc930326010f4893a30ddf08e6997"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 8104,
+        "sha256": "320052cad4587429aeb1e057db3e2ac01c1f4fad5e5a9bb0ce41a51c5fddd41a"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_route_scatter.hsaco",
+        "bytes": 6416,
+        "sha256": "2859b650f413d6e7f8610f8f2e9d9d2fcdf1f611c9615e2411f40ac1ba00dc20"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_selected_moe_route_scatter_metadata.json",
+        "bytes": 874,
+        "sha256": "68047d6f477749e2dc39f53f6ae57b5b67414605729151ba335f127d22efec54"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_down_sum.hsaco",
+        "bytes": 6968,
+        "sha256": "d2262872e5901f621cd76d71a55ebf1546e5942dc45bc628c08d1988d1c76669"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_gate_up_silu_w8.hsaco",
+        "bytes": 8184,
+        "sha256": "27e225f8531b69c5422d9a0e58c2a0a9d6e88b8bdc34fbf44084b3b3f9af4efb"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_metadata.json",
+        "bytes": 4144,
+        "sha256": "bc0527412bb3f043d4668adf2e35f1564d5cd1e8663fc369b91d80718a87609e"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_shared_down.hsaco",
+        "bytes": 6560,
+        "sha256": "59660c53509b2e890cbfa2aa27dd8246d856bb1262e7a5ce6a74e71f800befb0"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_shared_gate_logit.hsaco",
+        "bytes": 7408,
+        "sha256": "ef4e89749c46eb71c0078d740ff8fd038aba645621c2e654f9e4b11acc915163"
+      },
+      {
+        "path": "q1024-moe/moe-kernels/q1024_triton_0626_exact_shared_gate_up_silu.hsaco",
+        "bytes": 8952,
+        "sha256": "3084f09e1f317ea02db6679d9049c72dd66f5ff708353d83ef74bdba3134eb39"
+      },
+      {
+        "path": "q1024-moe/qrt_triton_moe_q1024_exact_provider_slots64.dll",
+        "bytes": 373248,
+        "sha256": "881a1109e114ce17a3bf21ed5656928344785eb6e0ce7672f93bc62b54b5c31b"
+      },
+      {
+        "path": "smooth-tail/q1024/metadata.json",
+        "bytes": 5448,
+        "sha256": "3e3548bc392b30a617d9b78084477e70fc4ca6db3688ae85f7d1ce80cceb6013"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "235eb752b3d0294155c1d1614728e6a8f8c7f66b3cb2a55e76b0643ec65afd74"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "170cd0c78f2627dbaf440c66f568681f5f71138554b3837d8c4d22718ee54b37"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "c8ecb636c77e61b7cf029702f613071bcd9bc930326010f4893a30ddf08e6997"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 8104,
+        "sha256": "320052cad4587429aeb1e057db3e2ac01c1f4fad5e5a9bb0ce41a51c5fddd41a"
+      },
+      {
+        "path": "smooth-tail/q1024/q1024_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "7d603bfed58c39c0e4b694bc9a50b0366cffc961bb70da653299d0f69d56c2b9"
+      },
+      {
+        "path": "smooth-tail/q1024/qrt_triton_moe_q1024_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "ed221704f0daa050ce126a8d2509888f0b774f727b7ab7b3ba79b699a435215d"
+      },
+      {
+        "path": "smooth-tail/q128/metadata.json",
+        "bytes": 5438,
+        "sha256": "0c8f5551367719e15fbc18578ad4e7ad54808f82f9d7ec381972987d5db67724"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "4b57e33c4bcee7f5536969bf05325fc85f13d1aca683501f2155f72b505efa18"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "dfc42978a4f364de8191b19ea46cdc39909f6c3e48601d2fea20e043fa72078c"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "d6d9a5841afc63563777e6156de0201a3382e57030f8971a3430356a2c129610"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5384,
+        "sha256": "fad1fa609fcd7bfcb975800543dd36bd7edb9030d879752d9d3cf4d2aed19e2e"
+      },
+      {
+        "path": "smooth-tail/q128/q128_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "d92402c9514d1a1492ca5eb263ec8fcbd5499227531013fbdc784017f0fb1c4b"
+      },
+      {
+        "path": "smooth-tail/q128/qrt_triton_moe_q128_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "88e2aa274095cb60330726bfd362fca76620a2c60fcb263f153ab69c439a05ed"
+      },
+      {
+        "path": "smooth-tail/q2048/metadata.json",
+        "bytes": 5449,
+        "sha256": "7f6082496a379177101c1206b3e46fc84aa5283a0d845e6b71b8c23b5d32585e"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "0e2ee9a024660a7de1e5241e88dc41bedc649b11dc776400f1410ba57aed5aaf"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "df27db467f83aaf1155171d3126ab6b6d663a187a7572aaba899287dc1c9c6b0"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "c8d706a5933e04f98aae778f2ef2636b465b037efc52db3751b42d829c03ab9e"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5880,
+        "sha256": "657de066e98af0c649e2f059fd65b80020fb9d6fb4f8a5c0a385476bef7b6287"
+      },
+      {
+        "path": "smooth-tail/q2048/q2048_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "33f3d24562c7e50ed5cea7bc84f92c118318114007bb58df52af326596291cc0"
+      },
+      {
+        "path": "smooth-tail/q2048/qrt_triton_moe_q2048_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "ea0c4f99cc389b3aaedfed4aacafd6fd0e27b588a014af1dd7eba3b7817f77a2"
+      },
+      {
+        "path": "smooth-tail/q256/metadata.json",
+        "bytes": 5438,
+        "sha256": "01b56f8640f6654c6277c8a7860e7fd6fb8f927fd0957778c503a6b69de6deae"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "c9abf7f7a626113083261d2242c2a12f80c35149d92c35737c6a95e9128c61df"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "b40a0c14a2bcdb87cbc623c4bfd27fecfb359a826f67448a4bd6bec0cfb50416"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "6597abf45b16a686dc786fc5ae809346dffcfb0e2e5d392d13b5d558b5a82268"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5728,
+        "sha256": "736b7569fcb0313dfceb95fcf3c73ba4d06247958a9eca58febbad4ac0603285"
+      },
+      {
+        "path": "smooth-tail/q256/q256_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "da2db65874657b583ff0ccf768e479af4f649a5ad2ac73fbd137f2807fa4d1ec"
+      },
+      {
+        "path": "smooth-tail/q256/qrt_triton_moe_q256_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "e96cccc00fc11eb5a7a4839ff49e265547d96a613bd114f8dc736bd1cc58fe6d"
+      },
+      {
+        "path": "smooth-tail/q32/metadata.json",
+        "bytes": 5430,
+        "sha256": "56b759dd14a43726b2c0cc9de11d44ba24e8f78cc7facf43f96ae4203e3bac6c"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "9ea2d76f6e8e6cddf7caff9ab59376b1a28cd3c571119fc6c7cf0024eea288c2"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "652fb72ab2dcbbf2aa9e5035bdf303aa5f63ed14e566905aa2c3ae95808a59b0"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "bde2a0f082d5e5955dac19309135318b9a0b74fa409a1159cf7a0202ab90e451"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5192,
+        "sha256": "78053680e8ef27f51e901cf7004ddbbccbfd6dfaf352fe2f3b4e4538e82dea07"
+      },
+      {
+        "path": "smooth-tail/q32/q32_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "64a882c546e295ab3cc5636a7acd048b07db9179d67635b739c5aaf711eb6064"
+      },
+      {
+        "path": "smooth-tail/q32/qrt_triton_moe_q32_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "c41b295180d52a2c923181d95bbcde2953210135667cf8798a226146b4eb7fc1"
+      },
+      {
+        "path": "smooth-tail/q4096/metadata.json",
+        "bytes": 5452,
+        "sha256": "6efc0296040823d81baab11babdd6a069b58d1aa10e53fa67dffe6ca652f3b3e"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "17807b63bbb75b373134fb3d6505654059cca1dfa0f469ef6456efffbac0a297"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "c3363e3830c31a8070264f193d6216d85db78d9ced48fd14088dc97b943cbfac"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "b6b028bff97657fb7e8ceb4698a13d9d819c34ac78e971a140036cf8d4659bb1"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5880,
+        "sha256": "c60948296dd6eb104739d5b4c5bc2a9831f7e28cb3cb717b91c65c87250de7f1"
+      },
+      {
+        "path": "smooth-tail/q4096/q4096_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "1a96a57f57b828a11aa68d48018d390990623772c281785900204cd3b0a9f0fe"
+      },
+      {
+        "path": "smooth-tail/q4096/qrt_triton_moe_q4096_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "e3022ee3a3de0d7a7b2abab8b7c72c6106ce03594bde1ce59362d8132bf76985"
+      },
+      {
+        "path": "smooth-tail/q512/metadata.json",
+        "bytes": 5441,
+        "sha256": "cfb33cbcefd80df841567ceddad69df17fc3e0770ddff6a50828c93b1fd6fb3e"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "4efd8ba0aace7785b4da9c2fcbb92c1399bd2c5520c78c29ae7f3b5e3602b6ef"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "e402e45f995d3502d72b0c000bbe25768c916c397ca6334d2609923b06f00ce4"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "eade2f0f5eeaaf8cdaf95e90961747d50db492126b0d8b50de3d6cdbbe41d44c"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 6536,
+        "sha256": "69e6936d57e8f4cab2e32b1afe2e73920b3a9a5bec786aac86eeef4e85921f83"
+      },
+      {
+        "path": "smooth-tail/q512/q512_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "bd873a561b9a7c9cf8a9f2d7bbcf905c2624d5f1317699fc8d7a1736839028a9"
+      },
+      {
+        "path": "smooth-tail/q512/qrt_triton_moe_q512_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "50712b541c8aa3b9c7d1a853f4146d8097fea3b21aee57a1e00401cc88af5024"
+      },
+      {
+        "path": "smooth-tail/q64/metadata.json",
+        "bytes": 5430,
+        "sha256": "9e46e356d6b59b3fcf2564c832538833b501e1160cc136837ff619aa2f5d7983"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_down.hsaco",
+        "bytes": 13480,
+        "sha256": "3c259d37ab944892857d5b94c05786aca9ccb4db692cddacafb0ea473116abdb"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_gate_up_silu.hsaco",
+        "bytes": 21320,
+        "sha256": "4fc15135619eb08a46e840363a1c85ff581a6077d8b30378ceca30d019114d39"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_route_count.hsaco",
+        "bytes": 5720,
+        "sha256": "0fd66e98f22b0a5ddcbcbac51060ec840c0a2134d5d88d1b0fd54ee2dafcff12"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 6320,
+        "sha256": "1e445d44c9198d30bb724abd5d27f21d194da825c9b1f3fc59a6b81d71427bf8"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 5360,
+        "sha256": "6d1bf251f2b9260bd85fef289f69e7d029c406cdb264dfd262eb5de67c4e1b4a"
+      },
+      {
+        "path": "smooth-tail/q64/q64_selected_moe_route_scatter.hsaco",
+        "bytes": 6656,
+        "sha256": "7b6ac55e00541c17f61360bdadbe91adbe5e41759cbdd0c6323b49d24d2846a0"
+      },
+      {
+        "path": "smooth-tail/q64/qrt_triton_moe_q64_fast_tail_provider.dll",
+        "bytes": 406016,
+        "sha256": "9fff360cb74da8010a164dd5345719cea8b3c2c188f864da38875b47c4dc00c4"
+      },
+      {
+        "path": "whole-provider/qrt_qwen36_whole_provider.dll",
+        "bytes": 13112320,
+        "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+      },
+      {
+        "path": "fla/metadata.json",
+        "bytes": 13951,
+        "sha256": "ccc2cd222559493c44e47e4fbd20707fff20ee076b9ab8728934a530f03ab803"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_chunk_output.hsaco",
+        "bytes": 16120,
+        "sha256": "b2a3b3cd79c82d9e81d5e9d5e62d0fe5b5c0304bc5f30a7a74f6ebb07774d605"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_chunk_output_bf16.hsaco",
+        "bytes": 16112,
+        "sha256": "537371753018632810cf57f9380d0cca5e55f5bbf159baa505aee62ba1a3e861"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_chunk_state.hsaco",
+        "bytes": 18880,
+        "sha256": "8d6a544319eeccf06973ec8ebb0f9b3800de458558e614663a9f8f386f3a2a8d"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_gate_cumsum.hsaco",
+        "bytes": 6664,
+        "sha256": "bd8afb0371958489f46440fc8de83cc2011f57901e7e06782d02bc3dfb87e5a2"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_qk_l2norm.hsaco",
+        "bytes": 26816,
+        "sha256": "aa8d8404dd06ff0c65826c86c60dfdfcff4f8d59784f0d339313ae4acfa13337"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_qk_l2norm_bf16.hsaco",
+        "bytes": 27960,
+        "sha256": "0c1c85ea727c19df14fe0ccc9b1bbdabfeaa804f4d08ef40c18b4cc212d85b08"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_recompute_w_u.hsaco",
+        "bytes": 45112,
+        "sha256": "6ef5f9587e527b534cf5ff3f6a85110400975b5efde7afa42da1726783251ee4"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_scaled_dot_kkt.hsaco",
+        "bytes": 38272,
+        "sha256": "9b91d71ef24f22a96a855c513171c4007f76b74005000d3f12a94a3356559ced"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_solve_tril_64.hsaco",
+        "bytes": 13160,
+        "sha256": "80a9c752fe7e6ed0d408889e231f10d474eaa942e96554275f37ed33435965dd"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_v_beta_copy.hsaco",
+        "bytes": 6168,
+        "sha256": "901e3427514b89656c331f69da91ac8b5e09d75fd12279a41b1be2203a5a0ca8"
+      },
+      {
+        "path": "fla/q8192_fla_chunk_gdn_v_beta_copy_bf16.hsaco",
+        "bytes": 6040,
+        "sha256": "25113ceccce2fd1ec447f0ae0034683fa735436ad974670b190e4a758d15973d"
+      },
+      {
+        "path": "fla/qrt_fla_chunk_gdn_provider.dll",
+        "bytes": 645120,
+        "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_route_count.hsaco",
+        "bytes": 4816,
+        "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_route_prefix_by_program.hsaco",
+        "bytes": 4960,
+        "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_route_padded_prefix.hsaco",
+        "bytes": 5040,
+        "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_route_scatter.hsaco",
+        "bytes": 5608,
+        "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_gate_up_silu.hsaco",
+        "bytes": 17752,
+        "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+      },
+      {
+        "path": "q8192-moe/q8192_selected_moe_down.hsaco",
+        "bytes": 11384,
+        "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+      },
+      {
+        "path": "q8192-moe/qrt_triton_moe_q8192_provider.dll",
+        "bytes": 818688,
+        "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee"
+      },
+      {
+        "path": "q8192-moe/q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+        "bytes": 7736,
+        "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+      },
+      {
+        "path": "q8192-moe/q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+        "bytes": 6824,
+        "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+      },
+      {
+        "path": "q8192-moe/q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+        "bytes": 6696,
+        "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+      },
+      {
+        "path": "q8192-moe/q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+        "bytes": 7504,
+        "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+      },
+      {
+        "path": "q8192-moe/metadata.json",
+        "bytes": 11066,
+        "sha256": "cfb4fdf796eed0c1078a824013830ae46941f278206935ca501f6874663f3ed5"
+      },
+      {
+        "path": "ck-fmha/qrt_ck_fmha_sm121.dll",
+        "bytes": 1674752,
+        "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b"
+      },
+      {
+        "path": "engine/qrt.exe",
+        "bytes": 7868416,
+        "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+      },
+      {
+        "path": "product-cli/qrt-product.exe",
+        "bytes": 946176,
+        "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+      },
+      {
+        "path": "tables/sm121-silu-bf16-673f8dd1.bin",
+        "bytes": 648036,
+        "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8"
+      },
+      {
+        "path": "tables/full-gated-silu-f32-lut-f32.bin",
+        "bytes": 262144,
+        "sha256": "f8b4983266a2d26f64a154c0c53c6acd6616e3298e7eb2e128c7431be586c97c"
+      },
+      {
+        "path": "tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin",
+        "bytes": 4194304,
+        "sha256": "d7a59b3d92222932ddaa5af63e71d4cbbc55f529948f239924bc0f897c3891c7"
+      },
+      {
+        "path": "tables/sm121-exp2-negative-f490940d.bin",
+        "bytes": 183174448,
+        "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+      },
+      {
+        "path": "tables/sm121-rsqrt-positive-ca0230a8.bin",
+        "bytes": 17301808,
+        "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+      },
+      {
+        "path": "tables/sigmoid-beta-f32.bin",
+        "bytes": 262144,
+        "sha256": "cafc4dc1012d534a6a99739f9c4a327bc4052ad2d3441a79dff18f9a2ea7ebc5"
+      },
+      {
+        "path": "tables/gates/capture.json",
+        "bytes": 37677,
+        "sha256": "a59388434d3a42a81de464a519f432a67f8d9c61fa14c626469917feb282ba46"
+      },
+      {
+        "path": "tables/gates/layer0-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "fb8afb17901d4c6a49a7be47bb19059f93f2aa3caec3625e7300f02e439e8bc4"
+      },
+      {
+        "path": "tables/gates/layer1-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "f11118b44a76315120faef823e2f2a73e664027430406e0f809fee77887a63bc"
+      },
+      {
+        "path": "tables/gates/layer2-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "2202bb8fb584b0c7437a605d9a86728ed86e8597fb793ab72fab262e32b93080"
+      },
+      {
+        "path": "tables/gates/layer4-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "60314898439ab739b705ba768e5832b4b098aeac762f532ca6366012e088fe07"
+      },
+      {
+        "path": "tables/gates/layer5-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "a8f3bc737964874c4ef8d18915620e7b1f61be67f106d5967d8bc4facf1a2c01"
+      },
+      {
+        "path": "tables/gates/layer6-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "b87f8a27132ad8c09ff46231898fd2e061acf4b3f5b9252a07fc0d8b31270925"
+      },
+      {
+        "path": "tables/gates/layer8-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "5b2e7abf664b0c77aae8e747e2b9f7b326a9c3314d3aa6899d27e2e53c46d86a"
+      },
+      {
+        "path": "tables/gates/layer9-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "fff2410b562bc6aa8f0748905fe15eaf87f0f050973fb487c7a52704c1f9e76e"
+      },
+      {
+        "path": "tables/gates/layer10-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "f00762bbe05711b3856397f8da1bc104de43e999f680c37113f69dc76cc5e0a8"
+      },
+      {
+        "path": "tables/gates/layer12-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "717e1ed5c23a0077f80eef53ba2c2aaae90a2f44ce1ea0fe8e2fb34af818ec9d"
+      },
+      {
+        "path": "tables/gates/layer13-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "f9f193a7c4494599ceb1411b2db0172d308d77da3fff1bd77aad0ebbf5f7a0ed"
+      },
+      {
+        "path": "tables/gates/layer14-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "efde7ba81e342476ca07543bd7d7cc0c52a97e1384c1a99e4b202db24f7327ac"
+      },
+      {
+        "path": "tables/gates/layer16-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "c2c77a2a7dbe27ca0a2e1fd1ffa1bf966a322510065627f74dc2f6fb602dcd6f"
+      },
+      {
+        "path": "tables/gates/layer17-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "629b0801f065b9b62eba74af5af947477b3c7ebf826e30f3a01ee3041396a97c"
+      },
+      {
+        "path": "tables/gates/layer18-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "0c8289c7d4bb06075069cc9d646f7fb4fc0b9630673e973d425638296a1f91bd"
+      },
+      {
+        "path": "tables/gates/layer20-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "2935ba214942fef351c704127f506d02a1895db9e6375c754709b31e1a5a0ff0"
+      },
+      {
+        "path": "tables/gates/layer21-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "5f0e8a40039256889c10e4e042abd62b4c700467e5a39d5116b9f14a9682639d"
+      },
+      {
+        "path": "tables/gates/layer22-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "77abbbd2549f7667d4310426b0c83c8a916403e245bdaa93237ef0815dab7824"
+      },
+      {
+        "path": "tables/gates/layer24-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "b25593378021e36c3b93a8c35ec701eacb9166b706c202d71cb372dd1915cdcd"
+      },
+      {
+        "path": "tables/gates/layer25-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "47b228db4860dc3ec078c03c5553ce24625e6848051d27468b21dd055097a83d"
+      },
+      {
+        "path": "tables/gates/layer26-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "7f129482ae9f29a3c97150f42f22d42d1973912098b41a501cb5a9a09579b8b7"
+      },
+      {
+        "path": "tables/gates/layer28-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "daf3df8e3cdba0667b2cc08c5c69207bfa1ab641cfab8cbf59288b1519cdf43f"
+      },
+      {
+        "path": "tables/gates/layer29-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "86113f02db0adfc48c931bcfdf715fe18852f548daf422ab943d5629e9df2162"
+      },
+      {
+        "path": "tables/gates/layer30-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "a058fda469dce5aeb007afb8ceca9686ab3339278a4c5b5a7444f754b5d06bbe"
+      },
+      {
+        "path": "tables/gates/layer32-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "cab02d23a78c8d3373eee048b5ed3250a27ab74553e5db372e4c87fd8567377d"
+      },
+      {
+        "path": "tables/gates/layer33-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "9585bb7a3646bde36f9c00e4187e5b642ff65be2d77825fdd7c068a352d00cfc"
+      },
+      {
+        "path": "tables/gates/layer34-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "86ea9f472dd23904526b13ce71226ca716ec592afcc20ed5ff6a0eb2cd17f5ba"
+      },
+      {
+        "path": "tables/gates/layer36-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "c622d9aa10ca2bb57de8e924cb0ed18d4e063481b1b74d7c113d5277919ea7a2"
+      },
+      {
+        "path": "tables/gates/layer37-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "e06698cdb34f34ed47eb5d18e895419d1fd69d2c10e6b59e50419ce014fea5f7"
+      },
+      {
+        "path": "tables/gates/layer38-g-f32-head-major.bin",
+        "bytes": 8388608,
+        "sha256": "9d6fda6f8a460a5ad231c9b0b4316314bdbba504eecb4c9f43db24696576c3b9"
+      },
+      {
+        "path": "tables/gates/sigmoid-beta-bf16.bin",
+        "bytes": 131072,
+        "sha256": "32923b94eca938cd0f966f39efb5fcbda40f2c2bb748cdd90bfd3ddeff9e8f97"
+      },
+      {
+        "path": "tables/cuda-router-ex2-fraction-f32.bin",
+        "bytes": 33554432,
+        "sha256": "b2a42c4a626469c986e33e43f16f41bde9d84de94347cd9ceaa1bd68d36bcdf0"
+      },
+      {
+        "path": "tables/cuda-vllm-silu-bf16-domain.bin",
+        "bytes": 131096,
+        "sha256": "97a2a729266bb0681983aa5b2c6ddffafeaab1bab99c7658a0524b09331a11ac"
+      },
+      {
+        "path": "tables/sm121-attention-rcp-d2e55754.bin",
+        "bytes": 8388640,
+        "sha256": "d2e557543f6bc51f5141ba6414000cd8ed892e2e915eda19245c3cae22c16b39"
+      },
+      {
+        "path": "tables/sm121-rope-bf16.bin",
+        "bytes": 33886208,
+        "sha256": "1c4d86d492b587a5f4f433dad84c99722d2fee702bcf27d7af77c7fe6a5d2d6a"
+      },
+      {
+        "path": "tables/layer0-embedding-inverse-f32.bin",
+        "bytes": 993280,
+        "sha256": "b3e02ca1910d1e600514dd4154f8fbcb3deedf75e08033fb3a91fa6a548adce9"
+      },
+      {
+        "path": "runtime.env",
+        "bytes": 28933,
+        "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+      },
+      {
+        "path": "tables/sm121-exp2-interpolated-b5752a88.bin",
+        "bytes": 38909480,
+        "sha256": "b5752a88488d8e6382cc99a897ef822e97758e0a782930c174954a5299126eec"
+      }
+    ],
+    "parent_manifest_sha256": "6a791ff213ab3873fcd74f92a0704a73913b23b035cf8f64509d2bb4fe2525b1",
+    "source_profile_sha256": "c098f967a7cf803198ff2c6866e3dedfc8e4ada5326234de4fc04c755534232c",
+    "source_product_evidence": {
+      "file": "benchmarks/correctness/long-query-range-q8192-20260915.json",
+      "sha256": "ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009"
+    },
+    "source_prefix_evidence": {
+      "file": "benchmarks/correctness/long-query-range-prefix16k-20260915.json",
+      "sha256": "004c76c50435db7aae7ce38af572a9f73c25d4e3b0db5d391d31c33b8f99eb8f"
+    },
+    "purpose": "Current correctness-passing stack in an unpublished portable package; performance and release gates remain open",
+    "profile_paths_portable": true,
+    "relocation_qualified": false,
+    "inference_qualified": false,
+    "performance_qualified": false,
+    "release_qualified": false,
+    "published": false,
+    "model_context_tokens": 262144,
+    "maximum_prompt_tokens": 263168,
+    "maximum_request_tokens": 263680,
+    "attention_capacity_tokens": 264736
+  },
+  "config": {
+    "files": {
+      "server": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+        "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+      },
+      "provider": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+        "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+      },
+      "env": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+        "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+      },
+      "prompt": {
+        "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+        "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+      },
+      "oracle": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\contracts\\hprefill_q8192_gb10_oracle.json",
+        "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+      },
+      "runtime_manifest": {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime-manifest.json",
+        "sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635"
+      }
+    },
+    "port": 18151,
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "model_id": "qwen3.6-35b-a3b",
+    "server_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "working_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914",
+    "require_first_token_logit": true,
+    "execution_limits": {
+      "readiness_seconds": 45,
+      "request_seconds": 120,
+      "controller_seconds": 360
+    }
+  },
+  "cpu_preflight": {
+    "schema_version": 1,
+    "status": "cpu_preflight_pass",
+    "gpu_executed": false,
+    "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\verify_baiying_q8192_http.py",
+    "command_file_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+    "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+    "model_process_launched": false,
+    "first_token_raw_logit_observed": false,
+    "full_product_gate_pass": false,
+    "retained_performance_claimed": false,
+    "preflight": {
+      "pass": true,
+      "runtime_artifacts_verified": 268,
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+          "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime-manifest.json",
+          "sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635"
+        }
+      },
+      "server_checkout_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "execution_limits": {
+        "readiness_seconds": 45,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    }
+  },
+  "release_file_manifest": {
+    "file": "FILE-SHA256SUMS.json",
+    "bytes": 76543,
+    "sha256": "37ad605cc9bae4a1e3b3c1183fa445d7978a554595ce0db2290d49605027e913"
+  },
+  "runtime_environment": "QRT_PREFILL_DESCRIPTOR_BATCH_ALL_FULL_ATTENTION_FULL_HISTORY=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ASYNC_CPU_EXACT_SHARED=0\nQRT_PREFILL_DESCRIPTOR_BATCH_ASYNC_Z_PROJECTION_OVERLAP=1\nQRT_PREFILL_DESCRIPTOR_BATCH_CANONICALIZE_COMBINED_MOE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_CANONICALIZE_ROUTED_OUTPUT_CPU_BF16=0\nQRT_PREFILL_DESCRIPTOR_BATCH_CANONICALIZE_ROUTED_OUTPUT_GPU_F32_GRID=0\nQRT_PREFILL_DESCRIPTOR_BATCH_COMPACT_DEVICE_ROUTED_LAYOUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_COMPACT_DEVICE_ROUTED_LAYOUT_COLD_MISS_DIRECT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_COMPACT_DEVICE_ROUTED_LAYOUT_FULL_PRELOAD=1\nQRT_PREFILL_DESCRIPTOR_BATCH_COMPACT_DEVICE_ROUTED_LAYOUT_FULL_PREPACK=0\nQRT_PREFILL_DESCRIPTOR_BATCH_COMPACT_DEVICE_ROUTED_LAYOUT_PREWARM=0\nQRT_PREFILL_DESCRIPTOR_BATCH_CPU_EXACT_SHARED_EXPERT=0\nQRT_PREFILL_DESCRIPTOR_BATCH_DECODE_COMPACT_CORRIDOR_MARKERS=1\nQRT_PREFILL_DESCRIPTOR_BATCH_DECODE_DEFERRED_MARKER_BUFFER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_DEFER_REPEATED_SEGMENT_SYNC=1\nQRT_PREFILL_DESCRIPTOR_BATCH_DIRECT_HIP_EARLY_ENTRY=1\nQRT_PREFILL_DESCRIPTOR_BATCH_DISABLE_DEVICE_ALLOC_POOL=0\nQRT_PREFILL_DESCRIPTOR_BATCH_EARLY_CPU_ORDER_FAST_CORE_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_EARLY_ENTRY_ONLY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_EARLY_ENTRY_SELECTED_MOE_PRODUCT_SCOPE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_EARLY_RESIDENT_LINEAR_ATTENTION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_EARLY_SHARED_STATE_CORE_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ENABLE_RESIDENT_HISTORY_CARRIER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ENDPOINT_BF16_GB10_BOUNDARY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_EXACT_DEVICE_COMBINED_MOE_FROM_ROUTED_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_EXACT_DEVICE_COMBINED_MOE_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FIRST_FULL_ATTENTION_FULL_HISTORY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FRONTIER_LAYER1_EXACT_ROUTED_BACKEND=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_ALL_HEADS_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_BLOCKWISE_TENSOR_CORE_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_COMPACT_BF16=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_COMPACT_ROPE_TABLE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_COMPACT_WAVE32_PREP=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_GROUPED_BMM_CORE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_HIPBLASLT_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_KV_GROUP_CORE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_ONLINE_CORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_PERSISTENT_QUERY_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HIPBLASLT_HEURISTIC_INDEX=2\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HIPBLASLT_PROJECTION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QUERY_BLOCK_CORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_ROCBLAS_BMM_CORE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_SCORE_SCRATCH=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_STREAMED_CORE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_TILED_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_TRITON_DYNAMIC_SHARED_BYTES=16384\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_TRITON_HSACO_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_TRITON_QUERY_BLOCK=32\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_TRITON_THREADS=128\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_WMMA_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_GB10_LONG64_FIXTURE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_GROUPED_EXACT_ROUTED_BACKEND=1\nQRT_PREFILL_DESCRIPTOR_BATCH_HOST_AVX2_SELECTED_MOE_LANE_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER1_HELPER_FRONTIER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_FIXED_ATTENTION_WEIGHTS=1\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_KV8192=1\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_CK_FMHA=1\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q1_TRITON_0626_ROUTED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_LAYER39_Q4_KV8192=0\nQRT_PREFILL_DESCRIPTOR_BATCH_LM_HEAD_HIPBLASLT_HEURISTIC_INDEX=13\nQRT_PREFILL_DESCRIPTOR_BATCH_LM_HEAD_HIPBLASLT_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_NO_STORE_ROUTED_WEIGHT_CACHE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_OUTPUT_RESIDUAL_DEVICE_ONLY=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PARALLEL_DESCRIPTOR_PROJECTION_FANOUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PARALLEL_ROUTED_CPU_REFERENCE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PARALLEL_ROUTED_PACK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PARALLEL_SHARED_CPU_REFERENCE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PREPACK_SELECTED_MOE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_PRODUCT_Q8192_REAL_STATE_FRONTIER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_COARSE_DECODE_CATEGORIES=0\nQRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_COARSE_DECODE_GPU_SPANS=0\nQRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_COMPACT_CK_SUBPHASES=0\nQRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_MOE_SUBPHASES=0\nQRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_RESIDENT_LINEAR_STACK_SYNC=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_AGGREGATE_RUN_METADATA=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_ASYNC_INITIAL_H2D=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_CONTROL_PLANE_CACHE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_DEVICE_EMBEDDING_ROW=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_DEVICE_TOKEN_LAYER0_OVERLAP=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_DEVICE_TOKEN_LAYER0_SAME_STREAM_COPY=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_DIRECT_OUTPUT_PLAN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_EARLY_LAYER_BF16_MOE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_EARLY_LAYER_BF16_MOE_LAYER_MASK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_EARLY_LAYER_BF16_PROJECTION=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_EARLY_LAYER_F32_ROUTED_TILE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LATE_LAYER_ENTRY_PACING=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_PACING_EVENT_MASK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_PACING_EVENTS=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_PACING_LAYER_PHASE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_PACING_LAYER_STRIDE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_STACK_NORMAL_PRIORITY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_STACK_PRIORITY_STREAM=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_LAYER_STACK_SINGLE_TAIL_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_ORDER_FIXED_BF16_ARENA=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_PREBOUND_LAYER_PLAN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_ROCBLAS_STREAM_BINDING_CACHE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DECODE_SINGLE_PRIORITY_PACED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DENSE_PACKED_W6_FULL=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DENSE_PACKED_W6_MASK=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DENSE_W8A8_FULL=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_DENSE_W8A8_MASK=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_AITER_FUSED_OPERAND_PUBLICATION=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_AITER_UNIFIED=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_COOPERATIVE_SCAN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_EXACT_GQA_WAVE_CORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_GROUPED_BF16_BMM=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_HIPBLASLT_KV_HEURISTIC_INDEX=5\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_HIPBLASLT_OUT_HEURISTIC_INDEX=15\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_HIPBLASLT_PROJECTIONS=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_HIPBLASLT_Q_HEURISTIC_INDEX=3\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PARALLEL_SOFTMAX_REDUCTION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PERSISTENT_OUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PERSISTENT_Q=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PV_POINTER_WALK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_PV_PROBABILITY_TILE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_RAW_FUSED_CORRIDOR=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_ROCBLAS_Q=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_SCORE_FOLDED_TREE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_SOFTMAX_COOPERATIVE_SCAN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_SOFTMAX_WIDE_BLOCK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TERMINAL_BF16=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_0626_PV=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_0626_QK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_0626_QKV=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_TRITON_QKV_FUSED_PREP_CONTEXT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_VLLM_TRITON16=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_VLLM_TRITON2D=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_ATTENTION_WAVE32_FULL_DIMENSION=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_TERMINAL_EXACT_OUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_FULL_TERMINAL_WAVE_OUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_DEVICE_CHAIN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_DEVICE_CHAIN_OUT_HEURISTIC_INDEX=15\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_FUSED_AB=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_HIPBLASLT_QKVZ=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_HIPBLASLT_QKVZ_HEURISTIC_INDEX=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_KEY_MAJOR_STATE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_KEYHEAD_FUSED_POST=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_DIRECT_F32=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_FUSED_CONV=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_OUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_PERSISTENT_QKVZ_AB=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_RAW_BF16_WAVE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_ROCBLAS_OUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_ROCBLAS_QKVZ=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_ROCBLAS_QKVZ_AB=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_SHARED_GATE_CORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LINEAR_TRITON_0626_QKVZ_AB=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_PARALLEL_TOPK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_MAX_ULPS=4\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_INVERSE_F32_POSITION=8191\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_BF16_EXACT_TIE_INVERSE_F32_POSITION=8199\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_ELIDE_LOGITS_HASH=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_ROCBLAS=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_TRITON_0626=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_LM_HEAD_W8A8=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_0626_ROW_PARALLEL_BF16=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_AVX512BF16_HOST_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_DEVICE_ROUTER_CHAIN=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_NEXT_INPUT_RMSNORM_FUSED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PACKED_W6_FULL=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PARALLEL_TOPK_EXP=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PARALLEL_TOPK_SELECTION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PERSISTENT_DIRECT_BF16=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_PRIORITY_STREAM=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_RAW_BF16_WAVE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_RAW_MULTIROW_FUSED=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_RAW_ROUTE_PARALLEL_FUSED=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_RAW_SHARED_WAVE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_ROCBLAS_BATCHED=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_ROCBLAS_ROUTER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_ROCBLAS_SHARED_BATCH=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TOPK_POINTER_TABLES=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRANSPOSED_ROUTER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_SELECTED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_SELECTED_GATE_WARPS8=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_SHARED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_VLLM_TRITON=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_W8A8_CACHE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_W8A8_DYNAMIC=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_W8A8_FULL=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_OUTPUT_CONSUMER_FUSED_ROWS2=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_PACKED_ROUTED_KERNEL=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_TERMINAL_DEVICE_CORRIDOR=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_TRITON_0626_OUTPUT_MATVEC=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_W8A8_FUSED_BF16_QUANTIZE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_W8A8_FUSED_RMSNORM_QUANTIZE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_MAX_LAYER=38\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_MIN_LAYER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_FLA_CHUNK_GDN_ARITHMETIC=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_FULL_LAYER38=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_FULL_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_FULL_V3_ASYNC=1\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_PROVIDER=1\nQRT_QWEN36_Q8192_CAUSAL_PADDED_Q8193_PREFILL_VERIFY=0\nQRT_QWEN36_Q8192_CAUSAL_PADDED_VERIFY_INPUT_TOKENS=8193\nQRT_QWEN36_Q8192_ROUTER_BF16_LOGIT_ENDPOINT=1\nQRT_QWEN36_RETAINED_Q8192_FUSED_F32_SILU_COMPAT=1\nQRT_QWEN36_Q8193_BF16_ONE_ULP_LOW_ID=1\nQRT_PREFILL_DESCRIPTOR_BATCH_REPEATED_BF16_CONV_POSTCONV_FUSION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_REPEATED_BF16_POINTWISE_FUSION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_REQUEST_PREFILL_TOKENS=8192\nQRT_PREFILL_DESCRIPTOR_BATCH_REQUIRE_DESCRIPTOR_REQUEST_PATH=1\nQRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_BF16_MATRIX_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_FULL_ATTENTION_CORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_HIDDEN_DEVICE_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_LAYER_STACK_CARRIER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_LAYER_STACK_SOURCE_LAYOUT=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_LAYER_STACK_SOURCE_LAYOUT_HOST_SHADOW=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_HOST_MAPPED_TAIL_SHARDS=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_MANAGED_TAIL_SHARDS=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_REGISTERED_HOST_TAIL_SHARDS=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_SHARD_STORE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_MODEL_SINGLE_DEVICE_ARENA=0\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDENT_REPEATED_LINEAR_STACK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_RESIDUAL_HIDDEN_OUTPUT_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_CPU_REFERENCE_ARITHMETIC=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_DISABLE_FMA=0\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_EXACT_ROUTE_TILE=1\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_ORIGINAL_ROUTE_ORDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_SCALE_AFTER_DOWN=0\nQRT_PREFILL_DESCRIPTOR_BATCH_ROUTED_SHARED_DEVICE_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_SELECTED_MOE_FAST_ARITHMETIC_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_SELECTED_MOE_STRUCTURAL_CLASSIFIER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_SHARED_DEVICE_CPU_ORDER_COMBINED_MOE_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_SHARED_DEVICE_EXACT_COMBINED_MOE_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_SHARED_DEVICE_GB10_COMBINED_MOE_BACKEND=1\nQRT_PREFILL_DESCRIPTOR_BATCH_SKIP_EARLY_ENTRY=0\nQRT_PREFILL_DESCRIPTOR_BATCH_SPECULATIVE64_GB10_FIXTURE=0\nQRT_PREFILL_DESCRIPTOR_BATCH_TRUST_EXACT_ROUTED_GPU_HANDOFF=1\nQRT_PREFILL_DESCRIPTOR_BATCH_TRUST_LM_HEAD_GPU_TOPK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_TRUST_MOE_ROUTER_GPU_TOPK=1\nQRT_PREFILL_DESCRIPTOR_BATCH_WAVE_PARALLEL_SEQUENCE_STATE_PROVIDER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_EARLY_LAYER_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_FULL_ATTENTION_LAYER_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_REPEATED_LAYER_PROVIDER=1\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_SELECTED_MOE_ENDPOINT_BF16_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_SELECTED_MOE_EXACT_BACKEND=1\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_SELECTED_MOE_F32_WEIGHT_BACKEND=0\nQRT_PREFILL_DESCRIPTOR_BATCH_WHOLE_SELECTED_MOE_ROUTE_ORDER_BACKEND=0\nQRT_QWEN36_DFLASH_DECODE_TRANSACTION_PROBE=0\nQRT_QWEN36_DFLASH_FORCE_FIRST_MISMATCH_SLOT=-1\nQRT_QWEN36_DFLASH_FORCE_SECOND_MISMATCH_SLOT=-1\nQRT_QWEN36_DFLASH_GROUPED_MATMUL_ATTENTION=0\nQRT_QWEN36_DFLASH_GROUPED_MATMUL_PV=0\nQRT_QWEN36_DFLASH_NATIVE_Q16_PROBE=0\nQRT_QWEN36_DFLASH_NATIVE_Q8192_CONTEXT=0\nQRT_QWEN36_DFLASH_NATIVE_Q8192_PROBE=0\nQRT_QWEN36_DFLASH_NATIVE_Q8192_ROUND2_PROBE=0\nQRT_QWEN36_DFLASH_PROPOSAL_TARGET_PROBE=0\nQRT_QWEN36_DFLASH_STATE_COMMIT_PROBE=0\nQRT_QWEN36_PREFIX_CACHE_PAIRED_FRESH_Q8208_PROBE=0\nQRT_QWEN36_Q1_DUAL_ATTENTION_PAIRED_LINEAR_CORRIDOR=0\nQRT_QWEN36_Q1_MTP_TOP2_ARBITRATION=0\nQRT_QWEN36_Q1_LM_HEAD_BF16_ONE_ULP_LOW_ID_POSITION=4294967295\nQRT_QWEN36_Q1024_PREFIX_PROBE=0\nQRT_QWEN36_Q131072_COLD_PROBE=0\nQRT_QWEN36_Q16_DEVICE_PERSISTENT_VERIFY_TOKENS=16\nQRT_QWEN36_Q16_LAYER_MAJOR_PROBE=0\nQRT_QWEN36_Q16_PERSISTENT_DISTRIBUTION_CALIBRATION_PROBE=0\nQRT_QWEN36_Q16_PERSISTENT_LONG64_CALIBRATION_PROBE=0\nQRT_QWEN36_Q16_PERSISTENT_SECOND_TRANSACTION_PROBE=0\nQRT_QWEN36_Q16_PERSISTENT_TAIL_TOKENS=16\nQRT_QWEN36_Q16_PERSISTENT_VARIABLE_TAIL_CALIBRATION_PROBE=0\nQRT_QWEN36_Q16_SERIAL_FORCE_MISMATCH_SLOT=-1\nQRT_QWEN36_Q16_SERIAL_TRANSACTION_PROBE=0\nQRT_QWEN36_Q16_SERIAL_VERIFY_ONLY=0\nQRT_QWEN36_Q16384_COLD_PROBE=0\nQRT_QWEN36_Q16384_Q1024_PREFIX_PROBE=0\nQRT_QWEN36_Q2_AVX512BF16_ROUTED_ARITHMETIC_MODE=0\nQRT_QWEN36_Q32768_COLD_PROBE=0\nQRT_QWEN36_Q65536_COLD_PROBE=0\nQRT_QWEN36_Q65536_EARLY_F32_CARRIER_COMPAT=0\nQRT_QWEN36_Q8192_ROUTER_HIPBLASLT_BF16=1\nQRT_QWEN36_CUDA_VLLM_ROUTER_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_CUDA_VLLM_SHARED_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_Q8192_VLLM_BF16_RESIDUAL_CARRIER=1\nQRT_QWEN36_EXACT_ARBITRARY_VLLM_SPLIT_VARIANCE=1\nQRT_QWEN36_Q8192_VLLM_SORTED_BF16_ROUTE_SUM=0\nQRT_QWEN36_CUDA_VLLM_MOE_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_CUDA_VLLM_MOE_UP_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_CONTRIBUTION_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_CUDA_VLLM_ROUTED_GATE_HAWKEYE_LOW_EXPONENT_THRESHOLD=0\nQRT_QWEN36_CUDA_VLLM_ROUTED_UP_HAWKEYE_LOW_EXPONENT_THRESHOLD=0\nQRT_QWEN36_CUDA_VLLM_ROUTED_DOWN_HAWKEYE_LOW_EXPONENT_THRESHOLD=0\nQRT_QWEN36_SMOOTH_TAIL_BOUNDED_TRANSACTIONS=1\nQRT_QWEN36_SMOOTH_TAIL_PARALLEL_BASE=1\nQRT_QWEN36_SMOOTH_TAIL_PARALLEL_TRANSACTIONS=1\nQRT_QWEN36_SMOOTH_TAIL_DENSE_CEIL_PROVIDER=0\nQRT_QWEN36_SMOOTH_TAIL_SINGLE_CEIL_PROVIDER=0\nQRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\nQRT_QWEN36_EXACT_ARBITRARY_CONV_ARITHMETIC_MODE=3\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_INVERSE_F32=0\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ARBITRATION_MODE=2\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_GROUPED_ADAPTIVE_BF16_MINIMUM_LOGIT_EIGHTHS=128\nQRT_QWEN36_EXACT_ARBITRARY_SUB_Q8192_GROUPED_ONE_ULP_LOW_ID=1\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_HIGH_LOGIT_ONE_ULP_INVERSE_F32=1\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID=1\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_GLOBAL=0\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_MAX_ULPS=2\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_MAXIMUM_LOGIT_EIGHTHS=128\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_CONSERVATIVE_TOPOLOGY=1\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_ELIGIBLE_COUNT_MASK=4\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_UNIQUE_MAXIMUM_ELIGIBLE_COUNT_MASK=0\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_BF16_WINDOW_HIGH_ID_COUNT3_ULP_SHAPE_MASK=12\nQRT_QWEN36_EXACT_ARBITRARY_RETAINED_Q8192=1\nQRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_COMPACT_Q=1\nQRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_PACKED_MOE=1\nQRT_QWEN36_LAYER39_DYNAMIC_TERMINAL_DEVICE_CORRIDOR=1\nQRT_QWEN36_RESIDENT_PREFIX_CACHE_IGNORE_EOS=1\nQRT_QWEN36_RESIDENT_Q8191_CK_CAUSAL_PAD_Q8192=1\nQRT_QWEN36_WHOLE_PROVIDER=1\nQRT_QWEN36_WHOLE_PROVIDER_ARBITRARY_CONTEXT=1\nQRT_QWEN36_WHOLE_PROVIDER_CONCURRENT_STREAM_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_DIRECT_ORCHESTRATION=1\nQRT_QWEN36_WHOLE_PROVIDER_DIRECT_REQUEST_ENTRY=1\nQRT_QWEN36_WHOLE_PROVIDER_DIRECT_REQUEST_ENTRY_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_EARLY_PREFILL_STREAM_CALLBACK=1\nQRT_QWEN36_WHOLE_PROVIDER_EARLY_PREFILL_STREAM_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_ENDPOINT_BF16_GB10_BOUNDARY=0\nQRT_QWEN36_WHOLE_PROVIDER_FUSED_LAYER_STACK=1\nQRT_QWEN36_WHOLE_PROVIDER_OUTPUT_TOKEN_CAPACITY=512\nQRT_QWEN36_WHOLE_PROVIDER_PREFILL_PHASE_ACCOUNTING_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_CAPACITY_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_CONCURRENT_FALLBACK_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_CONCURRENT_HIT_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_FALLBACK_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_MULTI_ENGINE_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_OUTPUT_TOKENS=1\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_RESEED_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_RESET_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_SPLIT_MATRIX_PROBE=0\nQRT_QWEN36_WHOLE_PROVIDER_PREFIX_CACHE_SUFFIX_TOKENS=0\nQRT_QWEN36_WHOLE_PROVIDER_REQUEST_REPEAT_COUNT=1\nQRT_QWEN36_WHOLE_PROVIDER_REQUIRED=1\nQRT_QWEN36_WHOLE_PROVIDER_RESIDENT_SESSION=1\nQRT_QWEN36_WHOLE_PROVIDER_STREAMING=1\nQRT_SERVER_EXACT_FIRST_TOKEN_PREFILL=0\nQRT_SERVER_EXACT_LETTER_CLASSIFIER=0\nQRT_PREFILL_DESCRIPTOR_BATCH_Q1_MOE_TRITON_0626_MODULE_DIR=${RUNTIME_DIR}/aot/gfx1151\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_CK_FMHA_DLL=${RUNTIME_DIR}/ck-fmha/qrt_ck_fmha_sm121.dll\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=${RUNTIME_DIR}/q8192-moe/qrt_triton_moe_q8192_provider.dll\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_KERNEL_DIR=${RUNTIME_DIR}/q8192-moe\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_DLL=${RUNTIME_DIR}/aiter-gdn/qrt_aiter_fused_gdn_q8192_provider.dll\nQRT_PREFILL_DESCRIPTOR_BATCH_Q8192_AITER_FUSED_GDN_KERNEL_DIR=${RUNTIME_DIR}/aiter-gdn\nQRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_DLL=${RUNTIME_DIR}/q1024-moe/qrt_triton_moe_q1024_exact_provider_slots64.dll\nQRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_KERNEL_DIR=${RUNTIME_DIR}/q1024-moe/moe-kernels\nQRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH=4096\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_LAYERS=40\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_LAYER_MASK=0\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_LAYERS=40\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_LAYER_MASK=0\nQRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_DLL=${RUNTIME_DIR}/fla/qrt_fla_chunk_gdn_provider.dll\nQRT_PREFILL_DESCRIPTOR_BATCH_FLA_CHUNK_GDN_KERNEL_DIR=${RUNTIME_DIR}/fla\nQRT_FLA_GDN_SYNC_EACH_STAGE=0\nQRT_FLA_GDN_STATE_BLACKWELL=1\nQRT_FLA_GDN_KKT_BLACKWELL=1\nQRT_FLA_GDN_SM121_EXP2_TABLE=${RUNTIME_DIR}/tables/sm121-exp2-negative-f490940d.bin\nQRT_FLA_GDN_WU_BLACKWELL=1\nQRT_FLA_GDN_OUTPUT_BLACKWELL=1\nQRT_FLA_GDN_NORM_BLACKWELL=1\nQRT_FLA_GDN_INVERSE_BLACKWELL=1\nQRT_FLA_GDN_SM121_RSQRT_TABLE=${RUNTIME_DIR}/tables/sm121-rsqrt-positive-ca0230a8.bin\nQRT_QWEN36_GB10_GATE_LUT_DIR=${RUNTIME_DIR}/tables/gates\nQRT_QWEN36_GB10_GATE_LUT_LAYERS=40\nQRT_QWEN36_GB10_LAYER0_RMSNORM_SCALE_LUT_PATH=${RUNTIME_DIR}/tables/layer0-embedding-inverse-f32.bin\nQRT_QWEN36_SM121_SILU_TABLE=${RUNTIME_DIR}/tables/sm121-silu-bf16-673f8dd1.bin\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_F32_OUTPUT_BF16_ROUND_MASK=15\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_F32_OUTPUT_BF16_ROUND_LAYERS=40\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_SURFACE_MASK=3\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_HAWKEYE_LAYERS=40\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_DOT2_LAYERS=40\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_DOT2_LAYER_MASK=0\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_AB_DOT2_SURFACE_MASK=12\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_FULL_PREFIX_TOKENS=0\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_FULL_LAYERS=0\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000\nQRT_QWEN36_SERVICE_COMPACT_LOG=0\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES=16777216\nQRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_MAXIMUM_CANDIDATES_PER_BLOCK=256\nQRT_QWEN36_EXACT_ARBITRARY_VLLM_BF16_RESIDUAL_LAYER_MASK=1099511627775\nQRT_QWEN36_Q65536_VLLM_ROUTED_BF16_ENDPOINT=1\nQRT_QWEN36_Q65536_VLLM_ROUTE_SUM_VT4=1\nQRT_QWEN36_Q65536_VLLM_ROUTE_SUM_BF16_ENDPOINT=1\nQRT_QWEN36_GB10_GATED_SILU_F32_LUT_PATH=${RUNTIME_DIR}/tables/full-gated-silu-f32-lut-f32.bin\nQRT_QWEN36_GFX1151_SM121_RSQRT_CORRECTION_PATH=${RUNTIME_DIR}/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin\nQRT_QWEN36_GATED_RMSNORM_TRITON_ARITHMETIC_LAYERS=40\nQRT_QWEN36_GATED_RMSNORM_TRITON_ARITHMETIC_MODE=3\nQRT_QWEN36_CUDA_ROUTER_EX2_FRACTION_LUT_PATH=${RUNTIME_DIR}/tables/cuda-router-ex2-fraction-f32.bin\nQRT_QWEN36_CUDA_VLLM_SILU_BF16_DOMAIN_LUT_PATH=${RUNTIME_DIR}/tables/cuda-vllm-silu-bf16-domain.bin\nQRT_QWEN36_SM121_ROUTED_HAWKEYE=1\nQRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB=1000\nQRT_QWEN36_GB10_FULL_ATTENTION_ROPE_CACHE_PATH=${RUNTIME_DIR}/tables/sm121-rope-bf16.bin\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_FUSED_QKV_HIPBLASLT_PROJECTION=1\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS=512\nQRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=10000\nQRT_CK_FMHA_SM121_FULL_PREFIX=1\nQRT_CK_FMHA_SM121_EXP2_TABLE=${RUNTIME_DIR}/tables/sm121-exp2-interpolated-b5752a88.bin\nQRT_CK_FMHA_SM121_RCP_TABLE=${RUNTIME_DIR}/tables/sm121-attention-rcp-d2e55754.bin\nQRT_QWEN36_FINAL_LAYER_FULL_PREFIX=1\nQRT_QWEN36_LM_HEAD_BF16_ARGMAX=1\nQRT_QWEN36_ALL_NORM_DUMP_PREFIX=\nQRT_QWEN36_ALL_NORM_DUMP_TOKENS=7169\nQRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_TOPK_DIAGNOSTIC=1\nQRT_CK_SM121_NATIVE_BF16_MATRIX=0\nQRT_CK_SM121_TILED_EXACT_QK=1\nQRT_QWEN36_PREFIX_FLA_SINGLE_SUFFIX=1\nQRT_QWEN36_PREFIX_CHECKPOINTS=0\nQRT_CK_SM121_NATIVE_PRODUCTS=0\nQRT_CK_SM121_MANTISSA_WMMA=0\nQRT_FLA_GDN_COOPERATIVE_EXACT=1\nQRT_FLA_GDN_BATCHED_EXACT=1\nQRT_QWEN36_HAWKEYE_PACKED_CANDIDATES=0\nQRT_QWEN36_PREFILL_WMMA_LDS=0\nQRT_QWEN36_MOE_COMPACT_ROUTED_HAWKEYE=1\nQRT_QWEN36_Q1_LINEAR_STAGE_TRACE_COUNT=0\nQRT_QWEN36_Q1_FULL_CACHE_DUMP_PREFIX=\nQRT_QWEN36_Q1_SM121_ATTENTION=1\nQRT_QWEN36_Q1_SM121_RCP_TABLE=${RUNTIME_DIR}/tables/sm121-attention-rcp-d2e55754.bin\nQRT_QWEN36_Q1_SM121_FULL=1\nQRT_QWEN36_Q1_SM121_ROPE_TABLE=${RUNTIME_DIR}/tables/sm121-rope-bf16.bin\nQRT_QWEN36_Q1_SM121_MOE=1\nQRT_QWEN36_Q1_SM121_ROUTER_TABLE=${RUNTIME_DIR}/tables/cuda-router-ex2-fraction-f32.bin\nQRT_QWEN36_Q1_SM121_MOE_SILU_TABLE=${RUNTIME_DIR}/tables/cuda-vllm-silu-bf16-domain.bin\nQRT_QWEN36_Q1_MOE_STAGE_DUMP_PREFIX=\nQRT_QWEN36_Q1_FULL_STAGE_DUMP_PREFIX=\nQRT_QWEN36_Q1_SM121_OUTPUT=1\nQRT_QWEN36_Q1_SM121_GDN=1\nQRT_QWEN36_Q1_F32_PROJECTION_SM121=1\nQRT_FLA_GDN_CAPTURE_FIRST_DIR=\nQRT_QWEN36_Q1_LINEAR_STAGE_DUMP_PREFIX=\nQRT_QWEN36_Q1_FULL_STAGE_TRACE_LAYER=4294967295\nQRT_QWEN36_Q1_LINEAR_STAGE_TRACE_LAYER=4294967295\nQRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER=4294967295\nQRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE=0\nQRT_QWEN36_EXACT_ARBITRARY_LAYER_BOUNDARY_TRACE_LAYER=4294967295\nQRT_QWEN36_FULL_STAGE_DUMP_PREFIX=\nQRT_QWEN36_FULL_STAGE_DUMP_LAYER=4294967295\nQRT_QWEN36_FULL_STAGE_DUMP_TOKENS=8192\nQRT_QWEN36_Q1_LAYER_TRACE_POSITION=4294967295\nQRT_QWEN36_Q1_LAYER_TRACE_DUMP_PREFIX=\nQRT_QWEN36_Q1_LAYER_TRACE_KEEP_TRANSACTIONS=0\nQRT_QWEN36_Q1_TOPK_DIAGNOSTIC_POSITION=4294967295\nQRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN0=488\nQRT_QWEN36_Q1_TOPK_DIAGNOSTIC_TOKEN1=1394\nQRT_QWEN36_Q1_SM121_EXP2_TABLE=${RUNTIME_DIR}/tables/sm121-exp2-negative-f490940d.bin\nQRT_QWEN36_Q1_SM121_RSQRT_TABLE=${RUNTIME_DIR}/tables/sm121-rsqrt-positive-ca0230a8.bin\nQRT_QWEN36_Q1_SM121_BETA_TABLE=${RUNTIME_DIR}/tables/sigmoid-beta-f32.bin\nQRT_QWEN36_Q1_SM121_GATE_LUT_DIR=${RUNTIME_DIR}/tables/gates\nQRT_QWEN36_Q1_SM121_SILU_TABLE=${RUNTIME_DIR}/tables/sm121-silu-bf16-673f8dd1.bin\nQRT_QWEN36_Q1_SM121_GATED_SILU_TABLE=${RUNTIME_DIR}/tables/full-gated-silu-f32-lut-f32.bin\nQRT_QWEN36_Q1_SM121_RSQRT_CORRECTION=${RUNTIME_DIR}/tables/gfx1151-sm121-rsqrt-correction-delta2-r854.bin\nQRT_FLA_GDN_SEGMENT_GUARD=0\nQRT_CK_SM121_PREPARED_VALUE=0\nQRT_CK_SM121_COMPACT_PV_REPLAY=1\nQRT_CK_SM121_WARP_SOFTMAX=0\nQRT_QWEN36_PREFIX_BATCH_SUFFIX=1\nQRT_QWEN36_CHUNKED_PREFILL=0\nQRT_CK_SM121_PREFILL_QUERY_BATCH=128\nQRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE=1\nQRT_CK_SM121_LONG_TRANSPOSE_VALUE=1\nQRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER=1\nQRT_QWEN36_HAWKEYE_DEVICE_REPLAY=0\nQRT_QWEN36_HAWKEYE_PREPARED_OPERANDS=1\nQRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY=1\nQRT_QWEN36_MOE_PREVALIDATED_FLOAT_REPLAY=1\nQRT_QWEN36_MOE_STAGED_HALF_REPLAY=1\nQRT_QWEN36_MOE_SHARED_PREVALIDATED_FLOAT_REPLAY=1\nQRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM=4\nQRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE=qkv\nQRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT=0\nQRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY=1\nQRT_QWEN36_HAWKEYE_PARTITION_REPLAY=0\nQRT_QWEN36_MOE_PARTITION_REPLAY=0\nQRT_QWEN36_MOE_PREPARED_REPLAY=0\nQRT_QWEN36_HAWKEYE_FLOAT_REPLAY=0\nQRT_QWEN36_MOE_FLOAT_REPLAY=0\nQRT_QWEN36_MOE_REGISTERED_WEIGHT_METADATA=1\nQRT_FLA_GDN_TILED_KKT=2\nQRT_FLA_GDN_SCALAR_FLOAT_MATRICES=1\nQRT_FLA_GDN_SCALAR_FLOAT_STATE=8\nQRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR=0\nQRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT=0\nQRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND=0\nQRT_CK_SM121_FINAL_PV_BOUND=1\nQRT_CK_SM121_DIRECT_PV_OPERANDS=1\nQRT_CK_SM121_LONG_DIRECT_PV_OPERANDS=1\nQRT_CK_SM121_LONG_ALL_PV_REPLAY=0\nQRT_CK_SM121_SELECTIVE_QK_PROBABILITY=0\nQRT_CK_SM121_FLOAT_ALIGNMENT_QK=1\nQRT_CK_SM121_PREPARED_DECODED_QK=1\nQRT_CK_SM121_LONG_PREPARED_DECODED_QK=1\nQRT_CK_SM121_PROFILE_COMPLETED_STAGES=0\nQRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT=1\nQRT_QWEN36_MOE_COMPACTION_WINDOW_BLOCKS=16384\nQRT_QWEN36_MOE_PARALLEL_GATE=0\nQRT_QWEN36_PREFIX_BATCH_SUFFIX_HASH_LOGITS=0\n",
+  "http_result": {
+    "schema_version": 1,
+    "status": "http_token_transport_pass",
+    "gpu_executed": true,
+    "command_file": "D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts\\verify_baiying_q8192_http.py",
+    "command_file_sha256": "080155aa38c62818f9b71a7fd2e5f5ac7056b1f763de170475b568118faa2eb5",
+    "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+    "model_process_launched": true,
+    "first_token_raw_logit_observed": true,
+    "full_product_gate_pass": false,
+    "retained_performance_claimed": false,
+    "preflight": {
+      "pass": true,
+      "runtime_artifacts_verified": 268,
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+          "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime-manifest.json",
+          "sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635"
+        }
+      },
+      "server_checkout_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "execution_limits": {
+        "readiness_seconds": 45,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    },
+    "command": [
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+      "serve",
+      "--model",
+      "D:/models/Qwen3.6-35B-A3B",
+      "--provider",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+      "--env-file",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+      "--arbitrary-moe-provider",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+      "--arbitrary-moe-kernel-dir",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\moe-kernels",
+      "--smooth-tail-moe-root",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\smooth-tail",
+      "--model-id",
+      "qwen3.6-35b-a3b",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18151",
+      "--max-model-len",
+      "262144",
+      "--max-queue-depth",
+      "1",
+      "--queue-timeout-seconds",
+      "15",
+      "--state-file",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-requests-r1\\service.json",
+      "--set-env",
+      "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1"
+    ],
+    "inherited_qrt_environment_removed": true,
+    "host": "baiying",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "server_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "execution_limits": {
+      "readiness_seconds": 45,
+      "request_seconds": 120,
+      "controller_seconds": 360
+    },
+    "hashed_runtime_profile_preserved": true,
+    "pid": 1776,
+    "ready_wall_ms": 21505.064800032414,
+    "health_before": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.0938,
+        "provider_dll_ms": 9.3048,
+        "provider_preload_reported_ms": 20998.4366,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 20999.1064,
+        "total_ms": 21009.5133
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 1776,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 0,
+        "completed_total": 0,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 0,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789417357",
+      "status": "ok"
+    },
+    "negative_checks_without_inference": 3,
+    "nonstream_exact_32_tokens": true,
+    "nonstream_metrics": {
+      "decode_total_ms": 3387.607,
+      "queue_wait_ms": 0.0,
+      "request_ms": 33607.6431,
+      "timing_contract_version": 2,
+      "tpot_ms": 109.27764516129032,
+      "tpot_samples": 31,
+      "ttft_ms": 30129.7631
+    },
+    "health_during_sse": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.0938,
+        "provider_dll_ms": 9.3048,
+        "provider_preload_reported_ms": 20998.4366,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 20999.1064,
+        "total_ms": 21009.5133
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 1776,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 1,
+        "completed_total": 1,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 2,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789417357",
+      "status": "ok"
+    },
+    "stream_metrics": {
+      "decode_total_ms": 3083.116,
+      "queue_wait_ms": 0.0,
+      "request_ms": 32609.6821,
+      "timing_contract_version": 2,
+      "tpot_ms": 99.45535483870968,
+      "tpot_samples": 31,
+      "ttft_ms": 29492.5287
+    },
+    "stream_text_and_usage_match": true,
+    "stream_raw_token_ids_exposed": false,
+    "same_prompt_second_request_is_not_a_cold_measurement": true,
+    "health_after": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.0938,
+        "provider_dll_ms": 9.3048,
+        "provider_preload_reported_ms": 20998.4366,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 20999.1064,
+        "total_ms": 21009.5133
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 1776,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 0,
+        "completed_total": 2,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 2,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789417357",
+      "status": "ok"
+    },
+    "shutdown_response": {
+      "pid": 1776,
+      "status": "stopping"
+    },
+    "server_exit_code": 0,
+    "wall_ms": 89806.89589999383,
+    "service_state": {
+      "schema_version": 1,
+      "status": "stopped",
+      "pid": 1776,
+      "address": "127.0.0.1:18151",
+      "model": "qwen3.6-35b-a3b",
+      "model_path": "D:/models/Qwen3.6-35B-A3B",
+      "provider_dll": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+      "arbitrary_moe_provider_dll": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+      "arbitrary_moe_kernel_dir": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\moe-kernels",
+      "smooth_tail_moe_root": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\smooth-tail",
+      "max_model_len": 262144,
+      "max_queue_depth": 1,
+      "queue_timeout_seconds": 15,
+      "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "host": "BAIYING",
+      "started_unix_seconds": 1789417335,
+      "ready_unix_seconds": 1789417357,
+      "stopped_unix_seconds": 1789417425,
+      "message": null
+    },
+    "first_token_logit_observations": [
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": true,
+        "output_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      },
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": true,
+        "output_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      }
+    ],
+    "q8192_nonstream_first_token_logit_and_32_tokens_pass": true
+  },
+  "offline_boundary_replay": {
+    "status": "offline_http_result_validation_pass",
+    "gpu_executed": false,
+    "source_fingerprints": {
+      "result": "f2644a0cafc67a4c5af80762b5e8ad635ca1151ed6527fd14982576731b76ddb",
+      "completion": "0bc1ee25f95c9efb4f389deb73c64b34c4605a9151cc342b1effcedc14ca39e1",
+      "stream": "fe99b19921e03772c25474c93d9c8d481a9f1f3e6aee97e68034b1d02ef75c16",
+      "state": "68b6ba90aa0ec8f44015f01a3b4268a73c8ee3f6e1aab105a569b5152a4c36ff",
+      "guard": "d51d85e74bd16249763fa4d0f19487bd2a43cb7612d881c4212e5c565c7e0c0a",
+      "prompt": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54",
+      "oracle": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890",
+      "stderr": "c2cb4adc36e39b675a1fd3a5522227ee02162c68b3c6162cfdd17981684d2979"
+    },
+    "original_controller_status": "http_token_transport_pass",
+    "original_controller_error": null,
+    "host": "BAIYING",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "server_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "provider_dll": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+    "nonstream_exact_32_tokens": true,
+    "stream_text_and_usage_match": true,
+    "live_health_during_generation": true,
+    "graceful_shutdown": true,
+    "host_checks_pass": true,
+    "post_request_queue_sample_available": true,
+    "stream_raw_token_ids_exposed": false,
+    "first_token_raw_logit_observed": true,
+    "full_product_gate_pass": false,
+    "retained_performance_claimed": false,
+    "ready_wall_ms": 21505.064800032414,
+    "load": {
+      "engine_create_ms": 1.0938,
+      "provider_dll_ms": 9.3048,
+      "provider_preload_reported_ms": 20998.4366,
+      "provider_preload_stored_entries": 256,
+      "provider_preload_wall_ms": 20999.1064,
+      "total_ms": 21009.5133
+    },
+    "nonstream_metrics": {
+      "decode_total_ms": 3387.607,
+      "queue_wait_ms": 0.0,
+      "request_ms": 33607.6431,
+      "timing_contract_version": 2,
+      "tpot_ms": 109.27764516129032,
+      "tpot_samples": 31,
+      "ttft_ms": 30129.7631
+    },
+    "stream_metrics": {
+      "decode_total_ms": 3083.116,
+      "queue_wait_ms": 0.0,
+      "request_ms": 32609.6821,
+      "timing_contract_version": 2,
+      "tpot_ms": 99.45535483870968,
+      "tpot_samples": 31,
+      "ttft_ms": 29492.5287
+    },
+    "first_token_logit_observations": [
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": true,
+        "output_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      },
+      {
+        "type": "qrt_server_first_token_observation",
+        "contract_version": 1,
+        "input_tokens": 8192,
+        "output_tokens": 32,
+        "prompt_token_ids_fnv1a64": "1bfa7bb4a1d00a65",
+        "prefix_route_used": false,
+        "available": true,
+        "output_token_id": 144,
+        "first_token_raw_logit": 10.375,
+        "source": "qrt_engine_report.baseline_output_head_topk_logits[0]"
+      }
+    ],
+    "q8192_nonstream_first_token_logit_and_32_tokens_pass": true,
+    "observation_fnv_offset_basis": 14695981039346656037,
+    "oracle_fnv_offset_basis": 1469598103934665603
+  },
+  "canonical_http_files": {
+    "completion.json": {
+      "bytes": 1205,
+      "sha256": "0bc1ee25f95c9efb4f389deb73c64b34c4605a9151cc342b1effcedc14ca39e1"
+    },
+    "launch.json": {
+      "bytes": 4696,
+      "sha256": "55bdb51768b4cf8a0bf72661b93a5c2f43acc5bd0fe6cff46d8f83f9907f8a28"
+    },
+    "result.json": {
+      "bytes": 11330,
+      "sha256": "f2644a0cafc67a4c5af80762b5e8ad635ca1151ed6527fd14982576731b76ddb"
+    },
+    "server.stderr.log": {
+      "bytes": 1754183,
+      "sha256": "c2cb4adc36e39b675a1fd3a5522227ee02162c68b3c6162cfdd17981684d2979"
+    },
+    "server.stdout.log": {
+      "bytes": 505,
+      "sha256": "3bfd4bd9e1ecd60cf3939bb1b7470a6aceab4578b0fdd2464fc58e3391101cbe"
+    },
+    "service.json": {
+      "bytes": 1355,
+      "sha256": "68b6ba90aa0ec8f44015f01a3b4268a73c8ee3f6e1aab105a569b5152a4c36ff"
+    },
+    "stream.json": {
+      "bytes": 11007,
+      "sha256": "fe99b19921e03772c25474c93d9c8d481a9f1f3e6aee97e68034b1d02ef75c16"
+    }
+  },
+  "prior_current_all512_boundary": {
+    "file": "benchmarks/correctness/long-query-range-q8192-20260915.json",
+    "bytes": 108739,
+    "sha256": "ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009"
+  },
+  "prior_current_prefix16k_boundary": {
+    "file": "benchmarks/correctness/long-query-range-prefix16k-20260915.json",
+    "bytes": 158228,
+    "sha256": "004c76c50435db7aae7ce38af572a9f73c25d4e3b0db5d391d31c33b8f99eb8f"
+  },
+  "tested_archive_relocation_qualified": true,
+  "tested_q8192_out32_http_correctness_qualified": true,
+  "short_cold_matrix_requalified": false,
+  "full_cold_matrix_requalified": false,
+  "protocol_and_prefix_http_requalified": false,
+  "current_soak_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false,
+  "scope": "Current whole/server/CLI24c4304,CK42c2f0f,MoE4a7f0c4 and FLA2ee6215 in one extracted portable package. All current MoE/FLA external HSACO artifacts match the existing current-run base. Six executable/DLL replacements and three table replacements/additions yield268 runtime assets. The506-option environment changes only33 path values. The original staging directory is unavailable during both real-model HTTP requests. Nonstream32 original GB10 IDs, both prompt-bound first logits and SSE text/usage pass; SSE does not expose raw token IDs. Load21009.5133ms,TTFT30129.7631/29492.5287ms and TPOT109.277645/99.455355ms are this out32 pair only. They are not an out512 comparison or retained-performance acceptance. Protocol,prefix HTTP,cold matrices,long contexts,soak and release require their own evidence."
+}
