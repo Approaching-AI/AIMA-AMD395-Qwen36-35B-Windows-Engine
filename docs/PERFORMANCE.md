@@ -2,6 +2,30 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Shared-expert prevalidated exact replay at `1958c2c` passes both complete
+q8192/out512 runs on baiying with `D:\models\Qwen3.6-35B-A3B`. The same MoE
+DLL OFF/ON preserves all 512 GB10 outputs and actual callbacks, first token
+144 and raw logit 10.375. Whole `a50f15d`, CK `4a5a5b0`, FLA `2ee6215`
+state 8, CLI `a797b62` and all ten AOT files are common.
+
+Actual callback TTFT is 37867.3011 / 37527.5887 ms OFF/ON, a 339.7124 ms
+reduction in this single pair. Enabled TPOT is 101.594291 ms and model plus
+engine load is 21368.4516 ms. Use the enabled route for the next experiment;
+this does not establish repeatability or retained performance. The immutable
+4187.415605 ms TTFT and 35.502151 ms TPOT targets remain open.
+
+Eight native shared comparisons preserve 22658560 BF16 cells per variant,
+original norm bits and eligibility flags, including integer fallback. Six
+routed regressions preserve raw output bits and norms. Dedicated shared
+metadata uses 77824 bytes; the q8192-only option remains off by default.
+Selectors, arithmetic, K16 order, PPB bounds and short-shape routes are
+unchanged. Full local checks pass. No package, prefix, HTTP or release gate
+is inferred from these runs. A synchronized enabled profile is now pending
+to choose the next structural replacement.
+Command: `run-native-shared-prevalidated-product-r1.ps1` with the recorded
+OFF/ON arguments. Evidence: `benchmarks/correctness/shared-prevalidated-product-20260914.json`,
+SHA256 `42ba61141f4852a9cb01d4cc0c7e825b29c1348c20dda6b32ce6c84e26358d46`.
+
 The complete QKV interval-filter experiment at `be477fa` preserves all
 58728448 GB10 BF16 cells and the original 3791742 selected identities.
 It certifies only 56913 candidates (1.50 percent), leaving 3734829 for exact
@@ -27,8 +51,8 @@ projections with 77824 bytes of dedicated stream metadata and unchanged norms,
 selectors, K16 order and short-shape dispatch. Full local checks pass 378 Python
 tests (two skips), 47 Rust tests, C smoke, clippy and hygiene. Allocation-failure,
 drain-before-free and shared/routed pointer ownership tests also pass.
-Native numerical safety and the complete same-artifact q8192/out512 pair are
-pending; the option remains off by default.
+Native safety and the same-artifact product pair are now complete as recorded
+above; the option remains off by default.
 
 Prior interval/carry probes remain in `projection-interval-20260914.json`,
 `wmma-scalar-carry-envelope-20260914.json` and
