@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "kind": "current_portable_soak_reference_detokenization_setup_failure",
+  "host": "baiying",
+  "model": "D:/models/Qwen3.6-35B-A3B",
+  "source": {
+    "source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "repo": "D:/projects/AIMA-public-runtime-tail-20260914",
+    "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+    "runtime_manifest_sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635",
+    "minimum_active_window_seconds": 3600,
+    "native_guard_seconds": 4500,
+    "controller_seconds": 4200,
+    "per_request_seconds": 120,
+    "guard_changes": [
+      "Only900-to4500-second admissible process bound and relocated boot-helper source path; resource and process-ownership checks unchanged."
+    ],
+    "published": false,
+    "worker": "verify_current_package_soak_r1.py",
+    "worker_sha256": "7d9e1311e980b5fafc73c6beee101e56356f6a389b86f188500c72631d5c2dd1",
+    "script": "run-native-current-package-soak-r1.ps1",
+    "script_sha256": "dc7ef3444daed7bd7877a016c89ae617259e5ef729bd594152ec70374fdff82d",
+    "guard_script": "run-native-current-package-soak-guard-r1.ps1",
+    "guard_script_sha256": "9212367160e63d046ed55c530adbdca12d693731c44b01ca1319f1a2173b6c5e",
+    "response_directory": "D:/projects/AIMA-public-runtime-tail-20260914/build/current-package-soak-requests-r1",
+    "dispatcher": "dispatch_current_package_soak_r1.py",
+    "dispatcher_sha256": "8514764a431ec1a26297e06217b72ddcd9af02d0e6f3bce2e57d1eb3edb04487",
+    "full_cold_boundary_evidence_sha256": "16ee876fc4f94d1244670563ac7eec30fcd34fd09ed0e024741a8536003a0e61"
+  },
+  "commands": {
+    "worker": {
+      "file": "verify_current_package_soak_r1.py",
+      "sha256": "7d9e1311e980b5fafc73c6beee101e56356f6a389b86f188500c72631d5c2dd1",
+      "text": "from pathlib import Path\nimport ctypes\nfrom ctypes import wintypes\nimport hashlib\nimport json\nimport math\nimport os\nimport socket\nimport subprocess\nimport sys\nimport threading\nimport time\n\nR = Path('D:/projects/AIMA-public-runtime-tail-20260914')\nsys.path.insert(0, str(R / 'scripts'))\nimport verify_baiying_q8192_http as guard\nfrom verify_qrt_openai_server import Verifier\n\nO = R / 'build/current-package-soak-requests-r1'\nO.mkdir(exist_ok=False)\nCONFIG = R / 'build/current-package-http-config-r1.json'\nassert guard.fingerprint(CONFIG) == 'dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28'\nconfig = guard.read_json(CONFIG)\nconfig['port'] = 18157\nMINIMUM_SECONDS = 3600\nCONTROLLER_SECONDS = 4200\nREQUEST_SECONDS = 120\nreport = dict(schema_version=1, status='failed', host=socket.gethostname(), model=config['model'],\n    server_commit=config['server_commit'], controller_sha256=guard.fingerprint(__file__),\n    runtime_manifest_sha256=config['files']['runtime_manifest']['sha256'],\n    profile_sha256=config['files']['env']['sha256'],\n    soak_limits=dict(minimum_active_window_seconds=MINIMUM_SECONDS, maximum_controller_seconds=CONTROLLER_SECONDS,\n                     per_request_seconds=REQUEST_SECONDS, native_job_seconds=4500, log_bytes=128 * 1024 * 1024),\n    performance_qualified=False, release_qualified=False, published=False)\n_, _, report['base_package_preflight'] = guard.preflight(config)\nguard.require_windows_job()\nassert not (R / 'build/runtime-current-package-r1').exists()\nruntime = Path(config['files']['runtime_manifest']['path']).parent\nassert 'QRT_QWEN36_PREFIX_CHECKPOINTS=0' in (runtime / 'runtime.env').read_text()\ncontracts = [\n    (R / 'contracts/gb10_cold_token_matrix_20260911_oracle.json', '7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1', Path('D:/projects/gb10-token-matrix-inputs-20260911-r2')),\n    (Path('D:/projects/gb10-http-short-inputs-20260912-r1/gb10_http_short_actual_tokens_20260912_oracle.json'), '2c0c496276f376a4148560c0976bdece4c088ddcf7d989afb1e2a58c10718c6b', Path('D:/projects/gb10-http-short-inputs-20260912-r1')),\n]\ncases = {}\nreport['references'] = []\nfor contract, digest, data in contracts:\n    assert guard.fingerprint(contract) == digest\n    report['references'].append(dict(path=str(contract), sha256=digest))\n    for case in guard.read_json(contract)['cases']:\n        if case['name'] != 'q8192-out512' and not case['name'].startswith('http-'):\n            continue\n        prompt_path = data / (case['name'] + '-prompt.json')\n        tokens = guard.read_json(prompt_path)\n        assert guard.token_digest(tokens) == case['prompt']['u32le_sha256']\n        assert guard.token_fnv(tokens, 1469598103934665603) == case['prompt']['u32le_fnv1a64']\n        cases[case['name']] = dict(gold=case, tokens=tokens, prompt_file_sha256=guard.fingerprint(prompt_path))\nassert len(cases) == 6\nshort_names = [name for name in cases if name.startswith('http-')]\ncommand = guard.server_command(config, O)\nreport['command'] = command\nstdout, stderr = O / 'server.stdout.log', O / 'server.stderr.log'\nclient = guard.Client(config['port'])\nstop = threading.Event()\nfailures = []\nprocess = None\nidentified = False\nstarted = time.monotonic()\nrecords = []\nsamples = []\nmemory_handle = None\nrequest_deadline = [None]\n\n\nclass MemoryCounters(ctypes.Structure):\n    _fields_ = [('cb', wintypes.DWORD), ('page_fault_count', wintypes.DWORD)] + [\n        (name, ctypes.c_size_t) for name in ('peak_working_set_bytes', 'working_set_bytes',\n        'quota_peak_paged_pool_bytes', 'quota_paged_pool_bytes', 'quota_peak_nonpaged_pool_bytes',\n        'quota_nonpaged_pool_bytes', 'pagefile_bytes', 'peak_pagefile_bytes', 'private_bytes')]\n\n\ndef check_health():\n    value = client.json('/health', timeout=2)\n    assert value['pid'] == process.pid and value['ready'] and value['model'] == config['model_id']\n    return value\n\n\ndef validate_metrics(metrics, count):\n    assert metrics['timing_contract_version'] == 2\n    assert metrics['tpot_samples'] == count - 1\n    assert all(isinstance(metrics[key], (int, float)) and math.isfinite(metrics[key]) and metrics[key] >= 0\n               for key in ('ttft_ms', 'tpot_ms', 'decode_total_ms', 'request_ms', 'queue_wait_ms'))\n    assert metrics['request_ms'] >= metrics['ttft_ms']\n\n\ndef inference(name, stream):\n    item = cases[name]\n    gold, tokens = item['gold'], item['tokens']\n    ids = gold['expected']['output_token_ids']\n    payload = dict(model=config['model_id'], prompt=tokens, max_tokens=len(ids), temperature=0, top_p=1, ignore_eos=True)\n    if stream:\n        payload.update(stream=True, stream_options=dict(include_usage=True))\n    index = len(records)\n    log_offset = stderr.stat().st_size\n    begin = time.monotonic()\n    request_deadline[0] = begin + REQUEST_SECONDS\n    with client.open('/v1/completions', payload, timeout=REQUEST_SECONDS) as response:\n        body = response.read(2 * 1024 * 1024 + 1)\n        status, headers = response.status, dict(response.headers.items())\n    request_deadline[0] = None\n    assert len(body) <= 2 * 1024 * 1024\n    body_path = O / f'request-{index:04d}.body'\n    body_path.write_bytes(body)\n    observed = dict(index=index, case=name, stream=stream, http_status=status, headers=headers,\n        body_file=body_path.name, body_bytes=len(body), body_sha256=guard.fingerprint(body_path),\n        prompt_u32le_sha256=guard.token_digest(tokens), prompt_tokens=len(tokens),\n        output_tokens=len(ids), prompt_file_sha256=item['prompt_file_sha256'],\n        request_started_elapsed_seconds=begin - started, completed_elapsed_seconds=time.monotonic() - started,\n        request_wall_ms=(time.monotonic() - begin) * 1000)\n    guard.save_json(O / f'request-{index:04d}.json', observed)\n    assert status == 200, body[:1000]\n    expected_usage = dict(prompt_tokens=len(tokens), completion_tokens=len(ids), total_tokens=len(tokens) + len(ids))\n    if stream:\n        events = Verifier.parse_sse(body)\n        assert events[-1] == '[DONE]'\n        chunks = [json.loads(event) for event in events[:-1]]\n        text = ''.join(choice.get('text', '') for chunk in chunks for choice in chunk['choices'])\n        assert text == item['expected_text']\n        assert next(chunk['usage'] for chunk in chunks if chunk.get('usage')) == expected_usage\n        assert [choice['finish_reason'] for chunk in chunks for choice in chunk['choices'] if choice['finish_reason'] is not None] == ['length']\n        metrics = next(chunk['qrt_metrics'] for chunk in chunks if chunk.get('qrt_metrics'))\n        observed.update(sse_text_usage_finish_match=True, raw_token_ids_exposed=False)\n    else:\n        value = json.loads(body)\n        assert value['choices'][0]['token_ids'] == ids\n        assert value['choices'][0]['text'] == item['expected_text']\n        assert value['choices'][0]['finish_reason'] == 'length' and value['usage'] == expected_usage\n        metrics = value['qrt_metrics']\n        observed.update(all_raw_output_ids_match=True, output_token_ids=value['choices'][0]['token_ids'])\n    validate_metrics(metrics, len(ids))\n    observed['metrics'] = metrics\n    with stderr.open('rb') as log:\n        log.seek(log_offset)\n        lines = log.read().decode('utf-8').splitlines()\n    observations = [json.loads(line) for line in lines if line.startswith('{\"type\":\"qrt_server_first_token_observation\"')]\n    if name == 'q8192-out512':\n        assert len(observations) == 1\n        row = observations[0]\n        assert row['available'] and not row['prefix_route_used']\n        assert row['input_tokens'] == 8192 and row['output_tokens'] == 512\n        assert row['prompt_token_ids_fnv1a64'] == guard.token_fnv(tokens, 14695981039346656037)\n        assert row['output_token_id'] == ids[0]\n        assert abs(row['first_token_raw_logit'] - gold['expected']['first_token_raw_logit']) <= .125\n    observed['first_token_logit_observations'] = observations\n    observed['health_after'] = check_health()\n    queue = observed['health_after']['queue']\n    assert queue['active_requests'] == queue['waiting_requests'] == 0\n    assert queue['started_total'] == queue['completed_total'] == index + 1\n    assert queue['rejected_total'] == queue['timed_out_total'] == 0\n    records.append(observed)\n    guard.save_json(O / 'progress.json', dict(status='running', completed_requests=len(records),\n        completed_cycles=len(records) // 3, elapsed_seconds=time.monotonic() - started,\n        last_case=name, last_stream=stream, last_metrics=metrics, failures=failures))\n    print(json.dumps(dict(request=index, case=name, stream=stream, completed_seconds=observed['completed_elapsed_seconds'],\n                         ttft_ms=metrics['ttft_ms'], tpot_ms=metrics['tpot_ms'])), flush=True)\n    assert not failures\n\n\ntry:\n    with stdout.open('xb') as out, stderr.open('xb') as err:\n        environment = {k:v for k,v in os.environ.items() if not k.upper().startswith('QRT_')}\n        process = subprocess.Popen(command, cwd=config['working_directory'], env=environment,\n                                   stdin=subprocess.DEVNULL, stdout=out, stderr=err)\n        report['pid'] = process.pid\n\n        def watchdog():\n            while not stop.wait(.25):\n                if request_deadline[0] is not None and time.monotonic() > request_deadline[0]:\n                    failures.append('active request wall exceeded120 seconds')\n                    process.kill()\n                    return\n                if time.monotonic() - started > CONTROLLER_SECONDS or sum(p.stat().st_size for p in (stdout, stderr)) > 128 * 1024 * 1024:\n                    failures.append('controller wall or log bound')\n                    process.kill()\n                    return\n\n        watch = threading.Thread(target=watchdog, daemon=True)\n        watch.start()\n        while True:\n            assert process.poll() is None and time.monotonic() - started < config['execution_limits']['readiness_seconds']\n            try:\n                health = client.json('/health', timeout=.5)\n            except (OSError, ValueError):\n                time.sleep(.25)\n                continue\n            assert health['pid'] == process.pid and health['model'] == config['model_id']\n            if not health['ready']:\n                time.sleep(.25)\n                continue\n            identified = True\n            report['health_before'] = health\n            break\n        report['ready_wall_ms'] = (time.monotonic() - started) * 1000\n        kernel = ctypes.WinDLL('kernel32', use_last_error=True)\n        psapi = ctypes.WinDLL('psapi', use_last_error=True)\n        kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]\n        kernel.OpenProcess.restype = wintypes.HANDLE\n        kernel.CloseHandle.argtypes = [wintypes.HANDLE]\n        psapi.GetProcessMemoryInfo.argtypes = [wintypes.HANDLE, ctypes.POINTER(MemoryCounters), wintypes.DWORD]\n        psapi.GetProcessMemoryInfo.restype = wintypes.BOOL\n        memory_handle = kernel.OpenProcess(0x1000, False, process.pid)\n        assert memory_handle, ctypes.get_last_error()\n\n        def monitor():\n            while not stop.is_set():\n                try:\n                    sample_start = time.monotonic()\n                    health = check_health()\n                    memory = MemoryCounters()\n                    memory.cb = ctypes.sizeof(memory)\n                    assert psapi.GetProcessMemoryInfo(memory_handle, ctypes.byref(memory), memory.cb), ctypes.get_last_error()\n                    sample = dict(elapsed_seconds=time.monotonic() - started,\n                        health_wall_ms=(time.monotonic() - sample_start) * 1000,\n                        active=health['queue']['active_requests'], completed=health['queue']['completed_total'],\n                        private_bytes=memory.private_bytes, working_set_bytes=memory.working_set_bytes,\n                        peak_working_set_bytes=memory.peak_working_set_bytes)\n                    samples.append(sample)\n                    with (O / 'health-memory-samples.jsonl').open('a') as output:\n                        output.write(json.dumps(sample) + '\\n')\n                except Exception as error:\n                    if not stop.is_set():\n                        failures.append('health/memory monitor: ' + repr(error))\n                    return\n                stop.wait(5)\n\n        for item in cases.values():\n            item['expected_text'] = client.json('/detokenize', dict(model=config['model_id'],\n                tokens=item['gold']['expected']['output_token_ids'], skip_special_tokens=True), timeout=5)['prompt']\n        monitor_thread = threading.Thread(target=monitor, daemon=True)\n        monitor_thread.start()\n        active_started = time.monotonic()\n        report['active_window_started_elapsed_seconds'] = active_started - started\n        cycles = 0\n        while time.monotonic() - active_started < MINIMUM_SECONDS:\n            inference('q8192-out512', False)\n            inference(short_names[cycles % len(short_names)], False)\n            inference('q8192-out512', True)\n            cycles += 1\n        report['active_window_seconds'] = time.monotonic() - active_started\n        assert report['active_window_seconds'] >= MINIMUM_SECONDS and not failures\n        assert all(any(r['case'] == name and not r['stream'] for r in records) for name in cases)\n        report['health_after'] = check_health()\n        stop.set()\n        monitor_thread.join(timeout=5)\n        watch.join(timeout=5)\n        assert not monitor_thread.is_alive() and not failures\n        report['shutdown_response'] = client.json('/admin/shutdown', {}, timeout=2)\n        process.wait(timeout=10)\n        assert process.returncode == 0\n        report.update(status='current_portable_one_hour_http_soak_pass', completed_cycles=cycles,\n            completed_requests=len(records), raw_tokens_verified=sum(r['output_tokens'] for r in records if not r['stream']),\n            q8192_first_logits_verified=sum(len(r['first_token_logit_observations']) for r in records if r['case'] == 'q8192-out512'),\n            sse_cases_verified=sum(r['stream'] for r in records),\n            short_first_logits_scope='Same-package cold CLI matrix supplies the matching first-logit boundary for all five short cases. This HTTP soak independently compares every short raw output ID.',\n            memory_scope='Sampled server private bytes and working set are observations; passing this finite soak does not prove absence of every memory leak.')\nexcept Exception as error:\n    report['error'] = f'{type(error).__name__}: {error}'\nfinally:\n    stop.set()\n    if process is not None:\n        if process.poll() is None and identified:\n            try:\n                client.json('/admin/shutdown', {}, timeout=2)\n                process.wait(timeout=10)\n            except Exception:\n                pass\n        if process.poll() is None:\n            process.kill()\n            process.wait(timeout=10)\n            report['forced_owned_process_cleanup'] = True\n        report['server_exit_code'] = process.returncode\n    if memory_handle:\n        kernel.CloseHandle(memory_handle)\n    report.update(requests=records, health_memory_samples=samples, deadline_or_monitor_failures=failures,\n                  wall_ms=(time.monotonic() - started) * 1000)\n    guard.save_json(O / 'result.json', report)\n    print(json.dumps({k:report.get(k) for k in ('status', 'error', 'active_window_seconds', 'completed_cycles',\n        'completed_requests', 'raw_tokens_verified', 'q8192_first_logits_verified', 'sse_cases_verified', 'server_exit_code', 'wall_ms')}), flush=True)\nsys.exit(0 if report['status'] == 'current_portable_one_hour_http_soak_pass' else 1)\n"
+    },
+    "script": {
+      "file": "run-native-current-package-soak-r1.ps1",
+      "sha256": "dc7ef3444daed7bd7877a016c89ae617259e5ef729bd594152ec70374fdff82d",
+      "text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-tail-20260914';$sha='24c4304a16a1665701d05444619d46b832c73e43'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$controller='D:\\projects\\verify_current_package_soak_r1.py';$config='D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-http-config-r1.json'\n$out='D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-soak-r1';$specPath=$out+'.json'\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw ('Existing evidence: '+$p)}}\nif((Get-FileHash $controller -Algorithm SHA256).Hash.ToLowerInvariant() -ne '7d9e1311e980b5fafc73c6beee101e56356f6a389b86f188500c72631d5c2dd1'){throw 'Controller changed'}\nif((Get-FileHash $config -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28'){throw 'Package config changed'}\n$spec=[ordered]@{executable='C:\\Program Files\\Python313\\python.exe';arguments=@($controller);working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();controller_file=$controller;controller_sha256=(Get-FileHash $controller -Algorithm SHA256).Hash.ToLowerInvariant();config_sha256=(Get-FileHash $config -Algorithm SHA256).Hash.ToLowerInvariant();model='D:/models/Qwen3.6-35B-A3B';inference_acceptance=$false;purpose='One-hour same-process native HTTP soak of the relocated current package; repeated q8192/out512 raw/SSE and five short GB10 cases. All numerical boundaries retained; retained performance is not inferred.'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\nif((Get-FileHash 'D:\\projects\\run-native-current-package-soak-guard-r1.ps1' -Algorithm SHA256).Hash.ToLowerInvariant() -ne '9212367160e63d046ed55c530adbdca12d693731c44b01ca1319f1a2173b6c5e'){throw 'Soak guard changed'}\n& 'D:\\projects\\run-native-current-package-soak-guard-r1.ps1' -SpecPath $specPath -OutDir $out -TimeoutSeconds 4500|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'HTTP soak check failed'}\n"
+    },
+    "guard_script": {
+      "file": "run-native-current-package-soak-guard-r1.ps1",
+      "sha256": "9212367160e63d046ed55c530adbdca12d693731c44b01ca1319f1a2173b6c5e",
+      "text": "param(\n    [Parameter(Mandatory = $true)][string]$SpecPath,\n    [Parameter(Mandatory = $true)][string]$OutDir,\n    [ValidateRange(1, 4500)][int]$TimeoutSeconds = 90,\n    [switch]$PreflightOnly\n)\n\n$ErrorActionPreference = 'Stop'\nSet-StrictMode -Version Latest\n$ProgressPreference = 'SilentlyContinue'\nif (-not [Environment]::MachineName.Equals('baiying', [StringComparison]::OrdinalIgnoreCase)) {\n    throw 'This acceptance runner must execute on baiying.'\n}\n. (Join-Path 'D:\\projects\\AIMA-public-runtime-tail-20260914\\scripts' 'baiying_boot_identity.ps1')\n$spec = [IO.File]::ReadAllText($SpecPath) | ConvertFrom-Json\nforeach ($path in @($spec.executable, $spec.working_directory)) {\n    if (-not (Test-Path -LiteralPath $path)) { throw \"Missing input: $path\" }\n}\nif (Test-Path -LiteralPath $OutDir) { throw \"Output already exists: $OutDir\" }\n$OutDir = [IO.Path]::GetFullPath($OutDir)\n$null = New-Item -ItemType Directory -Path $OutDir\n$utf8 = New-Object System.Text.UTF8Encoding -ArgumentList $false\nfunction Write-Record([string]$Name, $Value) {\n    [IO.File]::WriteAllText((Join-Path $OutDir $Name),\n        (($Value | ConvertTo-Json -Depth 16) + \"`n\"), $utf8)\n}\nfunction Quote-Argument([string]$Value) {\n    return '\"' + ($Value -replace '(\\\\*)\"', '$1$1\\\"' -replace '(\\\\+)$', '$1$1') + '\"'\n}\nfunction Get-EngineProcesses {\n    return @(Get-Process -ErrorAction SilentlyContinue | Where-Object {\n        $_.ProcessName -match '^(qrt.*|q\\d+-fla-smoke|fla-upstream-capture-replay|fla-output-capture-replay|hipcc|clang.*|cl|link|lld-link|rustc|cargo|ollama|llama.*|vllm|sglang)$'\n    } | Select-Object Id, ProcessName)\n}\n\n# OS memory sampling does not call the GPU driver or block on WMI per poll.\n# KILL_ON_JOB_CLOSE also stops descendants if the supervisor exits unexpectedly.\nAdd-Type -TypeDefinition @'\nusing System;\nusing System.ComponentModel;\nusing System.Runtime.InteropServices;\npublic static class QrtRunGuard {\n    [StructLayout(LayoutKind.Sequential)] public struct Memory {\n        public uint Length, Load;\n        public ulong TotalPhysical, AvailablePhysical, TotalCommit, AvailableCommit;\n        public ulong TotalVirtual, AvailableVirtual, AvailableExtendedVirtual;\n    }\n    [StructLayout(LayoutKind.Sequential)] struct BasicLimit {\n        public long ProcessTime, JobTime;\n        public uint Flags;\n        public UIntPtr MinWorkingSet, MaxWorkingSet;\n        public uint ActiveProcesses;\n        public UIntPtr Affinity;\n        public uint Priority, Scheduling;\n    }\n    [StructLayout(LayoutKind.Sequential)] struct IoCounters {\n        public ulong ReadOperations, WriteOperations, OtherOperations;\n        public ulong ReadBytes, WriteBytes, OtherBytes;\n    }\n    [StructLayout(LayoutKind.Sequential)] struct ExtendedLimit {\n        public BasicLimit Basic;\n        public IoCounters Io;\n        public UIntPtr ProcessMemory, JobMemory, PeakProcessMemory, PeakJobMemory;\n    }\n    [DllImport(\"kernel32.dll\", SetLastError=true)] static extern bool GlobalMemoryStatusEx(ref Memory value);\n    [DllImport(\"kernel32.dll\", CharSet=CharSet.Unicode, SetLastError=true)] static extern IntPtr CreateJobObject(IntPtr security, string name);\n    [DllImport(\"kernel32.dll\", SetLastError=true)] static extern bool SetInformationJobObject(IntPtr job, int kind, ref ExtendedLimit value, uint size);\n    [DllImport(\"kernel32.dll\", SetLastError=true)] static extern bool AssignProcessToJobObject(IntPtr job, IntPtr process);\n    [DllImport(\"kernel32.dll\", SetLastError=true)] public static extern bool TerminateJobObject(IntPtr job, uint exitCode);\n    [DllImport(\"kernel32.dll\", SetLastError=true)] public static extern bool CloseHandle(IntPtr handle);\n    public static Memory Snapshot() {\n        var value = new Memory(); value.Length = (uint)Marshal.SizeOf(value);\n        if (!GlobalMemoryStatusEx(ref value)) throw new Win32Exception();\n        return value;\n    }\n    public static IntPtr Create() {\n        var job = CreateJobObject(IntPtr.Zero, null);\n        if (job == IntPtr.Zero) throw new Win32Exception();\n        var value = new ExtendedLimit(); value.Basic.Flags = 0x2000;\n        if (!SetInformationJobObject(job, 9, ref value, (uint)Marshal.SizeOf(value))) {\n            var error = new Win32Exception(); CloseHandle(job); throw error;\n        }\n        return job;\n    }\n    public static void Assign(IntPtr job, IntPtr process) {\n        if (!AssignProcessToJobObject(job, process)) throw new Win32Exception();\n    }\n}\n'@\n\n$mutex = New-Object Threading.Mutex($false, 'Global\\QRT_Baiying_GPU_Experiment')\n$locked = $false\n$job = [IntPtr]::Zero\n$process = $null\n$resultCode = 2\ntry {\n    try { $locked = $mutex.WaitOne(0) }\n    catch [Threading.AbandonedMutexException] { $locked = $true }\n    if (-not $locked) { throw 'Another guarded experiment holds the GPU lock.' }\n    $beforeMemory = [QrtRunGuard]::Snapshot()\n    $beforeProcesses = @(Get-EngineProcesses)\n    $os = Get-CimInstance Win32_OperatingSystem -OperationTimeoutSec 5\n    $boot = $os.LastBootUpTime.ToString('o')\n    $bootIdentity = Get-QrtBootIdentity $boot\n    $gpus = @(Get-CimInstance Win32_VideoController -OperationTimeoutSec 5 |\n        Where-Object { $_.Name -match 'AMD|Radeon' } | Select-Object Name, Status, DriverVersion)\n    $checks = [ordered]@{\n        no_engine_or_compiler = $beforeProcesses.Count -eq 0\n        host_memory_reserve = $beforeMemory.AvailablePhysical -ge 8GB\n        commit_reserve = $beforeMemory.AvailableCommit -ge 20GB\n        amd_gpu_ok = $gpus.Count -gt 0 -and @($gpus | Where-Object { $_.Status -ne 'OK' }).Count -eq 0\n        output_disk_reserve = (New-Object IO.DriveInfo([IO.Path]::GetPathRoot($OutDir))).AvailableFreeSpace -ge 10GB\n    }\n    $inputHashes = [ordered]@{}\n    for ($index = 0; $index -lt $spec.arguments.Count; $index++) {\n        if ($spec.arguments[$index] -in @('--provider-dll', '--env-file', '--tokens', '--expected-output')) {\n            $inputPath = [string]$spec.arguments[$index + 1]\n            $inputHashes[[string]$spec.arguments[$index]] = [ordered]@{\n                path = $inputPath\n                sha256 = (Get-FileHash -LiteralPath $inputPath -Algorithm SHA256).Hash.ToLowerInvariant()\n            }\n        }\n    }\n    if ($spec.PSObject.Properties.Name -contains 'repo_commit') {\n        $actualCommit = (& git -C $spec.working_directory rev-parse HEAD).Trim()\n        if ($LASTEXITCODE -ne 0) { throw 'Cannot verify source commit.' }\n        $checks['source_commit_exact'] = $actualCommit -eq $spec.repo_commit\n    }\n    $preflight = [ordered]@{\n        host = [Environment]::MachineName\n        utc = [DateTime]::UtcNow.ToString('o')\n        command_file = $PSCommandPath\n        command_file_sha256 = (Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()\n        spec = $spec\n        executable_sha256 = (Get-FileHash $spec.executable -Algorithm SHA256).Hash.ToLowerInvariant()\n        input_fingerprints = $inputHashes\n        boot = $boot\n        boot_identity = $bootIdentity\n        memory = $beforeMemory\n        gpus = $gpus\n        processes = $beforeProcesses\n        checks = $checks\n        pass = -not ($checks.Values -contains $false)\n    }\n    Write-Record 'preflight.json' $preflight\n    if (-not $preflight.pass) { throw 'Host preflight failed; no process was launched.' }\n    if ($PreflightOnly) { $preflight | ConvertTo-Json -Depth 8 -Compress; exit 0 }\n\n    $stdoutPath = Join-Path $OutDir 'product.stdout.jsonl'\n    $stderrPath = Join-Path $OutDir 'product.stderr.log'\n    $telemetryPath = Join-Path $OutDir 'telemetry.jsonl'\n    $telemetry = New-Object IO.StreamWriter($telemetryPath, $false, $utf8)\n    $telemetry.AutoFlush = $true\n    $job = [QrtRunGuard]::Create()\n    $watch = [Diagnostics.Stopwatch]::StartNew()\n    $reason = 'completed'\n    try {\n        $argumentLine = @($spec.arguments | ForEach-Object { Quote-Argument ([string]$_) }) -join ' '\n        $startParameters = @{\n            FilePath = $spec.executable\n            WorkingDirectory = $spec.working_directory\n            PassThru = $true\n            NoNewWindow = $true\n            RedirectStandardOutput = $stdoutPath\n            RedirectStandardError = $stderrPath\n        }\n        # Start-Process rejects an empty ArgumentList. Omitting that optional\n        # parameter starts a no-argument executable while retaining the same\n        # quoting, redirection and job ownership for every nonempty command.\n        if ($argumentLine.Length -gt 0) { $startParameters.ArgumentList = $argumentLine }\n        $process = Start-Process @startParameters\n        try { [QrtRunGuard]::Assign($job, $process.Handle) }\n        catch { if (-not $process.HasExited) { $process.Kill() }; throw }\n        Write-Record 'launch.json' ([ordered]@{\n            pid = $process.Id; utc = [DateTime]::UtcNow.ToString('o')\n            timeout_seconds = $TimeoutSeconds; job_kill_on_close = $true\n        })\n        while (-not $process.WaitForExit(250)) {\n            $memory = [QrtRunGuard]::Snapshot()\n            $process.Refresh()\n            $telemetry.WriteLine(([ordered]@{\n                elapsed_ms = [Math]::Round($watch.Elapsed.TotalMilliseconds)\n                available_physical = $memory.AvailablePhysical\n                available_commit = $memory.AvailableCommit\n                process_private_bytes = $process.PrivateMemorySize64\n            } | ConvertTo-Json -Compress))\n            if ($watch.Elapsed.TotalSeconds -ge $TimeoutSeconds) { $reason = 'timeout' }\n            elseif ($memory.AvailablePhysical -lt 8GB) { $reason = 'host_memory_reserve' }\n            elseif ($memory.AvailableCommit -lt 20GB) { $reason = 'commit_reserve' }\n            elseif ((Get-Item $stdoutPath).Length + (Get-Item $stderrPath).Length -gt 64MB) {\n                $reason = 'log_size_limit'\n            }\n            if ($reason -ne 'completed') {\n                if (-not [QrtRunGuard]::TerminateJobObject($job, 124)) { throw 'Unable to terminate owned job.' }\n                break\n            }\n        }\n        if (-not $process.WaitForExit(5000)) { throw 'Owned process did not exit within the cleanup bound.' }\n    } finally { $telemetry.Dispose() }\n    $watch.Stop()\n    $process.Refresh()\n    # Close even after normal completion to remove any inherited descendants.\n    $null = [QrtRunGuard]::CloseHandle($job)\n    $job = [IntPtr]::Zero\n    $summaries = @(Get-Content -LiteralPath $stdoutPath | Where-Object { $_ -match '^\\{\"type\":\"summary\"' })\n    $summary = if ($summaries.Count -gt 0) { $summaries[-1] | ConvertFrom-Json } else { $null }\n    $afterProcesses = @(Get-EngineProcesses)\n    $afterBoot = (Get-CimInstance Win32_OperatingSystem -OperationTimeoutSec 5).LastBootUpTime.ToString('o')\n    $afterBootIdentity = Get-QrtBootIdentity $afterBoot\n    $afterMemory = [QrtRunGuard]::Snapshot()\n    $afterGpus = @(Get-CimInstance Win32_VideoController -OperationTimeoutSec 5 |\n        Where-Object { $_.Name -match 'AMD|Radeon' } | Select-Object Name, Status, DriverVersion)\n    $hostChecks = [ordered]@{\n        same_boot = Test-QrtSameBoot $bootIdentity $afterBootIdentity\n        no_engine_process = $afterProcesses.Count -eq 0\n        host_memory_reserve = $afterMemory.AvailablePhysical -ge 8GB\n        commit_reserve = $afterMemory.AvailableCommit -ge 20GB\n        amd_gpu_ok = $afterGpus.Count -gt 0 -and @($afterGpus | Where-Object { $_.Status -ne 'OK' }).Count -eq 0\n    }\n    $cliPass = $reason -eq 'completed' -and $process.ExitCode -eq 0 -and\n        $null -ne $summary -and $summary.status -eq 'pass'\n    $record = [ordered]@{\n        schema_version = 1; host = [Environment]::MachineName\n        command_file = $PSCommandPath; spec = $spec\n        preflight = $preflight; reason = $reason; exit_code = $process.ExitCode\n        wall_ms = [Math]::Round($watch.Elapsed.TotalMilliseconds, 3)\n        summary_present = $null -ne $summary; cli_pass = $cliPass; summary = $summary\n        after_boot = $afterBoot; after_boot_identity = $afterBootIdentity\n        boot_clock_text_unchanged = $boot -eq $afterBoot\n        after_memory = $afterMemory; after_gpus = $afterGpus; after_processes = $afterProcesses\n        host_checks = $hostChecks; host_checks_pass = -not ($hostChecks.Values -contains $false)\n        numerical_acceptance_requires_external_oracle = $true\n    }\n    Write-Record 'run-record.json' $record\n    $record | ConvertTo-Json -Depth 16 -Compress\n    $resultCode = if ($cliPass -and $record.host_checks_pass) { 0 } else { 20 }\n} catch {\n    Write-Record 'supervisor-error.json' ([ordered]@{\n        utc = [DateTime]::UtcNow.ToString('o'); error = $_.Exception.Message\n        launched = $null -ne $process; numerical_correctness_claimed = $false\n    })\n    Write-Warning $_.Exception.Message\n} finally {\n    if ($job -ne [IntPtr]::Zero) { $null = [QrtRunGuard]::CloseHandle($job) }\n    if ($null -ne $process) { $process.Dispose() }\n    if ($locked) { $mutex.ReleaseMutex() }\n    $mutex.Dispose()\n}\nexit $resultCode\n"
+    }
+  },
+  "native": {
+    "name": "current-package-soak-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\run-native-current-package-soak-guard-r1.ps1",
+    "spec": {
+      "executable": "C:\\Program Files\\Python313\\python.exe",
+      "arguments": [
+        "D:\\projects\\verify_current_package_soak_r1.py"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-runtime-tail-20260914",
+      "repo_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "command_file": "D:\\projects\\run-native-current-package-soak-r1.ps1",
+      "command_file_sha256": "dc7ef3444daed7bd7877a016c89ae617259e5ef729bd594152ec70374fdff82d",
+      "controller_file": "D:\\projects\\verify_current_package_soak_r1.py",
+      "controller_sha256": "7d9e1311e980b5fafc73c6beee101e56356f6a389b86f188500c72631d5c2dd1",
+      "config_sha256": "dfc4d67bfed4fcdd49aa950d925a018a2e65f4120db2cc0f4590b716b4761f28",
+      "model": "D:/models/Qwen3.6-35B-A3B",
+      "inference_acceptance": false,
+      "purpose": "One-hour same-process native HTTP soak of the relocated current package; repeated q8192/out512 raw/SSE and five short GB10 cases. All numerical boundaries retained; retained performance is not inferred."
+    },
+    "launch": {
+      "pid": 8636,
+      "utc": "2026-09-14T20:53:28.4458806Z",
+      "timeout_seconds": 4500,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 1,
+    "wall_ms": 29385.548,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "dc7ecf75280678175b4f931ce05f1ef9c10d48984399ca7de6beee69d71bcb1b",
+    "canonical_raw_sha256": {
+      "dispatch.json": "56e463a9089dd4ce5f43091cfd5e37027564c7ac3e7f626b7558bdc337f5b7bf",
+      "launch.json": "a92a2998934b97af28eedf9512e186d4cfbc1db055e9f48710b31c251d669621",
+      "preflight.json": "b613aec844661204b435f726e18cd2bd2e1c5ddedf5a413fd6f1c826434681c4",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "c1d8b6749255d9fe538328b94c6f7f7784c961c49078f222ba73a51629e0e9eb",
+      "run-record.json": "7f4c488bcf05dec7feefdcd352bb113cc5b5f5d9111238b7188229838091c06b",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    },
+    "reports": [
+      {
+        "status": "failed",
+        "error": "TimeoutError: timed out",
+        "active_window_seconds": null,
+        "completed_cycles": null,
+        "completed_requests": null,
+        "raw_tokens_verified": null,
+        "q8192_first_logits_verified": null,
+        "sse_cases_verified": null,
+        "server_exit_code": 1,
+        "wall_ms": 28808.035199996084
+      }
+    ]
+  },
+  "result": {
+    "schema_version": 1,
+    "status": "failed",
+    "host": "baiying",
+    "model": "D:/models/Qwen3.6-35B-A3B",
+    "server_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "controller_sha256": "7d9e1311e980b5fafc73c6beee101e56356f6a389b86f188500c72631d5c2dd1",
+    "runtime_manifest_sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635",
+    "profile_sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+    "soak_limits": {
+      "minimum_active_window_seconds": 3600,
+      "maximum_controller_seconds": 4200,
+      "per_request_seconds": 120,
+      "native_job_seconds": 4500,
+      "log_bytes": 134217728
+    },
+    "performance_qualified": false,
+    "release_qualified": false,
+    "published": false,
+    "base_package_preflight": {
+      "pass": true,
+      "runtime_artifacts_verified": 268,
+      "files": {
+        "server": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+          "sha256": "e98ed8241da157f4b4bc0cf3375911031258fa1a58662181e039c01602c09ede"
+        },
+        "provider": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469"
+        },
+        "env": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+          "sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f"
+        },
+        "prompt": {
+          "path": "D:\\projects\\gb10-token-matrix-inputs-20260911-r2\\q8192-out32-prompt.json",
+          "sha256": "3c4cf3bf6384fd0a915c0925737e186746b680f9659af980192f863f1cb0fe54"
+        },
+        "oracle": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\contracts\\hprefill_q8192_gb10_oracle.json",
+          "sha256": "e0323f365318dca622c100f0269a22edcef4e632f78b8b6f9d62476d43834890"
+        },
+        "runtime_manifest": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime-manifest.json",
+          "sha256": "fe4ce91b808449f372859def7df362eb8326bcad35fd5c42f9a3575eeea82635"
+        }
+      },
+      "server_checkout_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+      "execution_limits": {
+        "readiness_seconds": 45,
+        "request_seconds": 120,
+        "controller_seconds": 360
+      }
+    },
+    "references": [
+      {
+        "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\contracts\\gb10_cold_token_matrix_20260911_oracle.json",
+        "sha256": "7a6feb488f4dd136e49c4d7227c1fc325e3216af3dae3e9b60aa0b3025f3d1b1"
+      },
+      {
+        "path": "D:\\projects\\gb10-http-short-inputs-20260912-r1\\gb10_http_short_actual_tokens_20260912_oracle.json",
+        "sha256": "2c0c496276f376a4148560c0976bdece4c088ddcf7d989afb1e2a58c10718c6b"
+      }
+    ],
+    "command": [
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\engine\\qrt.exe",
+      "serve",
+      "--model",
+      "D:/models/Qwen3.6-35B-A3B",
+      "--provider",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\whole-provider\\qrt_qwen36_whole_provider.dll",
+      "--env-file",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\runtime.env",
+      "--arbitrary-moe-provider",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\qrt_triton_moe_q1024_exact_provider_slots64.dll",
+      "--arbitrary-moe-kernel-dir",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\q1024-moe\\moe-kernels",
+      "--smooth-tail-moe-root",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\relocated current package r1\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r1\\smooth-tail",
+      "--model-id",
+      "qwen3.6-35b-a3b",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "18157",
+      "--max-model-len",
+      "262144",
+      "--max-queue-depth",
+      "1",
+      "--queue-timeout-seconds",
+      "15",
+      "--state-file",
+      "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\current-package-soak-requests-r1\\service.json",
+      "--set-env",
+      "QRT_SERVER_FIRST_TOKEN_LOGIT_DIAGNOSTIC=1"
+    ],
+    "pid": 6808,
+    "health_before": {
+      "capabilities": {
+        "batch_size": 1,
+        "bounded_fifo_queue": true,
+        "continuous_prompt_lengths": true,
+        "prefix_cache": true,
+        "streaming": true,
+        "tool_calls": true
+      },
+      "load": {
+        "engine_create_ms": 1.0135,
+        "provider_dll_ms": 10.4886,
+        "provider_preload_reported_ms": 21068.9379,
+        "provider_preload_stored_entries": 256,
+        "provider_preload_wall_ms": 21069.5458,
+        "total_ms": 21081.0523
+      },
+      "max_model_len": 262144,
+      "max_output_tokens": 512,
+      "model": "qwen3.6-35b-a3b",
+      "pid": 6808,
+      "queue": {
+        "accepting_requests": true,
+        "active_requests": 0,
+        "completed_total": 0,
+        "max_waiting_requests": 1,
+        "queued_total": 0,
+        "rejected_total": 0,
+        "shutdown_rejected_total": 0,
+        "started_total": 0,
+        "timed_out_total": 0,
+        "wait_max_ms": 0.0,
+        "wait_mean_ms": 0.0,
+        "wait_timeout_seconds": 15,
+        "waiting_requests": 0
+      },
+      "ready": true,
+      "started_at": "1789419230",
+      "status": "ok"
+    },
+    "ready_wall_ms": 21441.82239996735,
+    "error": "TimeoutError: timed out",
+    "forced_owned_process_cleanup": true,
+    "server_exit_code": 1,
+    "requests": [],
+    "health_memory_samples": [],
+    "deadline_or_monitor_failures": [],
+    "wall_ms": 28808.035199996084
+  },
+  "canonical_files": {
+    "result.json": {
+      "bytes": 6459,
+      "sha256": "268c3c0f15e47d84ff5d6448a683f4f5b2810c3de6aeb455a4396c7047e87e5b"
+    },
+    "server.stderr.log": {
+      "bytes": 73085,
+      "sha256": "b8c5b6ab25ebac7c4766edeb0c4dbeb72d700cae952867be03af72959c643455"
+    },
+    "server.stdout.log": {
+      "bytes": 505,
+      "sha256": "0a8c77393182dc2daec928a6839466e71a757f008c237dbf21570a1e72951f0f"
+    },
+    "service.json": {
+      "bytes": 1413,
+      "sha256": "29bb9603c715b3e0339098a9e1269110108bd59df6d71175092fa8671f0ed0ed"
+    }
+  },
+  "qualified_cold_matrix": {
+    "file": "benchmarks/correctness/current-portable-cold-matrix-20260915.json",
+    "bytes": 161865,
+    "sha256": "16ee876fc4f94d1244670563ac7eec30fcd34fd09ed0e024741a8536003a0e61"
+  },
+  "diagnosis": {
+    "server_source_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "api_file": "engine/qrt-server/src/api.rs",
+    "tokenizer_file": "engine/qrt-server/src/tokenizer.rs",
+    "dependency": "tokenizers0.22.2",
+    "local_dependency_source_sha256": "f47ea3e878b2a6766ed9809c648ba8f1bcd5b943e05c18e79fbd425b42e24b00",
+    "mechanism": "The detokenize handler invokes TokenCodec.vocab_size() for each token. QwenTokenizer calls tokenizers.get_vocab_size(true), which constructs a complete vocabulary HashMap. Repeated full-vocabulary copies block the request handler. The reference-text setup timed out after the service became ready; no counted inference request started.",
+    "change_under_validation": "Cache the immutable full vocabulary size at tokenizer load, retaining added special tokens, and read the vocabulary bound once per detokenize request. Native verification remains required."
+  },
+  "measured_load_ms": 21081.0523,
+  "soak_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false
+}

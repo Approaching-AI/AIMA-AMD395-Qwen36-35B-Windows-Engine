@@ -1025,10 +1025,11 @@ async fn detokenize(
         return context_error(request.tokens.len(), 0, state.inner.max_context_tokens)
             .into_response();
     }
+    let vocab_size = state.inner.tokenizer.vocab_size();
     if let Some(token) = request
         .tokens
         .iter()
-        .find(|token| **token as usize >= state.inner.tokenizer.vocab_size())
+        .find(|token| **token as usize >= vocab_size)
     {
         return ApiError::invalid(
             format!("token id {token} is outside the vocabulary"),

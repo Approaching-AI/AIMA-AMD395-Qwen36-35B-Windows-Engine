@@ -39,8 +39,25 @@ or numerical overrides. Load spans 21298.7011–21394.3392 ms; callback TTFT
 2733.1037–3545.0566 ms. Evidence:
 `benchmarks/correctness/current-portable-short-matrix-20260915.json`, SHA256
 `28e7d27f0bb752187db51df83a9e039bfc96f78052d68285e0bab4a8ff759b34`.
-The eight-case full cold matrix is in progress. Long contexts, sustained
-soak, the immutable performance thresholds and release remain open.
+The eight-case full cold matrix now passes all 1216 GB10 output IDs,
+all actual callbacks and exact first logits, including q8193. Each case uses
+a new process and the packaged CLI/providers without numerical overrides.
+The packaged q8192/out512 run measures 33062.3377 ms callback TTFT,
+100.315210 ms TPOT and 21300.7426 ms load; all eight loads are below30 s.
+Evidence: `benchmarks/correctness/current-portable-cold-matrix-20260915.json`,
+SHA256 `16ee876fc4f94d1244670563ac7eec30fcd34fd09ed0e024741a8536003a0e61`.
+
+The one-hour HTTP soak has not passed. Its first attempt loads in21081.0523 ms,
+then times out preparing reference text through `/detokenize`, before any
+counted generation. Owned-process cleanup and host guards pass. The handler
+queried vocabulary size for every token; tokenizers0.22.2 constructs a full
+vocabulary map for each such query. The server now caches the immutable size
+at load and queries that bound once per request, retaining added special
+symbols. All47 Rust workspace tests and clippy pass; a rebuilt native server
+and renewed HTTP/soak evidence are still required. Failure evidence:
+`benchmarks/correctness/current-portable-soak-setup-failure-20260915.json`,
+SHA256 `0a9c8f189adead865e83acf7f26706e66710415293d551172c723d547469d3c6`.
+Long contexts, sustained soak, immutable performance and release remain open.
 
 Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
 and FLA `2ee6215` pass the current q8192 regression on baiying with

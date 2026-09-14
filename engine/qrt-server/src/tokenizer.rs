@@ -31,6 +31,7 @@ pub trait TokenCodec: Send + Sync {
 pub struct QwenTokenizer {
     tokenizer: Tokenizer,
     eos_token_ids: HashSet<u32>,
+    vocab_size: usize,
 }
 
 impl QwenTokenizer {
@@ -45,9 +46,13 @@ impl QwenTokenizer {
             .into_iter()
             .filter_map(|token| tokenizer.token_to_id(token))
             .collect();
+        // tokenizers 0.22 builds a complete vocabulary map for this query.
+        // The tokenizer is immutable after loading, so compute it only once.
+        let vocab_size = tokenizer.get_vocab_size(true);
         Ok(Self {
             tokenizer,
             eos_token_ids,
+            vocab_size,
         })
     }
 
@@ -86,7 +91,7 @@ impl TokenCodec for QwenTokenizer {
         // The model's generation vocabulary includes added special tokens.
         // `false` reports only the base model vocabulary and incorrectly
         // rejects valid IDs such as Qwen's <|im_end|> at the HTTP boundary.
-        self.tokenizer.get_vocab_size(true)
+        self.vocab_size
     }
 }
 
@@ -146,9 +151,11 @@ mod tests {
             1
         );
         let eos_token_id = tokenizer.token_to_id("<|im_end|>").unwrap();
+        let vocab_size = tokenizer.get_vocab_size(true);
         let codec = QwenTokenizer {
             tokenizer,
             eos_token_ids: HashSet::from([eos_token_id]),
+            vocab_size,
         };
 
         assert_eq!(codec.vocab_size(), 3);
