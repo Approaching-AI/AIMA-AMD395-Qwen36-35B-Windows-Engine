@@ -187,6 +187,18 @@ continue with the original exact QK arithmetic as the numerical boundary.
 Evidence: `benchmarks/correctness/cooperative-half-out-components-20260915.json`,
 SHA256 `070fa589e1f24af3935e9a364cfb3c16c32c5cb857d4786279b19eb2cb4cad62`.
 
+The next QK component combines lossless 36-byte scaled-half rows with the
+single-register FP32 carry already validated separately. This removes the
+repeated conversion between the original Value representation and FP32 from
+the earlier scaled-half QK route. K64/K128/K256 windows retain original paired
+exponent alignment and modulo sums; unsupported operands or carry endpoints
+restart the complete original dot. The current prepared QK and previous K128
+scaled-half implementation are same-executable controls. Host checks pass
+500000 original wide K16 groups with address/undefined/conversion sanitizers;
+native guards, fallback cases and complete q7169/q8192 captured comparisons
+remain pending. Product dispatch is unchanged.
+
+
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
 18363.0420 ms and seed plus retry from 198834.0260 to 225885.3303 ms.
