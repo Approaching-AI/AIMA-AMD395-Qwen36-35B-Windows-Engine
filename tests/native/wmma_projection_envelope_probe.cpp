@@ -1,6 +1,7 @@
 #include <hip/hip_runtime.h>
 #include "../../native/providers/moe_accumulator/sm121_group16_modulo.h"
 #include "../../native/providers/moe_accumulator/sm121_pv_error_bound.h"
+#include "../../native/providers/moe_accumulator/sm121_projection_interval.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -14,10 +15,11 @@
 namespace {
 namespace canonical=qrt_q1_moe_hawkeye;
 namespace bound=qrt_sm121_pv_bound;
+namespace interval=qrt_sm121_projection_interval;
 using B16=unsigned short __attribute__((ext_vector_type(16)));
 using F8=float __attribute__((ext_vector_type(8)));
 constexpr unsigned guard=64u;
-struct Step { float center,absolute_dot,error,zero_c_product; };
+struct Step { float center,absolute_dot,error,zero_c_product,lower,upper; };
 void check(hipError_t status) { if(status!=hipSuccess)throw std::runtime_error(hipGetErrorString(status)); }
 void require(bool condition,const char* message) { if(!condition)throw std::runtime_error(message); }
 void complete() {
@@ -59,15 +61,17 @@ template<unsigned CarryKind>
 __global__ void trace_groups(const uint16_t* input,const float* initial,
     Step* trace,unsigned width) {
     const unsigned lane=threadIdx.x,tile=blockIdx.x,groups=width/16u;
-    F8 carry{},errors{};
-    for(unsigned j=0u;j<8u;++j)carry[j]=initial[tile*256u+(2u*j+lane/16u)*16u+lane%16u];
+    F8 carry{},errors{},lower{},upper{};
+    for(unsigned j=0u;j<8u;++j)lower[j]=upper[j]=carry[j]=initial[tile*256u+(2u*j+lane/16u)*16u+lane%16u];
     for(unsigned group=0u;group<groups;++group) {
         B16 a{},b{},aa{},bb{};
+        interval::Row ar,br;
 #pragma unroll
         for(unsigned i=0u;i<16u;++i) {
             a[i]=input[(size_t(tile)*32u+lane%16u)*width+group*16u+i];
             b[i]=input[(size_t(tile)*32u+16u+lane%16u)*width+group*16u+i];
             aa[i]=a[i]&0x7fffu;bb[i]=b[i]&0x7fffu;
+            interval::include(ar,a[i]);interval::include(br,b[i]);
         }
         const F8 zero{};
         const F8 absolute=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(aa,bb,zero);
@@ -83,7 +87,11 @@ __global__ void trace_groups(const uint16_t* input,const float* initial,
         for(unsigned j=0u;j<8u;++j) {
             errors[j]=bound::group(errors[j],carry[j],absolute[j]);
             const unsigned cell=(2u*j+lane/16u)*16u+lane%16u;
-            trace[(size_t(tile)*groups+group)*256u+cell]={next[j],absolute[j],errors[j],product[j]};
+            const unsigned row=cell/16u;
+            const interval::Row left{__shfl(ar.minimum,row),__shfl(ar.maximum,row),bool(__shfl(int(ar.valid),row))};
+            const auto limits=interval::group({lower[j],upper[j]},product[j],absolute[j],left,br);
+            lower[j]=limits.lower;upper[j]=limits.upper;
+            trace[(size_t(tile)*groups+group)*256u+cell]={next[j],absolute[j],errors[j],product[j],lower[j],upper[j]};
         }
         carry=next;
     }
@@ -127,9 +135,10 @@ void analyze(const char* kind,unsigned mode,unsigned carry_kind,const std::vecto
     check(hipGetLastError());complete();const auto trace=dt.read();
     di.guards();dc.guards();dt.guards();const auto input_after=di.read();const auto initial_after=dc.read();
     require(input_after==input&&!std::memcmp(initial_after.data(),initial.data(),initial.size()*sizeof(float)),"immutable input bits");
-    Counts counts[4]{};uint64_t native_bf16_differences=0,external_differences=0;
+    Counts counts[5]{};uint64_t native_bf16_differences=0,external_differences=0;
     uint64_t rne_group_differences=0,positive_native_errors=0,negative_native_errors=0,nonfinite=0;
     uint64_t gpu_cpu_envelope_bit_differences=0;
+    uint64_t gpu_cpu_interval_bit_differences=0;
     uint64_t eligible_dots=0,eligible_native_bf16_differences=0;
     uint64_t fp64_reference_rounding_events=0;
     double maximum_native_relative_error=0,maximum_canonical_error=0;
@@ -141,14 +150,17 @@ void analyze(const char* kind,unsigned mode,unsigned carry_kind,const std::vecto
         eligible_dots+=eligible;
         auto carry=canonical::value_from_float(initial[tile*256u+cell],-133);
         float center=initial[tile*256u+cell],errors[4]{};
+        interval::Interval limits{center,center};
         for(unsigned group=0u;group<groups;++group) {
             const Step step=trace[(size_t(tile)*groups+group)*256u+cell];
             canonical::Value terms[17];terms[0]=carry;
+            interval::Row left,right;
             double products=0,absolute_products=0,mathematical=double(center);
             for(unsigned k=0;k<16u;++k) {
                 const uint16_t a=input[(size_t(tile)*32u+row)*width+group*16u+k];
                 const uint16_t b=input[(size_t(tile)*32u+16u+column)*width+group*16u+k];
                 terms[k+1u]=canonical::multiply_bf16(a,b,-133);
+                interval::include(left,a);interval::include(right,b);
                 const double product=double(widen(a))*double(widen(b));
                 products=add_reference(products,product,fp64_reference_rounding_events);
                 mathematical=add_reference(mathematical,product,fp64_reference_rounding_events);
@@ -181,6 +193,16 @@ void analyze(const char* kind,unsigned mode,unsigned carry_kind,const std::vecto
                     counts[v].eligible_false_admissions+=eligible&&bound::bf16(step.center)!=bound::bf16(exact);
                 }
             }
+            limits=interval::group(limits,step.zero_c_product,step.absolute_dot,left,right);
+            gpu_cpu_interval_bit_differences+=bound::bits(limits.lower)!=bound::bits(step.lower)||bound::bits(limits.upper)!=bound::bits(step.upper);
+            limits={step.lower,step.upper};
+            counts[4].prefix_undercoverage+=exact<limits.lower||exact>limits.upper;
+            if(group+1u==groups&&interval::same_bf16(limits)) {
+                ++counts[4].final_admitted;
+                counts[4].false_admissions+=bound::bf16(limits.lower)!=bound::bf16(exact);
+                counts[4].eligible_final_admitted+=eligible;
+                counts[4].eligible_false_admissions+=eligible&&bound::bf16(limits.lower)!=bound::bf16(exact);
+            }
             center=step.center;
         }
         const uint16_t endpoint=bound::bf16(canonical::value_to_float(qrt_sm121_group16::finish_accumulator(carry)));
@@ -188,11 +210,11 @@ void analyze(const char* kind,unsigned mode,unsigned carry_kind,const std::vecto
         eligible_native_bf16_differences+=eligible&&bound::bf16(center)!=endpoint;
         if(!external.empty())external_differences+=endpoint!=external[tile*256u+cell];
     }
-    for(unsigned v=0u;v<4u;++v) {
-        std::printf("{\"kind\":\"%s\",\"mode\":%u,\"carry_kind\":%u,\"envelope\":%u,\"coefficient_exponent\":%u,\"hypothesis_only\":%s,\"dots\":%zu,\"ordered_groups\":%zu,\"prefix_undercoverage\":%llu,\"final_admitted\":%llu,\"false_bf16_admissions\":%llu,\"native_bf16_differences\":%llu,\"external_reference_differences\":%llu,\"external_reference_cells\":%zu,\"native_group_rne_differences\":%llu,\"positive_native_group_errors\":%llu,\"negative_native_group_errors\":%llu,\"maximum_native_error_over_magnitude\":%.17g,\"maximum_canonical_error\":%.17g,\"nonfinite\":%llu,\"gpu_cpu_envelope_bit_differences\":%llu,\"fp64_group_reference_exact\":%s,\"fp64_reference_rounding_events\":%llu,\"eligible_dots\":%llu,\"eligible_final_admitted\":%llu,\"eligible_false_admissions\":%llu,\"eligible_native_bf16_differences\":%llu,\"maximum_eligible_zero_c_error_over_absolute_dot\":%.17g,\"maximum_eligible_native_error_over_magnitude\":%.17g,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",kind,mode,carry_kind,v,v?25u-v:19u,v?"true":"false",initial.size(),initial.size()*groups,
+    for(unsigned v=0u;v<5u;++v) {
+        std::printf("{\"kind\":\"%s\",\"mode\":%u,\"carry_kind\":%u,\"envelope\":%u,\"coefficient_exponent\":%u,\"hypothesis_only\":%s,\"dots\":%zu,\"ordered_groups\":%zu,\"prefix_undercoverage\":%llu,\"final_admitted\":%llu,\"false_bf16_admissions\":%llu,\"native_bf16_differences\":%llu,\"external_reference_differences\":%llu,\"external_reference_cells\":%zu,\"native_group_rne_differences\":%llu,\"positive_native_group_errors\":%llu,\"negative_native_group_errors\":%llu,\"maximum_native_error_over_magnitude\":%.17g,\"maximum_canonical_error\":%.17g,\"nonfinite\":%llu,\"gpu_cpu_envelope_bit_differences\":%llu,\"gpu_cpu_interval_bit_differences\":%llu,\"interval_recurrence\":%s,\"fp64_group_reference_exact\":%s,\"fp64_reference_rounding_events\":%llu,\"eligible_dots\":%llu,\"eligible_final_admitted\":%llu,\"eligible_false_admissions\":%llu,\"eligible_native_bf16_differences\":%llu,\"maximum_eligible_zero_c_error_over_absolute_dot\":%.17g,\"maximum_eligible_native_error_over_magnitude\":%.17g,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",kind,mode,carry_kind,v,v==4u?0u:(v?25u-v:19u),v?"true":"false",initial.size(),initial.size()*groups,
             static_cast<unsigned long long>(counts[v].prefix_undercoverage),static_cast<unsigned long long>(counts[v].final_admitted),static_cast<unsigned long long>(counts[v].false_admissions),
             static_cast<unsigned long long>(native_bf16_differences),static_cast<unsigned long long>(external_differences),external.size(),static_cast<unsigned long long>(rne_group_differences),
-            static_cast<unsigned long long>(positive_native_errors),static_cast<unsigned long long>(negative_native_errors),maximum_native_relative_error,maximum_canonical_error,static_cast<unsigned long long>(nonfinite),static_cast<unsigned long long>(gpu_cpu_envelope_bit_differences),!fp64_reference_rounding_events?"true":"false",static_cast<unsigned long long>(fp64_reference_rounding_events),static_cast<unsigned long long>(eligible_dots),static_cast<unsigned long long>(counts[v].eligible_final_admitted),static_cast<unsigned long long>(counts[v].eligible_false_admissions),static_cast<unsigned long long>(eligible_native_bf16_differences),maximum_eligible_zero_c_relative_error,maximum_eligible_native_relative_error);
+            static_cast<unsigned long long>(positive_native_errors),static_cast<unsigned long long>(negative_native_errors),maximum_native_relative_error,maximum_canonical_error,static_cast<unsigned long long>(nonfinite),static_cast<unsigned long long>(gpu_cpu_envelope_bit_differences),static_cast<unsigned long long>(gpu_cpu_interval_bit_differences),v==4u?"true":"false",!fp64_reference_rounding_events?"true":"false",static_cast<unsigned long long>(fp64_reference_rounding_events),static_cast<unsigned long long>(eligible_dots),static_cast<unsigned long long>(counts[v].eligible_final_admitted),static_cast<unsigned long long>(counts[v].eligible_false_admissions),static_cast<unsigned long long>(eligible_native_bf16_differences),maximum_eligible_zero_c_relative_error,maximum_eligible_native_relative_error);
         std::fflush(stdout);
     }
     require(!counts[0].prefix_undercoverage&&!counts[0].false_admissions&&!external_differences&&!nonfinite,"established bound, reference or finite control failure");
@@ -201,7 +223,7 @@ uint32_t random_state=0x395bf16u;
 uint32_t random_word(){random_state^=random_state<<13u;random_state^=random_state>>17u;random_state^=random_state<<5u;return random_state;}
 void generated() {
     constexpr unsigned tiles=16u,width=1024u;
-    for(unsigned mode=0u;mode<6u;++mode) {
+    for(unsigned mode=0u;mode<9u;++mode) {
         std::vector<uint16_t> input(size_t(tiles)*32u*width);std::vector<float> initial(tiles*256u);
         for(size_t i=0;i<input.size();++i) {
             uint16_t value=uint16_t((116u+random_word()%12u)<<7u|(random_word()&0x807fu));
@@ -209,6 +231,13 @@ void generated() {
             if(mode==2u)value=uint16_t((value&0x7fffu)|((i/width%32u)>=16u?0x8000u:0u));
             if(mode==3u&&(i&1u))value=input[i-1u]^uint16_t((i/width%32u)>=16u?0x8000u:0u);
             if(mode==4u&&i%7u)value=uint16_t(value&0x8000u);
+            if(mode==6u)value=uint16_t(((80u+random_word()%95u)<<7u)|(random_word()&0x807fu));
+            if(mode==7u)value=uint16_t(((124u+random_word()%4u)<<7u)|(random_word()&0x807fu));
+            if(mode==8u) {
+                const unsigned k=unsigned(i%16u),row=unsigned(i/width%32u);
+                const unsigned exponent=116u+(row<16u?k:15u-k);
+                value=uint16_t((exponent<<7u)|(random_word()&0x807fu));
+            }
             input[i]=value;
         }
         if(mode==5u)for(auto& value:initial)value=bound::value((random_word()&0x807fffffu)|(136u<<23u));

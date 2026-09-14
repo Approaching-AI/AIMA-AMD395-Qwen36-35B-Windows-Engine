@@ -2,23 +2,33 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Ordered WMMA projection error probing at `fffc47e` preserves all 16384
-sampled original QKV GB10 BF16 endpoints. The existing conservative envelope
-covers all 2097152 captured K16 groups and accepts 14122 final endpoints.
-These samples are not weighted to the full tensor or current replay population,
-so their 86.2 percent acceptance is not a measured replay reduction.
+The three-carry WMMA comparison at `d7ed15d` passes all 72 generated and
+12 captured diagnostic reports. Each variant preserves the same 16384
+independent original QKV GB10 BF16 endpoints and the established error
+bound. Fused / scalar nearest-even / scalar toward-zero admit
+14122 / 14120 / 14121 endpoints. Native BF16 differences are 90 / 171 / 163;
+within the 16192 eligible dots they are 3 / 10 / 2. Explicit scalar carry
+therefore supplies no measured admission improvement and is not promoted.
 
-Generated signed, positive, negative, cancelling, sparse-zero and large-carry
-cases cover 1572864 groups. The established envelope has no undercoverage;
-three smaller coefficients miss 541224 / 16254 / 78 prefix errors, and the
-smallest incorrectly admits three BF16 endpoints. All three remain invalid
-despite two passing the captured sample. Native build, guards and local hygiene
-pass. This adds no product arithmetic or performance qualification.
-The next structural comparison uses zero-C matrix groups followed by explicit
-scalar carry rounding, with the original reference and established envelope.
-Command: `run-native-wmma-projection-envelope-r1.ps1 -Action build|test|capture`.
-Evidence: `benchmarks/correctness/wmma-projection-envelope-20260914.json`, SHA256
-`38e3a502d202f4a2e23378dca7a2119f0d1d333c5d1f7e7f2507d5180a7c8434`.
+Every smaller-coefficient hypothesis still has generated counterexamples.
+The new TwoSum audit observes zero FP64 addition-rounding events in these
+particular generated and captured groups. Original wide integer arithmetic
+and actual GB10 endpoints remain the independent comparisons. The native
+HIP 7.1 build uses its installed `__ocml_add_rtz_f32` declaration; the initial
+absent-intrinsic build failure and premature test dispatch are preserved.
+All completed host guards pass, and dispatch now checks successful build
+provenance before test. No product or release qualification follows.
+
+Next test a structural interval recurrence that separately bounds matrix
+products and canonical alignment loss, then carries directed lower and upper
+FP32 endpoints. Keep the conservative native-product coefficient and full
+exact fallback; numerical checks precede a product decision.
+Command: `run-native-wmma-scalar-carry-envelope-r2.ps1 -Action build|test|capture`.
+Evidence: `benchmarks/correctness/wmma-scalar-carry-envelope-20260914.json`, SHA256
+`0266a7b786c9b56bcb18151c19da6cb11aa6cb2ac1d09a68d2a22da2e017a68f`.
+
+The fused-only diagnostic remains in `wmma-projection-envelope-20260914.json`;
+its narrower bounds also fail generated counterexamples.
 
 The hybrid exact-integer/scalar-float QK experiment at `824a07f` passes
 128 native generated cases, 257735040 score comparisons and 8192 independent
