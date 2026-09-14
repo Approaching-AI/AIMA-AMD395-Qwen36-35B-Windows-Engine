@@ -79,11 +79,38 @@ unsigned run_matrix_producer_selection_suite() {
             out.read(output);
             for (size_t i = 0u; i < kGuard; ++i)
                 require(output[i] == kF32Guard && output[kGuard + cells + i] == kF32Guard, "producer output guard");
-            for (unsigned t = 0u; t < tokens; ++t) for (unsigned r = 0u; r < rows; ++r)
-                require(output[kGuard + size_t(t) * rows + r] == reference[t % 7u][r % 11u], "producer independent exact value");
             auto actual_weights = weights, actual_inputs = inputs;
             dw.read(actual_weights); di.read(actual_inputs);
             require(actual_weights == weights && actual_inputs == inputs, "producer immutable operands");
+            size_t mismatches = 0u, first = cells;
+            for (unsigned t = 0u; t < tokens; ++t) for (unsigned r = 0u; r < rows; ++r) {
+                const size_t cell = size_t(t) * rows + r;
+                if (output[kGuard + cell] != reference[t % 7u][r % 11u]) {
+                    if (!mismatches) first = cell;
+                    ++mismatches;
+                }
+            }
+            if (mismatches) {
+                const unsigned t = unsigned(first / rows), r = unsigned(first % rows);
+                double direct = 0.0;
+                for (unsigned k = 0u; k < columns; ++k) {
+                    const uint32_t wa = uint32_t(actual_weights[kGuard + size_t(r) * columns + k]) << 16u;
+                    const uint32_t ia = uint32_t(actual_inputs[kGuard + size_t(t) * columns + k]) << 16u;
+                    float w, a; std::memcpy(&w, &wa, 4u); std::memcpy(&a, &ia, 4u);
+                    direct += double(w) * double(a);
+                }
+                const float expected = reference[t % 7u][r % 11u], direct_f32 = float(direct);
+                uint32_t actual_bits, expected_bits, direct_bits;
+                std::memcpy(&actual_bits, &output[kGuard + first], 4u);
+                std::memcpy(&expected_bits, &expected, 4u); std::memcpy(&direct_bits, &direct_f32, 4u);
+                std::cout << "{\"type\":\"matrix_producer_failure\",\"rows\":" << rows
+                    << ",\"tokens\":" << tokens << ",\"k\":" << columns << ",\"choice\":" << choice
+                    << ",\"f32_value_mismatches\":" << mismatches << ",\"first_cell\":" << first
+                    << ",\"first_token\":" << t << ",\"first_row\":" << r << ",\"actual_bits\":" << actual_bits
+                    << ",\"expected_bits\":" << expected_bits << ",\"direct_cpu_bits\":" << direct_bits
+                    << ",\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}" << std::endl;
+                throw std::runtime_error("producer independent exact value");
+            }
             auto ordered = times; std::sort(ordered.begin(), ordered.end());
             ++completed;
             std::cout << "{\"type\":\"matrix_producer_choice\",\"rows\":" << rows
