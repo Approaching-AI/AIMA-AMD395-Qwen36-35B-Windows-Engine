@@ -57593,9 +57593,10 @@ bool resident_q8192_matrix_producer_choice(
 ) {
     if (qrt_q8192_matrix_producer::resolve(
             std::getenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM"),
-            rows, k, tokens, output_f32, choice)) return true;
+            rows, k, tokens, output_f32, choice,
+            std::getenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE"))) return true;
     *failure_stage = "hipblaslt_q8192_matrix_producer_algorithm";
-    *failure = "q8192 matrix producer algorithm must be 0 or 4";
+    *failure = "q8192 matrix producer requires algorithm 0 or 4 and scope all, qkv or out";
     return false;
 }
 
@@ -57972,16 +57973,22 @@ bool prewarm_q8192_resident_bf16_matrix_plans(
             }
         }
     }
-    if (producer_choice != 0u) {
+    {
         // Load-time setup uses the same shape/index cache identity as dispatch.
         // Retain the baseline plans for all other callers and explicit indices.
+        unsigned selected_shapes = 0u;
         for (const auto shape : {std::pair{8192u, 2048u}, std::pair{4096u, 2048u},
                                  std::pair{9216u, 2048u}, std::pair{2048u, 4096u}}) {
+            if (!resident_q8192_matrix_producer_choice(shape.first, shape.second,
+                    8192u, true, &producer_choice, failure_stage, failure)) return false;
+            if (!producer_choice) continue;
             ResidentBf16MatrixPlan* plan = nullptr;
             if (!create_resident_bf16_matrix_plan(provider, shape.first, shape.second,
                     8192u, true, producer_choice, &plan, failure_stage, failure)) return false;
+            ++selected_shapes;
         }
-        std::fprintf(stderr, "BATCH_MARK q8192_matrix_producer_prewarm heuristic_index=%u shape_count=4 load_time_setup=1\n", producer_choice);
+        if (selected_shapes)
+            std::fprintf(stderr, "BATCH_MARK q8192_matrix_producer_prewarm heuristic_index=4 shape_count=%u load_time_setup=1\n", selected_shapes);
     }
     if (plan_count != nullptr) {
         *plan_count = provider->plans.size();

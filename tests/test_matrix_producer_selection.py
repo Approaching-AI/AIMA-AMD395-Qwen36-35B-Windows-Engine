@@ -60,7 +60,16 @@ void setting(const char* value) {
  else unsetenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM");
 #endif
 }
+void scope(const char* value) {
+#ifdef _WIN32
+ _putenv_s("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE", value ? value : "");
+#else
+ if(value) setenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE",value,1);
+ else unsetenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE");
+#endif
+}
 int main() {
+ scope(nullptr);
  std::string stage,error; size_t count=0; uint16_t w=0,x=0; float y=0;
  auto run=[&](unsigned rows,unsigned k,unsigned tokens) {
   return resident_bf16_matrix_matmul_f32_output(&w,&x,&y,rows,k,tokens,&y,"test",&stage,&error);
@@ -81,6 +90,27 @@ int main() {
   for(auto shape:{std::pair{8191u,2048u},std::pair{8192u,2047u},std::pair{2048u,2048u},std::pair{64u,2048u}})
    assert(run(shape.first,shape.second,8192) && last_choice==0);
  }
+ setting("4");
+ for(const char* selected_scope:{"all","qkv","out"}) {
+  scope(selected_scope);owner.plans.clear();
+  assert(prewarm_q8192_resident_bf16_matrix_plans(&count,&stage,&error));
+  unsigned planned=0;
+  for(auto key:owner.plans)planned+=std::get<4>(key)==4;
+  assert(planned==(!std::strcmp(selected_scope,"all")?4u:(!std::strcmp(selected_scope,"qkv")?3u:1u)));
+  for(auto shape:shapes) {
+   unsigned expected=!std::strcmp(selected_scope,"all") || (!std::strcmp(selected_scope,"qkv")?shape.second==2048:shape.second==4096)?4:0;
+   assert(run(shape.first,shape.second,8192) && last_choice==expected);
+   assert(owner.plans.count(Key{shape.first,shape.second,8192,true,4})==unsigned(expected==4));
+   assert(run(shape.first,shape.second,7169) && last_choice==0);
+   assert(run(shape.first,shape.second,1) && last_choice==0);
+  }
+ }
+ for(const char* bad:{"QKV","qkv,out","output","alljunk"}) {
+  scope(bad);const auto before_ensures=ensures,before_submissions=submissions;
+  assert(!prewarm_q8192_resident_bf16_matrix_plans(&count,&stage,&error) && ensures==before_ensures);
+  assert(!run(8192,2048,8192) && submissions==before_submissions);
+ }
+ scope(nullptr);
  for(const char* mode:{"1","20","-4","4junk"," 4","04"}) {
   setting(mode); const auto before_ensures=ensures,before_submissions=submissions;
   assert(!prewarm_q8192_resident_bf16_matrix_plans(&count,&stage,&error));
