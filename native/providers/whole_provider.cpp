@@ -11022,9 +11022,9 @@ bool load_gb10_full_attention_rope_cache_locked(
     const uint64_t row_count_u64 =
         static_cast<uint64_t>(signed_bytes) /
         kGb10FullAttentionRopeCacheRowBytes;
-    if (row_count_u64 > QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+    if (row_count_u64 > QRT_QWEN36_ATTENTION_CAPACITY_TOKENS ||
         row_count_u64 > (std::numeric_limits<unsigned int>::max)()) {
-        *failure = "GB10 full-attention RoPE cache exceeds the model position limit: " +
+        *failure = "GB10 full-attention RoPE cache exceeds the runtime attention capacity: " +
             path;
         return false;
     }
@@ -11098,7 +11098,7 @@ bool ensure_full_attention_compact_rope_table(
         !gb10_rope_cache_path.empty();
     const bool supported_exact_shape =
         (token_position_count > 0u &&
-         token_position_count <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS) ||
+         token_position_count <= QRT_QWEN36_MAX_PROMPT_TOKENS) ||
         token_position_count == kRetainedPrefillTokens ||
         token_position_count == kQ16384ColdProbePrefillTokens ||
         token_position_count == kQ32768ColdProbePrefillTokens ||
@@ -127661,7 +127661,7 @@ bool full_attention_output_projection_bf16(
             stage, failure_stage, failure);
     }
     if (weights == nullptr || inputs == nullptr || outputs == nullptr ||
-        tokens > QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+        tokens > QRT_QWEN36_MAX_PROMPT_TOKENS ||
         failure_stage == nullptr || failure == nullptr) {
         if (failure_stage != nullptr) *failure_stage = stage + "_correction_shape";
         if (failure != nullptr) *failure = "full-attention correction requires valid model-context rows";
@@ -159096,7 +159096,7 @@ QRT_PREFILL_DESCRIPTOR_BATCH_HIP_CALL qrt_qwen36_whole_provider_prefill_v1(
         request != nullptr &&
         request->input_token_count > 0u &&
         request->input_token_count <=
-            static_cast<size_t>(QRT_QWEN36_MAX_POSITION_EMBEDDINGS) &&
+            static_cast<size_t>(QRT_QWEN36_MAX_PROMPT_TOKENS) &&
         (request->flags &
          QRT_QWEN36_WHOLE_PROVIDER_FLAG_ARBITRARY_PREFILL) != 0u;
     const bool cold_q8192_requested =
@@ -182202,9 +182202,9 @@ bool run_qwen36_resident_decode_full_attention_activation_corridor(
     if (q1_sm121_full_requested &&
         (!env_flag_enabled("QRT_QWEN36_Q1_SM121_MOE") ||
          !env_flag_enabled("QRT_QWEN36_Q1_SM121_OUTPUT") ||
-         absolute_position >= QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+         absolute_position >= QRT_QWEN36_MAX_REQUEST_CONTEXT_TOKENS ||
          g_qwen36_paired_layer_execution_hooks != nullptr ||
-         qrt_sm121_q1_full_runtime::prepare(&q1_full_tables) != hipSuccess ||
+         qrt_sm121_q1_full_runtime::prepare(&q1_full_tables, absolute_position) != hipSuccess ||
          !load_gfx1151_sm121_rsqrt_correction(&q1_full_rsqrt_correction, &run->failure,
              std::getenv("QRT_QWEN36_Q1_SM121_RSQRT_CORRECTION")))) {
         return fail("qwen36_q1_sm121_full_dependencies",

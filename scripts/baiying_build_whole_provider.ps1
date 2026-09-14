@@ -256,6 +256,10 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\prefix_checkpoint_policy.h')).Hash.ToLowerInvariant()
     attention_capacity_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\sm121_attention_capacity.h')).Hash.ToLowerInvariant()
+    sm121_rope_cache_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\sm121_rope_cache.h')).Hash.ToLowerInvariant()
+    sm121_q1_full_runtime_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\sm121_q1_full_runtime.h')).Hash.ToLowerInvariant()
     prefix_batch_suffix_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\prefix_batch_suffix.h')).Hash.ToLowerInvariant()
     prefill_chunks_header_sha256 = (Get-FileHash -Algorithm SHA256 `

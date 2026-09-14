@@ -11,6 +11,18 @@ The concrete benefit is matching every observed first-decode Q/K rotary
 value for q8191 and q7169 with the original BF16 multiply/FMA sequence.
 This is a diagnostic route pending native product qualification.
 
+The runtime-tail variant contains 264,736 rows (33,886,208 bytes), SHA-256
+`1c4d86d492b587a5f4f433dad84c99722d2fee702bcf27d7af77c7fe6a5d2d6a`.
+It adds 331,776 bytes to the original host/device table and packaged data file,
+covering a 256k prefix, real suffix inputs and resident decode storage. Both
+layouts remain recognized by fixed length and SHA-256; Q1 also checks the
+requested position against the loaded layout. The original 262,144 rows
+are byte-identical. All 16,943,104 extended BF16 values match the original
+GB10 MRoPE constructor and a separate construction at the requested extent.
+Model configuration remains 262,144 positions. This variant reuses Windows
+CNG and the existing offline CUDA reference tools; it adds no runtime library.
+Its Windows component and real-model qualification remain pending.
+
 `QRT_QWEN36_Q1_SM121_ATTENTION=1` adds the original 32-token online
 attention reduction to that decode path. It uses the existing reciprocal
 artifact through `QRT_QWEN36_Q1_SM121_RCP_TABLE`: 8,388,640 bytes, SHA-256

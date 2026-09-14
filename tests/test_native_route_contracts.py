@@ -1178,7 +1178,7 @@ class NativeRouteContractTests(unittest.TestCase):
             "!maximum_context_streamed_prefill_tokens(prefill_tokens)",
             "provider_tile_tokens",
             "token_position_count > 0u",
-            "token_position_count <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS",
+            "token_position_count <= QRT_QWEN36_MAX_PROMPT_TOKENS",
             "QRT_QWEN36_EXACT_ARBITRARY_LM_HEAD_TOPK_DIAGNOSTIC",
             "qwen36_exact_arbitrary_lm_head_topk",
         ):
