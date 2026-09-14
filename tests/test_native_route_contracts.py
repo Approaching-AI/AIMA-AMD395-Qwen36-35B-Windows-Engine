@@ -1069,9 +1069,10 @@ class NativeRouteContractTests(unittest.TestCase):
             self.assertIn(fragment, self.provider)
 
     def test_q8192_neighbors_keep_runtime_lengths_on_fast_providers(self) -> None:
+        # Executed workspace tests check the dynamic capacity and strict-route
+        # extension; this contract checks neighbor-provider wiring.
         for fragment in (
             "qrt_ck_fmha_dynamic_bf16_launch",
-            "tokens > kQ262144Tokens",
             "mask_enum::mask_top_left",
             "HasHeadPartitionFields",
             "set_head_partition_fields(args, kQueryHeads)",
