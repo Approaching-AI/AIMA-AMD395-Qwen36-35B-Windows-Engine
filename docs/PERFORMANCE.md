@@ -51,10 +51,19 @@ unchanged Rust/Cargo reuse the prior 47 tests and clippy. Evidence:
 `benchmarks/correctness/long-transposed-value-components-20260915.json`, SHA256
 `3d6321a0908b744db6ea9bf983b8dbfa0e6a634d813ace61e6171ed1948f8268`.
 
-The next QK component prepares only the consumed Q interval and all K
-history, using an explicit query origin and the original BF16 fallback.
-Its host range/submission checks pass; native score comparisons and product
-integration remain pending. It is not part of the measured CK above.
+Range QK component `e0b2732` prepares only the consumed Q interval and all K
+history, with an explicit query origin and the original BF16 fallback.
+Windows HIP build and 26 native reports across 13 shapes pass, including
+positions through 264735. Both original float-alignment and range-prepared
+paths match all 418496528 original q7169 score slots and 228 independent
+CPU dots per path. Guards, complete device metadata and inputs pass.
+Including preparation, the same-executable capture clocks are 348.3046 /
+276.4122 ms; these component observations are not model performance.
+C checks, 401 Python tests with two skips and hygiene pass. Provider
+integration and real long-prefix comparison are next; the measured CK above
+still uses its original cold-only prepared-QK route. Component evidence:
+`benchmarks/correctness/prepared-decoded-qk-range-components-20260915.json`, SHA256
+`c9bcf414aca5faa7a2dff51d136bcf673d90e20b9f9430fd41c7f508c9381b83`.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
