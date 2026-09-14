@@ -56,6 +56,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool f32_carry_replay = f32_carry_option && std::strcmp(f32_carry_option,"1")==0;
     const char* range_option = std::getenv("QRT_PROJECTION_SAFETY_RANGE_REPLAY");
     const bool range_replay = range_option && std::strcmp(range_option,"1")==0;
+    const char* dual_lane_option = std::getenv("QRT_PROJECTION_SAFETY_DUAL_LANE_REPLAY");
+    const bool dual_lane_replay = dual_lane_option && std::strcmp(dual_lane_option,"1")==0;
     const char* packed_tiles_option = std::getenv("QRT_PROJECTION_SAFETY_PACKED_TILES_REPLAY");
     const bool packed_tiles_replay = packed_tiles_option && std::strcmp(packed_tiles_option,"1")==0;
     const char* partition_option = std::getenv("QRT_PROJECTION_SAFETY_PARTITION_REPLAY");
@@ -83,7 +85,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -102,6 +104,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"inference_acceptance\":false}" << std::endl;
     if (spatial_replay) {
         run_spatial_projection_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
+        return;
+    }
+    if (dual_lane_replay) {
+        run_dual_lane_projection_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
         return;
     }

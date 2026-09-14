@@ -45,9 +45,21 @@ tests (two skips), 47 Rust tests, C smoke, clippy and hygiene. This is
 component evidence, not product performance or release acceptance.
 Evidence: `benchmarks/correctness/packed-float-tiles-comparison-20260914.json`,
 SHA256 `4021f7a331d847fd2e1cf567f4488d363f7b76fd91fa2e9b8fb5f607b461ec84`.
-The next broader attention experiment separates full-row prefix maxima,
-parallel probability generation and original ordered denominator recurrence
-to remove repeated per-batch synchronization. Original GB10 gates remain.
+Complete-row staged probabilities at `dd058ba` preserve the original ordered
+FP32 denominator recurrence. All 240 native cases pass, comparing 433191552
+probability cells and 13696512 scale cells, all denominator bits, guards and
+immutable inputs. Original versus staged q7169 attention preserves all
+29364224 external GB10 BF16 endpoints, 2198673 correction candidates and four
+complete output artifacts bit for bit. Completed preparation-plus-query wall
+is 670.7340 / 660.9703 ms; query-only reduction is 9.7614 ms. This component
+gain does not justify product promotion while q8192 remains above 10 seconds.
+The provider default stays unchanged. A missing host mock for the new kernel
+was corrected, and full local checks pass 382 Python tests (two skips),
+47 Rust tests, C smoke, clippy and hygiene. Evidence:
+`benchmarks/correctness/staged-probability-comparison-20260914.json`, SHA256
+`846d6153601d9515aa888864f32b6477694b69bd6219522d0362aa9e49eb7bf4`.
+Two-lane ownership is being evaluated for broader dense and MoE replay;
+original candidate admission and GB10 product gates remain unchanged.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,

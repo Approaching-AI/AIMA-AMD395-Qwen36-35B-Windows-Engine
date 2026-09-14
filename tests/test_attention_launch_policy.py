@@ -60,6 +60,7 @@ template<bool SparseCore = false> void blackwell_cell_parallel_integer_scores_ke
 template<bool NativeProducts = false> void blackwell_transposed_scores_kernel() {}
 void blackwell_online_probability_kernel() {}
 void blackwell_parallel_probability_kernel() {}
+void blackwell_staged_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
 template<bool TransposedValue = false> void blackwell_compacted_pv_replay_kernel() {}
@@ -654,6 +655,24 @@ int main() {
     for(size_t words:{0u,527u})
         if(qrt_sm121_float_pv::prepare(&operand,&operand,0u,1u,1u,nullptr,0u,&flag,words,nullptr)!=hipErrorInvalidValue || launches) return 127;
     if(qrt_sm121_float_pv::prepare(&operand,&operand,0u,1u,1u,nullptr,0u,&flag,528u,nullptr)!=hipSuccess || launches!=1u) return 128;
+    auto staged=[&](unsigned start,unsigned count,unsigned layout=22u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,0u,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+count,
+            false,nullptr,nullptr,0u,nullptr,nullptr,nullptr,0u,1u,1u,false,false,true,0u,true);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u})
+        if(staged(0u,32u,layout)!=hipErrorInvalidValue || launches || memsets) return 143;
+    if(staged(8192u,1u)!=hipErrorInvalidValue || staged(8064u,129u)!=hipErrorInvalidValue || launches || memsets) return 144;
+    for(unsigned layout:{22u,24u}) for(unsigned count:{1u,17u,128u}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(staged(8192u-count,count,layout)!=hipSuccess || launches!=5u || memsets!=1u ||
+           std::strcmp(launch_names[1],"blackwell_staged_probability_kernel") || launch_threads[1]!=256u) return 145;
+        for(unsigned failure=1u;failure<=5u;failure++) {
+            launches=error_queries=memsets=0u;fail_launch=failure;
+            if(staged(8192u-count,count,layout)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 146;
+        }
+    }
     return 0;
 }
 '''
