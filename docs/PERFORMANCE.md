@@ -64,6 +64,29 @@ runtime dispatcher; no product or release acceptance is inferred.
 Evidence: `benchmarks/correctness/interleaved-projection-comparison-20260914.json`,
 SHA256 `7bdd14e9971eab71f15af72f25d010037a4fe980fb0a7f08f99884ab062976da`.
 
+The complete OUT L1 audit at `b851e96` rejects a useful uniform envelope
+replacement. All 40 layers and 671088640 BF16 endpoints are compared for
+each coefficient while the unchanged control preserves all 512 GB10 tokens
+and callbacks, first 144/raw 10.375. Multipliers 1 / 4 omit 80390096 /
+5469611 candidates but miss 1110 / 2 corrected endpoints. The two remaining
+coefficient-4 misses are in layers 0 and 4; CPU original arithmetic confirms
+both control endpoints. Multipliers 8 / 16 / 32 have no omitted endpoint
+errors on this case, but omit only 2073917 / 386244 / 7328 of 164967882
+candidates. The smallest passing multiplier saves only 1.2572% of replay
+candidates before magnitude preparation and multiplication, so it is not
+integrated into the runtime selector. Keep the selected stack above.
+
+The audit has zero baseline undercoverage, nonfinite outputs, invalid
+magnitude/flag writes or redzone failures. Native full OUT magnitude checks
+16777216 independent dyadic outputs and 10240 flags; twelve boundary cases
+cover another 110430 cells with 4726 fallbacks. All pass. Full local checks
+pass after a test-only pool-harness repair at `623c7a5`; native sources are
+unchanged by that repair. Instrumented TTFT 35777.5768 ms includes the audit
+and is not a product-performance comparison. No selector, retained
+performance or release acceptance follows. Evidence:
+`benchmarks/correctness/out-l1-shadow-20260914.json`, SHA256
+`bad4a6ea00363bf440f6b3dbb8c56913acb851a094d5a35e284edc62e752a843`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
