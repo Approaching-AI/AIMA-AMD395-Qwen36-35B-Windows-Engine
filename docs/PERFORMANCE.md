@@ -107,6 +107,24 @@ TTFT 35186.3776 ms is diagnostic, not a performance comparison. First token
 follows. Evidence: `benchmarks/correctness/moe-consumer-interval-audit-20260914.json`,
 SHA256 `5f11cf90bf44c8daaa46f05bdff840b496b73d6f17db2da2591c79db26ee6371`.
 
+Matrix QK with cooperative fallback at `f204318` is exact but slower.
+All 60 native generated reports preserve 98295696 raw score
+slots and 3840 independent CPU dots. Each of three complete q7169
+variants preserves 418496528 unique scores across one warmup and three
+measured executions: 1673986112 comparisons and 228 CPU dots per variant.
+All encoded query/key rows, original operands, guards and unused score tails
+pass. The internal integer carry remains intact through overflow cases.
+
+Including preparation, selected prepared QK takes 277.6628 ms; matrix columns
+32 / 64 with a block-local queue and four-lane exact fallback take 528.3471 /
+734.6199 ms. Query encoding is included per slab and key encoding once.
+The original matrix certificate and fallback arithmetic remain unchanged.
+Full local checks pass 386 Python tests with two skips, 47 Rust tests,
+C smoke, clippy and hygiene. Keep the selected runtime stack; no product,
+retained-performance or release acceptance follows. Evidence:
+`benchmarks/correctness/matrix-cooperative-qk-20260914.json`, SHA256
+`21180a5971127fb7f7b888069d65c38745a39ae0e20228d3ef515875f6dc5fb3`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
