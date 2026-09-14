@@ -7,22 +7,21 @@
 // unsupported carried value. The provider enables this only for selected
 // cold prefill calls through q8192, refreshing metadata on every layer/call.
 namespace qrt_prepared_decoded_qk {
-using namespace qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
 
 template<bool Key>
 __global__ void prepare(const uint16_t* input, uint32_t* packed,
     unsigned* flags, uint16_t* transposed, unsigned tokens) {
-    constexpr unsigned heads = Key ? kKvHeads : kQueryHeads;
+    constexpr unsigned heads = Key ? qrt_blackwell_attention::kKvHeads : qrt_blackwell_attention::kQueryHeads;
     const unsigned row = blockIdx.x, feature = threadIdx.x;
     if (row >= tokens * heads) return;
     __shared__ unsigned invalid;
     if (!feature) invalid = 0u;
     __syncthreads();
     const unsigned token = row / heads, head = row % heads;
-    const uint16_t x = input[size_t(row) * kHeadDim + feature];
-    const size_t destination = Key ? (size_t(head) * kHeadDim + feature) * tokens + token
-                                  : size_t(row) * kHeadDim + feature;
+    const uint16_t x = input[size_t(row) * qrt_blackwell_attention::kHeadDim + feature];
+    const size_t destination = Key ? (size_t(head) * qrt_blackwell_attention::kHeadDim + feature) * tokens + token
+                                  : size_t(row) * qrt_blackwell_attention::kHeadDim + feature;
     packed[destination] = decoded::pack(x);
     if constexpr (Key) transposed[destination] = x;
     if (!qrt_sm121_float_alignment::eligible(x)) atomicOr(&invalid, 1u);
@@ -35,37 +34,37 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
     const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags, float* output,
     unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
-    static_assert(Window && Window % 16u == 0u && kHeadDim % Window == 0u);
-    static_assert(Rows * Keys == kThreads);
+    static_assert(Window && Window % 16u == 0u && qrt_blackwell_attention::kHeadDim % Window == 0u);
+    static_assert(Rows * Keys == qrt_blackwell_attention::kThreads);
     constexpr unsigned rows = Rows, keys = Keys;
     __shared__ uint32_t qvalues[rows][Window], kvalues[Window][keys];
-    const unsigned head = blockIdx.y, kv_head = head / (kQueryHeads / kKvHeads);
+    const unsigned head = blockIdx.y, kv_head = head / (qrt_blackwell_attention::kQueryHeads / qrt_blackwell_attention::kKvHeads);
     const unsigned query_tile = blockIdx.z * rows, key_tile = blockIdx.x * keys;
     const unsigned qr = threadIdx.x / keys, kc = threadIdx.x % keys;
     const unsigned row = query_tile + qr, key = key_tile + kc;
     const bool live = row < query_count && key < stride;
     const bool active = live && key <= query_start + row;
-    const size_t output_cell = (size_t(row) * kQueryHeads + head) * stride + key;
+    const size_t output_cell = (size_t(row) * qrt_blackwell_attention::kQueryHeads + head) * stride + key;
     const unsigned last_query = query_start + min(query_tile + rows, query_count) - 1u;
     if (key_tile > last_query) {
         if (live) output[output_cell] = -INFINITY;
         return;
     }
-    bool fallback = active && (!query_flags[(query_start + row) * kQueryHeads + head] ||
-        !key_flags[key * kKvHeads + kv_head]);
-    qrt_q1_moe_hawkeye::Value carry{0u, kBlackwellZeroExponent, false};
+    bool fallback = active && (!query_flags[(query_start + row) * qrt_blackwell_attention::kQueryHeads + head] ||
+        !key_flags[key * qrt_blackwell_attention::kKvHeads + kv_head]);
+    qrt_q1_moe_hawkeye::Value carry{0u, qrt_blackwell_attention::kBlackwellZeroExponent, false};
     float float_carry = 0.0f;
-    for (unsigned window = 0u; window < kHeadDim; window += Window) {
-        for (unsigned cell = threadIdx.x; cell < rows * Window; cell += kThreads) {
+    for (unsigned window = 0u; window < qrt_blackwell_attention::kHeadDim; window += Window) {
+        for (unsigned cell = threadIdx.x; cell < rows * Window; cell += qrt_blackwell_attention::kThreads) {
             const unsigned r = cell / Window, c = cell % Window;
             qvalues[r][c] = query_tile + r < query_count
-                ? packed_query[(size_t(query_start + query_tile + r) * kQueryHeads + head) * kHeadDim + window + c]
+                ? packed_query[(size_t(query_start + query_tile + r) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim + window + c]
                 : decoded::pack(0u);
         }
-        for (unsigned cell = threadIdx.x; cell < Window * keys; cell += kThreads) {
+        for (unsigned cell = threadIdx.x; cell < Window * keys; cell += qrt_blackwell_attention::kThreads) {
             const unsigned r = cell / keys, c = cell % keys;
             kvalues[r][c] = key_tile + c < stride
-                ? packed_key[(size_t(kv_head) * kHeadDim + window + r) * key_stride + key_tile + c]
+                ? packed_key[(size_t(kv_head) * qrt_blackwell_attention::kHeadDim + window + r) * key_stride + key_tile + c]
                 : decoded::pack(0u);
         }
         __syncthreads();
@@ -92,10 +91,10 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         float result = -INFINITY;
         if (active) {
             if (fallback) result = qrt_decoded_window_qk::raw_dot(
-                query + (size_t(query_start + row) * kQueryHeads + head) * kHeadDim,
-                transposed_key + size_t(kv_head) * kHeadDim * key_stride + key, key_stride);
-            else if constexpr (FloatCarry) result = float_carry * kExactScale;
-            else result = qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry)) * kExactScale;
+                query + (size_t(query_start + row) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim,
+                transposed_key + size_t(kv_head) * qrt_blackwell_attention::kHeadDim * key_stride + key, key_stride);
+            else if constexpr (FloatCarry) result = float_carry * qrt_blackwell_attention::kExactScale;
+            else result = qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry)) * qrt_blackwell_attention::kExactScale;
         }
         output[output_cell] = result;
     }
@@ -107,12 +106,12 @@ inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
     auto* k = q + query_words;
     auto* qflags = k + key_words;
     auto* kflags = qflags + query_flag_words;
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<false>), dim3(workspace.tokens * kQueryHeads),
-        dim3(kHeadDim), 0u, stream, query, q, qflags, nullptr, workspace.tokens);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<false>), dim3(workspace.tokens * qrt_blackwell_attention::kQueryHeads),
+        dim3(qrt_blackwell_attention::kHeadDim), 0u, stream, query, q, qflags, nullptr, workspace.tokens);
     auto status = hipGetLastError();
     if (status != hipSuccess) return int(status);
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<true>), dim3(workspace.tokens * kKvHeads),
-        dim3(kHeadDim), 0u, stream, key, k, kflags, transposed, workspace.tokens);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<true>), dim3(workspace.tokens * qrt_blackwell_attention::kKvHeads),
+        dim3(qrt_blackwell_attention::kHeadDim), 0u, stream, key, k, kflags, transposed, workspace.tokens);
     return int(hipGetLastError());
 }
 inline int launch_workspace(const void* state, const uint16_t* query,
@@ -128,7 +127,7 @@ inline int launch_workspace(const void* state, const uint16_t* query,
     const auto* qflags = k + key_words;
     const auto* kflags = qflags + query_flag_words;
     hipLaunchKernelGGL(HIP_KERNEL_NAME(scores<128u, true>),
-        dim3((stride + 15u) / 16u, kQueryHeads, (count + 15u) / 16u), dim3(kThreads),
+        dim3((stride + 15u) / 16u, qrt_blackwell_attention::kQueryHeads, (count + 15u) / 16u), dim3(qrt_blackwell_attention::kThreads),
         0u, stream, query, transposed_key, q, k, qflags, kflags, output,
         start, count, stride, key_stride);
     return int(hipGetLastError());
