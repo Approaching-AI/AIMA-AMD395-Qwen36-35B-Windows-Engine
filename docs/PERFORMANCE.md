@@ -87,6 +87,26 @@ performance or release acceptance follows. Evidence:
 `benchmarks/correctness/out-l1-shadow-20260914.json`, SHA256
 `bad4a6ea00363bf440f6b3dbb8c56913acb851a094d5a35e284edc62e752a843`.
 
+The routed MoE consumer audit at `9a0ff2e` preserves the full 512-token GB10
+boundary while comparing every original gate/up replay across 40 layers.
+Of 74389409 gate and 93285356 up candidates, 7197245 / 7976469 have invariant
+SiLU-table or activated BF16 outputs over the proposed range: 9.6751% /
+8.5506%. All 71583298 / 89963965 valid ranges contain the corrected BF16
+endpoint, with zero false invariant certificates, invalid values or guard
+failures. The original adjacent endpoints and outward Cauchy error interval
+are both covered; at most nine BF16 values are enumerated. No SiLU
+monotonicity assumption or correction omission enters inference.
+
+This removal fraction is too small to prioritize above the 10-second product
+boundary given the measured gate/up correction scopes. Keep the original
+selector and selected stack. Native safety emits 8 shared and 18 routed/shared
+reports with exact comparisons; complete local checks pass 386 Python tests
+with two skips, 47 Rust tests, C smoke, clippy and hygiene. Instrumented
+TTFT 35186.3776 ms is diagnostic, not a performance comparison. First token
+144/raw 10.375 and all actual callbacks match GB10. No release qualification
+follows. Evidence: `benchmarks/correctness/moe-consumer-interval-audit-20260914.json`,
+SHA256 `5f11cf90bf44c8daaa46f05bdff840b496b73d6f17db2da2591c79db26ee6371`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
