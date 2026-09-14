@@ -41,6 +41,17 @@ typedef struct qrt_server_request_report_v1_t {
 /* Total prompt plus output limit accepted by this compiled bridge. */
 QRT_API size_t qrt_server_max_context_tokens_v1(void);
 
+/*
+ * Windows startup only, before loading the provider or starting native work.
+ * Update this C runtime's environment as well as the process environment.
+ * Both arguments are NUL-terminated UTF-16; an empty value clears the CRT
+ * entry. Non-Windows callers receive QRT_STATUS_UNSUPPORTED.
+ */
+QRT_API qrt_status_t qrt_server_set_environment_utf16_v1(
+    const uint16_t *name,
+    const uint16_t *value
+);
+
 QRT_API qrt_status_t qrt_server_engine_create_v1(
     const char *model_path,
     const char *provider_dll,

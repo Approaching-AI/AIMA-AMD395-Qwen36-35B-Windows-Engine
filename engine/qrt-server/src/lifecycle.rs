@@ -574,12 +574,12 @@ fn configure_arbitrary_moe_provider(
             kernel_dir.display()
         );
     }
-    std::env::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_PROVIDER", "1");
-    std::env::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_DLL", &provider);
-    std::env::set_var(
+    crate::environment::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_PROVIDER", "1")?;
+    crate::environment::set_var("QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_DLL", &provider)?;
+    crate::environment::set_var(
         "QRT_QWEN36_EXACT_ARBITRARY_Q1024_MOE_KERNEL_DIR",
         &kernel_dir,
-    );
+    )?;
     Ok((provider, kernel_dir))
 }
 
@@ -658,19 +658,19 @@ fn configure_smooth_tail_moe_providers(
         return Ok(None);
     };
     if std::env::var_os("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT").is_none() {
-        std::env::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT", &layout.root);
+        crate::environment::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_ROOT", &layout.root)?;
     }
     if std::env::var_os("QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER").is_none() {
-        std::env::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER", "1");
+        crate::environment::set_var("QRT_QWEN36_SMOOTH_TAIL_MOE_PROVIDER", "1")?;
     }
     for binding in &layout.bindings {
         let dll_env = format!("QRT_QWEN36_SMOOTH_TAIL_Q{}_MOE_DLL", binding.tokens);
         let kernel_dir_env = format!("QRT_QWEN36_SMOOTH_TAIL_Q{}_MOE_KERNEL_DIR", binding.tokens);
         if std::env::var_os(&dll_env).is_none() {
-            std::env::set_var(dll_env, &binding.provider);
+            crate::environment::set_var(dll_env, &binding.provider)?;
         }
         if std::env::var_os(&kernel_dir_env).is_none() {
-            std::env::set_var(kernel_dir_env, &binding.kernel_dir);
+            crate::environment::set_var(kernel_dir_env, &binding.kernel_dir)?;
         }
     }
     Ok(Some(layout.root))
@@ -685,7 +685,7 @@ pub fn load_env_file(path: &Path) -> Result<usize> {
     let assignments = parse_runtime_profile(&content, path)?;
     let count = assignments.len();
     for (key, value) in assignments {
-        std::env::set_var(key, value);
+        crate::environment::set_var(key, value)?;
     }
     Ok(count)
 }
@@ -745,7 +745,7 @@ fn apply_env_overrides(assignments: &[String]) -> Result<usize> {
     for (index, assignment) in assignments.iter().enumerate() {
         let (key, value) = parse_env_assignment(assignment)
             .with_context(|| format!("invalid --set-env value at index {}", index + 1))?;
-        std::env::set_var(key, value);
+        crate::environment::set_var(key, value)?;
     }
     Ok(assignments.len())
 }

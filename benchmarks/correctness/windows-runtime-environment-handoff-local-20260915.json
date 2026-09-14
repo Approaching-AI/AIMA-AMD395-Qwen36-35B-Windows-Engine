@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "kind": "windows_runtime_environment_handoff_local_checks",
+  "host": "JiaweiMnideMini.lan",
+  "source_files_sha256": {
+    "engine/qrt-server/src/environment.rs": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+    "engine/qrt-server/src/lib.rs": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+    "engine/qrt-server/src/lifecycle.rs": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+    "native/src/qrt_server_bridge.c": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+    "native/src/qrt_server_bridge.h": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+    "tests/native/windows_runtime_environment_probe.c": "0afb8b0bab6a934189e6d3eb0053184ad8dcfba1ab6dcf346609d738db8e45fc",
+    "tests/native/windows_runtime_environment_probe.rs": "19d4f89c3665f7ec62a24001206f377a4696f7ada660ebfd3e1ab3980e82068d"
+  },
+  "validation": {
+    "commands": [
+      {
+        "command": [
+          "cargo",
+          "test",
+          "--workspace",
+          "--no-fail-fast"
+        ],
+        "returncode": 0,
+        "wall_seconds": 21.550500875338912
+      },
+      {
+        "command": [
+          "cargo",
+          "clippy",
+          "--workspace",
+          "--all-targets",
+          "--",
+          "-D",
+          "warnings"
+        ],
+        "returncode": 0,
+        "wall_seconds": 8.39658912550658
+      },
+      {
+        "command": [
+          "cargo",
+          "fmt",
+          "--package",
+          "qrt-server",
+          "--",
+          "--check"
+        ],
+        "returncode": 0,
+        "wall_seconds": 0.08428899943828583
+      },
+      {
+        "command": [
+          "make",
+          "c-smoke",
+          "public-hygiene",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 7.487151499837637
+      }
+    ],
+    "log_sha256": "e6f80eb67b6c6673c3a5d53d826e2939dbb91199a07d271930d2f8e9a428206f",
+    "pass_all": true
+  },
+  "rust_tests": 47,
+  "c_smoke": true,
+  "clippy_no_warnings": true,
+  "format_check": true,
+  "public_hygiene": true,
+  "reproduced_defect": {
+    "file": "benchmarks/correctness/windows-runtime-environment-stale-core-20260915.json",
+    "bytes": 16207,
+    "sha256": "9ada0c5c799a3cc8ac73f92015489e606a49f0bdc49f701f3aab788bd3ea0111"
+  },
+  "change": "Service runtime profile values, explicit overrides and provider bindings call a common Rust startup setter. On Windows it invokes _wputenv_s through the same C object as the core, then preserves the original Rust process-environment semantics including present empty values. The standalone native regression probe calls that production Rust setter and the actual C-core reader.",
+  "windows_native_regression_pending": true,
+  "windows_service_build_pending": true,
+  "http_numeric_and_protocol_regression_pending": true,
+  "model_loaded": false,
+  "inference_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false
+}

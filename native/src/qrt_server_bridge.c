@@ -295,6 +295,30 @@ size_t qrt_server_max_context_tokens_v1(void) {
     return (size_t)QRT_QWEN36_MAX_REQUEST_CONTEXT_TOKENS;
 }
 
+qrt_status_t qrt_server_set_environment_utf16_v1(
+    const uint16_t *name,
+    const uint16_t *value
+) {
+    size_t index;
+    if (name == NULL || value == NULL || name[0] == 0u) {
+        return QRT_STATUS_INVALID_ARGUMENT;
+    }
+    for (index = 0u; name[index] != 0u; ++index) {
+        if (name[index] == (uint16_t)'=') {
+            return QRT_STATUS_INVALID_ARGUMENT;
+        }
+    }
+#ifdef _WIN32
+    _Static_assert(sizeof(wchar_t) == sizeof(uint16_t), "Windows UTF-16 ABI");
+    /* Rust's SetEnvironmentVariableW does not update the CRT copy read by
+     * qrt.c. Call through this object so it reaches that same CRT instance. */
+    return _wputenv_s((const wchar_t *)name, (const wchar_t *)value) == 0
+        ? QRT_STATUS_OK : QRT_STATUS_IO_ERROR;
+#else
+    return QRT_STATUS_UNSUPPORTED;
+#endif
+}
+
 qrt_status_t qrt_server_engine_create_v1(
     const char *model_path,
     const char *provider_dll,
