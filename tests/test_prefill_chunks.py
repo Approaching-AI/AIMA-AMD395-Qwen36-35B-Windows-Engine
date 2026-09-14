@@ -101,7 +101,7 @@ int main(){
   r.expected_prompt_token_ids_fnv1a64=qrt_fnv1a64_bytes(prompt.data(),total*4);
   const int ok=run_qwen36_chunked_prefill(r,result.get(),qrt_now_ns());assert(!g_qwen36_chunked_prefill_total_tokens);return ok;
  };
- for(size_t total:{16384u,17408u,32768u,65536u,66560u,122880u,123904u,131072u}){
+ for(size_t total:{16384u,17408u,32768u,65536u,66560u,122880u,123904u,131072u,132096u,262144u,263168u}){
   assert(run(total)==1&&callbacks==1&&seeds==1&&suffixes==(total+8191)/8192-1&&!releases);
   assert(result->resident_session_valid&&result->resident_session_prefix_token_count==total);
   assert(result->resident_session_generation==99&&result->output_tokens[0]==42&&result->output_token_capacity==512);
@@ -114,6 +114,9 @@ int main(){
  // A failure after crossing the old 64k limit must discard every partially
  // advanced owner and must not publish an intermediate callback.
  fail_suffix=8u;assert(!run(66560)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
+ fail_suffix=0;
+ fail_suffix=16u;assert(!run(132096)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
+ fail_suffix=32u;assert(!run(263168)&&!callbacks&&releases==1&&!g_qwen36_resident_session.valid);
  fail_suffix=0;
  cancel=true;assert(!run(17408)&&callbacks==1&&releases==1&&result->prefill_emit_rejected&&!result->resident_session_valid);cancel=false;
  assert(!run(16385)&&!seeds&&!callbacks&&!releases);

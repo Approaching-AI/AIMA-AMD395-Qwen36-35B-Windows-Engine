@@ -2106,7 +2106,7 @@ inline int launch_compacted_pv_replay(
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
         !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
-        output_start >= 262144u || query_count > 262144u - output_start)
+        output_start >= kSplitMaxTokens || query_count > kSplitMaxTokens - output_start)
         return int(hipErrorInvalidValue);
     if (transposed_value ? value_stride < score_stride || value_stride > kSplitMaxTokens : value_stride != 0u)
         return int(hipErrorInvalidValue);
@@ -2169,9 +2169,9 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
     bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
-        query_count > 8192u || query_start >= 262144u ||
-        query_count > 262144u - query_start || output_start >= 262144u ||
-        query_count > 262144u - output_start) return int(hipErrorInvalidValue);
+        query_count > 8192u || query_start >= kSplitMaxTokens ||
+        query_count > kSplitMaxTokens - query_start || output_start >= kSplitMaxTokens ||
+        query_count > kSplitMaxTokens - output_start) return int(hipErrorInvalidValue);
     if (memory_layout > 24u || ((memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) && (!rcp_table || !vllm_sum)))
         return int(hipErrorInvalidValue);
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||

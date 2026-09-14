@@ -3,6 +3,7 @@
 #include <hip/hip_runtime.h>
 #include <cstddef>
 #include <cstdint>
+#include "../sm121_attention_capacity.h"
 #include "../moe_accumulator/sm121_float_subgroup.h"
 #include "../gdn/sm121_attention_rcp.h"
 
@@ -144,7 +145,7 @@ inline int launch(const uint16_t* value,const uint16_t* probability,const float*
     if (!value || !probability || !scales || !output || !indices || !count || !flags ||
         (lanes!=1u && lanes!=4u) || !query_count || query_count>128u ||
         query_start>=stride || query_count>stride-query_start || stride>8192u ||
-        output_start>=262144u || query_count>262144u-output_start ||
+        output_start>=qrt_sm121_attention_capacity::kTokens || query_count>qrt_sm121_attention_capacity::kTokens-output_start ||
         (transposed ? value_stride<stride || value_stride>8192u : value_stride!=0u))
         return int(hipErrorInvalidValue);
     const unsigned cells=query_count*heads*dimensions;

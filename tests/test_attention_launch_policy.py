@@ -178,7 +178,7 @@ int main() {
     if (split(16383, 1, &scratch, 16u * 16384u) != hipSuccess || launches != 2u)
         return 25;
     if (split_scratch_elements(1u, (kSplitMaxTokens + 1u), 2u) != 0u) return 26;
-    for (const unsigned tokens : {17408u, 17920u, kSplitMaxTokens}) {
+    for (const unsigned tokens : {17408u, 17920u, 131073u, 132096u, 262144u, 263168u, kSplitMaxTokens}) {
         launches = error_queries = 0u;
         const size_t elements = 16u * tokens;
         if (split(tokens - 1u, 1u, &scratch, elements - 1u) != hipErrorInvalidValue || launches)
@@ -706,6 +706,17 @@ int main() {
                 return 151;
         }
     }
+    auto output_boundary=[&](unsigned start,unsigned count) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,
+            0u,count,start,nullptr,nullptr,nullptr,true,nullptr,2u,&scratch,SIZE_MAX);
+    };
+    for(unsigned start:{262144u,263168u,kSplitMaxTokens-2u}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(output_boundary(start,2u)!=hipSuccess || launches!=2u) return 152;
+    }
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned start:{kSplitMaxTokens-1u,kSplitMaxTokens,0xffffffffu})
+        if(output_boundary(start,2u)!=hipErrorInvalidValue || launches || memsets) return 153;
     return 0;
 }
 '''

@@ -38,7 +38,9 @@ class AttentionWorkspaceTests(unittest.TestCase):
         )[0]
         actual = "\n".join(function(source, name) for name in (
             "bool sm121_attention_enabled(",
+            "bool supported_dynamic_tokens(",
             "int prepare_sm121_attention_locked()",
+            "int prepare_sm121_extended_attention_locked()",
             "int launch_sm121_attention(",
             "QRT_CK_EXPORT int qrt_ck_fmha_q8192_release()",
         ))
@@ -58,8 +60,10 @@ class AttentionWorkspaceTests(unittest.TestCase):
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
+constexpr unsigned kQ262144Tokens = 262144;
+''' + attention_capacity() + r'''
 namespace qrt_blackwell_attention {
-''' + attention_capacity() + maximum + r'''
+''' + maximum + r'''
 }
 std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
@@ -159,7 +163,9 @@ struct SplitQkProducer {
 int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
                           unsigned tokens, hipStream_t) {
     ++preparations;
-    if (output != g_sm121_prepared_values || elements != kSm121KeyElements ||
+    const bool extended=tokens>kSm121InitialTokens;
+    if (output != (extended?g_sm121_extended.prepared_values:g_sm121_prepared_values) ||
+        elements != (extended?kSm121ExtendedKeyElements:kSm121KeyElements) ||
         elements < size_t(tokens) * 512u) std::abort();
     return fail_preparation ? hipErrorUnknown : hipSuccess;
 }
@@ -171,7 +177,7 @@ int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
         return fail_value_transpose ? hipErrorUnknown : hipSuccess;
     }
     ++transposes;
-    if (prepared != g_sm121_transposed_keys || elements < size_t(tokens) * 512u)
+    if (prepared != (tokens>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys) || elements < size_t(tokens) * 512u)
         std::abort();
     return fail_transpose ? hipErrorUnknown : hipSuccess;
 }
@@ -217,19 +223,22 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     observed_layout = layout; largest_batch = std::max(largest_batch, count);
     const bool matrix = layout == 6u || layout == 7u || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
     const bool expanded = (layout >= 5u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
+    const bool extended = key_stride>kSm121InitialTokens;
     if(transposed_value) {
         if(transposed_value!=g_sm121_transposed_values || value_tokens!=key_stride ||
            !value_transposes || value_tokens>8192u || (layout!=22u && layout!=24u)) std::abort();
     } else if(value_tokens || value_transposes) std::abort();
     if (layout == 17u) {
-        if (!preparations || wide != g_sm121_prepared_values || wide_tokens != key_stride) std::abort();
+        if (!preparations || wide != (extended?g_sm121_extended.prepared_values:g_sm121_prepared_values) || wide_tokens != key_stride) std::abort();
     } else if (wide || wide_tokens) std::abort();
-    if (!count || count > ((layout == 22u || layout == 24u) && key_stride <= 8192u ? 128u : matrix ? 32u : 8u) || scores != (expanded ? g_sm121_mantissa_scores : g_sm121_scores) ||
+    const auto* wanted_scores=extended?(expanded?g_sm121_extended.mantissa_scores:g_sm121_extended.scores)
+        :(expanded?g_sm121_mantissa_scores:g_sm121_scores);
+    if (!count || count > ((layout == 22u || layout == 24u) && key_stride <= 8192u ? 128u : matrix ? 32u : 8u) || scores != wanted_scores ||
         elements < size_t(count) * 16u * (start + count)) std::abort();
     if ((layout >= 4u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u)) {
-        if (transposes != 1u || prepared != g_sm121_transposed_keys || key_stride < start + count)
+        if (transposes != 1u || prepared != (extended?g_sm121_extended.transposed_keys:g_sm121_transposed_keys) || key_stride < start + count)
             std::abort();
-        if (expanded && (elements != kSm121MantissaElements ||
+        if (expanded && (elements != (extended?kSm121ExtendedMantissaElements:kSm121MantissaElements) ||
             elements < size_t(count) * 16u * (start + count) * 3u / 2u +
                 size_t(count) * 16u * (((start + count + 31u) / 32u) + 1u +
                     ((layout == 22u || layout == 24u) ? 512u : (layout == 13u || layout == 23u) ? 256u : 0u)))) std::abort();
@@ -265,7 +274,8 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
 ''' + actual + r'''
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
-           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk;
+           !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
+           !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -328,6 +338,7 @@ int main() {
     for (const unsigned tokens : {1u, 7169u, 8191u, 8192u, 8193u, 16383u, 16384u,
                                  16385u, 17408u, 17920u, 32768u, 33792u, 34304u,
                                  65535u, 65536u, 65537u, 66560u, 67072u, 68097u,
+                                 131072u, 131073u, 132096u, 132608u, 262144u, 263168u, 263680u, 264705u,
                                  kSm121MaxTokens}) {
         setenv("QRT_CK_FMHA_SM121_FULL_PREFIX", "0", 1);
         if (sm121_attention_enabled(tokens)) return 14;
@@ -587,9 +598,9 @@ int main() {
     setenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS","1",1);
     for(const char* mode : {"1","2","3"}) {
         setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
-        for(unsigned start : {8192u,16384u,32768u,65536u,kSm121MaxTokens-1024u}) {
+        for(unsigned start : {8192u,16384u,32768u,65536u,131072u,262144u,kSm121MaxTokens-1024u}) {
             reset();
-            if(launch(start,1024)!=hipSuccess || queries!=32u || syncs!=queries || allocations!=5u ||
+            if(launch(start,1024)!=hipSuccess || queries!=32u || syncs!=queries || allocations!=(start+1024u>kSm121InitialTokens?7u:5u) ||
                direct_pv_queries!=(*mode=='2' ? 0u : queries) || final_bound_queries) return 125;
             reset();fail_query=2u;
             if(launch(start,1024)!=hipErrorUnknown || queries!=2u || syncs!=queries) return 126;
@@ -787,6 +798,53 @@ int main() {
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
+    // Extended storage is separate and lazy. Failed allocations must leave
+    // the existing short-context owner intact and submit no consumers.
+    setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    for(unsigned failure:{5u,6u,7u}) {
+        reset();fail_allocation=failure;
+        if(launch(131072u,1024u)!=hipErrorUnknown || queries || transposes || syncs ||
+           live.size()!=(failure==7u?6u:4u) || g_sm121_extended.mantissa_scores ||
+           (failure<7u && (g_sm121_extended.scores || g_sm121_extended.transposed_keys))) return 180;
+        auto* short_scores=g_sm121_scores;auto* short_keys=g_sm121_transposed_keys;
+        fail_allocation=0u;
+        if(launch(131072u,1024u)!=hipSuccess || live.size()!=7u ||
+           !g_sm121_extended.scores || !g_sm121_extended.transposed_keys || !g_sm121_extended.mantissa_scores ||
+           g_sm121_scores!=short_scores || g_sm121_transposed_keys!=short_keys ||
+           g_sm121_extended.scores==short_scores || g_sm121_extended.transposed_keys==short_keys) return 181;
+        auto* long_scores=g_sm121_extended.mantissa_scores;
+        transposes=queries=syncs=0u;
+        if(launch(0u,8192u)!=hipSuccess || !g_sm121_mantissa_scores || live.size()!=8u ||
+           g_sm121_extended.mantissa_scores!=long_scores || g_sm121_mantissa_scores==long_scores) return 182;
+    }
+    for(unsigned failure:{1u,2u,16u}) {
+        reset();track_submissions=true;fail_query=failure;
+        if(launch(262144u,1024u)!=hipErrorUnknown || queries!=failure || syncs!=failure ||
+           pending_submissions || maximum_pending!=1u) return 183;
+    }
+    setenv("QRT_CK_SM121_PREPARED_VALUE","1",1);
+    reset();fail_allocation=8u;
+    if(launch(262144u,1024u)!=hipErrorUnknown || live.size()!=7u ||
+       g_sm121_extended.prepared_values || preparations || transposes || queries) return 184;
+    fail_allocation=0u;
+    if(launch(262144u,1024u)!=hipSuccess || live.size()!=8u || !g_sm121_extended.prepared_values ||
+       g_sm121_prepared_values || preparations!=1u || transposes!=1u || queries!=32u) return 185;
+    transposes=queries=syncs=preparations=0u;
+    if(launch(263679u,1u)!=hipSuccess || preparations || transposes || queries!=1u || live.size()!=8u) return 186;
+    reset();unsetenv("QRT_CK_SM121_PREPARED_VALUE");unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
+    for(unsigned output_start:{kSm121MaxTokens-1u,kSm121MaxTokens,0xffffffffu}) {
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,0u,2u,output_start)!=hipErrorInvalidValue || allocations) return 187;
+    }
+    if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,kSm121MaxTokens-1u,1u,kSm121MaxTokens-1u)!=hipSuccess) return 188;
+    reset();
+    for(unsigned tokens:{1u,131072u,262144u,262145u,263168u,264705u,kSm121MaxTokens,kSm121MaxTokens+1u,0xffffffffu}) {
+        setenv("QRT_CK_FMHA_SM121_FULL_PREFIX","0",1);
+        if(supported_dynamic_tokens(tokens)!=(tokens<=262144u)) return 189;
+        setenv("QRT_CK_FMHA_SM121_FULL_PREFIX","1",1);
+        if(supported_dynamic_tokens(tokens)!=(tokens<=kSm121MaxTokens)) return 190;
+    }
+    if(supported_dynamic_tokens(0u)) return 191;
+    unsetenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
     return 0;
 }
 '''

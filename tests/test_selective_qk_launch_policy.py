@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 import unittest
 
-from test_attention_workspace import function
+from test_attention_workspace import attention_capacity, function
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -27,7 +27,9 @@ class SelectiveQkLaunchTests(unittest.TestCase):
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 constexpr unsigned kQueryHeads=16u, kHeadDim=256u, kThreads=256u, kIntegerMatrixColumns=128u;
-constexpr unsigned kSplitMaxTokens=65536u, kExactTileTokens=32u;
+''' + attention_capacity() + r'''
+constexpr unsigned kSplitMaxTokens=qrt_sm121_attention_capacity::kTokens, kExactTileTokens=32u;
+static_assert(qrt_sm121_attention_capacity::kInitialTokens < kSplitMaxTokens);
 struct dim3 { unsigned x,y,z; explicit dim3(unsigned a,unsigned b=1u,unsigned c=1u):x(a),y(b),z(c){} };
 void native_scores(){} void collect_maxima(){} void collect_probabilities(){}
 void repair_scores(){} void probabilities_and_denominators(){}
@@ -87,9 +89,17 @@ int main(){
        launch(8064u,128u,22u,base,extra,&input,8193u)!=hipErrorInvalidValue ||
        launch(8064u,128u,22u,base,extra,&input,8192u,&input,8191u)!=hipErrorInvalidValue || launches)return 10;
     if(launch(8064u,128u,22u,base,extra,&input,8192u,nullptr,8192u)!=hipErrorInvalidValue ||
-       launch(8064u,128u,22u,base,extra,&input,8192u,nullptr,0u,true,true,&table,262144u)!=hipErrorInvalidValue || launches)return 11;
+       launch(8064u,128u,22u,base,extra,&input,8192u,nullptr,0u,true,true,&table,kSplitMaxTokens-127u)!=hipErrorInvalidValue || launches)return 11;
     if(launch_probability_attention(&input,&input,&input,&output,nullptr,0u,1u,0u,
         nullptr,&table,22u,scratch,base,work,extra,&input,1u,nullptr,0u,true,true)!=hipErrorInvalidValue || launches)return 12;
+    for(unsigned start:{262144u,kSplitMaxTokens-128u}){
+        reset();if(launch(8064u,128u,22u,base,extra,&input,8192u,nullptr,0u,true,true,&table,start)!=hipSuccess ||
+            launches!=7u || memsets!=2u || replays!=1u)return 13;
+    }
+    reset();
+    for(unsigned start:{kSplitMaxTokens-127u,kSplitMaxTokens,0xffffffffu})
+        if(launch(8064u,128u,22u,base,extra,&input,8192u,nullptr,0u,true,true,&table,start)!=hipErrorInvalidValue ||
+            launches || memsets || replays)return 14;
     delete[] work;delete[] scratch;return 0;
 }
 '''

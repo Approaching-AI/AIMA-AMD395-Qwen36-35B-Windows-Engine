@@ -146,7 +146,7 @@ int main(){
  // Change every layer together, including the 64k owner and the final aligned
  // owner that fits. Guard capacity independently of alignment and state layout.
  for(unsigned prefix:{8192u,16384u,24576u,32768u,57344u,65535u,65536u,65537u,
-                      122880u,131072u,UINT32_MAX}){
+                      122880u,131072u,253952u,262144u,262145u,270336u,UINT32_MAX}){
   session.prefix_tokens=v.prefix=prefix;
   for(unsigned i=0;i<40;++i){
    session.linear_layers[i].prefix_tokens=prefix;

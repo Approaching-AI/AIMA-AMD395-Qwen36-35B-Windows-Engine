@@ -201,15 +201,27 @@ constexpr unsigned int kSm121MatrixQueryBatch = 32u;
 // the historical q8192 bucket. Dispatch selection, score storage, key storage
 // and launch validation must use the same capacity.
 constexpr unsigned int kSm121MaxTokens = qrt_blackwell_attention::kSplitMaxTokens;
+constexpr unsigned int kSm121InitialTokens = qrt_sm121_attention_capacity::kInitialTokens;
 constexpr size_t kSm121ScoreElements =
-    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kSm121MaxTokens;
+    static_cast<size_t>(kSm121QueryBatch) * kQueryHeads * kSm121InitialTokens;
 constexpr size_t kSm121MatrixScoreElements =
-    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * kSm121MaxTokens;
+    static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads * kSm121InitialTokens;
 constexpr size_t kSm121MantissaElements = kSm121MatrixScoreElements + kSm121MatrixScoreElements / 2u +
     static_cast<size_t>(kSm121MatrixQueryBatch) * kQueryHeads *
-        (kSm121MaxTokens / 32u + 1u + 2u * kHeadDim) + 1u;
+        (kSm121InitialTokens / 32u + 1u + 2u * kHeadDim) + 1u;
 constexpr size_t kSm121KeyElements =
-    static_cast<size_t>(kSm121MaxTokens) * kKvHeads * kHeadDim;
+    static_cast<size_t>(kSm121InitialTokens) * kKvHeads * kHeadDim;
+constexpr size_t kSm121ExtendedScoreElements = size_t(kSm121QueryBatch) * kQueryHeads * kSm121MaxTokens;
+constexpr size_t kSm121ExtendedMatrixElements = size_t(kSm121MatrixQueryBatch) * kQueryHeads * kSm121MaxTokens;
+constexpr size_t kSm121ExtendedMantissaElements = kSm121ExtendedMatrixElements + kSm121ExtendedMatrixElements / 2u +
+    size_t(kSm121MatrixQueryBatch) * kQueryHeads * (kSm121MaxTokens / 32u + 1u + 2u * kHeadDim) + 1u;
+constexpr size_t kSm121ExtendedKeyElements = size_t(kSm121MaxTokens) * kKvHeads * kHeadDim;
+struct Sm121ExtendedWorkspace {
+    float *scores = nullptr, *mantissa_scores = nullptr;
+    uint16_t *transposed_keys = nullptr;
+    uint32_t *prepared_values = nullptr;
+};
+Sm121ExtendedWorkspace g_sm121_extended;
 constexpr size_t kSm121TransposedValueElements = size_t(8192u) * kKvHeads * kHeadDim;
 constexpr size_t kSm121SelectiveQkElements = size_t(128u) * kQueryHeads * (2u * 8192u + 256u) + 1u;
 
@@ -286,11 +298,29 @@ int prepare_sm121_attention() {
     return prepare_sm121_attention_locked();
 }
 
+int prepare_sm121_extended_attention_locked() {
+    if(g_sm121_extended.scores && g_sm121_extended.transposed_keys) return int(hipSuccess);
+    // Publish an independent workspace only after both allocations succeed.
+    // The existing short-context buffers remain owned until provider release.
+    Sm121ExtendedWorkspace next;
+    auto status = hipMalloc(reinterpret_cast<void**>(&next.scores),kSm121ExtendedScoreElements*sizeof(float));
+    if(status == hipSuccess)
+        status = hipMalloc(reinterpret_cast<void**>(&next.transposed_keys),kSm121ExtendedKeyElements*sizeof(uint16_t));
+    if(status != hipSuccess) {
+        (void)hipFree(next.transposed_keys);(void)hipFree(next.scores);return int(status);
+    }
+    g_sm121_extended = next;
+    std::fprintf(stderr,"SM121_EXTENDED_ATTENTION_WORKSPACE initial_tokens=%u maximum_tokens=%u score_bytes=%zu key_bytes=%zu lazy_allocation=1\n",
+        kSm121InitialTokens,kSm121MaxTokens,kSm121ExtendedScoreElements*sizeof(float),kSm121ExtendedKeyElements*sizeof(uint16_t));
+    return int(hipSuccess);
+}
+
 int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const uint16_t* v, float* output, hipStream_t stream,
     unsigned int query_start, unsigned int query_count, unsigned int output_start) {
     if (!q || !k || !v || !output || query_count == 0u || query_start >= kSm121MaxTokens ||
-        query_count > kSm121MaxTokens - query_start) return int(hipErrorInvalidValue);
+        query_count > kSm121MaxTokens - query_start || output_start >= kSm121MaxTokens ||
+        query_count > kSm121MaxTokens - output_start) return int(hipErrorInvalidValue);
     // Expose the already isolated native MMA candidates to real-model gates.
     // 1 changes PV only; 2 changes QK and PV; 3 adds selective exact PV replay.
     // 4 changes QK only and retains the exact complete PV accumulator.
@@ -467,10 +497,23 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     // only after the preceding PV replay on the same stream has consumed it.
     static_assert(kSm121MantissaElements >=
         size_t(128u) * kQueryHeads * (8192u + 8192u / 2u + 256u + 1u + 2u * kHeadDim) + 1u);
-    if (expanded_scratch && !g_sm121_mantissa_scores) {
-        status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_mantissa_scores),
-            kSm121MantissaElements * sizeof(float)));
-        if (status != int(hipSuccess)) { g_sm121_mantissa_scores = nullptr; return status; }
+    const unsigned int key_stride = query_start + query_count;
+    const bool extended = key_stride > kSm121InitialTokens;
+    if(extended) {
+        status = prepare_sm121_extended_attention_locked();
+        if(status != int(hipSuccess)) return status;
+    }
+    float* scores = extended ? g_sm121_extended.scores : g_sm121_scores;
+    float*& mantissa_scores = extended ? g_sm121_extended.mantissa_scores : g_sm121_mantissa_scores;
+    uint16_t* transposed_keys = extended ? g_sm121_extended.transposed_keys : g_sm121_transposed_keys;
+    uint32_t*& prepared_values = extended ? g_sm121_extended.prepared_values : g_sm121_prepared_values;
+    const size_t score_elements = extended ? kSm121ExtendedScoreElements : kSm121ScoreElements;
+    const size_t mantissa_elements = extended ? kSm121ExtendedMantissaElements : kSm121MantissaElements;
+    const size_t key_elements = extended ? kSm121ExtendedKeyElements : kSm121KeyElements;
+    if (expanded_scratch && !mantissa_scores) {
+        status = int(hipMalloc(reinterpret_cast<void**>(&mantissa_scores),
+            mantissa_elements * sizeof(float)));
+        if (status != int(hipSuccess)) { mantissa_scores = nullptr; return status; }
     }
     if (selective_qk && !g_sm121_selective_qk) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_selective_qk),
@@ -482,7 +525,6 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             kSm121TransposedValueElements * sizeof(uint16_t)));
         if (status != int(hipSuccess)) { g_sm121_transposed_values = nullptr; return status; }
     }
-    const unsigned int key_stride = query_start + query_count;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
         qrt_prepared_decoded_qk::launch_workspace};
@@ -493,20 +535,20 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             if (status != int(hipSuccess)) { g_sm121_prepared_decoded_qk = nullptr; return status; }
         }
         decoded_workspace = {g_sm121_prepared_decoded_qk, key_stride};
-        status = qrt_prepared_decoded_qk::prepare_workspace(q, k, g_sm121_transposed_keys,
+        status = qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys,
             decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
     if (prepared_value) {
-        if (!g_sm121_prepared_values) {
-            status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_prepared_values),
-                kSm121KeyElements * sizeof(uint32_t)));
-            if (status != int(hipSuccess)) { g_sm121_prepared_values = nullptr; return status; }
+        if (!prepared_values) {
+            status = int(hipMalloc(reinterpret_cast<void**>(&prepared_values),
+                key_elements * sizeof(uint32_t)));
+            if (status != int(hipSuccess)) { prepared_values = nullptr; return status; }
         }
         // Re-encode this call's V before any consumer; the allocation is reused,
         // but no model or layer identity is inferred from the source address.
         status = qrt_blackwell_attention::prepare_value_encoding(
-            v, g_sm121_prepared_values, kSm121KeyElements, key_stride, stream);
+            v, prepared_values, key_elements, key_stride, stream);
         if (status != int(hipSuccess)) {
             (void)hipStreamSynchronize(stream);
             return status;
@@ -514,7 +556,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     }
     if (independent_dots && !prepared_decoded_qk) {
         status = qrt_blackwell_attention::transpose_keys(
-            k, g_sm121_transposed_keys, kSm121KeyElements, key_stride, stream);
+            k, transposed_keys, key_elements, key_stride, stream);
         if (status != int(hipSuccess)) {
             (void)hipStreamSynchronize(stream);
             return status;
@@ -538,18 +580,18 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (selective_qk) {
             status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
-                g_sm121_exp2, g_sm121_rcp, memory_layout, g_sm121_mantissa_scores, kSm121MantissaElements,
-                g_sm121_selective_qk, kSm121SelectiveQkElements, g_sm121_transposed_keys, key_stride,
+                g_sm121_exp2, g_sm121_rcp, memory_layout, mantissa_scores, mantissa_elements,
+                g_sm121_selective_qk, kSm121SelectiveQkElements, transposed_keys, key_stride,
                 transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
                 final_pv_bound, direct_pv_operands);
         } else {
         status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
             query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
             g_sm121_exp2, nullptr, nullptr, true, g_sm121_rcp, memory_layout,
-            expanded_scratch ? g_sm121_mantissa_scores : g_sm121_scores,
-            expanded_scratch ? kSm121MantissaElements : kSm121ScoreElements, nullptr, nullptr,
-            independent_dots ? g_sm121_transposed_keys : nullptr, key_stride, native_products, nullptr,
-            prepared_value ? g_sm121_prepared_values : nullptr, prepared_value ? key_stride : 0u,
+            expanded_scratch ? mantissa_scores : scores,
+            expanded_scratch ? mantissa_elements : score_elements, nullptr, nullptr,
+            independent_dots ? transposed_keys : nullptr, key_stride, native_products, nullptr,
+            prepared_value ? prepared_values : nullptr, prepared_value ? key_stride : 0u,
             nullptr, profile_stages ? &observer : nullptr,
             transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
@@ -717,12 +759,21 @@ bool supported_tokens(unsigned int tokens) {
         tokens == kQ262143Tokens || tokens == kQ262144Tokens;
 }
 
+bool supported_dynamic_tokens(unsigned int tokens) {
+    if(tokens && tokens <= kQ262144Tokens) return true;
+#if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
+    return sm121_attention_enabled(tokens);
+#else
+    return false;
+#endif
+}
+
 int prepare_locked(unsigned int tokens) {
     // Full-prefix exports remain exact-shape surfaces, but the terminal-Q1
     // export consumes a runtime KV length.  Its storage has the same bounded
     // Q/K/V layout, so allow any product context while keeping callers of the
     // full-prefix helpers guarded by supported_tokens().
-    if (tokens == 0u || tokens > kQ262144Tokens) {
+    if (!supported_dynamic_tokens(tokens)) {
         return static_cast<int>(hipErrorInvalidValue);
     }
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
@@ -1075,7 +1126,7 @@ int launch_f32_terminal_q_kv_packed(
     hipStream_t stream,
     unsigned int tokens) {
     if (packed_qkv == nullptr || compact_output == nullptr ||
-        tokens == 0u || tokens > kQ262144Tokens) {
+        !supported_dynamic_tokens(tokens)) {
         return static_cast<int>(hipErrorInvalidValue);
     }
 #if !defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
@@ -1182,7 +1233,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_dynamic_bf16_launch(
     float *output,
     void *stream_handle,
     unsigned int tokens) {
-    if (tokens == 0u || tokens > kQ262144Tokens) {
+    if (!supported_dynamic_tokens(tokens)) {
         return static_cast<int>(hipErrorInvalidValue);
     }
     hipStream_t stream = reinterpret_cast<hipStream_t>(stream_handle);
@@ -1498,6 +1549,11 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_transposed_values);
         (void)hipFree(g_sm121_prepared_values);
         (void)hipFree(g_sm121_prepared_decoded_qk);
+        (void)hipFree(g_sm121_extended.prepared_values);
+        (void)hipFree(g_sm121_extended.transposed_keys);
+        (void)hipFree(g_sm121_extended.mantissa_scores);
+        (void)hipFree(g_sm121_extended.scores);
+        g_sm121_extended = Sm121ExtendedWorkspace{};
         g_sm121_exp2 = nullptr;
         g_sm121_rcp = nullptr;
         g_sm121_scores = nullptr;

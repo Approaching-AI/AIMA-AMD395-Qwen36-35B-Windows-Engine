@@ -248,7 +248,7 @@ inline int launch_probability_attention(const uint16_t* q, const uint16_t* k,
     float* raw_accumulator = nullptr, float* raw_denominator = nullptr) {
     if (!q || !k || !v || !output || !exp2 || !reciprocal || !scratch || !work || !transposed_key ||
         !queries || queries > 128u || start >= 8192u || queries > 8192u - start ||
-        output_start >= 262144u || queries > 262144u - output_start || (layout != 22u && layout != 24u))
+        output_start >= kSplitMaxTokens || queries > kSplitMaxTokens - output_start || (layout != 22u && layout != 24u))
         return int(hipErrorInvalidValue);
     const unsigned stride = start + queries;
     if (key_stride < stride || key_stride > 8192u ||
