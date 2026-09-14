@@ -35,6 +35,9 @@ class AttentionWorkspaceTests(unittest.TestCase):
         source = (ROOT / "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp").read_text()
         header = (ROOT / "native/providers/ck_fmha/blackwell_attention.h").read_text()
         deadline = (ROOT / "native/providers/ck_fmha/attention_deadline.h").read_text().replace("#pragma once", "")
+        range_workspace = (ROOT / "native/providers/ck_fmha/prepared_decoded_qk_range_workspace.h").read_text()
+        range_workspace = "\n".join(line for line in range_workspace.splitlines()
+                                    if not line.startswith(("#pragma", "#include")))
         maximum = "constexpr unsigned int kSplitMaxTokens" + header.split(
             "constexpr unsigned int kSplitMaxTokens", 1)[1].split(";", 1)[0] + ";"
         globals_ = source.split("std::mutex g_sm121_mutex;", 1)[1].split(
@@ -74,7 +77,7 @@ struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; 
 #define QRT_CK_EXPORT
 #define QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL 1
 #include "''' + str(ROOT / 'native/providers/ck_fmha/prepared_decoded_qk_workspace.h') + r'''"
-''' + globals_ + deadline + r'''
+''' + range_workspace + globals_ + deadline + r'''
 using AttentionBudget = qrt_sm121_attention_deadline::Budget;
 static_assert(AttentionBudget{0,8192,kSm121MaxTokens}.call_limit_seconds()==20.0);
 static_assert(AttentionBudget{0,32768,kSm121MaxTokens}.window_limit_seconds(8192)==20.0);
@@ -99,6 +102,7 @@ const unsigned char sha256[32]{};
 bool valid_layout(const unsigned char*, size_t) { return true; }
 }
 unsigned allocations = 0, fail_allocation = 0, transposes = 0, queries = 0, syncs = 0;
+size_t last_allocation_bytes = 0u;
 unsigned fail_query = 0;
 unsigned fail_sync = 0, profile_observations = 0;
 unsigned observed_layout = 0, largest_batch = 0;
@@ -107,6 +111,8 @@ unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
 unsigned decoded_preparations=0, decoded_queries=0, fail_decoded_prepare=0;
+unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
+unsigned range_start=0, range_count=0;
 unsigned selective_qk_queries = 0;
 unsigned value_transposes = 0;
 bool fail_value_transpose = false;
@@ -121,8 +127,9 @@ std::chrono::steady_clock::time_point mock_now() {
 bool fail_preparation = false;
 bool fail_transpose = false;
 std::set<void*> live;
-hipError_t hipMalloc(void** pointer, size_t) {
+hipError_t hipMalloc(void** pointer, size_t bytes) {
     ++allocations;
+    last_allocation_bytes=bytes;
     if (allocations == fail_allocation) { *pointer = nullptr; return hipErrorUnknown; }
     *pointer = reinterpret_cast<void*>(uintptr_t(0x1000u + allocations * 16u));
     if (!live.insert(*pointer).second) std::abort();
@@ -149,6 +156,22 @@ int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const
     if(!valid(workspace) || workspace.words!=g_sm121_prepared_decoded_qk || transposed!=g_sm121_transposed_keys)
         std::abort();
     if(fail_decoded_prepare) return hipErrorUnknown;
+    ++transposes;return hipSuccess;
+}
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned) {
+    return hipSuccess;
+}
+}
+namespace qrt_prepared_decoded_qk_range {
+int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t) {
+    ++range_preparations;range_start=workspace.query_start;range_count=workspace.query_count;
+    if(!valid(workspace) || workspace.words!=g_sm121_long_decoded_qk.words ||
+       workspace.key_capacity!=g_sm121_long_decoded_qk.capacity_tokens ||
+       workspace.word_count!=workspace_words(workspace.key_capacity) ||
+       workspace.key_tokens!=range_start+range_count || workspace.key_tokens<=8192u ||
+       transposed!=(workspace.key_tokens>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys))
+        std::abort();
+    if(fail_range_prepare) return hipErrorUnknown;
     ++transposes;return hipSuccess;
 }
 int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned) {
@@ -212,7 +235,15 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         submitted_ranges.push_back({start,count,output_start});
         clock_ms += submit_ms;
     }
-    if(producer) {
+    if(producer && producer->launch==qrt_prepared_decoded_qk_range::launch_workspace) {
+        const auto* workspace=static_cast<const qrt_prepared_decoded_qk_range::Workspace*>(producer->state);
+        if(!workspace || !qrt_prepared_decoded_qk_range::valid(*workspace) ||
+           workspace->words!=g_sm121_long_decoded_qk.words || workspace->key_tokens!=key_stride ||
+           workspace->query_start!=range_start || workspace->query_count!=range_count ||
+           start<range_start || start-range_start>=range_count || count>range_count-(start-range_start) ||
+           !range_preparations || !float_alignment_qk || (layout!=22u && layout!=24u)) std::abort();
+        ++range_queries;
+    } else if(producer) {
         const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
         if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
            workspace->words!=g_sm121_prepared_decoded_qk || workspace->tokens!=key_stride ||
@@ -295,15 +326,18 @@ bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
            !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
            !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values &&
-           !g_sm121_long_values.cells && !g_sm121_long_values.capacity_tokens;
+           !g_sm121_long_values.cells && !g_sm121_long_values.capacity_tokens &&
+           !g_sm121_long_decoded_qk.words && !g_sm121_long_decoded_qk.capacity_tokens;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
+    last_allocation_bytes=0u;
     fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
+    range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
@@ -957,6 +991,76 @@ int main() {
     }
     if(supported_dynamic_tokens(0u)) return 191;
     unsetenv("QRT_CK_FMHA_SM121_FULL_PREFIX");
+    // Range QK must refresh both operands for each call, preserve a failed
+    // growth, and coexist with the fixed cold owner and long transposed V.
+    setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    setenv("QRT_CK_SM121_TILED_EXACT_QK","1",1);
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","1",1);
+    setenv("QRT_CK_SM121_PREPARED_DECODED_QK","1",1);
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    setenv("QRT_CK_SM121_SUBMIT_SLABS","1",1);
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_LONG_PREPARED_DECODED_QK",bad,1);
+        if(launch(16384,65)!=hipErrorInvalidValue || allocations || queries || range_preparations) return 218;
+    }
+    for(const char* mode : {"1","3"}) for(const char* selected : {"0","1"})
+    for(const char* decoded : {"0","1"}) for(const char* all_pv : {"0","1"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        setenv("QRT_CK_SM121_LONG_PREPARED_DECODED_QK",selected,1);
+        setenv("QRT_CK_SM121_PREPARED_DECODED_QK",decoded,1);
+        setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY",all_pv,1);
+        const bool active=*selected=='1' && *decoded=='1';
+        for(unsigned start : {8191u,65536u,131072u,262144u,kSm121MaxTokens-65u}) {
+            reset();const unsigned capacity=std::min(kSm121MaxTokens,(start+65u+8191u)/8192u*8192u);
+            if(launch(start,65)!=hipSuccess || queries!=3u || syncs!=3u || transposes!=1u ||
+               range_preparations!=unsigned(active) || range_queries!=(active?3u:0u) || decoded_queries ||
+               allocations!=(start+65u>kSm121InitialTokens?7u:5u)+unsigned(active) ||
+               g_sm121_long_decoded_qk.capacity_tokens!=(active?capacity:0u) ||
+               (active && last_allocation_bytes!=qrt_prepared_decoded_qk_range::workspace_words(capacity)*sizeof(uint32_t))) return 219;
+        }
+    }
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY","0",1);
+    setenv("QRT_CK_SM121_PREPARED_DECODED_QK","1",1);
+    setenv("QRT_CK_SM121_LONG_PREPARED_DECODED_QK","1",1);
+    reset();fail_allocation=6u;
+    if(launch(8192,65)!=hipErrorUnknown || g_sm121_long_decoded_qk.words ||
+       g_sm121_long_decoded_qk.capacity_tokens || transposes || queries || live.size()!=5u) return 220;
+    fail_allocation=0u;
+    if(launch(8192,65)!=hipSuccess || range_preparations!=1u || range_queries!=3u ||
+       g_sm121_long_decoded_qk.capacity_tokens!=16384u) return 221;
+    const auto* retained_qk=g_sm121_long_decoded_qk.words;
+    transposes=queries=syncs=range_queries=0u;fail_allocation=allocations+1u;
+    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_decoded_qk.words!=retained_qk ||
+       g_sm121_long_decoded_qk.capacity_tokens!=16384u || queries || transposes || live.size()!=6u) return 222;
+    fail_allocation=0u;
+    if(launch(16384,65)!=hipSuccess || range_preparations!=2u || range_queries!=3u ||
+       g_sm121_long_decoded_qk.capacity_tokens!=24576u || live.size()!=6u) return 223;
+    const auto* grown_qk=g_sm121_long_decoded_qk.words;
+    transposes=queries=syncs=range_queries=0u;
+    if(launch(0,129)!=hipSuccess || decoded_preparations!=1u || decoded_queries!=2u ||
+       !g_sm121_prepared_decoded_qk || g_sm121_long_decoded_qk.words!=grown_qk || live.size()!=7u) return 224;
+    transposes=queries=syncs=range_queries=decoded_queries=0u;
+    setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE","1",1);
+    setenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE","1",1);
+    if(launch(8192,65)!=hipSuccess || range_preparations!=3u || range_queries!=3u || value_transposes!=1u ||
+       g_sm121_long_decoded_qk.words!=grown_qk || g_sm121_long_decoded_qk.capacity_tokens!=24576u || live.size()!=8u) return 225;
+    reset();fail_range_prepare=1u;
+    if(launch(16384,65)!=hipErrorUnknown || range_preparations!=1u || transposes || queries || syncs!=1u || value_transposes) return 226;
+    reset();track_submissions=true;fail_query=2u;
+    if(launch(16384,65)!=hipErrorUnknown || queries!=2u || syncs!=2u || range_queries!=2u || pending_submissions) return 227;
+    for(unsigned count : {1u,8193u}) {
+        reset();
+        if(launch(16384,count)!=hipSuccess || range_preparations || range_queries || g_sm121_long_decoded_qk.words) return 228;
+    }
+    for(const char* mode : {"0","2"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        if(launch(16384,65)!=hipErrorInvalidValue || allocations || queries) return 229;
+    }
+    reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","0",1);
+    if(launch(16384,65)!=hipErrorInvalidValue || allocations || queries) return 230;
+    reset();
     return 0;
 }
 '''

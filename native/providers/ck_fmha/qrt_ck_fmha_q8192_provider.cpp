@@ -33,6 +33,7 @@
 #include "attention_deadline.h"
 #include "selective_qk.h"
 #include "prepared_decoded_qk.h"
+#include "prepared_decoded_qk_range.h"
 #endif
 
 #if defined(_WIN32)
@@ -195,6 +196,11 @@ uint16_t* g_sm121_transposed_keys = nullptr;
 uint16_t* g_sm121_transposed_values = nullptr;
 uint32_t* g_sm121_prepared_values = nullptr;
 uint32_t* g_sm121_prepared_decoded_qk = nullptr;
+struct Sm121LongDecodedQkWorkspace {
+    uint32_t* words = nullptr;
+    unsigned capacity_tokens = 0u;
+};
+Sm121LongDecodedQkWorkspace g_sm121_long_decoded_qk;
 constexpr unsigned int kSm121QueryBatch = 8u;
 constexpr unsigned int kSm121MatrixQueryBatch = 32u;
 // Match the exact kernel's checked extent, including the first token beyond
@@ -418,11 +424,18 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const char* decoded_qk_option = std::getenv("QRT_CK_SM121_PREPARED_DECODED_QK");
     if (decoded_qk_option && *decoded_qk_option && std::strcmp(decoded_qk_option,"0") &&
         std::strcmp(decoded_qk_option,"1")) return int(hipErrorInvalidValue);
-    // Cold calls own a complete Q range. Suffix/decode and longer calls keep
-    // their established path without reading or caching unused Q history.
+    const char* long_decoded_option = std::getenv("QRT_CK_SM121_LONG_PREPARED_DECODED_QK");
+    if (long_decoded_option && *long_decoded_option && std::strcmp(long_decoded_option,"0") &&
+        std::strcmp(long_decoded_option,"1")) return int(hipErrorInvalidValue);
+    // The separate range owner encodes only this call's Q interval. The
+    // fixed cold owner and single-query decode retain their established path.
     const bool prepared_decoded_qk = decoded_qk_option && std::strcmp(decoded_qk_option,"1")==0 &&
         query_start == 0u && query_count > 1u && query_count <= 8192u;
-    if (prepared_decoded_qk && (!float_alignment_qk || selective_qk ||
+    const bool long_prepared_decoded_qk = decoded_qk_option && std::strcmp(decoded_qk_option,"1")==0 &&
+        long_decoded_option && std::strcmp(long_decoded_option,"1")==0 &&
+        query_count > 1u && query_count <= qrt_prepared_decoded_qk_range::maximum_queries &&
+        query_start + query_count > 8192u;
+    if ((prepared_decoded_qk || long_prepared_decoded_qk) && (!float_alignment_qk || selective_qk ||
         (compact_pv_mode != 1u && compact_pv_mode != 3u))) return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
@@ -563,6 +576,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
         qrt_prepared_decoded_qk::launch_workspace};
+    qrt_prepared_decoded_qk_range::Workspace long_decoded_workspace;
+    qrt_blackwell_attention::SplitQkProducer long_decoded_producer{&long_decoded_workspace,
+        qrt_prepared_decoded_qk_range::launch_workspace};
     if (prepared_decoded_qk) {
         if (!g_sm121_prepared_decoded_qk) {
             status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_prepared_decoded_qk),
@@ -572,6 +588,27 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         decoded_workspace = {g_sm121_prepared_decoded_qk, key_stride};
         status = qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys,
             decoded_workspace, stream);
+        if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+    }
+    if (long_prepared_decoded_qk) {
+        if (g_sm121_long_decoded_qk.capacity_tokens < key_stride) {
+            const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
+            const size_t bytes = qrt_prepared_decoded_qk_range::workspace_words(capacity) * sizeof(uint32_t);
+            uint32_t* next = nullptr;
+            status = int(hipMalloc(reinterpret_cast<void**>(&next), bytes));
+            if (status != int(hipSuccess)) return status;
+            const unsigned previous = g_sm121_long_decoded_qk.capacity_tokens;
+            (void)hipFree(g_sm121_long_decoded_qk.words);
+            g_sm121_long_decoded_qk = Sm121LongDecodedQkWorkspace{next, capacity};
+            std::fprintf(stderr, "SM121_LONG_DECODED_QK_WORKSPACE previous_tokens=%u capacity_tokens=%u workspace_bytes=%zu independent_short_owner=1\n",
+                previous, capacity, bytes);
+        }
+        const unsigned capacity = g_sm121_long_decoded_qk.capacity_tokens;
+        long_decoded_workspace = {g_sm121_long_decoded_qk.words,
+            qrt_prepared_decoded_qk_range::workspace_words(capacity), capacity,
+            query_start, query_count, key_stride};
+        status = qrt_prepared_decoded_qk_range::prepare_workspace(q, k, transposed_keys,
+            long_decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
     if (prepared_value) {
@@ -589,7 +626,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             return status;
         }
     }
-    if (independent_dots && !prepared_decoded_qk) {
+    if (independent_dots && !prepared_decoded_qk && !long_prepared_decoded_qk) {
         status = qrt_blackwell_attention::transpose_keys(
             k, transposed_keys, key_elements, key_stride, stream);
         if (status != int(hipSuccess)) {
@@ -630,7 +667,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             nullptr, profile_stages ? &observer : nullptr,
             transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
-            prepared_decoded_qk ? &decoded_producer : nullptr, all_pv_replay);
+            prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr, all_pv_replay);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -713,6 +750,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (prepared_decoded_qk)
         std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1\n",
             query_start,query_count,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
+    if (long_prepared_decoded_qk)
+        std::fprintf(stderr,"SM121_LONG_PREPARED_DECODED_QK query_start=%u query_count=%u key_tokens=%u capacity_tokens=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1 prepared_query_history=0\n",
+            query_start,query_count,key_stride,long_decoded_workspace.key_capacity,
+            long_decoded_workspace.word_count*sizeof(uint32_t));
     if (selective_qk)
         std::fprintf(stderr,"SM121_SELECTIVE_QK_PROBABILITY query_start=%u query_count=%u probability_endpoint_repair=1 approximate_denominator=1 workspace_bytes=%zu gb10_product_gate_required=1\n",
             query_start,query_count,kSm121SelectiveQkElements*sizeof(float));
@@ -1592,6 +1633,8 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         g_sm121_long_values = Sm121LongValueWorkspace{};
         (void)hipFree(g_sm121_prepared_values);
         (void)hipFree(g_sm121_prepared_decoded_qk);
+        (void)hipFree(g_sm121_long_decoded_qk.words);
+        g_sm121_long_decoded_qk = Sm121LongDecodedQkWorkspace{};
         (void)hipFree(g_sm121_extended.prepared_values);
         (void)hipFree(g_sm121_extended.transposed_keys);
         (void)hipFree(g_sm121_extended.mantissa_scores);

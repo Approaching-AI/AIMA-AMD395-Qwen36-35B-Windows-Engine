@@ -690,7 +690,7 @@ int main() {
     };
     for(unsigned layout:{0u,2u,4u,13u,15u,23u})
         if(produced(&producer,0u,32u,layout)!=hipErrorInvalidValue || launches || producer_seen[0]) return 147;
-    if(produced(&producer,8192u,1u)!=hipErrorInvalidValue ||
+    if(produced(&producer,8192u,33u)!=hipErrorInvalidValue ||
        produced(&producer,0u,32u,22u,false)!=hipErrorInvalidValue || launches || producer_seen[0]) return 148;
     SplitQkProducer invalid_state{nullptr,producer.launch},invalid_launch{producer_seen,nullptr};
     if(produced(&invalid_state,0u,32u)!=hipErrorInvalidValue ||
@@ -704,6 +704,18 @@ int main() {
             launches=error_queries=memsets=producer_seen[0]=0u;fail_launch=failure;
             if(produced(&producer,8192u-count,count,layout)!=hipErrorUnknown || launches!=failure || producer_seen[0]!=1u)
                 return 151;
+        }
+    }
+    for(unsigned layout:{22u,24u}) for(unsigned stride:{8193u,65536u,131073u,kSplitMaxTokens})
+    for(unsigned count:{1u,17u,32u}) {
+        launches=error_queries=memsets=fail_launch=producer_seen[0]=0u;
+        if(produced(&producer,stride-count,count,layout)!=hipSuccess || launches!=5u || producer_seen[0]!=1u ||
+           producer_seen[1]!=stride-count || producer_seen[2]!=count || producer_seen[3]!=stride || producer_seen[4]!=stride)
+            return 170;
+        for(unsigned failure=1u;failure<=5u;++failure) {
+            launches=error_queries=memsets=producer_seen[0]=0u;fail_launch=failure;
+            if(produced(&producer,stride-count,count,layout)!=hipErrorUnknown || launches!=failure || producer_seen[0]!=1u)
+                return 171;
         }
     }
     auto output_boundary=[&](unsigned start,unsigned count) {

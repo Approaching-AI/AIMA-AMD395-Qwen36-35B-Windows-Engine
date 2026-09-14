@@ -26,6 +26,25 @@ regressions with this table; larger contexts and packaging remain pending.
 See `benchmarks/correctness/runtime-tail-q8192-20260915.json` and
 `benchmarks/correctness/runtime-tail-prefix16k-20260915.json`.
 
+## Optional long-context prepared QK workspace
+
+`QRT_CK_SM121_LONG_PREPARED_DECODED_QK=1` extends the enabled prepared-QK
+route to multi-query calls beyond q8192, with at most 8192 consumed query
+rows. It uses the range component validated against original native K16
+scores, retains the original BF16 fallback, and keeps 32-query long slabs.
+The intended benefit is avoiding repeated Q/K decoding across long-history
+score tiles; real-model qualification is still required for this integration.
+
+The separate owner grows by 8192 key tokens up to 264736. Its fixed compact
+Q region plus complete K metadata uses at most 679039232 device bytes.
+Growth allocates the replacement before retiring the old owner, so both
+allocations coexist briefly; failed allocation preserves the previous owner.
+Every selected call refreshes its Q interval and complete K history under the
+existing provider mutex. The fixed cold owner and single-query decode keep
+their existing behavior. No new DLL, table, Python, CUDA or third-party
+runtime dependency is introduced. Default-off source and package settings
+remain until correctness-attached product measurements support selection.
+
 ## Optional long-context V transpose workspace
 
 `QRT_CK_SM121_LONG_TRANSPOSE_VALUE=1` extends the existing

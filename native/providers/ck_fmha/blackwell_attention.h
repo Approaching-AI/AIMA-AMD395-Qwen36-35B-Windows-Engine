@@ -2216,7 +2216,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if (all_pv_replay && ((memory_layout != 22u && memory_layout != 24u) || float_pv_lanes))
         return int(hipErrorInvalidValue);
     if (qk_producer && (!qk_producer->state || !qk_producer->launch || !float_alignment_qk ||
-            (memory_layout != 22u && memory_layout != 24u) || query_start + query_count > 8192u))
+            (memory_layout != 22u && memory_layout != 24u)))
         return int(hipErrorInvalidValue);
     if (staged_probability && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
