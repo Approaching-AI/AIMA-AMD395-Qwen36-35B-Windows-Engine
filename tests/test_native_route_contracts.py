@@ -171,7 +171,7 @@ class NativeRouteContractTests(unittest.TestCase):
             "qwen36_resident_session_capture_is_active()",
             '"QRT_QWEN36_WHOLE_PROVIDER_ARBITRARY_CONTEXT"',
             "prefill_tokens < kRetainedPrefillTokens",
-            "prefill_tokens <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS",
+            "prefill_tokens <= QRT_QWEN36_MAX_PROMPT_TOKENS",
             "prefill_tokens != kRetainedPrefillTokens",
             '"QRT_QWEN36_EXACT_ARBITRARY_RETAINED_Q8192"',
         ):
@@ -409,7 +409,7 @@ class NativeRouteContractTests(unittest.TestCase):
         helper = self.provider[helper_start:helper_end]
         self.assertIn("prefill_tokens > 0u", helper)
         self.assertIn(
-            "prefill_tokens <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS", helper
+            "prefill_tokens <= QRT_QWEN36_MAX_PROMPT_TOKENS", helper
         )
         self.assertIn(
             "qwen36_specialized_retained_q8192_path_enabled(prefill_tokens)",

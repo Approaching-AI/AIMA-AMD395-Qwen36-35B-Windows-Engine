@@ -121,6 +121,8 @@ $record = [ordered]@{
     execution = "local_windows_process"
     repo_commit = (& git -C $repo rev-parse HEAD).Trim()
     dirty_tree = @(& git -C $repo status --porcelain).Count -ne 0
+    context_limits_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\src\qrt_context_limits.h')).Hash.ToLowerInvariant()
     command_file = $PSCommandPath
     timeout_seconds = $TimeoutSeconds
     validate_only = [bool]$ValidateOnly

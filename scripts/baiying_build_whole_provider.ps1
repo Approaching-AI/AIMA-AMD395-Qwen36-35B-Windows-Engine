@@ -108,6 +108,7 @@ $accumulatorHeader = Join-Path $repo (
     "native\providers\moe_accumulator\q1_moe_hawkeye_bf16_accumulator.h"
 )
 $qrtHeader = Join-Path $repo "native\src\qrt.h"
+$contextLimitsHeader = Join-Path $repo "native\src\qrt_context_limits.h"
 $hostObject = Join-Path $OutDir "q1_moe_avx512bf16_host_provider.obj"
 $providerDll = Join-Path $OutDir "qrt_qwen36_whole_provider.dll"
 $compileSource = $source
@@ -242,6 +243,8 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\q8192_out_l1_policy.h')).Hash.ToLowerInvariant()
     q8192_out_l1_shadow_audit_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\q8192_out_l1_shadow_audit.h')).Hash.ToLowerInvariant()
+    context_limits_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath $contextLimitsHeader).Hash.ToLowerInvariant()
     qrt_header_path = $qrtHeader
     qrt_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()

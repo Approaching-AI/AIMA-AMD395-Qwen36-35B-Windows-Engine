@@ -27574,7 +27574,7 @@ static qrt_status_t qrt_qwen36_try_whole_provider_prefill_request(
         !long_cold_probe && input_token_count > 0u &&
         input_token_count <= engine->context_tokens &&
         input_token_count <=
-            (size_t)QRT_QWEN36_MAX_POSITION_EMBEDDINGS;
+            (size_t)QRT_QWEN36_MAX_PROMPT_TOKENS;
     if ((!fixed_q8192_request && !long_cold_probe &&
          !arbitrary_prefill_request) ||
         output_token_capacity == 0u ||
@@ -64034,7 +64034,7 @@ static int qrt_qwen36_whole_provider_direct_entry_eligible(
          input_token_count > 0u &&
          input_token_count <= engine->context_tokens &&
          input_token_count <=
-             (size_t)QRT_QWEN36_MAX_POSITION_EMBEDDINGS);
+             (size_t)QRT_QWEN36_MAX_PROMPT_TOKENS);
     return engine != NULL &&
         engine->ready &&
         engine->manifest_loaded &&

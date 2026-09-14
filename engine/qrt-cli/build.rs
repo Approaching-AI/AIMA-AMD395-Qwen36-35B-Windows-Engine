@@ -18,6 +18,10 @@ fn main() {
     println!("cargo:rerun-if-changed={}", c_dir.join("qrt.h").display());
     println!(
         "cargo:rerun-if-changed={}",
+        c_dir.join("qrt_context_limits.h").display()
+    );
+    println!(
+        "cargo:rerun-if-changed={}",
         c_dir.join("qwen36_baseline.h").display()
     );
 

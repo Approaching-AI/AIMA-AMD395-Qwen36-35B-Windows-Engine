@@ -288,6 +288,13 @@ static void qrt_server_set_load_failure(
     qrt_server_copy_text(report->failure, sizeof(report->failure), failure);
 }
 
+size_t qrt_server_max_context_tokens_v1(void) {
+    _Static_assert(QRT_QWEN36_MAX_REQUEST_CONTEXT_TOKENS ==
+        QRT_QWEN36_MAX_PROMPT_TOKENS + QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS,
+        "server context must include the maximum prompt and generated outputs");
+    return (size_t)QRT_QWEN36_MAX_REQUEST_CONTEXT_TOKENS;
+}
+
 qrt_status_t qrt_server_engine_create_v1(
     const char *model_path,
     const char *provider_dll,
@@ -311,7 +318,7 @@ qrt_status_t qrt_server_engine_create_v1(
     if (model_path == NULL || model_path[0] == '\0' ||
         provider_dll == NULL || provider_dll[0] == '\0' ||
         max_context_tokens == 0u ||
-        max_context_tokens > (size_t)QRT_QWEN36_MAX_POSITION_EMBEDDINGS ||
+        max_context_tokens > qrt_server_max_context_tokens_v1() ||
         out_engine == NULL || out_report == NULL) {
         return QRT_STATUS_INVALID_ARGUMENT;
     }

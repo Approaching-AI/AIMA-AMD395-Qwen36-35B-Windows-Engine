@@ -254,6 +254,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir '..\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     attention_capacity_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "..\sm121_attention_capacity.h")).Hash.ToLowerInvariant()
+    context_limits_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\..\src\qrt_context_limits.h")).Hash.ToLowerInvariant()
     blackwell_attention_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "blackwell_attention.h")).Hash.ToLowerInvariant()
     prepared_decoded_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `

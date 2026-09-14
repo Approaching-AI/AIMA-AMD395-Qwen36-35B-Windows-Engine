@@ -38,6 +38,9 @@ typedef struct qrt_server_request_report_v1_t {
     char failure[QRT_LOAD_ERROR_CAPACITY];
 } qrt_server_request_report_v1_t;
 
+/* Total prompt plus output limit accepted by this compiled bridge. */
+QRT_API size_t qrt_server_max_context_tokens_v1(void);
+
 QRT_API qrt_status_t qrt_server_engine_create_v1(
     const char *model_path,
     const char *provider_dll,

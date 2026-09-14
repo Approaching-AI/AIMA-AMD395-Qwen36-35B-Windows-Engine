@@ -155,6 +155,10 @@ constexpr unsigned int kQ1LinearRocblasQkvzAbRows =
 constexpr unsigned int kConvKernel = 4;
 constexpr size_t kQwen36ResidentDecodeTailCapacityTokens =
     QRT_QWEN36_RESIDENT_PREFIX_CACHE_MAX_TAIL_TOKENS;
+static_assert(QRT_QWEN36_ATTENTION_CAPACITY_TOKENS >=
+    QRT_QWEN36_MAX_PROMPT_TOKENS + kQwen36ResidentDecodeTailCapacityTokens + 1u);
+static_assert(QRT_QWEN36_MAX_REQUEST_CONTEXT_TOKENS ==
+    QRT_QWEN36_MAX_PROMPT_TOKENS + QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS);
 constexpr unsigned int kKeyHeads = 16;
 constexpr unsigned int kKeyDim = 128;
 constexpr unsigned int kKeyFeatures = kKeyHeads * kKeyDim;
@@ -1930,7 +1934,7 @@ constexpr bool qwen36_resident_session_prefix_supported(
 ) {
     return prefix_tokens > 0u &&
         prefix_tokens <=
-            static_cast<size_t>(QRT_QWEN36_MAX_POSITION_EMBEDDINGS);
+            static_cast<size_t>(QRT_QWEN36_MAX_PROMPT_TOKENS);
 }
 constexpr size_t kQwen36ResidentFullAttentionScoreScratchTokenCapacity =
     qwen36_resident_full_attention_score_token_capacity(
@@ -42348,7 +42352,7 @@ bool qwen36_exact_arbitrary_product_path_enabled(
         prefill_tokens > 0u && prefill_tokens < kRetainedPrefillTokens;
     const bool resident_http_shape =
         prefill_tokens > 0u &&
-        prefill_tokens <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS &&
+        prefill_tokens <= QRT_QWEN36_MAX_PROMPT_TOKENS &&
         (prefill_tokens != kRetainedPrefillTokens ||
          raw_env_flag_enabled(
              "QRT_QWEN36_EXACT_ARBITRARY_RETAINED_Q8192"
@@ -42373,7 +42377,7 @@ bool qwen36_layer39_q1_kv8192_target_plan_shape_enabled(
     // restricting the q1 terminal plan itself to q8192 creates an artificial
     // performance cliff at every neighboring length.
     return prefill_tokens > 0u &&
-        prefill_tokens <= QRT_QWEN36_MAX_POSITION_EMBEDDINGS &&
+        prefill_tokens <= QRT_QWEN36_MAX_PROMPT_TOKENS &&
         (qwen36_specialized_retained_q8192_path_enabled(prefill_tokens) ||
          qwen36_exact_arbitrary_product_path_enabled(prefill_tokens) ||
          qwen36_resident_session_capture_is_active());

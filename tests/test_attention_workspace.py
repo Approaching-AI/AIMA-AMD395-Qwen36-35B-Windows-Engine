@@ -12,7 +12,11 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def attention_capacity():
-    return (ROOT / "native/providers/sm121_attention_capacity.h").read_text().replace("#pragma once", "")
+    header = (ROOT / "native/providers/sm121_attention_capacity.h").read_text()
+    return header.replace("#pragma once", "").replace(
+        '#include "../src/qrt_context_limits.h"',
+        (ROOT / "native/src/qrt_context_limits.h").read_text(),
+    )
 
 
 def function(source, signature):

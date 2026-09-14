@@ -1780,7 +1780,7 @@ fn resolve_max_output(
 fn context_error(prompt: usize, output: usize, maximum: usize) -> ApiError {
     ApiError::invalid(
         format!(
-            "This model's maximum context length is {maximum} tokens. The request has {prompt} prompt tokens and requests {output} completion tokens."
+            "This server's maximum context length is {maximum} tokens. The request has {prompt} prompt tokens and requests {output} completion tokens."
         ),
         Some("messages"),
         Some("context_length_exceeded"),
@@ -2810,36 +2810,48 @@ mod tests {
 
     #[tokio::test]
     async fn completion_context_accepts_exact_limit_and_rejects_one_token_over() {
-        let app = test_app_with_context("WXYZ", 12);
-        let accepted = app
-            .clone()
-            .oneshot(
-                Request::post("/v1/completions")
-                    .header("content-type", "application/json")
-                    .body(Body::from(
-                        r#"{"model":"test-model","prompt":"12345678","max_tokens":4,"temperature":0}"#,
-                    ))
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(accepted.status(), StatusCode::OK);
+        for (maximum, prompt, output) in [
+            (12, 8, 4),
+            (
+                crate::backend::maximum_context_tokens(),
+                262_144 + 1024,
+                512,
+            ),
+        ] {
+            let app = test_app_with_context("WXYZ", maximum);
+            let body = |length| {
+                serde_json::to_vec(&json!({
+                    "model":"test-model", "prompt":"A".repeat(length),
+                    "max_tokens":output, "temperature":0,
+                }))
+                .unwrap()
+            };
+            let accepted = app
+                .clone()
+                .oneshot(
+                    Request::post("/v1/completions")
+                        .header("content-type", "application/json")
+                        .body(Body::from(body(prompt)))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(accepted.status(), StatusCode::OK);
 
-        let rejected = app
-            .oneshot(
-                Request::post("/v1/completions")
-                    .header("content-type", "application/json")
-                    .body(Body::from(
-                        r#"{"model":"test-model","prompt":"12345678","max_tokens":5,"temperature":0}"#,
-                    ))
-                    .unwrap(),
-            )
-            .await
-            .unwrap();
-        assert_eq!(rejected.status(), StatusCode::BAD_REQUEST);
-        let body = rejected.into_body().collect().await.unwrap().to_bytes();
-        let value: Value = serde_json::from_slice(&body).unwrap();
-        assert_eq!(value["error"]["code"], "context_length_exceeded");
+            let rejected = app
+                .oneshot(
+                    Request::post("/v1/completions")
+                        .header("content-type", "application/json")
+                        .body(Body::from(body(prompt + 1)))
+                        .unwrap(),
+                )
+                .await
+                .unwrap();
+            assert_eq!(rejected.status(), StatusCode::BAD_REQUEST);
+            let body = rejected.into_body().collect().await.unwrap().to_bytes();
+            let value: Value = serde_json::from_slice(&body).unwrap();
+            assert_eq!(value["error"]["code"], "context_length_exceeded");
+        }
     }
 
     #[tokio::test]

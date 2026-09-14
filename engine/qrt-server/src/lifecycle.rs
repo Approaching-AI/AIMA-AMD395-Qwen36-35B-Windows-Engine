@@ -15,7 +15,9 @@ use tracing::{error, info};
 use crate::api::{
     router, QueueConfig, ServerState, DEFAULT_MAX_QUEUE_DEPTH, DEFAULT_QUEUE_TIMEOUT_SECONDS,
 };
-use crate::backend::{InferenceBackend, NativeBackend, NATIVE_THREAD_STACK_BYTES};
+use crate::backend::{
+    maximum_context_tokens, InferenceBackend, NativeBackend, NATIVE_THREAD_STACK_BYTES,
+};
 use crate::tokenizer::{QwenTokenizer, TokenCodec};
 
 const SMOOTH_TAIL_MOE_TOKEN_COUNTS: [usize; 8] = [32, 64, 128, 256, 512, 1024, 2048, 4096];
@@ -204,8 +206,9 @@ pub async fn serve(options: ServeOptions) -> Result<()> {
     if !provider_path.is_file() {
         bail!("provider DLL does not exist: {}", provider_path.display());
     }
-    if options.max_model_len == 0 || options.max_model_len > 262_144 {
-        bail!("--max-model-len must be between 1 and 262144");
+    let maximum_context = maximum_context_tokens();
+    if options.max_model_len == 0 || options.max_model_len > maximum_context {
+        bail!("--max-model-len must be between 1 and {maximum_context}");
     }
     if options.max_queue_depth > 4096 {
         bail!("--max-queue-depth must be between 0 and 4096");

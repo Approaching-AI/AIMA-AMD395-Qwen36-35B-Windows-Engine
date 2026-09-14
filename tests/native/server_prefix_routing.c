@@ -97,6 +97,25 @@ static void request(qrt_status_t expected, size_t expected_output) {
 }
 
 int main(void) {
+    const size_t context_cases[] = {0u, 1u, 262144u, 263168u, 263680u, 263681u, SIZE_MAX};
+    size_t case_index;
+    assert(QRT_QWEN36_MAX_POSITION_EMBEDDINGS == 262144u);
+    assert(qrt_server_max_context_tokens_v1() == 263680u);
+    for (case_index = 0u; case_index < sizeof(context_cases) / sizeof(context_cases[0]); ++case_index) {
+        const size_t context = context_cases[case_index];
+        qrt_server_engine_t *created = NULL;
+        qrt_server_load_report_v1_t report;
+        const qrt_status_t status = qrt_server_engine_create_v1("model", "provider", context, &created, &report);
+        assert(created == NULL);
+        if (context == 0u || context > 263680u) {
+            assert(status == QRT_STATUS_INVALID_ARGUMENT);
+        } else {
+            /* This host harness compiles the actual non-Windows bridge.
+             * A valid request reaches its explicit platform rejection. */
+            assert(status == QRT_STATUS_UNSUPPORTED);
+            assert(strcmp(report.failure_stage, "provider_platform") == 0);
+        }
+    }
     /* Repeated overlapping requests cannot create a cache in the bridge.
      * There is deliberately no nonstream/out1 seed API stub to link against. */
     reset();

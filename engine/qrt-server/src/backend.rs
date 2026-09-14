@@ -179,6 +179,8 @@ struct QrtTokenStreamEvent {
 type QrtTokenCallback = unsafe extern "C" fn(*mut c_void, *const QrtTokenStreamEvent) -> c_int;
 
 unsafe extern "C" {
+    fn qrt_server_max_context_tokens_v1() -> usize;
+
     fn qrt_server_engine_create_v1(
         model_path: *const c_char,
         provider_dll: *const c_char,
@@ -250,6 +252,11 @@ pub struct NativeBackend {
     engine: NonNull<QrtServerEngine>,
     request_lock: Mutex<()>,
     load_metrics: LoadMetrics,
+}
+
+pub fn maximum_context_tokens() -> usize {
+    // The bridge returns its compiled request limit without loading an engine.
+    unsafe { qrt_server_max_context_tokens_v1() }
 }
 
 // The C engine owns no thread-local Rust state. Its public request entry is

@@ -37,6 +37,7 @@ fn main() {
     }
     for header in [
         "qrt.h",
+        "qrt_context_limits.h",
         "qwen36_baseline.h",
         "qrt_server_bridge.h",
         "qrt_prefix_logit.h",

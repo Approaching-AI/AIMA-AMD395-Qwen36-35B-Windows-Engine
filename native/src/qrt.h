@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "qrt_context_limits.h"
 
 #ifdef QRT_STATIC
 #define QRT_API
