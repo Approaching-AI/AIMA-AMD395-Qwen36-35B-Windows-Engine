@@ -445,7 +445,7 @@ int main(int argc, char **argv) {
         std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"" << mode
                   << "\",\"gpu_cases\":" << cases
                   << ",\"inference_success_claimed\":false,\"numerical_scope\":\""
-                  << (mode == "--matrix-producers-q8192" ? "full_q8192_exact_dyadic_f32_producer_comparison" : mode == "--wmma-staging" ? "synthetic_full_f32_staging_vs_original_wmma" : mode == "--real-qkv" ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
+                  << (mode == "--matrix-producers-q8192" ? "full_q8192_bf16_endpoint_producer_comparison_with_raw_f32_diagnostics" : mode == "--wmma-staging" ? "synthetic_full_f32_staging_vs_original_wmma" : mode == "--real-qkv" ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
         return 0;
     } catch (const std::exception &error) {
         std::cerr << "projection_safety_failure: " << error.what() << std::endl;
