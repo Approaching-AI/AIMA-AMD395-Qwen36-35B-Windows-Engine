@@ -67,6 +67,9 @@ template<class... T> int launch_selected_bf16_projection_hawkeye_midpoint_correc
 namespace qrt_out_matrix_shadow {
 template<class... T> int run(T...) { return hipGetLastError(); }
 }
+namespace qrt_out_l1_shadow {
+template<class... T> int run(T...) { return hipGetLastError(); }
+}
 ''' + actual + r'''
 int main() {
     uint16_t data = 0; std::string stage, failure;
@@ -80,6 +83,7 @@ int main() {
     };
     if (!run()) return 1;
     unsigned original_allocations = allocations;
+    const unsigned successful_status_calls = status_calls;
     if (!run() || allocations != original_allocations) return 2;
     matrix_pass = false;
     if (run()) return 3;
@@ -89,7 +93,7 @@ int main() {
         if (run()) return 4;
     }
     fail_allocation = 0;
-    for (unsigned step : {1u, 2u, 3u, 4u, 5u}) {
+    for (unsigned step = 1u; step <= successful_status_calls; ++step) {
         fail_status = step;
         if (run()) return 5;
     }
