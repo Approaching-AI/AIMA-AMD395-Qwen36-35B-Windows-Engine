@@ -247,6 +247,29 @@ No product, retained-performance or release acceptance follows. Evidence:
 `benchmarks/correctness/scalar-integer-qk-20260914.json`, SHA256
 `edd783d3e4b8392c7264dd7f5ec8f3497428f2497eb34a0c96a7c426621b6656`.
 
+Lossless prepared product-pair QK at `921da8a` preserves every captured
+q7169 score but remains slower than selected prepared QK. Completed
+preparation-plus-query medians are 274.8766 ms for selected QK and
+448.2824 / 445.0088 / 442.9941 ms for paired K64 / K128 / K256 windows.
+Keep the selected product dispatcher.
+
+Each K16 row occupies 36 bytes with paired exponent/significand halfwords and
+a separate sign mask. Packed integer multiply/max preserve original BF16
+products, exponent alignment and raw carry normalization. Every BF16 encoding
+roundtrips. Host checks cover 1048576 edge/random product pairs, 1048576 packed
+maximum pairs, 8000000 group products and 500000 raw carried states. Native
+packed arithmetic covers every BF16 encoding against 16 controls and 65536
+raw states; generated QK checks cover 131060928 scores and 5120 CPU dots. Each
+of four complete captured variants checks 1673986112 raw scores over four
+executions and 228 CPU dots. All encodings, guards, unused tails and immutable
+inputs pass. Query encoding is timed per slab, key encoding once.
+
+Local C smoke, 391 Python tests with two skips and hygiene pass; unchanged
+Rust/Cargo files reuse the prior 47 tests and clippy with explicit diff/hashes.
+No product, retained-performance or release acceptance follows. Evidence:
+`benchmarks/correctness/prepared-integer-pairs-qk-20260914.json`, SHA256
+`bf984c9f4e1096ef4aef81969fcc0d28b83c7af9b70ba06410c36b32169213f5`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
