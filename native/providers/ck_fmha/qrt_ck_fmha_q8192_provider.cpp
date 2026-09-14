@@ -385,6 +385,18 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(profile_option,"1") == 0;
     if (profile_stages && (selective_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
         return int(hipErrorInvalidValue);
+    const char* submission_option = std::getenv("QRT_CK_SM121_SUBMIT_SLABS");
+    unsigned requested_submission_slabs = 1u;
+    if (submission_option && *submission_option) {
+        if (std::strcmp(submission_option, "1") == 0) requested_submission_slabs = 1u;
+        else if (std::strcmp(submission_option, "8") == 0) requested_submission_slabs = 8u;
+        else if (std::strcmp(submission_option, "64") == 0) requested_submission_slabs = 64u;
+        else return int(hipErrorInvalidValue);
+    }
+    const unsigned submission_slabs = query_start == 0u && query_count > 1u && query_count <= 8192u
+        ? requested_submission_slabs : 1u;
+    if (submission_slabs > 1u && (profile_stages || selective_qk ||
+        (compact_pv_mode != 1u && compact_pv_mode != 3u))) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
@@ -427,8 +439,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         entry_wait_ns = elapsed_ns(begin, profile.last);
     }
     // Retain the original q8192 deadline while accounting for the additional
-    // key history consumed by long-prefix query windows. Every batch still
-    // drains before the progress check, and the outer process has its own bound.
+    // key history consumed by long-prefix query windows. Completion groups
+    // drain before the progress check, and the outer process has its own bound.
     const qrt_sm121_attention_deadline::Budget deadline{
         query_start, query_count, kSm121MaxTokens};
     constexpr unsigned deadline_window_queries = decltype(deadline)::window_queries;
@@ -451,7 +463,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const unsigned int query_batch = wider_slab ? requested_batch :
         matrix_mode || tiled_qk ? kSm121MatrixQueryBatch : kSm121QueryBatch;
     // The existing long-context scratch already covers a 128-query q8192 slab.
-    // Keep the same allocation size, ownership lock and completion boundaries.
+    // Keep the same allocation size and ownership lock. Queued slabs reuse it
+    // only after the preceding PV replay on the same stream has consumed it.
     static_assert(kSm121MantissaElements >=
         size_t(128u) * kQueryHeads * (8192u + 8192u / 2u + 256u + 1u + 2u * kHeadDim) + 1u);
     if (expanded_scratch && !g_sm121_mantissa_scores) {
@@ -519,6 +532,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         if (status != int(hipSuccess)) return status;
         preparation_ns = elapsed_ns(profile.last, std::chrono::steady_clock::now());
     }
+    unsigned pending_slabs = 0u, completion_groups = 0u;
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
         if (profile_stages) profile.last = std::chrono::steady_clock::now();
         if (selective_qk) {
@@ -542,16 +556,31 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             prepared_decoded_qk ? &decoded_producer : nullptr);
         }
         if (status != int(hipSuccess)) {
-            // QK can already be queued if submitting its PV consumer failed.
+            // Earlier slabs and this QK may be queued when a consumer fails.
             (void)hipStreamSynchronize(stream);
             return status;
         }
+        ++pending_slabs;
+        const unsigned submitted_queries = offset + std::min(query_batch, query_count - offset);
+        if (pending_slabs < submission_slabs && submitted_queries < query_count &&
+            submitted_queries % deadline_window_queries != 0u) {
+            // Bound host submission as well as completed GPU work. A slow or
+            // blocking submission forces a drain before reporting a timeout.
+            const auto submitted_at = std::chrono::steady_clock::now();
+            const double submitted_call_seconds = std::chrono::duration<double>(submitted_at - begin).count();
+            const double submitted_window_seconds = std::chrono::duration<double>(submitted_at - window_begin).count();
+            if (std::isfinite(submitted_call_seconds) && std::isfinite(submitted_window_seconds) &&
+                submitted_call_seconds <= call_deadline_seconds &&
+                submitted_window_seconds <= deadline.window_limit_seconds(submitted_queries)) continue;
+        }
         status = int(hipStreamSynchronize(stream));
         if (status != int(hipSuccess)) return status;
+        pending_slabs = 0u;
+        ++completion_groups;
         const auto now = std::chrono::steady_clock::now();
         const double call_seconds = std::chrono::duration<double>(now - begin).count();
         const double window_seconds = std::chrono::duration<double>(now - window_begin).count();
-        const unsigned completed_queries = offset + std::min(query_batch, query_count - offset);
+        const unsigned completed_queries = submitted_queries;
         const double window_limit_seconds = deadline.window_limit_seconds(completed_queries);
         if (!std::isfinite(call_seconds) || !std::isfinite(window_seconds) ||
             call_seconds > call_deadline_seconds || window_seconds > window_limit_seconds) {
@@ -562,6 +591,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         }
         if (completed_queries % deadline_window_queries == 0u) window_begin = now;
     }
+    if (submission_slabs > 1u)
+        std::fprintf(stderr,"SM121_SUBMIT_SLABS query_start=%u query_count=%u query_batch=%u maximum_slabs_per_completion=%u completion_groups=%u same_stream=1 workspace_reused=1 stream_drained=1\n",
+            query_start,query_count,query_batch,submission_slabs,completion_groups);
     if (profile_stages) {
         const uint64_t total_ns = elapsed_ns(begin, std::chrono::steady_clock::now());
         uint64_t accounted_ns = entry_wait_ns + preparation_ns;

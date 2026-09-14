@@ -53,6 +53,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
 #include <cstring>
 #include <mutex>
 #include <set>
+#include <array>
+#include <vector>
 using hipStream_t = void*;
 enum hipError_t { hipSuccess, hipErrorUnknown, hipErrorInvalidValue, hipErrorLaunchTimeOut };
 constexpr unsigned kQueryHeads = 16, kKvHeads = 2, kHeadDim = 256;
@@ -101,6 +103,9 @@ unsigned value_transposes = 0;
 bool fail_value_transpose = false;
 unsigned preparations = 0;
 unsigned clock_ms = 0, sync_ms = 0;
+bool track_submissions = false;
+unsigned pending_submissions = 0, maximum_pending = 0, submit_ms = 0;
+std::vector<std::array<unsigned,3>> submitted_ranges;
 std::chrono::steady_clock::time_point mock_now() {
     return std::chrono::steady_clock::time_point(std::chrono::milliseconds(clock_ms));
 }
@@ -115,10 +120,12 @@ hipError_t hipMalloc(void** pointer, size_t) {
     return hipSuccess;
 }
 hipError_t hipFree(void* pointer) {
+    if (track_submissions && pending_submissions) std::abort();
     if (pointer && live.erase(pointer) != 1u) std::abort();
     return hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) {
+    pending_submissions = 0u;
     ++syncs; clock_ms += sync_ms;
     return syncs == fail_sync ? hipErrorUnknown : hipSuccess;
 }
@@ -169,7 +176,7 @@ int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
     return fail_transpose ? hipErrorUnknown : hipSuccess;
 }
 int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hipStream_t stream,
-                   unsigned start, unsigned count, unsigned, const unsigned char*,
+                   unsigned start, unsigned count, unsigned output_start, const unsigned char*,
                    float*, float*, bool, const unsigned char*, unsigned layout,
                    float* scores, size_t elements, void*, void*, const uint16_t* prepared,
                    unsigned key_stride, bool = false, const void* = nullptr,
@@ -180,6 +187,12 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    bool direct_pv_operands = false, bool float_alignment_qk = false,
                    unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr) {
     ++queries;
+    if (track_submissions) {
+        ++pending_submissions;
+        maximum_pending = std::max(maximum_pending,pending_submissions);
+        submitted_ranges.push_back({start,count,output_start});
+        clock_ms += submit_ms;
+    }
     if(producer) {
         const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
         if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
@@ -265,6 +278,9 @@ void reset() {
     preparations = 0; fail_preparation = false;
     value_transposes = 0; fail_value_transpose = false;
     clock_ms = sync_ms = 0;
+    track_submissions = false;
+    pending_submissions = maximum_pending = submit_ms = 0u;
+    submitted_ranges.clear();
 }
 int main() {
     for (unsigned failure = 1; failure <= 4; ++failure) {
@@ -694,6 +710,80 @@ int main() {
     if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 143;
     unsetenv("QRT_CK_SM121_PREPARED_DECODED_QK");
     unsetenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
+    // Exercise actual provider scheduling with original kernel arguments and
+    // workspace ownership, including tails and both exact score producers.
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","1",1);
+    for(const char* bad : {"0","2","7","65","-1","true","8junk"," 8"}) {
+        reset();setenv("QRT_CK_SM121_SUBMIT_SLABS",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 144;
+    }
+    for(const char* mode : {"1","3"}) for(const char* decoded : {"0","1"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        setenv("QRT_CK_SM121_PREPARED_DECODED_QK",decoded,1);
+        for(const char* batch : {"32","64","128"}) for(const char* cadence : {"1","8","64"}) {
+            setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH",batch,1);
+            setenv("QRT_CK_SM121_SUBMIT_SLABS",cadence,1);
+            const unsigned batch_size=unsigned(std::atoi(batch)), group=unsigned(std::atoi(cadence));
+            for(unsigned tokens : {2u,128u,129u,1023u,1024u,1025u,7169u,8192u}) {
+                reset();track_submissions=true;
+                const unsigned batches=(tokens+batch_size-1u)/batch_size;
+                if(launch(0,tokens)!=hipSuccess || queries!=batches ||
+                   syncs!=(batches+group-1u)/group || maximum_pending!=std::min(group,batches) ||
+                   pending_submissions || allocations!=(*decoded=='1'?6u:5u) ||
+                   decoded_queries!=(*decoded=='1'?batches:0u)) return 145;
+                unsigned offset=0u;
+                for(const auto& range:submitted_ranges) {
+                    const unsigned count=std::min(batch_size,tokens-offset);
+                    if(range!=std::array<unsigned,3>{offset,count,offset}) return 146;
+                    offset+=count;
+                }
+                if(offset!=tokens) return 147;
+            }
+        }
+    }
+    setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    setenv("QRT_CK_SM121_SUBMIT_SLABS","8",1);
+    for(unsigned failure=1u;failure<=64u;++failure) {
+        reset();track_submissions=true;fail_query=failure;
+        if(launch(0,8192)!=hipErrorUnknown || queries!=failure || syncs!=(failure+7u)/8u ||
+           pending_submissions || maximum_pending>8u) return 148;
+    }
+    for(unsigned failure=1u;failure<=8u;++failure) {
+        reset();track_submissions=true;fail_sync=failure;
+        if(launch(0,8192)!=hipErrorUnknown || queries!=failure*8u || syncs!=failure ||
+           pending_submissions || maximum_pending!=8u) return 149;
+    }
+    reset();track_submissions=true;fail_decoded_prepare=1u;
+    if(launch(0,8192)!=hipErrorUnknown || queries || syncs!=1u || pending_submissions) return 150;
+    reset();track_submissions=true;submit_ms=3000u;
+    if(launch(0,8192)!=hipErrorLaunchTimeOut || queries!=7u || syncs!=1u ||
+       pending_submissions || clock_ms!=21000u) return 151;
+    reset();track_submissions=true;sync_ms=20001u;
+    if(launch(0,8192)!=hipErrorLaunchTimeOut || queries!=8u || syncs!=1u || pending_submissions) return 152;
+    reset();track_submissions=true;sync_ms=20000u;
+    if(launch(0,1024)!=hipSuccess || queries!=8u || syncs!=1u || pending_submissions) return 153;
+    // New batching is inert for decode, suffix and larger calls.
+    setenv("QRT_CK_SM121_SUBMIT_SLABS","64",1);
+    for(const auto& shape : {std::array<unsigned,2>{0,1},{0,8193},{0,17408},{128,128},{65536,1024}}) {
+        reset();track_submissions=true;
+        if(launch(shape[0],shape[1])!=hipSuccess || queries!=syncs || maximum_pending!=1u ||
+           pending_submissions || decoded_queries) return 154;
+    }
+    reset();setenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES","1",1);
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 155;
+    unsetenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
+    unsetenv("QRT_CK_SM121_PREPARED_DECODED_QK");
+    for(const char* mode : {"0","2"}) {
+        reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 156;
+    }
+    unsetenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    reset();setenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY","1",1);
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 157;
+    unsetenv("QRT_CK_SM121_SELECTIVE_QK_PROBABILITY");
+    unsetenv("QRT_CK_SM121_SUBMIT_SLABS");
     unsetenv("QRT_CK_SM121_PREFILL_QUERY_BATCH");
     unsetenv("QRT_CK_SM121_COMPACT_PV_REPLAY");
     reset();unsetenv("QRT_CK_SM121_TILED_EXACT_QK");
