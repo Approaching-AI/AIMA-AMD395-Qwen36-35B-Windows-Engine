@@ -297,6 +297,12 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scalar_projection.h')).Hash.ToLowerInvariant()
     sm121_scaled_fallback_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scaled_fallback.h')).Hash.ToLowerInvariant()
+    sm121_staged_half_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_staged_half_projection.h')).Hash.ToLowerInvariant()
+    sm121_scaled_half_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scaled_half_projection.h')).Hash.ToLowerInvariant()
+    sm121_scaled_half_products_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scaled_half_products.h')).Hash.ToLowerInvariant()
     sm121_scaled_projection_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_scaled_projection.h')).Hash.ToLowerInvariant()
     sm121_scaled_significand_header_sha256 = (Get-FileHash -Algorithm SHA256 `

@@ -4,7 +4,7 @@
 
 // A lane holds only its four operands from each side of a K16 group.
 // Prefetch several compact groups before computing their ordered carries.
-// This is a component experiment; no product dispatcher selects this route.
+// The caller owns preparation and bounded replay dispatch.
 namespace qrt_sm121_staged_half_projection {
 namespace half=qrt_sm121_scaled_half_products;
 using Row=half::Row;
