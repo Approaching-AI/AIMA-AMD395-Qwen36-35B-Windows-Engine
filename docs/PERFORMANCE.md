@@ -18,6 +18,25 @@ and soak gates. Release remains unqualified. Evidence:
 `benchmarks/correctness/prepared-decoded-qk-product-20260914.json`, SHA256
 `bc262fd953a27d67d8a03519de937bf1cbca108ec784d63d33e9d5c1e1f34a1b`.
 
+Scaled-significand fallback at `912e620` passes complete same-DLL q8192
+comparisons without a useful TTFT gain. Both flags off/on record
+34105.1229 / 34104.6221 ms, a 0.5008 ms difference; TPOT is
+101.453644 / 101.873315 ms and load is 21286.1193 / 21274.0603 ms.
+Both runs preserve all 512 GB10 tokens and actual callbacks, first 144/raw
+10.375. Keep the original fallback and the selected whole/MoE stack above.
+The candidate reuses existing row flag storage for two eligibility bits,
+preserves fast scalar-float rows, substitutes exact scaled significands only
+for other ordinary BF16 rows, and retains special/subnormal fallback.
+The original FP64 norm reduction, candidate admission and workspace sizes
+are unchanged. Eight retained and 18 new native reports pass, including
+24985600 routed raw outputs, 22615040 shared BF16 endpoints and 507677 selected
+scaled-fallback cells. Test-only `1709189` repairs missing host mock entries
+and checks actual dispatch ownership, shape isolation and failure cleanup;
+full local checks pass. Both builds and the complete product boundary are
+attached. No repeatability, performance or release acceptance follows.
+Evidence: `benchmarks/correctness/scaled-fallback-product-20260914.json`, SHA256
+`76b0a207a31e0744236bd63c3ce566cae35b378ffe4e998ad33978ca96da2877`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
