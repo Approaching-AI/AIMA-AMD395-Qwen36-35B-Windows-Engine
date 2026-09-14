@@ -997,6 +997,77 @@ __global__ void blackwell_parallel_probability_kernel(
         scales[size_t(row) * (tile_stride + 1u) + tile_stride] = running_sum;
 }
 
+// Three phases share one bounded row: all K32 maxima, independent probability
+// waves, then the original ordered denominator recurrence. Unlike the earlier
+// eight-wave loop, CTA barriers do not occur between every batch of eight
+// tiles. Callers restrict this component to score_stride<=8192.
+__global__ void blackwell_staged_probability_kernel(
+    const float* scores, uint16_t* probabilities, float* scales,
+    unsigned query_start, unsigned score_stride,
+    const unsigned char* exp2_table, bool vllm_sum) {
+    constexpr unsigned waves = kThreads / 32u, capacity = 8192u / 32u;
+    const unsigned lane = threadIdx.x % 32u, wave = threadIdx.x / 32u;
+    const unsigned row = blockIdx.y * kQueryHeads + blockIdx.x;
+    const unsigned tokens = query_start + blockIdx.y + 1u;
+    const unsigned tile_count = (tokens + 31u) / 32u;
+    const unsigned tile_stride = (score_stride + 31u) / 32u;
+    __shared__ float maxima[capacity], alphas[capacity], sums[capacity], block_maxima[waves];
+    for (unsigned tile = wave; tile < tile_count; tile += waves) {
+        const unsigned key = tile * 32u + lane;
+        float maximum = key < tokens ? scores[size_t(row) * score_stride + key] : -INFINITY;
+        for (unsigned mask = 16u; mask; mask >>= 1u)
+            maximum = fmaxf(maximum, __shfl_xor(maximum, mask, 32u));
+        if (!lane) maxima[tile] = maximum;
+    }
+    __syncthreads();
+    // Maxima can be scanned associatively; no sums are reassociated.
+    float prefix = threadIdx.x < tile_count ? maxima[threadIdx.x] : -INFINITY;
+    for (unsigned offset = 1u; offset < 32u; offset <<= 1u) {
+        const float previous = __shfl_up(prefix, offset, 32u);
+        if (lane >= offset) prefix = fmaxf(previous, prefix);
+    }
+    if (lane == 31u) block_maxima[wave] = prefix;
+    __syncthreads();
+    if (!threadIdx.x) {
+        float preceding = -INFINITY;
+        for (unsigned i = 0u; i < waves; ++i) {
+            const float current = block_maxima[i];
+            block_maxima[i] = preceding;
+            preceding = fmaxf(preceding, current);
+        }
+    }
+    __syncthreads();
+    if (threadIdx.x < tile_count) maxima[threadIdx.x] = fmaxf(block_maxima[wave], prefix);
+    __syncthreads();
+    for (unsigned tile = wave; tile < tile_count; tile += waves) {
+        const unsigned key = tile * 32u + lane;
+        const float next_max = maxima[tile];
+        const float previous_max = tile ? maxima[tile - 1u] : -INFINITY;
+        const float alpha = blackwell_attention_exp(previous_max - next_max, exp2_table);
+        const float score = key < tokens ? scores[size_t(row) * score_stride + key] : -INFINITY;
+        const float probability = key < tokens ? blackwell_attention_exp(score - next_max, exp2_table) : 0.0f;
+        if (key < score_stride) probabilities[size_t(row) * score_stride + key] = f32_to_bf16(probability);
+        float sum = probability;
+        if (vllm_sum) {
+            constexpr unsigned order[] = {1u, 4u, 2u, 16u, 8u};
+#pragma unroll
+            for (unsigned step = 0u; step < 5u; ++step) sum += __shfl_xor(sum, order[step], 32u);
+        } else {
+            for (unsigned mask = 16u; mask; mask >>= 1u) sum += __shfl_xor(sum, mask, 32u);
+        }
+        if (!lane) { alphas[tile] = alpha; sums[tile] = sum; }
+    }
+    __syncthreads();
+    if (!threadIdx.x) {
+        float running_sum = 1.0f;
+        for (unsigned tile = 0u; tile < tile_count; ++tile) {
+            running_sum = running_sum * alphas[tile] + sums[tile];
+            scales[size_t(row) * (tile_stride + 1u) + tile] = alphas[tile];
+        }
+        scales[size_t(row) * (tile_stride + 1u) + tile_stride] = running_sum;
+    }
+}
+
 __global__ void blackwell_probability_value_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned int query_start, unsigned int output_start,
@@ -2088,7 +2159,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
     unsigned tiled_qk_lanes = 1u, unsigned tiled_qk_rows_per_thread = 1u,
     bool final_pv_bound = false, bool direct_pv_operands = false,
-    bool float_alignment_qk = false, unsigned float_pv_lanes = 0u) {
+    bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
+    bool staged_probability = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= 262144u ||
         query_count > 262144u - query_start || output_start >= 262144u ||
@@ -2098,6 +2170,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if ((memory_layout >= 17u && memory_layout <= 21u) && (!prepared_values || prepared_value_tokens < query_start + query_count ||
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
+    if (staged_probability && ((memory_layout != 22u && memory_layout != 24u) ||
+            query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if (final_pv_bound && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
     if (direct_pv_operands && ((memory_layout != 22u && memory_layout != 24u) ||
@@ -2233,7 +2307,11 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         if (split_separate_probability(memory_layout)) {
             auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
             auto* scales = reinterpret_cast<float*>(probabilities + cells);
-            if (memory_layout == 24u) {
+            if (staged_probability) {
+                hipLaunchKernelGGL(blackwell_staged_probability_kernel,
+                    dim3(kQueryHeads, query_count), dim3(kThreads), 0u, stream,
+                    score_scratch, probabilities, scales, query_start, stride, exp2_table, vllm_sum);
+            } else if (memory_layout == 24u) {
                 hipLaunchKernelGGL(blackwell_parallel_probability_kernel,
                     dim3(kQueryHeads, query_count), dim3(kThreads), 0u, stream,
                     score_scratch, probabilities, scales, query_start, stride, exp2_table, vllm_sum);

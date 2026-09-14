@@ -357,6 +357,11 @@ int main(int argc, char** argv) {
                 (memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
             throw std::runtime_error("invalid prevalidated float PV route");
         std::fprintf(stderr,"PREVALIDATED_FLOAT_PV lanes=%u original_k16=1 reused_score_scratch=1\n",float_pv_lanes);
+        const char* staged_option = std::getenv("QRT_ATTENTION_REPLAY_STAGED_PROBABILITY");
+        const bool staged_probability = staged_option && *staged_option ? parse(staged_option,1u)!=0u : false;
+        if(staged_probability && ((memory_layout!=22u && memory_layout!=24u) || start+count>8192u))
+            throw std::runtime_error("staged probability requires bounded global selective PV replay");
+        std::fprintf(stderr,"STAGED_PROBABILITY enabled=%u ordered_denominator=1 maximum_tiles=256\n",unsigned(staged_probability));
         const char* float_qk_option = std::getenv("QRT_ATTENTION_REPLAY_FLOAT_ALIGNMENT_QK");
         const bool float_alignment_qk = float_qk_option && *float_qk_option ? parse(float_qk_option,1u)!=0u : false;
         std::fprintf(stderr,"FLOAT_ALIGNMENT_QK enabled=%u\n",unsigned(float_alignment_qk));
@@ -539,7 +544,7 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
-                direct_pv_operands,float_alignment_qk,float_pv_lanes)));
+                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (memory_layout == 22u || memory_layout == 24u) {
