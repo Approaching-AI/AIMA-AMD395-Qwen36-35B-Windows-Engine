@@ -223,6 +223,11 @@ struct Sm121ExtendedWorkspace {
 };
 Sm121ExtendedWorkspace g_sm121_extended;
 constexpr size_t kSm121TransposedValueElements = size_t(8192u) * kKvHeads * kHeadDim;
+struct Sm121LongValueWorkspace {
+    uint16_t* cells = nullptr;
+    unsigned capacity_tokens = 0u;
+};
+Sm121LongValueWorkspace g_sm121_long_values;
 constexpr size_t kSm121SelectiveQkElements = size_t(128u) * kQueryHeads * (2u * 8192u + 256u) + 1u;
 
 struct Sm121SuffixWorkspace {
@@ -369,8 +374,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const char* value_option = std::getenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE");
     if (value_option && *value_option && std::strcmp(value_option,"0") && std::strcmp(value_option,"1"))
         return int(hipErrorInvalidValue);
+    const char* long_value_option = std::getenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE");
+    if (long_value_option && *long_value_option && std::strcmp(long_value_option,"0") &&
+        std::strcmp(long_value_option,"1")) return int(hipErrorInvalidValue);
+    const bool long_transpose_value = long_value_option && std::strcmp(long_value_option,"1")==0 &&
+        query_start+query_count>8192u;
     const bool transpose_value = value_option && std::strcmp(value_option,"1")==0 &&
-        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+        (compact_pv_mode==1u || compact_pv_mode==3u) &&
+        (query_start+query_count<=8192u || long_transpose_value);
     const char* final_bound_option = std::getenv("QRT_CK_SM121_FINAL_PV_BOUND");
     if (final_bound_option && *final_bound_option && std::strcmp(final_bound_option,"0") &&
         std::strcmp(final_bound_option,"1")) return int(hipErrorInvalidValue);
@@ -527,11 +538,28 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             kSm121SelectiveQkElements * sizeof(float)));
         if (status != int(hipSuccess)) { g_sm121_selective_qk = nullptr; return status; }
     }
-    if (transpose_value && !g_sm121_transposed_values) {
+    if (transpose_value && !long_transpose_value && !g_sm121_transposed_values) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_transposed_values),
             kSm121TransposedValueElements * sizeof(uint16_t)));
         if (status != int(hipSuccess)) { g_sm121_transposed_values = nullptr; return status; }
     }
+    if (transpose_value && long_transpose_value && g_sm121_long_values.capacity_tokens < key_stride) {
+        // Keep the short owner fixed. Publish growth only after allocation
+        // succeeds; a failed growth preserves the previous reusable owner.
+        const unsigned capacity = std::min(kSm121MaxTokens, (key_stride + 8191u) / 8192u * 8192u);
+        const size_t bytes = size_t(capacity) * kKvHeads * kHeadDim * sizeof(uint16_t);
+        uint16_t* next = nullptr;
+        status = int(hipMalloc(reinterpret_cast<void**>(&next), bytes));
+        if (status != int(hipSuccess)) return status;
+        const unsigned previous = g_sm121_long_values.capacity_tokens;
+        (void)hipFree(g_sm121_long_values.cells);
+        g_sm121_long_values = Sm121LongValueWorkspace{next, capacity};
+        std::fprintf(stderr, "SM121_LONG_PV_VALUE_WORKSPACE previous_tokens=%u capacity_tokens=%u workspace_bytes=%zu independent_short_owner=1\n",
+            previous, capacity, bytes);
+    }
+    uint16_t* transposed_value = long_transpose_value ? g_sm121_long_values.cells : g_sm121_transposed_values;
+    const unsigned transposed_value_capacity = long_transpose_value ? g_sm121_long_values.capacity_tokens : 8192u;
+    const size_t transposed_value_elements = size_t(transposed_value_capacity) * kKvHeads * kHeadDim;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
         qrt_prepared_decoded_qk::launch_workspace};
@@ -572,8 +600,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (transpose_value) {
         // Refresh each layer/call under the same workspace lease. The original
         // token-major V continues to feed the approximate matrix producer.
-        status = qrt_blackwell_attention::transpose_keys(v, g_sm121_transposed_values,
-            kSm121TransposedValueElements, key_stride, stream);
+        status = qrt_blackwell_attention::transpose_keys(v, transposed_value,
+            transposed_value_elements, key_stride, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
     if (profile_stages) {
@@ -589,7 +617,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
                 g_sm121_exp2, g_sm121_rcp, memory_layout, mantissa_scores, mantissa_elements,
                 g_sm121_selective_qk, kSm121SelectiveQkElements, transposed_keys, key_stride,
-                transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
+                transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
                 final_pv_bound, direct_pv_operands);
         } else {
         status = qrt_blackwell_attention::launch_queries(q, k, v, output, stream,
@@ -600,7 +628,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             independent_dots ? transposed_keys : nullptr, key_stride, native_products, nullptr,
             prepared_value ? prepared_values : nullptr, prepared_value ? key_stride : 0u,
             nullptr, profile_stages ? &observer : nullptr,
-            transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
+            transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
             prepared_decoded_qk ? &decoded_producer : nullptr, all_pv_replay);
         }
@@ -667,8 +695,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             double(total_ns) / 1e6, batches * (all_pv_replay ? 3u : 5u), unsigned(all_pv_replay));
     }
     if (transpose_value)
-        std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1\n",
-            query_start,query_count,key_stride,kSm121TransposedValueElements*sizeof(uint16_t));
+        std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1 capacity_tokens=%u long_workspace=%u\n",
+            query_start,query_count,key_stride,transposed_value_elements*sizeof(uint16_t),
+            transposed_value_capacity,unsigned(long_transpose_value));
     if (final_pv_bound)
         std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",
             query_start,query_count);
@@ -1559,6 +1588,8 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         (void)hipFree(g_sm121_selective_qk);
         (void)hipFree(g_sm121_transposed_keys);
         (void)hipFree(g_sm121_transposed_values);
+        (void)hipFree(g_sm121_long_values.cells);
+        g_sm121_long_values = Sm121LongValueWorkspace{};
         (void)hipFree(g_sm121_prepared_values);
         (void)hipFree(g_sm121_prepared_decoded_qk);
         (void)hipFree(g_sm121_extended.prepared_values);

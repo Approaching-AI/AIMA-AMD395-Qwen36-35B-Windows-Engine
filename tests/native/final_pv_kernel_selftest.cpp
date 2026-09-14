@@ -40,7 +40,7 @@ template<class T> void immutable(Device& d, const std::vector<T>& expected) {
     if (std::memcmp(actual.data(), expected.data(), actual.size() * sizeof(T))) throw std::runtime_error("input changed");
 }
 
-void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
+void run(unsigned start, unsigned queries, unsigned mode, Device& rcp, bool transpose = false) {
     constexpr unsigned guard=64u, output_start=3u;
     const unsigned tokens=start+queries, rows=queries*kQueryHeads, cells=rows*kHeadDim, tiles=(tokens+31u)/32u;
     std::vector<uint16_t> value(size_t(tokens)*kKvHeads*kHeadDim+2u*guard,0x5a5au);
@@ -65,6 +65,7 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     Device dout(initial.size()*4u),da(initial.size()*4u),dd(den_initial.size()*4u),de(error_initial.size()*4u);
     upload(dv,value);upload(dp,probability);upload(ds,scales);
     std::vector<float> outputs[4],accumulators[4],denominators[4],errors[4];
+    std::vector<float> compacted_control;
     double approximate_ms[4]{},compaction_replay_ms[4]{};
     for(unsigned variant=0;variant<4u;++variant) {
         upload(dout,initial);upload(da,initial);upload(dd,den_initial);upload(de,error_initial);
@@ -147,6 +148,7 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
         finish();
         compaction_replay_ms[final]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
         auto index=download<unsigned>(indices,scratch.size());auto output=download<float>(dout,initial.size());
+        if(final==2u) compacted_control=output;
         counts[final]=index[guard+cells];if(counts[final]>cells) throw std::runtime_error("invalid candidate count");
         selected[final].resize(cells,false);
         for(unsigned i=0;i<counts[final];++i) {
@@ -164,6 +166,55 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     for(unsigned i=0;i<cells;++i) if(selected[0][i] && !selected[1][i]) throw std::runtime_error("candidate set shrank");
     if(selected[0]!=selected[2] || selected[1]!=selected[3])
         throw std::runtime_error("direct operands changed candidate ownership");
+    if(transpose) {
+        std::vector<uint16_t> view(value.size(),0x5a5au);Device transposed(view.size()*2u);
+        upload(transposed,view);
+        const auto prepare_begin=std::chrono::steady_clock::now();
+        check(hipError_t(transpose_keys(dv.as<uint16_t>()+guard,transposed.as<uint16_t>()+guard,
+            size_t(tokens)*kKvHeads*kHeadDim,tokens,nullptr)));
+        finish();
+        const double transpose_ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-prepare_begin).count();
+        for(unsigned token=0;token<tokens;++token) for(unsigned feature=0;feature<kKvHeads*kHeadDim;++feature)
+            view[guard+size_t(feature)*tokens+token]=value[guard+size_t(token)*kKvHeads*kHeadDim+feature];
+        immutable(transposed,view);
+        upload(dout,initial);upload(da,initial);upload(dd,den_initial);
+        const auto all_transposed_begin=std::chrono::steady_clock::now();
+        check(hipError_t(launch_all_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
+            dout.as<float>()+guard,start,queries,output_start,tokens,rcp.as<unsigned char>(),
+            da.as<float>()+guard,dd.as<float>()+guard,nullptr,nullptr,transposed.as<uint16_t>()+guard,tokens)));
+        finish();
+        const double all_transposed_ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-all_transposed_begin).count();
+        const auto transposed_output=download<float>(dout,initial.size());
+        const auto transposed_acc=download<float>(da,initial.size()),transposed_den=download<float>(dd,den_initial.size());
+        if(std::memcmp(transposed_output.data(),exact.data(),initial.size()*4u) ||
+           std::memcmp(transposed_acc.data(),exact_acc.data(),initial.size()*4u) ||
+           std::memcmp(transposed_den.data(),exact_den.data(),den_initial.size()*4u))
+            throw std::runtime_error("transposed all-cell PV raw arithmetic or guards changed");
+        std::vector<unsigned> scratch(cells+1u+2u*guard,0xa5a5a5a5u);Device indices(scratch.size()*4u);
+        upload(indices,scratch);upload(dout,outputs[2]);upload(de,errors[2]);
+        const auto selected_begin=std::chrono::steady_clock::now();
+        check(hipError_t(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
+            dout.as<float>()+guard,start,queries,output_start,tokens,rcp.as<unsigned char>(),nullptr,nullptr,
+            de.as<float>()+guard,indices.as<unsigned>()+guard,indices.as<unsigned>()+guard+cells,nullptr,
+            nullptr,transposed.as<uint16_t>()+guard,tokens)));
+        finish();
+        const double selected_ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-selected_begin).count();
+        const auto index=download<unsigned>(indices,scratch.size());const auto output=download<float>(dout,initial.size());
+        if(index[guard+cells]!=counts[2] || std::memcmp(output.data(),compacted_control.data(),initial.size()*4u))
+            throw std::runtime_error("transposed selective PV changed raw output or candidate count");
+        std::vector<bool> candidates(cells,false);
+        for(unsigned i=0;i<counts[2];++i) {
+            const unsigned cell=index[guard+i];if(cell>=cells || candidates[cell]) throw std::runtime_error("transposed candidate ownership");
+            candidates[cell]=true;
+        }
+        if(candidates!=selected[2]) throw std::runtime_error("transposed candidate set changed");
+        for(unsigned i=0;i<index.size();++i)
+            if((i<guard || (i>=guard+counts[2] && i<guard+cells) || i>guard+cells) && index[i]!=0xa5a5a5a5u)
+                throw std::runtime_error("transposed candidate guard changed");
+        immutable(transposed,view);immutable(de,errors[2]);
+        std::printf("{\"kind\":\"long_transposed_pv_comparison\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"value_tokens\":%u,\"transposed_bytes\":%zu,\"transpose_ms\":%.9g,\"original_compaction_replay_ms\":%.9g,\"transposed_compaction_replay_ms\":%.9g,\"original_all_pv_ms\":%.9g,\"transposed_all_pv_ms\":%.9g,\"raw_bit_mismatches\":0,\"candidate_sets_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+            start,queries,mode,cells,tokens,size_t(tokens)*kKvHeads*kHeadDim*2u,transpose_ms,compaction_replay_ms[2],selected_ms,all_pv_ms,all_transposed_ms);
+    }
     immutable(dv,value);immutable(dp,probability);immutable(ds,scales);
     std::printf("{\"kind\":\"all_pv_replay_comparison\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"control_candidates\":%u,\"control_approximate_ms\":%.9g,\"control_compaction_replay_ms\":%.9g,\"all_exact_pv_ms\":%.9g,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
         start,queries,mode,cells,counts[2],approximate_ms[2],compaction_replay_ms[2],all_pv_ms);
@@ -175,14 +226,19 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
 int main(int argc,char** argv) try {
     const bool long_history=argc==3 && std::strcmp(argv[2],"--long-history")==0;
     const bool throughput=argc==3 && std::strcmp(argv[2],"--all-pv-throughput")==0;
-    if(argc!=2 && !long_history && !throughput) throw std::runtime_error("supply SHA-verified reciprocal table and optional --long-history or --all-pv-throughput");
+    const bool transposed=argc==3 && std::strcmp(argv[2],"--long-transposed")==0;
+    if(argc!=2 && !long_history && !throughput && !transposed) throw std::runtime_error("supply SHA-verified reciprocal table and optional --long-history, --all-pv-throughput or --long-transposed");
     hipDeviceProp_t properties{};check(hipGetDeviceProperties(&properties,0));
     if(std::strncmp(properties.gcnArchName,"gfx1151",7u)) throw std::runtime_error("requires gfx1151");
     std::vector<unsigned char> table(qrt_sm121_attention_rcp::table_bytes);
     std::ifstream file(argv[1],std::ios::binary);file.read(reinterpret_cast<char*>(table.data()),table.size());
     if(!file || file.peek()!=EOF || !qrt_sm121_attention_rcp::valid_layout(table.data(),table.size())) throw std::runtime_error("invalid table");
     Device rcp(table.size());upload(rcp,table);
-    if(throughput) {
+    if(transposed) {
+        for(auto shape : {std::pair<unsigned,unsigned>{8192,32},{16383,2},{65536,32},
+                          {131072,32},{263168,32},{kSplitMaxTokens-1u,1}})
+            for(unsigned mode=0;mode<3u;++mode) run(shape.first,shape.second,mode,rcp,true);
+    } else if(throughput) {
         for(unsigned start : {8192u,65536u,131072u,263168u})
             for(unsigned mode=0;mode<3u;++mode) run(start,32u,mode,rcp);
     } else if(long_history) {

@@ -21,7 +21,28 @@ are byte-identical. All 16,943,104 extended BF16 values match the original
 GB10 MRoPE constructor and a separate construction at the requested extent.
 Model configuration remains 262,144 positions. This variant reuses Windows
 CNG and the existing offline CUDA reference tools; it adds no runtime library.
-Its Windows component and real-model qualification remain pending.
+The rebuilt Windows runtime passes the real q8192/out512 and 16k-prefix
+regressions with this table; larger contexts and packaging remain pending.
+See `benchmarks/correctness/runtime-tail-q8192-20260915.json` and
+`benchmarks/correctness/runtime-tail-prefix16k-20260915.json`.
+
+## Optional long-context V transpose workspace
+
+`QRT_CK_SM121_LONG_TRANSPOSE_VALUE=1` extends the existing
+`QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE=1` operand view to long calls.
+It uses the existing HIP transpose kernel and preserves original integer
+PV arithmetic, admission bounds, candidate ownership and ordered reduction.
+The intended benefit is more contiguous reads during long-history PV replay;
+native numerical and product measurements determine whether to retain it.
+
+The independent buffer grows in 8192-token increments, capped at 264736
+tokens or 271089664 device bytes. It is allocated only for selected long
+multi-query calls and refreshed for every layer and invocation. A failed
+growth preserves the previous buffer; successful growth briefly holds both
+allocations before releasing the previous owner. The fixed 8192-token short
+buffer and single-query decode keep their existing allocation behavior.
+The option defaults off. It adds no artifact, library or runtime dependency.
+Native and real-model qualification of this option is pending.
 
 `QRT_QWEN36_Q1_SM121_ATTENTION=1` adds the original 32-token online
 attention reduction to that decode path. It uses the existing reciprocal

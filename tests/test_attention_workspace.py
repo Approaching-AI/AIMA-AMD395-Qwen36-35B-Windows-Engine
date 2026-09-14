@@ -181,6 +181,13 @@ int transpose_keys(const uint16_t*, uint16_t* prepared, size_t elements,
         if(elements != kSm121TransposedValueElements || tokens>8192u) std::abort();
         return fail_value_transpose ? hipErrorUnknown : hipSuccess;
     }
+    if (prepared == g_sm121_long_values.cells && prepared) {
+        ++value_transposes;
+        if(elements != size_t(g_sm121_long_values.capacity_tokens)*512u ||
+           tokens<=8192u || tokens>g_sm121_long_values.capacity_tokens ||
+           g_sm121_long_values.capacity_tokens>kSm121MaxTokens) std::abort();
+        return fail_value_transpose ? hipErrorUnknown : hipSuccess;
+    }
     ++transposes;
     if (prepared != (tokens>kSm121InitialTokens?g_sm121_extended.transposed_keys:g_sm121_transposed_keys) || elements < size_t(tokens) * 512u)
         std::abort();
@@ -235,8 +242,9 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     const bool expanded = (layout >= 5u && layout <= 7u) || ((layout >= 13u && layout <= 17u) || layout == 22u || layout == 23u || layout == 24u);
     const bool extended = key_stride>kSm121InitialTokens;
     if(transposed_value) {
-        if(transposed_value!=g_sm121_transposed_values || value_tokens!=key_stride ||
-           !value_transposes || value_tokens>8192u || (layout!=22u && layout!=24u)) std::abort();
+        const auto* expected_value=key_stride>8192u?g_sm121_long_values.cells:g_sm121_transposed_values;
+        if(transposed_value!=expected_value || value_tokens!=key_stride ||
+           !value_transposes || (layout!=22u && layout!=24u)) std::abort();
     } else if(value_tokens || value_transposes) std::abort();
     if (layout == 17u) {
         if (!preparations || wide != (extended?g_sm121_extended.prepared_values:g_sm121_prepared_values) || wide_tokens != key_stride) std::abort();
@@ -286,7 +294,8 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
 bool empty() {
     return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
            !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
-           !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values;
+           !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values &&
+           !g_sm121_long_values.cells && !g_sm121_long_values.capacity_tokens;
 }
 void reset() {
     qrt_ck_fmha_q8192_release();
@@ -571,6 +580,54 @@ int main() {
         if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || value_transposes) return 74;
     }
     unsetenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE");
+    setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE","1",1);
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE",bad,1);
+        if(launch(16384,65)!=hipErrorInvalidValue || allocations || queries || value_transposes) return 206;
+    }
+    for(const char* mode : {"1","2","3"}) for(const char* selected : {"0","1"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        setenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE",selected,1);
+        const bool active=*mode!='2' && *selected=='1';
+        for(unsigned start : {8192u,65536u,131072u,262144u,kSm121MaxTokens-65u}) {
+            reset();const unsigned capacity=std::min(kSm121MaxTokens,(start+65u+8191u)/8192u*8192u);
+            if(launch(start,65)!=hipSuccess || queries!=3u || syncs!=3u ||
+               value_transposes!=unsigned(active) || g_sm121_transposed_values ||
+               allocations!=(start+65u>kSm121InitialTokens?7u:5u)+unsigned(active) ||
+               g_sm121_long_values.capacity_tokens!=(active?capacity:0u)) return 207;
+        }
+    }
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    setenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE","1",1);
+    reset();fail_allocation=6u;
+    if(launch(8192,65)!=hipErrorUnknown || g_sm121_long_values.cells ||
+       g_sm121_long_values.capacity_tokens || transposes || queries || live.size()!=5u) return 208;
+    reset();
+    if(launch(8192,65)!=hipSuccess || g_sm121_long_values.capacity_tokens!=16384u) return 209;
+    const auto* retained_value=g_sm121_long_values.cells;
+    queries=transposes=value_transposes=syncs=0u;fail_allocation=allocations+1u;
+    if(launch(16384,65)!=hipErrorUnknown || g_sm121_long_values.cells!=retained_value ||
+       g_sm121_long_values.capacity_tokens!=16384u || queries || transposes || live.size()!=6u) return 210;
+    fail_allocation=0u;
+    if(launch(16384,65)!=hipSuccess || value_transposes!=1u ||
+       g_sm121_long_values.capacity_tokens!=24576u || live.size()!=6u) return 211;
+    const auto* grown_value=g_sm121_long_values.cells;
+    queries=transposes=value_transposes=syncs=0u;
+    if(launch(0,129)!=hipSuccess || !g_sm121_transposed_values ||
+       g_sm121_long_values.cells!=grown_value || value_transposes!=1u || live.size()!=7u) return 212;
+    queries=transposes=value_transposes=syncs=0u;
+    if(launch(8192,65)!=hipSuccess || g_sm121_long_values.cells!=grown_value ||
+       g_sm121_long_values.capacity_tokens!=24576u || value_transposes!=1u || live.size()!=7u) return 213;
+    reset();fail_value_transpose=true;
+    if(launch(16384,65)!=hipErrorUnknown || transposes!=1u || value_transposes!=1u || queries || syncs!=1u) return 214;
+    reset();fail_query=2u;
+    if(launch(16384,65)!=hipErrorUnknown || queries!=2u || syncs!=2u || value_transposes!=1u) return 215;
+    reset();
+    if(launch(16384,1)!=hipSuccess || value_transposes || g_sm121_long_values.cells || allocations!=4u) return 216;
+    reset();setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE","0",1);
+    if(launch(16384,65)!=hipSuccess || value_transposes || g_sm121_long_values.cells || allocations!=5u) return 217;
+    unsetenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE");
+    unsetenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE");
     for(const char* bad : {"2","-1","true","1junk"," 1"}) {
         reset();setenv("QRT_CK_SM121_FINAL_PV_BOUND",bad,1);
         if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries) return 75;
@@ -695,15 +752,17 @@ int main() {
        profile_observations!=10u || clock_ms!=14u || allocations!=5u) return 129;
     // Long all-cell PV observes only QK, probabilities and exact PV. Exercise
     // both layouts, both workspace owners and a partial final query slab.
-    for(const char* mode : {"1","3"}) for(const char* all : {"0","1"}) {
+    for(const char* mode : {"1","3"}) for(const char* all : {"0","1"}) for(const char* view : {"0","1"}) {
         setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
         setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY",all,1);
+        setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE",view,1);
+        setenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE",view,1);
         const unsigned stages=*all=='1'?3u:5u;
         for(unsigned start : {16384u,263168u}) {
             reset();sync_ms=1u;
             if(launch(start,65)!=hipSuccess || queries!=3u || syncs!=2u+3u*(stages+1u) ||
                profile_observations!=3u*stages || clock_ms!=syncs ||
-               all_pv_queries!=(*all=='1'?3u:0u) || allocations!=(start>131072u?7u:5u)) return 204;
+               all_pv_queries!=(*all=='1'?3u:0u) || allocations!=(start>131072u?7u:5u)+unsigned(*view=='1')) return 204;
             if(*all=='1') for(unsigned failure=3u;failure<=5u;++failure) {
                 reset();fail_sync=failure;
                 if(launch(start,65)!=hipErrorUnknown || queries!=1u || syncs!=failure+1u ||
@@ -712,6 +771,8 @@ int main() {
         }
     }
     unsetenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY");
+    unsetenv("QRT_CK_SM121_LONG_TRANSPOSE_VALUE");
+    unsetenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE");
     setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
     // A failed completion at any observed stage must stop dependent stages and
     // batches, while the provider drains submitted work before releasing its lock.
@@ -910,7 +971,7 @@ int main() {
             profiles = [dict(re.findall(r"(\w+)=([^ ]+)", line))
                         for line in result.stderr.splitlines()
                         if line.startswith("SM121_COMPLETED_STAGE_PROFILE ")]
-            self.assertEqual(len(profiles), 9)
+            self.assertEqual(len(profiles), 17)
             row = profiles[0]
             self.assertEqual((row["query_count"], row["batches"], row["completed_stages"]),
                              ("129", "2", "10"))
