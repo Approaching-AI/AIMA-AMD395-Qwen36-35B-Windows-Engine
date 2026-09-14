@@ -383,6 +383,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (long_direct_pv_option && *long_direct_pv_option && std::strcmp(long_direct_pv_option,"0") &&
         std::strcmp(long_direct_pv_option,"1")) return int(hipErrorInvalidValue);
     const bool long_direct_pv = long_direct_pv_option && std::strcmp(long_direct_pv_option,"1")==0;
+    const char* all_pv_option = std::getenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY");
+    if (all_pv_option && *all_pv_option && std::strcmp(all_pv_option,"0") &&
+        std::strcmp(all_pv_option,"1")) return int(hipErrorInvalidValue);
+    const bool all_pv_replay = all_pv_option && std::strcmp(all_pv_option,"1")==0 &&
+        (compact_pv_mode==1u || compact_pv_mode==3u) && query_start >= 8192u;
     // Extend only operand loading to an explicitly selected long-history run.
     // Long calls retain the original per-group error envelope and exact replay;
     // the final-envelope proof above remains limited to its512 K16 groups.
@@ -595,7 +600,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             nullptr, profile_stages ? &observer : nullptr,
             transpose_value ? g_sm121_transposed_values : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
-            prepared_decoded_qk ? &decoded_producer : nullptr);
+            prepared_decoded_qk ? &decoded_producer : nullptr, all_pv_replay);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -663,8 +668,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (final_pv_bound)
         std::fprintf(stderr,"SM121_FINAL_PV_BOUND query_start=%u query_count=%u maximum_k16_groups=512 enlarged_envelope=1\n",
             query_start,query_count);
-    if (direct_pv_operands)
+    if (direct_pv_operands && !all_pv_replay)
         std::fprintf(stderr,"SM121_DIRECT_PV_OPERANDS query_start=%u query_count=%u token_major_values=1 additional_workspace_bytes=0\n",
+            query_start,query_count);
+    if (all_pv_replay)
+        std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (float_alignment_qk)
         std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0\n",

@@ -103,6 +103,7 @@ unsigned fail_query = 0;
 unsigned fail_sync = 0, profile_observations = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
+unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
 unsigned decoded_preparations=0, decoded_queries=0, fail_decoded_prepare=0;
@@ -195,7 +196,8 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    const uint16_t* transposed_value = nullptr, unsigned value_tokens = 0u,
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
                    bool direct_pv_operands = false, bool float_alignment_qk = false,
-                   unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr) {
+                   unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr,
+                   bool all_pv_replay = false) {
     ++queries;
     if (track_submissions) {
         ++pending_submissions;
@@ -219,6 +221,10 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     if(final_pv_bound) {
         if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
         ++final_bound_queries;
+    }
+    if(all_pv_replay) {
+        if((layout!=22u && layout!=24u) || start<8192u) std::abort();
+        ++all_pv_queries;
     }
     if(direct_pv_operands) {
         if((layout!=22u && layout!=24u) || start+count>kSm121MaxTokens) std::abort();
@@ -286,7 +292,7 @@ void reset() {
     if (!empty()) std::abort();
     allocations = fail_allocation = transposes = queries = syncs = fail_query = 0;
     fail_sync = profile_observations = 0;
-    observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = 0;
+    observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
@@ -614,6 +620,26 @@ int main() {
         setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS","1",1);
     }
     unsetenv("QRT_CK_SM121_LONG_DIRECT_PV_OPERANDS");
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY",bad,1);
+        if(launch(65536,1024)!=hipErrorInvalidValue || allocations || queries || syncs) return 200;
+    }
+    for(const char* setting : {"0","1"}) for(const char* mode : {"1","2","3"}) {
+        setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY",setting,1);
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        for(unsigned start : {8192u,65536u,131072u,262144u,kSm121MaxTokens-1024u}) {
+            reset();
+            if(launch(start,1024)!=hipSuccess || queries!=32u || syncs!=queries ||
+               all_pv_queries!=(*setting=='1' && *mode!='2' ? queries : 0u) ||
+               allocations!=(start+1024u>kSm121InitialTokens?7u:5u)) return 201;
+            reset();fail_query=2u;
+            if(launch(start,1024)!=hipErrorUnknown || queries!=2u || syncs!=queries) return 202;
+        }
+        for(unsigned tokens : {1u,7169u,8192u,8193u}) {
+            reset();if(launch(0,tokens)!=hipSuccess || all_pv_queries) return 203;
+        }
+    }
+    unsetenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY");
     unsetenv("QRT_CK_SM121_DIRECT_PV_OPERANDS");
     unsetenv("QRT_CK_SM121_FINAL_PV_BOUND");
     for(const char* bad : {"2","-1","true","1junk"," 1"}) {

@@ -65,8 +65,10 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     Device dout(initial.size()*4u),da(initial.size()*4u),dd(den_initial.size()*4u),de(error_initial.size()*4u);
     upload(dv,value);upload(dp,probability);upload(ds,scales);
     std::vector<float> outputs[4],accumulators[4],denominators[4],errors[4];
+    double approximate_ms[4]{},compaction_replay_ms[4]{};
     for(unsigned variant=0;variant<4u;++variant) {
         upload(dout,initial);upload(da,initial);upload(dd,den_initial);upload(de,error_initial);
+        const auto begin=std::chrono::steady_clock::now();
         if(variant==3u) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true,false,true,true,true>),
                 dim3(kHeadDim/kIntegerMatrixColumns,kQueryHeads,(queries+15u)/16u),dim3(kThreads),0,nullptr,
@@ -93,6 +95,7 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
                 nullptr,nullptr,de.as<float>()+guard);
         }
         check(hipGetLastError());finish();
+        approximate_ms[variant]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
         outputs[variant]=download<float>(dout,initial.size());accumulators[variant]=download<float>(da,initial.size());
         denominators[variant]=download<float>(dd,den_initial.size());errors[variant]=download<float>(de,error_initial.size());
     }
@@ -120,16 +123,30 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     upload(dout,initial);
     hipLaunchKernelGGL(blackwell_probability_value_kernel,dim3(kQueryHeads,queries),dim3(kHeadDim),0,nullptr,
         dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,dout.as<float>()+guard,
-        start,output_start,tokens,rcp.as<unsigned char>(),nullptr,nullptr,nullptr);
+        start,output_start,tokens,rcp.as<unsigned char>(),da.as<float>()+guard,dd.as<float>()+guard,nullptr);
     check(hipGetLastError());finish();const auto exact=download<float>(dout,initial.size());
+    const auto exact_acc=download<float>(da,initial.size()),exact_den=download<float>(dd,den_initial.size());
+    upload(dout,initial);upload(da,initial);upload(dd,den_initial);
+    const auto all_begin=std::chrono::steady_clock::now();
+    check(hipError_t(launch_all_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
+        dout.as<float>()+guard,start,queries,output_start,tokens,rcp.as<unsigned char>(),
+        da.as<float>()+guard,dd.as<float>()+guard,nullptr)));
+    finish();
+    const double all_pv_ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-all_begin).count();
+    const auto all=download<float>(dout,initial.size()),all_acc=download<float>(da,initial.size()),all_den=download<float>(dd,den_initial.size());
+    if(std::memcmp(all.data(),exact.data(),all.size()*4u) || std::memcmp(all_acc.data(),exact_acc.data(),all_acc.size()*4u) ||
+       std::memcmp(all_den.data(),exact_den.data(),all_den.size()*4u)) throw std::runtime_error("all-cell PV raw arithmetic or guards changed");
     std::vector<bool> selected[4];unsigned counts[4]{};unsigned bad=0u;
     for(unsigned final=0;final<4u;++final) {
         std::vector<unsigned> scratch(cells+1u+2u*guard,0xa5a5a5a5u);Device indices(scratch.size()*4u);
         upload(indices,scratch);upload(dout,outputs[final]);upload(de,errors[final]);
+        const auto begin=std::chrono::steady_clock::now();
         check(hipError_t(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,dp.as<uint16_t>()+guard,ds.as<float>()+guard,
             dout.as<float>()+guard,start,queries,output_start,tokens,rcp.as<unsigned char>(),nullptr,nullptr,
             de.as<float>()+guard,indices.as<unsigned>()+guard,indices.as<unsigned>()+guard+cells,nullptr)));
-        finish();auto index=download<unsigned>(indices,scratch.size());auto output=download<float>(dout,initial.size());
+        finish();
+        compaction_replay_ms[final]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+        auto index=download<unsigned>(indices,scratch.size());auto output=download<float>(dout,initial.size());
         counts[final]=index[guard+cells];if(counts[final]>cells) throw std::runtime_error("invalid candidate count");
         selected[final].resize(cells,false);
         for(unsigned i=0;i<counts[final];++i) {
@@ -148,6 +165,8 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
     if(selected[0]!=selected[2] || selected[1]!=selected[3])
         throw std::runtime_error("direct operands changed candidate ownership");
     immutable(dv,value);immutable(dp,probability);immutable(ds,scales);
+    std::printf("{\"kind\":\"all_pv_replay_comparison\",\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"control_candidates\":%u,\"control_approximate_ms\":%.9g,\"control_compaction_replay_ms\":%.9g,\"all_exact_pv_ms\":%.9g,\"raw_bit_mismatches\":0,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
+        start,queries,mode,cells,counts[2],approximate_ms[2],compaction_replay_ms[2],all_pv_ms);
     std::printf("{\"kind\":\"final_pv_kernel\",\"variants\":4,\"direct_operand_variants\":2,\"query_start\":%u,\"queries\":%u,\"mode\":%u,\"cells\":%u,\"old_candidates\":%u,\"new_candidates\":%u,\"raw_bit_mismatches\":0,\"direct_bound_bit_mismatches\":0,\"direct_candidate_sets_equal\":true,\"underestimates\":0,\"bf16_mismatches\":%u,\"candidate_superset\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
         start,queries,mode,cells,counts[0],counts[1],bad);
     if(bad) throw std::runtime_error("selective PV differs from canonical BF16");
@@ -155,14 +174,18 @@ void run(unsigned start, unsigned queries, unsigned mode, Device& rcp) {
 }
 int main(int argc,char** argv) try {
     const bool long_history=argc==3 && std::strcmp(argv[2],"--long-history")==0;
-    if(argc!=2 && !long_history) throw std::runtime_error("supply SHA-verified reciprocal table and optional --long-history");
+    const bool throughput=argc==3 && std::strcmp(argv[2],"--all-pv-throughput")==0;
+    if(argc!=2 && !long_history && !throughput) throw std::runtime_error("supply SHA-verified reciprocal table and optional --long-history or --all-pv-throughput");
     hipDeviceProp_t properties{};check(hipGetDeviceProperties(&properties,0));
     if(std::strncmp(properties.gcnArchName,"gfx1151",7u)) throw std::runtime_error("requires gfx1151");
     std::vector<unsigned char> table(qrt_sm121_attention_rcp::table_bytes);
     std::ifstream file(argv[1],std::ios::binary);file.read(reinterpret_cast<char*>(table.data()),table.size());
     if(!file || file.peek()!=EOF || !qrt_sm121_attention_rcp::valid_layout(table.data(),table.size())) throw std::runtime_error("invalid table");
     Device rcp(table.size());upload(rcp,table);
-    if(long_history) {
+    if(throughput) {
+        for(unsigned start : {8192u,65536u,131072u,263168u})
+            for(unsigned mode=0;mode<3u;++mode) run(start,32u,mode,rcp);
+    } else if(long_history) {
         // Exercise both sides of the historical limits and the final capacity
         // word. The final envelope deliberately selects every long output;
         // product long calls use the original envelope, whose bits and selected

@@ -63,7 +63,7 @@ void blackwell_parallel_probability_kernel() {}
 void blackwell_staged_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
-template<bool TransposedValue = false> void blackwell_compacted_pv_replay_kernel() {}
+template<bool TransposedValue = false, bool AllCells = false> void blackwell_compacted_pv_replay_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false, bool DirectOperands = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
@@ -717,6 +717,48 @@ int main() {
     launches=error_queries=memsets=fail_launch=0u;
     for(unsigned start:{kSplitMaxTokens-1u,kSplitMaxTokens,0xffffffffu})
         if(output_boundary(start,2u)!=hipErrorInvalidValue || launches || memsets) return 153;
+    auto all_pv=[&](unsigned start,unsigned count,unsigned layout=22u,bool transpose=false,unsigned output_start=0u,
+                   SplitCompletionObserver* observer=nullptr) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,output_start,
+            nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+count,
+            false,nullptr,nullptr,0u,nullptr,observer,transpose?&operand:nullptr,
+            transpose?start+count:0u,1u,1u,false,false,true,0u,false,nullptr,true);
+    };
+    for(unsigned layout:{22u,24u}) for(bool transpose:{false,true})
+        for(unsigned start:{0u,8192u,65536u,131072u,kSplitMaxTokens-32u}) {
+            launches=error_queries=memsets=fail_launch=0u;
+            if(all_pv(start,32u,layout,transpose,kSplitMaxTokens-32u)!=hipSuccess ||
+               launches!=3u || memsets || launch_threads[2]!=256u || launch_grids[2]!=1024u ||
+               !std::strstr(launch_names[2],transpose?"blackwell_compacted_pv_replay_kernel<true, true>":
+                   "blackwell_compacted_pv_replay_kernel<false, true>")) return 154;
+            for(unsigned failure=1u;failure<=3u;++failure) {
+                launches=error_queries=memsets=0u;fail_launch=failure;
+                if(all_pv(start,32u,layout,transpose)!=hipErrorUnknown || launches!=failure ||
+                   error_queries!=failure || memsets) return 155;
+            }
+        }
+    launches=error_queries=memsets=fail_launch=0u;
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u})
+        if(all_pv(8192u,32u,layout)!=hipErrorInvalidValue || launches || memsets) return 156;
+    if(all_pv(kSplitMaxTokens-31u,32u)!=hipErrorInvalidValue ||
+       all_pv(8192u,33u)!=hipErrorInvalidValue ||
+       all_pv(8192u,32u,22u,false,kSplitMaxTokens-31u)!=hipErrorInvalidValue || launches || memsets) return 157;
+    struct AllStages {unsigned stages[3]{},count=0,fail=99u;} all_stages;
+    SplitCompletionObserver all_observer{&all_stages,[](void* data,unsigned stage,hipStream_t)->int {
+        auto& seen=*static_cast<AllStages*>(data);
+        if(seen.count>=3u)return hipErrorInvalidValue;
+        seen.stages[seen.count++]=stage;
+        return seen.fail==stage ? hipErrorUnknown : hipSuccess;
+    }};
+    for(unsigned failure:{0u,1u,4u,99u}) {
+        launches=error_queries=memsets=fail_launch=0u;all_stages={};all_stages.fail=failure;
+        const int status=all_pv(65536u,32u,22u,false,0u,&all_observer);
+        const unsigned submitted=failure==0u?1u:failure==1u?2u:3u;
+        const unsigned expected_stages[]={0u,1u,4u};
+        if(status!=(failure==99u?hipSuccess:hipErrorUnknown) || launches!=submitted ||
+           all_stages.count!=submitted || memsets ||
+           std::memcmp(all_stages.stages,expected_stages,submitted*sizeof(unsigned))) return 158;
+    }
     return 0;
 }
 '''

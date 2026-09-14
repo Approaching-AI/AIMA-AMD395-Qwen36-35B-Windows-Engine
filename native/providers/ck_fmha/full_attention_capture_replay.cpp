@@ -81,7 +81,8 @@ bool report(const char* route, const std::vector<float>& output,
             unsigned memory_layout = 0u, float scores_ms = 0.0f,
             float probabilities_ms = 0.0f, float value_ms = 0.0f,
             float preparation_ms = 0.0f, bool native_products = false,
-            double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u) {
+            double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u,
+            bool all_pv_replay = false) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -145,6 +146,7 @@ bool report(const char* route, const std::vector<float>& output,
     else if (memory_layout == 4u) interval_kind = "key_transpose_and_qk_pv_pairs";
     else if (memory_layout == 3u) interval_kind = "qk_probability_pv_dispatch_triplet";
     else if (memory_layout == 2u) interval_kind = "qk_pv_dispatch_pair";
+    if (all_pv_replay) interval_kind = "exact_qk_probability_all_exact_pv";
     std::cout << "{\"kind\":\"full_attention_capture_replay\",\"route\":\"" << route
               << "\",\"query_start\":" << start << ",\"elements\":" << output.size()
               << ",\"bf16_mismatches\":" << mismatches << ",\"affected_tokens\":" << affected
@@ -163,13 +165,15 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"sparse_integer_core_qk\":" << (memory_layout >= 19u && memory_layout <= 21u ? "true" : "false")
               << ",\"prepacked_integer_core\":" << (memory_layout == 21u ? "true" : "false")
               << ",\"prepacked_integer\":" << (memory_layout == 9u ? "true" : "false")
-              << ",\"native_mma_pv\":" << ((memory_layout == 6u || memory_layout == 7u || memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) ? "true" : "false")
-              << ",\"selective_exact_pv_replay\":" << (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u ? "true" : "false")
-              << ",\"compacted_pv_replay\":" << ((memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
+              << ",\"native_mma_pv\":" << (!all_pv_replay && (memory_layout == 6u || memory_layout == 7u || memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) ? "true" : "false")
+              << ",\"selective_exact_pv_replay\":" << (!all_pv_replay && (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) ? "true" : "false")
+              << ",\"compacted_pv_replay\":" << (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
+              << ",\"all_pv_replay\":" << (all_pv_replay ? "true" : "false")
+              << ",\"all_pv_replay_cells\":" << (all_pv_replay ? output.size() : 0u)
               << ",\"parallel_probability\":" << (memory_layout == 24u ? "true" : "false")
               << ",\"compacted_pv_cells\":" << compacted_pv_cells
               << ",\"completed_host_ms\":" << completed_host_ms
-              << ",\"replay_count_host_reads_component_only\":" << ((memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
+              << ",\"replay_count_host_reads_component_only\":" << (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
               << ",\"tiled_exact_qk\":" << ((memory_layout >= 15u && memory_layout <= 17u) || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u ? "true" : "false")
               << ",\"prepared_value_encoding\":" << (memory_layout >= 17u && memory_layout <= 21u ? "true" : "false")
               << ",\"native_mma_qk\":" << ((memory_layout == 7u || memory_layout == 14u) ? "true" : "false")
@@ -364,6 +368,13 @@ int main(int argc, char** argv) {
         std::fprintf(stderr,"STAGED_PROBABILITY enabled=%u ordered_denominator=1 maximum_tiles=256\n",unsigned(staged_probability));
         const char* float_qk_option = std::getenv("QRT_ATTENTION_REPLAY_FLOAT_ALIGNMENT_QK");
         const bool float_alignment_qk = float_qk_option && *float_qk_option ? parse(float_qk_option,1u)!=0u : false;
+        const char* all_pv_option = std::getenv("QRT_ATTENTION_REPLAY_ALL_PV");
+        if (all_pv_option && *all_pv_option && std::strcmp(all_pv_option,"0") && std::strcmp(all_pv_option,"1"))
+            throw std::runtime_error("invalid all-cell PV option");
+        const bool all_pv_replay = all_pv_option && std::strcmp(all_pv_option,"1")==0;
+        if (all_pv_replay && ((memory_layout!=22u && memory_layout!=24u) || float_pv_lanes))
+            throw std::runtime_error("all-cell PV requires the exact global replay layout");
+        std::fprintf(stderr,"ALL_PV_REPLAY enabled=%u original_k16=1 additional_workspace_bytes=0\n",unsigned(all_pv_replay));
         std::fprintf(stderr,"FLOAT_ALIGNMENT_QK enabled=%u\n",unsigned(float_alignment_qk));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
@@ -544,10 +555,10 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
-                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability)));
+                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,nullptr,all_pv_replay)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
-            if (memory_layout == 22u || memory_layout == 24u) {
+            if (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u)) {
                 // Component diagnostics only, after completion and outside the
                 // timed interval. The product provider never reads this count.
                 const unsigned queries = std::min(batch, count - offset);
@@ -734,7 +745,7 @@ int main(int argc, char** argv) {
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
                           scores_total, probabilities_total, value_total, preparation_ms, native_products,
-                          completed_host_ms, compacted_pv_cells);
+                          completed_host_ms, compacted_pv_cells, all_pv_replay);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);
