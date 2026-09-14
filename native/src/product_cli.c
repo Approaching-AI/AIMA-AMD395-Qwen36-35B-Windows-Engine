@@ -3,6 +3,7 @@
 #endif
 
 #include "qrt.h"
+#include "qrt_prefix_logit.h"
 
 #include <ctype.h>
 #include <errno.h>
@@ -714,6 +715,102 @@ static void qrt_product_print_fnv1a64_array(
     fputc(']', stdout);
 }
 
+/* The fallback seeds the owner with output1, then executes a full suffix
+ * continuation. Check and publish that retry before another hit can replace
+ * its report or the changed-prefix probe can overwrite its output buffer. */
+static int qrt_product_record_prefix_seed(
+    const qrt_product_options_t *options,
+    size_t input_token_count,
+    uint64_t prompt_digest,
+    const uint32_t *output_tokens,
+    const uint32_t *expected_output_tokens,
+    const qrt_qwen36_resident_prefix_cache_fallback_result_v1_t *seed
+) {
+    const qrt_qwen36_resident_prefix_cache_result_v1_t *retry =
+        &seed->hit_result;
+    const size_t output_count = retry->output_token_count;
+    size_t index;
+    uint64_t output_digest;
+    float first_logit = 0.0f;
+    int token_match = 1;
+    int digest_match;
+    int logit_available;
+    int contract_pass;
+    int passed;
+
+    if (output_count == 0u ||
+        output_count > QRT_QWEN36_WHOLE_PROVIDER_MAX_OUTPUT_TOKENS ||
+        output_count != options->output_token_capacity) {
+        return 0;
+    }
+    for (index = 0u; index < output_count; ++index) {
+        if (expected_output_tokens != NULL &&
+            output_tokens[index] != expected_output_tokens[index]) {
+            token_match = 0;
+        }
+    }
+    output_digest = qrt_product_fnv1a64_bytes(
+        output_tokens, output_count * sizeof(output_tokens[0]));
+    digest_match = !options->expected_output_fnv1a64_set ||
+        output_digest == options->expected_output_fnv1a64;
+    logit_available = qrt_prefix_first_logit_read(
+        retry->reserved, output_tokens[0], &first_logit);
+    contract_pass = seed->completed != 0u &&
+        seed->fallback_invoked != 0u && seed->retry_invoked != 0u &&
+        seed->seed_output_token_count == 1u &&
+        seed->seed_output_token < QRT_QWEN36_VOCAB_SIZE &&
+        seed->full_prefill_token_count == options->prefix_token_count &&
+        retry->completed != 0u && retry->provider_invoked != 0u &&
+        retry->exact_prefix_match != 0u &&
+        retry->copy_on_write_transaction != 0u &&
+        retry->state_restored != 0u &&
+        retry->prefix_token_count == options->prefix_token_count &&
+        input_token_count > options->prefix_token_count &&
+        retry->suffix_token_count ==
+            input_token_count - options->prefix_token_count &&
+        retry->input_token_ids_fnv1a64 == prompt_digest &&
+        retry->output_token_ids_fnv1a64 == output_digest;
+    passed = contract_pass && token_match && digest_match && logit_available;
+    fprintf(stdout,
+        "{\"type\":\"prefix_seed\",\"status\":\"%s\","
+        "\"owner_input_tokens\":%u,\"owner_output_tokens\":%u,"
+        "\"owner_first_token\":%u,\"retry_input_tokens\":%zu,"
+        "\"retry_prefix_tokens\":%u,\"retry_suffix_tokens\":%u,"
+        "\"retry_output_tokens\":%zu,\"retry_contract_pass\":%s,"
+        "\"retry_state_restored\":%s,"
+        "\"retry_expected_output_tokens_supplied\":%s,"
+        "\"retry_expected_output_tokens_match\":%s,"
+        "\"retry_expected_output_digest_match\":%s,"
+        "\"retry_prompt_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"retry_output_token_ids_fnv1a64\":\"%016" PRIx64 "\","
+        "\"retry_first_token_raw_logit_available\":%s,"
+        "\"retry_first_token_raw_logit_source\":\"hit_result.reserved.prefix_first_logit_v1\","
+        "\"retry_first_token_raw_logit\":",
+        passed ? "pass" : "fail",
+        seed->full_prefill_token_count, seed->seed_output_token_count,
+        seed->seed_output_token, input_token_count,
+        retry->prefix_token_count, retry->suffix_token_count, output_count,
+        contract_pass ? "true" : "false",
+        retry->state_restored ? "true" : "false",
+        expected_output_tokens != NULL ? "true" : "false",
+        token_match ? "true" : "false", digest_match ? "true" : "false",
+        prompt_digest, output_digest, logit_available ? "true" : "false");
+    if (logit_available) {
+        fprintf(stdout, "%.9g", (double)first_logit);
+    } else {
+        fputs("null", stdout);
+    }
+    fprintf(stdout,
+        ",\"owner_wall_ms\":%.6f,\"retry_wall_ms\":%.6f,"
+        "\"retry_output_token_ids\":",
+        (double)seed->seed_elapsed_ns / 1000000.0,
+        (double)seed->retry_elapsed_ns / 1000000.0);
+    qrt_product_print_tokens(output_tokens, output_count);
+    fputs("}\n", stdout);
+    fflush(stdout);
+    return passed;
+}
+
 static int qrt_product_run(const qrt_product_options_t *options) {
     uint32_t *input_tokens = NULL;
     size_t input_token_count = 0u;
@@ -982,6 +1079,14 @@ static int qrt_product_run(const qrt_product_options_t *options) {
                 prefix_seed_result->failure
             );
             exit_code = 5;
+            goto cleanup;
+        }
+        if (!qrt_product_record_prefix_seed(
+                options, input_token_count, prompt_digest,
+                guard_output_tokens, expected_output_tokens,
+                prefix_seed_result)) {
+            fputs("resident prefix fallback retry failed the output/logit/state contract\n", stderr);
+            exit_code = 6;
             goto cleanup;
         }
     }
