@@ -2,6 +2,30 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+Extended exact attention at `2fa30fa` passes the q8192/out512 GB10
+regression with all output IDs and actual callbacks, first 144/raw 10.375.
+On baiying with `D:\models\Qwen3.6-35B-A3B`, callback TTFT is
+32896.6187 ms, TPOT 100.385227 ms and model plus engine load 21367.3839 ms.
+Whole and CK now use `2fa30fa`; staged MoE `4a7f0c4`, FLA `2ee6215`,
+CLI `a797b62` and the selected route flags remain unchanged. This run
+establishes regression correctness, without a retained performance claim.
+
+The shared capacity is 264736 tokens, including a 262144-token owner,
+1024 suffix inputs and the resident decode tail. Short calls keep the
+original 131072-token buffers; the independent extended owner allocates
+135544832 score bytes and 271089664 key bytes only after crossing that
+extent. No extended allocation occurs on q8192. Four native analytic cases
+pass, including two output offsets above 4 GiB, with all output/input cells
+and guards checked. Native builds, allocation/submission failure recovery,
+chunk rollback, C smoke, 392 Python tests with two skips and hygiene pass.
+Unchanged Rust/Cargo reuse the prior 47 tests and clippy with explicit diff.
+
+Use this whole/CK pair for subsequent context experiments. Real 128k/256k
+model continuation, retained speed, package, HTTP, soak and release remain
+open. The address fixtures alone establish no long-context inference claim.
+Evidence: `benchmarks/correctness/extended-attention-capacity-q8192-20260914.json`,
+SHA256 `e0100d3cde19c159dfde1d693d31e8793ffaaa7b31ffa74e9a9e67c80c24c646`.
+
 Compact staged-half routed MoE at `4a7f0c4` reduces complete q8192
 TTFT from 33507.2252 to 32939.7689 ms in the same-DLL off/on comparison,
 saving 567.4563 ms. Both baiying runs with `D:\models\Qwen3.6-35B-A3B`
@@ -10,7 +34,7 @@ TPOT is 100.802963 / 101.367740 ms and model plus engine load is
 21265.1042 / 21328.8211 ms. Only
 `QRT_QWEN36_MOE_STAGED_HALF_REPLAY=0/1` differs between the two runs.
 
-Use MoE `4a7f0c4` with that option on for subsequent experiments, keeping
+That MoE comparison used the option on with
 whole `0aa358b` staged dense replay on, QKV4/OUT0, linear OUT PPB1000,
 shared prevalidated MoE, CK `9e6e296` prepared QK, FLA `2ee6215` and
 CLI `a797b62`. Both source options default off. This pair does not establish
