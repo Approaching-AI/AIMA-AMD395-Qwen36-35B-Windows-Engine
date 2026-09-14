@@ -20,8 +20,21 @@ routed regressions preserve raw output bits and norms. Dedicated shared
 metadata uses 77824 bytes; the q8192-only option remains off by default.
 Selectors, arithmetic, K16 order, PPB bounds and short-shape routes are
 unchanged. Full local checks pass. No package, prefix, HTTP or release gate
-is inferred from these runs. A synchronized enabled profile is now pending
-to choose the next structural replacement.
+is inferred from these runs. The synchronized enabled profile also passes
+all 512 GB10 outputs and callbacks. Its complete MoE total is 7120.002749 ms,
+down 354.568236 ms from the previous OFF profile. Shared-stream intervals
+overlap routed work and are not independent kernel times.
+
+Completed linear projection/core totals remain 6571.398 / 7797.212 ms;
+the full-attention host bucket is 14275 ms. Ten negative residual/postnorm
+GPU event intervals are excluded. Existing q7169 inputs show no repeated
+rows in four later-layer captures, so broad row deduplication lacks evidence.
+The previous full q8192 matrix-producer profile measures 3925.7338 ms of
+completed hipBLASLt work, and the current provider still selects implementation
+0. A bounded comparison now covers all four principal q8192 matrix shapes
+before any backend choice changes. All product correction bounds remain fixed.
+Profile evidence: `benchmarks/correctness/shared-prevalidated-profile-20260914.json`,
+SHA256 `f82dcdb99e9d1f527f8b257b5d9eb163cce364d4d369e8bc4aae589c19537057`.
 Command: `run-native-shared-prevalidated-product-r1.ps1` with the recorded
 OFF/ON arguments. Evidence: `benchmarks/correctness/shared-prevalidated-product-20260914.json`,
 SHA256 `42ba61141f4852a9cb01d4cc0c7e825b29c1348c20dda6b32ce6c84e26358d46`.
