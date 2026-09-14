@@ -145,6 +145,32 @@ No product, retained-performance or release acceptance follows. Evidence:
 `benchmarks/correctness/matrix-interval-qk-20260914.json`, SHA256
 `85c25310ef7d123ad1f6e65e1e9e817f93d5ab46d3533cfdeede31a1d15b6802`.
 
+Exact per-K16 PV group metadata at `13f8645` preserves the complete
+original q7169 GB10 attention result but slows replay. Completed medians,
+including probability metadata and one V metadata preparation, are
+96.3601 ms for original integer PV and 140.5985 / 127.2659 / 131.2042 ms
+for skip-only / group-float / combined. Keep the product dispatcher unchanged.
+
+All 440 native safety reports preserve 67502080 output positions, raw
+accumulators and denominators. Four complete captured variants preserve all
+29364224 external BF16 cells, 2198673 original selected cells and raw control
+bits across every warmup and measured attempt: 440463360 output comparisons
+with no mismatches. The common control has 228 independent CPU dot checks.
+Metadata, candidate ownership, guards, tails and immutable inputs pass.
+Separate untimed GPU counters record 637019466 K16 groups, with 1099588 zero
+skips and 91970 exponent-bound skips, only about 0.18705%. All non-skipped
+groups use the exact float helper in the combined capture. K32 rescaling
+and K16 rounding boundaries remain original.
+
+The separate exact segment-reuse probe finds no repeated K4 through K2048
+segments in four later-layer q7169 captures. The embedding's 257 unique
+segments at every position are already covered by layer0 inverse reuse.
+Sanitized host arithmetic, C smoke, 388 Python tests with two skips and
+hygiene pass; unchanged Rust/Cargo surfaces reuse the prior 47 tests and
+clippy with explicit diff and hashes. No product or release acceptance
+follows. Evidence: `benchmarks/correctness/pv-group-replay-20260914.json`, SHA256
+`93b03b125f746d277e090136e8a271c6934d6ba5687c07f2fc380629197701c1`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
