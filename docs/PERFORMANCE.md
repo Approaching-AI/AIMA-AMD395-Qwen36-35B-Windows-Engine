@@ -2,78 +2,72 @@
 
 ## Current unreleased measurements, 2026-09-15
 
-Whole provider and product CLI `24c4304`, CK `7fcf8a1`, staged MoE
-`4a7f0c4` and FLA `2ee6215` are the current measured q8192 stack. On baiying
-with `D:\models\Qwen3.6-35B-A3B`, all 512 GB10 output IDs and actual
-callbacks match, first token 144/raw logit 10.375. Callback TTFT is
-32781.1591 ms, TPOT 102.081409 ms and model plus engine load 21422.9531 ms.
-The selected long-V option is inert on this shape: no long-V buffer or
-extended attention workspace is allocated. The extended RoPE table remains
-active with 264736 rows. This is one regression observation, without a
-retained performance claim; q8192 remains above 10 seconds. Evidence:
-`benchmarks/correctness/long-transposed-value-q8192-20260915.json`, SHA256
-`82a435544b5d067e2e408d7866ee4f4b3cd0eb8688a6be009235031b081fb76c`.
+Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
+and FLA `2ee6215` pass the current q8192 regression on baiying with
+`D:\models\Qwen3.6-35B-A3B`. All 512 original GB10 output IDs and actual
+callbacks match, first 144/raw logit 10.375. Callback TTFT is 32880.1059 ms,
+TPOT 101.126072 ms and model plus engine load 21331.9965 ms. Long QK and
+long V options are inert on this shape; neither long owner nor extended
+attention scratch is allocated. The 264736-row RoPE table remains active.
+This is a single regression observation; q8192 remains above 10 seconds.
+Evidence: `benchmarks/correctness/long-query-range-q8192-20260915.json`, SHA256
+`ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009`.
 
-The same DLL pair passes the actual 16384-token prefix plus 1024-token suffix
-and 512-token continuation with long V transpose off/on. Both initial suffix
-retries and timed warm hits match every GB10 token, first 3709/raw 5.6875;
-the warm hits match every actual callback. Prefix restoration and changed-
-prefix rejection pass. The complete owner first token is 16/raw 25.625;
-its separate 32-token continuation is outside these runs.
+The same DLL pair passes the real 16384-token owner plus 1024-token suffix
+and 512-token continuation with long QK off/on. Both initial suffix retries
+and warm hits match every GB10 token, first 3709/raw 5.6875. Warm hits match
+all actual callbacks; prefix restoration and changed-prefix rejection pass.
+The complete owner first token is 16/raw 25.625; its separate 32-token
+continuation is outside these runs.
 
-Only `QRT_CK_SM121_LONG_TRANSPOSE_VALUE=0/1` differs. Warm TTFT is
-12203.6283 / 11094.3167 ms, an observed reduction of 1109.3116 ms. TPOT is
-162.592362 / 164.079507 ms, so the complete warm request changes only from
-95356.8502 to 95005.0089 ms. Owner time is 104804.8799 / 95992.1142 ms;
-first suffix retry is 94134.0868 / 96117.8860 ms. Seed plus first retry
-changes from 198939.0901 to 192110.1232 ms, and complete process wall from
-316154.262 to 309056.002 ms. Load is 21371.8766 / 21432.2124 ms.
-Select long V transpose for continued long-context experiments, retaining
-its default-off source setting and all-cell PV off. These single-run
-observations establish no repeatability or retained-speed acceptance.
-Evidence: `benchmarks/correctness/long-transposed-value-prefix16k-20260915.json`, SHA256
-`16e08b534ba68b4150299d8f95c0d86247dcd85e47324fc3958b9028ac4e14cd`.
+Only `QRT_CK_SM121_LONG_PREPARED_DECODED_QK=0/1` differs, with long V
+transpose enabled in both. Warm TTFT is 11112.1268 / 10731.3217 ms,
+TPOT 157.262214 / 154.945963 ms and complete warm request 91545.7034 /
+89972.8458 ms. Owner time is 96502.4706 / 93530.0121 ms; first retry is
+93864.4221 / 89179.6647 ms. Seed plus first retry changes from
+190367.0161 to 182709.8002 ms, and process wall from 303653.084 to
+294445.252 ms. Load is 21258.3081 / 21283.5870 ms. Select long QK and long V
+for continued long-context experiments; retain default-off source settings
+and all-cell PV off. This single pair establishes no repeatability or
+retained-performance acceptance. Evidence:
+`benchmarks/correctness/long-query-range-prefix16k-20260915.json`, SHA256
+`004c76c50435db7aae7ce38af572a9f73c25d4e3b0db5d391d31c33b8f99eb8f`.
 
-The long-V route reuses the existing exact PV kernel and changes operand
-layout only. An independent buffer grows by 8192-token units up to 264736
-tokens / 271089664 bytes, refreshes every call and preserves the previous
-owner on failed growth. The fixed short owner and single-query decode keep
-their existing allocation behavior. Native builds and 18 generated cases
-pass 1609728 output cells, raw accumulators/denominators, candidate sets,
-input layout and guards. At history 263168 with 32 queries, one selective-
-replay case drops from 551.6611 to 95.3848 ms including transpose; this
-excludes unchanged approximate PV and establishes no model speed claim.
-All twelve 32-query cases improve; one/two-query selective cases become
-slower after including preparation. Host tests cover both workspace owners,
-growth failure/retry, mixed short/long reuse, and all-cell/profiling option
-combinations. C checks, 400 Python tests with two skips and hygiene pass;
-unchanged Rust/Cargo reuse the prior 47 tests and clippy. Evidence:
-`benchmarks/correctness/long-transposed-value-components-20260915.json`, SHA256
-`3d6321a0908b744db6ea9bf983b8dbfa0e6a634d813ace61e6171ed1948f8268`.
+Range QK prepares only the consumed Q interval and complete K history,
+retaining the original BF16 fallback and 32-query long slabs. Its separate
+owner grows by 8192 tokens, capped at 264736 keys / 679039232 bytes, with
+at most 8192 prepared Q rows. Failed growth preserves the previous owner;
+every selected call refreshes metadata under the existing provider mutex.
+The real 16k run grows from 168427520 to 185270272 bytes and records 30
+long calls plus 10 cold-owner calls. Actual-provider host tests cover strict
+options, both PV layouts, all-cell routes, both attention owners, growth
+failure/retry, cold/long coexistence, V transpose and failure drain.
+Windows CK build, C checks, 401 Python tests with two skips and hygiene pass;
+unchanged Rust/Cargo reuse the prior 47 tests and clippy.
 
-Range QK component `e0b2732` prepares only the consumed Q interval and all K
-history, with an explicit query origin and the original BF16 fallback.
-Windows HIP build and 26 native reports across 13 shapes pass, including
-positions through 264735. Both original float-alignment and range-prepared
-paths match all 418496528 original q7169 score slots and 228 independent
-CPU dots per path. Guards, complete device metadata and inputs pass.
-Including preparation, the same-executable capture clocks are 348.3046 /
-276.4122 ms; these component observations are not model performance.
-C checks, 401 Python tests with two skips and hygiene pass. The measured CK above
-still uses its original cold-only prepared-QK route. Component evidence:
+The range component `e0b2732` passes 26 native reports across 13 shapes
+through position 264735. Both float-alignment and prepared paths match all
+418496528 original q7169 score slots and 228 independent CPU dots per path,
+with complete device metadata, original inputs and guards checked. Including
+preparation, same-executable component clocks are 348.3046 / 276.4122 ms.
+These component observations are not model performance. Evidence:
 `benchmarks/correctness/prepared-decoded-qk-range-components-20260915.json`, SHA256
 `c9bcf414aca5faa7a2dff51d136bcf673d90e20b9f9430fd41c7f508c9381b83`.
 
-CK `42c2f0f` integrates that range owner behind default-off
-`QRT_CK_SM121_LONG_PREPARED_DECODED_QK`. The owner grows separately up to
-679039232 bytes, refreshes every call, preserves failed growth and retains
-32-query long slabs. Native CK build and the full local checks pass. Its
-real q8192 regression matches all 512 GB10 outputs and callbacks, first
-144/raw 10.375, with no long-QK or long-V allocation. TTFT is 32880.1059 ms,
-TPOT 101.126072 ms and load 21331.9965 ms. The same-DLL 16k off/on
-comparison is running; this cold regression does not qualify long routing.
-Evidence: `benchmarks/correctness/long-query-range-q8192-20260915.json`, SHA256
-`ad8a3ecdd32785953f74522da4634395464ce849f2efdd73e77c72fcd156e009`.
+Long V reuses the existing exact PV arithmetic through a separate refreshed
+transpose owner, capped at 271089664 bytes. Its 18 native cases pass 1609728
+output cells, raw accumulators/denominators, candidate sets, input layout and
+guards. The earlier CK `7fcf8a1` 16k off/on pair also passes GB10 and observes
+warm TTFT 12203.6283 / 11094.3167 ms, with slower decode TPOT when enabled;
+no retained speed follows from that pair. Evidence:
+`benchmarks/correctness/long-transposed-value-components-20260915.json`, SHA256
+`3d6321a0908b744db6ea9bf983b8dbfa0e6a634d813ace61e6171ed1948f8268`, and
+`benchmarks/correctness/long-transposed-value-prefix16k-20260915.json`, SHA256
+`16e08b534ba68b4150299d8f95c0d86247dcd85e47324fc3958b9028ac4e14cd`.
+
+Current-stack completed-stage profiling is running. The next actual 128k
+prefix command is prepared with unchanged GB10 data and a 3600-second
+process bound; it has not started. Real 128k/256k remain unqualified.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
