@@ -20,9 +20,18 @@ and guards checked. Native builds, allocation/submission failure recovery,
 chunk rollback, C smoke, 392 Python tests with two skips and hygiene pass.
 Unchanged Rust/Cargo reuse the prior 47 tests and clippy with explicit diff.
 
-This pair remains the measured q8192 and active 128k stack. The 256k
-route requires the pending runtime source below. Real 128k/256k model
-continuation, retained speed, package, HTTP, soak and release remain open. The address fixtures alone establish no long-context inference claim.
+This pair remains the measured q8192 stack. Its 128k prefix baseline
+was explicitly cancelled by Codex after 6521194.083 ms and 90112 completed
+owner tokens. The latest complete 8192-token chunk took 1231680 ms; no owner
+first token or suffix output was produced. The owned process exited -1 and
+host cleanup passed. This is an incomplete measurement, without a numerical
+verdict. The all-cell PV comparison below is pending native qualification
+before another full owner build. The 256k route also requires the runtime
+source below. Real 128k/256k continuation, retained speed, package, HTTP,
+soak and release remain open. Evidence:
+`benchmarks/correctness/prefix128k-baseline-incomplete-20260914.json`, SHA256
+`45cb8e6d04e7a780c6bdd823a1325992c6dd25fa1d8e77f87b85729bd1fc1d20`.
+The address fixtures alone establish no long-context inference claim.
 Evidence: `benchmarks/correctness/extended-attention-capacity-q8192-20260914.json`,
 SHA256 `e0100d3cde19c159dfde1d693d31e8793ffaaa7b31ffa74e9a9e67c80c24c646`.
 
@@ -66,6 +75,19 @@ comparisons, full-model correctness and performance are pending; this option
 does not replace the measured stack. Evidence:
 `benchmarks/correctness/long-all-cell-pv-local-20260914.json`, SHA256
 `80d8647f36dd7856b11ff09a96eb5155ba61df686d7a35ec8d1858c332ebf23b`.
+
+The component experiment `0808052` stores the wide integer QK rows in
+68 bytes and recreates the original 132-byte representation in shared memory.
+It preserves original BF16, exception and exponent metadata and reuses the
+established matrix partials, compensation and K16 fallback. Host validation
+expands 139264 rows byte-for-byte, including every BF16 bit pattern, with
+sanitizers and guards. C checks, 399 Python tests with two skips and hygiene
+pass; unchanged Rust/Cargo reuse 47 tests and clippy. Native compilation,
+full-score comparisons and timing remain pending. The native fixture includes
+the current prepared-decoded QK control and reports operand preparation.
+This component changes no product dispatch and makes no speed claim.
+Evidence: `benchmarks/correctness/compact-wide-integer-qk-local-20260914.json`,
+SHA256 `60721a7b7674e25a8f94b62d1efe040297f8bd5f4a655b4283513f3ad8b6eb98`.
 
 The product CLI at `70d85fe` now records and validates the first suffix
 retry inside prefix fallback before the timed warm hit can replace its

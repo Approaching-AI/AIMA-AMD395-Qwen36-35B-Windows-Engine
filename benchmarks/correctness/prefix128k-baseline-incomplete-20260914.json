@@ -1,0 +1,273 @@
+{
+  "schema_version": 1,
+  "kind": "prefix128k_baseline_incomplete_measurement",
+  "host": "BAIYING",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "command_file": "D:\\projects\\run-native-extended-context-prefix128k-product-r2.ps1",
+  "command_file_sha256": "2507f507977c60b67f9f8e2ce31841e05fce9eb77cd30e1a983e0620544c1acc",
+  "components": {
+    "whole": {
+      "_provider_commit": "2fa30fa5df1947b7c10f0585b481160a10a5742d",
+      "_provider_sha256": "fa2808e7f7fc35b487a0c2e9a0d148eb34c5e106a22247d2bfa109333586e129",
+      "_build_metadata_sha256": "b1e969201d929cd121da70821f295cdb6ab76c77ac3a0b1a9ac2e3bcbf4dd9a4"
+    },
+    "ck": {
+      "_provider_commit": "2fa30fa5df1947b7c10f0585b481160a10a5742d",
+      "_provider_sha256": "d0332133c7e1e30e4ed35ab2aff9901a7a93df1b353c25a58ffd5c019036feaf",
+      "_build_metadata_sha256": "be34002812630c474b5250e5793ffb238d02e3d5548eae2b04f4d9b163c56680"
+    },
+    "moe": {
+      "_provider_commit": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+      "_provider_sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+      "_build_metadata_sha256": "5a8ce889b2166319242fa6cda9f4ba061cb9927cd088f5e65e1ef92020772d8f"
+    },
+    "fla": {
+      "_provider_commit": "2ee62152cc808e97974f7d3d4346255a4438a213",
+      "_provider_sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+      "_build_metadata_sha256": "156ac3a3026604b2e970a609ec5496cbde8e1924ba5dde789179d270b4070975"
+    }
+  },
+  "cli_commit": "a797b62b36d81b7f2b98d0aa591ef18d74b1fb22",
+  "cli_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+  "native_reason_field": "completed",
+  "native_exit_code": -1,
+  "native_wall_ms": 6521194.083,
+  "host_checks_pass": true,
+  "host_checks": {
+    "same_boot": true,
+    "no_engine_process": true,
+    "host_memory_reserve": true,
+    "commit_reserve": true,
+    "amd_gpu_ok": true
+  },
+  "disposition": "Codex explicitly cancelled its owned incomplete process after observing rapidly increasing long-history chunk time, to qualify the structural all-cell exact PV comparison before another full owner build. The native reason field remains completed because the original guard observed process exit; exit -1 and the separate cancellation record identify this as incomplete.",
+  "cancellation": {
+    "host": "BAIYING",
+    "utc": "2026-09-14T15:32:01.6112395Z",
+    "pid": 6164,
+    "process_start_utc": "2026-09-14T13:43:22.3092297Z",
+    "executable": "D:\\projects\\AIMA-public-prefix-after-decode-20260912\\build\\product-cli\\qrt-product.exe",
+    "executable_sha256": "ddc185e52f870e9ad1c92fb6a3b2b0139ea6b961b83a50577ef67816b04c2254",
+    "command_file": "D:\\projects\\cancel_extended_context_prefix128k_r2_20260914.ps1",
+    "command_file_sha256": "806cfbd79f00832c58521fafecb005816d60933f1146a3f0d4d9ef4ee89e0e70",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "whole_commit": "2fa30fa5df1947b7c10f0585b481160a10a5742d",
+    "ck_commit": "2fa30fa5df1947b7c10f0585b481160a10a5742d",
+    "last_completed_history_tokens": 90112,
+    "last_complete_chunk_ms": 1231680,
+    "disposition": "Codex cancels its owned incomplete measurement to qualify a structural long-history PV replacement. Preserve native guard record and all current logs; no numerical or performance acceptance.",
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "cancellation_record_sha256": "5c68b1ae40f9a225b108008d9c526277604b464959120a8724725d538ecead7a",
+  "completed_chunks": [
+    {
+      "index": "0",
+      "first_position": "0",
+      "input_tokens": "8192",
+      "history_tokens": "8192",
+      "sampled_to_caller": "0"
+    },
+    {
+      "index": "1",
+      "first_position": "8192",
+      "input_tokens": "8192",
+      "history_tokens": "16384",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "71294.2"
+    },
+    {
+      "index": "2",
+      "first_position": "16384",
+      "input_tokens": "8192",
+      "history_tokens": "24576",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "131088"
+    },
+    {
+      "index": "3",
+      "first_position": "24576",
+      "input_tokens": "8192",
+      "history_tokens": "32768",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "202960"
+    },
+    {
+      "index": "4",
+      "first_position": "32768",
+      "input_tokens": "8192",
+      "history_tokens": "40960",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "288277"
+    },
+    {
+      "index": "5",
+      "first_position": "40960",
+      "input_tokens": "8192",
+      "history_tokens": "49152",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "381432"
+    },
+    {
+      "index": "6",
+      "first_position": "49152",
+      "input_tokens": "8192",
+      "history_tokens": "57344",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "505996"
+    },
+    {
+      "index": "7",
+      "first_position": "57344",
+      "input_tokens": "8192",
+      "history_tokens": "65536",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "666108"
+    },
+    {
+      "index": "8",
+      "first_position": "65536",
+      "input_tokens": "8192",
+      "history_tokens": "73728",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "841125"
+    },
+    {
+      "index": "9",
+      "first_position": "73728",
+      "input_tokens": "8192",
+      "history_tokens": "81920",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.033e+06"
+    },
+    {
+      "index": "10",
+      "first_position": "81920",
+      "input_tokens": "8192",
+      "history_tokens": "90112",
+      "sampled_to_caller": "0",
+      "elapsed_ms": "1.23168e+06"
+    }
+  ],
+  "completed_owner_input_tokens": 90112,
+  "requested_owner_input_tokens": 131072,
+  "requested_suffix_tokens": 1024,
+  "requested_output_tokens": 512,
+  "actual_token_callbacks": 0,
+  "owner_first_token_observed": false,
+  "warm_prefix_hit_completed": false,
+  "reference": {
+    "oracle": "D:\\projects\\gb10-long-prefix128k-inputs-20260914-r2\\gb10_long_prefix128k_actual_tokens_20260914_oracle.json",
+    "oracle_sha256": "05dfc911f3d8bd3f3d372422e88bd1ea7b44f5680a7d5db91f903fedbee0467e",
+    "oracle_case": "long-prefix131072-suffix1024-out512",
+    "reference_case_sha256": "e744c95c9b030ed8779ba2066bbd3265db00ff71d27d23d7086ee807f4dfecaa",
+    "reference_data_manifest_sha256": "2798db7c4fa30d10189aaf8ec985360fdaad28887e9e7ca9af7043435248847e"
+  },
+  "numerical_verdict": "Not evaluated: no owner first token or suffix output sequence completed.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "canonical_artifacts": {
+    "product.stderr.log": {
+      "bytes": 9370393,
+      "sha256": "6a8b7f26761de81255084857a0552cd118450999b0471a9dac73bde2268e4777"
+    },
+    "live-1789395749132361000.json": {
+      "bytes": 2041,
+      "sha256": "b3e0aaff857dee05c72102b939144b662826b68a213d269f9964eaefeec00fa2"
+    },
+    "live-1789397463344157000.json": {
+      "bytes": 2073,
+      "sha256": "2316f38b1677ff68ac5366dcc988010b8b48b046860261a7d695d34bf5e6bfba"
+    },
+    "live-1789394562535654000.json": {
+      "bytes": 1735,
+      "sha256": "684fa729a57d62a88da8fbc1859b2f444180a1e9d8b3eaf83acf99d5e299cdec"
+    },
+    "live-1789394061053347000.json": {
+      "bytes": 1430,
+      "sha256": "0844d897c710ee9bba13adb397ac5ba80ec402361a146c3cef05473e996e8d2f"
+    },
+    "codex-cancel-request.json": {
+      "bytes": 1101,
+      "sha256": "5c68b1ae40f9a225b108008d9c526277604b464959120a8724725d538ecead7a"
+    },
+    "live-1789399540875469000.json": {
+      "bytes": 2511,
+      "sha256": "8c327bf5082781ddf1ce1ff4478cc0c106be1e76ba48c05de7e8fd1ee4585bf8"
+    },
+    "dispatch.json": {
+      "bytes": 1686,
+      "sha256": "3956820155d1c4f778c28b1b1c31a8feb84ddf9fc2302c48e02a12363e280750"
+    },
+    "live-1789393582379716000.json": {
+      "bytes": 1124,
+      "sha256": "3a886162a2e7bf3cb6cc60dfea739f7364c7ed198b0ba10da697b043906393b2"
+    },
+    "live-1789394724727151000.json": {
+      "bytes": 1737,
+      "sha256": "b3f4e49151fa3b528f0a77add001397eea4d2271c26e9ff1b6171fd28d702021"
+    },
+    "boundary-analysis.json": {
+      "bytes": 5015,
+      "sha256": "5d7194e8b9a956dadfe6a7eb8ec38c63584309525f9cd100c34a19e14a79e32b"
+    },
+    "live-1789398048946286000.json": {
+      "bytes": 2352,
+      "sha256": "114e8de8cdea3917dd6c3f22541551e2447f5a1d61241042fb5dfd72e15c60d3"
+    },
+    "live-1789396844532214000.json": {
+      "bytes": 2196,
+      "sha256": "6faf4ded455d3193ff292910f8886cfc6d6fd51095934a48496a08634690aa49"
+    },
+    "live-1789398731677105000.json": {
+      "bytes": 2352,
+      "sha256": "96e597da372a90f7be29d4441420fc54e39443f63fe47f4a408c8f0a8ef56dce"
+    },
+    "live-1789396283989053000.json": {
+      "bytes": 2043,
+      "sha256": "7261c1adaf4a0820674297d18b51c1677bb39cd871df0bef119a6fbf947df5d9"
+    },
+    "product.stdout.jsonl": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "live-1789393461710178000.json": {
+      "bytes": 885,
+      "sha256": "4b41f982f91714a44de72d5894be2b3b72856549c444dd477426b26d85eda51f"
+    },
+    "launch.json": {
+      "bytes": 133,
+      "sha256": "8f137457d2776ca95dce307243dd77fe98dc45389893b018ed0ac52c60c3090c"
+    },
+    "script-parse.json": {
+      "bytes": 54,
+      "sha256": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    },
+    "preflight.json": {
+      "bytes": 15793,
+      "sha256": "1bd76f156d2a62ef465dee46d00cc1f94ab9dbb4b9535e5d515db55ca583af0d"
+    },
+    "live-1789395062108401000.json": {
+      "bytes": 1888,
+      "sha256": "6e11cbd76b5e7a045c434d3a5083d4878be039699f63f6af5dd77e5264c432c3"
+    },
+    "run-record.json": {
+      "bytes": 34155,
+      "sha256": "1e8edf643324ca089adeadafa6a6fa8783ec56c512e9981c5934273b2e936459"
+    },
+    "live-1789394280826440000.json": {
+      "bytes": 1583,
+      "sha256": "f5f60879444db9deba7b1be8646edd3954bdda3bf4a677c14a52d513d795a0fd"
+    },
+    "runtime.env": {
+      "bytes": 32367,
+      "sha256": "66bb6cfa6639d59787ba4782154ab3fd31f6491536f32a8489588e3237f0dddc"
+    },
+    "live-1789399052651512000.json": {
+      "bytes": 2509,
+      "sha256": "d1ba96857fdc3f989c311b8b287f9126f5d68444e52c86f36874b62015327798"
+    }
+  },
+  "comparison_scope": "The matching q8192/out512 control at whole/CK2fa30fa remains the latest qualified regression. This interrupted long run adds no128k/256k token, timing or state-restoration qualification."
+}

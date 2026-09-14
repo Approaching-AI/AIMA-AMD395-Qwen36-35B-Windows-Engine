@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "kind": "compact_wide_integer_qk_local_validation",
+  "host": "JiaweiMnideMini.lan",
+  "source_commit": "08080529e61992aa161359f7e66e93f33120357c",
+  "source_sha256": {
+    "native/providers/ck_fmha/wide_integer_qk.h": "b2a9ef1fb590bbeb60cb20ff013a870594902ea9211ebe38929cda9bbe63f278",
+    "native/providers/moe_accumulator/sm121_compact_wide_integer_core.h": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+    "tests/native/compact_wide_integer_qk_selftest.cpp": "0ad345f8a8478304804b45006dc0f2066f1b48f29380a379b266f2bc6de76d5c",
+    "tests/test_sm121_compact_wide_integer_core.py": "05c0557db7b15f04a97078c127ef2e0669531fdcfc611c24042817e3d2cd9008"
+  },
+  "validation": {
+    "source_commit": "08080529e61992aa161359f7e66e93f33120357c",
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 127.69199149962515,
+    "log": "compact-wide-qk-local-check-r1.log",
+    "log_sha256": "5fb1610c192e6f202e98f65acd02993652b0b538095096fd87b58d9111dad883",
+    "rust_validation_reused": true,
+    "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+    "rust_validation_record": "runtime-context-local-check-r1.json",
+    "c_product_cli_syntax_command": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Inative/src",
+      "-fsyntax-only",
+      "native/src/product_cli.c"
+    ],
+    "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+    "cargo_incremental": false
+  },
+  "validation_excerpt": [
+    "Ran 399 tests in 121.351s",
+    "OK (skipped=2)",
+    "public_hygiene=pass finding_count=0"
+  ],
+  "row_layout": {
+    "original_global_bytes": 132,
+    "compact_global_bytes": 68,
+    "derived_fp16_digit_bytes": 64,
+    "expanded_shared_bytes": 132,
+    "core_bits": 18,
+    "retained_fields": [
+      "original BF16 words and sum",
+      "trailing-bit words",
+      "unit and maximum exponents",
+      "exception and nonzero masks"
+    ]
+  },
+  "roundtrip": {
+    "rows": 139264,
+    "all65536_bf16_patterns": true,
+    "uniform_rows": 65536,
+    "mixed_pattern_rows": 65536,
+    "random_rows": 8192,
+    "original_prepared_row_byte_mismatches": 0,
+    "actual_cooperative_word_mapping_helper_checked": true,
+    "pair_expansion_in_permuted_order": true,
+    "input_immutability": true,
+    "redzones": true,
+    "sanitizers": [
+      "address",
+      "undefined"
+    ]
+  },
+  "arithmetic_scope": "The component reconstructs the original wide prepared row in shared memory and calls the existing three positive integer matrix partials, compensation and original K16 fallback. The product dispatcher does not include this experimental QK header.",
+  "native_fixture": {
+    "file": "tests/native/compact_wide_integer_qk_selftest.cpp",
+    "safety_shapes": 14,
+    "row_layouts": [
+      132,
+      68
+    ],
+    "original_cpu_dot_samples_per_shape_and_layout": 64,
+    "full_original_q7169_score_comparison": true,
+    "current_prepared_decoded_qk_control_included": true,
+    "query_preparation_in_variant_time": true,
+    "key_preparation_reported_separately": true,
+    "independent_candidate_reset": true
+  },
+  "rust_reuse": {
+    "source_commit": "5875f997136650da899b6775f700464ec0019667",
+    "record": "runtime-context-local-check-r1.json",
+    "log_sha256": "4ce2a807d74c9ab421c9ee74f97ebff51e6a311bd2389d7f5dd64e87e2767b6d",
+    "tests": 47,
+    "clippy_pass": true
+  },
+  "native_windows_validated": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Only host codec, layout and repository validation completed. Native compilation, device row expansion, full score comparison and all timings remain pending; the byte reduction is not a measured speed gain."
+}
