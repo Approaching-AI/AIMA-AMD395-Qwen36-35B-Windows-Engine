@@ -31,6 +31,18 @@ build and full local checks pass. Evidence:
 `benchmarks/correctness/queued-attention-product-20260914.json`, SHA256
 `3cbddbaf9d7010cb56cc5da7eecdf0f2e8df77bf6116aeab0a7b02c3efb13ad1`.
 
+Decoded projection operands at `80d0529` are exact but produce no gain.
+Original / decoded-input / decoded-both preparation-plus-replay medians are
+60.6041 / 61.1360 / 80.2389 ms on complete q8192 QKV. All three preserve
+67108864 GB10-comparable BF16 endpoints and 4331311 original raw selected
+accumulators. Candidate storage adds 64 / 128 MiB; all preparation is timed.
+Every packed word, row flag, candidate, source and guard passes verification.
+Twelve native cases preserve 1386756 ordered K16 states and independent
+production parity. Full local checks pass. Keep the current projection
+dispatcher; no product promotion or release qualification follows. Evidence:
+`benchmarks/correctness/decoded-projection-comparison-20260914.json`, SHA256
+`2f8c7346c670ea58bb254bd8612e00fdb289da68a1d419d3cbf12ce355fefd3c`.
+
 The same-DLL OUT admission comparison at `02f02eb` recovers correctness but
 rejects the performance tradeoff. QKV4/OUT0 with linear OUT PPB1000 and
 QKV4/OUT4 with uniform linear OUT PPB2000 both preserve all 512 GB10 outputs
