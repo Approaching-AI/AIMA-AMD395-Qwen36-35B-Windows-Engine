@@ -11,19 +11,18 @@ Both first tokens are 144 and raw logits are 10.375. First-token success
 and a faster incorrect continuation do not establish performance acceptance.
 Keep algorithm 0 and shared prevalidated replay enabled for subsequent work.
 
-The next structural experiment removes repeated range checks and original
-product backups from exact scalar replay after a stricter row certificate.
-Its initial source `57ddfe9` passes 30 native cases and 3762438 raw K16
-intermediate comparisons, including zero/cancellation and exceptional fallback.
-Host sanitizer checks pass all BF16 encodings and 2635512 certified group
-values. The valid biased-exponent range is 84 through 174 at K <= 4096;
-explicit counterexamples reject the initially considered wider lower range.
-No product dispatch changes yet. A complete captured-QKV comparison now
-includes the current implementation, previous range normalization and this
-new specialization, with identical candidate identities and three completed
-samples per variant.
-Evidence: `benchmarks/correctness/strong-float-replay-safety-20260914.json`,
-SHA256 `6a9a8d46a9bdb431d5b8f42d57c4df75c5153155ae999c7a9a50de1133983473`.
+The subsequent exact-replay comparison at `0f80fe6` also produces no gain.
+Current validated replay, prior range normalization and new strong-row replay
+all preserve 58728448 original GB10 QKV BF16 outputs and 3791742 unrounded
+selected accumulators. Preparation plus replay medians are 49.6012, 49.5987
+and 50.9699 ms from three completed samples after warmup. Both certificates
+cover the same 3028041 selected cells; all flags and memory checks pass.
+Neither alternative enters product dispatch. Their earlier 30 native cases
+and 3762438 raw K16 comparisons remain arithmetic evidence.
+Evidence: `benchmarks/correctness/strong-projection-comparison-20260914.json`,
+SHA256 `0f48444a387cd2edea36759aebe394051d8046b58f458ddf4f54d50f1dff0b7c`.
+The next full-model diagnosis separates algorithm-4 QKV/Z and OUT replacement
+scopes, keeping the original correction bounds and complete GB10 boundary.
 
 Both native captured-QKV variants preserve all 67108864 BF16 cells, all
 original 7169 input rows plus 1023 independently comparable repeated rows,
