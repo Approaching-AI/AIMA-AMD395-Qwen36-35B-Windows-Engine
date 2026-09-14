@@ -20,9 +20,9 @@ and guards checked. Native builds, allocation/submission failure recovery,
 chunk rollback, C smoke, 392 Python tests with two skips and hygiene pass.
 Unchanged Rust/Cargo reuse the prior 47 tests and clippy with explicit diff.
 
-Use this whole/CK pair for subsequent context experiments. Real 128k/256k
-model continuation, retained speed, package, HTTP, soak and release remain
-open. The address fixtures alone establish no long-context inference claim.
+This pair remains the measured q8192 and active 128k stack. The 256k
+route requires the pending runtime source below. Real 128k/256k model
+continuation, retained speed, package, HTTP, soak and release remain open. The address fixtures alone establish no long-context inference claim.
 Evidence: `benchmarks/correctness/extended-attention-capacity-q8192-20260914.json`,
 SHA256 `e0100d3cde19c159dfde1d693d31e8793ffaaa7b31ffa74e9a9e67c80c24c646`.
 
@@ -36,6 +36,21 @@ Windows or real-model qualification yet and does not replace the measured
 stack above. Local evidence:
 `benchmarks/correctness/runtime-context-bounds-local-20260914.json`, SHA256
 `9e144956381418f346cf1ed7cd34a6088d4357366efaab8682d3cc83c879f9bf`.
+
+Source `24c4304` completes the remaining 256k suffix/decode bounds and
+supports an extended RoPE table with 264736 rows. GB10 capture `c9ddbe4`
+matches all 16943104 BF16 values against the original MRoPE constructor;
+the original 262144 rows are byte-identical. The 33886208-byte artifact adds
+331776 bytes. Q1 checks both the fixed artifact hash and the actual loaded
+row count, so the older table still rejects positions beyond its extent.
+The actual request, projection and RoPE-loader guards now use the appropriate
+runtime limits. Local C checks, 398 Python tests with two skips and hygiene
+pass, including 22 loader fault/reuse cases; Windows crypto is mocked in
+those host tests. The original table hashes are independently verified on
+GB10 and Mac. Unchanged Rust/Cargo reuse the prior 47 tests and clippy.
+Windows, real-model, speed and release qualification remain pending.
+Evidence: `benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`,
+SHA256 `fa98010efa0ed10ca54574e3ef0631daea24e540ae70f6980601ecd285cc357b`.
 
 The product CLI at `70d85fe` now records and validates the first suffix
 retry inside prefix fallback before the timed warm hit can replace its
