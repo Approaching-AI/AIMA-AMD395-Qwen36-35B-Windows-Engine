@@ -2,6 +2,28 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The same-DLL OUT admission comparison at `02f02eb` recovers correctness but
+rejects the performance tradeoff. QKV4/OUT0 with linear OUT PPB1000 and
+QKV4/OUT4 with uniform linear OUT PPB2000 both preserve all 512 GB10 outputs
+and actual callbacks, first 144/raw 10.375. Full-attention OUT stays at
+PPB10000 and both runs disable the shadow audit. TTFT is 35160.3559 /
+35532.2183 ms: the stronger candidate is 371.8624 ms slower. Load is
+21274.1108 / 21303.5852 ms; TPOT is 101.766568 / 100.994616 ms.
+Keep QKV4/OUT0 and linear OUT PPB1000. Do not infer repeatability or retained
+performance from this pair. Algorithm4 OUT with the old linear bound remains
+incorrect on this case. Evidence: `benchmarks/correctness/out-matrix-bound-product-20260914.json`,
+SHA256 `720451ec5387b3936b101ca9f9b3c3ad7c45200e8f9f6029942ce1dd50589363`.
+
+The next component comparison reorders the same exact-replay candidate set
+into spatial input/weight tiles. It keeps the original validated four-lane
+K16 arithmetic and compares all captured q8192 QKV BF16 endpoints and every
+unrounded selected value. Timings include bitmap construction, reordering,
+count readback and replay. All original 7169 input rows plus 1023 independently
+comparable repeated rows remain present; GB10 outputs never enter computation.
+The host bijection check covers 2511267 valid cells and 2915933 padding cells,
+including partial tiles, invalid shapes and sanitizer checks. Runtime dispatch
+is unchanged; native results are pending.
+
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
 the same DLL's control and QKV/Z-only algorithm 4 both preserve all 512
