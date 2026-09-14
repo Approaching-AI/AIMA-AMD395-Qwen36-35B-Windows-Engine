@@ -1,0 +1,2247 @@
+{
+  "schema_version": 1,
+  "kind": "two_lane_original_arithmetic_complete_qkv_comparison",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer0 QKV",
+  "source_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+  "source_delivery": {
+    "safety": {
+      "repo": "D:/projects/AIMA-public-dual-lane-20260914",
+      "source_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+      "prerequisite_commit": "dd058baed03be05e66ea69bd77854573bbe16786",
+      "bundle": "dual-lane-a8e4f41.bundle",
+      "bundle_sha256": "740bffc8db5880a00838c71433641ea0fc839362d0bd73d95fb7c53ede5eb0a5",
+      "script": "run-native-dual-lane-safety-r1.ps1",
+      "script_sha256": "08091d47cb601c6cdd5aa7ac6ea9b3cd566cbc01f4b66dcf68101ae1082a85f7",
+      "runtime_changed": false,
+      "provider_source_sha256": "98ac4b88d3584b094b45567bbda563f809d86e3b29e76a83ea5a29ef0dfadc0f",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_dual_lane_projection.h": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+        "tests/native/dual_lane_selftest.cpp": "74883a4b94800b0ae83712312e226605574eaeac310e03bb1ddf4fdb38285d75",
+        "tests/native/projection_dual_lane_replay_suite.h": "6a358732c73becaaee988872787a48d5801a934819fe4076496791ef7b9624a0",
+        "tests/native/projection_safety_selftest.cpp": "c98800a5fa46945a398812ead2af88fb738f4ed79805a9635851eef3313ea6d0",
+        "tests/native/projection_real_replay.h": "6e11f4506cb5ab1a65cad0278ad2c95e2e8944c7381249a926e48e0aee7c1b33"
+      }
+    },
+    "projection": {
+      "repo": "D:/projects/AIMA-public-dual-lane-20260914",
+      "source_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+      "prerequisite_commit": "dd058baed03be05e66ea69bd77854573bbe16786",
+      "bundle": "dual-lane-a8e4f41.bundle",
+      "bundle_sha256": "740bffc8db5880a00838c71433641ea0fc839362d0bd73d95fb7c53ede5eb0a5",
+      "script": "run-native-dual-lane-projection-r1.ps1",
+      "script_sha256": "182566dcecde002cf419e9881228b303849edf0163371c3fe32d18783f739460",
+      "runtime_changed": false,
+      "provider_source_sha256": "98ac4b88d3584b094b45567bbda563f809d86e3b29e76a83ea5a29ef0dfadc0f",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_dual_lane_projection.h": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+        "tests/native/dual_lane_selftest.cpp": "74883a4b94800b0ae83712312e226605574eaeac310e03bb1ddf4fdb38285d75",
+        "tests/native/projection_dual_lane_replay_suite.h": "6a358732c73becaaee988872787a48d5801a934819fe4076496791ef7b9624a0",
+        "tests/native/projection_safety_selftest.cpp": "c98800a5fa46945a398812ead2af88fb738f4ed79805a9635851eef3313ea6d0",
+        "tests/native/projection_real_replay.h": "6e11f4506cb5ab1a65cad0278ad2c95e2e8944c7381249a926e48e0aee7c1b33"
+      }
+    }
+  },
+  "commands": {
+    "run-native-dual-lane-safety-r1.ps1": {
+      "sha256": "08091d47cb601c6cdd5aa7ac6ea9b3cd566cbc01f4b66dcf68101ae1082a85f7",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-dual-lane-20260914';$seed='D:\\projects\\AIMA-public-staged-probability-20260914';$sha='a8e4f414a33e45d776b475f7776282c97e26d20e';$bundle='D:\\projects\\dual-lane-a8e4f41.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '740bffc8db5880a00838c71433641ea0fc839362d0bd73d95fb7c53ede5eb0a5'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\dual-lane-safety';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\dual_lane_selftest.cpp';$exe=Join-Path $build 'dual-lane-safety.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceFiles=@($source,(Join-Path $repo 'tests\\native\\strong_float_replay_cases.h'));$sourceFiles+=@(Get-ChildItem (Join-Path $repo 'native\\providers\\moe_accumulator') -Filter '*.h' -File|ForEach-Object {$_.FullName})\n$sourceInputs=@();foreach($file in $sourceFiles){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated dense/MoE reduction shapes';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Validate two-lane original K16 carry ownership against independent original CPU wide arithmetic for every intermediate state, with unaligned operands, partial output blocks, signed zeros, cancellation, exceptional rows, integer fallback and K16/272/2048/4096/4112/8192. Verify original row eligibility and per-group float/fallback decisions, guards, immutable inputs and independent production parity. Component only.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=120\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$spec.executable=$exe;$timeout=90\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\dual-lane-safety-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native subgroup diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($reports.Count -ne 6){throw 'Incomplete subgroup diagnostic'}\n foreach($report in $reports){if($report.raw_bit_mismatches -ne 0 -or -not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Subgroup arithmetic or memory failure'}}\n}\n"
+    },
+    "run-native-dual-lane-projection-r1.ps1": {
+      "sha256": "182566dcecde002cf419e9881228b303849edf0163371c3fe32d18783f739460",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-dual-lane-20260914';$seed='D:\\projects\\AIMA-public-staged-probability-20260914';$source='a8e4f414a33e45d776b475f7776282c97e26d20e';$bundle='D:\\projects\\dual-lane-a8e4f41.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '740bffc8db5880a00838c71433641ea0fc839362d0bd73d95fb7c53ede5eb0a5'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $source;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $source -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\dual-lane-projection-safety';$exe=Join-Path $build 'qrt-projection-safety.exe';$provider=Join-Path $repo 'build\\dual-lane-projection-provider'\n$out=Join-Path $repo ('build\\dual-lane-projection-'+$Action+'-r1');$specPath=Join-Path $repo ('build\\dual-lane-projection-'+$Action+'-r1.json')\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw 'Evidence exists'}}\n$null=New-Item -ItemType Directory -Path (Join-Path $repo 'build') -Force\n$sourceFiles=@('native\\providers\\whole_provider.cpp','native\\providers\\q8192_matrix_producer_policy.h','tests\\native\\projection_safety_selftest.cpp','scripts\\baiying_build_whole_provider.ps1')\nforeach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn','native\\providers\\ck_fmha','tests\\native')){\n $sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName.Substring($repo.Length+1)})\n}\n$sourceInputs=@();foreach($file in ($sourceFiles|Sort-Object -Unique)){$sourceInputs+=@{file=$file;sha256=(Get-FileHash (Join-Path $repo $file) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$source;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; native compile';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;replay_lanes=@(4,2);purpose='Compare original validated four-lane and two-lane replay on all4331311 original selected q8192 QKV cells. Preserve algorithm4 producer,PPB1000,midpoint512,original7169 input rows plus1023 independent repeats. Verify67108864 BF16 endpoints,every raw selected accumulator,row flags,guards and source immutability. Time completed row preparation plus replay with one warmup and three samples. No product dispatch change.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$env:QRT_QWEN36_PROFILE_MATRIX_PRODUCER_WALL='0';$env:QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER='1';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM='4';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE='qkv';$env:QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT='0'\n$env:QRT_PROJECTION_SAFETY_STRONG_REPLAY='0';$env:QRT_PROJECTION_SAFETY_SPATIAL_REPLAY='0';$env:QRT_PROJECTION_SAFETY_PACKED_TILES_REPLAY='0';$env:QRT_PROJECTION_SAFETY_DUAL_LANE_REPLAY='1'\n$env:QRT_QWEN36_HAWKEYE_DEVICE_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS='1';$env:QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY='1';$env:QRT_QWEN36_HAWKEYE_PARTITION_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR='0';$env:QRT_QWEN36_HAWKEYE_FLOAT_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT='0';$env:QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES='0';$env:QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH='4096'\nforeach($name in @('SCALAR','TILED','BOUNDED','SCALED','ROW_MAX','F32_CARRY','RANGE','PARTITION','INTERVAL')){[Environment]::SetEnvironmentVariable('QRT_PROJECTION_SAFETY_'+$name+'_REPLAY','0','Process')}\n$spec.matrix_producer_algorithm=[int]$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM\nfunction Check-Run([string]$action){\n $path=Join-Path $repo ('build\\dual-lane-projection-'+$action+'-r1\\run-record.json');$r=[IO.File]::ReadAllText($path)|ConvertFrom-Json\n if($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('Incomplete prerequisite '+$action)}\n return (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()\n}\nif($Action -eq 'build'){\n if(Test-Path $build){throw 'Build exists'}\n $spec.executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n $spec.arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'),'-OutDir',$build,'-DppReduction','1','-CompactNormalize','1','-HawkeyeReplayLanes','4','-CompileTimeoutSeconds','240','-ProjectionSafetyTest');$timeout=270\n}else{\n $spec.build_run_sha256=Check-Run 'build'\n $metaPath=Join-Path $build 'build-provenance.json';$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\n $artifact=@($meta.artifacts|Where-Object {$_.name -eq 'qrt-projection-safety.exe'})\n if($meta.repo_commit -ne $source -or $meta.dirty_tree -or $artifact.Count -ne 1 -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $artifact[0].sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $metaPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $inputTensor='D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin';$weightTensor='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin';$referenceTensor='D:\\projects\\sm121-qkv-reference-9510d980.bin'\n $tensors=@(@{path=$inputTensor;sha256='6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161'},@{path=$weightTensor;sha256='b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f'},@{path=$referenceTensor;sha256='9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37'})\n foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Original QKV tensor changed'}}\n $spec.executable=$exe;$spec.arguments=@('--real-qkv-q8192',$inputTensor,$weightTensor,$referenceTensor,'1000');$spec.tensor_inputs=$tensors\n $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV';$spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83';$spec.gb10_reference_host='aitopatom-66c4';$spec.gb10_capture_sha256='5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b';$spec.prompt_sha256='26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804';$spec.reference_is_compute_input=$false;$spec.selector_error_bound_ppb=1000;$spec.tokens=8192;$spec.source_tokens=7169;$spec.repeated_input_rows=1023;$timeout=120\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native matrix algorithm action failed'}\nif($Action -eq 'test'){\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $result=@($reports|Where-Object {$_.type -eq 'dual_lane_projection_real_replay'});$summary=@($reports|Where-Object {$_.type -eq 'summary'})\n if($summary.Count -ne 1 -or $summary[0].status -ne 'pass' -or $summary[0].gpu_cases -ne 1 -or $result.Count -ne 2){throw 'Incomplete captured comparison'}\n foreach($x in $result){if($x.elements -ne 67108864 -or $x.candidates -ne 4331311 -or $x.bf16_mismatches -ne 0 -or $x.raw_bit_mismatches -ne 0 -or $x.unrounded_candidate_bit_mismatches -ne 0 -or -not $x.redzones_pass -or -not $x.immutable_inputs -or $x.completed_host_samples_ms.Count -ne 3){throw 'Captured QKV mismatch'}}\n}\n"
+    }
+  },
+  "native_validation": {
+    "dual-lane-safety-build-r1": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "-DQRT_SM121_DPP_REDUCTION=1",
+            "-DQRT_SM121_COMPACT_NORMALIZE=1",
+            "--offload-arch=gfx1151",
+            "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\dual_lane_selftest.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-safety\\dual-lane-safety.exe"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-dual-lane-20260914",
+          "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+          "command_file": "D:\\projects\\run-native-dual-lane-safety-r1.ps1",
+          "command_file_sha256": "08091d47cb601c6cdd5aa7ac6ea9b3cd566cbc01f4b66dcf68101ae1082a85f7",
+          "source_inputs": [
+            {
+              "sha256": "74883a4b94800b0ae83712312e226605574eaeac310e03bb1ddf4fdb38285d75",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\dual_lane_selftest.cpp"
+            },
+            {
+              "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\strong_float_replay_cases.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+            },
+            {
+              "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            }
+          ],
+          "model": "none; generated dense/MoE reduction shapes",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Validate two-lane original K16 carry ownership against independent original CPU wide arithmetic for every intermediate state, with unaligned operands, partial output blocks, signed zeros, cancellation, exceptional rows, integer fallback and K16/272/2048/4096/4112/8192. Verify original row eligibility and per-group float/fallback decisions, guards, immutable inputs and independent production parity. Component only."
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1679.834,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "f8568105458d152d390db29992b37c2653d20b94c4368f3b8499b1d082d6d571",
+        "build-provenance.json": "7ec2d8262738c727593d41da454aa89c2fd4fc422d44a08018c2b300a01b7966",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "launch.json": "510d5b40aaf6943be383990cdee1d27b517d6bb3889626e268d822eeccb2c063",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "preflight.json": "a61e5f25c2d7454cc2c4c12398b3a675b665af03be3e36c43278bb11d5b6019f",
+        "run-record.json": "779054f0820901753013ae6309e554c5ed13c02108600b13ec16b4462a341fe6",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build-provenance.json": {
+        "host": "BAIYING",
+        "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+        "source_inputs": [
+          {
+            "sha256": "74883a4b94800b0ae83712312e226605574eaeac310e03bb1ddf4fdb38285d75",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\dual_lane_selftest.cpp"
+          },
+          {
+            "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\strong_float_replay_cases.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-dual-lane-safety-r1.ps1",
+        "command_file_sha256": "08091d47cb601c6cdd5aa7ac6ea9b3cd566cbc01f4b66dcf68101ae1082a85f7",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\dual_lane_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-safety\\dual-lane-safety.exe"
+        ],
+        "run_record_sha256": "779054f0820901753013ae6309e554c5ed13c02108600b13ec16b4462a341fe6",
+        "executable": {
+          "sha256": "afdee9da59fe9dff7f14986cc6ae2caf129d5a04879e4e48d3aae586bb1b2f3b",
+          "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-safety\\dual-lane-safety.exe",
+          "bytes": 196608
+        }
+      }
+    },
+    "dual-lane-safety-test-r1": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-safety\\dual-lane-safety.exe",
+          "arguments": [],
+          "working_directory": "D:\\projects\\AIMA-public-dual-lane-20260914",
+          "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+          "command_file": "D:\\projects\\run-native-dual-lane-safety-r1.ps1",
+          "command_file_sha256": "08091d47cb601c6cdd5aa7ac6ea9b3cd566cbc01f4b66dcf68101ae1082a85f7",
+          "source_inputs": [
+            {
+              "sha256": "74883a4b94800b0ae83712312e226605574eaeac310e03bb1ddf4fdb38285d75",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\dual_lane_selftest.cpp"
+            },
+            {
+              "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\strong_float_replay_cases.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+            },
+            {
+              "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            }
+          ],
+          "model": "none; generated dense/MoE reduction shapes",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Validate two-lane original K16 carry ownership against independent original CPU wide arithmetic for every intermediate state, with unaligned operands, partial output blocks, signed zeros, cancellation, exceptional rows, integer fallback and K16/272/2048/4096/4112/8192. Verify original row eligibility and per-group float/fallback decisions, guards, immutable inputs and independent production parity. Component only.",
+          "build_provenance_sha256": "7ec2d8262738c727593d41da454aa89c2fd4fc422d44a08018c2b300a01b7966"
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 472.687,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "ae0a5b2c187f7211d35cbc80cd219e1d75406d6d1531f4bf30a0a7ac8ab93649",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "5b905fd9eaeb198fcff76bf8e4e6f15d6c093fe803c25f46e3534f37e435162e",
+        "product.stdout.jsonl": "d14f0ba63ae6ced815f6960ea3dc2beb09009fc01616244e8ff428c07f1d9e6e",
+        "launch.json": "0f87da65719d131d42f46120ba81274a26c8c2afdf4be95acba4f68b68cf2db2",
+        "preflight.json": "2ba40819e6424a3282346f02539c65be9cd69cef9109c4ad2345991b38d258ed",
+        "run-record.json": "687d65ec533b8443b3e7a3581c6529aee5b5311313100fef1a2fe12d22a30c89",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports.json": [
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 257,
+          "width": 16,
+          "ordered_groups": 257,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 245,
+          "integer_groups": 12,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 4096,
+          "width": 272,
+          "ordered_groups": 69632,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 59636,
+          "integer_groups": 9996,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 2048,
+          "width": 2048,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 223180,
+          "integer_groups": 38964,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 1024,
+          "width": 4096,
+          "ordered_groups": 262144,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 223078,
+          "integer_groups": 39066,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 129,
+          "width": 4112,
+          "ordered_groups": 33153,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 28539,
+          "integer_groups": 4614,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "dual_lane_safety",
+          "lanes": 2,
+          "rows": 129,
+          "width": 8192,
+          "ordered_groups": 66048,
+          "raw_bit_mismatches": 0,
+          "floating_groups": 56844,
+          "integer_groups": 9204,
+          "unaligned_operands": true,
+          "production_diagnostic_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "dual-lane-projection-build-r1": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+          "arguments": [
+            "-NoLogo",
+            "-NoProfile",
+            "-NonInteractive",
+            "-File",
+            "D:\\projects\\AIMA-public-dual-lane-20260914\\scripts\\baiying_build_whole_provider.ps1",
+            "-OutDir",
+            "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety",
+            "-DppReduction",
+            "1",
+            "-CompactNormalize",
+            "1",
+            "-HawkeyeReplayLanes",
+            "4",
+            "-CompileTimeoutSeconds",
+            "240",
+            "-ProjectionSafetyTest"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-dual-lane-20260914",
+          "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+          "command_file": "D:\\projects\\run-native-dual-lane-projection-r1.ps1",
+          "command_file_sha256": "182566dcecde002cf419e9881228b303849edf0163371c3fe32d18783f739460",
+          "source_inputs": [
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "ea1e12354b3a0dedff782aeca273a5595d647f7e9f2fb28f5cd62a526dbf15ca",
+              "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+              "file": "native\\providers\\ck_fmha\\decoded_window_qk.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+              "file": "native\\providers\\ck_fmha\\matrix_consumer_qk.h"
+            },
+            {
+              "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+              "file": "native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+              "file": "native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+              "file": "native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+              "file": "native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+            },
+            {
+              "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+              "file": "native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+              "file": "native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+              "file": "native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+              "file": "native\\providers\\q8192_matrix_producer_policy.h"
+            },
+            {
+              "sha256": "98ac4b88d3584b094b45567bbda563f809d86e3b29e76a83ea5a29ef0dfadc0f",
+              "file": "native\\providers\\whole_provider.cpp"
+            },
+            {
+              "sha256": "40ad61564321035f2f0e0524b4b6d85bbb0bdbf67ed447e23cc3adf9aa635dfa",
+              "file": "scripts\\baiying_build_whole_provider.ps1"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "c109774b76ff5d6057dca356c645c6635eb799592cdde663839cae295d3229cf",
+              "file": "tests\\native\\moe_shared_replay_suite.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "6a358732c73becaaee988872787a48d5801a934819fe4076496791ef7b9624a0",
+              "file": "tests\\native\\projection_dual_lane_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "88f66f6067da8992ee129f265ddc9207b6f94eeb562aa4b894c411b652b5047f",
+              "file": "tests\\native\\projection_interval_audit_suite.h"
+            },
+            {
+              "sha256": "92dd87058370a745b05c098134d3287f5aea0ac85c4cebd71199a64c4883b2bd",
+              "file": "tests\\native\\projection_packed_tiles_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "767c3e4e8e15137b272b1516c32f92afbb797eb859937f91b412a640871091e5",
+              "file": "tests\\native\\projection_producer_selection_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "6e11f4506cb5ab1a65cad0278ad2c95e2e8944c7381249a926e48e0aee7c1b33",
+              "file": "tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "c98800a5fa46945a398812ead2af88fb738f4ed79805a9635851eef3313ea6d0",
+              "file": "tests\\native\\projection_safety_selftest.cpp"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "b20eb39eb6ff7607632d9abc3d7d5882f9a0877b924319fe325d0d1a7f470d23",
+              "file": "tests\\native\\projection_spatial_replay_suite.h"
+            },
+            {
+              "sha256": "90f8a465132487836b8c7ab2507d9cd2383dbdefe00cb8462948c78621ff912a",
+              "file": "tests\\native\\projection_strong_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "tests\\native\\scaled_l2_reference.h"
+            },
+            {
+              "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+              "file": "tests\\native\\strong_float_replay_cases.h"
+            }
+          ],
+          "model": "none; native compile",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "replay_lanes": [
+            4,
+            2
+          ],
+          "purpose": "Compare original validated four-lane and two-lane replay on all4331311 original selected q8192 QKV cells. Preserve algorithm4 producer,PPB1000,midpoint512,original7169 input rows plus1023 independent repeats. Verify67108864 BF16 endpoints,every raw selected accumulator,row flags,guards and source immutability. Time completed row preparation plus replay with one warmup and three samples. No product dispatch change.",
+          "matrix_producer_algorithm": 4
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 97824.847,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "dcefec873327505fdafb0c59e7d5c2c28eaa8ffa97419cee992ddda153efe3ed",
+        "build-provenance.json": "006bd6c1a7c36b7f4327500fcf7a186d9bdd6dbd66b3f0fd1822f622ae464b2e",
+        "product.stdout.jsonl": "7db8c4a540ef0e3a2921f8a0695180476d8f6d7b092a10718ea3b6718bf34de7",
+        "launch.json": "9dec3105a9e01ab4b0f4433c403136971328916d8fece028bcdf852229ea4808",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "preflight.json": "6c4d646e9fb1a4c61c3b0c4b74a66da93345487ea262c980e5cb29f117018cfb",
+        "run-record.json": "bda7a2265a531e9b6f8a6674abc67d1cb30cc48eba7eb83164927579e2479e38",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build-provenance.json": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-dual-lane-20260914\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 240,
+        "source_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "98ac4b88d3584b094b45567bbda563f809d86e3b29e76a83ea5a29ef0dfadc0f",
+        "projection_safety_test": true,
+        "hawkeye_device_replay_test_header_sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+        "attention_admission_replay": false,
+        "compile_source_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\projection_safety_selftest.cpp",
+        "compile_source_sha256": "c98800a5fa46945a398812ead2af88fb738f4ed79805a9635851eef3313ea6d0",
+        "hawkeye_dispatch_policy_sha256": "76c090e233e5709f914942237df3d7bbabe8c6b53de645c5602c88e99cc85132",
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+        "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+        "qrt_header_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\src\\qrt.h",
+        "qrt_header_sha256": "820b9e58c9517ba42eddd2604e10bb76e891de401a93b557436a97fbdeb762bb",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "9caa88b7cfc2547402d91d77624df81b0b362ae64b8f25c4d5edef39bd88a4f0",
+        "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+        "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+        "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1451.6837
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 95904.3116
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\src",
+          "-I",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\native\\providers",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\tests\\native\\projection_safety_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety\\qrt-projection-safety.exe",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt-projection-safety.exe",
+            "bytes": 14074368,
+            "sha256": "12b5c656a76ffa20cb1bd386a367814411b6406d0983795cdf3abbc6c7887daa"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "27ef1ae1105914e91256ba6ba7a1c5d2883755098558005092f2c32357aa4095"
+          }
+        ]
+      }
+    },
+    "dual-lane-projection-test-r1": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-dual-lane-20260914\\build\\dual-lane-projection-safety\\qrt-projection-safety.exe",
+          "arguments": [
+            "--real-qkv-q8192",
+            "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+            "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+            "D:\\projects\\sm121-qkv-reference-9510d980.bin",
+            "1000"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-dual-lane-20260914",
+          "repo_commit": "a8e4f414a33e45d776b475f7776282c97e26d20e",
+          "command_file": "D:\\projects\\run-native-dual-lane-projection-r1.ps1",
+          "command_file_sha256": "182566dcecde002cf419e9881228b303849edf0163371c3fe32d18783f739460",
+          "source_inputs": [
+            {
+              "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+              "file": "native\\providers\\ck_fmha\\attention_deadline.h"
+            },
+            {
+              "sha256": "ea1e12354b3a0dedff782aeca273a5595d647f7e9f2fb28f5cd62a526dbf15ca",
+              "file": "native\\providers\\ck_fmha\\blackwell_attention.h"
+            },
+            {
+              "sha256": "15dec9d23479b883c1e0edcc77ca31ebabec07282650b21f27142dff161da1c1",
+              "file": "native\\providers\\ck_fmha\\decoded_window_qk.h"
+            },
+            {
+              "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+              "file": "native\\providers\\ck_fmha\\f32_carry_qk.h"
+            },
+            {
+              "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+              "file": "native\\providers\\ck_fmha\\float_alignment_qk.h"
+            },
+            {
+              "sha256": "8236b9f3ef9332e9a237f318048acb4daa65b97424a46627bea551524ba51d9b",
+              "file": "native\\providers\\ck_fmha\\float_pv_replay.h"
+            },
+            {
+              "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+              "file": "native\\providers\\ck_fmha\\float_subgroup_qk.h"
+            },
+            {
+              "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+              "file": "native\\providers\\ck_fmha\\matrix_consumer_qk.h"
+            },
+            {
+              "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+              "file": "native\\providers\\ck_fmha\\positive_integer_qk.h"
+            },
+            {
+              "sha256": "727f7f82565d55c747d14a3e985065084155e3527317c84096b6fcbe8cbb7ba7",
+              "file": "native\\providers\\ck_fmha\\selective_qk.h"
+            },
+            {
+              "sha256": "7a20ed60909ba4765e692ccb4f16c595de7aac449aa1a171bdb9a53d35d98133",
+              "file": "native\\providers\\ck_fmha\\wide_integer_qk.h"
+            },
+            {
+              "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+              "file": "native\\providers\\gdn\\blackwell_accumulator.h"
+            },
+            {
+              "sha256": "dc65d10ac5db878454eeaa7223891af6d886c17015bf24d0cdc115f585019132",
+              "file": "native\\providers\\gdn\\blackwell_cooperative.h"
+            },
+            {
+              "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+              "file": "native\\providers\\gdn\\blackwell_inverse.h"
+            },
+            {
+              "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+              "file": "native\\providers\\gdn\\blackwell_inverse_math.h"
+            },
+            {
+              "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+              "file": "native\\providers\\gdn\\blackwell_kkt.h"
+            },
+            {
+              "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+              "file": "native\\providers\\gdn\\blackwell_l2norm.h"
+            },
+            {
+              "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+              "file": "native\\providers\\gdn\\blackwell_scalar_matrices.h"
+            },
+            {
+              "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+              "file": "native\\providers\\gdn\\blackwell_scalar_state.h"
+            },
+            {
+              "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+              "file": "native\\providers\\gdn\\blackwell_state.h"
+            },
+            {
+              "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+              "file": "native\\providers\\gdn\\blackwell_wu_output.h"
+            },
+            {
+              "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+              "file": "native\\providers\\gdn\\first_call_capture.h"
+            },
+            {
+              "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+              "file": "native\\providers\\gdn\\fla_checkpoint.h"
+            },
+            {
+              "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+              "file": "native\\providers\\gdn\\sm121_attention_rcp.h"
+            },
+            {
+              "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+              "file": "native\\providers\\gdn\\sm121_exp2_interpolated.h"
+            },
+            {
+              "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+              "file": "native\\providers\\gdn\\sm121_exp2_table.h"
+            },
+            {
+              "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+              "file": "native\\providers\\gdn\\sm121_q1_attention.h"
+            },
+            {
+              "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+              "file": "native\\providers\\gdn\\sm121_q1_full.h"
+            },
+            {
+              "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+              "file": "native\\providers\\gdn\\sm121_q1_gdn.h"
+            },
+            {
+              "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+              "file": "native\\providers\\gdn\\sm121_q1_math.h"
+            },
+            {
+              "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+              "file": "native\\providers\\gdn\\sm121_rsqrt_table.h"
+            },
+            {
+              "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+              "file": "native\\providers\\gdn\\sm121_silu_table.h"
+            },
+            {
+              "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+              "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+            },
+            {
+              "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+              "file": "native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+            },
+            {
+              "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+              "file": "native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+            },
+            {
+              "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+              "file": "native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+            },
+            {
+              "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+              "file": "native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+            },
+            {
+              "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+              "file": "native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+            },
+            {
+              "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+              "file": "native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+            },
+            {
+              "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+              "file": "native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+            },
+            {
+              "sha256": "92811d42da4a49ed15e5172647a8afa97092ad1fb7ab76de6d88b97cd943bd43",
+              "file": "native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+            },
+            {
+              "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+              "file": "native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+            },
+            {
+              "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+              "file": "native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+            },
+            {
+              "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+              "file": "native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+            },
+            {
+              "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+              "file": "native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+            },
+            {
+              "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+            },
+            {
+              "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+            },
+            {
+              "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+              "file": "native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+            },
+            {
+              "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+              "file": "native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+            },
+            {
+              "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+              "file": "native\\providers\\moe_accumulator\\sm121_integer_core.h"
+            },
+            {
+              "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+              "file": "native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+            },
+            {
+              "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+              "file": "native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+            },
+            {
+              "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+              "file": "native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+            },
+            {
+              "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+              "file": "native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+            },
+            {
+              "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+              "file": "native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+            },
+            {
+              "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+              "file": "native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+            },
+            {
+              "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+              "file": "native\\providers\\moe_accumulator\\sm121_native_product.h"
+            },
+            {
+              "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+              "file": "native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+            },
+            {
+              "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+              "file": "native\\providers\\moe_accumulator\\sm121_paired_products.h"
+            },
+            {
+              "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+              "file": "native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+            },
+            {
+              "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+              "file": "native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+            },
+            {
+              "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+              "file": "native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+            },
+            {
+              "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+              "file": "native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+            },
+            {
+              "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+              "file": "native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+            },
+            {
+              "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+              "file": "native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+            },
+            {
+              "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+              "file": "native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+            },
+            {
+              "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+              "file": "native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+            },
+            {
+              "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+              "file": "native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+            },
+            {
+              "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+              "file": "native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+            },
+            {
+              "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+              "file": "native\\providers\\moe_accumulator\\sm121_range_projection.h"
+            },
+            {
+              "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+              "file": "native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+            },
+            {
+              "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+              "file": "native\\providers\\moe_accumulator\\sm121_router_exp.h"
+            },
+            {
+              "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+              "file": "native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+            },
+            {
+              "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+              "file": "native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+            },
+            {
+              "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+              "file": "native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+            },
+            {
+              "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+              "file": "native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+            },
+            {
+              "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+              "file": "native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+            },
+            {
+              "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+              "file": "native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+            },
+            {
+              "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+              "file": "native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+            },
+            {
+              "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+              "file": "native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+            },
+            {
+              "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+              "file": "native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+            },
+            {
+              "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+              "file": "native\\providers\\moe_accumulator\\sm121_subgroup.h"
+            },
+            {
+              "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+              "file": "native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+            },
+            {
+              "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+              "file": "native\\providers\\moe_accumulator\\sm121_wave16.h"
+            },
+            {
+              "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+              "file": "native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+            },
+            {
+              "sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+              "file": "native\\providers\\q8192_matrix_producer_policy.h"
+            },
+            {
+              "sha256": "98ac4b88d3584b094b45567bbda563f809d86e3b29e76a83ea5a29ef0dfadc0f",
+              "file": "native\\providers\\whole_provider.cpp"
+            },
+            {
+              "sha256": "40ad61564321035f2f0e0524b4b6d85bbb0bdbf67ed447e23cc3adf9aa635dfa",
+              "file": "scripts\\baiying_build_whole_provider.ps1"
+            },
+            {
+              "sha256": "2ab865148f2ba7e6028981cc5f64bce751388335d0523534d0fd73f14c83bc2b",
+              "file": "tests\\native\\absolute_admission_audit_selftest.h"
+            },
+            {
+              "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+              "file": "tests\\native\\absolute_product_bound_suite.h"
+            },
+            {
+              "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+              "file": "tests\\native\\absolute_product_hipblaslt_selftest.h"
+            },
+            {
+              "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+              "file": "tests\\native\\convolution_real_replay.h"
+            },
+            {
+              "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+              "file": "tests\\native\\f32_carry_cases.h"
+            },
+            {
+              "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+              "file": "tests\\native\\final_norm_real_replay.h"
+            },
+            {
+              "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+              "file": "tests\\native\\float_alignment_cases.h"
+            },
+            {
+              "sha256": "c59776860c37900e4af1f201c56fe47a20baf0e1087a97d949ddb3a4f5497285",
+              "file": "tests\\native\\hawkeye_device_replay_selftest.h"
+            },
+            {
+              "sha256": "c109774b76ff5d6057dca356c645c6635eb799592cdde663839cae295d3229cf",
+              "file": "tests\\native\\moe_shared_replay_suite.h"
+            },
+            {
+              "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+              "file": "tests\\native\\projection_bounded_replay_suite.h"
+            },
+            {
+              "sha256": "6a358732c73becaaee988872787a48d5801a934819fe4076496791ef7b9624a0",
+              "file": "tests\\native\\projection_dual_lane_replay_suite.h"
+            },
+            {
+              "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+              "file": "tests\\native\\projection_f32_carry_replay_suite.h"
+            },
+            {
+              "sha256": "88f66f6067da8992ee129f265ddc9207b6f94eeb562aa4b894c411b652b5047f",
+              "file": "tests\\native\\projection_interval_audit_suite.h"
+            },
+            {
+              "sha256": "92dd87058370a745b05c098134d3287f5aea0ac85c4cebd71199a64c4883b2bd",
+              "file": "tests\\native\\projection_packed_tiles_replay_suite.h"
+            },
+            {
+              "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+              "file": "tests\\native\\projection_partition_replay_suite.h"
+            },
+            {
+              "sha256": "767c3e4e8e15137b272b1516c32f92afbb797eb859937f91b412a640871091e5",
+              "file": "tests\\native\\projection_producer_selection_suite.h"
+            },
+            {
+              "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+              "file": "tests\\native\\projection_range_replay_suite.h"
+            },
+            {
+              "sha256": "6e11f4506cb5ab1a65cad0278ad2c95e2e8944c7381249a926e48e0aee7c1b33",
+              "file": "tests\\native\\projection_real_replay.h"
+            },
+            {
+              "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+              "file": "tests\\native\\projection_row_max_replay_suite.h"
+            },
+            {
+              "sha256": "c98800a5fa46945a398812ead2af88fb738f4ed79805a9635851eef3313ea6d0",
+              "file": "tests\\native\\projection_safety_selftest.cpp"
+            },
+            {
+              "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+              "file": "tests\\native\\projection_scalar_replay_suite.h"
+            },
+            {
+              "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+              "file": "tests\\native\\projection_scaled_replay_suite.h"
+            },
+            {
+              "sha256": "b20eb39eb6ff7607632d9abc3d7d5882f9a0877b924319fe325d0d1a7f470d23",
+              "file": "tests\\native\\projection_spatial_replay_suite.h"
+            },
+            {
+              "sha256": "90f8a465132487836b8c7ab2507d9cd2383dbdefe00cb8462948c78621ff912a",
+              "file": "tests\\native\\projection_strong_replay_suite.h"
+            },
+            {
+              "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+              "file": "tests\\native\\projection_tiled_replay_suite.h"
+            },
+            {
+              "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+              "file": "tests\\native\\range_projection_cases.h"
+            },
+            {
+              "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+              "file": "tests\\native\\scaled_l2_reference.h"
+            },
+            {
+              "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+              "file": "tests\\native\\strong_float_replay_cases.h"
+            }
+          ],
+          "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV",
+          "model_loaded": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "replay_lanes": [
+            4,
+            2
+          ],
+          "purpose": "Compare original validated four-lane and two-lane replay on all4331311 original selected q8192 QKV cells. Preserve algorithm4 producer,PPB1000,midpoint512,original7169 input rows plus1023 independent repeats. Verify67108864 BF16 endpoints,every raw selected accumulator,row flags,guards and source immutability. Time completed row preparation plus replay with one warmup and three samples. No product dispatch change.",
+          "matrix_producer_algorithm": 4,
+          "build_run_sha256": "bda7a2265a531e9b6f8a6674abc67d1cb30cc48eba7eb83164927579e2479e38",
+          "build_provenance_sha256": "006bd6c1a7c36b7f4327500fcf7a186d9bdd6dbd66b3f0fd1822f622ae464b2e",
+          "tensor_inputs": [
+            {
+              "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+              "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+            },
+            {
+              "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+              "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+            },
+            {
+              "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+              "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+            }
+          ],
+          "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+          "gb10_reference_host": "aitopatom-66c4",
+          "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+          "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+          "reference_is_compute_input": false,
+          "selector_error_bound_ppb": 1000,
+          "tokens": 8192,
+          "source_tokens": 7169,
+          "repeated_input_rows": 1023
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1856.399,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "f31e4308570b685d97b517f4c1489cf503539c7af981416822b1625aceda3474",
+        "product.stderr.log": "68250d10d799393a6b22a10c21ee14c91abaa714ccbf1bad14ff44051a06bc30",
+        "dispatch.json": "8cb99a1b92a0d98187ac5536bbff337d9cb16726f34a45a04f85e3c2429c1c16",
+        "product.stdout.jsonl": "0109b9d2fdfa9a3fda826957f015e6f3e9502fd3d546690ad1cbbce9f37e1558",
+        "launch.json": "e588f8897ff0d7b6b166deb2c757a6af2b99f769557ad63198d9f945710cc8ac",
+        "preflight.json": "444c51ecfed298a7b2afe916680a6d82adf008722e3fc2d2e164263cc5bc8c80",
+        "run-record.json": "60b6beb67d47ed34ed275a32b87777f64070f6c68f1a16de5820cc8bb4cfd0db",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "reports.json": [
+        {
+          "type": "real_qkv_selector",
+          "elements": 67108864,
+          "initial_bf16_mismatches": 430461,
+          "midpoint_misses": 389572,
+          "bound_misses": 0,
+          "required_ppb_observed": 227,
+          "configured_ppb": 1000,
+          "prospective_candidates": 4331311,
+          "maximum_blocks": 4096,
+          "inference_acceptance": false
+        },
+        {
+          "type": "dual_lane_projection_real_replay",
+          "variant": 0,
+          "lanes": 4,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "eligible_weights": 8080,
+          "eligible_inputs": 8192,
+          "certified_weights": 8080,
+          "certified_inputs": 8192,
+          "certified_candidates": 3458610,
+          "range_certified_candidates": 3458610,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 59.4497,
+          "completed_host_samples_ms": [
+            59.5641,
+            59.3429,
+            59.4497
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "sorted_common_candidate_order": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "dual_lane_projection_real_replay",
+          "variant": 1,
+          "lanes": 2,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "eligible_weights": 8080,
+          "eligible_inputs": 8192,
+          "certified_weights": 8080,
+          "certified_inputs": 8192,
+          "certified_candidates": 3458610,
+          "range_certified_candidates": 3458610,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "raw_capture_writes_included": true,
+          "preparation_and_replay_host_ms": 64.3386,
+          "completed_host_samples_ms": [
+            64.3386,
+            63.3204,
+            66.6114
+          ],
+          "warmup_sequences": 1,
+          "timed_sequences": 3,
+          "sorted_common_candidate_order": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-qkv-q8192",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_qkv_projection"
+        }
+      ]
+    }
+  },
+  "local_validation": {
+    "command": [
+      "make",
+      "check",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 126.06311983428895,
+    "log_sha256": "980e873ad0ebb7d64ac36e30e9617e0bfd8e7c917400709dca0bb81a3bbb7d38"
+  },
+  "variant_names": {
+    "0": "original validated four-lane replay",
+    "1": "two-lane original arithmetic"
+  },
+  "candidate_minus_control_ms": 4.8889,
+  "conclusions": [
+    "Six native safety shapes compare693378 ordered K16 states against independent CPU original wide arithmetic. Original64..190 row eligibility and every per-group float/integer decision agree. Unaligned source operands,partial output blocks,signed zeros,cancellation,exceptional rows,guards,immutable inputs and independent production/diagnostic parity pass.",
+    "The complete q8192 QKV comparison retains producer algorithm4,PPB1000,midpoint512 and all4331311 original candidate identities. Both variants preserve67108864 external GB10-comparable BF16 endpoints and every raw selected accumulator. The original7169 captured input rows plus1023 independent repeated rows never use the reference as a compute input.",
+    "Timing includes completed row preparation and replay with one warmup and three samples. This component experiment changes no runtime dispatcher and does not establish model inference or performance acceptance.",
+    "Full local checks pass382 Python tests with two skips,47 Rust tests,C ABI smoke,clippy and hygiene. Original model,context,package,HTTP and soak release gates remain open."
+  ],
+  "reference_is_compute_input": false,
+  "component_bf16_reference_pass": true,
+  "component_raw_accumulator_pass": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "runtime_dispatch_changed": false
+}

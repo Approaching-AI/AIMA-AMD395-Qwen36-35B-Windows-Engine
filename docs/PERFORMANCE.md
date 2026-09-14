@@ -58,8 +58,17 @@ was corrected, and full local checks pass 382 Python tests (two skips),
 47 Rust tests, C smoke, clippy and hygiene. Evidence:
 `benchmarks/correctness/staged-probability-comparison-20260914.json`, SHA256
 `846d6153601d9515aa888864f32b6477694b69bd6219522d0362aa9e49eb7bf4`.
-Two-lane ownership is being evaluated for broader dense and MoE replay;
-original candidate admission and GB10 product gates remain unchanged.
+Two-lane ownership at `a8e4f41` is exact but slower. Six native shapes retain
+all 693378 ordered K16 states, original eligibility and fallback decisions,
+unaligned operands, partial blocks, guards and independent production parity.
+Complete QKV preserves all 67108864 GB10-comparable BF16 endpoints and
+4331311 raw selected accumulators. Preparation-plus-replay medians are
+59.4497 ms for four lanes and 64.3386 ms for two, a 4.8889 ms regression.
+The runtime retains four lanes. Full local checks pass. Evidence:
+`benchmarks/correctness/dual-lane-projection-comparison-20260914.json`, SHA256
+`e43041d47fa3554be6e38be1bad7ea29cc6f14c828d29cc68d1f07414f713bbe`.
+Prepared QK operand representation and ordered carry reuse are the next
+structural experiment; original candidate admission and GB10 gates remain.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
