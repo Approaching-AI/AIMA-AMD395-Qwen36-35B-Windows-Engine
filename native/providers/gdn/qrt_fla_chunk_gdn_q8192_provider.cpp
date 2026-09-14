@@ -205,12 +205,24 @@ struct BlackwellSegmentGuard {
     ~BlackwellSegmentGuard() { active = previous; }
 };
 
+// Completed-stage clocks are diagnostic. A guarded segment has only its outer
+// completion interval; its nested submissions must not appear as completed work.
+int completed_stage_profile_mode() {
+    const char* value = std::getenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES");
+    if (!value || !*value || !std::strcmp(value, "0")) return 0;
+    if (!std::strcmp(value, "1")) return 1;
+    set_error_text("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES must be 0 or 1");
+    return -1;
+}
+
 // A segment contains at most sixteen q64 chunks. The callers below enqueue
 // no more than 32 ordered kernels before this completion check. Applying the
 // 100 ms guard to the entire sequence also bounds each kernel within it.
 template<class Operation>
 bool launch_blackwell_math(const char* name, hipStream_t stream, Operation operation,
                            float* completed_ms = nullptr) {
+    const int profile = completed_stage_profile_mode();
+    if (profile < 0) return false;
     if (auto* segment = BlackwellSegmentGuard::active) {
         if (segment->stream != stream) {
             set_error_text("Blackwell deferred stage escaped its guarded stream"); return false;
@@ -248,6 +260,9 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
     if (status != hipSuccess) { set_error(name, status); return false; }
     if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell math sequence exceeded 100 ms; no further submission"); return false; }
     if (completed_ms) *completed_ms = milliseconds;
+    if (profile) std::fprintf(stderr,
+        "FLA_COMPLETED_STAGE stage=%s gpu_ms=%.6f timing_valid=%u completed=1 diagnostic_only=1\n",
+        name, static_cast<double>(milliseconds), milliseconds >= 0.0f ? 1u : 0u);
     return true;
 }
 
@@ -663,7 +678,9 @@ bool launch(
         std::fprintf(stderr, "FLA_STAGE begin=%s\n", spec.symbol);
         std::fflush(stderr);
     }
-    const hipError_t status = hipModuleLaunchKernel(
+    const int profile = completed_stage_profile_mode();
+    if (profile < 0) return false;
+    const auto operation = [&] { return hipModuleLaunchKernel(
         g_state.functions[slot],
         grid_x,
         grid_y,
@@ -675,7 +692,11 @@ bool launch(
         stream,
         arguments,
         nullptr
-    );
+    ); };
+    hipError_t status = hipSuccess;
+    if (profile) {
+        if (!launch_blackwell_math(spec.symbol, stream, operation)) return false;
+    } else status = operation();
     if (status != hipSuccess) {
         char stage[256];
         std::snprintf(

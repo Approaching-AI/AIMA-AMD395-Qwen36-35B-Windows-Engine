@@ -121486,6 +121486,36 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
 
     {
         const uint64_t linear_start_ns = qrt_now_ns();
+        // These disjoint host intervals include completion waits and host work.
+        // FLA's GPU stage clocks are nested inside recurrent, not additive here.
+        // The staged long-context carrier combines phases and is excluded.
+        const char* linear_phase_setting = std::getenv(
+            "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_LINEAR_PHASES");
+        const bool profile_linear_phases = linear_phase_setting &&
+            !std::strcmp(linear_phase_setting, "1") && token_count == 8192u &&
+            !use_q262144_staged_linear_workspace;
+        uint64_t phase_previous_ns = linear_start_ns;
+        unsigned completed_linear_phases = 0u;
+        const auto complete_linear_phase = [&](const char* stage) -> bool {
+            if (!profile_linear_phases) return true;
+            if (!fail_hip(hipDeviceSynchronize(), prefix + "_completed_phase_" + stage))
+                return false;
+            const uint64_t now = qrt_now_ns();
+            const uint64_t elapsed = qrt_elapsed_ns(phase_previous_ns, now);
+            phase_previous_ns = now;
+            std::cerr << "BATCH_MARK resident_linear_completed_phase"
+                      << " layer=" << descriptor.layer_index << " tokens=" << token_count
+                      << " stage=" << stage << " ordinal=" << completed_linear_phases++
+                      << " completed_host_ms=" << static_cast<double>(elapsed) / 1000000.0
+                      << " completed=1 diagnostic_only=1" << std::endl;
+            return true;
+        };
+        if (linear_phase_setting && *linear_phase_setting &&
+            std::strcmp(linear_phase_setting, "0") && std::strcmp(linear_phase_setting, "1")) {
+            run->failure_stage = prefix + "_completed_phase_option";
+            run->failure = "QRT_PREFILL_DESCRIPTOR_BATCH_PROFILE_LINEAR_PHASES must be 0 or 1";
+            goto cleanup;
+        }
         if ((!whole_repeated_layer_provider && !malloc_device(
                 &device_conv_weight,
                 static_cast<size_t>(run->conv_window.weight_bytes),
@@ -121627,6 +121657,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             ))) {
             goto cleanup;
         }
+        if (!complete_linear_phase("setup")) goto cleanup;
         if (auto *suffix = ScopedQwen36PrefixBatchSuffix::active) {
             if (use_bf16_conv_postconv_fusion || !use_secondary_fla_chunk_gdn_provider ||
                 !suffix->convolution(descriptor.layer_index, device_qkv, device_conv_weight,
@@ -121757,6 +121788,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 target_token_count
             );
         }
+        if (!complete_linear_phase("convolution")) goto cleanup;
         const bool exact_early_gate_contract =
             descriptor_product_early_resident_linear_attention_layer_enabled(
                 descriptor.layer_index,
@@ -121938,6 +121970,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 target_token_count
             );
         }
+        if (!complete_linear_phase("gate")) goto cleanup;
         if (use_q262144_staged_linear_workspace) {
             const size_t qkv_ring_bytes =
                 static_cast<size_t>(kConvKernel) *
@@ -122410,6 +122443,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 target_token_count
             );
         }
+        if (!complete_linear_phase("recurrent")) goto cleanup;
         if (use_q262144_staged_linear_workspace) {
             if (!fail_hip(
                     hipDeviceSynchronize(),
@@ -122689,6 +122723,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 device_gfx1151_sm121_rsqrt_correction
             );
         }
+        if (!complete_linear_phase("gated_norm")) goto cleanup;
         if (use_resident_bf16_matrix_provider) {
             if (!use_bf16_pointwise_fusion) {
                 hipLaunchKernelGGL(
@@ -123287,6 +123322,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             );
         }
         }
+        if (!complete_linear_phase("output_projection")) goto cleanup;
         if (use_q262144_staged_linear_workspace) {
             std::cerr
                 << "BATCH_MARK repeated_bf16_pointwise_fusion"
@@ -123429,6 +123465,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             )) {
             goto cleanup;
         }
+        if (!complete_linear_phase("residual_postnorm")) goto cleanup;
         const auto dump_full_bf16_surface = [
             &fail_hip,
             &prefix,
@@ -124245,6 +124282,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
             run->gate_window.gpu_output = std::move(host_gate_contract);
 
         }
+        if (!complete_linear_phase("materialization")) goto cleanup;
         const uint64_t linear_profile_wall_ns =
             qrt_elapsed_ns(linear_start_ns, qrt_now_ns());
         add_layer_stack_wall_clock_bucket(

@@ -13,7 +13,8 @@ class FlaSegmentGuardTests(unittest.TestCase):
     def test_ordered_completion_diagnostics_and_all_failure_paths(self):
         provider = (ROOT/'native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp').read_text()
         scope = function(provider, 'struct BlackwellSegmentGuard {') + ';'
-        timing = 'template<class Operation>\n' + function(provider, 'bool launch_blackwell_math(')
+        timing = function(provider, 'int completed_stage_profile_mode()') + '\n'
+        timing += 'template<class Operation>\n' + function(provider, 'bool launch_blackwell_math(')
         wrapper = 'int launch_guarded_segment_async(' + provider.split(
             'int launch_guarded_segment_async(', 1)[1].split('int launch_pipeline_async_impl(', 1)[0]
         source = r'''
@@ -63,6 +64,7 @@ void reset(){
  creates=records=waits=drains=destroys=operations=scratch=body_calls=0;
  fail_create=fail_record=fail_operation=UINT32_MAX;fail_wait=fail_scratch=false;batched=true;duration=40;
  setenv("QRT_FLA_GDN_SEGMENT_GUARD","1",1);unsetenv("QRT_FLA_GDN_DUMP_Q64_DIR");unsetenv("QRT_FLA_GDN_SYNC_EACH_STAGE");
+ unsetenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES");
  g_state.error[0]=0;expected_stream=reinterpret_cast<void*>(uintptr_t(123));
 }
 int run(int tokens=1024,int valid=0){return launch_guarded_segment_async(data,data+1,data+2,data+3,expected_stream,tokens,true,valid,{2});}
@@ -92,6 +94,16 @@ int main(){
   assert(!launch_blackwell_math("foreign",nullptr,[]{++operations;return hipSuccess;}));assert(!operations);
  }
  assert(!BlackwellSegmentGuard::active);
+ for(const char* invalid:{"2","true","-1"," 1"}){
+  reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES",invalid,1);
+  assert(!run()&&!creates&&!operations&&!body_calls);
+ }
+ reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES","1",1);
+ assert(run()&&operations==6&&creates==2&&waits==1); // Only outer completion is available.
+ reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES","1",1);unsetenv("QRT_FLA_GDN_SEGMENT_GUARD");
+ assert(run()&&operations==6&&creates==12&&waits==6); // Per-stage completion is available.
+ reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES","1",1);duration=-1;
+ assert(run()&&waits==1); // A negative event interval is flagged, never a numerical rejection.
 }
 '''
         with tempfile.TemporaryDirectory() as temp:
