@@ -2,6 +2,29 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The full-q8192 matrix comparison at `d49e6a9` completes 128 choices on
+baiying: 72 available cases pass every generated BF16 endpoint and memory
+check, and 56 are unavailable before submission. Native FP32 algorithm 4
+costs 11.9971 / 5.3367 / 12.9838 / 5.176 ms at rows/K
+8192/2048, 4096/2048, 9216/2048 and 2048/4096, versus
+49.44 / 25.888 / 55.9235 / 24.6237 ms for algorithm 0.
+These are three-sample completed host medians after warmup; the inferred
+2947.131 ms aggregate reduction is a component estimate, not product timing.
+
+The first two revisions incorrectly required raw FP32 equality from the
+approximate producer. Their failed records are preserved. Revision 3 restores
+the existing BF16 endpoint check and retains raw FP32 differences; it does
+not weaken the GB10 model boundary. The underlying raw arithmetic difference
+has not been attributed to a hardware cause.
+
+`QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM=4` is now an opt-in for these
+four FP32-output shapes. Load-time prewarming covers the same plans; default 0,
+explicit-index calls, BF16 outputs and other token counts keep their policy.
+The existing exact correction, PPB bounds and norms remain in place. Native
+captured-QKV and same-artifact q8192/out512 qualification are pending.
+Evidence: `benchmarks/correctness/matrix-producer-choices-20260914.json`,
+SHA256 `3a546ebf5a09d7fae2e1152defc42f42a85b963566ddf67bc0057a77c68a8700`.
+
 Shared-expert prevalidated exact replay at `1958c2c` passes both complete
 q8192/out512 runs on baiying with `D:\models\Qwen3.6-35B-A3B`. The same MoE
 DLL OFF/ON preserves all 512 GB10 outputs and actual callbacks, first token
@@ -30,9 +53,9 @@ the full-attention host bucket is 14275 ms. Ten negative residual/postnorm
 GPU event intervals are excluded. Existing q7169 inputs show no repeated
 rows in four later-layer captures, so broad row deduplication lacks evidence.
 The previous full q8192 matrix-producer profile measures 3925.7338 ms of
-completed hipBLASLt work, and the current provider still selects implementation
-0. A bounded comparison now covers all four principal q8192 matrix shapes
-before any backend choice changes. All product correction bounds remain fixed.
+completed hipBLASLt work with implementation 0. The subsequent full-shape
+comparison above motivates an opt-in algorithm replacement. All product
+correction bounds remain fixed.
 Profile evidence: `benchmarks/correctness/shared-prevalidated-profile-20260914.json`,
 SHA256 `f82dcdb99e9d1f527f8b257b5d9eb163cce364d4d369e8bc4aae589c19537057`.
 Command: `run-native-shared-prevalidated-product-r1.ps1` with the recorded

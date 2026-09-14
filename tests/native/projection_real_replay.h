@@ -11,12 +11,25 @@ template<class T> std::vector<T> read_replay_tensor(const char *path, size_t ele
     return result;
 }
 
-void run_real_qkv(const char *input_path, const char *weight_path, const char *reference_path, unsigned int ppb) {
-    constexpr unsigned int rows = 8192u, tokens = 7169u, k = 2048u;
-    constexpr size_t elements = static_cast<size_t>(rows) * tokens;
-    auto inputs = read_replay_tensor<uint16_t>(input_path, static_cast<size_t>(tokens) * k, kBf16Guard);
+void run_real_qkv(const char *input_path, const char *weight_path, const char *reference_path,
+                  unsigned int ppb, bool extend_q8192 = false) {
+    constexpr unsigned int rows = 8192u, source_tokens = 7169u, k = 2048u;
+    const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
+    const size_t elements = static_cast<size_t>(rows) * tokens;
+    auto inputs = read_replay_tensor<uint16_t>(input_path, static_cast<size_t>(source_tokens) * k, kBf16Guard);
     auto weights = read_replay_tensor<uint16_t>(weight_path, static_cast<size_t>(rows) * k, kBf16Guard);
-    const auto reference = read_replay_tensor<uint16_t>(reference_path, elements, kBf16Guard);
+    auto reference = read_replay_tensor<uint16_t>(reference_path, size_t(rows) * source_tokens, kBf16Guard);
+    if (extend_q8192) {
+        // Projection rows are independent. Keep all original 7169 tokens and
+        // repeat the first 1023 input rows to exercise the exact product shape.
+        // The corresponding GB10 outputs are used only after GPU computation.
+        auto extend = [&](std::vector<uint16_t>& data, unsigned width) {
+            data.resize(size_t(tokens) * width + 2u * kGuard, kBf16Guard);
+            std::copy_n(data.data() + kGuard, size_t(tokens - source_tokens) * width,
+                data.data() + kGuard + size_t(source_tokens) * width);
+        };
+        extend(inputs, k); extend(reference, rows);
+    }
     std::vector<float> output(elements + 2u * kGuard, kF32Guard);
     std::vector<float> input_bounds(tokens + 2u * kGuard, kF32Guard), weight_bounds(rows + 2u * kGuard, kF32Guard);
     DeviceBuffer<uint16_t> di(inputs), dw(weights);
@@ -148,6 +161,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     di.read(after_inputs); dw.read(after_weights);
     require(after_inputs == inputs && after_weights == weights, "real projection inputs modified");
     std::cout << "{\"type\":\"real_qkv_result\",\"elements\":" << elements
+              << ",\"tokens\":" << tokens << ",\"source_tokens\":" << source_tokens
+              << ",\"repeated_input_rows\":" << (tokens - source_tokens)
               << ",\"bf16_mismatches\":" << differences << ",\"first_mismatch\":" << first
               << ",\"correction_wall_ms\":" << ms << ",\"redzones_pass\":true,\"inputs_immutable\":true,\"inference_acceptance\":false}" << std::endl;
     require(differences == 0u, "corrected real QKV differs from reference");

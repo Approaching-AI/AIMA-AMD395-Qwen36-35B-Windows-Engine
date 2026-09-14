@@ -27,6 +27,7 @@
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
+#include "q8192_matrix_producer_policy.h"
 #include "gate_input_capture.h"
 #include "sm121_silu_runtime.h"
 #include "sm121_q1_runtime.h"
@@ -37165,7 +37166,7 @@ hipError_t launch_selected_bf16_projection_wmma_checked(
         }
         std::fprintf(stderr,
             "BATCH_MARK prefill_hipblaslt_producer rows=%u tokens=%u k=2048 "
-            "input=bf16 weight=bf16 accumulator=f32 heuristic_index=0 "
+            "input=bf16 weight=bf16 accumulator=f32 "
             "round_endpoint=%u admission_unchanged=1 diagnostic_only=1\n",
             rows, tokens, round_endpoint);
         return hipGetLastError();
@@ -57586,6 +57587,18 @@ bool resident_bf16_matrix_matmul_with_heuristic_index(
     );
 }
 
+bool resident_q8192_matrix_producer_choice(
+    unsigned rows, unsigned k, unsigned tokens, bool output_f32,
+    unsigned* choice, std::string* failure_stage, std::string* failure
+) {
+    if (qrt_q8192_matrix_producer::resolve(
+            std::getenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM"),
+            rows, k, tokens, output_f32, choice)) return true;
+    *failure_stage = "hipblaslt_q8192_matrix_producer_algorithm";
+    *failure = "q8192 matrix producer algorithm must be 0 or 4";
+    return false;
+}
+
 bool resident_bf16_matrix_matmul_f32_output(
     const uint16_t *weights,
     const uint16_t *inputs,
@@ -57598,7 +57611,10 @@ bool resident_bf16_matrix_matmul_f32_output(
     std::string *failure_stage,
     std::string *failure
 ) {
-    return resident_bf16_matrix_matmul_impl(
+    unsigned heuristic_index = 0u;
+    if (!resident_q8192_matrix_producer_choice(output_features, input_features,
+            token_count, true, &heuristic_index, failure_stage, failure)) return false;
+    const bool submitted = resident_bf16_matrix_matmul_impl(
         weights,
         inputs,
         outputs,
@@ -57608,12 +57624,17 @@ bool resident_bf16_matrix_matmul_f32_output(
         true,
         1.0f,
         0.0f,
-        0u,
+        heuristic_index,
         stream,
         stage,
         failure_stage,
         failure
     );
+    if (submitted && qrt_q8192_matrix_producer::eligible(
+            output_features, input_features, token_count, true))
+        std::fprintf(stderr, "BATCH_MARK q8192_matrix_producer_algorithm rows=%u tokens=%u k=%u heuristic_index=%u output_f32=1 admission_unchanged=1\n",
+            output_features, token_count, input_features, heuristic_index);
+    return submitted;
 }
 
 bool resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
@@ -57751,6 +57772,9 @@ bool prewarm_q8192_resident_bf16_matrix_plans(
     std::string *failure_stage,
     std::string *failure
 ) {
+    unsigned producer_choice = 0u;
+    if (!resident_q8192_matrix_producer_choice(8192u, 2048u, 8192u, true,
+            &producer_choice, failure_stage, failure)) return false;
     struct PlanShape {
         unsigned int output_features;
         unsigned int input_features;
@@ -57947,6 +57971,17 @@ bool prewarm_q8192_resident_bf16_matrix_plans(
                 return false;
             }
         }
+    }
+    if (producer_choice != 0u) {
+        // Load-time setup uses the same shape/index cache identity as dispatch.
+        // Retain the baseline plans for all other callers and explicit indices.
+        for (const auto shape : {std::pair{8192u, 2048u}, std::pair{4096u, 2048u},
+                                 std::pair{9216u, 2048u}, std::pair{2048u, 4096u}}) {
+            ResidentBf16MatrixPlan* plan = nullptr;
+            if (!create_resident_bf16_matrix_plan(provider, shape.first, shape.second,
+                    8192u, true, producer_choice, &plan, failure_stage, failure)) return false;
+        }
+        std::fprintf(stderr, "BATCH_MARK q8192_matrix_producer_prewarm heuristic_index=%u shape_count=4 load_time_setup=1\n", producer_choice);
     }
     if (plan_count != nullptr) {
         *plan_count = provider->plans.size();
