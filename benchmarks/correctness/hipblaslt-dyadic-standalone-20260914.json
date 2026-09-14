@@ -1,0 +1,1569 @@
+{
+  "schema_version": 1,
+  "kind": "standalone_hipblaslt_dyadic_diagnostic",
+  "host": "baiying",
+  "model": "none; exact generated BF16 operands at q8192 product dimensions",
+  "source_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+  "source_delivery": {
+    "repo": "D:/projects/AIMA-public-hipblaslt-dyadic-20260914",
+    "source_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+    "prerequisite_commit": "570dc90f88f90f1cb56e221f2180da2b7c54dc33",
+    "bundle": "hipblaslt-dyadic-95a33b3.bundle",
+    "bundle_sha256": "c2bbe3941472ed586963bbd96353472fad0783b096fabc01944f7478d0f4f5f5",
+    "script": "run-native-hipblaslt-dyadic-r1.ps1",
+    "script_sha256": "4c1dec1e83cf419b8f9c73bb25b322c2871ae2733156bc3ab146a0fee52f18e1",
+    "source_sha256": {
+      "tests/native/hipblaslt_dyadic_repro.cpp": "18860a90f8704ed57734f7ece89ace6f3f4be7668438babdcdae80cc6646dbd7"
+    },
+    "runtime_changed": false,
+    "model_loaded": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "commands": {
+    "run-native-hipblaslt-dyadic-r1.ps1": {
+      "sha256": "4c1dec1e83cf419b8f9c73bb25b322c2871ae2733156bc3ab146a0fee52f18e1",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914';$seed='D:\\projects\\AIMA-public-matrix-scope-20260914';$sha='95a33b3378c749f493d12eea331087883fe2595a';$bundle='D:\\projects\\hipblaslt-dyadic-95a33b3.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'c2bbe3941472ed586963bbd96353472fad0783b096fabc01944f7478d0f4f5f5'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\hipblaslt-dyadic';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\hipblaslt_dyadic_repro.cpp';$exe=Join-Path $build 'hipblaslt-dyadic.exe';$provenance=Join-Path $build 'build-provenance.json'\n$out=Join-Path $repo ('build\\hipblaslt-dyadic-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n$sourceInputs=@(@{file=$source;sha256=(Get-FileHash $source -Algorithm SHA256).Hash.ToLowerInvariant()})\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; exact generated dyadic BF16 matrices at complete q8192 shapes';model_loaded=$false;engine_provider_included=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Isolate observed FP32 producer differences using only public HIP and hipBLASLt APIs. Keep host alpha/beta alive through completion; compare every output against independent int64 numerator /128 and BF16 endpoints; check source and output guards; capture actual loaded library and official benchmark/extended-profile log.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $import='C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a';Copy-Item $import (Join-Path $build 'hipblaslt.lib')\n $spec.import_library=@{file=$import;sha256=(Get-FileHash $import -Algorithm SHA256).Hash.ToLowerInvariant()}\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','--offload-arch=gfx1151','-L',$build,$source,'-o',$exe,'-lhipblaslt');$timeout=120\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$spec.executable=$exe;$timeout=120\n $log=Join-Path $build 'hipblaslt-log-r1.txt';if(Test-Path $log){throw 'Library log exists'}\n $env:HIPBLASLT_LOG_MASK='160';$env:HIPBLASLT_LOG_FILE=$log;$spec.library_log=@{mask=160;file=$log}\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($Action -eq 'test'){\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $identities=@($reports|Where-Object {$_.type -eq 'loaded_hipblaslt_module'})\n $identity=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;loaded_module_count=$identities.Count;modules=@();log_present=(Test-Path $log);inference_acceptance=$false;performance_acceptance=$false}\n foreach($id in $identities){$item=Get-Item ([string]$id.path);$identity.modules+=@{file=$item.FullName;bytes=$item.Length;sha256=(Get-FileHash $item.FullName -Algorithm SHA256).Hash.ToLowerInvariant();file_version=[string]$item.VersionInfo.FileVersion;product_version=[string]$item.VersionInfo.ProductVersion}}\n if(Test-Path $log){$identity.log_sha256=(Get-FileHash $log -Algorithm SHA256).Hash.ToLowerInvariant();$identity.log_bytes=(Get-Item $log).Length;Copy-Item $log (Join-Path $out 'hipblaslt-log.txt')}\n [IO.File]::WriteAllText((Join-Path $out 'loaded-library.json'),($identity|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native standalone diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;import_library=$spec.import_library;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $cases=@($reports|Where-Object {$_.type -eq 'standalone_dyadic_case'})\n if($identities.Count -ne 1 -or $cases.Count -ne 4 -or -not $identity.log_present){throw 'Incomplete standalone evidence'}\n foreach($case in $cases){if($case.bf16_mismatches -ne 0 -or -not $case.redzones_pass -or -not $case.immutable_inputs -or -not $case.alpha_live_until_completion){throw 'Standalone endpoint or guard failure'}}\n}\n"
+    }
+  },
+  "native_validation": {
+    "build": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+          "arguments": [
+            "-std=c++17",
+            "-O3",
+            "--offload-arch=gfx1151",
+            "-L",
+            "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic",
+            "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\tests\\native\\hipblaslt_dyadic_repro.cpp",
+            "-o",
+            "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic\\hipblaslt-dyadic.exe",
+            "-lhipblaslt"
+          ],
+          "working_directory": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914",
+          "repo_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+          "command_file": "D:\\projects\\run-native-hipblaslt-dyadic-r1.ps1",
+          "command_file_sha256": "4c1dec1e83cf419b8f9c73bb25b322c2871ae2733156bc3ab146a0fee52f18e1",
+          "source_inputs": [
+            {
+              "sha256": "18860a90f8704ed57734f7ece89ace6f3f4be7668438babdcdae80cc6646dbd7",
+              "file": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\tests\\native\\hipblaslt_dyadic_repro.cpp"
+            }
+          ],
+          "model": "none; exact generated dyadic BF16 matrices at complete q8192 shapes",
+          "model_loaded": false,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Isolate observed FP32 producer differences using only public HIP and hipBLASLt APIs. Keep host alpha/beta alive through completion; compare every output against independent int64 numerator /128 and BF16 endpoints; check source and output guards; capture actual loaded library and official benchmark/extended-profile log.",
+          "import_library": {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a"
+          }
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 2659.578,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "dispatch.json": "fd0bc06cc0bb5dfd1cd4d5065b519e4023e9a808a1a54b1aaa25179329f161dd",
+        "build-provenance.json": "af29bded09e3925a557a9805fd651ea7858383ac13cbc67a8f30c6d9c3a001e4",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "launch.json": "44abd207eb7ebd5299be824169915d80f20a226df2c15dc6ef4c011990a9dc2e",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+        "preflight.json": "621a08b7c43ea99832a2ca99b403433d2766112526d64428d073e3c7dcb2c92a",
+        "run-record.json": "345d3b263463fe39a9736faf4e021c8d914bc7c1398e6679b1bfd0babc6b4eb7",
+        "transfers.json": "e9be32dec5a7e27c76253305ad54b65c545e63802c56dd81f6ee32241c75e652"
+      },
+      "build-provenance.json": {
+        "host": "BAIYING",
+        "repo_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+        "source_inputs": [
+          {
+            "sha256": "18860a90f8704ed57734f7ece89ace6f3f4be7668438babdcdae80cc6646dbd7",
+            "file": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\tests\\native\\hipblaslt_dyadic_repro.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-hipblaslt-dyadic-r1.ps1",
+        "command_file_sha256": "4c1dec1e83cf419b8f9c73bb25b322c2871ae2733156bc3ab146a0fee52f18e1",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "-L",
+          "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic",
+          "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\tests\\native\\hipblaslt_dyadic_repro.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic\\hipblaslt-dyadic.exe",
+          "-lhipblaslt"
+        ],
+        "import_library": {
+          "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+          "file": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a"
+        },
+        "run_record_sha256": "345d3b263463fe39a9736faf4e021c8d914bc7c1398e6679b1bfd0babc6b4eb7",
+        "executable": {
+          "sha256": "d62e6fa7996e0597889e4ec3cbc7234facc8fc8d0c6d12697898056736d54836",
+          "file": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic\\hipblaslt-dyadic.exe",
+          "bytes": 300544
+        }
+      }
+    },
+    "test": {
+      "run_record": {
+        "host": "BAIYING",
+        "spec": {
+          "executable": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic\\hipblaslt-dyadic.exe",
+          "arguments": [],
+          "working_directory": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914",
+          "repo_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+          "command_file": "D:\\projects\\run-native-hipblaslt-dyadic-r1.ps1",
+          "command_file_sha256": "4c1dec1e83cf419b8f9c73bb25b322c2871ae2733156bc3ab146a0fee52f18e1",
+          "source_inputs": [
+            {
+              "sha256": "18860a90f8704ed57734f7ece89ace6f3f4be7668438babdcdae80cc6646dbd7",
+              "file": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\tests\\native\\hipblaslt_dyadic_repro.cpp"
+            }
+          ],
+          "model": "none; exact generated dyadic BF16 matrices at complete q8192 shapes",
+          "model_loaded": false,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false,
+          "purpose": "Isolate observed FP32 producer differences using only public HIP and hipBLASLt APIs. Keep host alpha/beta alive through completion; compare every output against independent int64 numerator /128 and BF16 endpoints; check source and output guards; capture actual loaded library and official benchmark/extended-profile log.",
+          "build_provenance_sha256": "af29bded09e3925a557a9805fd651ea7858383ac13cbc67a8f30c6d9c3a001e4",
+          "library_log": {
+            "file": "D:\\projects\\AIMA-public-hipblaslt-dyadic-20260914\\build\\hipblaslt-dyadic\\hipblaslt-log-r1.txt",
+            "mask": 160
+          }
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 1185.241,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true
+      },
+      "canonical_raw_sha256": {
+        "reports.json": "b75b935e98ee3b20ec62c5d7943c8b0c4a4df3059c5e7e81598f63b6ece22bee",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "hipblaslt-log.txt": "e35ca7074dd9366c78f580c0ea4d5e50a2f88ea5167fd522a59409ac543f931b",
+        "dispatch.json": "3a5e91400229bd1f665b3c861997440995c1845086869fe481cfe69ba15d96d6",
+        "loaded-library.json": "de9ba8f2fe51697c8a1ba83d6d521f7b9cb5819b194ea38ac2aaea451f9052e4",
+        "product.stdout.jsonl": "4a8d0ad4c5c019d689317767908278dafdaf6e52ca50808fad888e1ab5f817bb",
+        "launch.json": "1d175c7123e3290afba12158eb2d79c9da671d1127b50609833755477c4f2bd0",
+        "preflight.json": "b0fe8f6f4acf5f7fafd3579ce0b222f99636195ee0dcaad4aa52d715dab6b6a1",
+        "run-record.json": "f775a6567c0204c310a853bd5f212ea3f868dc8f5682238564199c2da0c3d63b",
+        "transfers.json": "9658c877811bcfd64760b2591d78dc0ee13180a3293f7359b2560b09726f6b11"
+      },
+      "reports.json": [
+        {
+          "type": "loaded_hipblaslt_module",
+          "path": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\libhipblaslt.dll",
+          "engine_provider_included": false
+        },
+        {
+          "type": "standalone_dyadic_case",
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "choice": 0,
+          "elements": 67108864,
+          "raw_f32_bit_mismatches": 41176423,
+          "bf16_mismatches": 0,
+          "raw_max_abs_diff": 1.57952308655e-06,
+          "workspace_bytes": 0,
+          "first_77_classes": [
+            [
+              3197108224,
+              3197108224
+            ],
+            [
+              3154115746,
+              3154116608
+            ],
+            [
+              1054867456,
+              1054867456
+            ],
+            [
+              3204186112,
+              3204186112
+            ],
+            [
+              1053032448,
+              1053032448
+            ],
+            [
+              1041235968,
+              1041235968
+            ],
+            [
+              3202613222,
+              3202613248
+            ],
+            [
+              1051721729,
+              1051721728
+            ],
+            [
+              3189768189,
+              3189768192
+            ],
+            [
+              3194486784,
+              3194486784
+            ],
+            [
+              1050411008,
+              1050411008
+            ],
+            [
+              3154116616,
+              3154116608
+            ],
+            [
+              3197108224,
+              3197108224
+            ],
+            [
+              1050411008,
+              1050411008
+            ],
+            [
+              3194486783,
+              3194486784
+            ],
+            [
+              3189768166,
+              3189768192
+            ],
+            [
+              1051721702,
+              1051721728
+            ],
+            [
+              3202613248,
+              3202613248
+            ],
+            [
+              1041235972,
+              1041235968
+            ],
+            [
+              1053032448,
+              1053032448
+            ],
+            [
+              3204186085,
+              3204186112
+            ],
+            [
+              1054867456,
+              1054867456
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3202613195,
+              3202613248
+            ],
+            [
+              1051459610,
+              1051459584
+            ],
+            [
+              1048838144,
+              1048838144
+            ],
+            [
+              3201826816,
+              3201826816
+            ],
+            [
+              1049362432,
+              1049362432
+            ],
+            [
+              3179282434,
+              3179282432
+            ],
+            [
+              3194486784,
+              3194486784
+            ],
+            [
+              1045954560,
+              1045954560
+            ],
+            [
+              3193438208,
+              3193438208
+            ],
+            [
+              3170893820,
+              3170893824
+            ],
+            [
+              1050935283,
+              1050935296
+            ],
+            [
+              3190816768,
+              3190816768
+            ],
+            [
+              3195011072,
+              3195011072
+            ],
+            [
+              1050410995,
+              1050411008
+            ],
+            [
+              3199729613,
+              3199729664
+            ],
+            [
+              1035993098,
+              1035993088
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3200253926,
+              3200253952
+            ],
+            [
+              1054343155,
+              1054343168
+            ],
+            [
+              1015021556,
+              1015021568
+            ],
+            [
+              3200778240,
+              3200778240
+            ],
+            [
+              1049100301,
+              1049100288
+            ],
+            [
+              1049100288,
+              1049100288
+            ],
+            [
+              3201826790,
+              3201826816
+            ],
+            [
+              1051983872,
+              1051983872
+            ],
+            [
+              3181379586,
+              3181379584
+            ],
+            [
+              3196059598,
+              3196059648
+            ],
+            [
+              1049100289,
+              1049100288
+            ],
+            [
+              3196059648,
+              3196059648
+            ],
+            [
+              3181379479,
+              3181379584
+            ],
+            [
+              1051983846,
+              1051983872
+            ],
+            [
+              3201826790,
+              3201826816
+            ],
+            [
+              3190816742,
+              3190816768
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3200778189,
+              3200778240
+            ],
+            [
+              1015021780,
+              1015021568
+            ],
+            [
+              1054343168,
+              1054343168
+            ],
+            [
+              3200253926,
+              3200253952
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              1035993088,
+              1035993088
+            ],
+            [
+              3199729664,
+              3199729664
+            ],
+            [
+              1050411009,
+              1050411008
+            ],
+            [
+              3195011071,
+              3195011072
+            ],
+            [
+              3202613222,
+              3202613248
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3170893828,
+              3170893824
+            ],
+            [
+              3193438208,
+              3193438208
+            ],
+            [
+              1045954560,
+              1045954560
+            ],
+            [
+              3194486782,
+              3194486784
+            ],
+            [
+              3179282326,
+              3179282432
+            ],
+            [
+              1049362406,
+              1049362432
+            ],
+            [
+              3201826816,
+              3201826816
+            ],
+            [
+              1048838146,
+              1048838144
+            ],
+            [
+              1051459584,
+              1051459584
+            ]
+          ],
+          "alpha_live_until_completion": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "standalone_dyadic_case",
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "choice": 4,
+          "elements": 67108864,
+          "raw_f32_bit_mismatches": 44366602,
+          "bf16_mismatches": 0,
+          "raw_max_abs_diff": 1.57952308655e-06,
+          "workspace_bytes": 0,
+          "first_77_classes": [
+            [
+              3197108224,
+              3197108224
+            ],
+            [
+              3154115746,
+              3154116608
+            ],
+            [
+              1054867456,
+              1054867456
+            ],
+            [
+              3204186112,
+              3204186112
+            ],
+            [
+              1053032448,
+              1053032448
+            ],
+            [
+              1041235968,
+              1041235968
+            ],
+            [
+              3202613222,
+              3202613248
+            ],
+            [
+              1051721729,
+              1051721728
+            ],
+            [
+              3189768189,
+              3189768192
+            ],
+            [
+              3194486784,
+              3194486784
+            ],
+            [
+              1050411008,
+              1050411008
+            ],
+            [
+              3154116616,
+              3154116608
+            ],
+            [
+              3197108224,
+              3197108224
+            ],
+            [
+              1050411008,
+              1050411008
+            ],
+            [
+              3194486783,
+              3194486784
+            ],
+            [
+              3189768166,
+              3189768192
+            ],
+            [
+              1051721702,
+              1051721728
+            ],
+            [
+              3202613248,
+              3202613248
+            ],
+            [
+              1041235972,
+              1041235968
+            ],
+            [
+              1053032448,
+              1053032448
+            ],
+            [
+              3204186085,
+              3204186112
+            ],
+            [
+              1054867456,
+              1054867456
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3202613195,
+              3202613248
+            ],
+            [
+              1051459610,
+              1051459584
+            ],
+            [
+              1048838144,
+              1048838144
+            ],
+            [
+              3201826816,
+              3201826816
+            ],
+            [
+              1049362432,
+              1049362432
+            ],
+            [
+              3179282434,
+              3179282432
+            ],
+            [
+              3194486784,
+              3194486784
+            ],
+            [
+              1045954560,
+              1045954560
+            ],
+            [
+              3193438208,
+              3193438208
+            ],
+            [
+              3170893820,
+              3170893824
+            ],
+            [
+              1050935283,
+              1050935296
+            ],
+            [
+              3190816768,
+              3190816768
+            ],
+            [
+              3195011072,
+              3195011072
+            ],
+            [
+              1050410995,
+              1050411008
+            ],
+            [
+              3199729613,
+              3199729664
+            ],
+            [
+              1035993098,
+              1035993088
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3200253926,
+              3200253952
+            ],
+            [
+              1054343155,
+              1054343168
+            ],
+            [
+              1015021556,
+              1015021568
+            ],
+            [
+              3200778240,
+              3200778240
+            ],
+            [
+              1049100301,
+              1049100288
+            ],
+            [
+              1049100288,
+              1049100288
+            ],
+            [
+              3201826790,
+              3201826816
+            ],
+            [
+              1051983872,
+              1051983872
+            ],
+            [
+              3181379586,
+              3181379584
+            ],
+            [
+              3196059598,
+              3196059648
+            ],
+            [
+              1049100289,
+              1049100288
+            ],
+            [
+              3196059648,
+              3196059648
+            ],
+            [
+              3181379479,
+              3181379584
+            ],
+            [
+              1051983846,
+              1051983872
+            ],
+            [
+              3201826790,
+              3201826816
+            ],
+            [
+              3190816742,
+              3190816768
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3200778189,
+              3200778240
+            ],
+            [
+              1015021780,
+              1015021568
+            ],
+            [
+              1054343168,
+              1054343168
+            ],
+            [
+              3200253926,
+              3200253952
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              1035993088,
+              1035993088
+            ],
+            [
+              3199729664,
+              3199729664
+            ],
+            [
+              1050411009,
+              1050411008
+            ],
+            [
+              3195011071,
+              3195011072
+            ],
+            [
+              3202613222,
+              3202613248
+            ],
+            [
+              1050935296,
+              1050935296
+            ],
+            [
+              3170893828,
+              3170893824
+            ],
+            [
+              3193438208,
+              3193438208
+            ],
+            [
+              1045954560,
+              1045954560
+            ],
+            [
+              3194486782,
+              3194486784
+            ],
+            [
+              3179282326,
+              3179282432
+            ],
+            [
+              1049362406,
+              1049362432
+            ],
+            [
+              3201826816,
+              3201826816
+            ],
+            [
+              1048838146,
+              1048838144
+            ],
+            [
+              1051459584,
+              1051459584
+            ]
+          ],
+          "alpha_live_until_completion": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "standalone_dyadic_case",
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "choice": 0,
+          "elements": 16777216,
+          "raw_f32_bit_mismatches": 12255950,
+          "bf16_mismatches": 0,
+          "raw_max_abs_diff": 3.18884849548e-06,
+          "workspace_bytes": 0,
+          "first_77_classes": [
+            [
+              3180331007,
+              3180331008
+            ],
+            [
+              3195011018,
+              3195011072
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3193962496,
+              3193962496
+            ],
+            [
+              3172990977,
+              3172990976
+            ],
+            [
+              1053556736,
+              1053556736
+            ],
+            [
+              3185573675,
+              3185573888
+            ],
+            [
+              3184525308,
+              3184525312
+            ],
+            [
+              1042808836,
+              1042808832
+            ],
+            [
+              3196321792,
+              3196321792
+            ],
+            [
+              1035993087,
+              1035993088
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              1039138820,
+              1039138816
+            ],
+            [
+              3198156773,
+              3198156800
+            ],
+            [
+              1039138604,
+              1039138816
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              3188719613,
+              3188719616
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3177184848,
+              3177185280
+            ],
+            [
+              3177185282,
+              3177185280
+            ],
+            [
+              1042808832,
+              1042808832
+            ],
+            [
+              3184524884,
+              3184525312
+            ],
+            [
+              3185573678,
+              3185573888
+            ],
+            [
+              1053556736,
+              1053556736
+            ],
+            [
+              3172990976,
+              3172990976
+            ],
+            [
+              3193962496,
+              3193962496
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3195011072,
+              3195011072
+            ],
+            [
+              3180331007,
+              3180331008
+            ],
+            [
+              1035993088,
+              1035993088
+            ],
+            [
+              3196321792,
+              3196321792
+            ],
+            [
+              3184525420,
+              3184525312
+            ],
+            [
+              1037041665,
+              1037041664
+            ],
+            [
+              3197632512,
+              3197632512
+            ],
+            [
+              1033895831,
+              1033895936
+            ],
+            [
+              3189243694,
+              3189243904
+            ],
+            [
+              3186622457,
+              3186622464
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3177184858,
+              3177185280
+            ],
+            [
+              3166699948,
+              3166699520
+            ],
+            [
+              1051983872,
+              1051983872
+            ],
+            [
+              3188195328,
+              3188195328
+            ],
+            [
+              3183476631,
+              3183476736
+            ],
+            [
+              1052246016,
+              1052246016
+            ],
+            [
+              3175087703,
+              3175088128
+            ],
+            [
+              3166699522,
+              3166699520
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3195010969,
+              3195011072
+            ],
+            [
+              3187671036,
+              3187671040
+            ],
+            [
+              1032847362,
+              1032847360
+            ],
+            [
+              3196059540,
+              3196059648
+            ],
+            [
+              1039138604,
+              1039138816
+            ],
+            [
+              3186622254,
+              3186622464
+            ],
+            [
+              3196059595,
+              3196059648
+            ],
+            [
+              1032847361,
+              1032847360
+            ],
+            [
+              3187670622,
+              3187671040
+            ],
+            [
+              3195011021,
+              3195011072
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3166698672,
+              3166699520
+            ],
+            [
+              3175088128,
+              3175088128
+            ],
+            [
+              1052246016,
+              1052246016
+            ],
+            [
+              3183476737,
+              3183476736
+            ],
+            [
+              3186622460,
+              3186622464
+            ],
+            [
+              1039138820,
+              1039138816
+            ],
+            [
+              3166698674,
+              3166699520
+            ],
+            [
+              3177185286,
+              3177185280
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3186622462,
+              3186622464
+            ],
+            [
+              3189243904,
+              3189243904
+            ],
+            [
+              1033895940,
+              1033895936
+            ],
+            [
+              3197632486,
+              3197632512
+            ],
+            [
+              1037041452,
+              1037041664
+            ],
+            [
+              3184525312,
+              3184525312
+            ],
+            [
+              3188195324,
+              3188195328
+            ],
+            [
+              1051983872,
+              1051983872
+            ]
+          ],
+          "alpha_live_until_completion": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "standalone_dyadic_case",
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "choice": 4,
+          "elements": 16777216,
+          "raw_f32_bit_mismatches": 12890960,
+          "bf16_mismatches": 0,
+          "raw_max_abs_diff": 3.18884849548e-06,
+          "workspace_bytes": 0,
+          "first_77_classes": [
+            [
+              3180331007,
+              3180331008
+            ],
+            [
+              3195011018,
+              3195011072
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3193962496,
+              3193962496
+            ],
+            [
+              3172990977,
+              3172990976
+            ],
+            [
+              1053556736,
+              1053556736
+            ],
+            [
+              3185573675,
+              3185573888
+            ],
+            [
+              3184525308,
+              3184525312
+            ],
+            [
+              1042808836,
+              1042808832
+            ],
+            [
+              3196321792,
+              3196321792
+            ],
+            [
+              1035993087,
+              1035993088
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              1039138820,
+              1039138816
+            ],
+            [
+              3198156773,
+              3198156800
+            ],
+            [
+              1039138604,
+              1039138816
+            ],
+            [
+              3188719616,
+              3188719616
+            ],
+            [
+              3188719613,
+              3188719616
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3177184848,
+              3177185280
+            ],
+            [
+              3177185282,
+              3177185280
+            ],
+            [
+              1042808832,
+              1042808832
+            ],
+            [
+              3184524884,
+              3184525312
+            ],
+            [
+              3185573678,
+              3185573888
+            ],
+            [
+              1053556736,
+              1053556736
+            ],
+            [
+              3172990976,
+              3172990976
+            ],
+            [
+              3193962496,
+              3193962496
+            ],
+            [
+              1052770304,
+              1052770304
+            ],
+            [
+              3195011072,
+              3195011072
+            ],
+            [
+              3180331007,
+              3180331008
+            ],
+            [
+              1035993088,
+              1035993088
+            ],
+            [
+              3196321792,
+              3196321792
+            ],
+            [
+              3184525420,
+              3184525312
+            ],
+            [
+              1037041665,
+              1037041664
+            ],
+            [
+              3197632512,
+              3197632512
+            ],
+            [
+              1033895831,
+              1033895936
+            ],
+            [
+              3189243694,
+              3189243904
+            ],
+            [
+              3186622457,
+              3186622464
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3177184858,
+              3177185280
+            ],
+            [
+              3166699948,
+              3166699520
+            ],
+            [
+              1051983872,
+              1051983872
+            ],
+            [
+              3188195328,
+              3188195328
+            ],
+            [
+              3183476631,
+              3183476736
+            ],
+            [
+              1052246016,
+              1052246016
+            ],
+            [
+              3175087703,
+              3175088128
+            ],
+            [
+              3166699522,
+              3166699520
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3195010969,
+              3195011072
+            ],
+            [
+              3187671036,
+              3187671040
+            ],
+            [
+              1032847362,
+              1032847360
+            ],
+            [
+              3196059540,
+              3196059648
+            ],
+            [
+              1039138604,
+              1039138816
+            ],
+            [
+              3186622254,
+              3186622464
+            ],
+            [
+              3196059595,
+              3196059648
+            ],
+            [
+              1032847361,
+              1032847360
+            ],
+            [
+              3187670622,
+              3187671040
+            ],
+            [
+              3195011021,
+              3195011072
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3166698672,
+              3166699520
+            ],
+            [
+              3175088128,
+              3175088128
+            ],
+            [
+              1052246016,
+              1052246016
+            ],
+            [
+              3183476737,
+              3183476736
+            ],
+            [
+              3186622460,
+              3186622464
+            ],
+            [
+              1039138820,
+              1039138816
+            ],
+            [
+              3166698674,
+              3166699520
+            ],
+            [
+              3177185286,
+              3177185280
+            ],
+            [
+              1051721728,
+              1051721728
+            ],
+            [
+              3186622462,
+              3186622464
+            ],
+            [
+              3189243904,
+              3189243904
+            ],
+            [
+              1033895940,
+              1033895936
+            ],
+            [
+              3197632486,
+              3197632512
+            ],
+            [
+              1037041452,
+              1037041664
+            ],
+            [
+              3184525312,
+              3184525312
+            ],
+            [
+              3188195324,
+              3188195328
+            ],
+            [
+              1051983872,
+              1051983872
+            ]
+          ],
+          "alpha_live_until_completion": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "engine_provider_included": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ],
+      "loaded-library.json": {
+        "host": "BAIYING",
+        "repo_commit": "95a33b3378c749f493d12eea331087883fe2595a",
+        "loaded_module_count": 1,
+        "modules": [
+          {
+            "product_version": "",
+            "sha256": "9f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee",
+            "file_version": "",
+            "file": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\libhipblaslt.dll",
+            "bytes": 6012312
+          }
+        ],
+        "log_present": true,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "log_sha256": "e35ca7074dd9366c78f580c0ea4d5e50a2f88ea5167fd522a59409ac543f931b",
+        "log_bytes": 8590
+      },
+      "official_library_log": "hipblaslt-bench --api_method c -m 8192 -n 8192 -k 2048 --lda 2048 --ldb 2048 --ldc 8192 --ldd 8192  --stride_a 0 --stride_b 0 --stride_c 0 --stride_d 0  --alpha 1.000000 --beta 0.000000 --transA T --transB N --batch_count 1 --scaleA 0 --scaleB 0  --a_type bf16_r --b_type bf16_r --c_type f32_r --d_type f32_r --scale_type f32_r --bias_type f32_r   --compute_type f32_r --algo_method index --solution_index 5661 --activation_type none --any_stride --rotating 0 --cold_iters 0 --iters 0 \nhipblaslt-bench --api_method c -m 8192 -n 8192 -k 2048 --lda 2048 --ldb 2048 --ldc 8192 --ldd 8192  --stride_a 0 --stride_b 0 --stride_c 0 --stride_d 0  --alpha 1.000000 --beta 0.000000 --transA T --transB N --batch_count 1 --scaleA 0 --scaleB 0  --a_type bf16_r --b_type bf16_r --c_type f32_r --d_type f32_r --scale_type f32_r --bias_type f32_r   --compute_type f32_r --algo_method index --solution_index 5651 --activation_type none --any_stride --rotating 0 --cold_iters 0 --iters 0 \nhipblaslt-bench --api_method c -m 2048 -n 8192 -k 4096 --lda 4096 --ldb 4096 --ldc 2048 --ldd 2048  --stride_a 0 --stride_b 0 --stride_c 0 --stride_d 0  --alpha 1.000000 --beta 0.000000 --transA T --transB N --batch_count 1 --scaleA 0 --scaleB 0  --a_type bf16_r --b_type bf16_r --c_type f32_r --d_type f32_r --scale_type f32_r --bias_type f32_r   --compute_type f32_r --algo_method index --solution_index 5661 --activation_type none --any_stride --rotating 0 --cold_iters 0 --iters 0 \nhipblaslt-bench --api_method c -m 2048 -n 8192 -k 4096 --lda 4096 --ldb 4096 --ldc 2048 --ldd 2048  --stride_a 0 --stride_b 0 --stride_c 0 --stride_d 0  --alpha 1.000000 --beta 0.000000 --transA T --transB N --batch_count 1 --scaleA 0 --scaleB 0  --a_type bf16_r --b_type bf16_r --c_type f32_r --d_type f32_r --scale_type f32_r --bias_type f32_r   --compute_type f32_r --algo_method index --solution_index 5651 --activation_type none --any_stride --rotating 0 --cold_iters 0 --iters 0 \n- { function: matmul, M: 8192, N: 8192, K: 2048, lda: 2048, ldb: 2048, ldc: 8192, ldd: 8192, stride_a: 0, stride_b: 0, stride_c: 0, stride_d: 0, alpha: 1.000000, beta: 0.000000, transA: T, transB: N, batch_count: 1, scaleA: 0, scaleB: 0, scaleC: 0, scaleD: 0, swizzleA: false, swizzleB: false, scaleAlpha_vector: false, gradient: false, use_e: false, bias_vector: false, bias_source: d, a_type: bf16_r, b_type: bf16_r, c_type: f32_r, d_type: f32_r, scale_type: f32_r, bias_type: f32_r, aux_type: f32_r, compute_type: c_f32_r, activation_type: none, flush: false, any_stride: true, rotating: 0, cold_iters: 0, iters: 0, solution_index: 5661, solution_Name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_UserArgs_MT32x32x64_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR0_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSU1_GSUAMB_GSUC0_GSUWGMRR0_GLS0_ISA1151_IU1_K1_LBSPPA0_LBSPPB0_LBSPPM0_LPA0_LPB0_LPM0_LRVW16_LWPMn1_MIAV1_MIWT1_1_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR3_PKA0_SIA3_SS1_SU4_SUM0_SUS256_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS0_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA1_WSGRB1_WS32_WG32_4_1_WGM8_WGMXCC1_WGMXCCGn1, kernel_name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_UserArgs_MT32x32x64_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR0_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSUAMB_GLS0_ISA1151_IU1_K1_LBSPPA0_LBSPPB0_LBSPPM0_LPA0_LPB0_LPM0_LRVW16_LWPMn1_MIAV1_MIWT1_1_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR3_PKA0_SIA3_SS1_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS0_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA1_WSGRB1_WS32_WG32_4_1, call_count: 1 }\n- { function: matmul, M: 8192, N: 8192, K: 2048, lda: 2048, ldb: 2048, ldc: 8192, ldd: 8192, stride_a: 0, stride_b: 0, stride_c: 0, stride_d: 0, alpha: 1.000000, beta: 0.000000, transA: T, transB: N, batch_count: 1, scaleA: 0, scaleB: 0, scaleC: 0, scaleD: 0, swizzleA: false, swizzleB: false, scaleAlpha_vector: false, gradient: false, use_e: false, bias_vector: false, bias_source: d, a_type: bf16_r, b_type: bf16_r, c_type: f32_r, d_type: f32_r, scale_type: f32_r, bias_type: f32_r, aux_type: f32_r, compute_type: c_f32_r, activation_type: none, flush: false, any_stride: true, rotating: 0, cold_iters: 0, iters: 0, solution_index: 5651, solution_Name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT96x96x32_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR1_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSU1_GSUAMB_GSUC0_GSUWGMRR0_GLS0_ISA1151_IU1_K1_LBSPPA128_LBSPPB128_LBSPPM0_LPA16_LPB16_LPM0_LRVW16_LWPMn1_MIAV1_MIWT3_3_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR1_PKA0_SIA3_SS1_SU32_SUM0_SUS256_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS1_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA0_WSGRB0_WS32_WG32_4_1_WGM8_WGMXCC1_WGMXCCGn1, kernel_name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT96x96x32_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR1_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSUAMB_GLS0_ISA1151_IU1_K1_LBSPPA128_LBSPPB128_LBSPPM0_LPA16_LPB16_LPM0_LRVW16_LWPMn1_MIAV1_MIWT3_3_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR1_PKA0_SIA3_SS1_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS1_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA0_WSGRB0_WS32_WG32_4_1, call_count: 1 }\n- { function: matmul, M: 2048, N: 8192, K: 4096, lda: 4096, ldb: 4096, ldc: 2048, ldd: 2048, stride_a: 0, stride_b: 0, stride_c: 0, stride_d: 0, alpha: 1.000000, beta: 0.000000, transA: T, transB: N, batch_count: 1, scaleA: 0, scaleB: 0, scaleC: 0, scaleD: 0, swizzleA: false, swizzleB: false, scaleAlpha_vector: false, gradient: false, use_e: false, bias_vector: false, bias_source: d, a_type: bf16_r, b_type: bf16_r, c_type: f32_r, d_type: f32_r, scale_type: f32_r, bias_type: f32_r, aux_type: f32_r, compute_type: c_f32_r, activation_type: none, flush: false, any_stride: true, rotating: 0, cold_iters: 0, iters: 0, solution_index: 5661, solution_Name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_UserArgs_MT32x32x64_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR0_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSU1_GSUAMB_GSUC0_GSUWGMRR0_GLS0_ISA1151_IU1_K1_LBSPPA0_LBSPPB0_LBSPPM0_LPA0_LPB0_LPM0_LRVW16_LWPMn1_MIAV1_MIWT1_1_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR3_PKA0_SIA3_SS1_SU4_SUM0_SUS256_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS0_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA1_WSGRB1_WS32_WG32_4_1_WGM8_WGMXCC1_WGMXCCGn1, kernel_name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_UserArgs_MT32x32x64_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR0_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSUAMB_GLS0_ISA1151_IU1_K1_LBSPPA0_LBSPPB0_LBSPPM0_LPA0_LPB0_LPM0_LRVW16_LWPMn1_MIAV1_MIWT1_1_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR3_PKA0_SIA3_SS1_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS0_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA1_WSGRB1_WS32_WG32_4_1, call_count: 1 }\n- { function: matmul, M: 2048, N: 8192, K: 4096, lda: 4096, ldb: 4096, ldc: 2048, ldd: 2048, stride_a: 0, stride_b: 0, stride_c: 0, stride_d: 0, alpha: 1.000000, beta: 0.000000, transA: T, transB: N, batch_count: 1, scaleA: 0, scaleB: 0, scaleC: 0, scaleD: 0, swizzleA: false, swizzleB: false, scaleAlpha_vector: false, gradient: false, use_e: false, bias_vector: false, bias_source: d, a_type: bf16_r, b_type: bf16_r, c_type: f32_r, d_type: f32_r, scale_type: f32_r, bias_type: f32_r, aux_type: f32_r, compute_type: c_f32_r, activation_type: none, flush: false, any_stride: true, rotating: 0, cold_iters: 0, iters: 0, solution_index: 5651, solution_Name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT96x96x32_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR1_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSU1_GSUAMB_GSUC0_GSUWGMRR0_GLS0_ISA1151_IU1_K1_LBSPPA128_LBSPPB128_LBSPPM0_LPA16_LPB16_LPM0_LRVW16_LWPMn1_MIAV1_MIWT3_3_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR1_PKA0_SIA3_SS1_SU32_SUM0_SUS256_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS1_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA0_WSGRB0_WS32_WG32_4_1_WGM8_WGMXCC1_WGMXCCGn1, kernel_name: Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT96x96x32_MI16x16x1_SN_LDSB0_AFC1_AFEM1_AFEM1_ASEM1_CLR1_CADS0_DTLA0_DTLB0_DTVA0_DTVB0_EPS0_FDSI0_GRPM1_GRVWA8_GRVWB8_GSUAMB_GLS0_ISA1151_IU1_K1_LBSPPA128_LBSPPB128_LBSPPM0_LPA16_LPB16_LPM0_LRVW16_LWPMn1_MIAV1_MIWT3_3_MO40_NTn1_NTA0_NTB0_NTC0_NTD0_NTM0_NEPBS0_NLCA1_NLCB1_ONLL1_PGR2_PLR1_PKA0_SIA3_SS1_SPO0_SRVW0_SSO0_SVW1_SK0_SKXCCM0_TLDS1_ULSGRO0_USL1_UIOFGRO0_USFGROn1_VSn1_VWA1_VWB1_WSGRA0_WSGRB0_WS32_WG32_4_1, call_count: 1 }\n"
+    }
+  },
+  "prior_provider_comparison": [
+    {
+      "rows": 8192,
+      "k": 2048,
+      "choice": 0,
+      "same_mismatch_count": true
+    },
+    {
+      "rows": 8192,
+      "k": 2048,
+      "choice": 4,
+      "same_mismatch_count": true
+    },
+    {
+      "rows": 2048,
+      "k": 4096,
+      "choice": 0,
+      "same_mismatch_count": true
+    },
+    {
+      "rows": 2048,
+      "k": 4096,
+      "choice": 4,
+      "same_mismatch_count": true
+    }
+  ],
+  "conclusions": [
+    "The standalone executable includes no engine provider source and retains host alpha/beta through GPU completion. All four raw FP32 mismatch counts exactly reproduce the prior engine-wrapper diagnostic.",
+    "All167772160 generated BF16 endpoints match the independent CPU integer-numerator reference. All outputs are finite and every source/output guard and operand immutability check passes.",
+    "The actual loaded library is C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\libhipblaslt.dll,6012312 bytes,SHA2569f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee. Official logging confirms BF16 operands, FP32 output/compute, T/N layout, alpha1,beta0 and zero workspace. Heuristic0 and4 select solution5661 and5651 respectively for both shapes.",
+    "The observed raw producer differences do not depend on engine code or the lifetime of the wrapper alpha/beta variables. This does not establish a hardware defect or the cause of the OUT-only full-model continuation failure.",
+    "Keep the GB10-valid QKV/Z4,OUT0 route. Next compare both corrected OUT algorithms on identical full-model inputs while the qualified control drives inference, preserving original norms, selectors, bounds and the complete GB10 token boundary."
+  ],
+  "documentation": [
+    {
+      "url": "https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/how-to/use-logging-heuristics.html",
+      "used_for": "HIPBLASLT_LOG_MASK160 benchmark and extended-profile logging"
+    },
+    {
+      "url": "https://docs.amd.com/api/khub/documents/UVVZM22UN7tMUeiW_4ShTQ/content",
+      "used_for": "RDNA3.5 ISA section7.9 documents internal DOT operations and RNE; it does not establish bitwise equivalence with the GB10 K16 accumulator"
+    }
+  ],
+  "component_bf16_reference_pass": true,
+  "raw_f32_reference_pass": false,
+  "engine_provider_included": false,
+  "runtime_dispatch_changed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

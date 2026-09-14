@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 
+from test_attention_workspace import function
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -111,10 +112,9 @@ int main() {
 
     def test_actual_stream_launcher_transports_absolute_indices_and_stops_on_fault(self):
         provider = (ROOT / "native/providers/whole_provider.cpp").read_text()
-        begin = provider.index("hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(")
-        end = provider.index("// GB10's cuBLASLt BF16 BA projection", begin)
+        actual = function(provider, "hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(")
         source = (ROOT / "tests/native/hawkeye_stream_host_mock.cpp").read_text()
-        source = source.replace("// QRT_ACTUAL_LAUNCHER", provider[begin:end])
+        source = source.replace("// QRT_ACTUAL_LAUNCHER", actual)
         with tempfile.TemporaryDirectory(prefix="qrt-hawkeye-stream-") as tmp:
             for lanes in (16, 8, 4):
                 exe = str(Path(tmp) / f"stream-test-{lanes}")

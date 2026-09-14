@@ -38450,6 +38450,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         transpose_free_status != hipSuccess ? transpose_free_status : free_status;
 }
 
+#include "q8192_out_matrix_shadow_audit.h"
+
 // GB10's cuBLASLt BF16 BA projection selects an output-type split-K
 // reduction for the product shape M=2560, N=64, K=2048.  The live algorithm
 // uses three contiguous K slices [0,704), [704,1408), and [1408,2048).  Each
@@ -123076,6 +123078,16 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                         goto cleanup;
                     }
                 }
+                if (!fail_hip(qrt_out_matrix_shadow::run(
+                        device_out_weight, device_gated_bf16, device_out,
+                        device_out_input_l2_upper_bounds, device_out_weight_l2_upper_bounds,
+                        kOutProjectionRows, target_token_count, kValueFeatures,
+                        exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                        exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
+                        selected_hawkeye_correction_maximum_blocks_per_launch(), 0,
+                        prefix + "_linear_out"), prefix + "_out_matrix_shadow")) {
+                    goto cleanup;
+                }
                 hipLaunchKernelGGL(
                     f32_to_bf16_kernel,
                     dim3(
@@ -127498,6 +127510,12 @@ bool full_attention_output_projection_bf16_tile(
             weights, inputs, nullptr, input_norm, weight_norm, raw,
             rows, tokens, reduction_size, radius, 0u, error_ppb,
             selected_hawkeye_correction_maximum_blocks_per_launch(), stream), "dispatch")) {
+        release();
+        return false;
+    }
+    if (!checked(qrt_out_matrix_shadow::run(weights, inputs, raw, input_norm, weight_norm,
+            rows, tokens, reduction_size, radius, error_ppb,
+            selected_hawkeye_correction_maximum_blocks_per_launch(), stream, stage), "shadow_audit")) {
         release();
         return false;
     }

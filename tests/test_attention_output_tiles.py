@@ -64,6 +64,9 @@ template<class... T> bool resident_bf16_matrix_matmul_f32_output(T...) { return 
 template<class... T> int launch_selected_bf16_projection_hawkeye_midpoint_correction(T...) {
     return hipGetLastError();
 }
+namespace qrt_out_matrix_shadow {
+template<class... T> int run(T...) { return hipGetLastError(); }
+}
 ''' + actual + r'''
 int main() {
     uint16_t data = 0; std::string stage, failure;
@@ -86,7 +89,7 @@ int main() {
         if (run()) return 4;
     }
     fail_allocation = 0;
-    for (unsigned step : {1u, 2u, 3u, 4u}) {
+    for (unsigned step : {1u, 2u, 3u, 4u, 5u}) {
         fail_status = step;
         if (run()) return 5;
     }

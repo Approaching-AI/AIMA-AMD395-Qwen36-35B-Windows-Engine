@@ -234,6 +234,10 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\gate_input_capture.h')).Hash.ToLowerInvariant()
     projection_output_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\projection_output_policy.h')).Hash.ToLowerInvariant()
+    q8192_matrix_producer_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\q8192_matrix_producer_policy.h')).Hash.ToLowerInvariant()
+    q8192_out_matrix_shadow_audit_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\q8192_out_matrix_shadow_audit.h')).Hash.ToLowerInvariant()
     qrt_header_path = $qrtHeader
     qrt_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()

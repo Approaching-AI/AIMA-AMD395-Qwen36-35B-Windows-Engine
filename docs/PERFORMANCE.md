@@ -27,12 +27,28 @@ Command: `run-native-matrix-scope-product-r1.ps1` with control/qkv/out arguments
 Evidence: `benchmarks/correctness/matrix-scope-product-20260914.json`,
 SHA256 `59a10e7201ac33512a40e5eea30d668f842e924cd48b7e5bf68ddea826c553d9`.
 
-A standalone hipBLASLt reproducer now excludes engine code, keeps host
-alpha/beta alive until GPU completion and records the actual loaded DLL.
-It compares algorithm 0 and 4 at both full q8192 QKV and OUT shapes, checking
-all generated BF16 endpoints, raw FP32 differences and source/output guards.
-It uses [official hipBLASLt logging](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/how-to/use-logging-heuristics.html)
-for API and selected-solution evidence. Native results are pending.
+The standalone hipBLASLt diagnostic at `95a33b3` reproduces all four raw
+FP32 mismatch counts without engine code and with alpha/beta live until GPU
+completion. All 167772160 generated BF16 endpoints, finite outputs, source
+immutability and memory guards pass. The loaded ROCm 7.1 DLL is 6012312 bytes,
+SHA256 `9f97d95c3b7257efcab992914b4e1c1b3b71b0693a6ad5d61a8f3cbf08a96dee`.
+Official logs confirm the requested datatypes, T/N layout, alpha 1, beta 0,
+zero workspace, and solutions 5661/5651 for heuristics 0/4. Native build/test
+complete in 2659.578/1185.241 ms with host guards passing. These are diagnostic
+process times, not inference performance. This excludes engine code and the
+wrapper's scalar lifetime as necessary causes of the observed raw difference;
+it does not establish a hardware defect or explain OUT continuation failure.
+Evidence: `benchmarks/correctness/hipblaslt-dyadic-standalone-20260914.json`,
+SHA256 `66337f9be1e6799a286b57e1300d1cf615de16e8dcc11b06aeedcb9b1fd44370`.
+
+The next real-model diagnostic keeps QKV/Z 4 and OUT 0 driving inference.
+`QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT=1` separately produces and corrects
+algorithm-4 OUT outputs on the same inputs at both attention families. It
+compares every BF16 endpoint, classifies up to 4096 differences per OUT with
+original integer wave16 arithmetic, cross-checks the first one on CPU and
+checks all diagnostic redzones. The original output is read-only to this
+audit. All original bounds remain unchanged. Native results are pending;
+instrumented timings cannot establish performance acceptance.
 
 The same-DLL product trial at `c16219f` rejects matrix algorithm 4. On baiying
 with `D:\models\Qwen3.6-35B-A3B`, algorithm 0 preserves all 512 original GB10
