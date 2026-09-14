@@ -74,8 +74,8 @@ routed gate/up/down corrections 1195.073878 / 1347.092419 / 1014.207606 ms.
 These detail intervals are nested; shared MoE overlaps routed work. Ten
 negative residual/postnorm GPU intervals are excluded. Instrumented TTFT
 34529.1447 ms, TPOT 104.707169 ms and load 21349.6095 ms are diagnostic.
-Investigate a shared prepared-weight block layout for exact correction,
-retaining the original K16 carry and fallback. Profile evidence:
+The subsequent block-layout and shared-PV comparisons below preserve the
+original K16 carry but produce no gain. Profile evidence:
 `benchmarks/correctness/current-range-stack-profile-20260915.json`, SHA256
 `8209dbcfe8d47433f5313229fa26b1a038af577a53adf1d6f7a85dcbaf9d5d88`.
 
@@ -115,12 +115,38 @@ fallback. C smoke, 403 Python tests with two skips and hygiene pass. Evidence:
 `benchmarks/correctness/shared-scaled-half-pv-components-20260915.json`, SHA256
 `9f48a8e49206199e1087d82022b3df21540c1d44c4c13e3c1adbf86ef54253c7`.
 
-Next resolve the measured linear pipeline wall before another replacement.
-The 7890.378 ms linear-core scope includes convolution/gates, FLA, gated norm,
-OUT projection and residual/postnorm; it is not a pure FLA clock. Existing
-FLA KKT/WU/state/output clocks omit norm, inverse and copy/cumsum stages.
-Add explicit operation boundaries and rerun the complete q8192 GB10 gate;
-do not treat nested or missing intervals as independent measured costs.
+Completed linear/FLA diagnostics at `7fc5b2d` preserve every original q8192
+GB10 token and callback, first 144/raw 10.375, with CK `42c2f0f`, MoE
+`4a7f0c4` and CLI `24c4304`. Instrumented TTFT is 34852.0179 ms, TPOT
+103.959093 ms, load 21283.2918 ms and process wall 109859.358 ms. Whole/FLA
+native builds pass in 92117.954 / 40562.391 ms. All arithmetic headers and
+AOT sources match the current control; diagnostic provider code alone changes.
+Full local checks pass 403 tests with two skips, C smoke and hygiene after
+fixing missing parser includes in an existing extracted-code test fixture.
+
+All 30 linear layers have eight ordered completed host phases. Totals in ms:
+setup 23.9383, convolution 805.8966, gate 425.8651, recurrent 3783.405,
+gated norm 196.4319, OUT projection 2824.3749, residual/postnorm 188.1001
+and materialization 47.1473. The final clock/log overhead is 42.2718 ms;
+together these account for the 8337.431 ms linear-core scope. The separate
+preceding projection scope is 4378.69 ms. These are instrumented scopes.
+
+All 240 FLA segments have eight completed records. Full valid GPU-stage sums
+in ms are V/beta copy 42.19459, KKT 157.99462, inverse 51.39964,
+WU 420.58732, state 998.69225 and output 1021.75751. One norm interval and
+159 gate-cumsum intervals are negative and excluded: their 40.12011 /
+1.92992 ms sums are partial, not full-stage times. FLA GPU clocks are nested
+inside the recurrent host interval. Ten full-attention residual/postnorm
+GPU intervals are also excluded; none rejects the valid GB10 boundary.
+
+Full-attention OUT is 2736.685 ms; the 40 dense OUT corrections nested in
+linear/full OUT total 3455.015 ms. Proceed with cooperative tile reuse of
+prepared operands across the original dense correction candidates. Preserve
+ascending K16 carries and original fallback; compare complete captured
+product shapes including tile preparation and selection before integration.
+Retained performance, 128k/256k, package/HTTP/soak and release remain open.
+Evidence: `benchmarks/correctness/completed-linear-pipeline-profile-20260915.json`,
+SHA256 `e9fbcf0beb1e8c5c623954b10477bc0eb97f1f6d93eed9e3391779a9706d5404`.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
