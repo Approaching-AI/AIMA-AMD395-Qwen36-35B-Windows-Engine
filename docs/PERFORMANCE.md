@@ -187,16 +187,28 @@ continue with the original exact QK arithmetic as the numerical boundary.
 Evidence: `benchmarks/correctness/cooperative-half-out-components-20260915.json`,
 SHA256 `070fa589e1f24af3935e9a364cfb3c16c32c5cb857d4786279b19eb2cb4cad62`.
 
-The next QK component combines lossless 36-byte scaled-half rows with the
-single-register FP32 carry already validated separately. This removes the
-repeated conversion between the original Value representation and FP32 from
-the earlier scaled-half QK route. K64/K128/K256 windows retain original paired
-exponent alignment and modulo sums; unsupported operands or carry endpoints
-restart the complete original dot. The current prepared QK and previous K128
-scaled-half implementation are same-executable controls. Host checks pass
-500000 original wide K16 groups with address/undefined/conversion sanitizers;
-native guards, fallback cases and complete q7169/q8192 captured comparisons
-remain pending. Product dispatch is unchanged.
+Compact-half operands with FP32 carries at `bab3838` pass all 101 native
+reports, including 131072 original K16 states, and full q7169/q8192 score
+comparisons. Each of five variants checks 418496528 / 545259520 score slots
+on every warmup and timed attempt, plus 228 / 256 independent CPU dots.
+All encodings, causal masks, unused tails, guards and immutable inputs pass.
+The 500000-group sanitized host check and 405 Python tests with two skips pass;
+C smoke and hygiene pass. A controller-only Rust-baseline assertion was repaired
+by verifying unchanged Rust/Cargo against the actual `5875f99` full validation;
+the original successful Python log and the controller failure are preserved.
+
+Completed encoding-plus-query medians for current prepared / old compact K128 /
+new K64 / new K128 / new K256 are 278.8748 / 265.4747 / 311.7844 / 309.8679 /
+306.2329 ms at q7169, and 370.0549 / 359.6105 / 419.4118 / 415.8095 /
+410.9197 ms at q8192. The q8192 extension repeats the first 1023 captured Q/K
+rows; it establishes component cost, not a new model run. Every new variant
+is slower; keep current QK. The old compact control's small component gain
+also remains outside product dispatch. Next refresh the current 24c/42c/4a7/2ee
+portable package and HTTP regression. Retained performance, long contexts,
+soak and release qualification remain open. Evidence:
+`benchmarks/correctness/half-f32-qk-components-20260915.json`, SHA256
+`33ebfed12e6180c260a19c28fc949bfd691133f707fdc9278cf5dfbb3106bdbd`.
+
 
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
