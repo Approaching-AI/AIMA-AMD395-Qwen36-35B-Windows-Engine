@@ -60,6 +60,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool dual_lane_replay = dual_lane_option && std::strcmp(dual_lane_option,"1")==0;
     const char* interleaved_option = std::getenv("QRT_PROJECTION_SAFETY_INTERLEAVED_REPLAY");
     const bool interleaved_replay = interleaved_option && std::strcmp(interleaved_option,"1")==0;
+    const char* scaled_half_option=std::getenv("QRT_PROJECTION_SAFETY_SCALED_HALF_REPLAY");
+    const bool scaled_half_replay=scaled_half_option && std::strcmp(scaled_half_option,"1")==0;
     const char* decoded_option = std::getenv("QRT_PROJECTION_SAFETY_DECODED_REPLAY");
     const bool decoded_replay = decoded_option && std::strcmp(decoded_option,"1")==0;
     const char* packed_tiles_option = std::getenv("QRT_PROJECTION_SAFETY_PACKED_TILES_REPLAY");
@@ -89,7 +91,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay || decoded_replay || interleaved_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if ((scaled_half_replay || scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay || decoded_replay || interleaved_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -106,6 +108,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (scaled_half_replay) {
+        run_scaled_half_projection_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
+        return;
+    }
     if (interleaved_replay) {
         run_interleaved_projection_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);

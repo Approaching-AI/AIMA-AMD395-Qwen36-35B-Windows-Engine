@@ -60,7 +60,7 @@ QRT_SCALED_HALF_INLINE float product(uint32_t left,uint32_t right) {
     return half_value(uint16_t(left>>(High?16u:0u)))*half_value(uint16_t(right>>(High?16u:0u)));
 #endif
 }
-template<bool AllNonzero>
+template<bool AllNonzero,bool IntegerCarry>
 QRT_SCALED_HALF_INLINE bool sum_products(Value carry,const Row& left,const Row& right,
     unsigned active,AlignedSum* output) {
     float products[16];uint32_t paired_maximum=0u;
@@ -81,15 +81,31 @@ QRT_SCALED_HALF_INLINE bool sum_products(Value carry,const Row& left,const Row& 
     int maximum=half_maximum-30+combined_unit;
     maximum=maximum>carry.exponent?maximum:carry.exponent;maximum=maximum>-133?maximum:-133;
     const int product_power=25-maximum+combined_unit;
-    if(maximum<-101 || maximum>127 || carry.exponent>127 || product_power<-126 || product_power>127)return false;
-    const float carry_scale=qrt_sm121_float_alignment::from_bits(unsigned(152-maximum)<<23u);
-    const float product_scale=qrt_sm121_float_alignment::from_bits(unsigned(127+product_power)<<23u);
-    uint32_t total=uint32_t(int32_t(qrt_q1_moe_hawkeye::value_to_float(carry)*carry_scale));
+    uint32_t total;
+    if constexpr(IntegerCarry) {
+        if(product_power>127)return false;
+        const unsigned shift=unsigned(maximum-carry.exponent);
+        const uint32_t aligned=shift>=32u?0u:(carry.significand<<2u)>>shift;
+        total=carry.negative?0u-aligned:aligned;
+        // Normal FP16 products are below2^32. A scale below2^-126 aligns
+        // every product to integer zero, even when FP32 would underflow.
+        if(product_power>=-126) {
+            const float scale=qrt_sm121_float_alignment::from_bits(unsigned(127+product_power)<<23u);
 #pragma unroll
-    for(unsigned i=0u;i<16u;++i)total+=uint32_t(int32_t(products[i]*product_scale));
+            for(unsigned i=0u;i<16u;++i)total+=uint32_t(int32_t(products[i]*scale));
+        }
+    } else {
+        if(maximum<-101 || maximum>127 || carry.exponent>127 || product_power<-126 || product_power>127)return false;
+        const float carry_scale=qrt_sm121_float_alignment::from_bits(unsigned(152-maximum)<<23u);
+        const float product_scale=qrt_sm121_float_alignment::from_bits(unsigned(127+product_power)<<23u);
+        total=uint32_t(int32_t(qrt_q1_moe_hawkeye::value_to_float(carry)*carry_scale));
+#pragma unroll
+        for(unsigned i=0u;i<16u;++i)total+=uint32_t(int32_t(products[i]*product_scale));
+    }
     *output={qrt_sm121_group16::decode_modulo_sum(total,((left.pairs[0]^right.pairs[0])&0x8000u)!=0u),maximum};
     return true;
 }
+template<bool IntegerCarry=false>
 QRT_SCALED_HALF_INLINE Value accumulate(Value carry,const Row& left,const Row& right,unsigned* path=nullptr) {
     if(path)*path=0u;
     if(unit(left)!=-32768 && unit(right)!=-32768) {
@@ -102,7 +118,7 @@ QRT_SCALED_HALF_INLINE Value accumulate(Value carry,const Row& left,const Row& r
             return qrt_sm121_canonical::normalize(magnitude,magnitude && carry.negative,maximum);
         }
         AlignedSum sum;
-        const bool accepted=active==65535u?sum_products<true>(carry,left,right,active,&sum):sum_products<false>(carry,left,right,active,&sum);
+        const bool accepted=active==65535u?sum_products<true,IntegerCarry>(carry,left,right,active,&sum):sum_products<false,IntegerCarry>(carry,left,right,active,&sum);
         if(accepted) {
             if(path)*path=active==65535u?2u:3u;
             return qrt_sm121_canonical::normalize(sum.value.magnitude,sum.value.negative,sum.max_exponent);

@@ -14,7 +14,7 @@ unsigned random_word(){seed^=seed<<13;seed^=seed>>17;seed^=seed<<5;return seed;}
 
 namespace pair = qrt_sm121_scaled_half_products;
 int main(){
- unsigned ordered=0u,paths[4]{};Value previous{0u,-133,false};
+ unsigned ordered=0u,paths[4]{},wide_paths[4]{};Value previous{0u,-133,false};
  for(unsigned group=0;group<500000u;++group){
   Row a{},b{};Value values[17];
   const unsigned ae=1u+random_word()%220u,be=1u+random_word()%220u;
@@ -54,6 +54,9 @@ int main(){
   if(actual.significand!=expected_raw.significand || actual.exponent!=expected_raw.exponent || actual.negative!=expected_raw.negative) {
    std::fprintf(stderr,"group=%u actual=%u,%d,%u expected=%u,%d,%u\n",group,actual.significand,actual.exponent,actual.negative,expected_raw.significand,expected_raw.exponent,expected_raw.negative);return 1;
   }
+  unsigned wide_path=99u;const auto wide=pair::accumulate<true>(values[0],pa,pb,&wide_path);
+  assert(wide_path<4u);++wide_paths[wide_path];
+  assert(wide.significand==expected_raw.significand && wide.exponent==expected_raw.exponent && wide.negative==expected_raw.negative);
   for(unsigned i=0u;i<16u;++i) {
    assert(pair::original(pa,i)==a.original[i] && pair::original(pb,i)==b.original[i]);
    if(pair::unit(pa)!=-32768 && pair::unit(pb)!=-32768) {
@@ -76,4 +79,6 @@ int main(){
  }
  assert(paths[0] && paths[1] && paths[2]>50000u && paths[3]);
  std::printf("{\"kind\":\"scaled_half_products_host\",\"all_bf16_encodings\":65536,\"roundtrip_contexts\":4,\"unmodified_raw_carry_states\":%u,\"path_fallback_zero_full_partial\":[%u,%u,%u,%u],\"power_of_two_product_reconstruction\":true,\"raw_mismatches\":0,\"immutable_inputs\":true}\n",ordered,paths[0],paths[1],paths[2],paths[3]);
+ assert(wide_paths[0]<paths[0] && wide_paths[2]>paths[2]);
+ std::printf("{\"kind\":\"scaled_half_integer_carry_host\",\"unmodified_raw_carry_states\":%u,\"path_fallback_zero_full_partial\":[%u,%u,%u,%u],\"raw_mismatches\":0,\"immutable_inputs\":true}\n",ordered,wide_paths[0],wide_paths[1],wide_paths[2],wide_paths[3]);
 }

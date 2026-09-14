@@ -367,6 +367,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_packed_tiles_replay_suite.h"
 #include "projection_dual_lane_replay_suite.h"
 #include "projection_decoded_replay_suite.h"
+#include "projection_scaled_half_replay_suite.h"
 #include "projection_interleaved_replay_suite.h"
 #include "projection_spatial_replay_suite.h"
 #include "projection_partition_replay_suite.h"
