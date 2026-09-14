@@ -2,7 +2,37 @@
 
 ## Current unreleased measurements, 2026-09-14
 
-Compact staged-half dense replay at `0aa358b` reduces complete q8192 TTFT
+Compact staged-half routed MoE at `4a7f0c4` reduces complete q8192
+TTFT from 33507.2252 to 32939.7689 ms in the same-DLL off/on comparison,
+saving 567.4563 ms. Both baiying runs with `D:\models\Qwen3.6-35B-A3B`
+preserve all 512 GB10 tokens and actual callbacks, first 144/raw 10.375.
+TPOT is 100.802963 / 101.367740 ms and model plus engine load is
+21265.1042 / 21328.8211 ms. Only
+`QRT_QWEN36_MOE_STAGED_HALF_REPLAY=0/1` differs between the two runs.
+
+Use MoE `4a7f0c4` with that option on for subsequent experiments, keeping
+whole `0aa358b` staged dense replay on, QKV4/OUT0, linear OUT PPB1000,
+shared prevalidated MoE, CK `9e6e296` prepared QK, FLA `2ee6215` and
+CLI `a797b62`. Both source options default off. This pair does not establish
+repeatability or retained performance. TTFT is still above 10 seconds;
+the immutable speed, context/prefix, package, HTTP, soak and release gates
+remain open.
+
+The routed option adds 1283457024 bytes in two lossless operand arenas,
+reused from gate/up to activated/down. Both allocation and preparation are
+included in product time. Operand preparation occurs even on a cached norm
+hit; all 80 original norm-cache hits, 40 shared calls and 110 dense calls
+remain. Native shared and routed comparisons, original norm scans, live-view
+reconstruction, unsupported-group fallback, guards and both builds pass.
+The synthetic 1025-token routed case is slower, demonstrating that the real
+product boundary is necessary for the route decision. Host allocation and
+submission fault tests, C smoke, 392 Python tests with two skips and hygiene
+pass; unchanged Rust/Cargo sources reuse 47 tests and clippy with explicit
+hashes and diff. Evidence:
+`benchmarks/correctness/staged-half-moe-product-20260914.json`, SHA256
+`eb192d32150a1e7e4f238fe28c801e519088001c77ec03d82631342e313ca117`.
+
+The earlier compact staged-half dense replay at `0aa358b` reduces complete q8192 TTFT
 from 34160.5916 to 33633.9952 ms in the same-DLL off/on comparison, saving
 526.5964 ms. Both runs on baiying with `D:\models\Qwen3.6-35B-A3B` match
 all 512 original GB10 output tokens and actual callbacks, first 144/raw
@@ -10,9 +40,9 @@ all 512 original GB10 output tokens and actual callbacks, first 144/raw
 21170.0292 / 21157.2727 ms. The only environment difference is
 `QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY=0/1`.
 
-Use whole `0aa358b` with that option on for subsequent experiments, keeping
-QKV4/OUT0, linear OUT PPB1000, MoE `1958c2c`, prepared-QK CK `9e6e296`,
-FLA `2ee6215` and CLI `a797b62`. The source default remains off. This
+That pair used whole `0aa358b` with the option on, QKV4/OUT0, linear OUT
+PPB1000, MoE `1958c2c`, prepared-QK CK `9e6e296`, FLA `2ee6215` and
+CLI `a797b62`. The source default remains off. This
 single product pair does not establish repeatability or the immutable speed,
 context/prefix, package, HTTP, soak and release gates. TTFT remains above
 10 seconds, so continue broader replacements rather than local parameter tuning.
