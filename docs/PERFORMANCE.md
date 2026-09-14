@@ -322,6 +322,28 @@ clippy with explicit diff/hashes. No product or release qualification follows.
 Evidence: `benchmarks/correctness/scaled-half-projection-20260914.json`, SHA256
 `6fcde1d0bfc968657b83c92d3486e8676ad7f4e01fc9abb2342f045336405433`.
 
+Compact staged-half projection at `5413a9e` improves the complete q8192
+QKV component. Including complete operand preparation, original four-lane
+replay takes 59.1891 ms; compact staging 1 / 2 / 4 / 8 takes
+47.0711 / 43.5192 / 44.4076 / 44.1382 ms. Two groups save 15.6699 ms,
+about 26.47%. Three samples per variant and rotated order are attached.
+This warrants provider integration and full-model measurement; it does not
+establish product performance or release qualification.
+
+Each lane stores six operand dwords per group before the original ordered
+integer carries. All five variants preserve every GB10-comparable BF16
+output and all 4331311 unrounded candidates after every warmup and timed
+attempt: 1342177280 output and 86626220 raw candidate comparisons pass.
+All captured groups support the 75497472-byte lossless operand view.
+Twenty-four native tests preserve 2773512 raw carry states across six widths,
+including staging tails, unsupported groups and production/audit parity.
+All encodings, guards and immutable inputs pass. Initial compilation rejected
+two host-only memcpy calls; the successful revision uses device builtins,
+and the failure is retained. Local checks and explicit unchanged-code reuse
+are attached. The selected product stack remains unchanged by this component.
+Evidence: `benchmarks/correctness/staged-half-projection-20260914.json`, SHA256
+`a6807458b081d078c9e06914c6eeb22684b1bbf367c3582e7af9e3b0b804e7ed`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
