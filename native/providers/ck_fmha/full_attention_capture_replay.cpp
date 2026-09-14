@@ -294,6 +294,16 @@ struct CompletedAttentionPhases {
     double milliseconds[5]{};
     unsigned samples[5]{};
     Clock::time_point previous;
+    bool complete(unsigned slabs, bool all_pv_replay) const {
+        if (!slabs) return false;
+        for (unsigned stage = 0u; stage < 5u; ++stage) {
+            const bool skipped = all_pv_replay && (stage == 2u || stage == 3u);
+            if (samples[stage] != (skipped ? 0u : slabs) ||
+                !std::isfinite(milliseconds[stage]) || milliseconds[stage] < 0.0 ||
+                (skipped && milliseconds[stage] != 0.0)) return false;
+        }
+        return true;
+    }
     static int observe(void* state, unsigned stage, hipStream_t stream) {
         auto& timing = *static_cast<CompletedAttentionPhases*>(state);
         if (stage >= 5u) return int(hipErrorInvalidValue);
@@ -583,10 +593,8 @@ int main(int argc, char** argv) {
             }
         }
         if (host_phases) {
-            for (unsigned stage = 0u; stage < 5u; ++stage)
-                if (completed_phases.samples[stage] != (count + batch - 1u) / batch ||
-                    !std::isfinite(completed_phases.milliseconds[stage]) || completed_phases.milliseconds[stage] < 0.0)
-                    throw std::runtime_error("incomplete host phase profile");
+            if (!completed_phases.complete((count + batch - 1u) / batch, all_pv_replay))
+                throw std::runtime_error("incomplete host phase profile");
             std::fprintf(stderr,
                 "COMPLETED_ATTENTION_PHASES query_start=%u query_count=%u batch=%u samples=%u "
                 "qk_ms=%.9f probability_ms=%.9f approximate_pv_ms=%.9f collect_ms=%.9f exact_pv_ms=%.9f "
