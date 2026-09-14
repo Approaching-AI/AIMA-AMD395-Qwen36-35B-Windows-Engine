@@ -47,17 +47,33 @@ The packaged q8192/out512 run measures 33062.3377 ms callback TTFT,
 Evidence: `benchmarks/correctness/current-portable-cold-matrix-20260915.json`,
 SHA256 `16ee876fc4f94d1244670563ac7eec30fcd34fd09ed0e024741a8536003a0e61`.
 
-The one-hour HTTP soak has not passed. Its first attempt loads in21081.0523 ms,
-then times out preparing reference text through `/detokenize`, before any
-counted generation. Owned-process cleanup and host guards pass. The handler
-queried vocabulary size for every token; tokenizers0.22.2 constructs a full
-vocabulary map for each such query. The server now caches the immutable size
-at load and queries that bound once per request, retaining added special
-symbols. All47 Rust workspace tests and clippy pass; a rebuilt native server
-and renewed HTTP/soak evidence are still required. Failure evidence:
-`benchmarks/correctness/current-portable-soak-setup-failure-20260915.json`,
-SHA256 `0a9c8f189adead865e83acf7f26706e66710415293d551172c723d547469d3c6`.
-Long contexts, sustained soak, immutable performance and release remain open.
+Server `f1ea668` fixes the soak setup timeout by caching the immutable full
+vocabulary size, including added special tokens, at tokenizer load and reading
+that bound once per detokenize request. The former loop copied the full
+vocabulary for every token. All 47 local Rust tests, clippy and 42 Windows
+server tests pass. Native build wall is 51683.174 ms. Failure evidence:
+`benchmarks/correctness/current-portable-soak-setup-failure-20260915.json`.
+
+The rebuilt portable package changes only `engine/qrt.exe` among 268 runtime
+assets; all CLI/provider assets and the runtime profile match the qualified
+short/cold matrices. Relocation and all 281 release-file checks pass. Fresh
+q8192/out32 HTTP requests match all raw IDs, both first logits and SSE.
+Load is 21400.437 ms; TTFT is 30048.8098 / 29548.0342 ms. Evidence:
+`benchmarks/correctness/tokenizer-vocabulary-cache-portable-http-20260915.json`,
+SHA256 `b90d6bba3ee83dcf89350ee7c0ce20e8abc0eba8cb5b9654ad8ff9db39945348`.
+
+Fresh protocol regression passes 18 checks in 31 requests. The formerly
+failing 512-token detokenize returns in 15.6734 ms HTTP wall / 31.5067 ms
+including capture, within the original five-second bound. Saved-prefix
+regression again passes 256 raw branch IDs, 12 first logits, four SSE cases
+and all 12 owner-state rollbacks. Both services shut down normally. Evidence:
+`benchmarks/correctness/tokenizer-vocabulary-cache-protocol-prefix-20260915.json`,
+SHA256 `268bee10b952b5cf50571d46e75f2c504b186e35521f8d66e8fe76fbb60299bc`.
+
+The one-hour same-process HTTP soak is running with the repaired service.
+Its previous setup failure produced no counted generation. Completion still
+needs its own numerical and cleanup evidence. Long contexts, immutable
+performance and release remain open.
 
 Whole provider and CLI `24c4304`, CK `42c2f0f`, staged MoE `4a7f0c4`
 and FLA `2ee6215` pass the current q8192 regression on baiying with
