@@ -79,11 +79,23 @@ retaining the original K16 carry and fallback. Profile evidence:
 `benchmarks/correctness/current-range-stack-profile-20260915.json`, SHA256
 `8209dbcfe8d47433f5313229fa26b1a038af577a53adf1d6f7a85dcbaf9d5d88`.
 
-The actual 128k prefix run `range-prefix128k-r1` is active on this stack,
-with long QK/V enabled, original GB10 data and a 3600-second process bound.
-At the 215-second observation it has completed 24576 owner tokens, with
-8192-token chunks 1 / 2 taking 60335.5 / 93288.4 ms. No complete owner or
-suffix output exists yet. Real 128k/256k remain unqualified.
+The actual 128k prefix run `range-prefix128k-r1`, with long QK/V enabled,
+was explicitly cancelled by Codex after 1042299.768 ms. Six owner chunks
+completed, covering 49152 input tokens; the last full chunk took 233104 ms.
+No owner token, suffix retry or warm continuation was produced. The native
+guard confirms process cleanup, memory reserves and GPU health. This is an
+incomplete measurement without a numerical verdict; its 3600-second process
+bound did not expire. Real 128k/256k remain unqualified. Evidence:
+`benchmarks/correctness/long-query-range-prefix128k-incomplete-20260915.json`, SHA256
+`2bab80f037311f79ce231cb34457609f3e7cc08ae1b2d4ceca7ed8ecd3d97142`.
+
+The prepared-weight block component `c303565` now compares the current
+row-major two-group staging against 32-row/two-group weight blocks with the
+same original K16 carry and unsupported-BF16 fallback. Its actual layout and
+preparation launcher pass sanitized permutation, padding, capacity and launch
+failure tests across 48 shapes. C smoke, 402 Python tests with two skips and
+hygiene pass. Native GPU arithmetic and complete q8192 captured projection
+comparisons are pending. Product dispatch and retained performance are unchanged.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
