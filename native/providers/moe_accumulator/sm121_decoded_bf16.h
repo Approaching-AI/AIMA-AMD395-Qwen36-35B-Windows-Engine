@@ -18,6 +18,20 @@ QRT_DECODED_INLINE int16_t exponent(uint16_t value) {
 QRT_DECODED_INLINE float value(uint16_t input) {
     return qrt_sm121_float_alignment::from_bits(uint32_t(input) << 16u);
 }
+// A BF16-expanded float leaves its low sixteen bits unused. Keep the signed
+// decoded exponent there so one 32-bit load supplies both values. Exceptional
+// rows are still rejected by the original eligibility predicate.
+QRT_DECODED_INLINE uint32_t pack(uint16_t input) {
+    return (uint32_t(input) << 16u) | uint16_t(exponent(input));
+}
+QRT_DECODED_INLINE void set_packed(qrt_sm121_float_alignment::Group& group,
+    unsigned i, uint32_t left, uint32_t right) {
+    group.products[i] = qrt_sm121_float_alignment::from_bits(left & 0xffff0000u) *
+        qrt_sm121_float_alignment::from_bits(right & 0xffff0000u);
+    const int e = int(int16_t(left)) + int(int16_t(right));
+    group.maximum = e > group.maximum ? e : group.maximum;
+    if (!i) group.first_negative = ((left ^ right) & 0x80000000u) != 0u;
+}
 QRT_DECODED_INLINE void set(qrt_sm121_float_alignment::Group& group, unsigned i,
     float left, float right, int16_t left_exponent, int16_t right_exponent) {
     const float product = left * right;
