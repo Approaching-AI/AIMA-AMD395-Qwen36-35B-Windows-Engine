@@ -11,7 +11,7 @@
 namespace {
 using namespace qrt_blackwell_attention;
 constexpr unsigned guard = 64u;
-constexpr unsigned variants[] = {0u, 1u, 2u, 3u, 4u};
+constexpr unsigned variants[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u, 7u};
 constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
@@ -100,13 +100,18 @@ void staged_variant(unsigned variant, const uint16_t* q, const uint16_t* k, floa
             dim3((stride+31u)/32u,kQueryHeads,(count+7u)/8u),dim3(kThreads),0u,nullptr,
             q,k,out,start,count,stride,key_stride);
     } else {
-        const dim3 grid((stride+15u)/16u,kQueryHeads,(count+15u)/16u);
+        const unsigned rows=variant>=5u?8u:16u,keys=256u/rows;
+        const dim3 grid((stride+keys-1u)/keys,kQueryHeads,(count+rows-1u)/rows);
         if (variant==1u)
             hipLaunchKernelGGL((qrt_decoded_window_qk::scores<64u>),grid,dim3(kThreads),0u,nullptr,q,k,out,start,count,stride,key_stride);
-#define PREPARED_CASE(v,w,f) else if (variant==v) hipLaunchKernelGGL((qrt_prepared_decoded_qk::scores<w,f>),grid,dim3(kThreads),0u,nullptr, q,k,prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,out,start,count,stride,key_stride)
-        PREPARED_CASE(2u,64u,false);
-        PREPARED_CASE(3u,64u,true);
-        PREPARED_CASE(4u,128u,true);
+#define PREPARED_CASE(v,w,f,r,c) else if (variant==v) hipLaunchKernelGGL((qrt_prepared_decoded_qk::scores<w,f,r,c>),grid,dim3(kThreads),0u,nullptr, q,k,prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,out,start,count,stride,key_stride)
+        PREPARED_CASE(2u,64u,false,16u,16u);
+        PREPARED_CASE(3u,64u,true,16u,16u);
+        PREPARED_CASE(4u,128u,true,16u,16u);
+        else if (variant==5u)
+            hipLaunchKernelGGL((qrt_decoded_window_qk::scores<64u,8u,32u>),grid,dim3(kThreads),0u,nullptr,q,k,out,start,count,stride,key_stride);
+        PREPARED_CASE(6u,64u,true,8u,32u);
+        PREPARED_CASE(7u,128u,true,8u,32u);
 #undef PREPARED_CASE
         else throw std::runtime_error("invalid prepared QK variant");
     }
@@ -271,10 +276,10 @@ void captured(const char* qfile,const char* kfile) {
     const auto ineligible_q=std::count_if(q.begin(),q.end(),ineligible),ineligible_k=std::count_if(k.begin(),k.end(),ineligible);
     for(unsigned mode=0u;mode<variant_count;++mode) {
         const unsigned variant=variants[mode];
-        const unsigned window=variant==0u?256u:variant==4u?128u:64u;
-        const unsigned rows=variant==0u?8u:16u, keys=256u/rows;
+        const unsigned window=variant==0u?256u:variant==4u||variant==7u?128u:64u;
+        const unsigned rows=variant==0u||variant>=5u?8u:16u, keys=256u/rows;
         double sorted[3]={samples[mode][0],samples[mode][1],samples[mode][2]};std::sort(sorted,sorted+3);
-        staged_ms[mode]=sorted[1];const double preparation_ms=variant>=2u?prepared.ms:transpose_ms;
+        staged_ms[mode]=sorted[1];const double preparation_ms=variant>=2u&&variant!=5u?prepared.ms:transpose_ms;
         std::printf("{\"kind\":\"prepared_decoded_original_q7169\",\"variant\":%u,\"window\":%u,\"query_rows\":%u,\"key_columns\":%u,\"ineligible_q_values\":%zu,\"ineligible_k_values\":%zu,\"tokens\":7169,\"query_batch\":128,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"original_query_ms\":%.6f,\"key_transpose_ms\":%.6f,\"all_operand_preparation_ms\":%.6f,\"completed_query_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"redzones_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",variant,window,rows,keys,size_t(ineligible_q),size_t(ineligible_k),compared/variant_count,cpu_dots/variant_count,original_ms,transpose_ms,prepared.ms,staged_ms[mode],staged_ms[mode]+preparation_ms,samples[mode][0],samples[mode][1],samples[mode][2],maximum_stage_ms[mode]);
         std::fflush(stdout);
     }

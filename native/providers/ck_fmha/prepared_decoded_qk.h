@@ -28,13 +28,14 @@ __global__ void prepare(const uint16_t* input, uint32_t* packed,
     if (!feature) flags[row] = invalid == 0u;
 }
 
-template<unsigned Window, bool FloatCarry>
+template<unsigned Window, bool FloatCarry, unsigned Rows = 16u, unsigned Keys = 16u>
 __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
     const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags, float* output,
     unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
     static_assert(Window && Window % 16u == 0u && kHeadDim % Window == 0u);
-    constexpr unsigned rows = 16u, keys = 16u;
+    static_assert(Rows * Keys == kThreads);
+    constexpr unsigned rows = Rows, keys = Keys;
     __shared__ uint32_t qvalues[rows][Window], kvalues[Window][keys];
     const unsigned head = blockIdx.y, kv_head = head / (kQueryHeads / kKvHeads);
     const unsigned query_tile = blockIdx.z * rows, key_tile = blockIdx.x * keys;
