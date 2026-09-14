@@ -220,6 +220,33 @@ and hashes. No product or release acceptance follows. Evidence:
 `benchmarks/correctness/matrix-packed-remainder-qk-20260914.json`, SHA256
 `b06489fb1b0eb84a1530f75bbcdf256b6992229191a90882e33b6d10088646dc`.
 
+Exact scalar integer dot4 QK at `9d81ce9` preserves the complete captured
+q7169 score boundary but is slower than selected prepared QK. Completed
+preparation-plus-query medians are 274.4223 ms for selected QK,
+731.6920 / 757.9174 ms for K64 sparse / fast-first compensation and
+945.8018 / 1037.9965 ms for K128. Every query encoding and one key encoding
+are included. Keep the selected product dispatcher.
+
+The installed HIP 7.1 compiler emits ordinary mul/mad for its signed/unsigned
+16-bit dot2 interfaces and native dot4 for its byte interfaces. This is a
+compiler-only observation; the separate GPU preflight checks all four byte
+sign policies on 1048576 random/edge packed pairs against an independent CPU
+reference. The failed first compiler-probe bootstrap used a non-git working
+directory; its evidence is preserved, and the corrected probe uses the source
+checkout. No compiler or GPU work ran in the failed attempt.
+
+The new scalar schedule decomposes signed16 cores into four exact byte dot
+families and preserves packed low16 compensation, BF16 encoding exceptions
+and original raw carry states. Both host policies preserve 500000 states each.
+Native tests preserve 163826160 generated scores and 6400 CPU dots; each of
+five complete q7169 variants checks 1673986112 raw scores over four executions
+and 228 CPU dots. All encodings, guards, unused tails and immutable inputs
+pass. Local C smoke, 390 Python tests with two skips and hygiene pass; unchanged
+Rust/Cargo files reuse the prior 47 tests and clippy with explicit diff/hashes.
+No product, retained-performance or release acceptance follows. Evidence:
+`benchmarks/correctness/scalar-integer-qk-20260914.json`, SHA256
+`edd783d3e4b8392c7264dd7f5ec8f3497428f2497eb34a0c96a7c426621b6656`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
