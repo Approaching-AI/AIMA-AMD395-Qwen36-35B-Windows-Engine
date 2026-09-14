@@ -15,8 +15,8 @@ static_assert(sizeof(LaneOperands)==24u);
 
 __device__ __forceinline__ LaneOperands load(const Row& left,const Row& right) {
     const unsigned pair=(threadIdx.x&3u)*2u;LaneOperands operands;
-    std::memcpy(operands.left,left.pairs+pair,8u);
-    std::memcpy(operands.right,right.pairs+pair,8u);
+    __builtin_memcpy(operands.left,left.pairs+pair,8u);
+    __builtin_memcpy(operands.right,right.pairs+pair,8u);
     operands.left_control=left.control;operands.right_control=right.control;
     return operands;
 }
