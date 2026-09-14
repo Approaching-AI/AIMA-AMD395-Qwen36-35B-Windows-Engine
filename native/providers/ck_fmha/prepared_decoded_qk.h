@@ -30,10 +30,11 @@ __global__ void prepare(const uint16_t* input, uint32_t* packed,
 }
 
 template<unsigned Window, bool FloatCarry, unsigned Rows = 16u, unsigned Keys = 16u>
-__global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
+__device__ __forceinline__ void scores_body(const uint16_t* query, const uint16_t* transposed_key,
     const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags, float* output,
-    unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
+    unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride,
+    unsigned prepared_query_start) {
     static_assert(Window && Window % 16u == 0u && qrt_blackwell_attention::kHeadDim % Window == 0u);
     static_assert(Rows * Keys == qrt_blackwell_attention::kThreads);
     constexpr unsigned rows = Rows, keys = Keys;
@@ -42,6 +43,7 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
     const unsigned query_tile = blockIdx.z * rows, key_tile = blockIdx.x * keys;
     const unsigned qr = threadIdx.x / keys, kc = threadIdx.x % keys;
     const unsigned row = query_tile + qr, key = key_tile + kc;
+    const unsigned packed_start = query_start - prepared_query_start;
     const bool live = row < query_count && key < stride;
     const bool active = live && key <= query_start + row;
     const size_t output_cell = (size_t(row) * qrt_blackwell_attention::kQueryHeads + head) * stride + key;
@@ -50,7 +52,7 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         if (live) output[output_cell] = -INFINITY;
         return;
     }
-    bool fallback = active && (!query_flags[(query_start + row) * qrt_blackwell_attention::kQueryHeads + head] ||
+    bool fallback = active && (!query_flags[(packed_start + row) * qrt_blackwell_attention::kQueryHeads + head] ||
         !key_flags[key * qrt_blackwell_attention::kKvHeads + kv_head]);
     qrt_q1_moe_hawkeye::Value carry{0u, qrt_blackwell_attention::kBlackwellZeroExponent, false};
     float float_carry = 0.0f;
@@ -58,7 +60,7 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         for (unsigned cell = threadIdx.x; cell < rows * Window; cell += qrt_blackwell_attention::kThreads) {
             const unsigned r = cell / Window, c = cell % Window;
             qvalues[r][c] = query_tile + r < query_count
-                ? packed_query[(size_t(query_start + query_tile + r) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim + window + c]
+                ? packed_query[(size_t(packed_start + query_tile + r) * qrt_blackwell_attention::kQueryHeads + head) * qrt_blackwell_attention::kHeadDim + window + c]
                 : decoded::pack(0u);
         }
         for (unsigned cell = threadIdx.x; cell < Window * keys; cell += qrt_blackwell_attention::kThreads) {
@@ -98,6 +100,14 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
         }
         output[output_cell] = result;
     }
+}
+template<unsigned Window, bool FloatCarry, unsigned Rows = 16u, unsigned Keys = 16u>
+__global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
+    const uint32_t* packed_query, const uint32_t* packed_key,
+    const unsigned* query_flags, const unsigned* key_flags, float* output,
+    unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
+    scores_body<Window, FloatCarry, Rows, Keys>(query, transposed_key, packed_query,
+        packed_key, query_flags, key_flags, output, query_start, query_count, stride, key_stride, 0u);
 }
 inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
     uint16_t* transposed, const Workspace& workspace, hipStream_t stream) {
