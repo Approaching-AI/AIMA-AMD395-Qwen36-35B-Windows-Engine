@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "kind": "long_all_cell_exact_pv_local_validation",
+  "host": "JiaweiMnideMini.lan",
+  "candidate_source_commit": "8aace167ecf94a80c1187cf3c32135f6a092e43d",
+  "local_tested_source_commit": "bb2e62c4fbddc0849857dfc2ede40f225284a700",
+  "source_sha256": {
+    "native/providers/ck_fmha/blackwell_attention.h": "bfb4f733473b28a057cc5a724236a2ba6837e7046815f7d1966823a36d6eb7df",
+    "native/providers/ck_fmha/full_attention_capture_replay.cpp": "be3a455bac43f1a6f937f2d3227d8bb72271426b1139be30f6336a9ad91077c6",
+    "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "1a2d4f37c82a372cff4986fd946dc83a878a711fc5b8c89b378987bfe80ad47b",
+    "tests/native/final_pv_kernel_selftest.cpp": "db7ab2cba94a77a7690f0a304a4f8ae11193caeae6126d1fe9956bdee807e567",
+    "tests/native/pv_group_replay_selftest.cpp": "2b99dab8ba9a088a13a3272136e1a169b4dd3ef89af3cb055f5c2fa225ccf70c",
+    "tests/native/wmma_pv_operands_selftest.cpp": "9fa140c81eb771d53e8fd7dd46b606ad41856b2240736b7114d8c7653a0be722",
+    "tests/test_attention_launch_policy.py": "4c54d0425935c624fb4107302b9b45da327a4144555c8c69c6593aec762f78e2",
+    "tests/test_attention_workspace.py": "5fbe20aba566bfc62baf19504a07e70a91b0bae741a9e0afac26bf14886cc729"
+  },
+  "validation": {
+    "source_commit": "bb2e62c4fbddc0849857dfc2ede40f225284a700",
+    "command": [
+      "make",
+      "c-smoke",
+      "python-test",
+      "public-hygiene",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 127.28336854185909,
+    "log": "long-all-pv-local-check-r1.log",
+    "log_sha256": "ad1210517377166f074381bb54f058e4691aaf5094d73125872f1d51afb79f88",
+    "rust_validation_reused": true,
+    "rust_validation_source": "5875f997136650da899b6775f700464ec0019667",
+    "rust_validation_record": "runtime-context-local-check-r1.json",
+    "c_product_cli_syntax_command": [
+      "cc",
+      "-std=c11",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-Inative/src",
+      "-fsyntax-only",
+      "native/src/product_cli.c"
+    ],
+    "cargo_target_dir": "<private-home>/projects/amd395-windows-qwen/target",
+    "cargo_incremental": false
+  },
+  "validation_excerpt": [
+    "Ran 398 tests in 120.936s",
+    "OK (skipped=2)",
+    "public_hygiene=pass finding_count=0"
+  ],
+  "post_local_check_changes": {
+    "files": [
+      "tests/native/pv_group_replay_selftest.cpp",
+      "tests/native/wmma_pv_operands_selftest.cpp"
+    ],
+    "scope": "Two existing native fixture calls append zero for compacted enumeration. Production source is identical to the locally tested source; these native calls await Windows compilation."
+  },
+  "behavior": {
+    "environment_option": "QRT_CK_SM121_LONG_ALL_PV_REPLAY",
+    "default_enabled": false,
+    "query_start_minimum": 8192,
+    "query_count_minimum": 2,
+    "compact_pv_modes": [
+      1,
+      3
+    ],
+    "original_integer_k16": true,
+    "original_k32_scale_update": true,
+    "additional_workspace_bytes": 0,
+    "approximate_pv_skipped": true,
+    "replay_compaction_skipped": true,
+    "compacted_count_read": false,
+    "completed_stage_sequence": [
+      0,
+      1,
+      4
+    ]
+  },
+  "host_validation": {
+    "actual_launch_functions_executed_with_mocked_hip": true,
+    "actual_provider_entry_executed_with_mocked_hip": true,
+    "unsupported_layouts_rejected_before_launch": true,
+    "original_capacities_preserved": true,
+    "submissions_checked_individually": true,
+    "completion_observer_failures_stop_following_stages": true,
+    "provider_allocation_ownership_and_failure_recovery_preserved": true,
+    "cold_query_start_zero_and_single_query_decode_unchanged": true,
+    "arithmetic_device_execution": false
+  },
+  "rust_reuse": {
+    "source_commit": "5875f997136650da899b6775f700464ec0019667",
+    "record": "runtime-context-local-check-r1.json",
+    "log_sha256": "4ce2a807d74c9ab421c9ee74f97ebff51e6a311bd2389d7f5dd64e87e2767b6d",
+    "changed_rust_and_cargo_files": [],
+    "tests": 47,
+    "clippy_pass": true
+  },
+  "pending_native_validation": [
+    "Build the exact source on baiying.",
+    "Compare all PV output and accumulator bits, immutable inputs and guards with original K16 replay at short and long extents.",
+    "Compare both routes against all 29364224 original GB10 q7169 attention BF16 cells.",
+    "Measure complete real-model prefix continuation against the matching GB10 tokens and first logit."
+  ],
+  "scope": "Local routing, lifecycle and failure-order validation only. The option is experimental and no new native, real-model or speed result has completed.",
+  "native_windows_validated": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

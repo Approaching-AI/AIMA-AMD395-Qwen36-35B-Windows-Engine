@@ -52,6 +52,21 @@ Windows, real-model, speed and release qualification remain pending.
 Evidence: `benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`,
 SHA256 `fa98010efa0ed10ca54574e3ef0631daea24e540ae70f6980601ecd285cc357b`.
 
+Source `8aace16` adds a default-off `QRT_CK_SM121_LONG_ALL_PV_REPLAY`
+comparison for long prefix queries. It runs the original integer K16 PV
+replay for every output cell and skips approximate PV and replay-list
+construction. QK, probabilities, K32 scaling and reciprocal arithmetic remain
+unchanged; the route adds no workspace. Cold calls starting at zero and
+single-query decode keep their current route. Actual launch/provider host
+functions pass allocation, span, submission and completion-observer checks
+with mocked HIP. C syntax, smoke, 398 Python tests with two skips and hygiene
+pass at `bb2e62c`; `8aace16` only adapts two existing native fixture calls.
+Rust/Cargo are unchanged and reuse 47 tests and clippy. Native numerical
+comparisons, full-model correctness and performance are pending; this option
+does not replace the measured stack. Evidence:
+`benchmarks/correctness/long-all-cell-pv-local-20260914.json`, SHA256
+`80d8647f36dd7856b11ff09a96eb5155ba61df686d7a35ec8d1858c332ebf23b`.
+
 The product CLI at `70d85fe` now records and validates the first suffix
 retry inside prefix fallback before the timed warm hit can replace its
 output. It compares every supplied GB10 output token, reads the token-bound
