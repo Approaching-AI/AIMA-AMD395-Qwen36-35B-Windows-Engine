@@ -145,7 +145,7 @@ template<bool Audit=false>void replay(unsigned variant,const uint16_t* value,con
     const unsigned blocks=std::min(1024u,(queries*kQueryHeads*kHeadDim+63u)/64u);
     if(!variant) {
         hipLaunchKernelGGL((blackwell_compacted_pv_replay_kernel<true>),dim3(blocks),dim3(256u),0u,nullptr,
-            value,probability,scales,out,start,output_start,stride,rcp,acc,den,indices,count,tv,value_stride);
+            value,probability,scales,out,start,output_start,stride,rcp,acc,den,indices,count,tv,value_stride,0u);
     }else {
 #define PV_GROUP_CASE(v,s,f) if(variant==v) hipLaunchKernelGGL((qrt_pv_group_replay::replay<s,f,Audit>),dim3(blocks),dim3(256u),0u,nullptr,probability,tv,plan.pp.as<uint32_t>()+guard,plan.vp.as<uint32_t>()+guard,scales,out,start,queries,output_start,stride,value_stride,rcp,acc,den,indices,count,stats)
         PV_GROUP_CASE(1u,true,false);

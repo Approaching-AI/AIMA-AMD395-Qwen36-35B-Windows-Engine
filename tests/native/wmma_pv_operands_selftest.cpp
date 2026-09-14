@@ -307,7 +307,7 @@ void exact(Stage& stage,Device& indices,const uint16_t* v,const uint16_t* tv,uns
     const auto& q=stage.shape;
     hipLaunchKernelGGL((blackwell_compacted_pv_replay_kernel<true>),dim3(std::min(1024u,(q.cells()+63u)/64u)),dim3(256u),0u,nullptr,
         v,stage.p.as<uint16_t>()+guard,stage.s.as<float>()+guard,stage.o.as<float>()+guard,q.start,q.output_start,q.stride,rcp,
-        stage.a.as<float>()+guard,stage.d.as<float>()+guard,indices.as<unsigned>()+guard,indices.as<unsigned>()+guard+q.cells(),tv,value_stride);check(hipGetLastError());finish();
+        stage.a.as<float>()+guard,stage.d.as<float>()+guard,indices.as<unsigned>()+guard,indices.as<unsigned>()+guard+q.cells(),tv,value_stride,0u);check(hipGetLastError());finish();
 }
 void captured(const char* qfile,const char* kfile,const char* vfile,const char* reference_file,const char* exp_file,const char* rcp_file) {
     constexpr unsigned tokens=7169u,batch=128u;
