@@ -270,6 +270,34 @@ No product, retained-performance or release acceptance follows. Evidence:
 `benchmarks/correctness/prepared-integer-pairs-qk-20260914.json`, SHA256
 `bf984c9f4e1096ef4aef81969fcc0d28b83c7af9b70ba06410c36b32169213f5`.
 
+Lossless scaled-half QK at `3f5a21d` preserves every captured q7169 score
+and gives a small component improvement. Completed preparation-plus-query
+medians are 271.7113 ms for selected QK and 258.7275 / 256.7067 / 257.5802 ms
+for K64 / K128 / K256. The best saves 15.0046 ms. It remains outside product
+dispatch; no q8192 or retained-performance claim follows.
+
+One exact power-of-two scale maps supported BF16 rows to normal FP16 operands
+without losing bits. Scalar mixed FP16/FP32 instructions produce exact FP32
+products; original exponent alignment and raw K16 carry normalization remain.
+Unsupported rows/arithmetic reconstruct the original BF16 words and use the
+wide primitive. All BF16 encodings roundtrip in four host contexts; 500000
+raw states pass. A separate native instruction probe validates 2097152 products
+and both packed halves. Its first oversized encoded-command launch failed
+before compilation; the successful command-file route and failure are both
+preserved.
+
+All captured Q/K rows support the view. Sampling 65536 complete original dots
+covers 1048576 raw K16 states without fallback or mismatch; these are CPU
+diagnostics. Native preflight validates 131072 raw states with actual path
+counts. Generated QK checks cover 131060928 scores and 5120 CPU dots; each of
+four complete captured variants checks 1673986112 scores and 228 CPU dots.
+All encodings, guards, unused tails and immutable inputs pass. Query encoding
+is timed per slab, key encoding once. Local C smoke, 392 Python tests with
+two skips and hygiene pass; unchanged Rust/Cargo files reuse 47 tests and
+clippy with explicit diff/hashes. Evidence:
+`benchmarks/correctness/scaled-half-qk-20260914.json`, SHA256
+`cd69c6e25e6d40b53291817141425715c19f567a89494c05a431a3156ebdef83`.
+
 Bounded same-stream submission at `22504b3` passes complete same-DLL
 q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
 GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
