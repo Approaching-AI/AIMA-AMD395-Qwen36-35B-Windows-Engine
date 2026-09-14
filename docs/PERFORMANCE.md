@@ -2,6 +2,38 @@
 
 ## Current unreleased measurements, 2026-09-14
 
+The scoped matrix replacement at `570dc90` retains a correctness-attached
+2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
+the same DLL's control and QKV/Z-only algorithm 4 both preserve all 512
+original GB10 outputs and actual callbacks, first token 144 and raw logit
+10.375. TTFT is 37486.0783 / 35396.0139 ms; QKV/Z-only TPOT is
+101.25411 ms and model plus engine load is 21289.6057 ms.
+
+Use `QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM=4` with
+`QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE=qkv` for subsequent experiments,
+retaining shared prevalidated replay. The run records 70 algorithm-4 QKV/Z
+calls, 40 algorithm-0 OUT calls and load-time creation of the three selected
+plans. MoE `1958c2c`, CK `4a5a5b0`, FLA `2ee6215` state 8 and CLI `a797b62`
+remain common. Norms, selectors, exact arithmetic and all bounds are unchanged.
+
+OUT-only algorithm 4 fails at index 4, actual 220 versus expected 79, with
+37/512 matches. Its full output sequence exactly matches the prior all-shape
+failure. OUT therefore keeps algorithm 0. The particular internal layer and
+underlying numerical cause remain unresolved. No broad algorithm-4 acceptance
+is implied. Full local checks pass 380 Python tests (two skips), 47 Rust tests,
+C ABI smoke, clippy and hygiene. This single product comparison does not
+establish repeatability, retained performance or release readiness.
+Command: `run-native-matrix-scope-product-r1.ps1` with control/qkv/out arguments.
+Evidence: `benchmarks/correctness/matrix-scope-product-20260914.json`,
+SHA256 `59a10e7201ac33512a40e5eea30d668f842e924cd48b7e5bf68ddea826c553d9`.
+
+A standalone hipBLASLt reproducer now excludes engine code, keeps host
+alpha/beta alive until GPU completion and records the actual loaded DLL.
+It compares algorithm 0 and 4 at both full q8192 QKV and OUT shapes, checking
+all generated BF16 endpoints, raw FP32 differences and source/output guards.
+It uses [official hipBLASLt logging](https://rocm.docs.amd.com/projects/hipBLASLt/en/latest/how-to/use-logging-heuristics.html)
+for API and selected-solution evidence. Native results are pending.
+
 The same-DLL product trial at `c16219f` rejects matrix algorithm 4. On baiying
 with `D:\models\Qwen3.6-35B-A3B`, algorithm 0 preserves all 512 original GB10
 outputs and actual callbacks, with TTFT 37413.9499 ms, TPOT 101.896379 ms and
@@ -9,7 +41,7 @@ load 21304.8867 ms. Algorithm 4 takes 34435.7089 ms but only 37/512 tokens
 match; the first difference is index 4, actual 220 versus expected 79.
 Both first tokens are 144 and raw logits are 10.375. First-token success
 and a faster incorrect continuation do not establish performance acceptance.
-Keep algorithm 0 and shared prevalidated replay enabled for subsequent work.
+The scoped trial above supersedes the initial decision to retain algorithm 0 everywhere.
 
 The subsequent exact-replay comparison at `0f80fe6` also produces no gain.
 Current validated replay, prior range normalization and new strong-row replay
@@ -21,8 +53,8 @@ Neither alternative enters product dispatch. Their earlier 30 native cases
 and 3762438 raw K16 comparisons remain arithmetic evidence.
 Evidence: `benchmarks/correctness/strong-projection-comparison-20260914.json`,
 SHA256 `0f48444a387cd2edea36759aebe394051d8046b58f458ddf4f54d50f1dff0b7c`.
-The next full-model diagnosis separates algorithm-4 QKV/Z and OUT replacement
-scopes, keeping the original correction bounds and complete GB10 boundary.
+The subsequent full-model scope diagnosis above separates QKV/Z and OUT
+replacement while keeping all original bounds and the GB10 boundary.
 
 Both native captured-QKV variants preserve all 67108864 BF16 cells, all
 original 7169 input rows plus 1023 independently comparable repeated rows,
