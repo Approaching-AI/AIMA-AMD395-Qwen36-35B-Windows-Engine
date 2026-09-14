@@ -1,105 +1,88 @@
 # Real-model performance
 
-## Current unreleased measurements, 2026-09-14
+## Current unreleased measurements, 2026-09-15
 
-Extended exact attention at `2fa30fa` passes the q8192/out512 GB10
-regression with all output IDs and actual callbacks, first 144/raw 10.375.
-On baiying with `D:\models\Qwen3.6-35B-A3B`, callback TTFT is
-32896.6187 ms, TPOT 100.385227 ms and model plus engine load 21367.3839 ms.
-Whole and CK now use `2fa30fa`; staged MoE `4a7f0c4`, FLA `2ee6215`,
-CLI `a797b62` and the selected route flags remain unchanged. This run
-establishes regression correctness, without a retained performance claim.
+Whole provider and product CLI `24c4304`, CK `8aace16`, staged MoE
+`4a7f0c4` and FLA `2ee6215` are the current measured q8192 stack. On baiying
+with `D:\models\Qwen3.6-35B-A3B`, all 512 GB10 output IDs and actual
+callbacks match, first token 144/raw logit 10.375. Callback TTFT is
+32795.3286 ms, TPOT 100.835334 ms and model plus engine load 21545.9138 ms.
+The extended RoPE table is observed in Q1 decode with 264736 rows and
+33886208 bytes; no extended attention workspace is allocated on q8192.
+Windows whole and CLI builds pass. This is one regression measurement,
+without a retained performance claim; q8192 remains above 10 seconds.
+Evidence: `benchmarks/correctness/runtime-tail-q8192-20260915.json`, SHA256
+`a166bae2143119b3a6b302b4f9440bef37e910bab7573413ea8a9f5f9daf7fe1`.
 
-The shared capacity is 264736 tokens, including a 262144-token owner,
-1024 suffix inputs and the resident decode tail. Short calls keep the
-original 131072-token buffers; the independent extended owner allocates
-135544832 score bytes and 271089664 key bytes only after crossing that
-extent. No extended allocation occurs on q8192. Four native analytic cases
-pass, including two output offsets above 4 GiB, with all output/input cells
-and guards checked. Native builds, allocation/submission failure recovery,
-chunk rollback, C smoke, 392 Python tests with two skips and hygiene pass.
-Unchanged Rust/Cargo reuse the prior 47 tests and clippy with explicit diff.
+The same binaries pass the actual 16384-token prefix plus 1024-token suffix
+and 512-token continuation. The first suffix retry is now independently
+validated before the timed warm hit: both complete token sequences match
+GB10, first 3709/raw 5.6875, with prefix state restoration. The warm hit's
+512 actual callbacks and changed-prefix rejection pass. The complete owner
+first token is 16/raw 25.625; its separate 32-token continuation is outside
+this run. With all-cell PV off, warm TTFT is 12212.8045 ms, TPOT
+158.736639 ms, load 21380.0975 ms, and owner seed plus first suffix retry
+198834.0260 ms. Process wall is 314120.742 ms.
 
-This pair remains the measured q8192 stack. Its 128k prefix baseline
-was explicitly cancelled by Codex after 6521194.083 ms and 90112 completed
-owner tokens. The latest complete 8192-token chunk took 1231680 ms; no owner
-first token or suffix output was produced. The owned process exited -1 and
-host cleanup passed. This is an incomplete measurement, without a numerical
-verdict. The all-cell PV comparison below is pending native qualification
-before another full owner build. The 256k route also requires the runtime
-source below. Real 128k/256k continuation, retained speed, package, HTTP,
-soak and release remain open. Evidence:
+The same-DLL all-cell PV comparison also passes both 512-token sequences,
+logits, callbacks and restoration. Only `QRT_CK_SM121_LONG_ALL_PV_REPLAY`
+changes from 0 to 1. Warm TTFT increases to 18363.0420 ms, TPOT is
+158.919545 ms, and seed plus retry increases to 225885.3303 ms. Process
+wall is 347367.884 ms. Keep the option off for continued product work.
+These are single-run observations, without statistical repeatability or
+retained-speed acceptance. Evidence: `benchmarks/correctness/runtime-tail-prefix16k-20260915.json`, SHA256
+`1266d08e7416f5a80d5f272fe6c8182552acd102e211ebc5956c094af8f892f6`.
+
+The all-cell PV implementation `8aace16` passes 54 native generated cases,
+including query start 264735, against original integer K16 raw accumulators,
+denominators and outputs with guards. Both same-executable q7169 capture
+routes match all 29364224 GB10 BF16 cells. Completed host time is
+662.297 ms off / 1432.540 ms on; PV is 226.316 / 990.149 ms. The 12 long
+throughput cases show a benefit only for the high-candidate generated input.
+The initial capture audit incorrectly required skipped stages; that failed
+run produced no numerical report. `3c6fa88` fixes the capture observer, and
+both controls were rebuilt and rerun. Its focused sanitized test passes;
+the unchanged full-suite baseline is explicitly reused (399 tests, two skips).
+A corresponding provider profiling combination issue is under repair; the
+product pair above has profiling disabled. Component evidence:
+`benchmarks/correctness/long-all-cell-pv-components-20260915.json`, SHA256
+`8ba11178520e9e61e88ff7af80f8e86022ce26d1f713e7cfb6ae22df03c98503`.
+
+Compact wide integer QK `0808052` passes 28 native generated cases and both
+132-byte/68-byte layouts match all 418496528 original q7169 score slots,
+plus 228 CPU dot samples per layout. All inputs and guards pass. Including
+operand preparation, the two layouts take 556.3816 / 550.5903 ms against
+304.9548 ms for the selected prepared-decoded QK. The compact experiment
+remains outside product dispatch. These are component measurements without
+model loading or token generation. Evidence:
+`benchmarks/correctness/compact-wide-integer-qk-20260915.json`, SHA256
+`2cfd5526846532b8445ec5d858fd59b25cf3cd82f97e20e45be21103b0e656ab`.
+
+Runtime limits now distinguish model metadata 262144, maximum prompt 263168,
+request including output 263680, and attention storage 264736. The original
+262144-row RoPE prefix is byte-identical to GB10; all 16943104 BF16 cells
+of the extended table match the original MRoPE constructor. Actual loaded
+row counts remain authoritative, including rejection beyond the older
+artifact. Local validation at `24c4304` passes 398 Python tests with two
+skips, C syntax/smoke and hygiene; unchanged Rust/Cargo reuse the prior 47
+tests and clippy. Native whole/CLI and the product cases above now qualify
+this source at their measured shapes. Windows Rust server and real
+128k/256k continuation remain open. Bound and table evidence:
+`benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`, SHA256
+`fa98010efa0ed10ca54574e3ef0631daea24e540ae70f6980601ecd285cc357b`.
+
+The earlier `2fa30fa` 128k prefix baseline was explicitly cancelled by Codex
+after 6521194.083 ms and 90112 completed owner tokens. Its latest complete
+8192-token chunk took 1231680 ms; no owner first token or suffix output was
+produced. Owned-process cleanup passed. It is an incomplete measurement
+without a numerical verdict, and is no longer running. Evidence:
 `benchmarks/correctness/prefix128k-baseline-incomplete-20260914.json`, SHA256
 `45cb8e6d04e7a780c6bdd823a1325992c6dd25fa1d8e77f87b85729bd1fc1d20`.
-The address fixtures alone establish no long-context inference claim.
-Evidence: `benchmarks/correctness/extended-attention-capacity-q8192-20260914.json`,
-SHA256 `e0100d3cde19c159dfde1d693d31e8793ffaaa7b31ffa74e9a9e67c80c24c646`.
 
-The subsequent source `5875f99` separates model metadata (262144) from
-runtime prompt (263168), request including output (263680), and attention
-storage (264736) limits. C request/provider checks and C/Rust server startup
-share these bounds. Complete local validation passes 393 Python tests with
-two skips, 47 Rust tests, clippy and C smoke, including the actual HTTP
-router's exact-limit and one-extra-prompt-token cases. This source has no
-Windows or real-model qualification yet and does not replace the measured
-stack above. Local evidence:
-`benchmarks/correctness/runtime-context-bounds-local-20260914.json`, SHA256
-`9e144956381418f346cf1ed7cd34a6088d4357366efaab8682d3cc83c879f9bf`.
-
-Source `24c4304` completes the remaining 256k suffix/decode bounds and
-supports an extended RoPE table with 264736 rows. GB10 capture `c9ddbe4`
-matches all 16943104 BF16 values against the original MRoPE constructor;
-the original 262144 rows are byte-identical. The 33886208-byte artifact adds
-331776 bytes. Q1 checks both the fixed artifact hash and the actual loaded
-row count, so the older table still rejects positions beyond its extent.
-The actual request, projection and RoPE-loader guards now use the appropriate
-runtime limits. Local C checks, 398 Python tests with two skips and hygiene
-pass, including 22 loader fault/reuse cases; Windows crypto is mocked in
-those host tests. The original table hashes are independently verified on
-GB10 and Mac. Unchanged Rust/Cargo reuse the prior 47 tests and clippy.
-Windows, real-model, speed and release qualification remain pending.
-Evidence: `benchmarks/correctness/extended-rope-runtime-bounds-20260914.json`,
-SHA256 `fa98010efa0ed10ca54574e3ef0631daea24e540ae70f6980601ecd285cc357b`.
-
-Source `8aace16` adds a default-off `QRT_CK_SM121_LONG_ALL_PV_REPLAY`
-comparison for long prefix queries. It runs the original integer K16 PV
-replay for every output cell and skips approximate PV and replay-list
-construction. QK, probabilities, K32 scaling and reciprocal arithmetic remain
-unchanged; the route adds no workspace. Cold calls starting at zero and
-single-query decode keep their current route. Actual launch/provider host
-functions pass allocation, span, submission and completion-observer checks
-with mocked HIP. C syntax, smoke, 398 Python tests with two skips and hygiene
-pass at `bb2e62c`; `8aace16` only adapts two existing native fixture calls.
-Rust/Cargo are unchanged and reuse 47 tests and clippy. Native numerical
-comparisons, full-model correctness and performance are pending; this option
-does not replace the measured stack. Evidence:
-`benchmarks/correctness/long-all-cell-pv-local-20260914.json`, SHA256
-`80d8647f36dd7856b11ff09a96eb5155ba61df686d7a35ec8d1858c332ebf23b`.
-
-The component experiment `0808052` stores the wide integer QK rows in
-68 bytes and recreates the original 132-byte representation in shared memory.
-It preserves original BF16, exception and exponent metadata and reuses the
-established matrix partials, compensation and K16 fallback. Host validation
-expands 139264 rows byte-for-byte, including every BF16 bit pattern, with
-sanitizers and guards. C checks, 399 Python tests with two skips and hygiene
-pass; unchanged Rust/Cargo reuse 47 tests and clippy. Native compilation,
-full-score comparisons and timing remain pending. The native fixture includes
-the current prepared-decoded QK control and reports operand preparation.
-This component changes no product dispatch and makes no speed claim.
-Evidence: `benchmarks/correctness/compact-wide-integer-qk-local-20260914.json`,
-SHA256 `60721a7b7674e25a8f94b62d1efe040297f8bd5f4a655b4283513f3ad8b6eb98`.
-
-The product CLI at `70d85fe` now records and validates the first suffix
-retry inside prefix fallback before the timed warm hit can replace its
-output. It compares every supplied GB10 output token, reads the token-bound
-first-logit extension, and requires prefix state restoration. The owner
-seed still emits exactly one token. C syntax, smoke, 394 Python tests
-with two skips and hygiene pass; 20 sanitized boundary cases include
-a wrong final token with a self-consistent provider digest. Unchanged
-Rust/Cargo reuse the prior 47 tests and clippy. Windows and real-model
-qualification remain pending. Evidence:
-`benchmarks/correctness/product-prefix-seed-retry-local-20260914.json`,
-SHA256 `067808fbbf16251e72d29c939b5f8ef9d5d2cf44134dac6a56797ecd747e82eb`.
+The immutable retained-performance, 128k/256k context, relocated package,
+HTTP, one-hour soak and release gates remain open. The older analytic
+address fixtures and the 16k product pair establish no 128k/256k inference
+claim. Continue structural work from measured walls and GB10 boundaries.
 
 Compact staged-half routed MoE at `4a7f0c4` reduces complete q8192
 TTFT from 33507.2252 to 32939.7689 ms in the same-DLL off/on comparison,
