@@ -374,6 +374,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_producer_selection_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
+#include "out_l1_magnitude_suite.h"
 #include "absolute_admission_audit_selftest.h"
 #include "convolution_real_replay.h"
 #include "final_norm_real_replay.h"
@@ -385,7 +386,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv or --real-qkv-q8192 INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -393,7 +394,10 @@ int main(int argc, char **argv) {
             hipDeviceProp_t properties{};
             hip_ok(hipGetDeviceProperties(&properties, 0), "device_properties");
             require(std::string(properties.gcnArchName).find("gfx1151") == 0u, "expected gfx1151 before any kernel dispatch");
-            if (mode == "--matrix-producers-q8192") {
+            if (mode == "--out-l1-magnitude") {
+                cases += run_out_l1_magnitude_suite();
+                cases += run_absolute_product_hipblaslt_suite();
+            } else if (mode == "--matrix-producers-q8192") {
                 cases += run_matrix_producer_selection_suite();
             } else if (mode == "--absolute-admission-audit") {
                 cases += run_absolute_admission_audit_suite();

@@ -238,6 +238,10 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\q8192_matrix_producer_policy.h')).Hash.ToLowerInvariant()
     q8192_out_matrix_shadow_audit_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\q8192_out_matrix_shadow_audit.h')).Hash.ToLowerInvariant()
+    q8192_out_l1_policy_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\q8192_out_l1_policy.h')).Hash.ToLowerInvariant()
+    q8192_out_l1_shadow_audit_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $repo 'native\providers\q8192_out_l1_shadow_audit.h')).Hash.ToLowerInvariant()
     qrt_header_path = $qrtHeader
     qrt_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath $qrtHeader).Hash.ToLowerInvariant()
