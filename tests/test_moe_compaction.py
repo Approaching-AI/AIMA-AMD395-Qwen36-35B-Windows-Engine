@@ -44,6 +44,7 @@ class MoeCompactionTests(unittest.TestCase):
 #include <cmath>
 #include <condition_variable>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <functional>
 #include <mutex>
@@ -113,9 +114,20 @@ float dot(const uint16_t* a,const uint16_t* b,unsigned k,unsigned flags) {
     return qrt_sm121_scalar_projection::validated_dot<Lanes,Groups>(a,b,k,(flags&1u)!=0u);
 }
 }
+namespace qrt_routed_consumer_audit {
+template<class... T> void observe(T...) { assert(false); }
+}
 ''' + definitions + helpers + kernels + r'''
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void *;
+namespace qrt_routed_consumer_audit {
+struct Owner {
+    Owner(hipStream_t, const char*) {}
+    hipError_t initialize(bool enabled) { assert(!enabled); return hipSuccess; }
+    unsigned* data() const { return nullptr; }
+    hipError_t finish() { return hipSuccess; }
+};
+}
 enum class MoeL2 { Input, Weight, RoutedGateUp=Weight, RoutedActivated, RoutedDown,
     SharedInput, SharedGate, SharedUp, SharedActivated, SharedDown };
 struct State {

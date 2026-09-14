@@ -31,6 +31,7 @@
 #include "../moe_accumulator/bf16_scaled_l2.h"
 #include "../moe_accumulator/sm121_shared_gate.h"
 #include "routed_parallel_gate.h"
+#include "routed_consumer_audit.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -1733,6 +1734,7 @@ struct MoeCorrectionBounds {
     bool prevalidated_float = false;
     bool scaled_significand_fallback = false;
     uint32_t partition_capacity = 0u;
+    uint32_t *consumer_interval_audit = nullptr;
 };
 
 template<uint32_t ProjectionRows, uint32_t InputDivisor, uint32_t WeightRows, uint32_t WeightOffset>
@@ -6037,6 +6039,11 @@ void routed_gate_batched_hawkeye_correction_kernel(
                 input_bf16, gate_up_bf16, token, uint32_t(weight_row), kHidden, bounds);
             if (lane == 0u) {
                 activated_bf16[candidate] = float_to_bf16(exact);
+                if (bounds.consumer_interval_audit) {
+                    const float error = bounds.input_l2[token] * bounds.weight_l2[weight_row] * bounds.error_scale;
+                    qrt_routed_consumer_audit::observe(false, gate_up_native_f32[candidate], exact, error,
+                        0u, cuda_vllm_silu_bf16_domain_lut, bounds.consumer_interval_audit, candidate);
+                }
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
                 if constexpr (Phase == MoeCorrectionPhase::Replay) {
                     const uint32_t first_debug_route = debug_token * kTopK;
@@ -6198,6 +6205,11 @@ void routed_up_batched_hawkeye_correction_activation_kernel(
             const float exact = moe_routed_replay_dot<kReplayLanes>(
                 input_bf16, gate_up_bf16, token, uint32_t(weight_row), kHidden, bounds);
             if (lane == 0u) {
+                if (bounds.consumer_interval_audit) {
+                    const float error = bounds.input_l2[token] * bounds.weight_l2[weight_row] * bounds.error_scale;
+                    qrt_routed_consumer_audit::observe(true, up_native_f32[candidate], exact, error,
+                        activated_bf16[candidate], cuda_vllm_silu_bf16_domain_lut, bounds.consumer_interval_audit, candidate);
+                }
                 up_native_f32[candidate] = exact;
             }
         }
@@ -12489,6 +12501,14 @@ hipError_t launch_moe_routed_correction(
     uint32_t blocks, hipStream_t stream, MoeL2 input, MoeL2 weights,
     Args... arguments
 ) {
+    const char* audit_setting = std::getenv("QRT_QWEN36_MOE_CONSUMER_INTERVAL_AUDIT");
+    if (audit_setting && *audit_setting && std::strcmp(audit_setting, "0") && std::strcmp(audit_setting, "1"))
+        return hipErrorInvalidValue;
+    const bool audit_enabled = audit_setting && !std::strcmp(audit_setting, "1") &&
+        input == MoeL2::Input && weights == MoeL2::RoutedGateUp &&
+        blocks == kRoutes * (kIntermediate / kNativeThreads);
+    if (audit_enabled && (!g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb))
+        return hipErrorInvalidValue;
     if (!g_state.compact_routed_hawkeye) {
         return launch_moe_correction(local, blocks, stream, input, weights, arguments...);
     }
@@ -12501,6 +12521,9 @@ hipError_t launch_moe_routed_correction(
         g_state.moe_compacted_indices == nullptr || g_state.moe_compacted_count == nullptr) {
         return hipErrorInvalidValue;
     }
+    qrt_routed_consumer_audit::Owner audit(stream, NeedsFinalize ? "routed_up" : "routed_gate");
+    const auto audit_status = audit.initialize(audit_enabled);
+    if (audit_status != hipSuccess) return audit_status;
     for (uint32_t first = 0u; first < blocks; first += window_blocks) {
         const uint32_t count = (std::min)(blocks - first, window_blocks);
         const uint32_t replay_blocks = (std::min)(count, kMoeCompactionBlocks);
@@ -12510,6 +12533,7 @@ hipError_t launch_moe_routed_correction(
             static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
             first, g_state.moe_compacted_indices, g_state.moe_compacted_count
         };
+        bounds.consumer_interval_audit = audit.data();
         bounds.float_replay = g_state.float_replay_active;
         if ((g_state.prepared_replay_active || g_state.prevalidated_float_active) &&
             ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
@@ -12541,7 +12565,7 @@ hipError_t launch_moe_routed_correction(
             if (status != hipSuccess) return status;
         }
     }
-    return hipSuccess;
+    return audit.finish();
 }
 
 bool allocate_optional_moe_compaction() {
