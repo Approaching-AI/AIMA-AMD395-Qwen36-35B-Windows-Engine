@@ -14,15 +14,21 @@ performance from this pair. Algorithm4 OUT with the old linear bound remains
 incorrect on this case. Evidence: `benchmarks/correctness/out-matrix-bound-product-20260914.json`,
 SHA256 `720451ec5387b3936b101ca9f9b3c3ad7c45200e8f9f6029942ce1dd50589363`.
 
-The next component comparison reorders the same exact-replay candidate set
-into spatial input/weight tiles. It keeps the original validated four-lane
-K16 arithmetic and compares all captured q8192 QKV BF16 endpoints and every
-unrounded selected value. Timings include bitmap construction, reordering,
-count readback and replay. All original 7169 input rows plus 1023 independently
-comparable repeated rows remain present; GB10 outputs never enter computation.
-The host bijection check covers 2511267 valid cells and 2915933 padding cells,
-including partial tiles, invalid shapes and sanitizer checks. Runtime dispatch
-is unchanged; native results are pending.
+The complete spatial-replay comparison at `f5e2a4c` produces no gain.
+Original order and tiles 64x32 / 128x64 / 256x128 preserve all 67108864
+GB10-comparable QKV BF16 endpoints and all 4331311 raw selected accumulators.
+Preparation, bitmap construction, reordering, count readback and replay take
+58.8072 / 60.1234 / 59.3797 / 68.1507 ms, respectively, as medians of three
+completed samples after warmup. Every original candidate, K16 operation and
+admission bound is retained. Full permutation, CPU row flags, immutable
+sources and redzones pass. The 7169 original input rows plus 1023 repeated
+rows retain independent GB10 comparison; references never enter computation.
+No alternative enters runtime dispatch. Native build/test and full local
+checks pass: 381 Python tests (two skips), 47 Rust tests, C ABI smoke,
+clippy and hygiene. These are component results, not product acceptance.
+Evidence: `benchmarks/correctness/spatial-projection-comparison-20260914.json`,
+SHA256 `edaab7b28e021560ac9f6f26e78b42b17dea7db22dc95058516cba690dbf320d`.
+Broader reuse of exact arithmetic or provider replacement remains open.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
