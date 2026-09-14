@@ -89,13 +89,24 @@ bound did not expire. Real 128k/256k remain unqualified. Evidence:
 `benchmarks/correctness/long-query-range-prefix128k-incomplete-20260915.json`, SHA256
 `2bab80f037311f79ce231cb34457609f3e7cc08ae1b2d4ceca7ed8ecd3d97142`.
 
-The prepared-weight block component `c303565` now compares the current
-row-major two-group staging against 32-row/two-group weight blocks with the
-same original K16 carry and unsupported-BF16 fallback. Its actual layout and
-preparation launcher pass sanitized permutation, padding, capacity and launch
-failure tests across 48 shapes. C smoke, 402 Python tests with two skips and
-hygiene pass. Native GPU arithmetic and complete q8192 captured projection
-comparisons are pending. Product dispatch and retained performance are unchanged.
+The prepared-weight block component `c303565` passes 12 native reports
+covering 1386756 original K16 carry states, including padding, lossless
+encodings, unsupported operands and guards. Three same-executable q8192
+captured projection routes match all 67108864 external GB10 BF16 cells and
+4331311 unrounded correction candidates on every attempt. Including full
+operand preparation, original scalar4 / current staged2 / blocked-weight
+staged2 medians are 58.8297 / 42.6927 / 55.9998 ms over three rotated samples.
+Keep current row-major staging2; the blocked layout is slower and remains a
+component. Sanitized layout/launcher checks cover 48 shapes; C smoke, 402
+Python tests with two skips and hygiene pass. Product dispatch and retained
+performance are unchanged. Evidence:
+`benchmarks/correctness/blocked-half-weight-components-20260915.json`, SHA256
+`2de35fb86cfca751062e30c6f822df74a7688ba1e1d6e5e16db9607f79353e51`.
+
+Next investigate shared lossless operand preparation for selected PV replay,
+retaining every K16 rounding endpoint and K32 alpha rescale. Existing group
+flags and scalar-float PV results are comparison priors; a new route must
+beat the original integer replay with complete preparation costs included.
 
 The earlier CK `8aace16` all-cell PV off/on product pair also matched the
 same 16k GB10 boundary, but warm TTFT increased from 12212.8045 to
