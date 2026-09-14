@@ -18,6 +18,19 @@ and soak gates. Release remains unqualified. Evidence:
 `benchmarks/correctness/prepared-decoded-qk-product-20260914.json`, SHA256
 `bc262fd953a27d67d8a03519de937bf1cbca108ec784d63d33e9d5c1e1f34a1b`.
 
+Bounded same-stream submission at `22504b3` passes complete same-DLL
+q8192/out512 comparisons at 1 / 8 / 64 slabs per completion. All original
+GB10 tokens and actual callbacks match, first 144/raw 10.375. TTFT is
+34254.9603 / 34145.3290 / 34005.3841 ms; the two candidates save only
+109.6313 / 249.5762 ms in this comparison. Keep one slab per completion
+while investigating larger costs. No stable gain or performance acceptance
+is inferred. Prepared QK remains enabled; all kernels, selectors, providers
+and workspace sizes are common. Host submission and completed-work deadlines,
+failure drains, tail completion and other call shapes pass tests. Native
+build and full local checks pass. Evidence:
+`benchmarks/correctness/queued-attention-product-20260914.json`, SHA256
+`3cbddbaf9d7010cb56cc5da7eecdf0f2e8df77bf6116aeab0a7b02c3efb13ad1`.
+
 The same-DLL OUT admission comparison at `02f02eb` recovers correctness but
 rejects the performance tradeoff. QKV4/OUT0 with linear OUT PPB1000 and
 QKV4/OUT4 with uniform linear OUT PPB2000 both preserve all 512 GB10 outputs
