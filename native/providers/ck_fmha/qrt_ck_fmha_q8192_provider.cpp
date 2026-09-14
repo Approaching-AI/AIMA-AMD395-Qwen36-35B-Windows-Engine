@@ -447,7 +447,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         uint64_t stage_ns[5]{};
         unsigned stage_calls[5]{};
         unsigned next_stage = 0u;
+        bool all_pv_replay = false;
     } profile{begin};
+    profile.all_pv_replay = all_pv_replay;
     const auto elapsed_ns = [](auto start, auto end) {
         return static_cast<uint64_t>(std::chrono::duration_cast<
             std::chrono::nanoseconds>(end - start).count());
@@ -463,7 +465,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             p.stage_ns[stage] += static_cast<uint64_t>(std::chrono::duration_cast<
                 std::chrono::nanoseconds>(now - p.last).count());
             ++p.stage_calls[stage];
-            p.next_stage = (stage + 1u) % 5u;
+            p.next_stage = p.all_pv_replay && stage == 1u ? 4u : (stage + 1u) % 5u;
             p.last = now;
             return int(hipSuccess);
         }};
@@ -646,21 +648,23 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         uint64_t accounted_ns = entry_wait_ns + preparation_ns;
         const unsigned batches = (query_count + query_batch - 1u) / query_batch;
         for (unsigned stage = 0u; stage < 5u; ++stage) {
-            if (profile.stage_calls[stage] != batches) return int(hipErrorInvalidValue);
+            const bool active = !all_pv_replay || stage == 0u || stage == 1u || stage == 4u;
+            if (profile.stage_calls[stage] != (active ? batches : 0u) ||
+                (!active && profile.stage_ns[stage])) return int(hipErrorInvalidValue);
             accounted_ns += profile.stage_ns[stage];
         }
         if (profile.next_stage || accounted_ns > total_ns) return int(hipErrorInvalidValue);
         std::fprintf(stderr, "SM121_COMPLETED_STAGE_PROFILE query_start=%u query_count=%u query_batch=%u batches=%u "
             "entry_wait_ms=%.6f preparation_ms=%.6f qk_ms=%.6f probability_ms=%.6f "
             "approximate_pv_ms=%.6f collect_pv_ms=%.6f exact_pv_ms=%.6f "
-            "dispatch_remainder_ms=%.6f total_ms=%.6f completed_stages=%u "
+            "dispatch_remainder_ms=%.6f total_ms=%.6f completed_stages=%u all_pv_replay=%u "
             "clock=steady_host stream_drained=1 additional_device_bytes=0 instrumented=1\n",
             query_start, query_count, query_batch, batches,
             double(entry_wait_ns) / 1e6, double(preparation_ns) / 1e6,
             double(profile.stage_ns[0]) / 1e6, double(profile.stage_ns[1]) / 1e6,
             double(profile.stage_ns[2]) / 1e6, double(profile.stage_ns[3]) / 1e6,
             double(profile.stage_ns[4]) / 1e6, double(total_ns - accounted_ns) / 1e6,
-            double(total_ns) / 1e6, batches * 5u);
+            double(total_ns) / 1e6, batches * (all_pv_replay ? 3u : 5u), unsigned(all_pv_replay));
     }
     if (transpose_value)
         std::fprintf(stderr,"SM121_TRANSPOSED_PV_VALUE query_start=%u query_count=%u value_tokens=%u workspace_bytes=%zu refreshed=1\n",

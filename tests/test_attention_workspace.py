@@ -257,6 +257,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
     if (observer) {
         if (layout != 22u && layout != 24u) std::abort();
         for (unsigned stage = 0u; stage < 5u; ++stage) {
+            if (all_pv_replay && (stage == 2u || stage == 3u)) continue;
             ++profile_observations;
             const int status = observer->observe(observer->state, stage, stream);
             if (status != hipSuccess) return status;
@@ -692,6 +693,26 @@ int main() {
     reset();setenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES","1",1);sync_ms=1u;
     if(launch(0,129)!=hipSuccess || queries!=2u || syncs!=14u ||
        profile_observations!=10u || clock_ms!=14u || allocations!=5u) return 129;
+    // Long all-cell PV observes only QK, probabilities and exact PV. Exercise
+    // both layouts, both workspace owners and a partial final query slab.
+    for(const char* mode : {"1","3"}) for(const char* all : {"0","1"}) {
+        setenv("QRT_CK_SM121_COMPACT_PV_REPLAY",mode,1);
+        setenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY",all,1);
+        const unsigned stages=*all=='1'?3u:5u;
+        for(unsigned start : {16384u,263168u}) {
+            reset();sync_ms=1u;
+            if(launch(start,65)!=hipSuccess || queries!=3u || syncs!=2u+3u*(stages+1u) ||
+               profile_observations!=3u*stages || clock_ms!=syncs ||
+               all_pv_queries!=(*all=='1'?3u:0u) || allocations!=(start>131072u?7u:5u)) return 204;
+            if(*all=='1') for(unsigned failure=3u;failure<=5u;++failure) {
+                reset();fail_sync=failure;
+                if(launch(start,65)!=hipErrorUnknown || queries!=1u || syncs!=failure+1u ||
+                   profile_observations!=failure-2u || all_pv_queries!=1u) return 205;
+            }
+        }
+    }
+    unsetenv("QRT_CK_SM121_LONG_ALL_PV_REPLAY");
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
     // A failed completion at any observed stage must stop dependent stages and
     // batches, while the provider drains submitted work before releasing its lock.
     for(unsigned failure=3u;failure<=7u;++failure) {
@@ -889,7 +910,7 @@ int main() {
             profiles = [dict(re.findall(r"(\w+)=([^ ]+)", line))
                         for line in result.stderr.splitlines()
                         if line.startswith("SM121_COMPLETED_STAGE_PROFILE ")]
-            self.assertEqual(len(profiles), 1)
+            self.assertEqual(len(profiles), 9)
             row = profiles[0]
             self.assertEqual((row["query_count"], row["batches"], row["completed_stages"]),
                              ("129", "2", "10"))
@@ -899,6 +920,19 @@ int main() {
             self.assertEqual(float(row["preparation_ms"]), 1.0)
             self.assertEqual(float(row["dispatch_remainder_ms"]), 2.0)
             self.assertEqual(float(row["total_ms"]), 14.0)
+            for row in profiles[1:]:
+                all_pv = row["all_pv_replay"] == "1"
+                self.assertIn(row["query_start"], ("16384", "263168"))
+                self.assertEqual((row["query_count"], row["batches"], row["completed_stages"]),
+                                 ("65", "3", "9" if all_pv else "15"))
+                for field in ("qk_ms", "probability_ms", "exact_pv_ms"):
+                    self.assertEqual(float(row[field]), 3.0)
+                for field in ("approximate_pv_ms", "collect_pv_ms"):
+                    self.assertEqual(float(row[field]), 0.0 if all_pv else 3.0)
+                self.assertEqual(float(row["entry_wait_ms"]), 1.0)
+                self.assertEqual(float(row["preparation_ms"]), 1.0)
+                self.assertEqual(float(row["dispatch_remainder_ms"]), 3.0)
+                self.assertEqual(float(row["total_ms"]), 14.0 if all_pv else 20.0)
 
 
 if __name__ == "__main__":
