@@ -30,15 +30,24 @@ Evidence: `benchmarks/correctness/spatial-projection-comparison-20260914.json`,
 SHA256 `edaab7b28e021560ac9f6f26e78b42b17dea7db22dc95058516cba690dbf320d`.
 Broader reuse of exact arithmetic or provider replacement remains open.
 
-A new component experiment packs each certified BF16 product and its original
-exponent losslessly into one register, then checks four or eight K16 groups
-against a common carry exponent and sign. Accepted tiles retain every original
-truncation through exact integer increments; failed tiles replay the saved
-products with original per-group arithmetic. Excluded rows retain original
-fallback. The host wide-integer comparison passes 12720708 packed products,
-1318560 ordered carries and both accepted/rejected certificates with UBSan.
-Native safety and complete q8192 QKV comparison are pending. Product dispatch,
-admission bounds and all GB10 gates remain unchanged.
+Packed products and certified K16 batches at `809a44e` preserve complete
+QKV correctness but are slower. Original / packed-only / four-group /
+eight-group preparation-plus-replay medians are 56.8519 / 66.4194 / 71.4928 /
+71.0080 ms. All four variants preserve 67108864 GB10-comparable BF16 endpoints,
+4331311 candidate identities and raw selected accumulators, metadata, guards
+and immutable inputs. No variant enters product dispatch.
+
+Host checks cover 12720708 packed products and 1318560 ordered carries;
+15 native cases compare 1881219 ordered states exactly. A test-only follow-up
+at `3e8ba49` resets output before independent production/diagnostic parity;
+the unchanged arithmetic passes again. Full local checks pass 382 Python
+tests (two skips), 47 Rust tests, C smoke, clippy and hygiene. This is
+component evidence, not product performance or release acceptance.
+Evidence: `benchmarks/correctness/packed-float-tiles-comparison-20260914.json`,
+SHA256 `4021f7a331d847fd2e1cf567f4488d363f7b76fd91fa2e9b8fb5f607b461ec84`.
+The next broader attention experiment separates full-row prefix maxima,
+parallel probability generation and original ordered denominator recurrence
+to remove repeated per-batch synchronization. Original GB10 gates remain.
 
 The scoped matrix replacement at `570dc90` retains a correctness-attached
 2090.0644 ms TTFT reduction. On baiying with `D:\models\Qwen3.6-35B-A3B`,
