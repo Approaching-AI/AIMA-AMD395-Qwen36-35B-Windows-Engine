@@ -163,8 +163,30 @@ regression reproduces the LF/CRLF failure before the fix; all 10 caller tests
 then pass locally, together with hygiene and diff checks. Evidence:
 `benchmarks/correctness/tool-document-newline-local-20260915.json`, SHA256
 `9bf65f1dd03c6e1c0d5057a43f7c8f80d7d8a1252673a1ec0025aaa7a46b9512`.
-The native caller rerun, real HTTP recovery cases and relocated archive
-validation remain pending. The newline fix changes no runtime source or math.
+Source `4fca963` passes the renewed Windows build, all 49 server tests,
+10 caller tests and two verifier tests. Native evidence:
+`benchmarks/correctness/tool-recovery-and-document-checker-native-20260915.json`,
+SHA256 `7dc6b2418d7e095f28e00e991a51d3e37c26a291b79f388249e2d292bf9678f9`.
+The R4 archive contains 268 runtime assets and 284 release files, all verified
+after relocation while the original staging path is unavailable. The actual
+packaged checker passes six cases, preserving CRLF recovery bytes and existing
+Markdown. Its JSON/SSE q8192/out32 pair passes the original GB10 IDs, first logits
+and both actual early callbacks. TTFT is 30065.2408 / 29509.5863 ms and TPOT
+108.963965 / 98.694952 ms. Archive SHA256 is
+`54958df734f52e32f419ef65482497fc4c9380e57acdf2a03e0fbdea4e4974cc`
+(132023789 bytes). Evidence:
+`benchmarks/correctness/tool-recovery-portable-package-http-20260915.json`,
+SHA256 `fb85e959d23ef00e5929ba636ab96d9f5a49b194d60073ff4f9cecc88614276c`.
+The full native suite then passes 22 checks in 39 captured HTTP requests,
+including completed and silent repair windows, retained lifetime diagnostics,
+explicit JSON/SSE exhaustion errors, replayed-result rejection, queue timeout/
+overflow and graceful shutdown. The final active q8192 request matches all
+32 original GB10 IDs and first 144/raw10.375. Offline response replay passes;
+18 accepted early callbacks include the final prompt-bound q8192 case. Evidence:
+`benchmarks/correctness/tool-recovery-native-http-protocol-20260915.json`, SHA256
+`8998fe084db5fc3e6239df3f3ea3aeaac110b6cb2cc0e8989ab694bc313caa64`.
+The newline fix changes no runtime math. The earlier e7d605f soak is not
+transferred to this server, and performance/long-context release gates remain open.
 
 The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
 normalized postconv allocation and two unused kernels when raw FLA owns Q/K
