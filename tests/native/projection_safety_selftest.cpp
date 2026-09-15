@@ -373,6 +373,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_cooperative_half_replay_suite.h"
 #include "projection_staged_half_f32_replay_suite.h"
 #include "projection_embedded_half_replay_suite.h"
+#include "projection_matrix_replay_suite.h"
 #include "projection_interleaved_replay_suite.h"
 #include "projection_spatial_replay_suite.h"
 #include "projection_partition_replay_suite.h"
