@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "kind": "parallel_k16_pv_component_host_validation",
+  "host": "JiaweiMnideMini.lan",
+  "model": "none; independent wide BF16 recurrence and deferred host launch mock",
+  "model_loaded": false,
+  "source": {
+    "canonical_source_record": "parallel-pv-native-source-r1.json",
+    "canonical_source_record_sha256": "00b818fc869694e90585b91ee0d542ddd4664bc0001b3a8ce178e12e9909fedf",
+    "documentation_snapshot_differences": {},
+    "source_commit": "06dc8f1ea7c80cbf55391b339cc57797008a1b68",
+    "repo": "D:/projects/AIMA-public-parallel-pv-20260915",
+    "seed": "D:/projects/AIMA-public-projection-row-reuse-20260915",
+    "prerequisite_commit": "5011e8b1923925abf9c86280aee280e554f53c50",
+    "bundle": "parallel-pv-06dc8f1.bundle",
+    "bundle_sha256": "84d6901a1b04030abf95c8987a96d68081f916b293291049bfdafbed8418a374",
+    "script": "run-native-parallel-pv-r1.ps1",
+    "script_sha256": "0918e12d8d8e0ccf8844299d2685d4451291bd7a6af82f5087ac2415d1fa16b7",
+    "source_sha256": {
+      "native/providers/ck_fmha/parallel_pv_plan.h": "84047b1a04fdacb05d904cd0efee91ee1c6ac568de16deec83c8b01d8ac0e988",
+      "native/providers/ck_fmha/parallel_pv_partials.h": "4a68dceacc7e0d89c29389ceedb5bded9829104185bf96955aed3f0320dfb012",
+      "tests/native/parallel_pv_plan_selftest.cpp": "17deac2086633c2bf5768cb3e746102db2feadf63069173a75443239ad888ee1",
+      "tests/native/parallel_pv_partials_selftest.cpp": "89b66fdf4fd05c9f38af4b8ac83d596f5707cb0e937ca52a2ffe7f01feed3e54",
+      "tests/test_parallel_pv_plan.py": "dd64f86d7453d859595fae08ca6af586af2ac330ed2337b00d3d1d5a69e02462",
+      "tests/test_parallel_pv_launch.py": "70cb5aab36d003f0ffffabc60b7be7357ecf7d3e72149ff98523f74ec1ea0c48",
+      "native/providers/ck_fmha/blackwell_attention.h": "24d2294a6196d5b554529411e45ba3f2f7818812f79c4186572a0a21b550c5a5",
+      "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+      "native/providers/moe_accumulator/sm121_pv_error_bound.h": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+      "native/providers/moe_accumulator/sm121_pv_final_bound.h": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e"
+    },
+    "local_validation": {
+      "command": [
+        "make",
+        "check",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 170.5368945421651,
+      "source_sha256": {
+        "native/providers/ck_fmha/parallel_pv_plan.h": "84047b1a04fdacb05d904cd0efee91ee1c6ac568de16deec83c8b01d8ac0e988",
+        "native/providers/ck_fmha/parallel_pv_partials.h": "4a68dceacc7e0d89c29389ceedb5bded9829104185bf96955aed3f0320dfb012",
+        "tests/native/parallel_pv_plan_selftest.cpp": "17deac2086633c2bf5768cb3e746102db2feadf63069173a75443239ad888ee1",
+        "tests/native/parallel_pv_partials_selftest.cpp": "89b66fdf4fd05c9f38af4b8ac83d596f5707cb0e937ca52a2ffe7f01feed3e54",
+        "tests/test_parallel_pv_plan.py": "dd64f86d7453d859595fae08ca6af586af2ac330ed2337b00d3d1d5a69e02462",
+        "tests/test_parallel_pv_launch.py": "70cb5aab36d003f0ffffabc60b7be7357ecf7d3e72149ff98523f74ec1ea0c48"
+      },
+      "log": "parallel-pv-local-r1.log",
+      "log_sha256": "a192be4e72fdb6bba68ef2bbf869066d786ca1d2814a9fdafb69cd8b5e33e25f",
+      "worktree_validation": true
+    }
+  },
+  "validation": {
+    "command": [
+      "make",
+      "check",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 170.5368945421651,
+    "source_sha256": {
+      "native/providers/ck_fmha/parallel_pv_plan.h": "84047b1a04fdacb05d904cd0efee91ee1c6ac568de16deec83c8b01d8ac0e988",
+      "native/providers/ck_fmha/parallel_pv_partials.h": "4a68dceacc7e0d89c29389ceedb5bded9829104185bf96955aed3f0320dfb012",
+      "tests/native/parallel_pv_plan_selftest.cpp": "17deac2086633c2bf5768cb3e746102db2feadf63069173a75443239ad888ee1",
+      "tests/native/parallel_pv_partials_selftest.cpp": "89b66fdf4fd05c9f38af4b8ac83d596f5707cb0e937ca52a2ffe7f01feed3e54",
+      "tests/test_parallel_pv_plan.py": "dd64f86d7453d859595fae08ca6af586af2ac330ed2337b00d3d1d5a69e02462",
+      "tests/test_parallel_pv_launch.py": "70cb5aab36d003f0ffffabc60b7be7357ecf7d3e72149ff98523f74ec1ea0c48"
+    },
+    "log": "parallel-pv-local-r1.log",
+    "log_sha256": "a192be4e72fdb6bba68ef2bbf869066d786ca1d2814a9fdafb69cd8b5e33e25f",
+    "worktree_validation": true
+  },
+  "host_envelope": {
+    "kind": "parallel_pv_host_plan_and_envelope",
+    "shapes": 81497,
+    "groups": 524288,
+    "different_fp32": 397259,
+    "admitted_endpoints": 185840,
+    "underestimates": 0,
+    "false_admissions": 0,
+    "maximum_workspace_bytes": 268435456,
+    "native_wmma_checked": false,
+    "inference_acceptance": false
+  },
+  "deferred_launch_checks": {
+    "actual_launcher_and_reducer_extracted_from_source": true,
+    "producer_is_a_mock": true,
+    "native_wmma_checked": false,
+    "injected_submission_failures": 16,
+    "invalid_argument_cases": 15,
+    "asynchronous_output_untouched_until_completion": true,
+    "same_stream_workspace_reuse_after_reducer": true,
+    "original_inputs_and_guard_checks": true
+  },
+  "source_audit": {
+    "changed_files": [
+      "native/providers/ck_fmha/parallel_pv_partials.h",
+      "native/providers/ck_fmha/parallel_pv_plan.h",
+      "tests/native/parallel_pv_partials_selftest.cpp",
+      "tests/native/parallel_pv_plan_selftest.cpp",
+      "tests/test_parallel_pv_launch.py",
+      "tests/test_parallel_pv_plan.py"
+    ],
+    "existing_runtime_providers_unchanged": true,
+    "product_dispatch_changed": false,
+    "caller_owns_workspace_through_stream_completion": true,
+    "workspace_query_tile": 16,
+    "maximum_workspace_bytes": 268435456
+  },
+  "implementation": "Independent zero-C K16 WMMA values and absolute dots are stored in one bounded16-query slab. A separate kernel applies the original ordered K32 alphas and one explicitly rounded FP32 addition per K16. The original2^-19 error coefficient, deferred finalization, reciprocal and BF16 endpoint predicate remain. The approximate FP32 carrier changes, so independent native envelope tests and complete GB10 boundaries are required; raw equality with the earlier approximate carrier is not presumed.",
+  "validation_summary": {
+    "rust_tests": 54,
+    "python_tests": 427,
+    "python_skipped": 2,
+    "c_and_q16_abi_pass": true,
+    "clippy_pass": true,
+    "hygiene_pass": true
+  },
+  "native_build_completed": false,
+  "native_numerical_acceptance": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "scope": "Host validation and a prepared native experiment only. No GPU timings, real-model tokens, relocated-package acceptance or performance claims follow. The original q7169 capture and its separately declared8192-row extension will be verified by the native component before considering any product integration."
+}
