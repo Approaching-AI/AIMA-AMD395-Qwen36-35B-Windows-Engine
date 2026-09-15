@@ -2,6 +2,30 @@
 
 ## Current unreleased measurements, 2026-09-15
 
+Source `5011e8b` audits exact input-row reuse before all170 q8192 dense
+corrections. Hashes only propose representatives; a separate GPU pass compares
+every original BF16 word before accepting a duplicate. All original producers,
+candidates and K16 replays remain active. Sanitized host-owner tests cover
+8192 rows, a deliberate hash collision and24 injected transport failures.
+Full54 Rust/425 Python(two skips), C/q16 ABI, clippy and hygiene checks pass.
+Native build passes in92442.054 ms. Evidence:
+`benchmarks/correctness/projection-row-reuse-native-20260915.json`, SHA256
+`bf0318d776ea5796b0455c66781d810ba0966033447d933ba3e24f3ee90c5cef`.
+
+The real q8192/out512 audit matches every GB10 output ID, actual callback and
+first logit10.375. TTFT is30645.3769 ms, TPOT100.940785 ms and load21488.4797 ms;
+these include the audit and are not a paired timing comparison. Only the first
+four layer0 projections have duplicate inputs:7935 reusable rows each,257
+distinct rows and largest class46. The other166 calls have no identical input
+rows. All full-word comparisons and private-buffer guards pass, with zero
+hash collisions. All170 original counts and dispatch counts match the prior
+disabled control. Even a loose candidate-reuse upper bound is only6366393 /
+432889515 (about1.47%), before cache and scatter costs. Do not implement this
+whole-row cache for the current bottleneck; retain the audit default off.
+No actual reuse or candidate speedup is measured. Evidence:
+`benchmarks/correctness/projection-row-reuse-q8192-20260915.json`, SHA256
+`685d30c52583bca7f807ac44fefc7f8da9b8d165179a16e1cf36c3989ad4cb03`.
+
 Source `4a5a317` tests an actual default-off OUT residual filter inside the
 existing candidate collector. It keeps the original matrix, PPB/Cauchy and
 midpoint envelope, mandatory prefixes and retained K16 arithmetic. A selected
