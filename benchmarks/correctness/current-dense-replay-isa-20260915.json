@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "kind": "compiled_current_dense_replay_resource_inspection",
+  "host": "baiying",
+  "source_commit": "137f3fbe0f67b46873fa3d63cca60a0f144ddd1e",
+  "model_loaded": false,
+  "provider_sha256": "142a01ed4b47495e8a33f3669ca9fe1833752b20894c8974f5a8ee48162aed01",
+  "hsaco_sha256": "1346624a44980c7d439c0ec68e6e15f2fea143924843812340e0c5e0cbfbaef9",
+  "hsaco_bytes": 3814248,
+  "kernels": [
+    {
+      "symbol": "_ZN12_GLOBAL__N_155selected_bf16_projection_hawkeye_validated_float_kernelEPKtS1_PKjS3_PfjjS3_jj",
+      "metadata": {
+        "group_segment_fixed_size": 0,
+        "private_segment_fixed_size": 0,
+        "sgpr_count": 14,
+        "sgpr_spill_count": 0,
+        "vgpr_count": 37,
+        "vgpr_spill_count": 0,
+        "wavefront_size": 32
+      },
+      "static_instructions": 679,
+      "maximum_referenced_vgpr": 36,
+      "kernel_text_sha256": "34e355fc726a5ac21c82b769fe0f1d63d5cd6fbc5140d4c887141ab3292ab3fa",
+      "scratch_instructions": []
+    },
+    {
+      "symbol": "_ZN12_GLOBAL__N_151selected_bf16_projection_hawkeye_staged_half_kernelEPKN30qrt_sm121_scaled_half_products3RowES3_PfjjPKjjj",
+      "metadata": {
+        "group_segment_fixed_size": 0,
+        "private_segment_fixed_size": 0,
+        "sgpr_count": 15,
+        "sgpr_spill_count": 0,
+        "vgpr_count": 49,
+        "vgpr_spill_count": 0,
+        "wavefront_size": 32
+      },
+      "static_instructions": 1233,
+      "maximum_referenced_vgpr": 48,
+      "kernel_text_sha256": "635d903ac9113a0ebaa1dd02108251f532c50fa2ff7ef752b40feb3270b6c944",
+      "scratch_instructions": []
+    },
+    {
+      "symbol": "_ZN12_GLOBAL__N_159selected_bf16_projection_hawkeye_midpoint_correction_kernelILb1EEEvPKtS2_PfjjPKjjjN28qrt_sm121_prefill_projection4PlanE",
+      "metadata": {
+        "group_segment_fixed_size": 8192,
+        "private_segment_fixed_size": 0,
+        "sgpr_count": 34,
+        "sgpr_spill_count": 0,
+        "vgpr_count": 54,
+        "vgpr_spill_count": 0,
+        "wavefront_size": 32
+      },
+      "static_instructions": 1356,
+      "maximum_referenced_vgpr": 53,
+      "kernel_text_sha256": "aef5fe4185f1dad19cbf1e70a8f01b02081efd454d36053d86bc720298da232d",
+      "scratch_instructions": []
+    },
+    {
+      "symbol": "_ZN12_GLOBAL__N_159selected_bf16_projection_hawkeye_midpoint_correction_kernelILb0EEEvPKtS2_PfjjPKjjjN28qrt_sm121_prefill_projection4PlanE",
+      "metadata": {
+        "group_segment_fixed_size": 0,
+        "private_segment_fixed_size": 0,
+        "sgpr_count": 14,
+        "sgpr_spill_count": 0,
+        "vgpr_count": 39,
+        "vgpr_spill_count": 0,
+        "wavefront_size": 32
+      },
+      "static_instructions": 294,
+      "maximum_referenced_vgpr": 38,
+      "kernel_text_sha256": "f7b278fac0af32b4f18e516616867092346b864f90517c760d68ffdcc0271ca8",
+      "scratch_instructions": []
+    }
+  ],
+  "commands": {
+    "controller_file": "inspect_current_dense_replay_isa_r1.py",
+    "controller_sha256": "5d6525f7bda0d4d110b170d6b82ed10b66e7445fe945a22b4d8759e42943998b",
+    "native_script": "\n$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$root='C:\\Program Files\\AMD\\ROCm\\7.1\\bin'\n$file='D:\\projects\\current-dense-replay-isa-20260915-r1.hsaco'\nforeach($item in @(@{tool='llvm-objdump.exe';arguments=@('-d','--mcpu=gfx1151',$file);suffix='isa'},@{tool='llvm-readobj.exe';arguments=@('--notes',$file);suffix='notes'})){\n $out='D:\\projects\\current-dense-replay-isa-20260915-r1-'+$item.suffix+'.txt'\n $err='D:\\projects\\current-dense-replay-isa-20260915-r1-'+$item.suffix+'-stderr.txt'\n $psi=[Diagnostics.ProcessStartInfo]::new((Join-Path $root $item.tool))\n $psi.Arguments=$item.arguments -join ' ';$psi.UseShellExecute=$false\n $psi.RedirectStandardOutput=$true;$psi.RedirectStandardError=$true\n $proc=[Diagnostics.Process]::new();$proc.StartInfo=$psi\n if(-not $proc.Start()){throw 'ISA process did not start'}\n $stdout=$proc.StandardOutput.ReadToEndAsync();$stderr=$proc.StandardError.ReadToEndAsync()\n if(-not $proc.WaitForExit(20000)){& taskkill.exe /PID $proc.Id /T /F|Out-Null;throw 'ISA tool timed out'}\n $proc.WaitForExit()\n [IO.File]::WriteAllText($out,$stdout.Result,[Text.UTF8Encoding]::new($false))\n [IO.File]::WriteAllText($err,$stderr.Result,[Text.UTF8Encoding]::new($false))\n if($proc.ExitCode -ne 0){throw ('ISA tool failed '+$item.tool+' exit='+$proc.ExitCode+' '+$stderr.Result)}\n}\n",
+    "native_process_timeout_seconds": 20,
+    "dispatch_record_sha256": "6ccc03e2bcd619c9fb6db00ffec8312bb2527245c8a3d65cad287a91f6611067",
+    "observer_sha256": "ca1bbe1722bbe37085ebce5a30752cfad4cf9c12246bfddb6eed3985fb27b61a"
+  },
+  "raw": {
+    "analysis.json": "03836e017d6c19e129a3d1c4dd69e067917712bb2eea98ee2edba20802695f6c",
+    "isa.txt": "096d80702c591c63f35b87aac0cdbb0b3bb705f0f039b66245a8105d68aa4be7",
+    "notes.txt": "eede67de48e1b0b75c5341e99c33ae5a9b4fa5a57a228521e493e6d482e7f986"
+  },
+  "matching_provider_product_boundary": {
+    "file": "benchmarks/correctness/queued-dense-replay-q8192-20260915.json",
+    "bytes": 344019,
+    "sha256": "9c8b7f97ff01fa41bedb9b180386564b60ceda4c3d24657083b71e24e242e6a6"
+  },
+  "conclusion": "The selected staged-half kernel uses49 VGPRs and15 SGPRs, wave32, with no private storage, register spills or scratch instructions. Static instruction totals include all branches and do not measure runtime, occupancy or throughput. Register spilling does not explain this provider correction wall.",
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}
