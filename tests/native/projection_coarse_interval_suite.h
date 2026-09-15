@@ -53,6 +53,8 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
     for(unsigned sample=0u;sample<256u;++sample){const unsigned cell=unsigned((uint64_t(sample)*2654435761ull+1013904223ull)%cells);
         const float expected=qrt_q1_moe_hawkeye::accumulate_bf16_hopper_blackwell(0.0f,inputs.data()+kGuard+size_t(cell/rows)*width,weights.data()+kGuard+size_t(cell%rows)*width,width);
         require(!std::memcmp(&expected,&canonical[kGuard+cell],4u),"complete canonical differs from independent CPU dot");}
+    std::vector<unsigned char> initial_seen(cells,0u);
+    for(unsigned cell:old_selected){require(cell<cells&&!initial_seen[cell],"initial selector duplicate or invalid cell");initial_seen[cell]=1u;}
     double samples[5][3]{},prefix_samples[5][3]{};unsigned selected_counts[5]{};
     for(unsigned attempt=0u;attempt<4u;++attempt)for(unsigned position=0u;position<5u;++position){
         const unsigned variant=(attempt+position)%5u;
@@ -81,8 +83,21 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
         if(attempt){samples[variant][attempt-1u]=total_ms;prefix_samples[variant][attempt-1u]=prefix_ms;require(selected_counts[variant]==selected,"coarse selection changed between attempts");}else selected_counts[variant]=selected;
         auto output=initial;dout.read(output);dc.read(center);if(variant)de.read(error);dids.read(ids);dcount.read(count);
         std::vector<unsigned char> seen(cells,0u);for(unsigned i=0u;i<selected;++i){const unsigned cell=ids[kGuard+i];require(cell<cells&&!seen[cell],"coarse duplicate or invalid candidate");seen[cell]=1u;}
-        if(!variant){require(selected==old_selected.size(),"original selector count changed");for(unsigned cell:old_selected)require(seen[cell],"original selector identity changed");}
+        // The legacy initial CPU diagnostic uses only the current-binade
+        // midpoint. Production also checks adjacent midpoints. Validate every
+        // live GPU decision against the actual production rule; report changes
+        // from the legacy mask without making that diagnostic the authority.
+        unsigned producer_changed=0u,selection_added=0u,selection_removed=0u;
+        if(!variant){dwn.read(wn);dxn.read(xn);}
         for(unsigned cell=0u;cell<cells;++cell){
+            if(!variant){const float value=center[kGuard+cell];const uint32_t bits=coarse_bound::scalar::bits(value),low=bits&65535u;
+                const unsigned distance=low>=32768u?low-32768u:32768u-low;
+                const float upper=xn[kGuard+cell/rows]*wn[kGuard+cell%rows];
+                const bool expected=distance<=512u || ((bits>>23u)&255u)<32u ||
+                    qrt_bf16_midpoint::within_error(value,upper*(float(ppb)*1.0e-9f));
+                require(bool(seen[cell])==expected,"original live GPU selector differs from CPU production rule");
+                producer_changed+=std::memcmp(&value,&initial[kGuard+cell],4u)!=0;
+                selection_added+=seen[cell]&&!initial_seen[cell];selection_removed+=!seen[cell]&&initial_seen[cell];}
             require(std::isfinite(output[kGuard+cell])&&bf16(output[kGuard+cell])==reference[kGuard+cell],"coarse final GB10 endpoint");
             if(variant){const coarse_bound::State interval{center[kGuard+cell],error[kGuard+cell]};require(bool(seen[cell])==!coarse_bound::certified(interval),"coarse complete candidate mask");
                 require(std::abs(double(interval.center)-double(canonical[kGuard+cell]))<=double(interval.error),"coarse canonical raw interval undercoverage");}
@@ -99,8 +114,10 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
             for(size_t group=0u;group<groups;++group){const auto expected=qrt_sm121_scaled_half_products::prepare(raw.data()+kGuard+group*16u);require(!std::memcmp(&expected,&packed[kGuard+group],sizeof(expected)),"coarse complete prepared encoding");}
             for(unsigned row=0u;variant&&row<n;++row){bool eligible=true;for(unsigned k=0u;k<width;++k)eligible=eligible&&coarse_bound::eligible(raw[kGuard+size_t(row)*width+k]);require(flags[kGuard+row]==unsigned(eligible),"coarse original row domain");}
             for(size_t i=0u;i<kGuard;++i){require(!std::memcmp(&packed[i],&row_guard,sizeof(row_guard))&&!std::memcmp(&packed[kGuard+groups+i],&row_guard,sizeof(row_guard)),"coarse prepared guard");if(variant)require(flags[i]==marker&&flags[kGuard+n+i]==marker,"coarse eligibility guard");}}
-        if(!variant){dwn.read(wn);dxn.read(xn);for(size_t i=0u;i<kGuard;++i)require(wn[i]==kF32Guard&&wn[kGuard+rows+i]==kF32Guard&&xn[i]==kF32Guard&&xn[kGuard+tokens+i]==kF32Guard,"coarse original norm guard");}
-        std::cout<<"{\"type\":\"coarse_projection_attempt\",\"attempt\":"<<attempt<<",\"variant\":"<<variant<<",\"candidates\":"<<selected<<",\"all_cells_verified\":true}"<<std::endl;
+        if(!variant){for(size_t i=0u;i<kGuard;++i)require(wn[i]==kF32Guard&&wn[kGuard+rows+i]==kF32Guard&&xn[i]==kF32Guard&&xn[kGuard+tokens+i]==kF32Guard,"coarse original norm guard");}
+        std::cout<<"{\"type\":\"coarse_projection_attempt\",\"attempt\":"<<attempt<<",\"variant\":"<<variant<<",\"candidates\":"<<selected<<",\"all_cells_verified\":true,\"initial_legacy_selector_candidates\":"<<old_selected.size();
+        if(!variant)std::cout<<",\"original_live_selector_cpu_checked\":true,\"producer_changed_cells_vs_initial\":"<<producer_changed<<",\"selection_added_vs_initial\":"<<selection_added<<",\"selection_removed_vs_initial\":"<<selection_removed;
+        std::cout<<"}"<<std::endl;
     }
     for(unsigned variant=0u;variant<5u;++variant){std::array<double,3> total{samples[variant][0],samples[variant][1],samples[variant][2]},prefix{prefix_samples[variant][0],prefix_samples[variant][1],prefix_samples[variant][2]};std::sort(total.begin(),total.end());std::sort(prefix.begin(),prefix.end());
         std::cout<<"{\"type\":\"coarse_projection_full_route\",\"variant\":"<<variant<<",\"rows\":"<<rows<<",\"tokens\":"<<tokens<<",\"width\":"<<width<<",\"cells\":"<<cells<<",\"candidates\":"<<selected_counts[variant]<<",\"chunk\":"<<(variant==1u?64u:variant==3u?256u:variant?128u:0u)<<",\"fragments\":"<<(variant==4u?2u:variant?1u:0u)<<",\"complete_route_ms\":"<<total[1]<<",\"preparation_producer_selection_ms\":"<<prefix[1]<<",\"complete_samples_ms\":["<<samples[variant][0]<<","<<samples[variant][1]<<","<<samples[variant][2]<<"],\"preparation_producer_selection_samples_ms\":["<<prefix_samples[variant][0]<<","<<prefix_samples[variant][1]<<","<<prefix_samples[variant][2]<<"],\"warmups\":1,\"measured_attempts\":3,\"maximum_candidates_per_dispatch\":262144,\"bf16_mismatches\":0,\"canonical_interval_undercoverage\":0,\"selected_raw_mismatches\":0,\"independent_cpu_dots\":256,\"all_attempts_verified\":true,\"all_prepared_words_checked\":true,\"complete_candidate_permutation_checked\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"native_error_coefficient\":0.0000019073486328125,\"hardware_error_bound_proven\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}"<<std::endl;
