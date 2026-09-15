@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "kind": "fused_qk_probability_compile_failure",
+  "source": {
+    "canonical_source_record": "fused-qk-probability-native-source-r1.json",
+    "canonical_source_record_sha256": "40e68e0570fef4ad3daadd569cfc732390abdccc567cc3b866707546ef0d5d8b",
+    "documentation_snapshot_differences": {},
+    "source_commit": "ea4cd5d463c7c9b446f1018ee5444114e6124f85",
+    "repo": "D:/projects/AIMA-public-fused-qk-probability-20260915",
+    "seed": "D:/projects/AIMA-public-tool-recovery-r2-20260915",
+    "prerequisite_commit": "4fca963172e865beadfb6fba2371d503dba78426",
+    "bundle": "fused-qk-probability-ea4cd5d.bundle",
+    "bundle_sha256": "129fa860fd9c22e730b20a2def151b13347f138747c8e3623e2f451efc4460fd",
+    "script": "run-native-fused-qk-probability-r1.ps1",
+    "script_sha256": "b4631d8aa0a426121a9f5a0e9ef5a36c0f3f7defbe09468cac5f5158e4b46f4d",
+    "source_sha256": {
+      "native/providers/ck_fmha/fused_qk_probability.h": "e63b5e27d325fe1fd5f764781fced178a0c7f35015b51963d43d67f0fb2cfd87",
+      "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+      "benchmarks/correctness/current-portable-prefill-marker-filter-20260915.json": "eea90131ece161e1916a253dffd42ec97f5843d0508ac14932faf9829575b857"
+    },
+    "local_validation": {
+      "command": [
+        "make",
+        "c-smoke",
+        "public-hygiene",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 6.658778666518629,
+      "source_sha256": {
+        "native/providers/ck_fmha/fused_qk_probability.h": "e63b5e27d325fe1fd5f764781fced178a0c7f35015b51963d43d67f0fb2cfd87",
+        "tests/native/fused_qk_probability_selftest.cpp": "c8386686b14eab803cdbf2d2628f75f4e24f0944b2630625d64d33aafac811bb",
+        "benchmarks/correctness/current-portable-prefill-marker-filter-20260915.json": "eea90131ece161e1916a253dffd42ec97f5843d0508ac14932faf9829575b857"
+      },
+      "log": "fused-qk-probability-local-r1.log",
+      "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a",
+      "gpu_compiled": false,
+      "gpu_numerical_verified": false,
+      "product_dispatch_changed": false
+    }
+  },
+  "native_run": {
+    "name": "fused-qk-probability-build-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-fused-qk-probability-20260915\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "arguments": [
+        "-std=c++17",
+        "-O3",
+        "-DQRT_SM121_DPP_REDUCTION=1",
+        "-DQRT_SM121_COMPACT_NORMALIZE=1",
+        "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+        "--offload-arch=gfx1151",
+        "-L",
+        "D:\\projects\\AIMA-public-fused-qk-probability-20260915\\build\\fused-qk-probability",
+        "D:\\projects\\AIMA-public-fused-qk-probability-20260915\\tests\\native\\fused_qk_probability_selftest.cpp",
+        "-o",
+        "D:\\projects\\AIMA-public-fused-qk-probability-20260915\\build\\fused-qk-probability\\fused-qk-probability.exe",
+        "-lhipblaslt"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-fused-qk-probability-20260915",
+      "repo_commit": "ea4cd5d463c7c9b446f1018ee5444114e6124f85",
+      "command_file": "D:\\projects\\run-native-fused-qk-probability-r1.ps1",
+      "command_file_sha256": "b4631d8aa0a426121a9f5a0e9ef5a36c0f3f7defbe09468cac5f5158e4b46f4d",
+      "model": "none; generated QK numerical component",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "product_dispatch_changed": false,
+      "purpose": "Compare selected prepared decoded QK plus original online probability against fused ordered QK and probability. The same K16 carries, raw fallback, exponential lookup, reduction and denominator recurrence are retained. Full probability and scale bytes, guards, masked tails, independent CPU dots and immutable operands are checked. q8192 geometry repeats first1023 of7169 captured Q/K rows. Timed runs exclude reference comparisons; common preparation is reported. Component evidence only.",
+      "link_inputs": [
+        {
+          "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+          "file": "D:\\projects\\AIMA-public-fused-qk-probability-20260915\\build\\fused-qk-probability\\hipblaslt.lib"
+        }
+      ],
+      "compiler_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939"
+    },
+    "launch": {
+      "pid": 14208,
+      "utc": "2026-09-15T04:12:32.8840242Z",
+      "timeout_seconds": 180,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 1,
+    "wall_ms": 1360.887,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+    "canonical_raw_sha256": {
+      "dispatch.json": "09b3ce2ff9baa8c60e90daae847832fa0f067132f59c326aac11ad29f55d35e6",
+      "launch.json": "af045b388eadab55289600e6e08a7794e43828888a7129ce91f5ed5c5153340b",
+      "preflight.json": "0babffd84d41239e40f56e2d45ddb96432917b71e6faefca058acbced74d7953",
+      "product.stderr.log": "9703c43449efddaa14abaadc1859d1dea011ae144af4dd0c4fa38de2eac5f460",
+      "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "run-record.json": "f0fb4fb7b2aa2e62a1acc31ba3967ee3dbe13c8c63023dff18718c234e431e47",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "spec.json": "2cab709bfc283fdbc3fa43726fb4e3edeb633a384b4550badd75dc71b7c48bf8"
+    }
+  },
+  "diagnosis": "Candidate asserted head dimension128 although the established model constant is256. All arrays and loops already use that constant. The native compiler rejects before any GPU launch. Correct the assertion to256 and rebuild.",
+  "native_numerical_cases_completed": 0,
+  "product_dispatch_changed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

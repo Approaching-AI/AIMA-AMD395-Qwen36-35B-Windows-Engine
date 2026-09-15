@@ -18,7 +18,7 @@ __global__ void run(const uint16_t* query, const uint16_t* transposed_key,
     unsigned key_stride, const unsigned char* exp2_table, bool vllm_sum,
     unsigned prepared_query_start = 0u) {
     static_assert(Rows * 32u == attention::kThreads);
-    static_assert(attention::kHeadDim == 128u && attention::kExactTileTokens == 32u);
+    static_assert(attention::kHeadDim == 256u && attention::kExactTileTokens == 32u);
     __shared__ uint32_t qvalues[Rows][attention::kHeadDim];
     __shared__ uint32_t kvalues[attention::kHeadDim][32u];
     const unsigned local_row = threadIdx.x / 32u, lane = threadIdx.x % 32u;
