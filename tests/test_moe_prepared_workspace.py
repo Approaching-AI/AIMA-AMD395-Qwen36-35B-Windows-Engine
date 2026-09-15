@@ -15,6 +15,7 @@ class MoePreparedWorkspaceTests(unittest.TestCase):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
         allocations = function(s, 'bool allocate_optional_moe_prepared_replay()')
         allocations += '\n' + function(s, 'constexpr bool shared_replay_surface(')
+        allocations += '\n' + function(s, 'constexpr uint32_t shared_staged_columns(')
         allocations += '\n' + function(s, 'bool allocate_optional_moe_shared_replay()')
         scans = function(s, 'bool prepare_moe_staged_half(')
         scans += '\n' + function(s, 'bool launch_moe_l2(')
@@ -31,7 +32,7 @@ class MoePreparedWorkspaceTests(unittest.TestCase):
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void*;
 struct dim3 { unsigned x; explicit dim3(unsigned v):x(v){} };
-constexpr unsigned kNativeThreads=256;
+constexpr unsigned kNativeThreads=256,kHidden=2048,kIntermediate=512;
 enum class MoeL2 { Input, Router, SharedInput, SharedGate, SharedUp, SharedActivated,
                   SharedDown, RoutedGateUp, RoutedActivated, RoutedDown, Count };
 constexpr size_t kMoeL2Rows[]={8192,256,8192,512,512,8192,2048,262144,65536,524288};
@@ -45,6 +46,8 @@ struct State {
     bool staged_half_replay=false,staged_half_replay_active=false;
     bool scaled_significand_fallback=false;
     bool shared_prevalidated_float=false,shared_prevalidated_float_active=false;
+    bool shared_staged_half=false,shared_staged_half_active=false;
+    std::array<uint16_t*,10> shared_staged_operands{};
     std::array<uint32_t*,10> shared_replay_rows{};
     unsigned sm121_moe_absolute_error_ppb=1000;
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
@@ -120,8 +123,10 @@ int main() {
         launches=covered=staged_launches=cache_calls=0;last_staged=false;
         expected_rows=rows;expected_columns=columns;
         expected_staged=reinterpret_cast<qrt_sm121_staged_half_projection::Row*>(
-            surface==MoeL2::Input||surface==MoeL2::RoutedActivated
-                ?g_state.prepared_replay_inputs:g_state.prepared_replay_weights);
+            g_state.shared_staged_half_active&&shared_replay_surface(surface)
+                ? g_state.shared_staged_operands[size_t(surface)]
+                : surface==MoeL2::Input||surface==MoeL2::RoutedActivated
+                    ?g_state.prepared_replay_inputs:g_state.prepared_replay_weights);
         expected_flags=g_state.shared_prevalidated_float_active&&shared_replay_surface(surface)
             ? g_state.shared_replay_rows[size_t(surface)]
             : (surface==MoeL2::Input||surface==MoeL2::RoutedActivated)
@@ -248,6 +253,37 @@ int main() {
     assert(run(MoeL2::Input,8192,2048)&&covered==8192&&staged_launches==0);
     free_calls=0;drain_ok=false;assert(!release_prefix()&&free_calls==0);
     drain_ok=true;assert(release_prefix()&&free_calls==4);
+
+    const std::vector<size_t> shared_staged_bytes{32768,37748736,2048,2359296,2048,2359296,32768,9437184,8192,2359296};
+    for(unsigned fault=1;fault<=11;++fault){
+        g_state=State{};g_state.shared_prevalidated_float=true;g_state.shared_staged_half=true;
+        sizes.clear();free_calls=0;fail_allocation=fault;
+        assert(allocate_optional_moe_shared_replay()==(fault==11));
+        assert(sizes==std::vector<size_t>(shared_staged_bytes.begin(),shared_staged_bytes.begin()+(fault==11?10:fault)));
+        drain_ok=false;assert(!release_prefix()&&free_calls==0);
+        drain_ok=true;assert(release_prefix()&&free_calls==(fault==11?10:fault-1));
+    }
+    g_state.shared_prevalidated_float=g_state.shared_prevalidated_float_active=true;
+    g_state.shared_staged_half=g_state.shared_staged_half_active=true;
+    sizes.clear();fail_allocation=0;assert(allocate_optional_moe_shared_replay());expected_kernel=3;
+    assert(!g_state.prepared_replay_inputs&&!g_state.prepared_replay_weights);
+    for(auto surface:{MoeL2::SharedInput,MoeL2::SharedGate,MoeL2::SharedUp,MoeL2::SharedActivated,MoeL2::SharedDown}){
+        const unsigned rows=unsigned(kMoeL2Rows[size_t(surface)]),columns=shared_staged_columns(surface);
+        for(unsigned repeat=0;repeat<2;++repeat)assert(run(surface,rows,columns)&&staged_launches==1&&covered==rows);
+        assert(!run(surface,rows,columns==512?2048:512)&&staged_launches==0&&launches==0);
+        assert(!run(surface,rows+1,columns)&&staged_launches==0&&launches==0);
+        assert(!run(surface,0,columns)&&staged_launches==0&&launches==0);
+        auto* saved_operand=g_state.shared_staged_operands[size_t(surface)];g_state.shared_staged_operands[size_t(surface)]=nullptr;
+        assert(!run(surface,rows,columns)&&staged_launches==0&&launches==0);
+        g_state.shared_staged_operands[size_t(surface)]=saved_operand;
+        fail_staged=true;assert(!run(surface,rows,columns)&&staged_launches==1&&launches==0&&cache_calls==0);fail_staged=false;
+        g_state.shared_prevalidated_float_active=false;assert(!run(surface,rows,columns)&&staged_launches==0);g_state.shared_prevalidated_float_active=true;
+        g_state.scaled_l2=true;assert(!run(surface,rows,columns)&&staged_launches==0);g_state.scaled_l2=false;
+    }
+    g_state.shared_staged_half_active=false;
+    assert(run(MoeL2::SharedInput,8192,2048)&&staged_launches==0&&covered==8192);
+    free_calls=0;drain_ok=false;assert(!release_prefix()&&free_calls==0);
+    drain_ok=true;assert(release_prefix()&&free_calls==10);
 }
 '''
         with tempfile.TemporaryDirectory(prefix='qrt-moe-prepared-') as tmp:

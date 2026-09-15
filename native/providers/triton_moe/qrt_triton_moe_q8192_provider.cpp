@@ -1713,6 +1713,13 @@ constexpr bool shared_replay_surface(MoeL2 surface) {
     return surface == MoeL2::SharedInput || surface == MoeL2::SharedGate ||
         surface == MoeL2::SharedUp || surface == MoeL2::SharedActivated || surface == MoeL2::SharedDown;
 }
+constexpr uint32_t shared_staged_columns(MoeL2 surface) {
+    return surface == MoeL2::SharedActivated || surface == MoeL2::SharedDown
+        ? kIntermediate : shared_replay_surface(surface) ? kHidden : 0u;
+}
+constexpr size_t kSharedStagedOperandBytes =
+    (size_t(kTokens) * (kHidden + kIntermediate) + 3u * size_t(kHidden) * kIntermediate) /
+    16u * sizeof(qrt_sm121_staged_half_projection::Row);
 constexpr size_t kSharedReplayFlagBytes =
     (2u * kTokens + 2u * kIntermediate + kHidden) * sizeof(uint32_t);
 struct MoeWeightMetadata {
@@ -1918,6 +1925,8 @@ struct ProviderState {
     bool staged_half_replay = false, staged_half_replay_active = false;
     bool scaled_significand_fallback = false;
     bool shared_prevalidated_float = false, shared_prevalidated_float_active = false;
+    bool shared_staged_half = false, shared_staged_half_active = false;
+    std::array<uint16_t *, static_cast<size_t>(MoeL2::Count)> shared_staged_operands{};
     // Shared and routed pipelines overlap. Metadata must never share arenas.
     std::array<uint32_t *, static_cast<size_t>(MoeL2::Count)> shared_replay_rows{};
     bool partition_replay = false;
@@ -12054,6 +12063,9 @@ bool release_state() {
     for (uint32_t *buffer : g_state.shared_replay_rows) {
         if (buffer != nullptr) (void)hipFree(buffer);
     }
+    for (uint16_t *buffer : g_state.shared_staged_operands) {
+        if (buffer != nullptr) (void)hipFree(buffer);
+    }
     release_matrix_plan(&g_state.shared_down_plan);
     release_matrix_plan(&g_state.shared_projection_plan);
     release_matrix_plan(&g_state.shared_gate_plan);
@@ -12407,15 +12419,19 @@ int copy_registered_moe_weight_metadata(const uint16_t* values, MoeL2 surface,
 
 bool prepare_moe_staged_half(const uint16_t* values, MoeL2 surface,
     uint32_t rows, uint32_t columns, hipStream_t stream) {
-    if(!g_state.staged_half_replay_active) return true;
+    const bool shared = g_state.shared_staged_half_active && shared_replay_surface(surface);
+    if(!shared && !g_state.staged_half_replay_active) return true;
     const bool input = surface == MoeL2::Input || surface == MoeL2::RoutedActivated;
     const bool weight = surface == MoeL2::RoutedGateUp || surface == MoeL2::RoutedDown;
-    if(!input && !weight) return true;
+    if(!shared && !input && !weight) return true;
     auto* output = reinterpret_cast<qrt_sm121_staged_half_projection::Row*>(
+        shared ? g_state.shared_staged_operands[static_cast<size_t>(surface)] :
         input ? g_state.prepared_replay_inputs : g_state.prepared_replay_weights);
     if(!values || !output || !rows || !columns || columns % 16u ||
-        rows > (input ? kMoePreparedInputRows : kMoePreparedWeightRows) ||
-        size_t(rows) * columns > (input ? kMoePreparedInputElements : kMoePreparedWeightElements)) {
+        (shared ? (!g_state.shared_prevalidated_float_active || g_state.scaled_l2 ||
+            rows > kMoeL2Rows[static_cast<size_t>(surface)] || columns != shared_staged_columns(surface)) :
+            (rows > (input ? kMoePreparedInputRows : kMoePreparedWeightRows) ||
+             size_t(rows) * columns > (input ? kMoePreparedInputElements : kMoePreparedWeightElements)))) {
         set_error_text("invalid compact staged MoE operand view"); return false;
     }
     const size_t groups = size_t(rows) * (columns / 16u);
@@ -12515,6 +12531,12 @@ hipError_t launch_moe_correction(Kernel kernel, uint32_t blocks, hipStream_t str
             bounds.prepared_input_rows = g_state.shared_replay_rows[static_cast<size_t>(input)];
             bounds.prepared_weight_rows = g_state.shared_replay_rows[static_cast<size_t>(weights)];
             if (!bounds.prepared_input_rows || !bounds.prepared_weight_rows) return hipErrorInvalidValue;
+            if (g_state.shared_staged_half_active) {
+                bounds.staged_half_replay = true;
+                bounds.prepared_input = g_state.shared_staged_operands[static_cast<size_t>(input)];
+                bounds.prepared_weights = g_state.shared_staged_operands[static_cast<size_t>(weights)];
+                if (!bounds.prepared_input || !bounds.prepared_weights) return hipErrorInvalidValue;
+            }
         }
         hipLaunchKernelGGL(kernel, dim3(count), dim3(kNativeThreads), 0, stream,
                           arguments..., bounds);
@@ -12639,6 +12661,11 @@ bool allocate_optional_moe_shared_replay() {
         if (shared_replay_surface(static_cast<MoeL2>(i)) &&
             !allocate(&g_state.shared_replay_rows[i], kMoeL2Rows[i] * sizeof(uint32_t),
                 "hipMalloc(shared MoE replay flags)")) return false;
+        if (g_state.shared_staged_half && shared_replay_surface(static_cast<MoeL2>(i)) &&
+            !allocate(&g_state.shared_staged_operands[i],
+                kMoeL2Rows[i] * (shared_staged_columns(static_cast<MoeL2>(i)) / 16u) *
+                    sizeof(qrt_sm121_staged_half_projection::Row),
+                "hipMalloc(shared MoE staged operands)")) return false;
     }
     return true;
 }
@@ -15729,6 +15756,10 @@ bool launch_shared_pipeline(
             qrt_sm121_prefill_projection::Stage::SharedGateUp, token_count)) &&
         !qrt_sm121_prefill_projection::changes_dot(qrt_sm121_prefill_projection::plan(
             qrt_sm121_prefill_projection::Stage::SharedDown, token_count));
+    g_state.shared_staged_half_active = g_state.shared_staged_half && g_state.shared_prevalidated_float_active;
+    if (g_state.shared_staged_half_active)
+        std::fprintf(stderr, "BATCH_MARK moe_shared_staged_half tokens=%u lanes=4 staging_groups=2 operand_bytes=%zu separate_stream_operands=1 refreshed_each_layer=1 canonical_k16=1 original_fallback=1\n",
+            token_count, kSharedStagedOperandBytes);
     if (g_state.shared_prevalidated_float_active)
         std::fprintf(stderr, "BATCH_MARK moe_shared_prevalidated_float tokens=%u lanes=4 workspace_bytes=%zu separate_stream_metadata=1 fused_norm_scan=1 canonical_k16=1 original_fallback=1\n",
             token_count, kSharedReplayFlagBytes);
@@ -16870,6 +16901,14 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
         QRT_TRITON_MOE_Q1024_EXACT_SHARED || QRT_TRITON_MOE_FULL_SHARED_HAWKEYE ||
         !g_state.sm121_moe_absolute_error_ppb || g_state.scaled_l2)) {
         set_error_text("shared prevalidated replay requires q8192 batched correction and original L2 scans"); return 0;
+    }
+    const char* shared_staged = std::getenv("QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY");
+    if (shared_staged && *shared_staged && std::strcmp(shared_staged,"0") && std::strcmp(shared_staged,"1")) {
+        set_error_text("QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.shared_staged_half = shared_staged && std::strcmp(shared_staged,"1") == 0;
+    if (g_state.shared_staged_half && !g_state.shared_prevalidated_float) {
+        set_error_text("shared staged half replay requires shared prevalidated replay"); return 0;
     }
     const char* partition_replay = std::getenv("QRT_QWEN36_MOE_PARTITION_REPLAY");
     if (partition_replay && *partition_replay && std::strcmp(partition_replay,"0") && std::strcmp(partition_replay,"1")) {

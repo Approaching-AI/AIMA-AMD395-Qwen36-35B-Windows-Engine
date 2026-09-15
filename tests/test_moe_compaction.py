@@ -149,7 +149,8 @@ struct State {
     bool float_replay_active=false,prevalidated_float_active=false,partition_replay=false;
     bool staged_half_replay_active=false;
     bool scaled_significand_fallback=false;
-    bool shared_prevalidated_float_active=false;
+    bool shared_prevalidated_float_active=false,shared_staged_half_active=false;
+    std::array<uint16_t*,9> shared_staged_operands{};
     std::array<uint32_t*,9> shared_replay_rows{};
     uint16_t *prepared_replay_weights=nullptr,*prepared_replay_inputs=nullptr;
     uint32_t *prepared_replay_weight_rows=nullptr,*prepared_replay_input_rows=nullptr;
@@ -319,6 +320,31 @@ int main() {
     assert(validated_calls>0&&fallback_calls>0&&staged_calls>0);
     Data d(19);g_state.moe_compacted_count=nullptr;api_calls=0;
     assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
+
+    g_state=State{};g_state.shared_prevalidated_float_active=true;g_state.shared_staged_half_active=true;
+    std::atomic<unsigned> shared_calls{0};
+    for(auto pair:{std::pair<MoeL2,MoeL2>{MoeL2::SharedInput,MoeL2::SharedGate},
+                  {MoeL2::SharedInput,MoeL2::SharedUp},{MoeL2::SharedActivated,MoeL2::SharedDown}}){
+        const auto i=size_t(pair.first),w=size_t(pair.second);
+        unsigned fi=1,fw=1;uint16_t xi=17,xw=23;
+        g_state.shared_replay_rows[i]=&fi;g_state.shared_replay_rows[w]=&fw;
+        g_state.shared_staged_operands[i]=&xi;g_state.shared_staged_operands[w]=&xw;
+        auto inspect=[&](MoeCorrectionBounds b){
+            assert(b.prevalidated_float&&b.staged_half_replay&&b.prepared_input==&xi&&b.prepared_weights==&xw);
+            assert(b.prepared_input_rows==&fi&&b.prepared_weight_rows==&fw);++shared_calls;
+        };
+        shared_calls=0;api_calls=0;
+        assert(launch_moe_correction(inspect,1,wanted_stream,pair.first,pair.second)==hipSuccess&&shared_calls==kNativeThreads);
+        for(bool input:{true,false}){
+            g_state.shared_staged_operands[input?i:w]=nullptr;api_calls=0;
+            assert(launch_moe_correction(inspect,1,wanted_stream,pair.first,pair.second)==hipErrorInvalidValue&&api_calls==0);
+            g_state.shared_staged_operands[input?i:w]=input?&xi:&xw;
+        }
+        g_state.shared_staged_half_active=false;
+        auto disabled=[&](MoeCorrectionBounds b){assert(b.prevalidated_float&&!b.staged_half_replay&&!b.prepared_input&&!b.prepared_weights);};
+        assert(launch_moe_correction(disabled,1,wanted_stream,pair.first,pair.second)==hipSuccess);
+        g_state.shared_staged_half_active=true;
+    }
 }
 '''
         with tempfile.TemporaryDirectory(prefix='qrt-moe-compaction-') as tmp:
