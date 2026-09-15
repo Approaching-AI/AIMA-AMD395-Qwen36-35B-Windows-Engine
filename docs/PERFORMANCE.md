@@ -2,6 +2,33 @@
 
 ## Current unreleased measurements, 2026-09-15
 
+Source `4a5a317` tests an actual default-off OUT residual filter inside the
+existing candidate collector. It keeps the original matrix, PPB/Cauchy and
+midpoint envelope, mandatory prefixes and retained K16 arithmetic. A selected
+cell can skip replay only when its entire projection interval yields one
+BF16 residual; unrounded RMSNorm variance is not certified. No extra matrix
+or workspace is allocated. Full local checks pass 54 Rust/424 Python (two
+skips), C/q16 ABI, clippy and hygiene. Sanitized actual-owner tests exercise
+the full16777216-cell geometry, mixed retained/removed candidates, mandatory
+prefixes and five injected synchronization failures; interval tests cover
+130560 cases. Native build passes in92673.142 ms with all guards passing.
+Evidence: `benchmarks/correctness/out-residual-filter-native-20260915.json`,
+SHA256 `bc3b14caafb4acbd18edfda7f44c294de35a21a82ad26acc776280626c11b38d`.
+
+The real same-DLL q8192/out512 pair rejects the enabled filter. Disabled
+matches all512 GB10 IDs; enabled first diverges at index1 (expected255,
+actual248) and matches only42 positions. Both first tokens/logits remain
+144/10.375, and all512 callbacks in each run match its own output. Enabled
+exits6 at the numerical gate with all host guards passing. Disabled/enabled
+TTFT is30307.294601/28301.5993 ms, TPOT101.024893/100.519353 ms and load
+21532.9574/21369.1028 ms. Across40 OUT calls the filter retains64785461
+candidates; total dense candidates change432889515 to332708494 and exact
+dispatches1792 to1414. The observed2005.695301 ms TTFT reduction cannot be
+retained because continuation fails. Keep the option off and move to a
+structural route preserving the numerical boundary. Evidence:
+`benchmarks/correctness/out-residual-filter-q8192-20260915.json`, SHA256
+`fa90c8c04e931b592bde47d4fcf0c8398fca15746fad34131acd12d72740f771`.
+
 Source `1d14571` adds a default-off, read-only OUT consumer interval audit.
 All original corrections and model inputs remain in use. Host sanitizers
 cover 130560 interval edges, 74576 enumerated BF16 values and 24 injected
