@@ -2,9 +2,10 @@
 #define QRT_FLA_INTERVAL_MATRICES_H
 #include "blackwell_scalar_state.h"
 #include "consumer_interval.h"
+#include "coarse_interval.h"
 
-// Isolated component route: original ordered K16 intervals and exact fallback
-// at BF16 consumers. No production dispatcher includes this header.
+// Isolated component routes: K16 intervals or C64 envelopes, with exact
+// fallback at BF16 consumers. No production dispatcher includes this header.
 namespace qrt_fla_interval {
 namespace scalar=qrt_fla_blackwell_scalar;
 namespace consumer=qrt_fla_consumer_interval;
@@ -16,8 +17,52 @@ using B16=unsigned short __attribute__((ext_vector_type(16)));
 using F8=float __attribute__((ext_vector_type(8)));
 struct Ranges{F8 lower,upper;};
 template<unsigned Width,unsigned Rows,unsigned Pitch,unsigned Columns>
+__device__ __forceinline__ Ranges coarse_matrix(const uint32_t (&left)[Rows][Pitch],
+    const uint32_t (&right)[Width/2u][Columns],unsigned row_base,unsigned column_base) {
+    static_assert(Width%64u==0u);
+    namespace coarse=qrt_sm121_coarse_projection_bound;
+    const unsigned lane=threadIdx.x%32u;
+    F8 centers{},errors{};unsigned left_ok=1u,right_ok=1u;
+#pragma unroll 1
+    for(unsigned base=0u;base<Width;base+=64u) {
+        F8 products{},absolute{};
+#pragma unroll 1
+        for(unsigned group=0u;group<4u;++group) {
+            B16 a{},b{},aa{},bb{};
+#pragma unroll
+            for(unsigned k=0u;k<16u;++k) {
+                const unsigned feature=base+group*16u+k;
+                a[k]=uint16_t(left[row_base+lane%16u][feature/2u]>>(feature%2u*16u));
+                b[k]=uint16_t(right[feature/2u][column_base+lane%16u]>>(feature%2u*16u));
+                aa[k]=a[k]&0x7fffu;bb[k]=b[k]&0x7fffu;
+                left_ok&=unsigned(coarse::eligible(a[k]));right_ok&=unsigned(coarse::eligible(b[k]));
+            }
+            const F8 zero{};
+            // Each native operation starts at zero. These explicit FP32 sums
+            // are covered by advance<4>, without changing native error bounds.
+            products+=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a,b,zero);
+            absolute+=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(aa,bb,zero);
+        }
+#pragma unroll
+        for(unsigned item=0u;item<8u;++item) {
+            const auto next=coarse::advance<4u>({centers[item],errors[item]},products[item],absolute[item]);
+            centers[item]=next.center;errors[item]=next.error;
+        }
+    }
+    Ranges ranges{};
+#pragma unroll
+    for(unsigned item=0u;item<8u;++item) {
+        const unsigned source=2u*item+lane/16u;
+        const auto result=qrt_fla_coarse_interval::range({centers[item],errors[item]},
+            bool(__shfl(left_ok,source)&&right_ok));
+        ranges.lower[item]=result.lower;ranges.upper[item]=result.upper;
+    }
+    return ranges;
+}
+template<unsigned Width,bool Coarse=false,unsigned Rows,unsigned Pitch,unsigned Columns>
 __device__ __forceinline__ Ranges matrix(const uint32_t (&left)[Rows][Pitch],
     const uint32_t (&right)[Width/2u][Columns],unsigned row_base,unsigned column_base) {
+    if constexpr(Coarse)return coarse_matrix<Width>(left,right,row_base,column_base);
     const unsigned lane=threadIdx.x%32u;
     Ranges ranges{};
 #pragma unroll 1
@@ -57,6 +102,7 @@ __device__ __forceinline__ void report(unsigned admitted,unsigned considered,uns
 }
 // A CTA owns every row of its eight V columns and captures all V before
 // any U write. The production U=V alias therefore keeps its original owner.
+template<bool Coarse=false>
 __global__ void wu_kernel(const uint16_t* k,const uint16_t* v,const uint16_t* beta,
     const uint16_t* inverse,const float* g,uint16_t* w,uint16_t* u,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -100,7 +146,7 @@ __global__ void wu_kernel(const uint16_t* k,const uint16_t* v,const uint16_t* be
     }
     __syncthreads();
     const unsigned wave=tid/32u,lane=tid%32u,row_base=(wave%4u)*16u;
-    const auto ranges=matrix<64u>(inv,wave<4u?keys:values,row_base,0u);
+    const auto ranges=matrix<64u,Coarse>(inv,wave<4u?keys:values,row_base,0u);
     unsigned admitted=0u,considered=0u;
     for(unsigned item=0u;item<8u;++item) {
         const unsigned row=row_base+2u*item+lane/16u,column=lane%16u;
@@ -117,6 +163,7 @@ __global__ void wu_kernel(const uint16_t* k,const uint16_t* v,const uint16_t* be
 
 // Packed feature-major right operands avoid repeated row-stride LDS bank
 // collisions. Padding the left row pitch separates adjacent query banks.
+template<bool Coarse=false>
 __global__ void output_kernel(const uint16_t* q,const uint16_t* v,const uint16_t* h,
     const float* g,const uint16_t* scores,float* output,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -169,8 +216,8 @@ __global__ void output_kernel(const uint16_t* q,const uint16_t* v,const uint16_t
     }
     __syncthreads();
     const unsigned wave=tid/32u,lane=tid%32u,row_base=(wave/2u)*16u,column_base=(wave%2u)*16u;
-    const auto prior=matrix<128u>(queries,checkpoint,row_base,column_base);
-    const auto local=matrix<64u>(score_rows,values,row_base,column_base);
+    const auto prior=matrix<128u,Coarse>(queries,checkpoint,row_base,column_base);
+    const auto local=matrix<64u,Coarse>(score_rows,values,row_base,column_base);
     unsigned admitted=0u,considered=0u;
     for(unsigned item=0u;item<8u;++item) {
         const unsigned row=row_base+2u*item+lane/16u,column=column_base+lane%16u;
@@ -192,6 +239,7 @@ __global__ void output_kernel(const uint16_t* q,const uint16_t* v,const uint16_t
 }
 // Retain complete state columns throughout one bounded segment. Calls that
 // capture prefix checkpoints continue to use their original implementation.
+template<bool Coarse=false>
 __global__ void state_kernel(const uint16_t* k,const uint16_t* u,const uint16_t* w,
     const float* g,uint16_t* h,uint16_t* v_new,float* state,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -244,7 +292,7 @@ __global__ void state_kernel(const uint16_t* k,const uint16_t* u,const uint16_t*
         const unsigned wave=tid/32u,lane=tid%32u;
         if(wave<4u) {
             const unsigned row_base=wave*16u;
-            const auto ranges=matrix<128u>(weights,rounded,row_base,0u);
+            const auto ranges=matrix<128u,Coarse>(weights,rounded,row_base,0u);
             for(unsigned item=0u;item<8u;++item) {
                 const unsigned row=row_base+2u*item+lane/16u,column=lane%16u;
                 uint16_t value=0u;
