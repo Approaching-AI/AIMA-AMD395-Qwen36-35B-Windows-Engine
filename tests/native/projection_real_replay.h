@@ -16,8 +16,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     constexpr unsigned int source_tokens = 7169u;
     const unsigned rows = output_projection ? 2048u : 8192u, k = output_projection ? 4096u : 2048u;
     const char* cooperative = std::getenv("QRT_PROJECTION_SAFETY_COOPERATIVE_HALF_REPLAY");
-    require(!output_projection || (extend_q8192 && ppb == 10000u && cooperative &&
-        !std::strcmp(cooperative,"1")), "real OUT requires the full-shape cooperative comparison and original FA bound");
+    const char* staged_f32_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_HALF_F32_REPLAY");
+    const bool staged_f32_replay = staged_f32_option && !std::strcmp(staged_f32_option,"1");
+    require(!output_projection || (extend_q8192 && ppb == 10000u &&
+        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay)),
+        "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
     auto inputs = read_replay_tensor<uint16_t>(input_path, static_cast<size_t>(source_tokens) * k, kBf16Guard);
@@ -109,7 +112,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((cooperative_half_replay || blocked_half_replay || staged_half_replay || scaled_half_replay || scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay || decoded_replay || interleaved_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if ((staged_f32_replay || cooperative_half_replay || blocked_half_replay || staged_half_replay || scaled_half_replay || scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay || decoded_replay || interleaved_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -126,6 +129,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (staged_f32_replay) {
+        run_staged_half_f32_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
+        return;
+    }
     if (cooperative_half_replay) {
         run_cooperative_half_projection_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
