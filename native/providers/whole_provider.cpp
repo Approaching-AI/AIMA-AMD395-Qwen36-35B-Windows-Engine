@@ -38590,6 +38590,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
 
 #include "q8192_out_matrix_shadow_audit.h"
 #include "q8192_out_l1_shadow_audit.h"
+#include "q8192_out_consumer_audit.h"
 
 // GB10's cuBLASLt BF16 BA projection selects an output-type split-K
 // reduction for the product shape M=2560, N=64, K=2048.  The live algorithm
@@ -123445,6 +123446,15 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         }
         }
         if (!complete_linear_phase("output_projection")) goto cleanup;
+        if (!fail_hip(qrt_out_consumer_audit::run(
+                device_out_weight, device_gated_bf16, device_out_bf16,
+                device_previous, device_post_norm_weight,
+                device_gfx1151_sm121_rsqrt_correction, target_token_count,
+                exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
+                0, prefix + "_linear_consumer", use_q65536_vllm_bf16_residual_norm,
+                exact_arbitrary_early_out_hawkeye_terminal_diagnostic),
+                prefix + "_out_consumer_audit")) goto cleanup;
         if (use_q262144_staged_linear_workspace) {
             std::cerr
                 << "BATCH_MARK repeated_bf16_pointwise_fusion"
@@ -134167,6 +134177,19 @@ bool run_full_attention_prefill_resident_core_for_targets(
             return false;
         }
         if (!record_compact_ck_profile_event(6u, "output_projection")) {
+            cleanup();
+            return false;
+        }
+        if (!check_hip(qrt_out_consumer_audit::run(
+                device_output_weight, device_score_bf16, device_output_projection_bf16,
+                device_selected_previous, device_post_norm_weight,
+                device_gfx1151_sm121_rsqrt_correction, target_tokens_u32,
+                (std::min)(32768u, env_u32_or_default(
+                    "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS", 0u)),
+                (std::min)(1000000u, env_u32_or_default(
+                    "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB", 0u)),
+                0, prefix + "_full_consumer", use_compact_ck_bf16 && use_q65536_vllm_bf16_residual_norm),
+                prefix + "_out_consumer_audit", &run->failure_stage, &run->failure)) {
             cleanup();
             return false;
         }
