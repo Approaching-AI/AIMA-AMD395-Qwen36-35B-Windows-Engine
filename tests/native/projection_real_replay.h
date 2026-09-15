@@ -17,6 +17,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const unsigned rows = output_projection ? 2048u : 8192u, k = output_projection ? 4096u : 2048u;
     const char* coarse_option = std::getenv("QRT_PROJECTION_SAFETY_COARSE_INTERVAL");
     const bool coarse_interval = coarse_option && !std::strcmp(coarse_option,"1");
+    const char* exponent_loss_option = std::getenv("QRT_PROJECTION_SAFETY_EXPONENT_LOSS");
+    const bool exponent_loss = exponent_loss_option && !std::strcmp(exponent_loss_option,"1");
     const char* owner_option = std::getenv("QRT_PROJECTION_SAFETY_COARSE_OWNER");
     const bool coarse_owner = owner_option && !std::strcmp(owner_option,"1");
     const char* dominant_option = std::getenv("QRT_PROJECTION_SAFETY_DOMINANT_HALF_REPLAY");
@@ -155,6 +157,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     }
     if (coarse_interval) {
         run_coarse_interval_projection(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k,ppb);
+        return;
+    }
+    if (exponent_loss) {
+        run_exponent_loss_projection(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k,ppb);
         return;
     }
