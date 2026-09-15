@@ -23,6 +23,9 @@ class FlaScalarMatrixLaunchTests(unittest.TestCase):
 #include <cstring>
 #include <initializer_list>
 #include <tuple>
+#include <type_traits>
+#include "native/providers/gdn/coarse_interval_policy.h"
+namespace qrt_fla_interval { template<bool C,bool A>void wu_kernel(){} template<bool C,bool A>void state_kernel(){} template<bool C,bool A>void output_kernel(){} }
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void*;
 struct dim3 { unsigned x,y,z; dim3(unsigned a=1,unsigned b=1,unsigned c=1):x(a),y(b),z(c) {} };
@@ -37,12 +40,18 @@ void(*kernel_seen)()=nullptr;hipStream_t stream_seen=nullptr;
 dim3 grid_seen,threads_seen;bool fail=false;
 template<class... Args> void record(void(*kernel)(),dim3 grid,dim3 block,unsigned,hipStream_t stream,Args... args) {
     ++launches;kernel_seen=kernel;grid_seen=grid;threads_seen=block;stream_seen=stream;
-    count_seen=std::get<sizeof...(Args)-2>(std::make_tuple(args...));
+    const auto values=std::make_tuple(args...);
+    if constexpr(sizeof...(Args)==8u)count_seen=std::get<6>(values);
+    else if constexpr(sizeof...(Args)==10u)count_seen=std::get<7>(values);
+    else if constexpr(std::is_integral_v<std::tuple_element_t<6,decltype(values)>>)count_seen=std::get<6>(values);
+    else count_seen=std::get<7>(values);
 }
+#define HIP_KERNEL_NAME(...) __VA_ARGS__
 #define hipLaunchKernelGGL(kernel,...) record(kernel,__VA_ARGS__)
 hipError_t hipGetLastError() { ++queries;return fail?hipErrorUnknown:hipSuccess; }
 ''' + wu + output + r'''
 int main() {
+    unsetenv("QRT_FLA_GDN_COARSE_INTERVAL");
     unsetenv("QRT_FLA_GDN_SCALAR_FLOAT_MATRICES");assert(qrt_fla_blackwell_scalar::mode()==0);
     for (const char* v:{"","0","1","2","-1","01","1 ","true"}) {
         setenv("QRT_FLA_GDN_SCALAR_FLOAT_MATRICES",v,1);
@@ -73,7 +82,7 @@ int main() {
             path = Path(tmp)
             (path / "main.cpp").write_text(code)
             subprocess.run([os.environ.get("CXX", "clang++"), "-std=c++17", "-O1",
-                            "-fsanitize=address,undefined", str(path / "main.cpp"),
+                            "-fsanitize=address,undefined", "-I", str(ROOT), str(path / "main.cpp"),
                             "-o", str(path / "check")], check=True, capture_output=True,
                            text=True, timeout=30)
             subprocess.run([str(path / "check")], check=True, capture_output=True,

@@ -22,6 +22,8 @@ class FlaScalarStateLaunchTests(unittest.TestCase):
 #include <cstring>
 #include <initializer_list>
 #include <tuple>
+#include "native/providers/gdn/coarse_interval_policy.h"
+namespace qrt_fla_interval { template<bool C,bool A>void wu_kernel(){} template<bool C,bool A>void state_kernel(){} template<bool C,bool A>void output_kernel(){} }
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void*;
 struct dim3 { unsigned x,y,z; dim3(unsigned a=1,unsigned b=1,unsigned c=1):x(a),y(b),z(c) {} };
@@ -44,6 +46,7 @@ template<class... Args> void record(void(*kernel)(),dim3 grid,dim3 block,unsigne
 hipError_t hipGetLastError() { ++queries;return fail?hipErrorUnknown:hipSuccess; }
 ''' + launch + r'''
 int main() {
+    unsetenv("QRT_FLA_GDN_COARSE_INTERVAL");
     unsetenv("QRT_FLA_GDN_SCALAR_FLOAT_STATE");assert(qrt_fla_blackwell_scalar::state_columns()==0);
     for (const char* value:{"","0","4","8","1","-1","04","8 ","true"}) {
         setenv("QRT_FLA_GDN_SCALAR_FLOAT_STATE",value,1);
@@ -73,7 +76,7 @@ int main() {
             path = Path(tmp)
             (path / "main.cpp").write_text(code)
             subprocess.run([os.environ.get("CXX", "clang++"), "-std=c++17", "-O1",
-                            "-fsanitize=address,undefined", str(path / "main.cpp"),
+                            "-fsanitize=address,undefined", "-I", str(ROOT), str(path / "main.cpp"),
                             "-o", str(path / "check")], check=True, capture_output=True,
                            text=True, timeout=30)
             subprocess.run([str(path / "check")], check=True, capture_output=True,

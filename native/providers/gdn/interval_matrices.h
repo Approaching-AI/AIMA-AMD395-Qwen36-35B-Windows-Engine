@@ -4,8 +4,8 @@
 #include "consumer_interval.h"
 #include "coarse_interval.h"
 
-// Isolated component routes: K16 intervals or C64 envelopes, with exact
-// fallback at BF16 consumers. No production dispatcher includes this header.
+// K16 intervals or C64 envelopes, with exact fallback at BF16 consumers.
+// Product selection is opt-in; optional diagnostic counters are compiled out.
 namespace qrt_fla_interval {
 namespace scalar=qrt_fla_blackwell_scalar;
 namespace consumer=qrt_fla_consumer_interval;
@@ -100,9 +100,9 @@ __device__ __forceinline__ void report(unsigned admitted,unsigned considered,uns
         const size_t block=(size_t(blockIdx.z)*gridDim.y+blockIdx.y)*gridDim.x+blockIdx.x;
         statistics[block*2u]=a;statistics[block*2u+1u]=c;}
 }
-// A CTA owns every row of its eight V columns and captures all V before
+// A CTA owns every row of its sixteen V columns and captures all V before
 // any U write. The production U=V alias therefore keeps its original owner.
-template<bool Coarse=false>
+template<bool Coarse=false,bool Audit=true>
 __global__ void wu_kernel(const uint16_t* k,const uint16_t* v,const uint16_t* beta,
     const uint16_t* inverse,const float* g,uint16_t* w,uint16_t* u,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -158,12 +158,12 @@ __global__ void wu_kernel(const uint16_t* k,const uint16_t* v,const uint16_t* be
             (wave<4u?w:u)[index]=result;admitted+=unsigned(accepted);++considered;
         }
     }
-    report(admitted,considered,statistics);
+    if constexpr(Audit)report(admitted,considered,statistics);
 }
 
 // Packed feature-major right operands avoid repeated row-stride LDS bank
 // collisions. Padding the left row pitch separates adjacent query banks.
-template<bool Coarse=false>
+template<bool Coarse=false,bool Audit=true>
 __global__ void output_kernel(const uint16_t* q,const uint16_t* v,const uint16_t* h,
     const float* g,const uint16_t* scores,float* output,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -235,11 +235,11 @@ __global__ void output_kernel(const uint16_t* q,const uint16_t* v,const uint16_t
             admitted+=unsigned(accepted);++considered;
         }
     }
-    report(admitted,considered,statistics);
+    if constexpr(Audit)report(admitted,considered,statistics);
 }
 // Retain complete state columns throughout one bounded segment. Calls that
 // capture prefix checkpoints continue to use their original implementation.
-template<bool Coarse=false>
+template<bool Coarse=false,bool Audit=true>
 __global__ void state_kernel(const uint16_t* k,const uint16_t* u,const uint16_t* w,
     const float* g,uint16_t* h,uint16_t* v_new,float* state,unsigned count,
     const unsigned char* table,unsigned* statistics) {
@@ -326,7 +326,7 @@ __global__ void state_kernel(const uint16_t* k,const uint16_t* u,const uint16_t*
         }
         __syncthreads();
     }
-    report(admitted,considered,statistics);
+    if constexpr(Audit)report(admitted,considered,statistics);
     for (unsigned cell=tid;cell<Columns*128u;cell+=threads)
         state[(head*128u+first_column+cell/128u)*128u+cell%128u]=current[cell/128u][cell%128u];
 }

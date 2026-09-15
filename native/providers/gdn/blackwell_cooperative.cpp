@@ -2,6 +2,8 @@
 #include "blackwell_scalar_matrices.h"
 #include "blackwell_scalar_state.h"
 #include "fused_state_output.h"
+#include "interval_matrices.h"
+#include "coarse_interval_policy.h"
 #include "blackwell_accumulator.h"
 #include "sm121_exp2_table.h"
 #include "../moe_accumulator/sm121_subgroup.h"
@@ -180,7 +182,17 @@ hipError_t wu(const uint16_t* k, const uint16_t* v, const uint16_t* beta,
               const uint16_t* inverse, const float* g, uint16_t* w, uint16_t* u,
               unsigned count, const unsigned char* table, hipStream_t stream) {
     const int scalar_mode = qrt_fla_blackwell_scalar::mode();
-    if (scalar_mode < 0) return hipErrorInvalidValue;
+    const int coarse_mode=qrt_fla_coarse_policy::mode();
+    if (scalar_mode < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    if (qrt_fla_coarse_policy::selected(coarse_mode,scalar_mode==1,count)) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_interval::wu_kernel<true,false>),
+            dim3(8u,32u,(count+63u)/64u),dim3(threads),0u,stream,
+            k,v,beta,inverse,g,w,u,count,table,static_cast<unsigned*>(nullptr));
+        const hipError_t status=hipGetLastError();
+        if(status==hipSuccess)std::fprintf(stderr,
+            "FLA_COARSE_INTERVAL operation=wu tokens=%u chunk=64 exact_fallback=1 additional_device_bytes=0\n",count);
+        return status;
+    }
     if (scalar_mode) {
         hipLaunchKernelGGL(qrt_fla_blackwell_scalar::wu_kernel,
             dim3(128u / tile_columns, 32u, (count + 63u) / 64u), dim3(threads),
@@ -204,7 +216,17 @@ hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const
                   const uint16_t* scores, float* result, unsigned count,
                   const unsigned char* table, hipStream_t stream) {
     const int scalar_mode = qrt_fla_blackwell_scalar::mode();
-    if (scalar_mode < 0) return hipErrorInvalidValue;
+    const int coarse_mode=qrt_fla_coarse_policy::mode();
+    if (scalar_mode < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    if (qrt_fla_coarse_policy::selected(coarse_mode,scalar_mode==1,count)) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_interval::output_kernel<true,false>),
+            dim3(4u,32u,(count+63u)/64u),dim3(threads),0u,stream,
+            q,v,h,g,scores,result,count,table,static_cast<unsigned*>(nullptr));
+        const hipError_t status=hipGetLastError();
+        if(status==hipSuccess)std::fprintf(stderr,
+            "FLA_COARSE_INTERVAL operation=output tokens=%u chunk=64 exact_fallback=1 additional_device_bytes=0\n",count);
+        return status;
+    }
     if (scalar_mode) {
         hipLaunchKernelGGL(qrt_fla_blackwell_scalar::output_kernel,
             dim3(128u / tile_columns, 32u, (count + 63u) / 64u), dim3(threads),
@@ -222,7 +244,17 @@ hipError_t state(const uint16_t* k, const uint16_t* u, const uint16_t* w, const 
                  uint16_t* h, uint16_t* v_new, float* state, unsigned count,
                  const unsigned char* table, hipStream_t stream) {
     const int scalar_columns = qrt_fla_blackwell_scalar::state_columns();
-    if (scalar_columns < 0) return hipErrorInvalidValue;
+    const int coarse_mode=qrt_fla_coarse_policy::mode();
+    if (scalar_columns < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    if (qrt_fla_coarse_policy::selected(coarse_mode,scalar_columns==8,count)) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_interval::state_kernel<true,false>),
+            dim3(8u,32u),dim3(threads),0u,stream,
+            k,u,w,g,h,v_new,state,count,table,static_cast<unsigned*>(nullptr));
+        const hipError_t status=hipGetLastError();
+        if(status==hipSuccess)std::fprintf(stderr,
+            "FLA_COARSE_INTERVAL operation=state tokens=%u chunk=64 exact_state_update=1 exact_fallback=1 additional_device_bytes=0\n",count);
+        return status;
+    }
     if (scalar_columns) {
         if (scalar_columns == 4) {
             hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_blackwell_scalar::state_kernel<4u>),
