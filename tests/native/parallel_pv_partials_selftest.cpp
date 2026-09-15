@@ -1,5 +1,5 @@
 #include "../../native/providers/ck_fmha/prepared_decoded_qk.h"
-#include "../../native/providers/ck_fmha/parallel_pv_partials.h"
+#include "../../native/providers/ck_fmha/shared_parallel_pv.h"
 #include <algorithm>
 #include <chrono>
 #include <cmath>
@@ -14,7 +14,7 @@
 namespace {
 using namespace qrt_blackwell_attention;
 constexpr unsigned guard = 64u;
-constexpr unsigned variants[] = {0u, 1u};
+constexpr unsigned variants[] = {0u, 1u, 2u};
 constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
@@ -221,7 +221,12 @@ void approximate(unsigned variant, const uint16_t* value, const uint16_t* probab
             rcp, result.accumulator.as<float>() + guard, result.denominator.as<float>() + guard,
             nullptr, nullptr, result.error.as<float>() + guard);
         check(hipGetLastError());
+    } else if (variant == 2u) {
+        check(hipError_t(candidate::launch_shared(value, probability, scales, result.output.as<float>() + guard,
+            result.error.as<float>() + guard, start, queries, result.offset, stride, rcp, nullptr,
+            result.accumulator.as<float>() + guard, result.denominator.as<float>() + guard)));
     } else {
+        if (variant != 1u) throw std::runtime_error("PV variant");
         check(hipError_t(candidate::launch(value, probability, scales, result.output.as<float>() + guard,
             result.error.as<float>() + guard, start, queries, result.offset, stride, rcp,
             workspace.data(), workspace.capacity, nullptr, result.accumulator.as<float>() + guard,
@@ -279,6 +284,7 @@ void generated(unsigned start, unsigned queries, unsigned mode, const unsigned c
         if (bits(cpu) != bits(expected_acc[guard + size_t(offset) * 4096u + cell])) throw std::runtime_error("wide CPU PV mismatch");
         ++cpu_checks;
     }
+    std::vector<uint32_t> global_proxy, global_accumulator, global_error, global_denominator;
     for (unsigned variant : variants) {
         test.reset(); workspace.reset(); finish();
         approximate(variant, dv.as<uint16_t>() + guard, dp.as<uint16_t>() + guard, ds.as<float>() + guard,
@@ -296,7 +302,19 @@ void generated(unsigned start, unsigned queries, unsigned mode, const unsigned c
             }
         }
         if (underestimates) throw std::runtime_error("PV envelope underestimates exact output");
-        test.verify_guards(); if (variant) workspace.verify(start, queries);
+        if (variant == 1u) {
+            global_proxy = download<uint32_t>(test.output, test.words);
+            global_accumulator = download<uint32_t>(test.accumulator, test.words);
+            global_error = download<uint32_t>(test.error, test.cells + 2u * guard);
+            global_denominator = download<uint32_t>(test.denominator, test.den_words);
+        } else if (variant == 2u) {
+            if (download<uint32_t>(test.output, test.words) != global_proxy ||
+                download<uint32_t>(test.accumulator, test.words) != global_accumulator ||
+                download<uint32_t>(test.error, test.cells + 2u * guard) != global_error ||
+                download<uint32_t>(test.denominator, test.den_words) != global_denominator)
+                throw std::runtime_error("shared partials changed proxy, accumulator, bound or denominator bits");
+        }
+        test.verify_guards(); if (variant == 1u) workspace.verify(start, queries); else workspace.verify_outer();
         exact_replay(dv.as<uint16_t>() + guard, dp.as<uint16_t>() + guard, ds.as<float>() + guard,
             start, queries, stride, rcp, test); finish();
         const auto ids = test.candidate_ids();
@@ -307,8 +325,8 @@ void generated(unsigned start, unsigned queries, unsigned mode, const unsigned c
             if (bound::bf16(final_output[index]) != bound::bf16(expected[index])) throw std::runtime_error("corrected PV differs from canonical BF16");
         }
         test.verify_guards();
-        std::printf("{\"kind\":\"parallel_pv_safety\",\"start\":%u,\"queries\":%u,\"mode\":%u,\"variant\":%u,\"cells\":%u,\"candidates\":%zu,\"admitted\":%u,\"cpu_dots\":%u,\"underestimates\":0,\"false_admissions\":0,\"bf16_mismatches\":0,\"denominator_raw_mismatches\":0,\"workspace_bytes\":%zu,\"redzones_pass\":true,\"immutable_inputs\":true,\"unique_candidates\":true,\"inference_acceptance\":false}\n",
-            start, queries, mode, variant, test.cells, ids.size(), admitted, cpu_checks, workspace.capacity * sizeof(candidate::Partial));
+        std::printf("{\"kind\":\"parallel_pv_safety\",\"start\":%u,\"queries\":%u,\"mode\":%u,\"variant\":%u,\"cells\":%u,\"candidates\":%zu,\"admitted\":%u,\"cpu_dots\":%u,\"underestimates\":0,\"false_admissions\":0,\"bf16_mismatches\":0,\"denominator_raw_mismatches\":0,\"workspace_bytes\":%zu,\"shared_bytes\":%zu,\"shared_matches_global_proxy_raw\":%s,\"redzones_pass\":true,\"immutable_inputs\":true,\"unique_candidates\":true,\"inference_acceptance\":false}\n",
+            start, queries, mode, variant, test.cells, ids.size(), admitted, cpu_checks, variant == 1u ? workspace.capacity * sizeof(candidate::Partial) : 0u, variant == 2u ? candidate::shared_bytes : 0u, variant == 2u ? "true" : "false");
         std::fflush(stdout);
     }
     unchanged(dp, p); unchanged(dv, v); unchanged(ds, s); exact.verify_guards();
@@ -353,9 +371,9 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
     const size_t score_capacity = size_t(batch) * 16u * tokens, scale_capacity = size_t(batch) * 16u * ((tokens + 31u) / 32u + 1u);
     Device scores((score_capacity + 2u * guard) * 4u), probability((score_capacity + 2u * guard) * 2u), scales((scale_capacity + 2u * guard) * 4u);
     PartialWorkspace workspace(tokens - 1u, 1u);
-    double samples[2][3]{}, maximum[2]{}, common_ms = 0.0;
-    size_t compared[2]{}, external[2]{}, appended[2]{}, selected[2]{};
-    unsigned cpu_dots[2]{};
+    double samples[3][3]{}, maximum[3]{}, common_ms = 0.0;
+    size_t compared[3]{}, external[3]{}, appended[3]{}, selected[3]{};
+    unsigned cpu_dots[3]{};
     for (unsigned start = 0u; start < tokens; start += batch) {
         const unsigned queries = std::min(batch, tokens - start), stride = start + queries, cells = queries * 4096u, rows = queries * 16u, tiles = (stride + 31u) / 32u;
         check(hipMemset(scores.pointer, 0xa5, (score_capacity + 2u * guard) * 4u));
@@ -386,8 +404,8 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
         }
         for (size_t i = 0u; i < s.size(); ++i)
             if ((i < guard || i >= guard + size_t(rows) * (tiles + 1u)) && bits(s[i]) != 0xa5a5a5a5u) throw std::runtime_error("PV scale outer guard");
-        Outputs result0(queries), result1(queries), exact(queries);
-        Outputs* result[] = {&result0, &result1};
+        Outputs result0(queries), result1(queries), result2(queries), exact(queries);
+        Outputs* result[] = {&result0, &result1, &result2};
         std::vector<float> canonical;
         if (extend && start + queries > original_tokens) {
             check(hipError_t(launch_all_pv_replay(dv.as<uint16_t>() + guard, probability.as<uint16_t>() + guard,
@@ -396,11 +414,11 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
                 nullptr, nullptr, dvt.as<uint16_t>() + guard, tokens)));
             finish(); canonical = download<float>(exact.output, exact.words); exact.verify_guards();
         }
-        std::vector<uint32_t> first_output[2], first_accumulator[2], first_denominator[2], first_errors[2];
-        std::vector<unsigned> first_candidates[2];
-        for (unsigned attempt = 0u; attempt < attempts; ++attempt) for (unsigned position = 0u; position < 2u; ++position) {
-            const unsigned variant = (position + attempt + start / batch) % 2u;
-            auto& out = *result[variant]; out.reset(); if (variant) workspace.reset(); finish();
+        std::vector<uint32_t> first_output[3], first_accumulator[3], first_denominator[3], first_errors[3];
+        std::vector<unsigned> first_candidates[3];
+        for (unsigned attempt = 0u; attempt < attempts; ++attempt) for (unsigned position = 0u; position < 3u; ++position) {
+            const unsigned variant = (position + attempt + start / batch) % 3u;
+            auto& out = *result[variant]; out.reset(); if (variant == 1u) workspace.reset(); finish();
             begin = std::chrono::steady_clock::now();
             approximate(variant, dv.as<uint16_t>() + guard, probability.as<uint16_t>() + guard, scales.as<float>() + guard,
                 start, queries, stride, drcp.as<unsigned char>(), out, workspace);
@@ -409,7 +427,7 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
             finish(); const double wall = elapsed(begin);
             if (attempt) { samples[variant][attempt - 1u] += wall; maximum[variant] = std::max(maximum[variant], wall); }
             out.verify_guards();
-            if (variant) { workspace.verify_outer(); if (attempt == attempts - 1u) workspace.verify(start, queries); }
+            if (variant == 1u) { workspace.verify_outer(); if (attempt == attempts - 1u) workspace.verify(start, queries); }
             const auto output = download<float>(out.output, out.words), accumulator = download<float>(out.accumulator, out.words);
             const auto den = download<float>(out.denominator, out.den_words), error = download<float>(out.error, cells + 2u * guard);
             auto ids = out.candidate_ids(); std::sort(ids.begin(), ids.end());
@@ -450,7 +468,11 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
                 compared[variant] += cells;
             }
         }
-        if (first_denominator[0] != first_denominator[1]) throw std::runtime_error("PV comparison denominator changed");
+        if (first_denominator[0] != first_denominator[1] || first_denominator[1] != first_denominator[2])
+            throw std::runtime_error("PV comparison denominator changed");
+        if (first_output[1] != first_output[2] || first_accumulator[1] != first_accumulator[2] ||
+            first_errors[1] != first_errors[2] || first_candidates[1] != first_candidates[2])
+            throw std::runtime_error("shared partials changed corrected raw output, bound or candidate set");
         unchanged(probability, p); unchanged(scales, s); unchanged(scores, scores_before);
         std::printf("{\"kind\":\"parallel_pv_capture_progress\",\"tokens\":%u,\"completed_queries\":%u,\"control_candidates\":%zu,\"parallel_candidates\":%zu}\n", tokens, start + queries, selected[0], selected[1]); std::fflush(stdout);
     }
@@ -459,9 +481,9 @@ void captured(const char* qfile, const char* kfile, const char* vfile, const cha
         if (external[variant] != golden.size() || external[variant] + appended[variant] != size_t(tokens) * 4096u)
             throw std::runtime_error("PV incomplete external or appended context");
         double sorted[] = {samples[variant][0], samples[variant][1], samples[variant][2]}; std::sort(sorted, sorted + 3u);
-        std::printf("{\"kind\":\"parallel_pv_captured_component\",\"variant\":%u,\"tokens\":%u,\"query_batch\":128,\"partial_query_tile\":16,\"external_gb10_bf16_cells\":%zu,\"appended_canonical_bf16_cells\":%zu,\"bf16_mismatches\":0,\"selected_cells\":%zu,\"cpu_dots\":%u,\"repeat_raw_output_cells\":%zu,\"same_variant_repeat_raw_mismatches\":0,\"common_qk_probability_ms\":%.6f,\"query_key_preparation_ms\":%.6f,\"value_transpose_ms\":%.6f,\"pv_and_exact_replay_ms\":%.6f,\"complete_component_ms\":%.6f,\"pv_samples_ms\":[%.6f,%.6f,%.6f],\"maximum_completed_slab_ms\":%.6f,\"workspace_bytes\":%zu,\"allocation_and_sentinel_reset_timed\":false,\"all_attempts_verified\":true,\"original_reference_used_as_compute_input\":false,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
+        std::printf("{\"kind\":\"parallel_pv_captured_component\",\"variant\":%u,\"tokens\":%u,\"query_batch\":128,\"partial_query_tile\":16,\"external_gb10_bf16_cells\":%zu,\"appended_canonical_bf16_cells\":%zu,\"bf16_mismatches\":0,\"selected_cells\":%zu,\"cpu_dots\":%u,\"repeat_raw_output_cells\":%zu,\"same_variant_repeat_raw_mismatches\":0,\"common_qk_probability_ms\":%.6f,\"query_key_preparation_ms\":%.6f,\"value_transpose_ms\":%.6f,\"pv_and_exact_replay_ms\":%.6f,\"complete_component_ms\":%.6f,\"pv_samples_ms\":[%.6f,%.6f,%.6f],\"maximum_completed_slab_ms\":%.6f,\"workspace_bytes\":%zu,\"shared_bytes\":%zu,\"shared_matches_global_proxy_raw\":%s,\"allocation_and_sentinel_reset_timed\":false,\"all_attempts_verified\":true,\"original_reference_used_as_compute_input\":false,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
             variant, tokens, external[variant], appended[variant], selected[variant], cpu_dots[variant], compared[variant], common_ms, prepared.ms,
-            transpose_ms, sorted[1], common_ms + prepared.ms + transpose_ms + sorted[1], samples[variant][0], samples[variant][1], samples[variant][2], maximum[variant], variant ? workspace.capacity * sizeof(candidate::Partial) : 0u);
+            transpose_ms, sorted[1], common_ms + prepared.ms + transpose_ms + sorted[1], samples[variant][0], samples[variant][1], samples[variant][2], maximum[variant], variant == 1u ? workspace.capacity * sizeof(candidate::Partial) : 0u, variant == 2u ? candidate::shared_bytes : 0u, variant == 2u ? "true" : "false");
         std::fflush(stdout);
     }
 }
@@ -477,7 +499,9 @@ int main(int argc, char** argv) try {
     if (!qrt_sm121_attention_rcp::valid_layout(rcp.data(), rcp.size())) throw std::runtime_error("PV reciprocal table layout");
     Device drcp(rcp.size()); upload(drcp, rcp);
     for (unsigned mode : {0u, 1u, 2u, 3u}) {
-        for (auto shape : {std::pair<unsigned,unsigned>{0u,1u}, {15u,2u}, {31u,17u}, {63u,128u}, {255u,33u}, {1023u,16u}, {7168u,17u}, {8175u,17u}})
+        // start16/count17 makes the final singleton slab cross into a new
+        // K32 tile while the preceding fifteen query slots remain untouched.
+        for (auto shape : {std::pair<unsigned,unsigned>{0u,1u}, {15u,2u}, {16u,17u}, {31u,17u}, {63u,128u}, {255u,33u}, {1023u,16u}, {7168u,17u}, {8175u,17u}})
             generated(shape.first, shape.second, mode, drcp.as<unsigned char>());
     }
     unchanged(drcp, rcp); return 0;

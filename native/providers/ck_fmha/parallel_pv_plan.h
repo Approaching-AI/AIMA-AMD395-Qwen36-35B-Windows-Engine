@@ -1,6 +1,12 @@
 #ifndef QRT_PARALLEL_PV_PLAN_H
 #define QRT_PARALLEL_PV_PLAN_H
 #include <cstddef>
+#if defined(__HIPCC__)
+#include <hip/hip_runtime.h>
+#define QRT_PARALLEL_PV_CONSTANT __host__ __device__ constexpr
+#else
+#define QRT_PARALLEL_PV_CONSTANT constexpr
+#endif
 
 namespace qrt_parallel_pv {
 constexpr unsigned maximum_tokens = 8192u, maximum_queries = 128u;
@@ -11,7 +17,7 @@ static_assert(sizeof(Partial) == 8u);
 // One sixteen-query slab is reused only after its ordered reduction finishes
 // on the same stream. A q8192 call needs at most256 MiB, independent of its
 // query batch. The final causal K32 tile always contains both K16 groups.
-constexpr unsigned groups(unsigned end) { return (end + 31u) / 32u * 2u; }
+QRT_PARALLEL_PV_CONSTANT unsigned groups(unsigned end) { return (end + 31u) / 32u * 2u; }
 constexpr bool valid(unsigned start, unsigned count, unsigned output_start,
                      unsigned stride) {
     return stride && stride <= maximum_tokens && count && count <= maximum_queries &&
@@ -25,4 +31,5 @@ constexpr size_t partial_count(unsigned start, unsigned count) {
 }
 static_assert(partial_count(8064u, 128u) * sizeof(Partial) == 268435456u);
 } // namespace qrt_parallel_pv
+#undef QRT_PARALLEL_PV_CONSTANT
 #endif

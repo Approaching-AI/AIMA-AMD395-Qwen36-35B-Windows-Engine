@@ -69,6 +69,18 @@ template<class Kernel>void submit(Kernel kernel,dim3 grid,dim3 block,unsigned sh
         source += function(text, '__global__ void reduce(')
         source += '\n' + function(text, 'inline int launch(')
         source += r'''
+constexpr int shared_kernel=18;
+void submit(int kind,dim3 grid,dim3 block,unsigned shared,hipStream_t stream,
+    const uint16_t* v,const uint16_t* p,const float* scales,float* output,float* errors,
+    unsigned start,unsigned count,unsigned offset,unsigned stride,const unsigned char* table,float*,float*) {
+    assert(kind==18&&grid.x==16&&grid.y==16&&grid.z==(count+15)/16&&block.x==128&&!shared);
+    assert(stream==reinterpret_cast<void*>(17)&&v&&p&&scales&&output&&errors&&table);
+    assert(valid(start,count,offset,stride));++calls;
+}
+'''
+        shared = (ROOT / 'native/providers/ck_fmha/shared_parallel_pv.h').read_text()
+        source += '\n' + function(shared, 'inline int launch_shared(')
+        source += r'''
 void run(unsigned start,unsigned count,unsigned failure) {
     constexpr unsigned guard=19,output_start=3;
     const unsigned stride=start+count,tiles=(stride+31)/32,cells=count*4096;
@@ -122,7 +134,21 @@ int main(){using namespace qrt_parallel_pv;
         assert(launch(missing==0?nullptr:&p,missing==1?nullptr:&p,missing==2?nullptr:&s,
             missing==3?nullptr:&out,missing==4?nullptr:&error,0,1,0,1,missing==5?nullptr:&t,
             missing==6?nullptr:&part,size_t(-1),reinterpret_cast<void*>(17))==1&&calls==0);}
+    fail_at=0;calls=0;
+    assert(launch_shared(&p,&p,&s,&out,&error,8064,128,0,8192,&t,reinterpret_cast<void*>(17))==0&&calls==1);
+    calls=0;fail_at=1;
+    assert(launch_shared(&p,&p,&s,&out,&error,16,17,3,33,&t,reinterpret_cast<void*>(17))==2&&calls==1);
+    for(unsigned count:{0u,129u,~0u}){calls=0;
+        assert(launch_shared(&p,&p,&s,&out,&error,0,count,0,8192,&t,reinterpret_cast<void*>(17))==1&&calls==0);}
+    calls=0;assert(launch_shared(&p,&p,&s,&out,&error,8176,17,0,8192,&t,reinterpret_cast<void*>(17))==1&&calls==0);
+    assert(launch_shared(&p,&p,&s,&out,&error,0,1,8192,8192,&t,reinterpret_cast<void*>(17))==1&&calls==0);
+    assert(launch_shared(&p,&p,&s,&out,&error,0,1,0,8193,&t,reinterpret_cast<void*>(17))==1&&calls==0);
+    for(unsigned missing=0;missing<6;++missing){calls=0;
+        assert(launch_shared(missing==0?nullptr:&p,missing==1?nullptr:&p,missing==2?nullptr:&s,
+            missing==3?nullptr:&out,missing==4?nullptr:&error,0,1,0,1,missing==5?nullptr:&t,
+            reinterpret_cast<void*>(17))==1&&calls==0);}
     std::puts("parallel_pv_deferred_api=pass actual_reducer=pass failed_submissions=16 invalid_arguments=15 native_wmma_checked=0");
+    std::puts("parallel_pv_shared_launch=pass injected_launch_failure=1 invalid_arguments=12 native_wmma_checked=0");
 }
 '''
         compiler = shutil.which('clang++') or shutil.which('c++')
