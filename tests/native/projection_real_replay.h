@@ -118,7 +118,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
         candidates += selected;
-        if ((matrix_replay || embedded_replay || staged_f32_replay || cooperative_half_replay || blocked_half_replay || staged_half_replay || scaled_half_replay || scalar_replay || tiled_replay || bounded_replay || scaled_replay || row_max_replay || f32_carry_replay || range_replay || partition_replay || interval_replay || strong_replay || spatial_replay || packed_tiles_replay || dual_lane_replay || decoded_replay || interleaved_replay) && selected) selected_indices.push_back(static_cast<unsigned>(i));
+        if (selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
             ++initial_mismatches;
             if (distance > 512u) {
@@ -128,6 +128,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
             bound_misses += !selected;
         }
     }
+    require(selected_indices.size() == candidates, "collected projection candidate count differs");
     const unsigned int blocks = selected_hawkeye_correction_maximum_blocks_per_launch();
     std::cout << "{\"type\":\"" << (output_projection ? "real_out_selector" : "real_qkv_selector") << "\",\"elements\":" << elements
               << ",\"initial_bf16_mismatches\":" << initial_mismatches

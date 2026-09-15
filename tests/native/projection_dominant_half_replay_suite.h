@@ -26,6 +26,7 @@ void run_dominant_half_replays(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint16_t>
  std::vector<float> control;double samples[3][3]{};
  for(unsigned attempt=0u;attempt<4u;++attempt)for(unsigned position=0u;position<3u;++position){
   const unsigned variant=(position+attempt)%3u;
+  std::cout<<"{\"type\":\"dominant_half_projection_attempt\",\"attempt\":"<<attempt<<",\"variant\":"<<variant<<",\"candidates\":"<<selected.size()<<"}"<<std::endl;
   hip_ok(hipMemcpy(dout.base,initial.data(),initial.size()*4u,hipMemcpyHostToDevice),"dominant_reset_output");
   complete_strong_projection();const auto start=std::chrono::steady_clock::now();
   hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((wg+255u)/256u),dim3(256u),0u,nullptr,dw.data(),pw.data(),rows,width);hip_ok(hipGetLastError(),"dominant_prepare_weights");
