@@ -33,6 +33,13 @@ template<class T>std::vector<T> read(Device& d,size_t count){std::vector<T> out(
 template<class T>void guards(const std::vector<T>& x){const auto* p=reinterpret_cast<const unsigned char*>(x.data());for(size_t i=0u;i<guard*sizeof(T);++i)require(p[i]==0xa5u&&p[(x.size()-guard)*sizeof(T)+i]==0xa5u,"memory guard");}
 template<class T>void unchanged(Device& d,const std::vector<T>& expected){const auto actual=read<T>(d,expected.size());guards(actual);require(!std::memcmp(actual.data()+guard,expected.data(),expected.size()*sizeof(T)),"immutable source changed");}
 void finish(){hipEvent_t e;check(hipEventCreate(&e));check(hipEventRecord(e));const auto end=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){auto s=hipEventQuery(e);if(s==hipSuccess)break;if(s!=hipErrorNotReady)check(s);require(std::chrono::steady_clock::now()<end,"GPU completion deadline");std::this_thread::yield();}check(hipEventDestroy(e));}
+struct PhaseEvents{
+ hipEvent_t events[4]{};bool enabled;
+ explicit PhaseEvents(bool active):enabled(active){if(enabled)for(auto& event:events)check(hipEventCreate(&event));}
+ ~PhaseEvents(){for(auto event:events)if(event && hipEventDestroy(event)!=hipSuccess)std::abort();}
+ void mark(unsigned index){if(enabled)check(hipEventRecord(events[index],nullptr));}
+ float elapsed(unsigned phase){float ms=0.0f;if(enabled)check(hipEventElapsedTime(&ms,events[phase],events[phase+1u]));require(std::isfinite(ms)&&ms>=0.0f,"invalid phase duration");return ms;}
+};
 float dot(const uint16_t* a,const uint16_t* b,unsigned width){original::Value carry{0u,-133,false};for(unsigned base=0u;base<width;base+=16u){original::Value terms[17];terms[0]=carry;for(unsigned i=0u;i<16u;++i)terms[i+1u]=original::multiply_bf16(a[base+i],b[base+i],-133);carry=original::group_sum<26,-133>(terms,17u);}return original::value_to_float(qrt_sm121_group16::finish_accumulator(carry));}
 size_t cpu_column(unsigned count,unsigned head,unsigned column,const std::vector<uint16_t>& q,const std::vector<uint16_t>& k,const std::vector<uint16_t>& u,const std::vector<uint16_t>& w,const std::vector<float>& g,const std::vector<uint16_t>& scores,const std::vector<float>& seed,const std::vector<unsigned char>& table,const std::vector<float>& output,const std::vector<float>& final,const std::vector<uint16_t>& h,const std::vector<uint16_t>& vn){
  float current[128];for(unsigned i=0u;i<128u;++i)current[i]=seed[(head*128u+column)*128u+i];
@@ -59,18 +66,25 @@ size_t cpu_column(unsigned count,unsigned head,unsigned column,const std::vector
  return dots;
 }
 
-void launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v,Device& beta,Device& inverse,Device& g,Device& scores,Device& u,Device& w,Device& output,Device& h,Device& vn,Device& state,Device& table,bool alias){
+void launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v,Device& beta,Device& inverse,Device& g,Device& scores,Device& u,Device& w,Device& output,Device& h,Device& vn,Device& state,Device& table,bool alias,PhaseEvents& phases){
  const unsigned chunks=(count+63u)/64u;const auto* exp=reinterpret_cast<unsigned char*>(table.data<uint32_t>());
  auto* actual_u=alias?v.data<uint16_t>():u.data<uint16_t>();
+ phases.mark(0u);
  if(!variant){
   hipLaunchKernelGGL(scalar::wu_kernel,dim3(16u,32u,chunks),dim3(256u),0u,nullptr,k.data<uint16_t>(),v.data<uint16_t>(),beta.data<uint16_t>(),inverse.data<uint16_t>(),g.data<float>(),w.data<uint16_t>(),actual_u,count,exp);check(hipGetLastError());
+  phases.mark(1u);
   hipLaunchKernelGGL((scalar::state_kernel<8u>),dim3(16u,32u),dim3(256u),0u,nullptr,k.data<uint16_t>(),actual_u,w.data<uint16_t>(),g.data<float>(),h.data<uint16_t>(),vn.data<uint16_t>(),state.data<float>(),count,exp);check(hipGetLastError());
+  phases.mark(2u);
   hipLaunchKernelGGL(scalar::output_kernel,dim3(16u,32u,chunks),dim3(256u),0u,nullptr,q.data<uint16_t>(),vn.data<uint16_t>(),h.data<uint16_t>(),g.data<float>(),scores.data<uint16_t>(),output.data<float>(),count,exp);check(hipGetLastError());
+  phases.mark(3u);
  }else{
 #define QRT_GDN_PREPARED(L) \
   hipLaunchKernelGGL((prepared::wu_kernel<L>),dim3(16u,32u,chunks),dim3(256u),0u,nullptr,k.data<uint16_t>(),v.data<uint16_t>(),beta.data<uint16_t>(),inverse.data<uint16_t>(),g.data<float>(),w.data<uint16_t>(),actual_u,count,exp);check(hipGetLastError()); \
+  phases.mark(1u); \
   hipLaunchKernelGGL((prepared::state_kernel<L>),dim3(16u,32u),dim3(256u),0u,nullptr,k.data<uint16_t>(),actual_u,w.data<uint16_t>(),g.data<float>(),h.data<uint16_t>(),vn.data<uint16_t>(),state.data<float>(),count,exp);check(hipGetLastError()); \
-  hipLaunchKernelGGL((prepared::output_kernel<L>),dim3(16u,32u,chunks),dim3(256u),0u,nullptr,q.data<uint16_t>(),vn.data<uint16_t>(),h.data<uint16_t>(),g.data<float>(),scores.data<uint16_t>(),output.data<float>(),count,exp);check(hipGetLastError())
+  phases.mark(2u); \
+  hipLaunchKernelGGL((prepared::output_kernel<L>),dim3(16u,32u,chunks),dim3(256u),0u,nullptr,q.data<uint16_t>(),vn.data<uint16_t>(),h.data<uint16_t>(),g.data<float>(),scores.data<uint16_t>(),output.data<float>(),count,exp);check(hipGetLastError()); \
+  phases.mark(3u)
   if(variant==1u){QRT_GDN_PREPARED(1u);}else{QRT_GDN_PREPARED(4u);}
 #undef QRT_GDN_PREPARED
  }
@@ -102,12 +116,18 @@ void run(unsigned count,unsigned mode,unsigned measured,Device& table,const std:
  dq.upload(q);dk.upload(k);db.upload(beta);dinv.upload(inverse);ds.upload(scores);dg.upload(g);
  Device du((large+2u*guard)*2u),dw((large+2u*guard)*2u),output((large+2u*guard)*4u),state((state_cells+2u*guard)*4u),h((checkpoints+2u*guard)*2u),vn((large+2u*guard)*2u);
  std::vector<float> expected,final;std::vector<uint16_t> old_w,old_u,old_h,old_vn;size_t cpu_dots=0u;double samples[2][3][3]{};
+ double phase_samples[2][3][3][3]{};PhaseEvents phases(measured!=0u);
  const unsigned attempts=measured+1u;
  for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<6u;++position){
   const unsigned choice=(attempt+position)%6u,variant=choice%3u;const bool alias=choice>=3u;
   dv.reset();dv.upload(v);du.reset();dw.reset();output.reset();state.reset();state.upload(seed);h.reset();vn.reset();finish();
-  const auto begin=std::chrono::steady_clock::now();launch(variant,count,dq,dk,dv,db,dinv,dg,ds,du,dw,output,h,vn,state,table,alias);finish();
-  if(attempt)samples[unsigned(alias)][variant][attempt-1u]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+  const auto begin=std::chrono::steady_clock::now();launch(variant,count,dq,dk,dv,db,dinv,dg,ds,du,dw,output,h,vn,state,table,alias,phases);finish();
+  if(attempt){
+   samples[unsigned(alias)][variant][attempt-1u]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+   // Resolve all phase events after the existing final completion. No barrier is
+   // inserted between kernels; event recording overhead remains in the host clock.
+   for(unsigned phase=0u;phase<3u;++phase)phase_samples[unsigned(alias)][variant][phase][attempt-1u]=phases.elapsed(phase);
+  }
   const auto actual=read<float>(output,large),next=read<float>(state,state_cells);
   const auto actual_w=read<uint16_t>(dw,large),actual_u=read<uint16_t>(alias?dv:du,large),actual_h=read<uint16_t>(h,checkpoints),actual_vn=read<uint16_t>(vn,large);
   guards(actual);guards(next);guards(actual_w);guards(actual_u);guards(actual_h);guards(actual_vn);
@@ -126,7 +146,13 @@ void run(unsigned count,unsigned mode,unsigned measured,Device& table,const std:
  }
  for(unsigned alias=0u;alias<2u;++alias)for(unsigned variant=0u;variant<3u;++variant){
   double sorted[3]={samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2]};std::sort(sorted,sorted+3u);
-  std::printf("{\"kind\":\"prepared_half_gdn_component\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"lanes\":%u,\"u_aliases_v\":%s,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_preparation_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",count,mode,variant,variant==2u?4u:1u,alias?"true":"false",large,state_cells,checkpoints,large*3u,cpu_dots,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2]);
+  std::printf("{\"kind\":\"prepared_half_gdn_component\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"lanes\":%u,\"u_aliases_v\":%s,\"output_cells\":%zu,\"state_cells\":%zu,\"checkpoint_cells\":%zu,\"wu_and_residual_cells\":%zu,\"independent_cpu_dots\":%zu,\"warmups\":1,\"measured_attempts\":%u,\"complete_preparation_wu_state_output_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"phase_events_enabled\":%s,\"phase_event_ms\":{",count,mode,variant,variant==2u?4u:1u,alias?"true":"false",large,state_cells,checkpoints,large*3u,cpu_dots,measured,sorted[1],samples[alias][variant][0],samples[alias][variant][1],samples[alias][variant][2],measured?"true":"false");
+  const char* names[3]={"wu","state","output"};
+  for(unsigned phase=0u;phase<3u;++phase){
+   const auto* values=phase_samples[alias][variant][phase];double phase_sorted[3]={values[0],values[1],values[2]};std::sort(phase_sorted,phase_sorted+3u);
+   std::printf("%s\"%s\":{\"median\":%.6f,\"samples\":[%.6f,%.6f,%.6f]}",phase?",":"",names[phase],phase_sorted[1],values[0],values[1],values[2]);
+  }
+  std::printf("},\"phase_events_same_stream\":true,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"intermediate_and_alias_ownership_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n");
  }
  std::fflush(stdout);
 }
