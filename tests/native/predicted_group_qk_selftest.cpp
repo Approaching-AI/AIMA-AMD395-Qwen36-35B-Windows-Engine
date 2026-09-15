@@ -1,6 +1,7 @@
 #include "../../native/providers/ck_fmha/prepared_decoded_qk.h"
 #include "../../native/providers/ck_fmha/predicted_group_qk.h"
 #include "../../native/providers/ck_fmha/fused_predicted_group_qk.h"
+#include "../../native/providers/ck_fmha/shared_predicted_group_qk.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -14,7 +15,7 @@
 namespace {
 using namespace qrt_blackwell_attention;
 constexpr unsigned guard = 64u;
-constexpr unsigned variants[] = {0u, 1u, 2u, 3u, 4u};
+constexpr unsigned variants[] = {0u, 1u, 2u, 3u, 4u, 5u, 6u};
 constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
@@ -136,7 +137,9 @@ struct Scratch {
                     q,k,data(),audit.as<float>()+guard,start,count,stride,key_stride,counters.as<unsigned long long>());
             }else{
                 if(!qflags||!kflags)throw std::runtime_error("fused audit flags missing");
-                const auto audited=variant==3u?qrt_fused_predicted_group_qk::scores<4u,true>:qrt_fused_predicted_group_qk::scores<16u,true>;
+                const auto audited=variant==3u?qrt_fused_predicted_group_qk::scores<4u,true>:
+                    variant==4u?qrt_fused_predicted_group_qk::scores<16u,true>:
+                    variant==5u?qrt_shared_predicted_group_qk::scores<4u,true>:qrt_shared_predicted_group_qk::scores<8u,true>;
                 hipLaunchKernelGGL(audited,dim3((stride+15u)/16u,kQueryHeads,(count+15u)/16u),dim3(256u),0u,nullptr,
                     q,k,qflags,kflags,audit.as<float>()+guard,start,count,stride,key_stride,counters.as<unsigned long long>());
             }
@@ -173,6 +176,10 @@ void staged_variant(unsigned variant,const uint16_t* q,const uint16_t* k,float* 
     }else if(variant==3u||variant==4u){
         const auto fused=variant==3u?qrt_fused_predicted_group_qk::scores<4u,false>:qrt_fused_predicted_group_qk::scores<16u,false>;
         hipLaunchKernelGGL(fused,grid,dim3(kThreads),0u,nullptr,
+            q,k,qf,kf,out,start,count,stride,key_stride,nullptr);
+    }else if(variant==5u||variant==6u){
+        const auto shared=variant==5u?qrt_shared_predicted_group_qk::scores<4u,false>:qrt_shared_predicted_group_qk::scores<8u,false>;
+        hipLaunchKernelGGL(shared,grid,dim3(kThreads),0u,nullptr,
             q,k,qf,kf,out,start,count,stride,key_stride,nullptr);
     }else throw std::runtime_error("invalid predicted QK variant");
     check(hipGetLastError());
@@ -263,7 +270,7 @@ void run(Case c) {
         if(variant==1u){original_hits=scratch.last_hits;original_fallbacks=scratch.last_fallbacks;}
         if(variant>=2u&&(original_hits!=scratch.last_hits||original_fallbacks!=scratch.last_fallbacks))
             throw std::runtime_error("layout changed exact plan decisions");
-        std::printf("{\"kind\":\"predicted_group_qk_safety\",\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"variant\":%u,\"fused_plan_groups\":%u,\"global_plan_live_bytes\":%zu,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"plan_hits\":%zu,\"fallback_scores\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",c.tokens,c.start,c.count,c.mode,variant,variant==3u?4u:variant==4u?16u:0u,(variant==1u||variant==2u)?cells*16u*8u:0u,cells,scratch.last_hits,scratch.last_fallbacks);
+        std::printf("{\"kind\":\"predicted_group_qk_safety\",\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"variant\":%u,\"fused_plan_groups\":%u,\"shared_window_groups\":%u,\"shared_plan_bytes\":%u,\"global_plan_live_bytes\":%zu,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"plan_hits\":%zu,\"fallback_scores\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",c.tokens,c.start,c.count,c.mode,variant,variant==3u?4u:variant==4u?16u:0u,variant==5u?4u:variant==6u?8u:0u,variant==5u?8192u:variant==6u?16384u:0u,(variant==1u||variant==2u)?cells*16u*8u:0u,cells,scratch.last_hits,scratch.last_fallbacks);
         std::fflush(stdout);
     }
     unchanged(dq,q);unchanged(dk,k);unchanged(dt,transposed);prepared.verify();
@@ -359,8 +366,8 @@ void captured(const char* qfile,const char* kfile,unsigned tokens) {
         const unsigned variant=variants[mode];
         double sorted[3]={samples[mode][0],samples[mode][1],samples[mode][2]};std::sort(sorted,sorted+3);
         const double preparation_ms=prepared.ms;
-        std::printf("{\"kind\":\"predicted_group_qk_capture\",\"variant\":%u,\"fused_plan_groups\":%u,\"global_plan_live_bytes\":%zu,\"query_rows\":16,\"key_columns\":16,\"verified_fallback_scores_after_last_attempt\":%zu,\"verified_plan_hits_after_last_attempt\":%zu,\"plan_workspace_bytes\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"tokens\":%u,\"original_capture_tokens\":7169,\"real_model_prompt\":false,\"query_batch\":128,\"unique_score_cells\":%zu,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"one_time_preparation_ms\":%.6f,\"completed_query_with_replay_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"all_attempts_verified\":true,\"redzones_pass\":true,\"unused_score_tail_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"plan_guards_and_tail_pass\":true,\"all_attempts_plans_and_audit_verified\":true,\"plan_preparation_and_replay_timing_included\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
-            variant,variant==3u?4u:variant==4u?16u:0u,(variant==1u||variant==2u)?scratch.capacity*8u:0u,flagged_tiles[mode],accepted_groups[mode],scratch.capacity*8u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
+        std::printf("{\"kind\":\"predicted_group_qk_capture\",\"variant\":%u,\"fused_plan_groups\":%u,\"shared_window_groups\":%u,\"shared_plan_bytes\":%u,\"global_plan_live_bytes\":%zu,\"query_rows\":16,\"key_columns\":16,\"verified_fallback_scores_after_last_attempt\":%zu,\"verified_plan_hits_after_last_attempt\":%zu,\"plan_workspace_bytes\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"tokens\":%u,\"original_capture_tokens\":7169,\"real_model_prompt\":false,\"query_batch\":128,\"unique_score_cells\":%zu,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"one_time_preparation_ms\":%.6f,\"completed_query_with_replay_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"all_attempts_verified\":true,\"redzones_pass\":true,\"unused_score_tail_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"plan_guards_and_tail_pass\":true,\"all_attempts_plans_and_audit_verified\":true,\"plan_preparation_and_replay_timing_included\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
+            variant,variant==3u?4u:variant==4u?16u:0u,variant==5u?4u:variant==6u?8u:0u,variant==5u?8192u:variant==6u?16384u:0u,(variant==1u||variant==2u)?scratch.capacity*8u:0u,flagged_tiles[mode],accepted_groups[mode],scratch.capacity*8u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
             preparation_ms,sorted[1],sorted[1]+preparation_ms,samples[mode][0],samples[mode][1],samples[mode][2],maximum_stage_ms[mode]);
         std::fflush(stdout);
     }
