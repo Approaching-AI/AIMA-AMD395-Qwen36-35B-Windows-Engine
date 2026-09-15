@@ -1,6 +1,7 @@
 #include "blackwell_cooperative.h"
 #include "blackwell_scalar_matrices.h"
 #include "blackwell_scalar_state.h"
+#include "fused_state_output.h"
 #include "blackwell_accumulator.h"
 #include "sm121_exp2_table.h"
 #include "../moe_accumulator/sm121_subgroup.h"
@@ -264,4 +265,23 @@ hipError_t state_checkpoints(const uint16_t* k, const uint16_t* u, const uint16_
         0u, stream, k, u, w, g, h, v_new, state, count, table, checkpoints);
     return hipGetLastError();
 }
+hipError_t state_output(const uint16_t* q,const uint16_t* k,const uint16_t* u,const uint16_t* w,
+ const float* g,uint16_t* scores,float* output,uint16_t* h,uint16_t* v_new,float* state,
+ unsigned count,unsigned columns,const unsigned char* table,hipStream_t stream){
+ if(!q || !k || !u || !w || !g || !scores || !output || !state || !table ||
+  !count || count>1024u || (columns!=4u && columns!=8u) || bool(h)!=bool(v_new))return hipErrorInvalidValue;
+ const void* sources[]={q,k,u,w,g,table};const void* targets[]={scores,output,h,v_new,state};
+ for(const void* target:targets)if(target){
+  for(const void* source:sources)if(target==source)return hipErrorInvalidValue;
+ }
+ for(unsigned i=0u;i<5u;++i)if(targets[i])for(unsigned j=i+1u;j<5u;++j)if(targets[i]==targets[j])return hipErrorInvalidValue;
+ const auto status=qrt_fla_blackwell_cooperative::scores(q,k,g,scores,count,table,stream);
+ if(status!=hipSuccess)return status;
+#define QRT_FUSED_STATE_OUTPUT_CASE(c,capture) hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_fused_state_output::kernel<c,capture>),dim3(128u/c,32u),dim3(256u),0u,stream,q,k,u,w,g,scores,output,h,v_new,state,count,table)
+ if(columns==4u){if(h){QRT_FUSED_STATE_OUTPUT_CASE(4u,true);}else{QRT_FUSED_STATE_OUTPUT_CASE(4u,false);}}
+ else{if(h){QRT_FUSED_STATE_OUTPUT_CASE(8u,true);}else{QRT_FUSED_STATE_OUTPUT_CASE(8u,false);}}
+#undef QRT_FUSED_STATE_OUTPUT_CASE
+ return hipGetLastError();
+}
+
 }

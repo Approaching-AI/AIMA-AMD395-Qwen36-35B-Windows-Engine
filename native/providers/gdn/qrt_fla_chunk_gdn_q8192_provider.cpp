@@ -3,6 +3,7 @@
 #include "blackwell_state.h"
 #include "blackwell_wu_output.h"
 #include "blackwell_cooperative.h"
+#include "fused_state_output_policy.h"
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
 #include "first_call_capture.h"
@@ -513,14 +514,7 @@ bool ensure_scratch(int32_t tokens) {
     return true;
 }
 
-bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t* w,
-                            const float* g, uint16_t* h, uint16_t* v_new,
-                            float* state, int32_t tokens, hipStream_t stream,
-                            int32_t valid_tokens, qrt_fla_checkpoint::Segment checkpoints = {}) {
-    if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
-        valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
-        set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
-    }
+bool ensure_blackwell_state_scratch() {
     if (!g_state.blackwell_temporary_state || !g_state.blackwell_residual) {
         size_t available = 0, total = 0;
         hipError_t status = hipMemGetInfo(&available, &total);
@@ -539,6 +533,33 @@ bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t
     if (g_state.blackwell_residual_bytes < blackwell_residual_bytes()) {
         set_error_text("Blackwell batch mode changed without releasing its scratch"); return false;
     }
+    return true;
+}
+
+bool launch_blackwell_fused_state_output(const uint16_t* q,const uint16_t* k,const uint16_t* u,
+ const uint16_t* w,const float* g,float* output,uint16_t* h,uint16_t* v_new,float* state,
+ unsigned valid_tokens,unsigned columns,hipStream_t stream) {
+    if (!ensure_blackwell_state_scratch()) return false;
+    float sequence_ms=0.0f;
+    if (!launch_blackwell_math("blackwell_fused_state_output_segment",stream,[&] {
+        return qrt_fla_blackwell_cooperative::state_output(q,k,u,w,g,g_state.blackwell_residual,
+            output,h,v_new,state,valid_tokens,columns,qrt_fla_blackwell_state::exp2_table_device(),stream);
+    },&sequence_ms)) return false;
+    if (!BlackwellSegmentGuard::active) std::fprintf(stderr,
+        "FLA_FUSED_STATE_OUTPUT tokens=%u columns=%u capture=%u calls=2 sequence_ms=%.6f original_k16=1 original_fma_order=1\n",
+        valid_tokens,columns,h?1u:0u,static_cast<double>(sequence_ms));
+    return true;
+}
+
+bool launch_blackwell_state(const uint16_t* k, const uint16_t* u, const uint16_t* w,
+                            const float* g, uint16_t* h, uint16_t* v_new,
+                            float* state, int32_t tokens, hipStream_t stream,
+                            int32_t valid_tokens, qrt_fla_checkpoint::Segment checkpoints = {}) {
+    if (!k || !u || !w || !g || !h || !v_new || !state || tokens <= 0 || tokens > kSegmentTokens || tokens % kChunk ||
+        valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
+        set_error_text("Blackwell state requires checked chunk-aligned segment pointers"); return false;
+    }
+    if (!ensure_blackwell_state_scratch()) return false;
     float sequence_ms = 0.0f;
     if (blackwell_batched_enabled()) {
         if (!launch_blackwell_math("blackwell_state_segment", stream, [&] {
@@ -758,6 +779,11 @@ int launch_segment_async(
     if (valid_tokens != tokens) {
         std::fprintf(stderr, "FLA_LOGICAL_TAIL padded_tokens=%d valid_tokens=%d\n", tokens, valid_tokens);
     }
+    const int fused_columns=qrt_fla_fused_policy::columns();
+    if (fused_columns<0) {set_error_text("Invalid fused state/output column mode");return 0;}
+    const bool fused_state_output=qrt_fla_fused_policy::selected(fused_columns,
+        blackwell_batched_enabled(),blackwell_state_enabled(),qrt_fla_blackwell_cooperative::enabled(),
+        qrt_fla_blackwell_cooperative::matrix_lanes(),checkpoints.count);
     const char *dump_directory = std::getenv("QRT_FLA_GDN_DUMP_Q64_DIR");
     const bool dump = dump_directory != nullptr && dump_directory[0] != '\0' &&
         !g_state.q64_dumped && reset_state && tokens == kSmokeTokens;
@@ -989,7 +1015,11 @@ int launch_segment_async(
         &initial_state_pointer, &chunk_state_pointer, &final_state_pointer,
         &launch_tokens, &global_scratch, &profile_scratch,
     };
-    if (blackwell_state_enabled()) {
+    if (fused_state_output) {
+        if (!launch_blackwell_fused_state_output(q_pointer,k_pointer,u_pointer,w_pointer,g_pointer,
+            output_f32,dump?chunk_state_pointer:nullptr,dump?v_new_pointer:nullptr,final_state_f32,
+            static_cast<unsigned>(valid_tokens),static_cast<unsigned>(fused_columns),stream)) return 0;
+    } else if (blackwell_state_enabled()) {
         if (!launch_blackwell_state(k_pointer, u_pointer, w_pointer, g_pointer, chunk_state_pointer,
                                     v_new_pointer, final_state_f32, tokens, stream, valid_tokens, checkpoints)) return 0;
     } else if (!launch(
@@ -1007,6 +1037,7 @@ int launch_segment_async(
         &g_pointer, &output_pointer, &launch_tokens,
         &global_scratch, &profile_scratch,
     };
+    if (!fused_state_output) {
     if (blackwell_batched_enabled()) {
         if (!g_state.blackwell_residual ||
             g_state.blackwell_residual_bytes < size_t(tokens) * kValueHeads * kChunk * sizeof(uint16_t)) {
@@ -1040,6 +1071,7 @@ int launch_segment_async(
             stream, output_arguments
         )) {
         return 0;
+    }
     }
     if (dump) g_state.q64_dumped = true;
 
