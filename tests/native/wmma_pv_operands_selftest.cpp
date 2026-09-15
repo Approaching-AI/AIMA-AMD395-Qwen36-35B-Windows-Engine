@@ -377,6 +377,7 @@ void captured(const char* qfile,const char* kfile,const char* vfile,const char* 
     }
 }
 }
+#ifndef QRT_WMMA_PV_OPERANDS_NO_MAIN
 int main(int argc,char** argv)try {
     hipDeviceProp_t prop{};check(hipGetDeviceProperties(&prop,0));if(std::strncmp(prop.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
     if(argc==8&&!std::strcmp(argv[1],"--q7169")){captured(argv[2],argv[3],argv[4],argv[5],argv[6],argv[7]);return 0;}
@@ -385,3 +386,4 @@ int main(int argc,char** argv)try {
         for(unsigned mode=0u;mode<6u;++mode)for(bool vllm:{false,true})generated(shape.first,shape.second,mode,vllm);
     return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"wmma_pv_operands_error=%s\n",e.what());return 1;}
+#endif
