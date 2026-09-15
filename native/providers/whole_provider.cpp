@@ -38013,6 +38013,11 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         staged_half_setting && std::strcmp(staged_half_setting,"1") == 0;
     if (staged_half && (partition_replay || scaled_fallback || kSelectedHawkeyeReplayLanes != 4u))
         return hipErrorInvalidValue;
+    const char* queued_setting = std::getenv("QRT_QWEN36_HAWKEYE_QUEUED_REPLAY");
+    if (queued_setting && *queued_setting && std::strcmp(queued_setting,"0") &&
+        std::strcmp(queued_setting,"1")) return hipErrorInvalidValue;
+    const bool queued_replay = staged_half && queued_setting &&
+        std::strcmp(queued_setting,"1") == 0;
     const bool prepared_operands = prepared_requested && !float_replay && !validated_float;
     // Reuse lossless preparation's whole-row eligibility. The matrix computes
     // selector metadata from original BF16 operands; excluded rows keep an
@@ -38102,7 +38107,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     const auto correction_start = std::chrono::steady_clock::now();
     uint64_t total_candidates = 0u;
     unsigned int maximum_block_candidates = 0u;
-    unsigned int windows = 0u, dispatches = 0u;
+    unsigned int windows = 0u, dispatches = 0u, queued_bursts = 0u;
     unsigned int host_count_reads = 0u;
     double maximum_dispatch_ms = 0.0;
     double absolute_bound_ms = 0.0;
@@ -38397,13 +38402,18 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
             hipLaunchKernelGGL(round_f32_outputs_to_bf16_kernel,
                 dim3((window_elements + kThreads - 1u) / kThreads), dim3(kThreads),
                 0, stream, outputs + element_offset, window_elements);
-            result = synchronize_bounded(dispatch_start);
+            // Selection and its count read have completed. Queue the original
+            // rounding and disjoint correction kernels on this same stream;
+            // no next-window reset or storage release precedes completion.
+            auto queued_start = dispatch_start;
+            unsigned int pending_replays = 0u;
+            result = queued_replay ? hipGetLastError() : synchronize_bounded(dispatch_start);
             if (result != hipSuccess) return result;
             for (unsigned int candidate_offset = 0u; candidate_offset < counts[0];
                  candidate_offset += candidates_per_launch) {
                 const unsigned int launch_candidates = (std::min)(
                     counts[0] - candidate_offset, candidates_per_launch);
-                dispatch_start = std::chrono::steady_clock::now();
+                if (!queued_replay) dispatch_start = std::chrono::steady_clock::now();
                 if (packed_candidates) {
                     hipLaunchKernelGGL(selected_bf16_projection_hawkeye_packed_correction_kernel,
                         dim3((launch_candidates + kSelectedHawkeyeCorrectionThreads - 1u) / kSelectedHawkeyeCorrectionThreads),
@@ -38453,9 +38463,26 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                         weights, selected_inputs, outputs, rows, reduction_size,
                         scratch + 2u, candidate_offset, counts[0], projection_plan);
                 }
-                result = synchronize_bounded(dispatch_start);
+                if (queued_replay) {
+                    result = hipGetLastError();
+                    if (result != hipSuccess) return result;
+                    ++pending_replays;
+                    if (pending_replays == qrt_hawkeye_dispatch::maximum_queued_replay_dispatches ||
+                        launch_candidates == counts[0] - candidate_offset) {
+                        result = synchronize_bounded(queued_start);
+                        if (result != hipSuccess) return result;
+                        ++queued_bursts;
+                        pending_replays = 0u;
+                        queued_start = std::chrono::steady_clock::now();
+                    }
+                } else result = synchronize_bounded(dispatch_start);
                 if (result != hipSuccess) return result;
                 ++dispatches;
+            }
+            if (queued_replay && !counts[0]) {
+                result = synchronize_bounded(queued_start);
+                if (result != hipSuccess) return result;
+                ++queued_bursts;
             }
         }
         return count_only ? hipErrorInvalidConfiguration : hipSuccess;
@@ -38481,6 +38508,11 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (staged_half) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_staged_half rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=4 staging_groups=2 row_bytes=36 original_k16_carry=1 unsupported_original_bf16=1 original_candidates=1 completed=%u\n",
             rows,selected_token_count,reduction_size,prepared_bytes,status==hipSuccess ? 1u : 0u);
+    }
+    if (queued_replay) {
+        std::fprintf(stderr,"BATCH_MARK hawkeye_queued_replay rows=%u tokens=%u k=%u windows=%u exact_dispatches=%u completed_bursts=%u maximum_dispatches_per_burst=%u maximum_completed_burst_ms=%.6f original_candidates=1 original_k16=1 completed=%u\n",
+            rows,selected_token_count,reduction_size,windows,dispatches,queued_bursts,
+            qrt_hawkeye_dispatch::maximum_queued_replay_dispatches,maximum_dispatch_ms,status==hipSuccess ? 1u : 0u);
     }
     if (validated_float && !staged_half) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_prevalidated_float rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=%u canonical_k16=1 original_fallback=1 completed=%u partition_replay=%u partition_workspace_bytes=%zu\n",

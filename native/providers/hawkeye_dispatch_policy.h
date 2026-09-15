@@ -21,6 +21,9 @@ constexpr std::uint32_t maximum_exact_blocks = 4096u;
 constexpr std::uint32_t maximum_candidates_per_block = 64u;
 constexpr double maximum_dispatch_ms = 100.0;
 constexpr double maximum_correction_ms = 10000.0;
+// A queued replay burst retains every original kernel quantum and its stream
+// order. The completed burst obeys the same100ms bound as a former dispatch.
+constexpr std::uint32_t maximum_queued_replay_dispatches = 8u;
 // Device-count replay completes one collection window before returning to the
 // host. Its 1024 CTAs each process at most 64 dots per four-lane subgroup at
 // K <= 4096. Bound this larger unit independently of the old one-dot dispatch.

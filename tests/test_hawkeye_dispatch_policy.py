@@ -123,11 +123,11 @@ int main() {
                 exe = str(Path(tmp) / f"stream-test-{lanes}")
                 subprocess.run(
                     [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
-                     "-Werror", f"-DQRT_PREFILL_HAWKEYE_REPLAY_LANES={lanes}",
+                     "-Werror", "-fsanitize=address,undefined", f"-DQRT_PREFILL_HAWKEYE_REPLAY_LANES={lanes}",
                      "-I", str(ROOT / "native/providers"), "-x", "c++", "-", "-o", exe],
                     input=source, text=True, check=True, timeout=30,
                 )
-                subprocess.run([exe], check=True, timeout=5, capture_output=True, text=True)
+                subprocess.run([exe], check=True, timeout=15, capture_output=True, text=True)
 
     def test_dense_work_and_exhausted_time_are_rejected(self):
         source = r'''

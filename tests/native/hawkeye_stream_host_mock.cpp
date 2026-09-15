@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <functional>
 #include <string>
 #include <vector>
 #define QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER 1
@@ -71,6 +72,18 @@ static unsigned* eligibility_flags[2]{};
 static unsigned eligibility_rows[2]{};
 static unsigned partitions=0, fail_partition=0;
 static bool partition_fault=false;
+static bool defer_work=false, submission_fault=false;
+static unsigned submitted_replays=0, fail_replay_submission=0, pending_replays=0;
+static std::vector<unsigned> completed_replay_bursts;
+static std::vector<std::function<void()>> pending_work;
+void submit(const char* name,std::function<void()> work) {
+    if (!defer_work) {work();return;}
+    if (std::strstr(name,"staged_half_kernel")) {
+        if (++submitted_replays==fail_replay_submission) {submission_fault=true;return;}
+        ++pending_replays;
+    }
+    pending_work.push_back(std::move(work));
+}
 bool owns(const void* p,size_t bytes) {
     return std::any_of(allocation_records.begin(),allocation_records.end(),
         [&](const auto& record) { return record.first==p && record.second>=bytes; });
@@ -85,24 +98,33 @@ hipError_t hipMalloc(void **p, size_t bytes) {
     return *p ? hipSuccess : hipErrorUnknown;
 }
 hipError_t hipFree(void *p) {
+    if (defer_work && !pending_work.empty()) invalid_range=true;
     ++frees;
     const auto found=std::find_if(allocation_records.begin(),allocation_records.end(),[&](const auto& r){return r.first==p;});
     if(found==allocation_records.end())invalid_range=true;else allocation_records.erase(found);
     std::free(p);return hipSuccess;
 }
 hipError_t hipMemsetAsync(void *p, int value, size_t n, hipStream_t) {
-    std::memset(p, value, n); return hipSuccess;
+    submit("memset",[=]{std::memset(p,value,n);});return hipSuccess;
 }
 hipError_t hipMemcpy(void *to, const void *from, size_t n, int) {
+    if (defer_work && !pending_work.empty()) invalid_range=true;
     ++count_reads;
     std::memcpy(to, from, n); return hipSuccess;
 }
 hipError_t hipGetLastError() {
-    const bool failed = preparation_fault || bound_fault || magnitude_fault || partition_fault;
+    const bool failed = preparation_fault || bound_fault || magnitude_fault || partition_fault || submission_fault;
     preparation_fault = bound_fault = magnitude_fault = partition_fault = false;
+    submission_fault=false;
     return failed ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) {
+    if (defer_work) {
+        if (pending_replays) completed_replay_bursts.push_back(pending_replays);
+        pending_replays=0;
+        auto work=std::move(pending_work);pending_work.clear();
+        for(auto& operation:work)operation();
+    }
     return ++syncs == fail_sync ? hipErrorUnknown : hipSuccess;
 }
 void grid(const char *name, dim3 blocks, dim3 threads) {
@@ -131,7 +153,8 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
     if (blocks.x == 0 || blocks.x > limit || threads.x != 256u) invalid_grid = true;
 }
 #define hipLaunchKernelGGL(kernel, blocks, threads, shared, stream, ...) \
-    do { grid(#kernel, blocks, threads); kernel(__VA_ARGS__); } while (0)
+    do { const auto recorded_blocks=blocks,recorded_threads=threads; \
+        submit(#kernel,[=]{grid(#kernel,recorded_blocks,recorded_threads);kernel(__VA_ARGS__);}); } while (0)
 
 template<bool RoundOutputs, bool WindowSums = false, bool SelectorDifference = false>
 void selected_bf16_projection_hawkeye_compact_kernel(
@@ -447,6 +470,14 @@ void selected_bf16_projection_hawkeye_staged_half_kernel(
 
 // QRT_ACTUAL_LAUNCHER
 
+void queued_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_QUEUED_REPLAY",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_QUEUED_REPLAY",value,1);
+#endif
+}
+
 void staged_mode(const char* value) {
 #ifdef _WIN32
     _putenv_s("QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY",value);
@@ -540,6 +571,8 @@ void device_mode(bool enabled) {
 #endif
 }
 void reset() {
+    submitted_replays=fail_replay_submission=pending_replays=0;
+    submission_fault=false;completed_replay_bursts.clear();pending_work.clear();
     allocations = frees = collections = corrections = rounds = 0;
     reject_collection = fail_sync = syncs = 0;
     invalid_grid = invalid_range = false; corrected.clear();
@@ -1037,10 +1070,59 @@ int main() {
         }
     }
     partition_mode("0");scaled_mode("0");
+    if(kSelectedHawkeyeReplayLanes==4u) {
+        // The real launcher now runs against a deferred stream model: kernels
+        // cannot touch output/counts until synchronization executes their jobs.
+        // This detects rounding-after-replay and storage reuse before a drain.
+        defer_work=true;requested_blocks=1u;
+        auto run_queued=[&] {
+            return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                &value,&value,nullptr,nullptr,nullptr,output.data(),1024u,8192u,
+                16u,512u,0u,0u,requested_blocks,nullptr,16777216u);
+        };
+        for(unsigned candidates:{0u,1u,512u,513u,1025u}) {
+            std::vector<float> control;std::vector<size_t> membership;
+            for(unsigned enabled:{0u,1u}) {
+                reset();output.assign(total_elements,1.001f);
+                std::fill_n(output.begin(),candidates,1.00390625f);
+                queued_mode(enabled?"1":"0");
+                if(run_queued()!=hipSuccess || invalid_grid || invalid_range ||
+                    allocations!=frees || !allocation_records.empty() || !pending_work.empty() ||
+                    collections!=1u || count_reads!=1u || rounds!=1u)return 111;
+                const unsigned launches=(candidates+63u)/64u;
+                const unsigned expected_syncs=enabled?3u+std::max(1u,(launches+7u)/8u):4u+launches;
+                if(submitted_replays!=launches || syncs!=expected_syncs)return 112;
+                if(!enabled) {control=output;membership=corrected;}
+                else if(output!=control || corrected!=membership)return 113;
+                for(unsigned size:completed_replay_bursts)if(size>(enabled?8u:1u))return 114;
+                for(size_t i=0;i<output.size();++i)
+                    if(output[i]!=(i<candidates?float((i/1024u)*2u+i%1024u):1.0f))return 115;
+            }
+        }
+        for(unsigned failure:{2u,9u}) {
+            reset();output.assign(total_elements,1.001f);
+            std::fill_n(output.begin(),1025u,1.00390625f);fail_replay_submission=failure;
+            if(run_queued()!=hipErrorUnknown || submitted_replays!=failure ||
+                staged_corrections!=failure-1u || invalid_range || allocations!=frees ||
+                !allocation_records.empty() || !pending_work.empty())return 116;
+        }
+        for(unsigned failure:{4u,5u}) {
+            reset();output.assign(total_elements,1.001f);
+            std::fill_n(output.begin(),1025u,1.00390625f);fail_sync=failure;
+            if(run_queued()!=hipErrorUnknown || submitted_replays!=(failure-3u)*8u ||
+                invalid_range || allocations!=frees || !allocation_records.empty() ||
+                !pending_work.empty())return 117;
+        }
+        queued_mode("invalid");reset();output.assign(total_elements,1.001f);
+        const auto before=output;
+        if(run_queued()!=hipErrorInvalidValue || allocations || submitted_replays ||
+            output!=before || !pending_work.empty())return 118;
+        queued_mode("1");defer_work=false;
+    }
     total_elements=prepared_initial.size();reset();output=prepared_initial;
     if(run_prepared()!=hipSuccess || staged_preparations || staged_corrections ||
         eligibility_scans!=2u || invalid_grid || invalid_range || allocations!=frees ||
         !allocation_records.empty())return 110;
-    float_mode("0",true);staged_mode("0");
+    float_mode("0",true);staged_mode("0");queued_mode("0");
     return 0;
 }
