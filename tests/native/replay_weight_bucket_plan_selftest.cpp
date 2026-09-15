@@ -6,8 +6,8 @@ namespace buckets = qrt_replay_weight_buckets;
 int main() {
     size_t plans = 0u, cells = 0u;
     for (unsigned rows = 1u; rows <= 16384u; ++rows) for (unsigned tokens : {1u,7u,64u,65u,255u,256u,257u,8192u})
-        for (unsigned policy = 0u; policy < 3u; ++policy) {
-            const buckets::Plan plan{rows,tokens,policy == 0u ? 1u : policy == 1u ? 16u : 64u,policy == 0u ? 8192u : policy == 1u ? 256u : 64u};
+        for (unsigned policy = 0u; policy < 4u; ++policy) {
+            const buckets::Plan plan{rows,tokens,policy == 0u ? 1u : policy == 1u ? 16u : policy == 2u ? 64u : rows,policy == 0u ? 8192u : policy == 1u ? 256u : policy == 2u ? 64u : 1u};
             assert(buckets::valid(plan)); const unsigned bins = buckets::bucket_count(plan);
             const uint64_t columns = (uint64_t(rows) + plan.weight_rows - 1u) / plan.weight_rows;
             const uint64_t expected_bins = columns * ((uint64_t(tokens) + plan.token_rows - 1u) / plan.token_rows);
@@ -16,6 +16,7 @@ int main() {
                 const uint64_t cell = uint64_t(token) * rows + row;
                 const uint64_t expected = (uint64_t(token) / plan.token_rows) * columns + row / plan.weight_rows;
                 assert(buckets::bucket(plan,unsigned(cell)) == expected && expected < bins); ++cells;
+                if (policy == 3u) assert(expected == token && bins == tokens);
             }
             assert(buckets::bucket(plan,rows*tokens) == UINT32_MAX && buckets::bucket(plan,UINT32_MAX) == UINT32_MAX); ++plans;
         }

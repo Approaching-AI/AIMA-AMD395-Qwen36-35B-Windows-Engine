@@ -13,7 +13,8 @@ QRT_BUCKET_INLINE bool valid(Plan p) {
     return p.rows && p.rows <= 16384u && p.tokens && p.tokens <= 8192u &&
         ((p.weight_rows == 1u && p.token_rows == 8192u) ||
          (p.weight_rows == 16u && p.token_rows == 256u) ||
-         (p.weight_rows == 64u && p.token_rows == 64u));
+         (p.weight_rows == 64u && p.token_rows == 64u) ||
+         (p.weight_rows == p.rows && p.token_rows == 1u));
 }
 QRT_BUCKET_INLINE unsigned columns(Plan p) { return (p.rows + p.weight_rows - 1u) / p.weight_rows; }
 QRT_BUCKET_INLINE unsigned bucket_count(Plan p) {
