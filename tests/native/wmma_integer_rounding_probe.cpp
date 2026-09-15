@@ -79,7 +79,7 @@ struct Inputs {
 using U16x16 = unsigned short __attribute__((ext_vector_type(16)));
 using F32x8 = float __attribute__((ext_vector_type(8)));
 template<bool Bf16>
-__global__ void intrinsic_control(const uint16_t* left, const uint16_t* right, float* output) {
+__global__ void intrinsic_control(const uint16_t* left, const uint16_t* right, float* output, float bias) {
     const unsigned lane = threadIdx.x, tile = blockIdx.x;
     U16x16 a{}, b{};
 #pragma unroll
@@ -87,7 +87,9 @@ __global__ void intrinsic_control(const uint16_t* left, const uint16_t* right, f
         a[k] = left[tile * 256u + (lane % 16u) * 16u + k];
         b[k] = right[tile * 256u + (lane % 16u) * 16u + k];
     }
-    const F32x8 zero{};
+    F32x8 zero{};
+#pragma unroll
+    for (unsigned element = 0u; element < 8u; ++element) zero[element] = bias;
     F32x8 result;
     if constexpr (Bf16) result = __builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(a, b, zero);
     else {
@@ -166,9 +168,9 @@ void run(bool bf16) {
     std::vector<uint32_t> modes(tiles * 5u + 2u * guard);
     check(hipMemset(output.data, 0xa5, result.size() * 4u));
     if (bf16) hipLaunchKernelGGL((intrinsic_control<true>), dim3(tiles), dim3(32u), 0u, nullptr,
-        left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard);
+        left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard, 0.0f);
     else hipLaunchKernelGGL((intrinsic_control<false>), dim3(tiles), dim3(32u), 0u, nullptr,
-        left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard);
+        left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard, 0.0f);
     check(hipGetLastError()); finish();
     check(hipMemcpy(intrinsic.data(), output.data, intrinsic.size() * 4u, hipMemcpyDeviceToHost));
     for (unsigned mode = 0u; mode < 4u; ++mode) {
@@ -229,14 +231,63 @@ void run(bool bf16) {
     if (copy != input.right) throw std::runtime_error("right input or guard changed");
     std::printf("{\"kind\":\"wmma_integer_probe_inputs\",\"dtype\":\"%s\",\"immutable_inputs\":true,\"redzones_pass\":true}\n", bf16 ? "bf16" : "fp16");
 }
+void run_bias(bool bf16) {
+    Inputs input(bf16);
+    Device left(input.left.size() * 2u), right(input.right.size() * 2u), output((cells + 2u * guard) * 4u);
+    check(hipMemcpy(left.data, input.left.data(), input.left.size() * 2u, hipMemcpyHostToDevice));
+    check(hipMemcpy(right.data, input.right.data(), input.right.size() * 2u, hipMemcpyHostToDevice));
+    std::vector<float> result(cells + 2u * guard);
+    for (int bias : {0, 262144, 1048576, 4194304, 12582912, -262144, -1048576, -4194304, -12582912}) {
+        check(hipMemset(output.data, 0xa5, result.size() * 4u));
+        if (bf16) hipLaunchKernelGGL((intrinsic_control<true>), dim3(tiles), dim3(32u), 0u, nullptr,
+            left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard, float(bias));
+        else hipLaunchKernelGGL((intrinsic_control<false>), dim3(tiles), dim3(32u), 0u, nullptr,
+            left.as<uint16_t>() + guard, right.as<uint16_t>() + guard, output.as<float>() + guard, float(bias));
+        check(hipGetLastError()); finish();
+        check(hipMemcpy(result.data(), output.data, result.size() * 4u, hipMemcpyDeviceToHost));
+        for (unsigned i = 0u; i < guard; ++i)
+            if (bits(result[i]) != 0xa5a5a5a5u || bits(result[result.size() - 1u - i]) != 0xa5a5a5a5u)
+                throw std::runtime_error("bias output guard changed");
+        for (unsigned family = 0u; family < families; ++family) {
+            unsigned mismatches = 0u, fractional = 0u, first = cells;
+            double maximum_error = 0.0;
+            const unsigned begin = family * cases * permutations * 256u, end = begin + cases * permutations * 256u;
+            for (unsigned i = begin; i < end; ++i) {
+                const float value = result[guard + i];
+                if (!std::isfinite(value)) throw std::runtime_error("nonfinite biased integer dot");
+                const int64_t expected_with_bias = input.expected[i] + bias;
+                if (int64_t(float(expected_with_bias)) != expected_with_bias) throw std::runtime_error("biased oracle loses integer precision");
+                // FP64 subtraction is exact for these small FP32 values. No
+                // nearest-integer conversion participates in this comparison.
+                const double restored = double(value) - double(bias);
+                const bool different = restored != double(input.expected[i]);
+                mismatches += unsigned(different); fractional += unsigned(std::trunc(restored) != restored);
+                maximum_error = std::max(maximum_error, std::fabs(restored - double(input.expected[i])));
+                if (different && first == cells) first = i;
+            }
+            std::printf("{\"kind\":\"wmma_integer_bias_diagnostic\",\"dtype\":\"%s\",\"bias\":%d,\"family\":%u,\"cells\":%u,\"integer_value_mismatches\":%u,\"fractional_results\":%u,\"maximum_absolute_error\":%.12g,\"redzones_pass\":true,\"integer_rounding_used\":false,\"product_dispatch_changed\":false,\"inference_acceptance\":false}\n", bf16 ? "bf16" : "fp16", bias, family, end - begin, mismatches, fractional, maximum_error);
+            if (first < cells) std::printf("{\"kind\":\"wmma_integer_bias_counterexample\",\"dtype\":\"%s\",\"bias\":%d,\"family\":%u,\"cell\":%u,\"expected_integer\":%lld,\"biased_result_bits\":%u,\"restored\":%.12g}\n", bf16 ? "bf16" : "fp16", bias, family, first, static_cast<long long>(input.expected[first]), bits(result[guard + first]), double(result[guard + first]) - double(bias));
+        }
+        std::fflush(stdout);
+    }
+    std::vector<uint16_t> copy(input.left.size());
+    check(hipMemcpy(copy.data(), left.data, copy.size() * 2u, hipMemcpyDeviceToHost));
+    if (copy != input.left) throw std::runtime_error("bias left input or guard changed");
+    check(hipMemcpy(copy.data(), right.data, copy.size() * 2u, hipMemcpyDeviceToHost));
+    if (copy != input.right) throw std::runtime_error("bias right input or guard changed");
+    std::printf("{\"kind\":\"wmma_integer_probe_inputs\",\"dtype\":\"%s\",\"immutable_inputs\":true,\"redzones_pass\":true}\n", bf16 ? "bf16" : "fp16");
+}
 #endif
 }
-int main() try {
+int main(int argc, char** argv) try {
 #if defined(__HIPCC__)
     hipDeviceProp_t device{}; check(hipGetDeviceProperties(&device, 0));
     if (std::strncmp(device.gcnArchName, "gfx1151", 7u)) throw std::runtime_error("requires gfx1151");
-    run(true); run(false);
+    if (argc == 2 && std::strcmp(argv[1], "--bias") == 0) { run_bias(true); run_bias(false); }
+    else if (argc == 1) { run(true); run(false); }
+    else throw std::runtime_error("usage: wmma probe [--bias]");
 #else
+    (void)argc; (void)argv;
     const Inputs bf16(true), fp16(false);
     if (bf16.expected != fp16.expected) throw std::runtime_error("dtype oracle changed");
     for (unsigned i = 0u; i < cells; ++i)
