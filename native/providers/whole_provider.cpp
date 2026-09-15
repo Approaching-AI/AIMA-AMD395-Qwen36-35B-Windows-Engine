@@ -37866,6 +37866,7 @@ hipError_t count_selected_bf16_projection_hawkeye_candidates(
 }
 
 #include "q8192_out_l1_replay.h"
+#include "projection_row_reuse_audit.h"
 
 // Stream bounded index windows and independently completed exact-dot dispatches.
 // Index scratch is bounded at 64 MiB plus counters and shrinks for short
@@ -38007,6 +38008,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     if (status != hipSuccess) return status;
     const double input_wait_ms = std::chrono::duration<double, std::milli>(
         std::chrono::steady_clock::now() - input_wait_start).count();
+    status = qrt_projection_row_reuse_audit::run(selected_inputs,rows,selected_token_count,reduction_size,stream);
+    if (status != hipSuccess) return status;
     const auto projection_plan = plan_for_tokens(selected_token_count);
     const bool shape_aware = qrt_sm121_prefill_projection::changes_dot(projection_plan);
     // Serial BF16 carriers can move far from the unsplit producer midpoint.

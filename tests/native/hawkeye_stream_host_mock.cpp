@@ -490,6 +490,8 @@ template<class Replay>hipError_t run(const uint16_t* w,const uint16_t* x,const f
 }
 }
 
+namespace qrt_projection_row_reuse_audit { template<class... T> hipError_t run(T...) {return hipSuccess;} }
+
 // QRT_ACTUAL_LAUNCHER
 
 void queued_mode(const char* value) {
