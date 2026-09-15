@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "kind": "host_only_original_k16_rounding_decomposition",
+  "host": "JiaweiMnideMini.lan",
+  "model": "Immutable captured tensors from Qwen3.6-35B-A3B; no model load",
+  "canonical_accumulator": {
+    "commit": "a84d5bfb879326fb768f588314b5a08810f2b32a",
+    "file": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h",
+    "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+  },
+  "probe": {
+    "file": "projection-rounding-profile-host-r1.cpp",
+    "sha256": "815bb62cc50f9e750ffeadf62be0c4c5777c8b20df1549b6123bbf45d87a33a9",
+    "source": "#include \"native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h\"\n#include <algorithm>\n#include <cmath>\n#include <cstdint>\n#include <cstring>\n#include <fstream>\n#include <iomanip>\n#include <iostream>\n#include <stdexcept>\n#include <vector>\nnamespace ref=qrt_q1_moe_hawkeye;\nvoid require(bool x,const char* message){if(!x)throw std::runtime_error(message);}\nstd::vector<uint16_t> read(const char* path,size_t count){\n std::ifstream f(path,std::ios::binary|std::ios::ate);require(f&&f.tellg()==std::streamoff(count*2u),\"tensor span\");\n std::vector<uint16_t> result(count);f.seekg(0);f.read(reinterpret_cast<char*>(result.data()),count*2u);require(bool(f),\"tensor read\");return result;\n}\nfloat f32(uint16_t x){const uint32_t bits=uint32_t(x)<<16u;float v;std::memcpy(&v,&bits,4);return v;}\nuint16_t bf16(float f){uint32_t bits;std::memcpy(&bits,&f,4);return uint16_t((bits+32767u+((bits>>16u)&1u))>>16u);}\nfloat rz(double x){float y=float(x);if(std::abs(double(y))>std::abs(x))y=std::nextafter(y,0.0f);return y;}\nint main(int argc,char** argv){try{\n require(argc==6,\"inputs weights reference-or-dash rows width\");\n const unsigned rows=std::stoul(argv[4]),width=std::stoul(argv[5]),groups=width/16u;\n require(width&&!(width%16u)&&rows,\"shape\");\n const auto input=read(argv[1],size_t(7169u)*width),weight=read(argv[2],size_t(rows)*width);\n const bool external=std::strcmp(argv[3],\"-\")!=0;\n const auto golden=external?read(argv[3],size_t(8192u)*rows):std::vector<uint16_t>{};\n constexpr unsigned samples=65536u;const uint64_t cells=uint64_t(8192u)*rows;\n std::cout<<\"cell,original,mathematical,group_rz,alignment_delta,truncation_delta,carry_half_ulp_proxy,l1,cauchy,gb10_bf16\\n\"<<std::setprecision(17);\n for(unsigned sample=0u;sample<samples;++sample){\n  // Odd affine permutation gives unique, input-independent full-shape cells.\n  const uint32_t cell=uint32_t((uint64_t(sample)*2654435761ull+1013904223ull)%cells);\n  const unsigned token=cell/rows,row=cell%rows,source_token=token<7169u?token:token-7169u;\n  const uint16_t* a=input.data()+size_t(source_token)*width;const uint16_t* b=weight.data()+size_t(row)*width;\n  ref::Value carry{0u,-133,false};double mathematical=0,align_delta=0,trunc_delta=0,proxy=0,l1=0,aa=0,bb=0;float grouped=0;\n  for(unsigned group=0;group<groups;++group){\n   ref::Value terms[17];terms[0]=carry;double exact_group=0;\n   for(unsigned i=0;i<16u;++i){const unsigned k=group*16u+i;const double x=f32(a[k]),w=f32(b[k]);\n    exact_group+=x*w;l1+=std::abs(x*w);aa+=x*x;bb+=w*w;terms[i+1u]=ref::multiply_bf16(a[k],b[k],-133);\n   }\n   mathematical+=exact_group;grouped=rz(double(grouped)+exact_group);\n   int maximum=-133;for(const auto& value:terms)maximum=std::max(maximum,int(value.exponent));\n   int64_t aligned_integer=0;\n   for(const auto& value:terms){const unsigned shift=unsigned(maximum-value.exponent);const uint64_t aligned=shift>=32u?0u:(uint64_t(value.significand)<<2u)>>shift;aligned_integer+=value.negative?-int64_t(aligned):int64_t(aligned);}\n   const double before=double(ref::value_to_float(carry))+exact_group;\n   const double aligned=std::ldexp(double(aligned_integer),maximum-25);\n   const auto next=ref::group_sum<26,-133>(terms,17u);const double after=ref::value_to_float(next);\n   align_delta+=aligned-before;trunc_delta+=after-aligned;\n   if(after!=0.0){int e;std::frexp(std::abs(after),&e);proxy+=std::copysign(std::ldexp(0.5,e-24),after);}\n   carry=next;\n  }\n  const float original=ref::value_to_float(carry);\n  require(std::isfinite(original)&&std::isfinite(mathematical),\"finite data\");\n  require(std::abs((double(original)-mathematical)-(align_delta+trunc_delta))<1e-9*(1+l1),\"error decomposition\");\n  if(external)require(bf16(original)==golden[cell],\"sampled original differs from GB10\");\n  std::cout<<cell<<','<<original<<','<<mathematical<<','<<grouped<<','<<align_delta<<','<<trunc_delta<<','<<proxy<<','<<l1<<','<<std::sqrt(aa*bb)<<','<<(external?int(golden[cell]):-1)<<'\\n';\n }\n return 0;\n}catch(const std::exception& e){std::cerr<<e.what()<<'\\n';return 1;}}\n",
+    "uncommitted_diagnostic_source": true,
+    "compile_arguments": [
+      "c++",
+      "-std=c++17",
+      "-O3",
+      "-ffp-contract=off",
+      "-I<companion-checkout>",
+      "projection-rounding-profile-host-r1.cpp",
+      "-o",
+      "projection-rounding-profile-host-r1"
+    ]
+  },
+  "runs": {
+    "out": {
+      "command": [
+        "local-capture/projection-rounding-profile-host-r1",
+        "local-capture/fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+        "local-capture/qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+        "local-capture/qrt-gb10-dense-out-20260915-r1/output/out-q8192-bf16.bin",
+        "2048",
+        "4096"
+      ],
+      "source_sha256": "815bb62cc50f9e750ffeadf62be0c4c5777c8b20df1549b6123bbf45d87a33a9",
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds": 1.5996229173615575,
+      "host": "JiaweiMnideMini.lan",
+      "kind": "host_diagnostic_only",
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "data_inputs": [
+        {
+          "file": "fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+          "bytes": 58728448,
+          "sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65"
+        },
+        {
+          "file": "qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+          "bytes": 16777216,
+          "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab"
+        },
+        {
+          "file": "qrt-gb10-dense-out-20260915-r1/output/out-q8192-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa"
+        }
+      ],
+      "raw_record_sha256": "22e7ba5e2abd1be35fca9a7bd9b868d21b3e63a7c81ed77fa54e23fcd02c20ed"
+    },
+    "qkv": {
+      "command": [
+        "local-capture/projection-rounding-profile-host-r1",
+        "local-capture/fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+        "local-capture/layer0-weights-r1/qkv.bin",
+        "-",
+        "8192",
+        "2048"
+      ],
+      "source_sha256": "815bb62cc50f9e750ffeadf62be0c4c5777c8b20df1549b6123bbf45d87a33a9",
+      "returncode": 0,
+      "stderr": "",
+      "wall_seconds": 0.6139813754707575,
+      "host": "JiaweiMnideMini.lan",
+      "kind": "host_diagnostic_only",
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "data_inputs": [
+        {
+          "file": "fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+          "bytes": 29364224,
+          "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161"
+        },
+        {
+          "file": "layer0-weights-r1/qkv.bin",
+          "bytes": 33554432,
+          "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+        }
+      ],
+      "raw_record_sha256": "737dea6c96cdfa0a666b0bf6126ce30055c177ff10b2247fd39cafb0658383d6"
+    }
+  },
+  "analysis": {
+    "out": {
+      "samples": 65536,
+      "training_samples": 32768,
+      "holdout_samples": 32768,
+      "endpoint_fit_coefficient": 0.2830239616464837,
+      "proxy_fit_coefficient": 0.7386013885936591,
+      "original_bias_rms": 1.872250202602518e-07,
+      "alignment_rms": 7.908886041556007e-09,
+      "truncation_rms": 1.8704441979705771e-07,
+      "variants": {
+        "mathematical": {
+          "all_bf16_mismatches": 151,
+          "holdout_bf16_mismatches": 77,
+          "holdout_rms": 1.8104163890003227e-07,
+          "holdout_max_abs": 5.565821084019262e-06,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            42.16412716645621,
+            114.34569311529958,
+            218.95257152124412,
+            397.22472986629435,
+            759.0182994418127
+          ]
+        },
+        "group_rz": {
+          "all_bf16_mismatches": 35,
+          "holdout_bf16_mismatches": 22,
+          "holdout_rms": 4.872646161668464e-08,
+          "holdout_max_abs": 1.3709068298339844e-06,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            8.63596316864399,
+            30.015838405337462,
+            68.75727804286349,
+            131.5720419079028,
+            258.07571419365564
+          ]
+        },
+        "endpoint_fit": {
+          "all_bf16_mismatches": 123,
+          "holdout_bf16_mismatches": 63,
+          "holdout_rms": 7.563986621428673e-08,
+          "holdout_max_abs": 1.6823401903787172e-06,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            19.47894197686667,
+            49.841358090218115,
+            86.37994195606166,
+            124.00687746274832,
+            211.74303708118117
+          ]
+        },
+        "carry_half_ulp_proxy": {
+          "all_bf16_mismatches": 60,
+          "holdout_bf16_mismatches": 32,
+          "holdout_rms": 6.915149514521674e-08,
+          "holdout_max_abs": 1.6678777683409862e-06,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            16.67338076324007,
+            40.42174253921896,
+            76.30511671220069,
+            128.75477218264788,
+            275.70954144603553
+          ]
+        },
+        "carry_proxy_fit": {
+          "all_bf16_mismatches": 21,
+          "holdout_bf16_mismatches": 11,
+          "holdout_rms": 1.3058183256504827e-08,
+          "holdout_max_abs": 3.897185258949776e-07,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            2.6182955882888788,
+            8.053508697423284,
+            20.17633465629159,
+            43.16849215247697,
+            82.34736000425333
+          ]
+        }
+      },
+      "csv_sha256": "2ec3b5c772b9b9fa30e325522737f15c03fffd82cb1cd1badde4cdd18911e906",
+      "external_bf16_comparison": true,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "qkv": {
+      "samples": 65536,
+      "training_samples": 32768,
+      "holdout_samples": 32768,
+      "endpoint_fit_coefficient": 0.2681695333129236,
+      "proxy_fit_coefficient": 0.740915971487713,
+      "original_bias_rms": 4.122410050225712e-06,
+      "alignment_rms": 2.462122798531004e-07,
+      "truncation_rms": 4.091533187074546e-06,
+      "variants": {
+        "mathematical": {
+          "all_bf16_mismatches": 76,
+          "holdout_bf16_mismatches": 46,
+          "holdout_rms": 3.478060504530726e-06,
+          "holdout_max_abs": 6.742123514413834e-05,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            44.6244134059362,
+            145.5010785924788,
+            303.435336588158,
+            469.42808885636356,
+            766.509338904187
+          ]
+        },
+        "group_rz": {
+          "all_bf16_mismatches": 10,
+          "holdout_bf16_mismatches": 7,
+          "holdout_rms": 9.006513929420716e-07,
+          "holdout_max_abs": 1.9073486328125e-05,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            6.656569488917161,
+            33.1287874405301,
+            87.93178224332328,
+            163.59951212241774,
+            297.2186084655027
+          ]
+        },
+        "endpoint_fit": {
+          "all_bf16_mismatches": 46,
+          "holdout_bf16_mismatches": 25,
+          "holdout_rms": 8.483684598443227e-07,
+          "holdout_max_abs": 1.8141182977160497e-05,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            16.733006618827098,
+            43.10444374938669,
+            74.31306245100397,
+            116.3697453190287,
+            250.6460380845013
+          ]
+        },
+        "carry_half_ulp_proxy": {
+          "all_bf16_mismatches": 41,
+          "holdout_bf16_mismatches": 21,
+          "holdout_rms": 1.3351254839448546e-06,
+          "holdout_max_abs": 2.506934106349945e-05,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            24.75481420428718,
+            58.1515266953979,
+            116.57793288078301,
+            181.0633054712931,
+            342.2841806510535
+          ]
+        },
+        "carry_proxy_fit": {
+          "all_bf16_mismatches": 17,
+          "holdout_bf16_mismatches": 12,
+          "holdout_rms": 3.7889483732038004e-07,
+          "holdout_max_abs": 1.0887232740230957e-05,
+          "holdout_error_over_cauchy_ppb_percentiles": [
+            6.063901698135428,
+            16.19947802016194,
+            45.397157043670106,
+            99.26864087169149,
+            176.377852174643
+          ]
+        }
+      },
+      "csv_sha256": "62141adf89c81d42af33ec8a2f1e135c4d7f9d41ed4165185e8077af6115da7f",
+      "external_bf16_comparison": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    }
+  },
+  "analysis_raw_sha256": "d5164665c26e81675e3aa5974e3dfdb5421acac4db628b39abe134c2991d47c0",
+  "sampling": "65536 input-independent affine-permuted logical cells per full OUT/QKV shape; first7169 input rows plus1023 repeated rows. Alternating samples form32768 fit and32768 holdout cells. Logical cells are unique; repeated input rows are not independent source tokens.",
+  "conclusions": [
+    "All65536 sampled OUT canonical BF16 endpoints match the attached real GB10 tensor; QKV is compared only with the original host accumulator here. The decomposition and fitted predictors use host FP64 sums as diagnostics, not an arbitrary-input exact reference or a native matrix producer.",
+    "Observed alignment RMS is7.908886041556007e-9 for OUT and2.462122798531004e-7 for QKV, compared with original total RMS1.872250202602518e-7 and4.122410050225712e-6. Ordered accumulator truncation dominates these samples.",
+    "A coefficient fitted only from final output reduces OUT holdout BF16 differences from77 to63 and QKV from46 to25. That does not establish a sufficiently effective producer replacement. The stronger per-carry fit requires original expensive ordered carry values and is not a cheap implementation or an accepted numerical bound.",
+    "Do not integrate fitted coefficients or infer native throughput, candidate reduction, product correctness or retained performance. Investigate consumer-level invariance with the unchanged envelope instead."
+  ],
+  "native_gpu_executed": false,
+  "reference_used_for_inference": false,
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

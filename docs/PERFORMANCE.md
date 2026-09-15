@@ -2,6 +2,42 @@
 
 ## Current unreleased measurements, 2026-09-15
 
+Source `1d14571` adds a default-off, read-only OUT consumer interval audit.
+All original corrections and model inputs remain in use. Host sanitizers
+cover 130560 interval edges, 74576 enumerated BF16 values and 24 injected
+owner failures; full local checks pass 54 Rust/424 Python (two skips), C/q16
+ABI, clippy and hygiene. Native build completes in 92599.893 ms with all
+guards passing. Evidence: `benchmarks/correctness/out-consumer-audit-native-20260915.json`,
+SHA256 `f85e343aeecc97f802de2444c3665a293e29fba656df72646eda3781d8929dd4`.
+
+The same-DLL real q8192/out512 disabled/audit pair matches every GB10 token,
+all actual callbacks and first raw logit 10.375. TTFT is 30294.6291 /
+31661.7987 ms, TPOT 101.114694 / 100.394805 ms and load 21595.0482 /
+21340.6742 ms. All 170 original correction counts and dispatch counts match.
+The 40 audits report no observed producer-envelope undercoverage, residual
+or normalization certificate failures, or private-buffer guard failures.
+Only 2318631 of 164967882 OUT candidates (1.4055%) are removable when both
+residual and normalized output must be certified unchanged. The diagnostic
+uses completed original outputs as a stand-in for a hypothetical first
+replay pass; no candidate pass or saved work executes. Its extra 1367.1696 ms
+TTFT is diagnostic overhead, not a speedup. Do not implement that strict
+two-pass route on this evidence. Residual-only invariance covers 100221835
+candidates, but does not preserve the unrounded variance used by RMSNorm.
+Any such broader selector requires a new actual GB10 token/logit comparison.
+Evidence: `benchmarks/correctness/out-consumer-audit-q8192-20260915.json`,
+SHA256 `d8635e70e0f35c26fc3ce0af5b896466091a70b518a1b94193745b3cf44cf8dd`.
+
+A separate host arithmetic diagnostic samples 65536 independent logical
+cells for each full QKV/OUT geometry. The original CPU OUT implementation
+matches all sampled GB10 BF16 endpoints. Carry truncation dominates the
+observed error, but a simple output-dependent bias leaves 63 OUT and 25 QKV
+BF16 differences in the held-out 32768-cell halves. A stronger fitted proxy
+requires the original expensive carry values. No fitted coefficient is
+integrated; FP64 sums and these host samples establish neither native matrix
+accuracy nor inference performance. Evidence:
+`benchmarks/correctness/projection-rounding-profile-host-20260915.json`, SHA256
+`727d715136cbae365bcc16465c58f84e40416e2a27d7fb44790aefc63fde84ba`.
+
 Source `ce4d829` adds default-off `QRT_QWEN36_Q8192_OUT_L1_BOUND` for the
 original-algorithm OUT shape 2048x8192x4096. It computes an outward-finished
 positive magnitude matrix, caps the empirical bound by the original Cauchy
