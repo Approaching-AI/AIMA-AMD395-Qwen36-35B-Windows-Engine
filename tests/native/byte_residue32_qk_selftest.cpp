@@ -1,5 +1,8 @@
 #include "../../native/providers/ck_fmha/prepared_decoded_qk.h"
 #include "../../native/providers/ck_fmha/byte_residue32_qk.h"
+#if defined(QRT_BYTE_RESIDUE_WAVE_TEST)
+#include "../../native/providers/ck_fmha/byte_residue_wave_qk.h"
+#endif
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -13,7 +16,11 @@
 namespace {
 using namespace qrt_blackwell_attention;
 constexpr unsigned guard = 64u;
+#if defined(QRT_BYTE_RESIDUE_WAVE_TEST)
+constexpr unsigned variants[] = {0u, 64u, 116u, 216u};
+#else
 constexpr unsigned variants[] = {0u, 16u, 32u, 64u};
+#endif
 constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
@@ -151,6 +158,14 @@ void staged_variant(unsigned variant,const uint16_t* q,const uint16_t* k,float* 
     } else {
         // Query encoding is repeated for every slab and included in its timer.
         encode_rows<IntegerRowKind::Query>(q,matrix.query(),key_stride,start,count);
+#if defined(QRT_BYTE_RESIDUE_WAVE_TEST)
+        if(variant==116u || variant==216u) {
+            const dim3 grid((stride+15u)/16u,kQueryHeads,(count+15u)/16u);
+            if(variant==116u)hipLaunchKernelGGL((qrt_byte_residue_wave_qk::scores<true>),grid,dim3(32u),0u,nullptr,matrix.query(),matrix.key(),out,start,count,stride,key_stride);
+            else hipLaunchKernelGGL((qrt_byte_residue_wave_qk::scores<false>),grid,dim3(32u),0u,nullptr,matrix.query(),matrix.key(),out,start,count,stride,key_stride);
+            check(hipGetLastError());return;
+        }
+#endif
         const dim3 grid((stride+variant-1u)/variant,kQueryHeads,(count+15u)/16u);
 #define RESIDUE32_QK_CASE(v) if(variant==v) hipLaunchKernelGGL((qrt_byte_residue32_qk::scores<v>),grid,dim3(kThreads),0u,nullptr,matrix.query(),matrix.key(),out,start,count,stride,key_stride)
         RESIDUE32_QK_CASE(16u);
@@ -336,7 +351,7 @@ void captured(const char* qfile,const char* kfile,unsigned tokens) {
         double sorted[3]={samples[mode][0],samples[mode][1],samples[mode][2]};std::sort(sorted,sorted+3);
         const double preparation_ms=variant?matrix.key_ms:prepared.ms;
         std::printf("{\"kind\":\"byte_residue32_qk_capture\",\"variant\":%u,\"query_rows\":16,\"key_columns\":%u,\"tokens\":%u,\"original_capture_tokens\":7169,\"real_model_prompt\":false,\"query_batch\":128,\"unique_score_cells\":%zu,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"one_time_preparation_ms\":%.6f,\"completed_query_with_slab_encoding_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"all_attempts_verified\":true,\"redzones_pass\":true,\"unused_score_tail_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
-            variant,variant?variant:16u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
+            variant,variant>=100u?16u:variant?variant:16u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
             preparation_ms,sorted[1],sorted[1]+preparation_ms,samples[mode][0],samples[mode][1],samples[mode][2],maximum_stage_ms[mode]);
         std::fflush(stdout);
     }
