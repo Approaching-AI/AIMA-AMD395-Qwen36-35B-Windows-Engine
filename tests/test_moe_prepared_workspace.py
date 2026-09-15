@@ -13,7 +13,10 @@ ROOT = Path(__file__).resolve().parents[1]
 class MoePreparedWorkspaceTests(unittest.TestCase):
     def test_real_workspace_faults_and_scan_routing(self):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
-        allocations = function(s, 'bool allocate_optional_moe_prepared_replay()')
+        order = (ROOT / 'native/providers/triton_moe/expert_candidate_order.h').read_text()
+        allocations = 'namespace qrt_moe_expert_order {' + order.split('namespace qrt_moe_expert_order {', 1)[1].split('struct Views', 1)[0] + '}\n'
+        allocations += function(s, 'bool allocate_optional_moe_compaction()')
+        allocations += '\n' + function(s, 'bool allocate_optional_moe_prepared_replay()')
         allocations += '\n' + function(s, 'constexpr bool shared_replay_surface(')
         allocations += '\n' + function(s, 'constexpr uint32_t shared_staged_columns(')
         allocations += '\n' + function(s, 'bool allocate_optional_moe_shared_replay()')
@@ -22,6 +25,9 @@ class MoePreparedWorkspaceTests(unittest.TestCase):
         # Extract the real ordered release prefix: execution-state drain must
         # succeed before any prepared storage can be freed.
         release = s.split('bool release_state() {', 1)[1].split('    release_matrix_plan(', 1)[0]
+        # Other provider resources lie between these two real cleanup ranges.
+        # Exercise compaction ownership after the same required stream drain.
+        release += '    if (g_state.moe_compacted_indices' + s.split('    if (g_state.moe_compacted_indices', 1)[1].split('    if (g_state.input_bf16', 1)[0]
         source = r'''
 #include <array>
 #include <cassert>
@@ -41,6 +47,9 @@ constexpr size_t kMoePreparedWeightRows=524288, kMoePreparedInputRows=65536;
 namespace qrt_sm121_staged_half_projection { struct Row { uint32_t pairs[8],control; }; }
 namespace qrt_sm121_scaled_half_projection { constexpr int prepare_rows=5; }
 struct State {
+    bool compact_routed_hawkeye=false,partition_replay=false,moe_expert_order=false;
+    unsigned moe_compaction_blocks=16384;
+    uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr,*moe_expert_order_storage=nullptr;
     bool prepared_replay=false,prepared_replay_active=false,scaled_l2=false;
     bool prevalidated_float=false,prevalidated_float_active=false;
     bool staged_half_replay=false,staged_half_replay_active=false;
@@ -109,6 +118,24 @@ hipError_t hipGetLastError() {
     g_state=State{};return true;
 }
 int main() {
+    static_assert(qrt_moe_expert_order::maximum_blocks == 1024u);
+    assert(allocate_optional_moe_compaction()&&sizes.empty());
+    for(bool ordered:{false,true})for(unsigned blocks:{2048u,16384u}){
+        const std::vector<size_t> wanted=ordered
+            ?std::vector<size_t>{size_t(blocks)*1024u,4u,(size_t(blocks)*256u+769u)*4u}
+            :std::vector<size_t>{size_t(blocks)*1024u,4u};
+        for(unsigned fault=1;fault<=wanted.size()+1u;++fault){
+            g_state=State{};g_state.compact_routed_hawkeye=true;g_state.moe_expert_order=ordered;
+            g_state.moe_compaction_blocks=blocks;sizes.clear();free_calls=0;fail_allocation=fault;
+            const bool success=fault>wanted.size();
+            assert(allocate_optional_moe_compaction()==success);
+            assert(sizes==std::vector<size_t>(wanted.begin(),wanted.begin()+(success?wanted.size():fault)));
+            drain_ok=false;assert(!release_prefix()&&free_calls==0);
+            drain_ok=true;assert(release_prefix()&&free_calls==(success?wanted.size():fault-1u));
+            free_calls=0;assert(release_prefix()&&free_calls==0);
+        }
+    }
+    sizes.clear();fail_allocation=0;
     assert(allocate_optional_moe_prepared_replay()&&sizes.empty());
     const std::vector<size_t> wanted{1073741824,67108864,2097152,262144};
     for(unsigned fault=1;fault<=5;++fault) {

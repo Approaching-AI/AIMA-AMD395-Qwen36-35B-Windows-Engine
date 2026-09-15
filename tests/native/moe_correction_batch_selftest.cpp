@@ -133,12 +133,13 @@ void run_case(uint32_t tokens, bool dense) {
 }
 
 void compare_routed_compaction(uint32_t tokens, uint32_t mode,
-                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false, bool scaled_fallback = false, bool staged_half = false) {
+                               uint32_t window_blocks = kMoeCompactionBlocks, bool prepared = false, bool float_replay = false, bool prevalidated = false, bool partition = false, bool scaled_fallback = false, bool staged_half = false, bool expert_order = false) {
     require(window_blocks >= kMoeCompactionBlocks && window_blocks <= kMaximumMoeCompactionBlocks,
             "invalid test compaction window");
     require(!partition || prevalidated, "partition requires prevalidated test rows");
     require(!staged_half || (prevalidated && !partition && !scaled_fallback && QRT_MOE_ROUTED_REPLAY_LANES == 4u),
             "staged half test requires exclusive four-lane prevalidated replay");
+    require(!expert_order || staged_half, "expert order comparison requires staged replay control");
     g_state.moe_compaction_blocks = window_blocks;
     const uint32_t routes = tokens * kTopK;
     const size_t elements = static_cast<size_t>(routes) * kIntermediate;
@@ -194,6 +195,9 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     Device<int32_t> did(ids);
     Device<float> dt(topk), dn(native), dd(down), din(input_norm), dwn(weight_norm);
     Device<uint32_t> dix(index), dc(count);
+    const size_t order_words = expert_order ? size_t(window_blocks) * kNativeThreads + qrt_moe_expert_order::metadata_words : 0u;
+    std::vector<uint32_t> ordered(order_words + 2u * kGuard, UINT32_C(0x5a5a5a5a));
+    Device<uint32_t> dorder(ordered);
     std::vector<uint16_t> encoded_input(std::max(input.size(), activated.size()), kSentinel);
     std::vector<uint16_t> encoded_weights(std::max(weights.size(), down_weights.size()), kSentinel);
     std::vector<uint32_t> encoded_input_flags(routes + 2u * kGuard, 0x5a5a5a5au);
@@ -211,6 +215,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     Device<StagedRow> dsi(staged_input),dsw(staged_weight);
     size_t staged_supported=0u,staged_unsupported=0u;
     g_state.moe_compacted_indices = dix.data(); g_state.moe_compacted_count = dc.data();
+    g_state.moe_expert_order_storage = expert_order ? dorder.data() : nullptr;
+    g_state.topk_ids = expert_order ? did.data() : nullptr;
     g_state.sm121_moe_absolute_error_ppb = 1000u;
     g_state.moe_l2[static_cast<size_t>(MoeL2::Input)] = din.data();
     g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedActivated)] = din.data();
@@ -222,7 +228,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     hip_ok(hipEventCreate(&begin), "compaction begin"); hip_ok(hipEventCreate(&end), "compaction end");
     std::vector<float> expected_native, expected_down;
     std::vector<uint16_t> expected_activated;
-    float times[6]{};
+    float times[7]{};
     auto prepare_view = [&](MoeL2 surface,const uint16_t* raw, uint16_t* encoded, uint32_t* flags,
                             uint32_t rows, uint32_t columns) {
         require(prepare_moe_staged_half(raw,surface,rows,columns,stream),"prepare staged routed view");
@@ -241,7 +247,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             hip_ok(hipGetLastError(), "prepare routed replay view");
         }
     };
-    for (uint32_t compact = 0u; compact < ((partition || scaled_fallback || staged_half) ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
+    for (uint32_t compact = 0u; compact < (expert_order ? 7u : (partition || scaled_fallback || staged_half) ? 6u : prevalidated ? 5u : float_replay ? 4u : prepared ? 3u : 2u); ++compact) {
         dn.write(native); dd.write(down); da.write(activated);
         g_state.compact_routed_hawkeye = compact != 0u;
         g_state.prepared_replay_active = compact == 2u;
@@ -249,7 +255,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
         g_state.prevalidated_float_active = compact >= 4u;
         g_state.partition_replay = compact == 5u && partition;
         g_state.scaled_significand_fallback = compact == 5u && scaled_fallback;
-        g_state.staged_half_replay_active = compact == 5u && staged_half;
+        g_state.staged_half_replay_active = compact >= 5u && staged_half;
+        g_state.moe_expert_order_active = compact == 6u && expert_order;
         g_state.prepared_replay_inputs = g_state.staged_half_replay_active
             ? reinterpret_cast<uint16_t*>(dsi.data()) : compact >= 4u ? nullptr : dei.data();
         g_state.prepared_replay_weights = g_state.staged_half_replay_active
@@ -348,9 +355,12 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                 "routed output redzone changed");
     }
     auto actual_indices = dix.read(index.size()), actual_count = dc.read(count.size());
+    const auto actual_ordered = dorder.read(ordered.size());
     for (size_t i = 0u; i < kGuard; ++i) {
         require(actual_indices[i] == index[i] && actual_indices[index.size()-1u-i] == index.back() &&
                 actual_count[i] == count[i] && actual_count[count.size()-1u-i] == count.back(), "compaction scratch redzone changed");
+        require(actual_ordered[i] == ordered[i] && actual_ordered[ordered.size()-1u-i] == ordered.back(),
+                "expert order scratch redzone changed");
     }
     require(di.read(input.size()) == input && dw.read(weights.size()) == weights && ddw.read(down_weights.size()) == down_weights &&
             did.read(ids.size()) == ids && dt.read(topk.size()) == topk && dl.read(silu.size()) == silu &&
@@ -363,6 +373,8 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
     g_state.float_replay_active = false;
     g_state.prevalidated_float_active = false;
     g_state.staged_half_replay_active = false;
+    g_state.moe_expert_order_active = false;
+    g_state.moe_expert_order_storage = nullptr; g_state.topk_ids = nullptr;
     g_state.partition_replay = false;
     g_state.scaled_significand_fallback = false;
     g_state.prepared_replay_inputs = g_state.prepared_replay_weights = nullptr;
@@ -376,12 +388,14 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
                 "\"partition_replay_checked\":%s,\"partition_sequence_ms\":%.6f,"
                 "\"scaled_fallback_checked\":%s,"
                 "\"staged_half_checked\":%s,\"staged_half_sequence_ms\":%.6f,"
+                "\"expert_order_checked\":%s,\"expert_order_sequence_ms\":%.6f,\"expert_order_workspace_bytes\":%zu,"
                 "\"staged_supported_final_groups\":%zu,\"staged_unsupported_final_groups\":%zu,"
                 "\"staged_preparation_included\":%s,\"staged_live_views_roundtrip\":%s,"
                 "\"replay_lanes\":%u,\"window_blocks\":%u,\"maximum_replay_blocks\":%u,"
                 "\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",
                 tokens, mode, elements, down_elements, times[0], times[1], prepared ? "true" : "false", times[2], float_replay ? "true" : "false", times[3], prevalidated ? "true" : "false", times[4], partition ? "true" : "false", times[5], scaled_fallback ? "true" : "false",
-                staged_half ? "true" : "false",staged_half?times[5]:0.0f,staged_supported,staged_unsupported,
+                staged_half ? "true" : "false",staged_half?times[5]:0.0f,
+                expert_order ? "true" : "false",times[6],order_words*sizeof(uint32_t),staged_supported,staged_unsupported,
                 staged_half ? "true" : "false",staged_half ? "true" : "false", unsigned(QRT_MOE_ROUTED_REPLAY_LANES),
                 window_blocks, kMoeCompactionBlocks);
 }
@@ -483,9 +497,20 @@ void compare_scaled_l2(unsigned columns) {
 
 #include "moe_shared_replay_suite.h"
 #include "moe_shared_staged_suite.h"
+#include "moe_expert_order_suite.h"
 
 int main(int argc, char **argv) {
     try {
+        if (argc == 2 && std::strcmp(argv[1], "--expert-order") == 0) {
+            moe_batch_test::expert_order_suite();
+            moe_batch_test::compare_prepared_norm(512u, true);
+            moe_batch_test::compare_prepared_norm(2048u, true);
+            for (auto shape : {std::make_pair(1u, 0u), std::make_pair(65u, 2u),
+                               std::make_pair(129u, 4u), std::make_pair(1025u, 3u)})
+                moe_batch_test::compare_routed_compaction(shape.first, shape.second,
+                    kMaximumMoeCompactionBlocks, true, true, true, false, false, true, true);
+            return 0;
+        }
         if(argc==2&&std::strcmp(argv[1],"--shared-staged-half")==0){
             for(bool down:{false,true}){
                 moe_batch_test::compare_shared_staged(17u,down,0u);

@@ -158,6 +158,9 @@ struct State {
     uint32_t sm121_moe_absolute_error_ppb=1000;
     std::array<float *,9> moe_l2{};
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr;
+    bool moe_expert_order_active=false;
+    uint32_t* moe_expert_order_storage=nullptr;
+    int32_t* topk_ids=nullptr;
 } g_state;
 bool execute_kernels=true;
 unsigned api_calls=0, fail_api=0;
@@ -212,6 +215,27 @@ hipError_t hipMemsetAsync(void *p,int value,size_t bytes,hipStream_t stream) {
     if(++api_calls==fail_api)return hipErrorUnknown;
     std::memset(p,value,bytes); return hipSuccess;
 }
+namespace qrt_moe_expert_order {
+struct Workspace { uint32_t* storage; size_t capacity; };
+hipError_t launch(const uint32_t* indices,const uint32_t* count,const int32_t* ids,
+    unsigned columns,Workspace workspace,hipStream_t stream) {
+    assert(stream==wanted_stream&&ids==g_state.topk_ids&&workspace.storage==g_state.moe_expert_order_storage);
+    assert(columns==kIntermediate||columns==kHidden);
+    assert(workspace.capacity==g_state.moe_compaction_blocks*kNativeThreads);
+    // This owner test models the four fallible transport steps. The separate
+    // native ordering fixture executes the actual histogram/prefix/scatter.
+    for(unsigned phase=0u;phase<4u;++phase) {
+        const auto status=hipGetLastError();if(status!=hipSuccess)return status;
+    }
+    if(execute_kernels) {
+        assert(*count<=workspace.capacity);
+        std::vector<uint32_t> ordered(indices,indices+*count);
+        std::stable_sort(ordered.begin(),ordered.end(),[&](unsigned a,unsigned b){return ids[a/columns]<ids[b/columns];});
+        std::copy(ordered.begin(),ordered.end(),workspace.storage);
+    }
+    return hipSuccess;
+}
+}
 ''' + launchers + r'''
 struct Data {
     std::vector<float> native,down,input_norm,weight_norm,gate_f32,up_f32;
@@ -237,6 +261,7 @@ struct Data {
 };
 hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     unsigned blocks=(routes*kIntermediate+kNativeThreads-1)/kNativeThreads;
+    g_state.topk_ids=d.ids.data();
     g_state.moe_l2={d.input_norm.data(),d.weight_norm.data()};
     g_state.moe_l2[size_t(MoeL2::RoutedActivated)]=d.input_norm.data();
     g_state.moe_l2[size_t(MoeL2::RoutedDown)]=d.weight_norm.data();
@@ -277,14 +302,17 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
 int main() {
     std::vector<uint32_t> indices(kMoeCompactionCapacity+17,0xabcdef),counter(18,0xabcdef);
     g_state.moe_compacted_indices=indices.data();g_state.moe_compacted_count=counter.data();
+    std::vector<uint32_t> ordered(kMoeCompactionCapacity+17,0xabcdef);
+    g_state.moe_expert_order_storage=ordered.data();
     std::vector<uint32_t> input_flags(kRoutes),weight_flags(2*kHidden);
     for(unsigned i=0;i<input_flags.size();++i)input_flags[i]=i%2;
     for(unsigned i=0;i<weight_flags.size();++i)weight_flags[i]=i%3!=0;
     g_state.prepared_replay_input_rows=input_flags.data();g_state.prepared_replay_weight_rows=weight_flags.data();
-    for(unsigned route_mode:{0u,1u,2u,3u,4u}) {
+    for(unsigned route_mode:{0u,1u,2u,3u,4u,5u}) {
     std::fill(counter.begin(),counter.end(),0xabcdef);
     g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode>=2;g_state.partition_replay=route_mode==3;
-    g_state.staged_half_replay_active=route_mode==4;
+    g_state.staged_half_replay_active=route_mode>=4;
+    g_state.moe_expert_order_active=route_mode==5;
     for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
     g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
@@ -301,6 +329,7 @@ int main() {
         assert(compact.input==original.input&&compact.weights==original.weights&&compact.down_weights==original.down_weights);
         assert(compact.ids==original.ids&&compact.topk==original.topk&&compact.lut==original.lut);
         for(size_t i=kMoeCompactionCapacity;i<indices.size();++i)assert(indices[i]==0xabcdef);
+        for(size_t i=kMoeCompactionCapacity;i<ordered.size();++i)assert(ordered[i]==0xabcdef);
         for(size_t i=g_state.partition_replay?2u:1u;i<counter.size();++i)assert(counter[i]==0xabcdef);
     }
     execute_kernels=false;Data d(19);

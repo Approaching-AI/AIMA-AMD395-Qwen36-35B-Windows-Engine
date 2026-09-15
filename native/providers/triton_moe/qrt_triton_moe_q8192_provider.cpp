@@ -33,6 +33,7 @@
 #include "../moe_accumulator/sm121_shared_gate.h"
 #include "routed_parallel_gate.h"
 #include "routed_consumer_audit.h"
+#include "expert_candidate_order.h"
 
 #if defined(_WIN32)
 #define QRT_TRITON_MOE_EXPORT extern "C" __declspec(dllexport)
@@ -1917,6 +1918,8 @@ struct ProviderState {
     uint32_t moe_compaction_blocks = kMoeCompactionBlocks;
     uint32_t *moe_compacted_indices = nullptr;
     uint32_t *moe_compacted_count = nullptr;
+    bool moe_expert_order = false, moe_expert_order_active = false;
+    uint32_t *moe_expert_order_storage = nullptr;
     uint32_t sm121_moe_absolute_error_ppb = 0u;
     bool scaled_l2 = false;
     bool prepared_replay = false, prepared_replay_active = false;
@@ -12197,6 +12200,7 @@ bool release_state() {
     }
     if (g_state.moe_compacted_indices != nullptr) (void)hipFree(g_state.moe_compacted_indices);
     if (g_state.moe_compacted_count != nullptr) (void)hipFree(g_state.moe_compacted_count);
+    if (g_state.moe_expert_order_storage != nullptr) (void)hipFree(g_state.moe_expert_order_storage);
     if (g_state.input_bf16 != nullptr) (void)hipFree(g_state.input_bf16);
     release_kernel(&g_state.down);
     release_kernel(&g_state.gate_up);
@@ -12579,6 +12583,11 @@ hipError_t launch_moe_routed_correction(
         g_state.moe_compacted_indices == nullptr || g_state.moe_compacted_count == nullptr) {
         return hipErrorInvalidValue;
     }
+    const bool gate_up_order = input == MoeL2::Input && weights == MoeL2::RoutedGateUp;
+    const bool down_order = input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown;
+    if (g_state.moe_expert_order_active &&
+        (!g_state.moe_expert_order_storage || !g_state.topk_ids || g_state.partition_replay ||
+         (!gate_up_order && !down_order))) return hipErrorInvalidValue;
     qrt_routed_consumer_audit::Owner audit(stream, NeedsFinalize ? "routed_up" : "routed_gate");
     const auto audit_status = audit.initialize(audit_enabled);
     if (audit_status != hipSuccess) return audit_status;
@@ -12613,6 +12622,13 @@ hipError_t launch_moe_routed_correction(
                           arguments..., bounds);
         status = hipGetLastError();
         if (status != hipSuccess) return status;
+        if (g_state.moe_expert_order_active) {
+            status = qrt_moe_expert_order::launch(bounds.compacted_indices, bounds.compacted_count,
+                g_state.topk_ids, gate_up_order ? kIntermediate : kHidden,
+                {g_state.moe_expert_order_storage, size_t(window_blocks) * kNativeThreads}, stream);
+            if (status != hipSuccess) return status;
+            bounds.compacted_indices = g_state.moe_expert_order_storage;
+        }
         hipLaunchKernelGGL(replay, dim3(replay_blocks), dim3(kNativeThreads), 0, stream,
                           arguments..., bounds);
         status = hipGetLastError();
@@ -12633,7 +12649,10 @@ bool allocate_optional_moe_compaction() {
                     static_cast<size_t>(g_state.moe_compaction_blocks) * kNativeThreads * sizeof(uint32_t),
                     "hipMalloc(moe_compacted_indices)") &&
         allocate(&g_state.moe_compacted_count, (g_state.partition_replay ? 2u : 1u) * sizeof(uint32_t),
-                 "hipMalloc(moe_compacted_count)");
+                 "hipMalloc(moe_compacted_count)") &&
+        (!g_state.moe_expert_order || allocate(&g_state.moe_expert_order_storage,
+            qrt_moe_expert_order::bytes(size_t(g_state.moe_compaction_blocks) * kNativeThreads),
+            "hipMalloc(moe_expert_order_storage)"));
 }
 
 bool allocate_optional_moe_prepared_replay() {
@@ -13843,13 +13862,18 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.float_replay_active = g_state.float_replay && tokens == kTokens;
             g_state.prevalidated_float_active = g_state.prevalidated_float && tokens == kTokens;
             g_state.staged_half_replay_active = g_state.staged_half_replay && g_state.prevalidated_float_active;
+            g_state.moe_expert_order_active = g_state.moe_expert_order && tokens == kTokens;
         }
         ~PreparedReplayScope() {
             g_state.prepared_replay_active = false; g_state.float_replay_active = false;
             g_state.prevalidated_float_active = false;
             g_state.staged_half_replay_active = false;
+            g_state.moe_expert_order_active = false;
         }
     } prepared_replay_scope(token_count);
+    if (g_state.moe_expert_order_active)
+        std::fprintf(stderr,"BATCH_MARK moe_expert_order tokens=%u buckets=256 permutation_only=1 scratch_bytes=%zu host_count_reads=0 original_candidates=1 original_k16=1 original_stream=1\n",
+            token_count,qrt_moe_expert_order::bytes(size_t(g_state.moe_compaction_blocks)*kNativeThreads));
     if(g_state.staged_half_replay_active)
         std::fprintf(stderr,"BATCH_MARK moe_staged_half tokens=%u lanes=4 staging_groups=2 row_bytes=36 weight_bytes=%zu input_bytes=%zu refreshed_per_surface=1 original_l2=1 original_candidates=1 original_k16_carry=1\n",
             token_count,(kMoePreparedWeightElements/16u)*sizeof(qrt_sm121_staged_half_projection::Row),
@@ -16981,6 +17005,15 @@ QRT_TRITON_MOE_EXPORT int qrt_triton_moe_q8192_prepare(const char *kernel_dir) {
             return 0;
         }
         g_state.moe_compaction_blocks = static_cast<uint32_t>(parsed);
+    }
+    const char* expert_order = std::getenv("QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY");
+    if (expert_order && *expert_order && std::strcmp(expert_order,"0") && std::strcmp(expert_order,"1")) {
+        set_error_text("QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY must be 0 or 1"); return 0;
+    }
+    g_state.moe_expert_order = expert_order && std::strcmp(expert_order,"1") == 0;
+    if (g_state.moe_expert_order && (!g_state.compact_routed_hawkeye || g_state.partition_replay ||
+        g_state.parallel_routed_gate)) {
+        set_error_text("expert candidate ordering requires the original compact routed stream without partition replay"); return 0;
     }
     g_state.routed_up_projection_hawkeye_midpoint_radius =
         requested_routed_up_projection_hawkeye_midpoint_radius();
