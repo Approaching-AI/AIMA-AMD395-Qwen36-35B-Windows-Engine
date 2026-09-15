@@ -44,6 +44,7 @@
 #include "moe_accumulator/sm121_float_subgroup.h"
 #include "moe_accumulator/sm121_scalar_projection.h"
 #include "moe_accumulator/sm121_staged_half_projection.h"
+#include "moe_accumulator/sm121_coarse_projection_matrix.h"
 #include "moe_accumulator/sm121_scaled_fallback.h"
 #include "moe_accumulator/sm121_replay_partition.h"
 #include "moe_accumulator/bf16_absolute_product_matrix.h"
@@ -127742,6 +127743,8 @@ uint16_t host_full_attention_bf16_rne(float value) {
     return static_cast<uint16_t>(rounded >> 16u);
 }
 
+#include "q8192_coarse_out.h"
+
 bool full_attention_output_projection_bf16_tile(
     const uint16_t *weights,
     const uint16_t *inputs,
@@ -127770,6 +127773,26 @@ bool full_attention_output_projection_bf16_tile(
         if (failure_stage != nullptr) *failure_stage = stage + "_correction_shape";
         if (failure != nullptr) *failure = "full-attention output correction requires a bounded K4096 prefill tile";
         return false;
+    }
+    const int coarse_out = qrt_coarse_out::setting(std::getenv("QRT_QWEN36_COARSE_OUT_PRODUCER"));
+    if (coarse_out < 0) {
+        *failure_stage = stage + "_coarse_out_setting";
+        *failure = "QRT_QWEN36_COARSE_OUT_PRODUCER requires 0 or 1";
+        return false;
+    }
+    if (coarse_out && qrt_coarse_out::applicable(rows,tokens,reduction_size,radius,error_ppb)) {
+        qrt_coarse_out::Stats stats;
+        const hipError_t status = qrt_coarse_out::run(weights,inputs,outputs,
+            selected_hawkeye_correction_maximum_blocks_per_launch(),stream,&stats);
+        std::fprintf(stderr,"BATCH_MARK coarse_out_projection stage=%s tokens=%u rows=%u k=%u chunk=64 fragments=1 candidates=%u dispatches=%u workspace_bytes=%zu completed_ms=%.6f original_k16=1 native_error_coefficient=0.0000019073486328125 hardware_error_bound_proven=0 completed=%u\n",
+            stage.c_str(),tokens,rows,reduction_size,stats.candidates,stats.dispatches,
+            qrt_coarse_out::workspace_bytes,stats.completed_ms,status==hipSuccess?1u:0u);
+        if (status != hipSuccess) {
+            *failure_stage = stage + "_coarse_out_" + stats.operation;
+            *failure = hipGetErrorString(status);
+            return false;
+        }
+        return true;
     }
     float *raw = nullptr;
     float *input_norm = nullptr;

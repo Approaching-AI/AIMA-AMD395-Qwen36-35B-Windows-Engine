@@ -18,6 +18,7 @@ class AttentionOutputTileTests(unittest.TestCase):
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -70,6 +71,15 @@ template<class... T> int run(T...) { return hipGetLastError(); }
 }
 namespace qrt_out_l1_shadow {
 template<class... T> int run(T...) { return hipGetLastError(); }
+}
+// This harness checks the original allocator path. The actual coarse owner
+// and all its asynchronous failure points have their own executable harness.
+namespace qrt_coarse_out {
+struct Stats { unsigned candidates=0, dispatches=0; double completed_ms=0; const char* operation=""; };
+constexpr size_t workspace_bytes=0;
+int setting(const char*) { return 0; }
+template<class... T> bool applicable(T...) { std::abort(); }
+template<class... T> int run(T...) { std::abort(); }
 }
 ''' + actual + r'''
 int main() {

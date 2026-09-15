@@ -376,6 +376,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_dominant_half_replay_suite.h"
 #include "projection_carry_transfer_replay_suite.h"
 #include "projection_coarse_interval_suite.h"
+#include "projection_coarse_owner_suite.h"
 #include "projection_embedded_half_replay_suite.h"
 #include "projection_matrix_replay_suite.h"
 #include "projection_interleaved_replay_suite.h"
