@@ -1,0 +1,2075 @@
+{
+  "schema_version": 1,
+  "kind": "joint_candidate_bins_and_split_half_operand_slabs",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B; captured layer0 QKV and layer3 full-attention OUT",
+  "model_loaded": false,
+  "sources": {
+    "native_safety": {
+      "canonical_source_record": "slab-half-safety-native-source-r1.json",
+      "canonical_source_record_sha256": "40e99a28d262a2279f60887b13ead65a78d7d8214862e8f5dc15c53cc33295fd",
+      "documentation_snapshot_differences": {},
+      "source_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+      "repo": "D:/projects/AIMA-public-slab-bucket-projection-20260916",
+      "seed": "D:/projects/AIMA-public-coarse-interval-gdn-provider-20260916",
+      "prerequisite_commit": "4caedc84e34d45c92a78edfba6d6dacc1fdb9d5b",
+      "bundle": "slab-bucket-projection-c2ab8b4.bundle",
+      "bundle_sha256": "d8c6eb9ed09c929d64fd2453f7cee5b700facd32637c0657fdb63156033dc53b",
+      "script": "run-native-slab-half-safety-r1.ps1",
+      "script_sha256": "6b6c970d851bf3d1cfde3cd701b892aa29cc51fb5cd4a0eea919f2d4d3be6ef7",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_slab_half_layout.h": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+        "native/providers/moe_accumulator/sm121_slab_half_projection.h": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+        "tests/native/slab_half_layout_selftest.cpp": "64e4fb69fe1a7388f938f62a5123f3ad07b2598bd44fb6eb622c0d93c466ae97",
+        "tests/native/slab_half_projection_selftest.cpp": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+        "tests/native/projection_slab_bucket_replay_suite.h": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+        "tests/native/projection_real_replay.h": "e2bb9919f3da8c38194a22f197839959331bbd608c5beebe719c84e6cf3b5302",
+        "tests/native/projection_safety_selftest.cpp": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+        "tests/test_slab_half_layout.py": "90e334e3c892c07f52d0fd372f3043c76a6a7a4c05e09858d197056f25becf20"
+      },
+      "local_validation": {
+        "command": [
+          "make",
+          "check",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 194.786898416467,
+        "source_sha256": {
+          "native/providers/moe_accumulator/sm121_slab_half_layout.h": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+          "native/providers/moe_accumulator/sm121_slab_half_projection.h": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+          "tests/native/slab_half_layout_selftest.cpp": "64e4fb69fe1a7388f938f62a5123f3ad07b2598bd44fb6eb622c0d93c466ae97",
+          "tests/native/slab_half_projection_selftest.cpp": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+          "tests/native/projection_slab_bucket_replay_suite.h": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+          "tests/native/projection_real_replay.h": "e2bb9919f3da8c38194a22f197839959331bbd608c5beebe719c84e6cf3b5302",
+          "tests/native/projection_safety_selftest.cpp": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+          "tests/test_slab_half_layout.py": "90e334e3c892c07f52d0fd372f3043c76a6a7a4c05e09858d197056f25becf20"
+        },
+        "unchanged_production_source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+        "log": "slab-bucket-projection-local-r1.log",
+        "log_sha256": "56e95b8af9edd40d6c79fb86649aa331bd290489c938a12e59af7b1a4e98c72f",
+        "worktree_validation": true,
+        "product_dispatch_changed": false
+      },
+      "unchanged_production_source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025"
+    },
+    "full_projection": {
+      "canonical_source_record": "slab-bucket-projection-native-source-r1.json",
+      "canonical_source_record_sha256": "71e032b1c5c0bf34a94f52c6dc9ab065105baaf5081b897b47acd47c7c9f6c96",
+      "documentation_snapshot_differences": {},
+      "source_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+      "repo": "D:/projects/AIMA-public-slab-bucket-projection-20260916",
+      "seed": "D:/projects/AIMA-public-coarse-interval-gdn-provider-20260916",
+      "prerequisite_commit": "4caedc84e34d45c92a78edfba6d6dacc1fdb9d5b",
+      "bundle": "slab-bucket-projection-c2ab8b4.bundle",
+      "bundle_sha256": "d8c6eb9ed09c929d64fd2453f7cee5b700facd32637c0657fdb63156033dc53b",
+      "script": "run-native-slab-bucket-projection-r1.ps1",
+      "script_sha256": "083e6fac54bf61f92df98a4836d8f906faa3cb13daedb24c584ac4fe6e7b0142",
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_slab_half_layout.h": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+        "native/providers/moe_accumulator/sm121_slab_half_projection.h": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+        "tests/native/slab_half_layout_selftest.cpp": "64e4fb69fe1a7388f938f62a5123f3ad07b2598bd44fb6eb622c0d93c466ae97",
+        "tests/native/slab_half_projection_selftest.cpp": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+        "tests/native/projection_slab_bucket_replay_suite.h": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+        "tests/native/projection_real_replay.h": "e2bb9919f3da8c38194a22f197839959331bbd608c5beebe719c84e6cf3b5302",
+        "tests/native/projection_safety_selftest.cpp": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+        "tests/test_slab_half_layout.py": "90e334e3c892c07f52d0fd372f3043c76a6a7a4c05e09858d197056f25becf20"
+      },
+      "local_validation": {
+        "command": [
+          "make",
+          "check",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 194.786898416467,
+        "source_sha256": {
+          "native/providers/moe_accumulator/sm121_slab_half_layout.h": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+          "native/providers/moe_accumulator/sm121_slab_half_projection.h": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+          "tests/native/slab_half_layout_selftest.cpp": "64e4fb69fe1a7388f938f62a5123f3ad07b2598bd44fb6eb622c0d93c466ae97",
+          "tests/native/slab_half_projection_selftest.cpp": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+          "tests/native/projection_slab_bucket_replay_suite.h": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+          "tests/native/projection_real_replay.h": "e2bb9919f3da8c38194a22f197839959331bbd608c5beebe719c84e6cf3b5302",
+          "tests/native/projection_safety_selftest.cpp": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+          "tests/test_slab_half_layout.py": "90e334e3c892c07f52d0fd372f3043c76a6a7a4c05e09858d197056f25becf20"
+        },
+        "unchanged_production_source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+        "log": "slab-bucket-projection-local-r1.log",
+        "log_sha256": "56e95b8af9edd40d6c79fb86649aa331bd290489c938a12e59af7b1a4e98c72f",
+        "worktree_validation": true,
+        "product_dispatch_changed": false
+      },
+      "unchanged_production_source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025"
+    }
+  },
+  "local_validation": {
+    "command": [
+      "make",
+      "check",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 194.786898416467,
+    "source_sha256": {
+      "native/providers/moe_accumulator/sm121_slab_half_layout.h": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+      "native/providers/moe_accumulator/sm121_slab_half_projection.h": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+      "tests/native/slab_half_layout_selftest.cpp": "64e4fb69fe1a7388f938f62a5123f3ad07b2598bd44fb6eb622c0d93c466ae97",
+      "tests/native/slab_half_projection_selftest.cpp": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+      "tests/native/projection_slab_bucket_replay_suite.h": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+      "tests/native/projection_real_replay.h": "e2bb9919f3da8c38194a22f197839959331bbd608c5beebe719c84e6cf3b5302",
+      "tests/native/projection_safety_selftest.cpp": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+      "tests/test_slab_half_layout.py": "90e334e3c892c07f52d0fd372f3043c76a6a7a4c05e09858d197056f25becf20"
+    },
+    "unchanged_production_source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+    "log": "slab-bucket-projection-local-r1.log",
+    "log_sha256": "56e95b8af9edd40d6c79fb86649aa331bd290489c938a12e59af7b1a4e98c72f",
+    "worktree_validation": true,
+    "product_dispatch_changed": false
+  },
+  "host_plan_validation": {
+    "kind": "slab_half_layout_host",
+    "independent_record_mappings": 9081280,
+    "payload_and_control_planes": true,
+    "padding_and_large_boundaries_pass": true,
+    "mismatches": 0,
+    "native_execution": false
+  },
+  "validation_summary": {
+    "rust_tests": 54,
+    "python_tests": 445,
+    "python_skipped": 2,
+    "c_and_q16_abi_pass": true,
+    "clippy_pass": true,
+    "hygiene_pass": true
+  },
+  "source_audit": {
+    "changed_files": [
+      "native/providers/moe_accumulator/sm121_slab_half_layout.h",
+      "native/providers/moe_accumulator/sm121_slab_half_projection.h",
+      "tests/native/projection_real_replay.h",
+      "tests/native/projection_safety_selftest.cpp",
+      "tests/native/projection_slab_bucket_replay_suite.h",
+      "tests/native/slab_half_layout_selftest.cpp",
+      "tests/native/slab_half_projection_selftest.cpp",
+      "tests/test_slab_half_layout.py"
+    ],
+    "whole_provider_unchanged": true,
+    "whole_provider_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+    "product_dispatch_changed": false
+  },
+  "native_runs": {
+    "slab-half-safety-build": {
+      "name": "slab-half-safety-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\slab_half_projection_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-half-safety\\slab-half-safety.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "command_file": "D:\\projects\\run-native-slab-half-safety-r1.ps1",
+        "command_file_sha256": "6b6c970d851bf3d1cfde3cd701b892aa29cc51fb5cd4a0eea919f2d4d3be6ef7",
+        "model": "none; generated dense/MoE reduction shapes",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "Compare original staged2 against split payload/control planes with input/weight slabs256/16 and64/64. Six widths16,272,2048,4096,4112,8192 use independent unequal row counts and independently permuted dot pairs. Check every original CPU K16 state, final value, arithmetic path count, encoded word, zero padding, source guard, unaligned view and production/audit parity. Original candidate and accumulation semantics remain. Component only."
+      },
+      "launch": {
+        "pid": 1160,
+        "utc": "2026-09-15T22:54:49.6976377Z",
+        "timeout_seconds": 180,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2401.333,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "b891d3855e90a6d7a1f1d7140caa063f88431e219b9db2562d659e6986606835",
+        "dispatch.json": "06fd544fc2d161a6a9fb60d7fb84dda732e6ee1113dc5f537643a93171187838",
+        "launch.json": "8f19296a59d603ee47b2c67cab1cc7047fb56b893bc4c67d4fc43714d9bd6556",
+        "preflight.json": "65327dd67abfd8123099515745ee92713e4949e35760e9b59fa20813a9914301",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "6ae71919bff9e87401bbe1ec6d8dbaf6c5e2e53fc39568539e79eb3b29652b43",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "source_inputs": [
+          {
+            "sha256": "65a3fefa000ed8f2a7698a3b50c4feb08ca4f73987c8678822abe975ce51bd2c",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\slab_half_projection_selftest.cpp"
+          },
+          {
+            "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\strong_float_replay_cases.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "882f38d9cb0a9374cc6206367ff0bff360658bf026ee4b06b6ebae73ce2d0baf",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\replay_weight_buckets.h"
+          },
+          {
+            "sha256": "8f4547bf43dec95eca3d33f82c611ae64d06b764e5b810fa104188983ee93f01",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\replay_weight_bucket_plan.h"
+          },
+          {
+            "sha256": "52bce35321f773c81ddd1d2ea58e88c0210601061226e3fa88809d662d88a998",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_biased_karatsuba_core.h"
+          },
+          {
+            "sha256": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_blocked_half_layout.h"
+          },
+          {
+            "sha256": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_blocked_half_projection.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "f237ffc22f90a65fa3b398d7bcbcf7eed64407551c34610ce55e7d6f4439b3eb",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_byte_residue32_core.h"
+          },
+          {
+            "sha256": "dc281546614d390911322c1e388c89acc4696341de6d05bce7e19d4a51c7b77f",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_byte_residue_core.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "29fdf460bb2c45193c11276de8f75c5e5139fb61b99825b13f491173bca2f641",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_carry_transfer.h"
+          },
+          {
+            "sha256": "04fa6e69cdd8231ded97fc8f76e785b01eaedd2af05c5fc1d9eb7ac4552b78a4",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_coarse_projection_bound.h"
+          },
+          {
+            "sha256": "88135ee240a64a576ddc3f12232d339af463048ce4f1dfda55220c875ccbcfe5",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_coarse_projection_matrix.h"
+          },
+          {
+            "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_compact_wide_integer_core.h"
+          },
+          {
+            "sha256": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_cooperative_half_projection.h"
+          },
+          {
+            "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_decoded_projection.h"
+          },
+          {
+            "sha256": "f579129483ba1fe4af8918a0c966fe1d5fb15416adde0df0c766ea293d35eb80",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_dominant_half_products.h"
+          },
+          {
+            "sha256": "e8350f9e732798712cd8ff16445e9c72a027f7f0d870ed636a967b84e264e45f",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_dominant_half_projection.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "44a0fd9914fb64f34cdf76d646d4ed03fc2cf78e1333edb0744d5f8c8a876113",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_embedded_half_operands.h"
+          },
+          {
+            "sha256": "0fc194d6444195074430076140a478b1404aa4b5337befc82ab31ac1fd460ad5",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_embedded_half_projection.h"
+          },
+          {
+            "sha256": "ccf55e266d504992e7061b0c1372c0a1f8a5cc1a2459ae2b52c45c7fc3dd28ea",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_exponent_loss_bound.h"
+          },
+          {
+            "sha256": "bb62412721e3f7597654a6b66a5bae78a7bd3fbf9c90799dcf0da9ec8faae29e",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_exponent_loss_matrix.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "1f8a61dfd5fc27828c247954f9c8c723ccfa0ca14a39434d59b72e10cd7a7376",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_half_f32_carry.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_integer_interval.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_interleaved_projection.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "b0b77f9cbda76ea63fe4f2d0c49b0169a89ef04a65aec9c16f0521bc21998585",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_matrix_maximum.h"
+          },
+          {
+            "sha256": "2a1227c758f6d54e5e08b6ccfade82184535c5fb474e9763056e3f54fe61c8ee",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_matrix_predicted_group.h"
+          },
+          {
+            "sha256": "e61d49407aa210ce81c9209a23c999d763d965579480cc1e041268e333892c76",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_matrix_projection.h"
+          },
+          {
+            "sha256": "09c5a1d7fd43aa1be48cc4ed0d11d6e3d22849ecdc975c129724125b10925af3",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_modular_integer_core.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "83ba8f36cc940b579ed948c8c1c6c54a6e39d792c2c372d05558a8520c9f53b3",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_partitioned_half_projection.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "af673bcbbde5584a980a8ea52faaa439fb8ccfd3751ef8736e4cdd9f8a330778",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_predicted_group.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_pv_group_plan.h"
+          },
+          {
+            "sha256": "5ba85b0a74be1fe40c3c6d1378271fadde79436a1e95904e2dc9f2038079b08a",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_pv_transfer_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_slab_half_layout.h"
+          },
+          {
+            "sha256": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_slab_half_projection.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "1e65c563bcb923c47088b75e4fd5d9d1f85ddfa1921c15a7c9c3da8ed0b461bc",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_staged_half_f32_projection.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "187653f6b4c090840074a1da782e31f889d7fb0a159f26a2ee94ab38cbbed447",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_transfer_projection.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-slab-half-safety-r1.ps1",
+        "command_file_sha256": "6b6c970d851bf3d1cfde3cd701b892aa29cc51fb5cd4a0eea919f2d4d3be6ef7",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\slab_half_projection_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-half-safety\\slab-half-safety.exe"
+        ],
+        "run_record_sha256": "6ae71919bff9e87401bbe1ec6d8dbaf6c5e2e53fc39568539e79eb3b29652b43",
+        "executable": {
+          "sha256": "e52f712a6cb361d1acb792a71fe04b46837414f4db4b33a971f9ebe5e63beac7",
+          "file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-half-safety\\slab-half-safety.exe",
+          "bytes": 299520
+        }
+      }
+    },
+    "slab-half-safety-test": {
+      "name": "slab-half-safety-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-half-safety\\slab-half-safety.exe",
+        "arguments": [],
+        "working_directory": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "command_file": "D:\\projects\\run-native-slab-half-safety-r1.ps1",
+        "command_file_sha256": "6b6c970d851bf3d1cfde3cd701b892aa29cc51fb5cd4a0eea919f2d4d3be6ef7",
+        "model": "none; generated dense/MoE reduction shapes",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "purpose": "Compare original staged2 against split payload/control planes with input/weight slabs256/16 and64/64. Six widths16,272,2048,4096,4112,8192 use independent unequal row counts and independently permuted dot pairs. Check every original CPU K16 state, final value, arithmetic path count, encoded word, zero padding, source guard, unaligned view and production/audit parity. Original candidate and accumulation semantics remain. Component only.",
+        "build_provenance_sha256": "b891d3855e90a6d7a1f1d7140caa063f88431e219b9db2562d659e6986606835"
+      },
+      "launch": {
+        "pid": 6508,
+        "utc": "2026-09-15T22:55:21.6595859Z",
+        "timeout_seconds": 180,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 731.771,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "e52f712a6cb361d1acb792a71fe04b46837414f4db4b33a971f9ebe5e63beac7",
+      "canonical_raw_sha256": {
+        "dispatch.json": "3bec6a030883a4d7f8d464b851eab372438c27da0de9b3647b47088453fe7b4c",
+        "launch.json": "a6903facec98396bd29892c0b9896a3032ecca516b233a69dcf8f04b1fb6a231",
+        "preflight.json": "5a5b4ebda82fad51e76b817987c1c41c5b7b6fd713e1b1416e77ef00881f36a5",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "1d4bf595b1fd85ac3b7dc7d12b8c73f162facd3608e04cb5768f1990d8f49b06",
+        "reports.json": "e6d19931c0b1a288aed646f5e9c5c38e3d923849896be86521c803c237f2effa",
+        "run-record.json": "c2f065b5ff268638d90316f77ac6cdd8d3ef8b9cbe34c298432880511b7fb29e"
+      },
+      "reports": [
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 257,
+          "right_rows": 270,
+          "outputs": 262,
+          "width": 16,
+          "ordered_raw_carry_states": 262,
+          "transformed_groups": 138,
+          "original_groups": 124,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 257,
+          "right_rows": 270,
+          "outputs": 262,
+          "width": 16,
+          "ordered_raw_carry_states": 262,
+          "transformed_groups": 138,
+          "original_groups": 124,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 257,
+          "right_rows": 270,
+          "outputs": 262,
+          "width": 16,
+          "ordered_raw_carry_states": 262,
+          "transformed_groups": 138,
+          "original_groups": 124,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 4096,
+          "right_rows": 4109,
+          "outputs": 4101,
+          "width": 272,
+          "ordered_raw_carry_states": 69717,
+          "transformed_groups": 36686,
+          "original_groups": 33031,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 4096,
+          "right_rows": 4109,
+          "outputs": 4101,
+          "width": 272,
+          "ordered_raw_carry_states": 69717,
+          "transformed_groups": 36686,
+          "original_groups": 33031,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 4096,
+          "right_rows": 4109,
+          "outputs": 4101,
+          "width": 272,
+          "ordered_raw_carry_states": 69717,
+          "transformed_groups": 36686,
+          "original_groups": 33031,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 2048,
+          "right_rows": 2061,
+          "outputs": 2053,
+          "width": 2048,
+          "ordered_raw_carry_states": 262784,
+          "transformed_groups": 138368,
+          "original_groups": 124416,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 2048,
+          "right_rows": 2061,
+          "outputs": 2053,
+          "width": 2048,
+          "ordered_raw_carry_states": 262784,
+          "transformed_groups": 138368,
+          "original_groups": 124416,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 2048,
+          "right_rows": 2061,
+          "outputs": 2053,
+          "width": 2048,
+          "ordered_raw_carry_states": 262784,
+          "transformed_groups": 138368,
+          "original_groups": 124416,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 1024,
+          "right_rows": 1037,
+          "outputs": 1029,
+          "width": 4096,
+          "ordered_raw_carry_states": 263424,
+          "transformed_groups": 136448,
+          "original_groups": 126976,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 1024,
+          "right_rows": 1037,
+          "outputs": 1029,
+          "width": 4096,
+          "ordered_raw_carry_states": 263424,
+          "transformed_groups": 136448,
+          "original_groups": 126976,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 1024,
+          "right_rows": 1037,
+          "outputs": 1029,
+          "width": 4096,
+          "ordered_raw_carry_states": 263424,
+          "transformed_groups": 136448,
+          "original_groups": 126976,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 4112,
+          "ordered_raw_carry_states": 34438,
+          "transformed_groups": 19018,
+          "original_groups": 15420,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 4112,
+          "ordered_raw_carry_states": 34438,
+          "transformed_groups": 19018,
+          "original_groups": 15420,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 4112,
+          "ordered_raw_carry_states": 34438,
+          "transformed_groups": 19018,
+          "original_groups": 15420,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 0,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 8192,
+          "ordered_raw_carry_states": 68608,
+          "transformed_groups": 37888,
+          "original_groups": 30720,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 1,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 8192,
+          "ordered_raw_carry_states": 68608,
+          "transformed_groups": 37888,
+          "original_groups": 30720,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "slab_half_projection_safety",
+          "variant": 2,
+          "left_rows": 129,
+          "right_rows": 142,
+          "outputs": 134,
+          "width": 8192,
+          "ordered_raw_carry_states": 68608,
+          "transformed_groups": 37888,
+          "original_groups": 30720,
+          "raw_bit_mismatches": 0,
+          "production_diagnostic_parity": true,
+          "all_encoded_words_and_padding_checked": true,
+          "unaligned_operands": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "slab-bucket-projection-build": {
+      "name": "slab-bucket-projection-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_build_whole_provider.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety",
+          "-DppReduction",
+          "1",
+          "-CompactNormalize",
+          "1",
+          "-HawkeyeReplayLanes",
+          "4",
+          "-CompileTimeoutSeconds",
+          "240",
+          "-ProjectionSafetyTest"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "command_file": "D:\\projects\\run-native-slab-bucket-projection-r1.ps1",
+        "command_file_sha256": "083e6fac54bf61f92df98a4836d8f906faa3cb13daedb24c584ac4fe6e7b0142",
+        "model": "none; native compile",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "slab_bucket_variants": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "purpose": "Compare current row-major staged2, original16/256 bucket order, and split operand planes aligned with16/256 or64/64 candidate buckets. Full q8192 QKV and OUT preserve every original candidate, every unrounded result and all external GB10 BF16 endpoints. Include full operand preparation, histogram/prefix/scatter and bounded replay in completed wall timers. Check exact complete permutations, bin metadata, all encoded words and recoverability, guards and immutable inputs on every rotated attempt. One warmup and three measured attempts. No runtime dispatch changes or model inference acceptance.",
+        "matrix_producer_algorithm": 4
+      },
+      "launch": {
+        "pid": 13260,
+        "utc": "2026-09-15T22:57:13.9737056Z",
+        "timeout_seconds": 270,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 108024.008,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "e1a39eb910f48062419b2262d1abccb9f50650c37c8538bd3650917f1571ce52",
+        "dispatch.json": "6e9a5b0decd91267f989a2781852a4d0c9c46ce101e224eb817a9e65684a4dc3",
+        "launch.json": "38c19588f8694f66d21d4f3db4d60d633b8ebf2c92cab757c77787a70d678f64",
+        "preflight.json": "274742b9b45eb027de6f4edbef6720a44b558ffc2673c61408c93ff8999610be",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "0362040d7e48e343eae57c78ba52cc600642e7939bb923244f9138ea91d57a14",
+        "run-record.json": "0efd2d6633bfcf1a75ceb1f64cec8cda7aa474aff1730606818d7fde1346a14f",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 240,
+        "source_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+        "projection_safety_test": true,
+        "hawkeye_device_replay_test_header_sha256": "a1c5baf48a5e5d93167161aaa303cb36006285c8425f1b4d11da44266eb6c8b9",
+        "attention_admission_replay": false,
+        "compile_source_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\projection_safety_selftest.cpp",
+        "compile_source_sha256": "5a1bc9efb85f9a8a7593d800dc3c2ebf479893b5cadfc545055f940f595833ee",
+        "hawkeye_dispatch_policy_sha256": "48483e1e6a51ca3dda41e26150f3e69351cc25f81d3a532484c9a6f6eb9d758e",
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "gb10_gate_lookup_sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+        "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+        "q8192_out_l1_policy_sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+        "q8192_out_l1_shadow_audit_sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+        "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "qrt_header_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\src\\qrt.h",
+        "qrt_header_sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "sm121_rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+        "sm121_q1_full_runtime_header_sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+        "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+        "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+        "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_scaled_fallback_header_sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+        "sm121_staged_half_projection_header_sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "sm121_scaled_half_projection_header_sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "sm121_scaled_half_products_header_sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "sm121_scaled_projection_header_sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+        "sm121_scaled_significand_header_sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+        "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1466.1968
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 106105.8287
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\src",
+          "-I",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\native\\providers",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\tests\\native\\projection_safety_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety\\qrt-projection-safety.exe",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt-projection-safety.exe",
+            "bytes": 15592448,
+            "sha256": "42f56196111787a64ad110b817e75275fc8082007a50cce2b114540539ea9f2d"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "e687fe3e49011f2721e9ce23d44c53a2e723606bb00bda51ba93acb4fd72916a"
+          }
+        ]
+      }
+    },
+    "slab-bucket-projection-qkv": {
+      "name": "slab-bucket-projection-qkv-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety\\qrt-projection-safety.exe",
+        "arguments": [
+          "--real-qkv-q8192",
+          "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+          "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+          "D:\\projects\\sm121-qkv-reference-9510d980.bin",
+          "1000"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "command_file": "D:\\projects\\run-native-slab-bucket-projection-r1.ps1",
+        "command_file_sha256": "083e6fac54bf61f92df98a4836d8f906faa3cb13daedb24c584ac4fe6e7b0142",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "slab_bucket_variants": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "purpose": "Compare current row-major staged2, original16/256 bucket order, and split operand planes aligned with16/256 or64/64 candidate buckets. Full q8192 QKV and OUT preserve every original candidate, every unrounded result and all external GB10 BF16 endpoints. Include full operand preparation, histogram/prefix/scatter and bounded replay in completed wall timers. Check exact complete permutations, bin metadata, all encoded words and recoverability, guards and immutable inputs on every rotated attempt. One warmup and three measured attempts. No runtime dispatch changes or model inference acceptance.",
+        "matrix_producer_algorithm": 4,
+        "build_run_sha256": "0efd2d6633bfcf1a75ceb1f64cec8cda7aa474aff1730606818d7fde1346a14f",
+        "build_provenance_sha256": "e1a39eb910f48062419b2262d1abccb9f50650c37c8538bd3650917f1571ce52",
+        "tensor_inputs": [
+          {
+            "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+            "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+          },
+          {
+            "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+            "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+          },
+          {
+            "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+            "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "gb10_reference_host": "aitopatom-66c4",
+        "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+        "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+        "reference_is_compute_input": false,
+        "selector_error_bound_ppb": 1000,
+        "tokens": 8192,
+        "source_tokens": 7169,
+        "repeated_input_rows": 1023
+      },
+      "launch": {
+        "pid": 11380,
+        "utc": "2026-09-15T22:59:51.5443464Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 7367.198,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "42f56196111787a64ad110b817e75275fc8082007a50cce2b114540539ea9f2d",
+      "canonical_raw_sha256": {
+        "dispatch.json": "9424193738d1251af717973f2d71b2b3f9bb3ef26101042cf4538b53d836e645",
+        "launch.json": "51f809d9ccb3f2e12ed5c50dc468cabed9f7ef9665e78823ed0e82156067fe24",
+        "preflight.json": "e82ddfaad3118cbd5551955e9fc1060f4192ec61f3328a693ac2b434943afbfe",
+        "product.stderr.log": "68250d10d799393a6b22a10c21ee14c91abaa714ccbf1bad14ff44051a06bc30",
+        "product.stdout.jsonl": "1d769b91a9a9a510a74d65cad88aaf5436f79904c279d1f4cdde1a268a6f608b",
+        "reports.json": "fdf0777898996bafd8c79c5c6f54a9162182505882e463eda3f7ad1e71b1f3c0",
+        "run-record.json": "f22bf68e598baccfd32050a618f468a6055ea1088d656e630420d109870dbc0a"
+      },
+      "reports": [
+        {
+          "type": "real_qkv_selector",
+          "elements": 67108864,
+          "initial_bf16_mismatches": 430461,
+          "midpoint_misses": 389572,
+          "bound_misses": 0,
+          "required_ppb_observed": 227,
+          "configured_ppb": 1000,
+          "prospective_candidates": 4331311,
+          "maximum_blocks": 4096,
+          "inference_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 0,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 0,
+          "token_rows_per_bucket": 0,
+          "buckets": 0,
+          "extra_workspace_bytes": 0,
+          "preparation_reorder_replay_ms": 42.9821,
+          "samples_ms": [
+            42.8915,
+            42.9821,
+            43.1371
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 1,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 50.0532,
+          "samples_ms": [
+            48.6048,
+            50.0532,
+            52.1059
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 2,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 44.7912,
+          "samples_ms": [
+            40.4614,
+            48.0575,
+            44.7912
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 3,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 64,
+          "token_rows_per_bucket": 64,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 38.8029,
+          "samples_ms": [
+            38.3421,
+            38.8029,
+            39.2019
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-qkv-q8192",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_qkv_projection"
+        }
+      ]
+    },
+    "slab-bucket-projection-out": {
+      "name": "slab-bucket-projection-out-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916\\build\\slab-bucket-projection-safety\\qrt-projection-safety.exe",
+        "arguments": [
+          "--real-out-q8192",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_gated_context-bf16.bin",
+          "D:\\projects\\gb10-dense-out-weight-f4cb470e.bin",
+          "D:\\projects\\gb10-dense-out-q8192-f1239dae.bin",
+          "10000"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-slab-bucket-projection-20260916",
+        "repo_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+        "command_file": "D:\\projects\\run-native-slab-bucket-projection-r1.ps1",
+        "command_file_sha256": "083e6fac54bf61f92df98a4836d8f906faa3cb13daedb24c584ac4fe6e7b0142",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer3 full-attention OUT",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "slab_bucket_variants": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "purpose": "Compare current row-major staged2, original16/256 bucket order, and split operand planes aligned with16/256 or64/64 candidate buckets. Full q8192 QKV and OUT preserve every original candidate, every unrounded result and all external GB10 BF16 endpoints. Include full operand preparation, histogram/prefix/scatter and bounded replay in completed wall timers. Check exact complete permutations, bin metadata, all encoded words and recoverability, guards and immutable inputs on every rotated attempt. One warmup and three measured attempts. No runtime dispatch changes or model inference acceptance.",
+        "matrix_producer_algorithm": 0,
+        "build_run_sha256": "0efd2d6633bfcf1a75ceb1f64cec8cda7aa474aff1730606818d7fde1346a14f",
+        "build_provenance_sha256": "e1a39eb910f48062419b2262d1abccb9f50650c37c8538bd3650917f1571ce52",
+        "tensor_inputs": [
+          {
+            "sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65",
+            "path": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_gated_context-bf16.bin"
+          },
+          {
+            "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab",
+            "path": "D:\\projects\\gb10-dense-out-weight-f4cb470e.bin"
+          },
+          {
+            "sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa",
+            "path": "D:\\projects\\gb10-dense-out-q8192-f1239dae.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "gb10_reference_host": "aitopatom-66c4",
+        "gb10_capture_sha256": "087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37",
+        "reference_is_compute_input": false,
+        "selector_error_bound_ppb": 10000,
+        "tokens": 8192,
+        "source_tokens": 7169,
+        "repeated_input_rows": 1023,
+        "out_reference_sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa"
+      },
+      "launch": {
+        "pid": 4772,
+        "utc": "2026-09-15T23:00:32.4919085Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 9600.565,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "42f56196111787a64ad110b817e75275fc8082007a50cce2b114540539ea9f2d",
+      "canonical_raw_sha256": {
+        "dispatch.json": "bcc52af0892cccc2686eecadb153d67e99391297ff0aa92a8e6f86ac0d764b8f",
+        "launch.json": "406aec269a077b77c0a31c3d88abd15311d0a603dd65b72a3c49bd472f540f5b",
+        "preflight.json": "d9d17150bc727215940d8f1c0edf11dd3b99a797d9a6c8994358ddea237410cb",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "7b1a317894be4feb1fe5fb543e8098e27fcd16b066fa3744900754d3f6923c14",
+        "reports.json": "877e00768522478d4857a920e469951ac073f5300c9bbe0ccd1313b307a4c58f",
+        "run-record.json": "13eb3e3c6017a95f1c3e71a2164df73cd80c1c888cdbda648f2d5f80c0d5bdbc"
+      },
+      "reports": [
+        {
+          "type": "real_out_selector",
+          "elements": 16777216,
+          "initial_bf16_mismatches": 38246,
+          "midpoint_misses": 18518,
+          "bound_misses": 0,
+          "required_ppb_observed": 246,
+          "configured_ppb": 10000,
+          "prospective_candidates": 8470282,
+          "maximum_blocks": 4096,
+          "inference_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 0,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 0,
+          "token_rows_per_bucket": 0,
+          "buckets": 0,
+          "extra_workspace_bytes": 0,
+          "preparation_reorder_replay_ms": 160.2,
+          "samples_ms": [
+            160.117,
+            160.542,
+            160.2
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 1,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 148.504,
+          "samples_ms": [
+            147.645,
+            148.504,
+            148.758
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 2,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 139.441,
+          "samples_ms": [
+            139.441,
+            140.137,
+            138.702
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 3,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 64,
+          "token_rows_per_bucket": 64,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 140.754,
+          "samples_ms": [
+            142.769,
+            140.754,
+            140.252
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--real-out-q8192",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "real_bf16_full_attention_out_projection"
+        }
+      ]
+    }
+  },
+  "comparisons": {
+    "qkv": {
+      "selector": {
+        "type": "real_qkv_selector",
+        "elements": 67108864,
+        "initial_bf16_mismatches": 430461,
+        "midpoint_misses": 389572,
+        "bound_misses": 0,
+        "required_ppb_observed": 227,
+        "configured_ppb": 1000,
+        "prospective_candidates": 4331311,
+        "maximum_blocks": 4096,
+        "inference_acceptance": false
+      },
+      "reports": [
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 0,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 0,
+          "token_rows_per_bucket": 0,
+          "buckets": 0,
+          "extra_workspace_bytes": 0,
+          "preparation_reorder_replay_ms": 42.9821,
+          "samples_ms": [
+            42.8915,
+            42.9821,
+            43.1371
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 1,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 50.0532,
+          "samples_ms": [
+            48.6048,
+            50.0532,
+            52.1059
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 2,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 44.7912,
+          "samples_ms": [
+            40.4614,
+            48.0575,
+            44.7912
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 3,
+          "rows": 8192,
+          "tokens": 8192,
+          "k": 2048,
+          "elements": 67108864,
+          "candidates": 4331311,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 64,
+          "token_rows_per_bucket": 64,
+          "buckets": 16384,
+          "extra_workspace_bytes": 17521860,
+          "preparation_reorder_replay_ms": 38.8029,
+          "samples_ms": [
+            38.3421,
+            38.8029,
+            39.2019
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ],
+      "current_staged2_ms": 42.9821,
+      "original_bucket_ms": 50.0532,
+      "best_slab_variant": 3,
+      "best_slab_ms": 38.8029,
+      "best_minus_current_ms": -4.179200000000002
+    },
+    "out": {
+      "selector": {
+        "type": "real_out_selector",
+        "elements": 16777216,
+        "initial_bf16_mismatches": 38246,
+        "midpoint_misses": 18518,
+        "bound_misses": 0,
+        "required_ppb_observed": 246,
+        "configured_ppb": 10000,
+        "prospective_candidates": 8470282,
+        "maximum_blocks": 4096,
+        "inference_acceptance": false
+      },
+      "reports": [
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 0,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 0,
+          "token_rows_per_bucket": 0,
+          "buckets": 0,
+          "extra_workspace_bytes": 0,
+          "preparation_reorder_replay_ms": 160.2,
+          "samples_ms": [
+            160.117,
+            160.542,
+            160.2
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 1,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 0,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 148.504,
+          "samples_ms": [
+            147.645,
+            148.504,
+            148.758
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 2,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 16,
+          "token_rows_per_bucket": 256,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 139.441,
+          "samples_ms": [
+            139.441,
+            140.137,
+            138.702
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "type": "slab_bucket_projection_replay",
+          "variant": 3,
+          "rows": 2048,
+          "tokens": 8192,
+          "k": 4096,
+          "elements": 16777216,
+          "candidates": 8470282,
+          "split_operand_planes": 1,
+          "weight_rows_per_bucket": 64,
+          "token_rows_per_bucket": 64,
+          "buckets": 4096,
+          "extra_workspace_bytes": 33930288,
+          "preparation_reorder_replay_ms": 140.754,
+          "samples_ms": [
+            142.769,
+            140.754,
+            140.252
+          ],
+          "warmups": 1,
+          "measured_attempts": 3,
+          "candidate_limit_per_dispatch": 262144,
+          "raw_bit_mismatches": 0,
+          "bf16_mismatches": 0,
+          "unrounded_candidate_bit_mismatches": 0,
+          "complete_permutation_every_attempt": true,
+          "all_attempts_verified": true,
+          "all_encoded_words_checked": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ],
+      "current_staged2_ms": 160.2,
+      "original_bucket_ms": 148.504,
+      "best_slab_variant": 2,
+      "best_slab_ms": 139.441,
+      "best_minus_current_ms": -20.758999999999986
+    }
+  },
+  "variant_labels": {
+    "0": "current row-major staging2 in original candidate order",
+    "1": "current row-major staging2 in16-weight/256-token buckets",
+    "2": "split payload/control planes in matching16-weight/256-token slabs and buckets",
+    "3": "split payload/control planes in matching64-weight/64-token slabs and buckets"
+  },
+  "verified_counts": {
+    "native_safety_cases": 18,
+    "native_original_cpu_ordered_states": 2097699,
+    "full_projection_bf16_and_raw_cells_all_attempts": 1342177280,
+    "selected_unrounded_cells_all_attempts": 204825488
+  },
+  "commands": {
+    "native_safety": {
+      "file": "run-native-slab-half-safety-r1.ps1",
+      "sha256": "6b6c970d851bf3d1cfde3cd701b892aa29cc51fb5cd4a0eea919f2d4d3be6ef7",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-slab-bucket-projection-20260916';$seed='D:\\projects\\AIMA-public-coarse-interval-gdn-provider-20260916';$sha='c2ab8b41b834ea187506bff30d3170a525ee373c';$bundle='D:\\projects\\slab-bucket-projection-c2ab8b4.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd8c6eb9ed09c929d64fd2453f7cee5b700facd32637c0657fdb63156033dc53b'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){& git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'};& git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\slab-half-safety';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\slab_half_projection_selftest.cpp';$exe=Join-Path $build 'slab-half-safety.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceFiles=@($source,(Join-Path $repo 'tests\\native\\strong_float_replay_cases.h'));$sourceFiles+=@(Get-ChildItem (Join-Path $repo 'native\\providers\\moe_accumulator') -Filter '*.h' -File|ForEach-Object {$_.FullName})\n$sourceInputs=@();foreach($file in $sourceFiles){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated dense/MoE reduction shapes';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;purpose='Compare original staged2 against split payload/control planes with input/weight slabs256/16 and64/64. Six widths16,272,2048,4096,4112,8192 use independent unequal row counts and independently permuted dot pairs. Check every original CPU K16 state, final value, arithmetic path count, encoded word, zero padding, source guard, unaligned view and production/audit parity. Original candidate and accumulation semantics remain. Component only.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe';$spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=180\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $meta.executable.sha256){throw 'Executable provenance mismatch'}\n foreach($file in $meta.source_inputs){if((Get-FileHash $file.file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256){throw 'Build source changed'}}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant();$spec.executable=$exe;$timeout=180\n}\n$specPath=Join-Path $build ($Action+'-spec-r1.json');$out=Join-Path $repo ('build\\slab-half-safety-'+$Action+'-r1')\nif((Test-Path $specPath) -or (Test-Path $out)){throw 'Evidence exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native subgroup diagnostic failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($reports.Count -ne 18){throw 'Incomplete subgroup diagnostic'}\n foreach($report in $reports){if($report.raw_bit_mismatches -ne 0 -or -not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Subgroup arithmetic or memory failure'}}\n}\n"
+    },
+    "full_projection": {
+      "file": "run-native-slab-bucket-projection-r1.ps1",
+      "sha256": "083e6fac54bf61f92df98a4836d8f906faa3cb13daedb24c584ac4fe6e7b0142",
+      "text": "param([ValidateSet('build','qkv','out')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-slab-bucket-projection-20260916';$seed='D:\\projects\\AIMA-public-coarse-interval-gdn-provider-20260916';$source='c2ab8b41b834ea187506bff30d3170a525ee373c';$bundle='D:\\projects\\slab-bucket-projection-c2ab8b4.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne 'd8c6eb9ed09c929d64fd2453f7cee5b700facd32637c0657fdb63156033dc53b'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $source;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $source -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\slab-bucket-projection-safety';$exe=Join-Path $build 'qrt-projection-safety.exe';$provider=Join-Path $repo 'build\\slab-bucket-projection-provider'\n$out=Join-Path $repo ('build\\slab-bucket-projection-'+$Action+'-r1');$specPath=Join-Path $repo ('build\\slab-bucket-projection-'+$Action+'-r1.json')\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw 'Evidence exists'}}\n$null=New-Item -ItemType Directory -Path (Join-Path $repo 'build') -Force\n$sourceFiles=@('native\\providers\\whole_provider.cpp','native\\providers\\q8192_matrix_producer_policy.h','tests\\native\\projection_safety_selftest.cpp','scripts\\baiying_build_whole_provider.ps1')\nforeach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn','native\\providers\\ck_fmha','tests\\native')){\n $sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName.Substring($repo.Length+1)})\n}\n$sourceInputs=@();foreach($file in ($sourceFiles|Sort-Object -Unique)){$sourceInputs+=@{file=$file;sha256=(Get-FileHash (Join-Path $repo $file) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$source;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; native compile';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;replay_lanes=4;staging_groups=2;slab_bucket_variants=@(0,1,2,3);purpose='Compare current row-major staged2, original16/256 bucket order, and split operand planes aligned with16/256 or64/64 candidate buckets. Full q8192 QKV and OUT preserve every original candidate, every unrounded result and all external GB10 BF16 endpoints. Include full operand preparation, histogram/prefix/scatter and bounded replay in completed wall timers. Check exact complete permutations, bin metadata, all encoded words and recoverability, guards and immutable inputs on every rotated attempt. One warmup and three measured attempts. No runtime dispatch changes or model inference acceptance.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$env:QRT_QWEN36_PROFILE_MATRIX_PRODUCER_WALL='0';$env:QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER='1';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM='4';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE='qkv';$env:QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT='0'\n$env:QRT_PROJECTION_SAFETY_STRONG_REPLAY='0';$env:QRT_PROJECTION_SAFETY_SPATIAL_REPLAY='0';$env:QRT_PROJECTION_SAFETY_PACKED_TILES_REPLAY='0';$env:QRT_PROJECTION_SAFETY_DUAL_LANE_REPLAY='0';$env:QRT_PROJECTION_SAFETY_DECODED_REPLAY='0';$env:QRT_PROJECTION_SAFETY_INTERLEAVED_REPLAY='0';$env:QRT_PROJECTION_SAFETY_SCALED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_STAGED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_BLOCKED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_COOPERATIVE_HALF_REPLAY='1'\n$env:QRT_QWEN36_HAWKEYE_DEVICE_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS='1';$env:QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY='1';$env:QRT_QWEN36_HAWKEYE_PARTITION_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR='0';$env:QRT_QWEN36_HAWKEYE_FLOAT_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT='0';$env:QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES='0';$env:QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH='4096'\nforeach($name in @('SCALAR','TILED','BOUNDED','SCALED','ROW_MAX','F32_CARRY','RANGE','PARTITION','INTERVAL')){[Environment]::SetEnvironmentVariable('QRT_PROJECTION_SAFETY_'+$name+'_REPLAY','0','Process')}\nforeach($item in @(Get-ChildItem Env:|Where-Object {$_.Name -like 'QRT_PROJECTION_SAFETY_*_REPLAY'})){[Environment]::SetEnvironmentVariable($item.Name,'0','Process')}\n$env:QRT_PROJECTION_SAFETY_SLAB_BUCKET_REPLAY='1'\n$spec.matrix_producer_algorithm=[int]$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM\nfunction Check-Run([string]$action){\n $path=Join-Path $repo ('build\\slab-bucket-projection-'+$action+'-r1\\run-record.json');$r=[IO.File]::ReadAllText($path)|ConvertFrom-Json\n if($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('Incomplete prerequisite '+$action)}\n return (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()\n}\nif($Action -eq 'build'){\n if(Test-Path $build){throw 'Build exists'}\n $spec.executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n $spec.arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'),'-OutDir',$build,'-DppReduction','1','-CompactNormalize','1','-HawkeyeReplayLanes','4','-CompileTimeoutSeconds','240','-ProjectionSafetyTest');$timeout=270\n}else{\n $spec.build_run_sha256=Check-Run 'build'\n $metaPath=Join-Path $build 'build-provenance.json';$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\n $artifact=@($meta.artifacts|Where-Object {$_.name -eq 'qrt-projection-safety.exe'})\n if($meta.repo_commit -ne $source -or $meta.dirty_tree -or $artifact.Count -ne 1 -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $artifact[0].sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $metaPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $inputTensor='D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin';$weightTensor='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin';$referenceTensor='D:\\projects\\sm121-qkv-reference-9510d980.bin'\n $tensors=@(@{path=$inputTensor;sha256='6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161'},@{path=$weightTensor;sha256='b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f'},@{path=$referenceTensor;sha256='9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37'})\n foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Original QKV tensor changed'}}\n if($Action -eq 'out'){\n  $inputTensor='D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_gated_context-bf16.bin'\n  $weightTensor='D:\\projects\\gb10-dense-out-weight-f4cb470e.bin';$referenceTensor='D:\\projects\\gb10-dense-out-q8192-f1239dae.bin'\n  $tensors=@(@{path=$inputTensor;sha256='5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65'},@{path=$weightTensor;sha256='f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab'},@{path=$referenceTensor;sha256='f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa'})\n  foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Original OUT tensor changed'}}\n }\n $spec.executable=$exe;$spec.arguments=if($Action -eq 'out'){@('--real-out-q8192',$inputTensor,$weightTensor,$referenceTensor,'10000')}else{@('--real-qkv-q8192',$inputTensor,$weightTensor,$referenceTensor,'1000')};$spec.tensor_inputs=$tensors\n $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV';$spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83';$spec.gb10_reference_host='aitopatom-66c4';$spec.gb10_capture_sha256='5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b';$spec.prompt_sha256='26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804';$spec.reference_is_compute_input=$false;$spec.selector_error_bound_ppb=1000;$spec.tokens=8192;$spec.source_tokens=7169;$spec.repeated_input_rows=1023;$timeout=240\n if($Action -eq 'out'){\n  $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured layer3 full-attention OUT'\n  $spec.selector_error_bound_ppb=10000;$spec.matrix_producer_algorithm=0\n  $spec.gb10_capture_sha256='087343091048d50a12977548a24a6f2a0fd3346352bceb42fb160c3cf6a6bd37'\n  $spec.Remove('prompt_sha256');$spec.out_reference_sha256='f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa'\n }\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native matrix algorithm action failed'}\nif($Action -ne 'build'){\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $result=@($reports|Where-Object {$_.type -eq 'slab_bucket_projection_replay'});$summary=@($reports|Where-Object {$_.type -eq 'summary'})\n if($summary.Count -ne 1 -or $summary[0].status -ne 'pass' -or $summary[0].gpu_cases -ne 1 -or $result.Count -ne 4){throw 'Incomplete captured comparison'}\n $expectedElements=if($Action -eq 'out'){16777216}else{67108864}\n foreach($x in $result){if($x.elements -ne $expectedElements -or $x.candidates -le 0 -or $x.bf16_mismatches -ne 0 -or $x.raw_bit_mismatches -ne 0 -or $x.unrounded_candidate_bit_mismatches -ne 0 -or -not $x.redzones_pass -or -not $x.immutable_inputs -or $x.samples_ms.Count -ne 3 -or -not $x.all_attempts_verified -or -not $x.all_encoded_words_checked -or -not $x.complete_permutation_every_attempt){throw 'Captured QKV mismatch'}}\n}\n"
+    }
+  },
+  "gb10_out_reference": {
+    "file": "benchmarks/correctness/gb10-dense-out-q8192-reference-20260915.json",
+    "bytes": 7216,
+    "sha256": "d6085ca9a0be1ecd3c13c602c5c38de2401e08f4a9637cdff50aa435bbdd9103"
+  },
+  "comparable_qkv_original_case": {
+    "file": "benchmarks/correctness/weight-bucket-projection-native-components-20260915.json",
+    "bytes": 162591,
+    "sha256": "fb4eb5966db6262e9b7764b82c1fbb21b124ed0ac7ff9411bd797fe1b8bc136c"
+  },
+  "current_product_boundary": {
+    "file": "benchmarks/correctness/expert-order-moe-q8192-recheck-20260916.json",
+    "bytes": 320419,
+    "sha256": "88051fa75b39701ac52f5eeffb13a118486afaa0d61ce59aa12495af42c34246"
+  },
+  "implementation": "Two consecutive K16 payloads occupy64 contiguous bytes per row; unchanged32-bit controls reside in a separate plane. Input and weight row slabs follow the same two-dimensional bins as the existing lossless candidate permutation. Both replay layouts call the original staged::accumulate in ascending K16 order with staging2 and four lanes. Unsupported groups retain original BF16 payloads and the original fallback marker. Padded rows/groups contain the original exact zero encoding. The current runtime is unchanged.",
+  "correctness_scope": "Generated fixtures compare all raw K16 carries and final values against independent CPU wide arithmetic, including unequal row counts and independently permuted dot pairs. Every encoded word, original BF16 roundtrip, padding, arithmetic path count, unaligned source, output guard and production/audit parity is checked. Each full-shape warmup and measured attempt compares every raw output to current staged2 and every BF16 output to the external GB10 operator reference, plus exact permutations and all bin metadata. The8192-row operator inputs contain7169 captured rows plus1023 repeated rows. References never enter GPU compute. No real prompt or token loop is run.",
+  "timing_scope": "One warmup and three measured attempts per variant in rotating order. Completed host times include all weight/input encoding, candidate histogram/prefix/scatter and bounded replay launches. Original matrix producer and selection are common setup outside this timer, as are allocation, reset and verification. Preparation is not amortized or excluded. Guarded process wall is attached. No product load, TTFT or decode measurement follows from these component times.",
+  "decision": {
+    "source_commit": "c2ab8b41b834ea187506bff30d3170a525ee373c",
+    "comparisons": {
+      "qkv": {
+        "current_staged2_ms": 42.9821,
+        "original_bucket_ms": 50.0532,
+        "best_slab_variant": 3,
+        "best_slab_ms": 38.8029,
+        "best_minus_current_ms": -4.179200000000002
+      },
+      "out": {
+        "current_staged2_ms": 160.2,
+        "original_bucket_ms": 148.504,
+        "best_slab_variant": 2,
+        "best_slab_ms": 139.441,
+        "best_minus_current_ms": -20.758999999999986
+      }
+    },
+    "decision": "Keep the joint slab/bucket layouts isolated. The complete QKV median improves42.9821 to38.8029ms with64/64 slabs; OUT improves160.2 to139.441ms with16/256 slabs. All original unrounded results, GB10 BF16 endpoints, candidates and guards remain exact. These4.1792/20.759ms operator gains do not establish a seconds-scale product benefit, and the retained full-attention OUT already uses a different coarse-interval owner. Preserve the reusable lossless layouts and current qualified dispatcher; pursue a broader reduction of exact arithmetic while the actual q8192 TTFT remains about28.6s. No new token loop, package or release acceptance is claimed.",
+    "product_dispatch_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false
+  },
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
