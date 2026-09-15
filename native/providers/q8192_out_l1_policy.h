@@ -1,8 +1,21 @@
 #pragma once
 #include "moe_accumulator/bf16_positive_sum_bound.h"
+#include <cstring>
+#include <initializer_list>
 
 namespace qrt_out_l1_policy {
 constexpr unsigned variants = 5u;
+inline int selected_factor(const char* setting) {
+    if(!setting || !*setting || !std::strcmp(setting,"0"))return 0;
+    for(unsigned factor:{1u,2u,4u,8u,16u,32u}) {
+        const char* text=factor==1u?"1":factor==2u?"2":factor==4u?"4":factor==8u?"8":factor==16u?"16":"32";
+        if(!std::strcmp(setting,text))return int(factor);
+    }
+    return -1;
+}
+inline bool replay_shape(unsigned rows,unsigned tokens,unsigned width) {
+    return rows==2048u && tokens==8192u && width==4096u;
+}
 #if defined(__HIPCC__)
 #define QRT_OUT_L1_HD __host__ __device__
 #else

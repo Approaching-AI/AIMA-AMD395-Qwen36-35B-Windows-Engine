@@ -37141,6 +37141,11 @@ bool resident_bf16_matrix_matmul_f32_output(
     unsigned int output_features, unsigned int input_features,
     unsigned int token_count, hipStream_t stream, const std::string &stage,
     std::string *failure_stage, std::string *failure);
+bool resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
+    const uint16_t *weights, const uint16_t *inputs, float *outputs,
+    unsigned int output_features, unsigned int input_features,
+    unsigned int token_count, unsigned int heuristic_index, hipStream_t stream,
+    const std::string &stage, std::string *failure_stage, std::string *failure);
 #endif
 
 hipError_t launch_selected_bf16_projection_wmma_checked(
@@ -37853,6 +37858,8 @@ hipError_t count_selected_bf16_projection_hawkeye_candidates(
     return hipSuccess;
 }
 
+#include "q8192_out_l1_replay.h"
+
 // Stream bounded index windows and independently completed exact-dot dispatches.
 // Index scratch is bounded at 64 MiB plus counters and shrinks for short
 // projections. The packed route additionally owns one BF16 weight transpose.
@@ -37883,6 +37890,20 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         static_cast<uint64_t>(selected_token_count) * reduction_size > SIZE_MAX / sizeof(uint16_t) ||
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
+    }
+    const int out_l1_factor=qrt_out_l1_policy::selected_factor(
+        std::getenv("QRT_QWEN36_Q8192_OUT_L1_BOUND"));
+    if(out_l1_factor<0)return hipErrorInvalidValue;
+    if(out_l1_factor && !absolute_product_sums &&
+        qrt_out_l1_policy::replay_shape(rows,selected_token_count,reduction_size)) {
+        return qrt_out_l1_replay::run(weights,selected_inputs,selected_input_l2_upper_bounds,
+            weight_l2_upper_bounds,unsigned(out_l1_factor),absolute_error_bound_ppb,midpoint_radius,stream,
+            [&](const float* bounds) {
+                return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                    weights,selected_inputs,bounds,selected_input_l2_upper_bounds,weight_l2_upper_bounds,
+                    outputs,rows,selected_token_count,reduction_size,midpoint_radius,full_prefix_tokens,
+                    absolute_error_bound_ppb,maximum_blocks_per_launch,stream,requested_window_elements);
+            });
     }
     const char* prepared_setting = std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS");
     if (prepared_setting && *prepared_setting && std::strcmp(prepared_setting,"0") && std::strcmp(prepared_setting,"1"))

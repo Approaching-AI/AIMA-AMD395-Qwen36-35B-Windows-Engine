@@ -13,6 +13,7 @@
 #include <vector>
 #define QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER 1
 #include "hawkeye_dispatch_policy.h"
+#include "q8192_out_l1_policy.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_prefill_projection.h"
 
@@ -466,6 +467,20 @@ void selected_bf16_projection_hawkeye_staged_half_kernel(
     for(unsigned j=offset;j<end;++j)if(indices[j]/rows>=staged_rows[1])invalid_range=true;
     selected_bf16_projection_hawkeye_midpoint_correction_kernel<false>(
         nullptr,nullptr,output,rows,width,indices,offset,count,{});
+}
+
+namespace qrt_out_l1_replay {
+static unsigned calls=0u;
+static float bound=1.0f;
+template<class Replay>hipError_t run(const uint16_t* w,const uint16_t* x,const float* xn,const float* wn,
+    unsigned factor,unsigned ppb,unsigned radius,hipStream_t,Replay replay) {
+    ++calls;
+    if(!w || !x || !xn || !wn || factor!=1u || ppb!=10000u || radius!=512u)invalid_range=true;
+    // Dedicated owner tests execute preparation and all transport failures.
+    // Here the actual outer launcher must re-enter its original path exactly
+    // once with the supplied bound and preserve its selected indices/output.
+    return replay(&bound);
+}
 }
 
 // QRT_ACTUAL_LAUNCHER
@@ -1123,6 +1138,28 @@ int main() {
     if(run_prepared()!=hipSuccess || staged_preparations || staged_corrections ||
         eligibility_scans!=2u || invalid_grid || invalid_range || allocations!=frees ||
         !allocation_records.empty())return 110;
+    if(kSelectedHawkeyeReplayLanes==4u) {
+        queued_mode("0");staged_mode("1");float_mode("1",true);
+#ifdef _WIN32
+        _putenv_s("QRT_QWEN36_Q8192_OUT_L1_BOUND","1");
+#else
+        setenv("QRT_QWEN36_Q8192_OUT_L1_BOUND","1",1);
+#endif
+        total_elements=size_t(2048u)*8192u;reset();output.assign(total_elements,1.001f);
+        std::fill_n(output.begin(),513u,1.00390625f);
+        const float norm=1.0f;
+        if(launch_selected_bf16_projection_hawkeye_midpoint_correction(&value,&value,nullptr,
+                &norm,&norm,output.data(),2048u,8192u,4096u,512u,0u,10000u,1u,nullptr)!=hipSuccess ||
+            qrt_out_l1_replay::calls!=1u || invalid_grid || invalid_range ||
+            !allocation_records.empty() || !pending_work.empty() || corrected.size()!=513u)return 119;
+        for(size_t i=0u;i<total_elements;++i)
+            if(output[i]!=(i<513u?float((i/2048u)*2u+i%2048u):1.0f))return 120;
+#ifdef _WIN32
+        _putenv_s("QRT_QWEN36_Q8192_OUT_L1_BOUND","0");
+#else
+        setenv("QRT_QWEN36_Q8192_OUT_L1_BOUND","0",1);
+#endif
+    }
     float_mode("0",true);staged_mode("0");queued_mode("0");
     return 0;
 }
