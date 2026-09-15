@@ -127,9 +127,17 @@ GPU abort. A subsequent cold request matches all 32 GB10 IDs and first logit
 Cancelled generations receive no numerical acceptance. Evidence:
 `benchmarks/correctness/windows-runtime-environment-disconnect-20260915.json`,
 SHA256 `d9d6e01352c0df09a8ac66858330a0e0c06430f55334d07b7c6b05b2ee1aa67d`.
-A fresh R3 one-hour soak is running with an actual early-prefill callback
-check on every q8192 request. Its result is pending; the earlier R2 soak
-does not qualify this changed executable or its repaired C configuration.
+The R3 one-hour soak completes a 3628.061158-second active window with
+63 requests in 21 cycles. Offline replay verifies all 13344 raw GB10 output
+IDs, 42 prompt-bound first logits, 21 SSE text/usage/finish cases and the actual
+accepted early-prefill callback in every q8192 request. All 723 health samples
+respond within 19.7189 ms, queue accounting passes and the service exits
+normally. Load is 21134.7647 ms. Nonstream/stream median q8192 TTFT is
+29586.2630 / 29582.0702 ms, with TPOT 100.087300 / 100.090114 ms. Evidence:
+`benchmarks/correctness/windows-runtime-environment-one-hour-soak-20260915.json`,
+SHA256 `fcbc93ed85969ba024f08ee13ba0fef800dea3bae3010d50e6d5c0b6aab014f4`.
+This evidence is attached to the e7d605f service and its repaired C configuration;
+it does not transfer to a later executable or qualify the open performance gates.
 
 The September15 upstream refresh identifies Linux `.9`, published September14.
 The Windows CPU protocol candidate now reopens tool retries after completed
@@ -145,8 +153,18 @@ All54 Rust tests,416 Python tests with two conditional skips, C smoke, clippy,
 format and hygiene pass. Evidence:
 `benchmarks/correctness/tool-recovery-and-document-checker-local-20260915.json`,
 SHA256 `3e236824edc98613008ba3f232f933b2199156873dd04c8a30c4dfbc58122ddb`.
-These are local CPU/document checks; the new service still needs its native
-Windows build, real HTTP recovery cases and relocated archive validation.
+The f6018ca Windows service builds with all 49 server tests passing. The first
+native caller run then fails one of nine tests: default text output translates
+recovered CRLF into CRCRLF and adds blank lines. Evidence:
+`benchmarks/correctness/tool-document-windows-newline-failure-20260915.json`,
+SHA256 `db15f997f24994e065b1bf47ca323579cfa261768215d0c286c0f76bd10b9f39`.
+The helper now disables output newline translation. A Windows text-I/O
+regression reproduces the LF/CRLF failure before the fix; all 10 caller tests
+then pass locally, together with hygiene and diff checks. Evidence:
+`benchmarks/correctness/tool-document-newline-local-20260915.json`, SHA256
+`9bf65f1dd03c6e1c0d5057a43f7c8f80d7d8a1252673a1ec0025aaa7a46b9512`.
+The native caller rerun, real HTTP recovery cases and relocated archive
+validation remain pending. The newline fix changes no runtime source or math.
 
 The new default-off `QRT_QWEN36_FLA_DEVICE_PREPARATION` option removes the
 normalized postconv allocation and two unused kernels when raw FLA owns Q/K

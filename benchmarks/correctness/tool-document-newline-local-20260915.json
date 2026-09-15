@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "kind": "windows_caller_document_newline_repair_local_regression",
+  "host": "JiaweiMnideMini.lan",
+  "model": "none",
+  "parent_commit": "f6018ca79c12ce055e311713f292268e40c96f92",
+  "source_sha256": {
+    "scripts/check-agent-documents.py": "20d28dadad874255ec96342056117ccd47912d8feacce4aa2491741a5a396d41",
+    "tests/test_agent_documents.py": "5c8587455b6d9c4aba9de58eca425cd22815c738bf9f9883af0abec056ce60c4"
+  },
+  "native_failure": {
+    "file": "benchmarks/correctness/tool-document-windows-newline-failure-20260915.json",
+    "bytes": 12350,
+    "sha256": "db15f997f24994e065b1bf47ca323579cfa261768215d0c286c0f76bd10b9f39"
+  },
+  "prior_complete_runtime_validation": {
+    "file": "benchmarks/correctness/tool-recovery-and-document-checker-local-20260915.json",
+    "bytes": 8111,
+    "sha256": "3e236824edc98613008ba3f232f933b2199156873dd04c8a30c4dfbc58122ddb"
+  },
+  "original_helper_sha256": "a7c00eedf65467995dec99801cc0688a36cc03fb63884f4991d0f54fe2e59d78",
+  "baseline_regression": {
+    "command": [
+      "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_agent_documents.py"
+    ],
+    "returncode": 1,
+    "wall_seconds": 0.11607891693711281,
+    "log_sha256": "07a2aed64b819346600463281d43fc67d11520110fa5ce1eee1287c3331ab49a",
+    "expected_failure": true
+  },
+  "local_validation": {
+    "steps": [
+      {
+        "name": "documents",
+        "command": [
+          "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_agent_documents.py"
+        ],
+        "returncode": 0,
+        "wall_seconds": 0.10344683285802603
+      },
+      {
+        "name": "hygiene",
+        "command": [
+          "make",
+          "public-hygiene",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 7.374598542228341
+      },
+      {
+        "name": "diff",
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "returncode": 0,
+        "wall_seconds": 0.01646604109555483
+      }
+    ],
+    "log_sha256": "e295f1fe0e66727606285044447260d387a790a6ed3608cb08764fc30d1c304f",
+    "passed": true
+  },
+  "document_tests_passed": 10,
+  "native_runtime_sources_changed": false,
+  "dependency_changes": false,
+  "correction": "Open the exclusive UTF8 recovery output with newline=\"\". This preserves existing LF, CRLF and CR exactly while keeping generated DOCX paragraph separators as LF. A platform-independent Windows text-I/O regression first fails for LF and CRLF, then all10 caller tests pass. Invalid containers remain failures and existing output files remain protected.",
+  "windows_rerun_pending": true,
+  "model_loaded": false,
+  "inference_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false
+}

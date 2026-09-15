@@ -117,7 +117,9 @@ def main(argv: list[str] | None = None) -> int:
                 destination = args.markdown_dir / (path.stem + ".md")
                 # Do not overwrite an original, an earlier conversion, or a
                 # same-name document from another directory.
-                with destination.open("x", encoding="utf-8") as stream:
+                # Preserve existing CRLF instead of translating it into
+                # CRCRLF on Windows; generated DOCX paragraphs use LF.
+                with destination.open("x", encoding="utf-8", newline="") as stream:
                     stream.write(text)
                 report["markdown"] = destination.name
                 report["markdown_scope"] = "readable text only; layout, numbering, images and claims not validated"

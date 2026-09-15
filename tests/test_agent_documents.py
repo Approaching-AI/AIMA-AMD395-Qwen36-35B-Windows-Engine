@@ -10,6 +10,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,6 +46,27 @@ class AgentDocumentsTest(unittest.TestCase):
             self.assertFalse(json.loads(output.getvalue())["qualified"])
             self.assertEqual((root / "md/report.md").read_text(encoding="utf-8"), text)
             self.assertEqual(path.read_text(encoding="utf-8"), text)
+
+    def test_recovery_preserves_line_endings_with_windows_text_io(self):
+        original_open = Path.open
+
+        def windows_open(path, mode="r", *args, **kwargs):
+            if "b" not in mode:
+                kwargs.setdefault("newline", "\r\n")
+            return original_open(path, mode, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for index, ending in enumerate(("\n", "\r\n", "\r")):
+                with self.subTest(line_ending=repr(ending)):
+                    path = root / f"report-{index}.docx"
+                    raw = ("# 示例报告" + ending + ending + "文本不是 Word。" + ending).encode("utf-8")
+                    path.write_bytes(raw)
+                    with mock.patch.object(Path, "open", windows_open), contextlib.redirect_stdout(io.StringIO()):
+                        status = CHECKER.main([str(path), "--markdown-dir", str(root / "md")])
+                    self.assertEqual(status, 2)
+                    self.assertEqual((root / "md" / (path.stem + ".md")).read_bytes(), raw)
+                    self.assertEqual(path.read_bytes(), raw)
 
     def test_cli_handles_unicode_paths_with_a_legacy_console_encoding(self):
         with tempfile.TemporaryDirectory() as temporary:
