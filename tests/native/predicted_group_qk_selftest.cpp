@@ -1,5 +1,6 @@
 #include "../../native/providers/ck_fmha/prepared_decoded_qk.h"
 #include "../../native/providers/ck_fmha/predicted_group_qk.h"
+#include "../../native/providers/ck_fmha/fused_predicted_group_qk.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -13,7 +14,7 @@
 namespace {
 using namespace qrt_blackwell_attention;
 constexpr unsigned guard = 64u;
-constexpr unsigned variants[] = {0u, 1u, 2u};
+constexpr unsigned variants[] = {0u, 1u, 2u, 3u, 4u};
 constexpr unsigned variant_count = sizeof(variants) / sizeof(variants[0]);
 void check(hipError_t s) { if (s != hipSuccess) throw std::runtime_error(hipGetErrorString(s)); }
 struct Device {
@@ -110,6 +111,7 @@ __global__ void audit_parity(const uint32_t* actual,const uint32_t* expected,siz
 struct Scratch {
     size_t capacity;Device storage,bad,counters;
     const uint16_t* q=nullptr;const uint16_t* k=nullptr;float* out=nullptr;
+    const unsigned* qflags=nullptr;const unsigned* kflags=nullptr;
     unsigned start=0u,count=0u,stride=0u,key_stride=0u;
     size_t last_hits=0u,last_fallbacks=0u;
     Scratch(unsigned tokens,unsigned queries):capacity(size_t(tokens)*queries*kQueryHeads*16u),
@@ -117,7 +119,7 @@ struct Scratch {
     qrt_sm121_predicted_group::Plan* data(){return storage.as<qrt_sm121_predicted_group::Plan>()+guard;}
     void reset(){check(hipMemset(storage.pointer,0xa5,(capacity+2u*guard)*8u));q=nullptr;last_hits=last_fallbacks=0u;}
     size_t verify(unsigned variant,unsigned actual_stride,unsigned queries){
-        const size_t used=variant?size_t(actual_stride)*queries*kQueryHeads*16u:0u;
+        const size_t used=variant==1u||variant==2u?size_t(actual_stride)*queries*kQueryHeads*16u:0u;
         if(used>capacity)throw std::runtime_error("predicted QK plan capacity");
         const size_t words=(capacity+2u*guard)*2u;check(hipMemset(bad.pointer,0,4u));
         hipLaunchKernelGGL(verify_plan_storage,dim3((words+255u)/256u),dim3(256u),0u,nullptr,
@@ -128,9 +130,16 @@ struct Scratch {
             const size_t cells=size_t(count)*kQueryHeads*stride;
             Device audit((cells+2u*guard)*4u);check(hipMemset(audit.pointer,0xa5,(cells+2u*guard)*4u));
             check(hipMemset(counters.pointer,0,16u));
-            const auto audited=variant==2u?qrt_predicted_group_qk::finish<true,true>:qrt_predicted_group_qk::finish<true,false>;
-            hipLaunchKernelGGL(audited,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
-                q,k,data(),audit.as<float>()+guard,start,count,stride,key_stride,counters.as<unsigned long long>());
+            if(variant<=2u){
+                const auto audited=variant==2u?qrt_predicted_group_qk::finish<true,true>:qrt_predicted_group_qk::finish<true,false>;
+                hipLaunchKernelGGL(audited,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
+                    q,k,data(),audit.as<float>()+guard,start,count,stride,key_stride,counters.as<unsigned long long>());
+            }else{
+                if(!qflags||!kflags)throw std::runtime_error("fused audit flags missing");
+                const auto audited=variant==3u?qrt_fused_predicted_group_qk::scores<4u,true>:qrt_fused_predicted_group_qk::scores<16u,true>;
+                hipLaunchKernelGGL(audited,dim3((stride+15u)/16u,kQueryHeads,(count+15u)/16u),dim3(256u),0u,nullptr,
+                    q,k,qflags,kflags,audit.as<float>()+guard,start,count,stride,key_stride,counters.as<unsigned long long>());
+            }
             check(hipGetLastError());finish();
             hipLaunchKernelGGL(audit_parity,dim3((cells+2u*guard+255u)/256u),dim3(256u),0u,nullptr,
                 audit.as<uint32_t>(),reinterpret_cast<const uint32_t*>(out),cells,bad.as<unsigned>());
@@ -146,11 +155,14 @@ void staged_variant(unsigned variant,const uint16_t* q,const uint16_t* k,float* 
     const dim3 grid((stride+15u)/16u,kQueryHeads,(count+15u)/16u);
     const auto* qp=prepared.qp.as<uint32_t>()+guard;const auto* kp=prepared.kp.as<uint32_t>()+guard;
     const auto* qf=prepared.qf.as<unsigned>()+guard;const auto* kf=prepared.kf.as<unsigned>()+guard;
+    if(variant){
+        scratch.q=q;scratch.k=k;scratch.out=out;scratch.start=start;scratch.count=count;scratch.stride=stride;scratch.key_stride=key_stride;
+        scratch.qflags=qf;scratch.kflags=kf;
+    }
     if(!variant){
         hipLaunchKernelGGL((qrt_prepared_decoded_qk::scores<128u,true,16u,16u>),grid,dim3(kThreads),0u,nullptr,
             q,k,qp,kp,qf,kf,out,start,count,stride,key_stride);
     }else if(variant==1u||variant==2u){
-        scratch.q=q;scratch.k=k;scratch.out=out;scratch.start=start;scratch.count=count;scratch.stride=stride;scratch.key_stride=key_stride;
         const auto builder=variant==2u?qrt_predicted_group_qk::prepare<true>:qrt_predicted_group_qk::prepare<false>;
         hipLaunchKernelGGL(builder,grid,dim3(kThreads),0u,nullptr,
             q,k,qf,kf,scratch.data(),start,count,stride,key_stride);check(hipGetLastError());
@@ -158,6 +170,10 @@ void staged_variant(unsigned variant,const uint16_t* q,const uint16_t* k,float* 
         hipLaunchKernelGGL(consumer,
             dim3((size_t(count)*kQueryHeads*stride+255u)/256u),dim3(256u),0u,nullptr,
             q,k,scratch.data(),out,start,count,stride,key_stride,nullptr);
+    }else if(variant==3u||variant==4u){
+        const auto fused=variant==3u?qrt_fused_predicted_group_qk::scores<4u,false>:qrt_fused_predicted_group_qk::scores<16u,false>;
+        hipLaunchKernelGGL(fused,grid,dim3(kThreads),0u,nullptr,
+            q,k,qf,kf,out,start,count,stride,key_stride,nullptr);
     }else throw std::runtime_error("invalid predicted QK variant");
     check(hipGetLastError());
 }
@@ -245,9 +261,9 @@ void run(Case c) {
         }
         scratch.verify(variant,stride,c.count);
         if(variant==1u){original_hits=scratch.last_hits;original_fallbacks=scratch.last_fallbacks;}
-        if(variant==2u&&(original_hits!=scratch.last_hits||original_fallbacks!=scratch.last_fallbacks))
+        if(variant>=2u&&(original_hits!=scratch.last_hits||original_fallbacks!=scratch.last_fallbacks))
             throw std::runtime_error("layout changed exact plan decisions");
-        std::printf("{\"kind\":\"predicted_group_qk_safety\",\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"variant\":%u,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"plan_hits\":%zu,\"fallback_scores\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",c.tokens,c.start,c.count,c.mode,variant,cells,scratch.last_hits,scratch.last_fallbacks);
+        std::printf("{\"kind\":\"predicted_group_qk_safety\",\"tokens\":%u,\"query_start\":%u,\"query_count\":%u,\"mode\":%u,\"variant\":%u,\"fused_plan_groups\":%u,\"global_plan_live_bytes\":%zu,\"cells\":%zu,\"cpu_dots\":64,\"raw_bit_mismatches\":0,\"plan_hits\":%zu,\"fallback_scores\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",c.tokens,c.start,c.count,c.mode,variant,variant==3u?4u:variant==4u?16u:0u,(variant==1u||variant==2u)?cells*16u*8u:0u,cells,scratch.last_hits,scratch.last_fallbacks);
         std::fflush(stdout);
     }
     unchanged(dq,q);unchanged(dk,k);unchanged(dt,transposed);prepared.verify();
@@ -336,14 +352,15 @@ void captured(const char* qfile,const char* kfile,unsigned tokens) {
         }
     }
     unchanged(dq,q);unchanged(dk,k);unchanged(dt,transposed);prepared.verify();
-    if(accepted_groups[1]!=accepted_groups[2]||flagged_tiles[1]!=flagged_tiles[2])
-        throw std::runtime_error("capture layout changed exact plan decisions");
+    for(unsigned mode=2u;mode<variant_count;++mode)
+        if(accepted_groups[1]!=accepted_groups[mode]||flagged_tiles[1]!=flagged_tiles[mode])
+            throw std::runtime_error("capture layout changed exact plan decisions");
     for(unsigned mode=0u;mode<variant_count;++mode) {
         const unsigned variant=variants[mode];
         double sorted[3]={samples[mode][0],samples[mode][1],samples[mode][2]};std::sort(sorted,sorted+3);
         const double preparation_ms=prepared.ms;
-        std::printf("{\"kind\":\"predicted_group_qk_capture\",\"variant\":%u,\"query_rows\":16,\"key_columns\":16,\"verified_fallback_scores_after_last_attempt\":%zu,\"verified_plan_hits_after_last_attempt\":%zu,\"plan_workspace_bytes\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"tokens\":%u,\"original_capture_tokens\":7169,\"real_model_prompt\":false,\"query_batch\":128,\"unique_score_cells\":%zu,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"one_time_preparation_ms\":%.6f,\"completed_query_with_replay_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"all_attempts_verified\":true,\"redzones_pass\":true,\"unused_score_tail_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"plan_guards_and_tail_pass\":true,\"all_attempts_plans_and_audit_verified\":true,\"plan_preparation_and_replay_timing_included\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
-            variant,flagged_tiles[mode],accepted_groups[mode],scratch.capacity*8u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
+        std::printf("{\"kind\":\"predicted_group_qk_capture\",\"variant\":%u,\"fused_plan_groups\":%u,\"global_plan_live_bytes\":%zu,\"query_rows\":16,\"key_columns\":16,\"verified_fallback_scores_after_last_attempt\":%zu,\"verified_plan_hits_after_last_attempt\":%zu,\"plan_workspace_bytes\":%zu,\"audit_parity_pass\":true,\"layout_plan_decisions_equal\":true,\"tokens\":%u,\"original_capture_tokens\":7169,\"real_model_prompt\":false,\"query_batch\":128,\"unique_score_cells\":%zu,\"compared_score_cells\":%zu,\"cpu_dots\":%u,\"raw_bit_mismatches\":0,\"one_time_preparation_ms\":%.6f,\"completed_query_with_replay_ms\":%.6f,\"completed_total_ms\":%.6f,\"completed_query_samples_ms\":[%.6f,%.6f,%.6f],\"warmup_per_slab\":1,\"samples_per_slab\":3,\"maximum_completed_slab_ms\":%.6f,\"all_attempts_verified\":true,\"redzones_pass\":true,\"unused_score_tail_pass\":true,\"immutable_inputs\":true,\"complete_cpu_encoding_check\":true,\"plan_guards_and_tail_pass\":true,\"all_attempts_plans_and_audit_verified\":true,\"plan_preparation_and_replay_timing_included\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
+            variant,variant==3u?4u:variant==4u?16u:0u,(variant==1u||variant==2u)?scratch.capacity*8u:0u,flagged_tiles[mode],accepted_groups[mode],scratch.capacity*8u,tokens,compared/variant_count/attempts,compared/variant_count,cpu_dots/variant_count,
             preparation_ms,sorted[1],sorted[1]+preparation_ms,samples[mode][0],samples[mode][1],samples[mode][2],maximum_stage_ms[mode]);
         std::fflush(stdout);
     }
