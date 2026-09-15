@@ -22,6 +22,7 @@ class AttentionOutputTileTests(unittest.TestCase):
 #include <iostream>
 #include <string>
 #include <vector>
+#include "hawkeye_dispatch_policy.h"
 using hipStream_t = void*;
 using hipError_t = int;
 constexpr int hipSuccess = 0;
@@ -106,7 +107,7 @@ int main() {
         with tempfile.TemporaryDirectory(prefix="qrt-output-pool-") as tmp:
             executable = str(Path(tmp) / "pool")
             subprocess.run([os.environ.get("CXX", "c++"), "-std=c++17", "-O2",
-                            "-Wall", "-Wextra", "-Werror", "-x", "c++", "-", "-o", executable],
+                            "-Wall", "-Wextra", "-Werror", "-I", str(ROOT / "native/providers"), "-x", "c++", "-", "-o", executable],
                            input=harness, text=True, check=True, timeout=30)
             subprocess.run([executable], check=True, timeout=10, capture_output=True)
 
@@ -131,7 +132,7 @@ unsigned env_u32_or_default(const char*, unsigned) { return setting; }
 bool full_attention_output_projection_bf16_tile(
     const uint16_t* w, const uint16_t* x, uint16_t* y, unsigned rows,
     unsigned k, unsigned tokens, hipStream_t, const std::string&,
-    std::string*, std::string*) {
+    std::string*, std::string*, const float* = nullptr, bool = false) {
     if (w != expected_weights || x != expected_inputs + size_t(offset) * 4096 ||
         y != expected_outputs + size_t(offset) * 2048 || rows != 2048 || k != 4096 ||
         (setting && tokens > 8192)) std::abort();

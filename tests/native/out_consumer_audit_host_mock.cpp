@@ -13,6 +13,7 @@
 #include <thread>
 #include <vector>
 #include "out_consumer_interval.h"
+#include "out_residual_filter.h"
 #include "q8192_matrix_producer_policy.h"
 #include "q8192_out_l1_policy.h"
 using hipStream_t=void*;using hipError_t=int;
@@ -51,7 +52,7 @@ void reset(unsigned failed=0){assert(allocations.empty()&&!pending);operation=al
 int run(unsigned tokens=8192u,bool compatible=true,bool null_source=false){const auto* bf=reinterpret_cast<const uint16_t*>(1);const auto* fp=reinterpret_cast<const float*>(1);const auto* table=reinterpret_cast<const uint8_t*>(1);
  return qrt_out_consumer_audit::run(null_source?nullptr:bf,bf,bf,fp,bf,table,tokens,512u,1000u,nullptr,"host-audit",compatible);}
 int main(){
- namespace v=qrt_out_consumer_interval;unsigned intervals=0,enumerated=0;
+ namespace v=qrt_out_consumer_interval;unsigned intervals=0,enumerated=0,residual_certified=0;
  for(unsigned bits=0u;bits<65536u;++bits){const float residual=v::value(bits<<16u);if(!v::finite(residual))continue;
   for(unsigned sign:{0u,0x80000000u}){
    const uint32_t raw=sign|((80u+(bits%80u))<<23u)|((bits*2654435761u)&0x7fffffu);const float center=v::value(raw);
@@ -60,6 +61,9 @@ int main(){
    const v::Interval sum{residual+limits.lower,residual+limits.upper};const auto absolute=v::absolute_range(sum);
    const float mid=residual+v::rounded(center);assert(std::fabs(mid)>=absolute.lower&&std::fabs(mid)<=absolute.upper);
    if(v::finite(sum.lower)&&v::finite(sum.upper)&&v::bf16(sum.lower)==v::bf16(sum.upper))assert(v::bf16(mid)==v::bf16(sum.lower));
+   const bool certified=qrt_out_residual_filter::invariant(center,residual,std::fabs(center)*32.0f,1000u,512u);
+   assert(certified==(v::finite(sum.lower)&&v::finite(sum.upper)&&v::bf16(sum.lower)==v::bf16(sum.upper)));
+   residual_certified+=certified;
    ++intervals;
   }
  }
@@ -69,6 +73,11 @@ int main(){
  }
  v::Interval result;for(float excluded:{0.0f,INFINITY,-INFINITY,NAN,v::value(1u)})assert(!v::projection(excluded,1,1000,512,&result));
  assert(!v::projection(1,1,0,512,&result)&&!v::projection(1,1,1000,32769,&result)&&!v::projection(1,1,1000,512,nullptr));
+ for(float excluded:{INFINITY,-INFINITY,NAN})assert(!qrt_out_residual_filter::invariant(1,excluded,1,1000,512));
+ assert(qrt_out_residual_filter::invariant(1.00390625f,128.0f,1.0f,1000u,512u));
+ assert(!qrt_out_residual_filter::invariant(1.00390625f,0.0f,1.0f,1000u,512u));
+ assert(qrt_out_residual_filter::mode(nullptr)==0&&qrt_out_residual_filter::mode("")==0&&qrt_out_residual_filter::mode("0")==0&&qrt_out_residual_filter::mode("1")==1);
+ for(const char* bad:{"2"," 1","1x","-1"})assert(qrt_out_residual_filter::mode(bad)==-1);
  reset();assert(run()==hipSuccess&&allocations_seen==3u&&frees==3u&&launches==3u&&matrices==1u&&drains==1u);const unsigned operations=operation;
  for(unsigned failure=1u;failure<=operations;++failure){reset(failure);assert(run()!=hipSuccess);assert(allocations.empty()&&!pending&&allocations_seen==frees);}
  for(const char* off:{static_cast<const char*>(nullptr),"","0"}){reset();setting("QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT",off);assert(run(8192u,false,true)==hipSuccess&&!operation);}
@@ -76,5 +85,5 @@ int main(){
  reset();assert(run(7169u,false,true)==hipSuccess&&!operation);assert(run(8192u,false)==hipErrorInvalidValue&&!operation);assert(run(8192u,true,true)==hipErrorInvalidValue&&!operation);
  reset();setting("QRT_QWEN36_Q8192_OUT_L1_BOUND","1");assert(run()==hipErrorInvalidValue&&!operation);
  reset();setting("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE","all");assert(run()==hipErrorInvalidValue&&!operation);
- std::printf("out_consumer_host_pass intervals=%u enumerated_bf16_values=%u injected_failures=%u\n",intervals,enumerated,operations);
+ std::printf("out_consumer_host_pass intervals=%u enumerated_bf16_values=%u injected_failures=%u residual_filter_certified=%u\n",intervals,enumerated,operations,residual_certified);
 }

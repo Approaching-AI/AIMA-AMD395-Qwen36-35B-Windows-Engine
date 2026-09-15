@@ -14,6 +14,8 @@
 #define QRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER 1
 #include "hawkeye_dispatch_policy.h"
 #include "q8192_out_l1_policy.h"
+#include "q8192_matrix_producer_policy.h"
+#include "out_residual_filter.h"
 #include "moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h"
 #include "moe_accumulator/sm121_prefill_projection.h"
 
@@ -160,8 +162,9 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
 template<bool RoundOutputs, bool WindowSums = false, bool SelectorDifference = false>
 void selected_bf16_projection_hawkeye_compact_kernel(
     const float *sums, const float *input_bounds, const float *weight_bounds, float *output,
-    unsigned int rows, unsigned int, unsigned int prefix, unsigned int,
-    unsigned int *counts, unsigned int *indices, size_t offset, unsigned int count
+    unsigned int rows, unsigned int radius, unsigned int prefix, unsigned int ppb,
+    unsigned int *counts, unsigned int *indices, size_t offset, unsigned int count,
+    const float* out_residual = nullptr
 ) {
     if constexpr (WindowSums) {
         if (RoundOutputs || offset < bound_offset || offset + count > bound_offset + bound_count ||
@@ -187,7 +190,11 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     unsigned int block_count = 0;
     for (unsigned int j = 0; j < count; ++j) {
         const size_t i = offset + j;
-        if (output[i] == 1.00390625f || i < static_cast<size_t>(prefix) * rows) {
+        const bool selected = output[i] == 1.00390625f || i < static_cast<size_t>(prefix) * rows;
+        const bool residual_same = selected && out_residual && i >= static_cast<size_t>(prefix) * rows &&
+            qrt_out_residual_filter::invariant(output[i],out_residual[i],
+                input_bounds[i/rows]*weight_bounds[i%rows],ppb,radius);
+        if (selected && !residual_same) {
             indices[counts[0]++] = static_cast<unsigned int>(i);
             ++block_count;
         }
@@ -1159,6 +1166,62 @@ int main() {
 #else
         setenv("QRT_QWEN36_Q8192_OUT_L1_BOUND","0",1);
 #endif
+    }
+
+    if(kSelectedHawkeyeReplayLanes==4u) {
+        auto setting=[](const char* key,const char* val) {
+#ifdef _WIN32
+            _putenv_s(key,val);
+#else
+            setenv(key,val,1);
+#endif
+        };
+        setting("QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM","4");
+        setting("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE","qkv");
+        total_elements=size_t(2048u)*8192u;requested_blocks=8u;
+        std::vector<float> residual(total_elements,128.0f),xn(8192u,1.0f),wn(2048u,1.0f);
+        for(size_t i=0;i<1025u;++i)if(i%3u==0u)residual[i]=0.0f;
+        auto invoke_filter=[&](bool compatible=true,unsigned prefix=0u) {
+            return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                &value,&value,nullptr,xn.data(),wn.data(),output.data(),2048u,8192u,
+                4096u,512u,prefix,1000u,requested_blocks,nullptr,65536u,residual.data(),compatible);
+        };
+        auto initialize=[&] {reset();output.assign(total_elements,1.001f);
+            std::fill_n(output.begin(),1025u,1.00390625f);};
+        defer_work=true;
+        for(unsigned mode:{0u,1u}) {
+            setting("QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER",mode?"1":"0");initialize();
+            if(invoke_filter()!=hipSuccess || invalid_grid || invalid_range || allocations!=frees ||
+                !allocation_records.empty() || !pending_work.empty() || corrected.size()!=(mode?342u:1025u))return 121;
+            for(size_t i=0;i<total_elements;++i) {
+                const bool replay=i<1025u && (!mode || i%3u==0u);
+                if(output[i]!=(replay?float((i/2048u)*2u+i%2048u):1.0f))return 122;
+            }
+        }
+        initialize();
+        if(invoke_filter(true,1u)!=hipSuccess || corrected.size()!=2048u || invalid_range ||
+            allocations!=frees || !pending_work.empty())return 123;
+        for(unsigned failed:{1u,2u,3u,4u,5u}) {
+            initialize();fail_sync=failed;
+            if(invoke_filter()!=hipErrorUnknown || invalid_range || allocations!=frees ||
+                !allocation_records.empty() || !pending_work.empty())return 124;
+        }
+        initialize();if(invoke_filter(false)!=hipErrorInvalidValue || allocations || corrections)return 125;
+        for(const char* bad:{"2","1x"," 1"}) {
+            setting("QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER",bad);initialize();
+            if(invoke_filter()!=hipErrorInvalidValue || allocations || corrections)return 126;
+        }
+        setting("QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER","1");
+        for(const char* key:{"QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT","QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND",
+                "QRT_QWEN36_Q8192_OUT_L1_BOUND","QRT_QWEN36_HAWKEYE_QUEUED_REPLAY","QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY"}) {
+            setting(key,"1");initialize();if(invoke_filter()!=hipErrorInvalidValue || allocations || corrections)return 127;
+            setting(key,"0");
+        }
+        setting("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE","all");initialize();
+        if(invoke_filter()!=hipErrorInvalidValue || allocations || corrections)return 128;
+        setting("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE","qkv");
+        setting("QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER","0");defer_work=false;
+        std::printf("out_residual_filter_owner_pass elements=16777216 removed=683 retained=342 full_prefix=2048 failure_syncs=5\n");
     }
     float_mode("0",true);staged_mode("0");queued_mode("0");
     return 0;

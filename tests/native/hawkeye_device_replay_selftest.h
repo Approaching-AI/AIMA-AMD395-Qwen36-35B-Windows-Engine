@@ -96,9 +96,9 @@ void run_device_collection_case(unsigned rows,unsigned tokens,size_t offset,unsi
         unsigned* scratch=device?new_scratch.data():old_scratch.data();
         hip_ok(hipMemsetAsync(scratch,0,8,nullptr),"zero count");
         if(device)hipLaunchKernelGGL((selected_bf16_projection_hawkeye_compact_kernel<true>),dim3((window+255)/256),dim3(256),0,nullptr,
-            nullptr,nullptr,nullptr,new_out.data(),rows,512,0,0,scratch,scratch+2,offset,window);
+            nullptr,nullptr,nullptr,new_out.data(),rows,512,0,0,scratch,scratch+2,offset,window, nullptr);
         else hipLaunchKernelGGL((selected_bf16_projection_hawkeye_compact_kernel<false>),dim3((window+255)/256),dim3(256),0,nullptr,
-            nullptr,nullptr,nullptr,old_out.data(),rows,512,0,0,scratch,scratch+2,offset,window);
+            nullptr,nullptr,nullptr,old_out.data(),rows,512,0,0,scratch,scratch+2,offset,window, nullptr);
         hip_ok(hipGetLastError(),"collector launch");hip_ok(hipDeviceSynchronize(),"collector completion");
     }
     old_scratch.read(control);new_scratch.read(fused);old_out.read(old_values);new_out.read(new_values);

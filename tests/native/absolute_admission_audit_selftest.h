@@ -55,7 +55,7 @@ unsigned run_absolute_admission_audit_suite() {
         require(!wf[kGuard+5u] && !xf[kGuard+1u] && wf[kGuard] && xf[kGuard],"audit fixture did not cover mixed row eligibility");
         hipLaunchKernelGGL((selected_bf16_projection_hawkeye_compact_kernel<false,true,true>),
             dim3(1u),dim3(256u),0u,nullptr,db.data(),dxn.data(),dwn.data(),dy.data(),rows,512u,1u,1000u,
-            dc.data(),di.data(),first,count);
+            dc.data(),di.data(),first,count, nullptr);
         hip_ok(hipGetLastError(),"audit difference collection");
         hip_ok(hipStreamSynchronize(nullptr),"audit collection complete");
         dc.read(counts);di.read(indices);

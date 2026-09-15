@@ -29,6 +29,7 @@
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
 #include "q8192_matrix_producer_policy.h"
+#include "out_residual_filter.h"
 #include "gate_input_capture.h"
 #include "sm121_silu_runtime.h"
 #include "sm121_q1_runtime.h"
@@ -37368,7 +37369,8 @@ void selected_bf16_projection_hawkeye_compact_kernel(
     unsigned int *global_candidate_counts,
     unsigned int *candidate_indices,
     size_t element_offset,
-    unsigned int window_elements
+    unsigned int window_elements,
+    const float* out_residual = nullptr
 ) {
     static_assert(!SelectorDifference || (WindowSums && !RoundOutputs));
     __shared__ unsigned int block_candidate_count;
@@ -37389,7 +37391,12 @@ void selected_bf16_projection_hawkeye_compact_kernel(
             outputs[index], index, rows, midpoint_radius, full_prefix_tokens,
             absolute_error_bound_ppb, nullptr, selected_input_l2_upper_bounds,
             weight_l2_upper_bounds);
-    const bool candidate = SelectorDifference ? selected != original_selected : selected;
+    const bool residual_invariant = selected && out_residual &&
+        index >= static_cast<size_t>(full_prefix_tokens) * rows &&
+        qrt_out_residual_filter::invariant(outputs[index], out_residual[index],
+            selected_input_l2_upper_bounds[index / rows] * weight_l2_upper_bounds[index % rows],
+            absolute_error_bound_ppb, midpoint_radius);
+    const bool candidate = SelectorDifference ? selected != original_selected : selected && !residual_invariant;
     // Reserve once per CTA rather than once per candidate. Ballot ranks keep
     // stores contiguous within each wave on both wave32 and wave64 targets.
     const unsigned int lane = threadIdx.x % warpSize;
@@ -37880,7 +37887,9 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
     unsigned int absolute_error_bound_ppb,
     unsigned int maximum_blocks_per_launch,
     hipStream_t stream,
-    unsigned int requested_window_elements = qrt_hawkeye_dispatch::maximum_window_elements
+    unsigned int requested_window_elements = qrt_hawkeye_dispatch::maximum_window_elements,
+    const float* out_residual = nullptr,
+    bool residual_compatible = false
 ) {
     if (weights == nullptr || selected_inputs == nullptr || outputs == nullptr ||
         rows == 0u || selected_token_count == 0u || reduction_size == 0u ||
@@ -37890,6 +37899,28 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         static_cast<uint64_t>(selected_token_count) * reduction_size > SIZE_MAX / sizeof(uint16_t) ||
         static_cast<uint64_t>(selected_token_count) * rows > UINT32_MAX) {
         return hipErrorInvalidValue;
+    }
+    const int residual_mode = qrt_out_residual_filter::mode(
+        std::getenv("QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER"));
+    if (residual_mode < 0) return hipErrorInvalidValue;
+    const bool residual_filter = residual_mode && out_residual &&
+        qrt_out_residual_filter::shape(rows, selected_token_count, reduction_size);
+    if (residual_filter) {
+        unsigned algorithm = 99u;
+        if (!residual_compatible || absolute_product_sums ||
+            !selected_input_l2_upper_bounds || !weight_l2_upper_bounds ||
+            !absolute_error_bound_ppb || midpoint_radius > 32768u ||
+            !qrt_q8192_matrix_producer::resolve(
+                std::getenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM"),
+                rows, reduction_size, selected_token_count, true, &algorithm,
+                std::getenv("QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE")) || algorithm != 0u ||
+            qrt_out_l1_policy::selected_factor(std::getenv("QRT_QWEN36_Q8192_OUT_L1_BOUND")) != 0)
+            return hipErrorInvalidValue;
+        for (const char* option : {"QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT",
+                "QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND"}) {
+            const char* value = std::getenv(option);
+            if (value && *value && std::strcmp(value, "0")) return hipErrorInvalidValue;
+        }
     }
     const int out_l1_factor=qrt_out_l1_policy::selected_factor(
         std::getenv("QRT_QWEN36_Q8192_OUT_L1_BOUND"));
@@ -38039,6 +38070,8 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         std::strcmp(queued_setting,"1")) return hipErrorInvalidValue;
     const bool queued_replay = staged_half && queued_setting &&
         std::strcmp(queued_setting,"1") == 0;
+    if (residual_filter && (!staged_half || queued_replay || device_replay || count_only))
+        return hipErrorInvalidValue;
     const bool prepared_operands = prepared_requested && !float_replay && !validated_float;
     // Reuse lossless preparation's whole-row eligibility. The matrix computes
     // selector metadata from original BF16 operands; excluded rows keep an
@@ -38246,7 +38279,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     absolute_product_sums, selected_input_l2_upper_bounds,
                     weight_l2_upper_bounds, outputs, rows, midpoint_radius,
                     full_prefix_tokens, absolute_error_bound_ppb, scratch, scratch + 2u,
-                    element_offset, window_elements);
+                    element_offset, window_elements, residual_filter ? out_residual : nullptr);
                 result = hipGetLastError();
                 if (result != hipSuccess) return result;
                 const unsigned int replay_blocks = (std::min)(
@@ -38312,7 +38345,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                              kSelectedHawkeyeCorrectionThreads), dim3(kSelectedHawkeyeCorrectionThreads), 0, stream,
                         audit_bounds, selected_input_l2_upper_bounds, weight_l2_upper_bounds,
                         outputs, rows, midpoint_radius, full_prefix_tokens, absolute_error_bound_ppb,
-                        scratch, scratch + 2u, element_offset, window_elements);
+                        scratch, scratch + 2u, element_offset, window_elements, nullptr);
                     result = synchronize_bounded(dispatch_start);
                     if (result != hipSuccess) return result;
                     std::array<unsigned, 2> changed{};
@@ -38366,7 +38399,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     window_product_bounds + (absolute_hipblaslt ? element_offset % rows : 0u), selected_input_l2_upper_bounds,
                     weight_l2_upper_bounds, outputs, rows, midpoint_radius,
                     full_prefix_tokens, absolute_error_bound_ppb, scratch, scratch + 2u,
-                    element_offset, window_elements);
+                    element_offset, window_elements, nullptr);
             } else {
                 hipLaunchKernelGGL(
                     (selected_bf16_projection_hawkeye_compact_kernel<false>),
@@ -38376,7 +38409,7 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
                     absolute_product_sums, selected_input_l2_upper_bounds,
                     weight_l2_upper_bounds, outputs, rows, midpoint_radius,
                     full_prefix_tokens, absolute_error_bound_ppb, scratch, scratch + 2u,
-                    element_offset, window_elements);
+                    element_offset, window_elements, residual_filter ? out_residual : nullptr);
             }
             result = synchronize_bounded(dispatch_start);
             if (result != hipSuccess) return result;
@@ -38526,9 +38559,14 @@ hipError_t launch_selected_bf16_projection_hawkeye_midpoint_correction(
         status == hipSuccess ? 1u : 0u,
         scratch_bytes, device_replay ? 1u : 0u, device_replay ? 0u : 1u, host_count_reads);
     std::fflush(stderr);
+    if (residual_filter) {
+        std::fprintf(stderr,"BATCH_MARK hawkeye_out_residual_filter rows=%u tokens=%u k=%u ppb=%u radius=%u retained_candidates=%llu correction_ms=%.6f additional_workspace_bytes=0 original_envelope=1 original_k16=1 normalized_output_certified=0 candidate_replay_executed=1 completed=%u\n",
+            rows,selected_token_count,reduction_size,absolute_error_bound_ppb,midpoint_radius,
+            (unsigned long long)total_candidates,correction_ms,status==hipSuccess ? 1u : 0u);
+    }
     if (staged_half) {
-        std::fprintf(stderr,"BATCH_MARK hawkeye_staged_half rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=4 staging_groups=2 row_bytes=36 original_k16_carry=1 unsupported_original_bf16=1 original_candidates=1 completed=%u\n",
-            rows,selected_token_count,reduction_size,prepared_bytes,status==hipSuccess ? 1u : 0u);
+        std::fprintf(stderr,"BATCH_MARK hawkeye_staged_half rows=%u tokens=%u k=%u workspace_bytes=%zu lanes=4 staging_groups=2 row_bytes=36 original_k16_carry=1 unsupported_original_bf16=1 original_candidates=%u completed=%u\n",
+            rows,selected_token_count,reduction_size,prepared_bytes,residual_filter ? 0u : 1u,status==hipSuccess ? 1u : 0u);
     }
     if (queued_replay) {
         std::fprintf(stderr,"BATCH_MARK hawkeye_queued_replay rows=%u tokens=%u k=%u windows=%u exact_dispatches=%u completed_bursts=%u maximum_dispatches_per_burst=%u maximum_completed_burst_ms=%.6f original_candidates=1 original_k16=1 completed=%u\n",
@@ -123284,7 +123322,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                                 0u,
                                 exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
                                 selected_hawkeye_correction_maximum_blocks_per_launch(),
-                                0
+                                0, qrt_hawkeye_dispatch::maximum_window_elements,
+                                device_previous, use_q65536_vllm_bf16_residual_norm
                             ),
                             prefix +
                                 "_early_out_hawkeye_midpoint_correction"
@@ -127710,7 +127749,9 @@ bool full_attention_output_projection_bf16_tile(
     hipStream_t stream,
     const std::string &stage,
     std::string *failure_stage,
-    std::string *failure
+    std::string *failure,
+    const float* out_residual = nullptr,
+    bool residual_compatible = false
 ) {
     const unsigned int radius = (std::min)(32768u, env_u32_or_default(
         "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS", 0u));
@@ -127773,7 +127814,8 @@ bool full_attention_output_projection_bf16_tile(
     if (!checked(launch_selected_bf16_projection_hawkeye_midpoint_correction(
             weights, inputs, nullptr, input_norm, weight_norm, raw,
             rows, tokens, reduction_size, radius, 0u, error_ppb,
-            selected_hawkeye_correction_maximum_blocks_per_launch(), stream), "dispatch")) {
+            selected_hawkeye_correction_maximum_blocks_per_launch(), stream,
+            qrt_hawkeye_dispatch::maximum_window_elements, out_residual, residual_compatible), "dispatch")) {
         release();
         return false;
     }
@@ -127818,7 +127860,9 @@ bool full_attention_output_projection_bf16(
     hipStream_t stream,
     const std::string &stage,
     std::string *failure_stage,
-    std::string *failure
+    std::string *failure,
+    const float* out_residual = nullptr,
+    bool residual_compatible = false
 ) {
     const bool correction = env_u32_or_default(
         "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_MIDPOINT_RADIUS", 0u) != 0u ||
@@ -127828,7 +127872,7 @@ bool full_attention_output_projection_bf16(
     if (!correction || tokens <= 8192u) {
         return full_attention_output_projection_bf16_tile(
             weights, inputs, outputs, rows, reduction_size, tokens, stream,
-            stage, failure_stage, failure);
+            stage, failure_stage, failure, out_residual, residual_compatible);
     }
     if (weights == nullptr || inputs == nullptr || outputs == nullptr ||
         tokens > QRT_QWEN36_MAX_PROMPT_TOKENS ||
@@ -134158,7 +134202,9 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 0,
                 prefix + "_hipblaslt_output_projection",
                 &run->failure_stage,
-                &run->failure
+                &run->failure,
+                device_selected_previous,
+                use_compact_ck_bf16 && use_q65536_vllm_bf16_residual_norm
             )) {
             cleanup();
             return false;
