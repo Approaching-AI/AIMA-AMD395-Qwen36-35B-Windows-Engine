@@ -1,0 +1,103 @@
+#include <hip/hip_runtime.h>
+#include "../../native/providers/moe_accumulator/sm121_partitioned_half_projection.h"
+#include "strong_float_replay_cases.h"
+#include <algorithm>
+#include <chrono>
+#include <cstdio>
+#include <cstring>
+#include <stdexcept>
+#include <thread>
+#include <vector>
+namespace scaled=qrt_sm121_scaled_half_products;
+namespace projection=qrt_sm121_staged_half_projection;
+namespace partitioned=qrt_sm121_partitioned_half_projection;
+namespace cases=qrt_strong_replay_cases;
+constexpr unsigned guard=65u;
+struct Result { float value;unsigned transformed,original; };
+void check(hipError_t s){if(s!=hipSuccess)throw std::runtime_error(hipGetErrorString(s));}
+struct Device {
+ void* pointer=nullptr;
+ explicit Device(size_t bytes){check(hipMalloc(&pointer,bytes));check(hipMemset(pointer,0xa5,bytes));}
+ ~Device(){if(pointer)(void)hipFree(pointer);}
+ template<class T>T* data(){return static_cast<T*>(pointer)+guard;}
+};
+template<class T>std::vector<T> read(Device& d,size_t count){std::vector<T> out(count+2u*guard);check(hipMemcpy(out.data(),d.pointer,out.size()*sizeof(T),hipMemcpyDeviceToHost));return out;}
+template<class T>void guards(const std::vector<T>& data){const auto* b=reinterpret_cast<const unsigned char*>(data.data());for(size_t i=0u;i<guard*sizeof(T);++i)if(b[i]!=0xa5u || b[(data.size()-guard)*sizeof(T)+i]!=0xa5u)throw std::runtime_error("projection redzone changed");}
+void finish(){hipEvent_t event;check(hipEventCreate(&event));check(hipEventRecord(event));const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){const auto s=hipEventQuery(event);if(s==hipSuccess)break;if(s!=hipErrorNotReady)check(s);if(std::chrono::steady_clock::now()>=deadline)throw std::runtime_error("projection completion deadline");std::this_thread::yield();}check(hipEventDestroy(event));}
+bool eligible(const uint16_t* row){unsigned lo=255u,hi=0u;bool any=false;for(unsigned i=0u;i<16u;++i)if(row[i]&0x7fffu){const unsigned e=(row[i]>>7u)&255u;if(!e || e==255u)return false;lo=std::min(lo,e);hi=std::max(hi,e);any=true;}return !any || hi-lo<=29u;}
+template<unsigned Path,bool Audit>
+__global__ void execute(const scaled::Row* a,const scaled::Row* b,const unsigned* af,const unsigned* bf,Result* out,uint32_t* trace,unsigned rows,unsigned width){
+ const unsigned row=(blockIdx.x*blockDim.x+threadIdx.x)/4u;if(row>=rows)return;
+ const unsigned classification=af[row]&bf[row];
+ if constexpr(Path==1u){if(!classification)return;}
+ if constexpr(Path==2u){if(classification!=3u)return;}
+ if constexpr(Path==3u){if(classification!=1u)return;}
+ if constexpr(Path==4u){if(classification)return;}
+ projection::Stats stats;float value;
+ if constexpr(Path==0u||Path==4u)value=projection::dot<2u,Audit>(a+size_t(row)*(width/16u),b+size_t(row)*(width/16u),width,
+  Audit?trace+size_t(row)*(width/16u)*3u:nullptr,Audit?&stats:nullptr);
+ else value=partitioned::dot<Path==2u,Audit>(a+size_t(row)*(width/16u),b+size_t(row)*(width/16u),width,
+  Audit?trace+size_t(row)*(width/16u)*3u:nullptr,Audit?&stats:nullptr);
+ if(!(threadIdx.x&3u))out[row]={value,stats.transformed,stats.original};
+}
+template<unsigned Variant,bool Audit>
+void launch(unsigned rows,unsigned width,Device& a,Device& b,Device& af,Device& bf,Device& out,Device& trace){
+ const dim3 grid((rows*4u+255u)/256u+1u);
+#define QRT_PARTITIONED_SAFETY_PATH(p) hipLaunchKernelGGL((execute<p,Audit>),grid,dim3(256u),0u,nullptr,a.data<scaled::Row>(),b.data<scaled::Row>(),af.data<unsigned>(),bf.data<unsigned>(),out.data<Result>(),trace.data<uint32_t>(),rows,width);check(hipGetLastError())
+ if constexpr(Variant==0u){QRT_PARTITIONED_SAFETY_PATH(0u);}
+ if constexpr(Variant==1u){QRT_PARTITIONED_SAFETY_PATH(1u);QRT_PARTITIONED_SAFETY_PATH(4u);}
+ if constexpr(Variant==2u){QRT_PARTITIONED_SAFETY_PATH(2u);QRT_PARTITIONED_SAFETY_PATH(3u);QRT_PARTITIONED_SAFETY_PATH(4u);}
+#undef QRT_PARTITIONED_SAFETY_PATH
+ finish();
+}
+template<unsigned Variant>
+void variant(unsigned rows,unsigned width,Device& a,Device& b,Device& pa,Device& pb,Device& af,Device& bf,Device& out,Device& trace,
+ const std::vector<uint16_t>& left,const std::vector<uint16_t>& right,const std::vector<uint32_t>& expected,const std::vector<unsigned>& transformed){
+ constexpr unsigned Lanes=4u;
+ const size_t groups=size_t(rows)*(width/16u);
+ check(hipMemset(out.pointer,0xa5,(rows+2u*guard)*sizeof(Result)));check(hipMemset(trace.pointer,0xa5,(groups*3u+2u*guard)*4u));
+ launch<Variant,true>(rows,width,pa,pb,af,bf,out,trace);
+ const auto values=read<Result>(out,rows);const auto actual=read<uint32_t>(trace,groups*3u);guards(values);guards(actual);
+ if(std::memcmp(actual.data()+guard,expected.data(),expected.size()*4u))throw std::runtime_error("raw K16 carry differs from independent original primitive");
+ unsigned floating=0u,original=0u;
+ for(unsigned row=0u;row<rows;++row){
+  const size_t base=((size_t(row)+1u)*(width/16u)-1u)*3u;
+  const qrt_q1_moe_hawkeye::Value carry{expected[base],int16_t(int32_t(expected[base+1u])),expected[base+2u]!=0u};
+  const float reference=qrt_q1_moe_hawkeye::value_to_float(qrt_q1_moe_hawkeye::group_sum<26,-133>(&carry,1u));
+  if(std::memcmp(&reference,&values[guard+row].value,4u))throw std::runtime_error("final projection endpoint differs");
+  if(values[guard+row].transformed!=transformed[row] || values[guard+row].original!=width/16u-transformed[row])throw std::runtime_error("group path count differs from independent row-range predicate");
+  floating+=values[guard+row].transformed;original+=values[guard+row].original;
+ }
+ check(hipMemset(out.pointer,0xa5,(rows+2u*guard)*sizeof(Result)));
+ launch<Variant,false>(rows,width,pa,pb,af,bf,out,trace);
+ const auto production=read<Result>(out,rows);guards(production);for(unsigned row=0u;row<rows;++row)if(std::memcmp(&production[guard+row].value,&values[guard+row].value,4u))throw std::runtime_error("production and audit differ");
+ if(read<uint32_t>(trace,groups*3u)!=actual)throw std::runtime_error("production modified audit trace");
+ for(unsigned side=0u;side<2u;++side){
+  const auto flags=read<unsigned>(side?bf:af,rows);guards(flags);
+  const auto& input=side?right:left;
+  for(unsigned row=0u;row<rows;++row){unsigned expected_flags=3u;for(unsigned group=0u;group<width/16u;++group){const auto* values=input.data()+size_t(row)*width+group*16u;bool nonzero=true;for(unsigned i=0u;i<16u;++i)nonzero &= (values[i]&0x7fffu)!=0u;expected_flags &= eligible(values)?(nonzero?3u:1u):0u;}if(flags[guard+row]!=expected_flags)throw std::runtime_error("independent row classification differs");}
+  const auto raw=read<uint16_t>(side?b:a,input.size());const auto packed=read<scaled::Row>(side?pb:pa,groups);guards(raw);guards(packed);
+  if(std::memcmp(raw.data()+guard,input.data(),input.size()*2u))throw std::runtime_error("original operand changed");
+  for(size_t group=0u;group<groups;++group){const auto reference=scaled::prepare(input.data()+group*16u);if(std::memcmp(&reference,&packed[guard+group],sizeof(reference)))throw std::runtime_error("operand encoding differs or changed");for(unsigned i=0u;i<16u;++i)if(scaled::original(packed[guard+group],i)!=input[group*16u+i])throw std::runtime_error("lossless operand roundtrip failed");}
+ }
+ const auto aflags=read<unsigned>(af,rows),bflags=read<unsigned>(bf,rows);unsigned classes[3]{};
+ for(unsigned row=0u;row<rows;++row){const unsigned c=aflags[guard+row]&bflags[guard+row];++classes[c==3u?2u:c==1u?1u:0u];}
+ if(!classes[0]||!classes[1]||!classes[2])throw std::runtime_error("missing whole-row path coverage");
+ std::printf("{\"kind\":\"partitioned_half_projection_safety\",\"lanes\":%u,\"variant\":%u,\"rows\":%u,\"width\":%u,\"ordered_raw_carry_states\":%zu,\"transformed_groups\":%u,\"original_groups\":%u,\"original_pair_count\":%u,\"sparse_pair_count\":%u,\"nonzero_pair_count\":%u,\"raw_bit_mismatches\":0,\"unaligned_operands\":true,\"production_diagnostic_parity\":true,\"all_encoded_words_checked\":true,\"independent_row_classification_checked\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",Lanes,Variant,rows,width,groups,floating,original,classes[0],classes[1],classes[2]);std::fflush(stdout);
+ if(!floating || !original || floating+original!=groups)throw std::runtime_error("missing numerical path coverage");
+}
+void run(unsigned rows,unsigned width){
+ const size_t words=size_t(rows)*width,groups=words/16u;std::vector<uint16_t> left(words),right(words);std::vector<uint32_t> expected(groups*3u);std::vector<unsigned> transformed(rows,0u);
+ for(unsigned row=0u;row<rows;++row){qrt_q1_moe_hawkeye::Value carry{0u,-133,false};for(unsigned group=0u;group<width/16u;++group){qrt_q1_moe_hawkeye::Value terms[17];terms[0]=carry;const size_t base=size_t(row)*width+group*16u;for(unsigned i=0u;i<16u;++i){auto input=cases::input(row,group,i);if(row%64u==63u)input={uint16_t(group+1u==width/16u&&i==15u?1u:0x3f81u),uint16_t(0x3f82u)};left[base+i]=input.x;right[base+i]=input.y;terms[i+1u]=qrt_q1_moe_hawkeye::multiply_bf16(input.x,input.y,-133);}transformed[row]+=eligible(left.data()+base)&&eligible(right.data()+base);carry=qrt_q1_moe_hawkeye::group_sum<26,-133>(terms,17u);const size_t out=base/16u*3u;expected[out]=carry.significand;expected[out+1u]=uint32_t(int32_t(carry.exponent));expected[out+2u]=unsigned(carry.negative);}}
+ Device af((rows+2u*guard)*4u),bf((rows+2u*guard)*4u);
+ Device a((words+2u*guard)*2u),b((words+2u*guard)*2u),pa((groups+2u*guard)*sizeof(scaled::Row)),pb((groups+2u*guard)*sizeof(scaled::Row)),out((rows+2u*guard)*sizeof(Result)),trace((groups*3u+2u*guard)*4u);
+ check(hipMemcpy(a.data<uint16_t>(),left.data(),words*2u,hipMemcpyHostToDevice));check(hipMemcpy(b.data<uint16_t>(),right.data(),words*2u,hipMemcpyHostToDevice));
+ hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((groups+255u)/256u+1u),dim3(256u),0u,nullptr,a.data<uint16_t>(),pa.data<scaled::Row>(),rows,width);check(hipGetLastError());
+ hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((groups+255u)/256u+1u),dim3(256u),0u,nullptr,b.data<uint16_t>(),pb.data<scaled::Row>(),rows,width);check(hipGetLastError());finish();
+ hipLaunchKernelGGL(partitioned::classify_rows,dim3(rows+1u),dim3(256u),0u,nullptr,pa.data<scaled::Row>(),af.data<unsigned>(),rows,width);check(hipGetLastError());
+ hipLaunchKernelGGL(partitioned::classify_rows,dim3(rows+1u),dim3(256u),0u,nullptr,pb.data<scaled::Row>(),bf.data<unsigned>(),rows,width);check(hipGetLastError());finish();
+ variant<0u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
+ variant<1u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
+ variant<2u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
+}
+int main()try{hipDeviceProp_t p{};check(hipGetDeviceProperties(&p,0));if(std::strncmp(p.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");run(257u,16u);run(4096u,272u);run(2048u,2048u);run(1024u,4096u);run(129u,4112u);run(129u,8192u);return 0;}catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}

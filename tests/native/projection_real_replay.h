@@ -21,6 +21,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool coarse_owner = owner_option && !std::strcmp(owner_option,"1");
     const char* dominant_option = std::getenv("QRT_PROJECTION_SAFETY_DOMINANT_HALF_REPLAY");
     const bool dominant_replay = dominant_option && !std::strcmp(dominant_option,"1");
+    const char* partitioned_half_option = std::getenv("QRT_PROJECTION_SAFETY_PARTITIONED_HALF_REPLAY");
+    const bool partitioned_half_replay = partitioned_half_option && !std::strcmp(partitioned_half_option,"1");
     const char* transfer_option = std::getenv("QRT_PROJECTION_SAFETY_CARRY_TRANSFER_REPLAY");
     const bool transfer_replay = transfer_option && !std::strcmp(transfer_option,"1");
     const char* weight_bucket_option = std::getenv("QRT_PROJECTION_SAFETY_WEIGHT_BUCKET_REPLAY");
@@ -33,7 +35,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const char* staged_f32_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_HALF_F32_REPLAY");
     const bool staged_f32_replay = staged_f32_option && !std::strcmp(staged_f32_option,"1");
     require(!output_projection || (extend_q8192 && ppb == 10000u &&
-        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || transfer_replay || coarse_interval || coarse_owner)),
+        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner)),
         "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
@@ -124,7 +126,9 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const float upper = input_bounds[kGuard + i / rows] * weight_bounds[kGuard + i % rows];
         const float margin = std::fabs(value - midpoint);
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
-        const bool selected = distance <= 512u || tiny || margin <= upper * (static_cast<float>(ppb) * 1e-9f);
+        const float error = upper * (static_cast<float>(ppb) * 1e-9f);
+        const bool selected = distance <= 512u || tiny || (partitioned_half_replay
+            ? qrt_bf16_midpoint::within_error(value,error) : margin <= error);
         candidates += selected;
         if (selected) selected_indices.push_back(static_cast<unsigned>(i));
         if (bf16(value) != reference[kGuard + i]) {
@@ -152,6 +156,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     if (coarse_interval) {
         run_coarse_interval_projection(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k,ppb);
+        return;
+    }
+    if (partitioned_half_replay) {
+        run_partitioned_half_replays(dw,di,dout,weights,inputs,reference,output,
+            selected_indices,rows,tokens,k);
         return;
     }
     if (transfer_replay) {
