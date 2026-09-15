@@ -2,6 +2,42 @@
 
 ## Current unreleased measurements, 2026-09-15
 
+Source `ce4d829` adds default-off `QRT_QWEN36_Q8192_OUT_L1_BOUND` for the
+original-algorithm OUT shape 2048x8192x4096. It computes an outward-finished
+positive magnitude matrix, caps the empirical bound by the original Cauchy
+bound, then invokes the original candidate collector and K16 replay. PPB,
+midpoint512, tiny-value admission and prefix behavior remain unchanged.
+The real owner and finish kernel pass sanitized deferred-stream tests over
+16777216 bound cells, all six supported factors and 23 injected transport
+failures, including drain-before-release. Full local checks pass: 54 Rust,
+423 Python (two skips), C/q16 ABI, clippy and hygiene. The native whole-provider
+build completes in 92037.836 ms with all host guards passing. Evidence:
+`benchmarks/correctness/out-l1-replay-native-20260915.json`, SHA256
+`d1a254c241f2dce51a638c8e4b2e87f16b822b6907bf9f09267075f9c2b919b2`.
+
+Three fresh real-model q8192/out512 runs use the same new DLL, the original
+CLI and all other archived providers. Required-marker filtering is enabled
+in every arm; only the L1 factor changes. Both candidates fail the full GB10
+token boundary despite passing the first-logit tolerance of 0.125:
+
+| L1 factor | TTFT ms | TPOT ms | Load ms | First raw logit | Matching prefix / positional IDs |
+|---:|---:|---:|---:|---:|---:|
+| 0 (disabled) | 30261.108 | 101.038764 | 21526.532 | 10.375 | 512 / 512 |
+| 1 | 29128.796299 | 100.819079 | 21347.1606 | 10.3125 | 115 / 119 |
+| 2 | 30119.7973 | 100.944428 | 21290.897 | 10.375 | 115 / 116 |
+
+Every run emits 512 actual callbacks matching its own output. Both candidates
+first return196 instead of271 at zero-based index115, exit6 at the numerical
+gate, and finish with all host guards passing. Factor1/2 reduce total dense
+candidates from432889515 to352498653/399045958, while their40 magnitude owners
+add615.8288/614.7283 ms preparation. These timings are diagnostic and do not
+qualify performance. Nested owner replay time includes the original correction
+and must not be added again. Keep the option default off and pursue a broader
+structural route. No candidate correctness, long-context, soak or release
+acceptance follows. Evidence:
+`benchmarks/correctness/out-l1-replay-q8192-20260915.json`, SHA256
+`193edf8815434424f121922505ed11283a8e995d191117d99ebf9a79ae2cc0cf`.
+
 The unpublished portable package `v1.0.2-current-stack.20260915.r1` now
 combines whole/server/CLI `24c4304`, CK `42c2f0f`, MoE `4a7f0c4` and FLA
 `2ee6215`. Its 268 runtime assets and 281 release files pass hash, size and
