@@ -68,7 +68,7 @@ static unsigned validated_fast_cells=0, validated_fallback_cells=0;
 static unsigned scaled_scans=0, scaled_corrections=0;
 static unsigned scaled_fast_cells=0, scaled_normal_cells=0, scaled_special_cells=0;
 namespace qrt_sm121_staged_half_projection { struct Row { uint32_t pairs[8],control; }; }
-static unsigned staged_preparations=0, staged_corrections=0;
+static unsigned staged_preparations=0, staged_corrections=0, staged_device_corrections=0;
 static qrt_sm121_staged_half_projection::Row* staged_buffers[2]{};
 static unsigned staged_rows[2]{},staged_width=0;
 static unsigned* eligibility_flags[2]{};
@@ -81,7 +81,7 @@ static std::vector<unsigned> completed_replay_bursts;
 static std::vector<std::function<void()>> pending_work;
 void submit(const char* name,std::function<void()> work) {
     if (!defer_work) {work();return;}
-    if (std::strstr(name,"staged_half_kernel")) {
+    if (std::strstr(name,"staged_half_kernel") || std::strstr(name,"staged_device_kernel")) {
         if (++submitted_replays==fail_replay_submission) {submission_fault=true;return;}
         ++pending_replays;
     }
@@ -145,10 +145,12 @@ void grid(const char *name, dim3 blocks, dim3 threads) {
         std::strstr(name, "float_correction") != nullptr ||
         std::strstr(name, "validated_float") != nullptr ||
         std::strstr(name, "staged_half_kernel") != nullptr ||
+        std::strstr(name, "staged_device_kernel") != nullptr ||
         std::strcmp(name, "replay") == 0 ||
         std::strstr(name, "admission_audit") != nullptr ||
         std::strstr(name, "packed_correction") != nullptr;
-    const unsigned int limit = std::strstr(name, "device_correction") != nullptr
+    const unsigned int limit = (std::strstr(name, "device_correction") != nullptr ||
+        std::strstr(name, "staged_device_kernel") != nullptr)
         ? qrt_hawkeye_dispatch::maximum_device_replay_blocks : exact
         ? (std::min)(requested_blocks, qrt_hawkeye_dispatch::maximum_exact_blocks)
         : qrt_hawkeye_dispatch::maximum_window_elements / 256u;
@@ -476,6 +478,26 @@ void selected_bf16_projection_hawkeye_staged_half_kernel(
         nullptr,nullptr,output,rows,width,indices,offset,count,{});
 }
 
+void selected_bf16_projection_hawkeye_staged_device_kernel(
+    const qrt_sm121_staged_half_projection::Row* weights,
+    const qrt_sm121_staged_half_projection::Row* inputs,float* output,unsigned rows,unsigned width,
+    const unsigned* counts,const unsigned* indices,unsigned capacity) {
+    ++staged_device_corrections;++staged_corrections;++corrections;
+    if(staged_preparations!=2u || eligibility_scans || preparations || kSelectedHawkeyeReplayLanes!=4u ||
+        weights!=staged_buffers[0] || inputs!=staged_buffers[1] || rows!=staged_rows[0] ||
+        staged_rows[1]!=8192u || width!=staged_width || counts[0]>capacity ||
+        capacity>qrt_hawkeye_dispatch::maximum_device_window_elements ||
+        indices!=counts+2u || !owns(counts,(size_t(capacity)+2u)*sizeof(unsigned)) ||
+        !owns(weights,size_t(staged_rows[0]+staged_rows[1])*(width/16u)*sizeof(*weights))) {
+        invalid_range=true;return;
+    }
+    for(unsigned j=0;j<counts[0];++j) {
+        const size_t index=indices[j];
+        if(index>=total_elements || index/rows>=staged_rows[1]){invalid_range=true;return;}
+        corrected.push_back(index);output[index]=float((index/rows)*2u+index%rows);
+    }
+}
+
 namespace qrt_out_l1_replay {
 static unsigned calls=0u;
 static float bound=1.0f;
@@ -507,6 +529,14 @@ void staged_mode(const char* value) {
     _putenv_s("QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY",value);
 #else
     setenv("QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY",value,1);
+#endif
+}
+
+void staged_device_mode(const char* value) {
+#ifdef _WIN32
+    _putenv_s("QRT_QWEN36_HAWKEYE_STAGED_DEVICE_REPLAY",value);
+#else
+    setenv("QRT_QWEN36_HAWKEYE_STAGED_DEVICE_REPLAY",value,1);
 #endif
 }
 
@@ -613,7 +643,7 @@ void reset() {
     partitions=fail_partition=0;partition_fault=false;
     validated_fast_cells=validated_fallback_cells=0;
     scaled_scans=scaled_corrections=scaled_fast_cells=scaled_normal_cells=scaled_special_cells=0;
-    staged_preparations=staged_corrections=staged_width=0u;
+    staged_preparations=staged_corrections=staged_device_corrections=staged_width=0u;
     staged_buffers[0]=staged_buffers[1]=nullptr;staged_rows[0]=staged_rows[1]=0u;
 }
 int main() {
@@ -623,6 +653,7 @@ int main() {
     float_mode("0");float_mode("0",true);
     scaled_mode("0");
     staged_mode("0");
+    staged_device_mode("0");
     k16_major_mode("0");
     absolute_bound_mode("0");
     absolute_hipblaslt_mode("0");
@@ -1142,6 +1173,49 @@ int main() {
         if(run_queued()!=hipErrorInvalidValue || allocations || submitted_replays ||
             output!=before || !pending_work.empty())return 118;
         queued_mode("1");defer_work=false;
+    }
+    if(kSelectedHawkeyeReplayLanes==4u) {
+        defer_work=true;queued_mode("0");requested_blocks=4096u;
+        total_elements=size_t(1025u)*8192u;
+        auto invoke_staged_device=[&] {
+            return launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                &value,&value,nullptr,nullptr,nullptr,output.data(),1025u,8192u,
+                16u,512u,0u,0u,requested_blocks,nullptr,16777216u);
+        };
+        for(unsigned candidates:{0u,1u,65536u,65537u}) {
+            std::vector<float> control;std::vector<size_t> membership;
+            for(unsigned enabled:{0u,1u}) {
+                reset();output.assign(total_elements,1.001f);
+                std::fill_n(output.begin(),candidates,1.00390625f);
+                if(candidates)for(size_t i:{size_t(4194303u),size_t(4194304u),total_elements-1u})output[i]=1.00390625f;
+                staged_device_mode(enabled?"1":"0");
+                if(invoke_staged_device()!=hipSuccess || invalid_grid || invalid_range ||
+                    allocations!=frees || !allocation_records.empty() || !pending_work.empty() ||
+                    collections!=(enabled?3u:1u) || count_reads!=(enabled?0u:1u) ||
+                    staged_device_corrections!=(enabled?3u:0u))return 131;
+                if(!enabled){control=output;membership=corrected;}
+                else if(output!=control || corrected!=membership)return 132;
+            }
+        }
+        for(unsigned failure:{1u,2u,3u}) {
+            reset();output.assign(total_elements,1.001f);fail_replay_submission=failure;
+            for(size_t i:{size_t(0u),size_t(4194304u),total_elements-1u})output[i]=1.00390625f;
+            if(invoke_staged_device()!=hipErrorUnknown || submitted_replays!=failure ||
+                invalid_range || allocations!=frees || !allocation_records.empty() ||
+                !pending_work.empty())return 133;
+        }
+        for(unsigned failure:{3u,4u,5u}) {
+            reset();output.assign(total_elements,1.001f);fail_sync=failure;
+            for(size_t i:{size_t(0u),size_t(4194304u),total_elements-1u})output[i]=1.00390625f;
+            if(invoke_staged_device()!=hipErrorUnknown || invalid_range || allocations!=frees ||
+                !allocation_records.empty() || !pending_work.empty())return 134;
+        }
+        staged_device_mode("invalid");reset();output.assign(total_elements,1.001f);
+        if(invoke_staged_device()!=hipErrorInvalidValue || allocations || corrections)return 135;
+        staged_device_mode("1");queued_mode("1");reset();
+        if(invoke_staged_device()!=hipErrorInvalidValue || allocations || corrections)return 136;
+        staged_device_mode("0");queued_mode("0");defer_work=false;
+        std::printf("staged_device_owner_pass windows=3 host_count_reads=0 source_membership_preserved=1 deferred_cleanup_faults=6\n");
     }
     total_elements=prepared_initial.size();reset();output=prepared_initial;
     if(run_prepared()!=hipSuccess || staged_preparations || staged_corrections ||

@@ -130,6 +130,7 @@ int main() {
                 result = subprocess.run([exe], check=True, timeout=15, capture_output=True, text=True)
                 if lanes == 4:
                     self.assertIn("out_residual_filter_owner_pass", result.stdout)
+                    self.assertIn("staged_device_owner_pass", result.stdout)
                     print(result.stdout.strip())
 
     def test_dense_work_and_exhausted_time_are_rejected(self):

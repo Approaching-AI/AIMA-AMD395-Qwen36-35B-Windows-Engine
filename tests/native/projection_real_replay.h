@@ -42,8 +42,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const char* cooperative = std::getenv("QRT_PROJECTION_SAFETY_COOPERATIVE_HALF_REPLAY");
     const char* staged_f32_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_HALF_F32_REPLAY");
     const bool staged_f32_replay = staged_f32_option && !std::strcmp(staged_f32_option,"1");
+    const char* staged_device_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_DEVICE_REPLAY");
+    const bool staged_device_replay = staged_device_option && !std::strcmp(staged_device_option,"1");
     require(!output_projection || (extend_q8192 && ppb == 10000u &&
-        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
+        ((cooperative && !std::strcmp(cooperative,"1")) || staged_device_replay || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
         "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
@@ -73,6 +75,11 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
             dw.data(),di.data(),dout.data(),rows,k,tokens,0u,nullptr,
             "real_out_producer",&stage,&failure);
         require(produced, (stage+": "+failure).c_str());
+    } else if (staged_device_replay) {
+        std::string stage, failure;
+        require(resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
+            dw.data(),di.data(),dout.data(),rows,k,tokens,4u,nullptr,
+            "real_qkv_retained_producer",&stage,&failure),(stage+": "+failure).c_str());
     } else hip_ok(launch_selected_bf16_projection_wmma_checked(dw.data(), di.data(), dout.data(), rows, tokens, 0u, 0u, nullptr), "real_wmma");
     hip_ok(hipDeviceSynchronize(), "real_wmma_sync");
     hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel, dim3(tokens), dim3(256u), 0u, nullptr, di.data(), dix.data(), tokens, k);
@@ -149,6 +156,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         }
     }
     require(selected_indices.size() == candidates, "collected projection candidate count differs");
+    if (staged_device_replay) {
+        run_staged_device_real(dw,di,dout,dix,dwx,weights,inputs,reference,output,rows,tokens,k,ppb);
+        return;
+    }
     const unsigned int blocks = selected_hawkeye_correction_maximum_blocks_per_launch();
     std::cout << "{\"type\":\"" << (output_projection ? "real_out_selector" : "real_qkv_selector") << "\",\"elements\":" << elements
               << ",\"initial_bf16_mismatches\":" << initial_mismatches

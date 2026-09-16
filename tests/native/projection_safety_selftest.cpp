@@ -389,6 +389,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_interval_audit_suite.h"
 #include "projection_producer_selection_suite.h"
 #include "projection_folded_half_replay_suite.h"
+#include "projection_staged_device_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "out_l1_magnitude_suite.h"
@@ -403,7 +404,7 @@ int main(int argc, char **argv) {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
         require(argc == ((mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv, --real-qkv-q8192 or --real-out-q8192 INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
+        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--staged-device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -422,6 +423,8 @@ int main(int argc, char **argv) {
                 cases += run_absolute_product_hipblaslt_suite();
             } else if (mode == "--device-replay") {
                 cases += run_device_replay_suite();
+            } else if (mode == "--staged-device-replay") {
+                cases += run_staged_device_suite();
             } else if (mode == "--prepared-correction" || mode == "--absolute-bound-correction") {
                 require(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS") &&
                     !std::strcmp(std::getenv("QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS"), "1"), "prepared correction mode requires prepared operands");
