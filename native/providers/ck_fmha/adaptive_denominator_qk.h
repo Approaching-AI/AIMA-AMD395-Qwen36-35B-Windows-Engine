@@ -93,16 +93,18 @@ __global__ void initialize(const float* scores, const float* errors, const float
 
 // One original 32-lane butterfly and ordered recurrence per row. Every
 // normalized output must have a fixed BF16 endpoint before a row is admitted.
-// Priority affects work only. Round16 selects all remaining scores; round17
-// must therefore see an exact denominator. No approximate denominator is an
+// Priority affects work only. Callers admit step1 or step4; the penultimate
+// round selects all remaining scores and the final round must therefore see
+// an exact denominator. No approximate denominator is an
 // acceptance condition. A fixed denominator uses the exact reciprocal table.
 __global__ void certify_and_collect(const float* errors, const float* lower,
     const float* upper, const float* accumulator, float* scales, float* denominators,
     float* output, const float* maximum_cost, unsigned* pending,
     unsigned start, unsigned stride, const unsigned char* reciprocal,
-    unsigned round, unsigned* indices, unsigned* count, unsigned* stats) {
+    unsigned round, unsigned step, unsigned* indices, unsigned* count, unsigned* stats) {
     const unsigned lane = threadIdx.x, row = blockIdx.y * kQueryHeads + blockIdx.x;
     if (!pending[row]) return;
+    const unsigned last_round = 16u / step + 1u;
     const unsigned tokens = start + blockIdx.y + 1u, tiles = (stride + 31u) / 32u;
     float low = 1.0f, high = 1.0f;
     for (unsigned tile = 0u; tile < (tokens + 31u) / 32u; ++tile) {
@@ -127,14 +129,14 @@ __global__ void certify_and_collect(const float* errors, const float* lower,
         scales[size_t(row) * (tiles + 1u) + tiles] = low;
         atomicAdd(stats + round, 1u);
         if (all_stable) { pending[row] = 0u; atomicAdd(stats + rounds, 1u); }
-        else if (round == rounds - 2u) atomicAdd(stats + rounds + 1u, 1u);
+        else if (round == last_round - 1u) atomicAdd(stats + rounds + 1u, 1u);
     }
-    if (all_stable || round == rounds - 1u) return;
-    const float threshold = maximum_cost[row] * ldexpf(1.0f, -int(round));
+    if (all_stable || round == last_round) return;
+    const float threshold = maximum_cost[row] * ldexpf(1.0f, -int((round + 1u) * step - 1u));
     for (unsigned tile = 0u; tile < (tokens + 31u) / 32u; ++tile) {
         const unsigned key = tile * 32u + lane, cell = row * stride + key;
         bool selected = key < tokens && errors[cell] != 0.0f;
-        if (selected && round != rounds - 2u) {
+        if (selected && round != last_round - 1u) {
             const float width = upper[cell] - lower[cell];
             selected = !isfinite(width) || (width > 0.0f && width >= threshold);
         }
