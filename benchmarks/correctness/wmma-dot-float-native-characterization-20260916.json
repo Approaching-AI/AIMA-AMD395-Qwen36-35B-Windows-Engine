@@ -1,0 +1,4021 @@
+{
+  "schema_version": 1,
+  "kind": "isolated_wmma_dot2_floating_carry_characterization",
+  "host": "baiying",
+  "model": "none; deterministic independent generated floating operands and FP32 carries",
+  "model_loaded": false,
+  "sources": {
+    "discovery": {
+      "canonical_source_record": "wmma-dot-float-native-source-r1.json",
+      "canonical_source_record_sha256": "ed7e2bf179079b20cd9757c437b1eab27bd1dd8cffe77d7ac7591fcb02719878",
+      "documentation_snapshot_differences": {},
+      "source_commit": "31ba6ce32a56d835b8bd889922334faca22b8b60",
+      "repo": "D:/projects/AIMA-public-wmma-dot-float-20260916",
+      "seed": "D:/projects/AIMA-public-wmma-dot-prefix-20260916",
+      "prerequisite_commit": "952de36e6e804212de6fa7945b1cdbf01c1fa980",
+      "bundle": "wmma-dot-float-31ba6ce.bundle",
+      "bundle_sha256": "a9f6e1b1685104614c500d0f2f7bc35caeb71ad2cde8f4926126f4234419d8ac",
+      "script": "run-native-wmma-dot-float-r1.ps1",
+      "script_sha256": "5bc44049846ee0fedd380037249c42a5342357b39e85781ea6412a410aa379f0",
+      "source_sha256": {
+        "tests/native/wmma_dot_float_probe.cpp": "5dfcd46727bf0f5ded4feeed394c2ef4de7cf00d9f00791bd533436c0d5c169b",
+        "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+      },
+      "local_validation": {
+        "commands": [
+          [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=undefined,address",
+            "-fno-sanitize-recover=all",
+            "<private-home>/projects/AIMA-public-r1191-candidate/tests/native/wmma_dot_float_probe.cpp",
+            "-o",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-dot-float-host-r1"
+          ],
+          [
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-dot-float-host-r1"
+          ],
+          [
+            "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+            "tools/public_hygiene.py",
+            "."
+          ]
+        ],
+        "returncode": 0,
+        "wall_seconds": 9.261126666329801,
+        "source_sha256": {
+          "tests/native/wmma_dot_float_probe.cpp": "5dfcd46727bf0f5ded4feeed394c2ef4de7cf00d9f00791bd533436c0d5c169b",
+          "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+        },
+        "log": "wmma-dot-float-local-r1.log",
+        "log_sha256": "29ea42d8cb21fb18ed3ba056ddc6c6ecc9484e855af9f4d393512a5d2619fff6",
+        "unchanged_full_suite": "dyadic-scan-qk-native-components-20260916.json",
+        "production_dispatch_changed": false
+      }
+    },
+    "holdout": {
+      "canonical_source_record": "wmma-dot-float-holdout-native-source-r1.json",
+      "canonical_source_record_sha256": "b0ad3fab31dbf8417a23592335f378423958e7abd6265e383235cdc6e72d1bdc",
+      "documentation_snapshot_differences": {},
+      "source_commit": "2316a122853943385eda76f11a1c3c74f0426ad7",
+      "repo": "D:/projects/AIMA-public-wmma-dot-float-holdout-20260916",
+      "seed": "D:/projects/AIMA-public-wmma-dot-float-20260916",
+      "prerequisite_commit": "31ba6ce32a56d835b8bd889922334faca22b8b60",
+      "bundle": "wmma-dot-float-holdout-2316a12.bundle",
+      "bundle_sha256": "abecb8a092909d1fa4b14b851d62abd59148b81f12ac278d7dc50cd212a311fd",
+      "script": "run-native-wmma-dot-float-holdout-r1.ps1",
+      "script_sha256": "6e8e608447d44a0e4ffc993b0932bb85d747ab8ee890c4163e524ce0006b0834",
+      "source_sha256": {
+        "tests/native/wmma_dot_float_probe.cpp": "ff3cb179cb9c52e400faf15b21b9ce7305909bc70f37190b4996b017b2d7e045",
+        "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+      },
+      "local_validation": {
+        "commands": [
+          [
+            "c++",
+            "-std=c++17",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "-fsanitize=undefined,address",
+            "-fno-sanitize-recover=all",
+            "<private-home>/projects/AIMA-public-r1191-candidate/tests/native/wmma_dot_float_probe.cpp",
+            "-o",
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-dot-float-host-r2"
+          ],
+          [
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-dot-float-host-r2"
+          ],
+          [
+            "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-dot-float-host-r2",
+            "unused",
+            "0x93517a2d"
+          ],
+          [
+            "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+            "tools/public_hygiene.py",
+            "."
+          ]
+        ],
+        "returncode": 0,
+        "wall_seconds": 9.069134167395532,
+        "source_sha256": {
+          "tests/native/wmma_dot_float_probe.cpp": "ff3cb179cb9c52e400faf15b21b9ce7305909bc70f37190b4996b017b2d7e045",
+          "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+        },
+        "log": "wmma-dot-float-local-r2.log",
+        "log_sha256": "2e32df8308c7b247052a88b74d079608c7109353f6044fd8d862fd1c63bb6836",
+        "unchanged_full_suite": "dyadic-scan-qk-native-components-20260916.json",
+        "production_dispatch_changed": false
+      }
+    }
+  },
+  "native_runs": {
+    "discovery_build": {
+      "name": "wmma-dot-float-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\tests\\native\\wmma_dot_float_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\wmma-dot-float.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-dot-float-20260916",
+        "repo_commit": "31ba6ce32a56d835b8bd889922334faca22b8b60",
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-r1.ps1",
+        "command_file_sha256": "5bc44049846ee0fedd380037249c42a5342357b39e85781ea6412a410aa379f0",
+        "model": "none; generated floating operands and independent carries",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes."
+      },
+      "launch": {
+        "pid": 12936,
+        "utc": "2026-09-16T08:55:53.9792348Z",
+        "timeout_seconds": 150,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2125.32,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "8d6f7563c5b2b7fa98206bf2bdfc3a8a7465dcf23c110066a9eeb556ad189108",
+        "dispatch.json": "7d164ceb613ce791a8717cb6690be47a23de8d2f7034553215aa21c85311476c",
+        "launch.json": "71e91017de07d18f13db7a17d9409748a50ae164bbc39545d1a5a3283add4a7c",
+        "preflight.json": "e0de58389c0491fba17fd86dac71933b7965d8e300d72e3a43929dbc20662b12",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "ae21d52259ef763f25f0ab1c04e5ef30ab0d39cf016ff69d9c0a89525d6df0c4",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "31ba6ce32a56d835b8bd889922334faca22b8b60",
+        "source_inputs": [
+          {
+            "sha256": "5dfcd46727bf0f5ded4feeed394c2ef4de7cf00d9f00791bd533436c0d5c169b",
+            "file": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\tests\\native\\wmma_dot_float_probe.cpp"
+          },
+          {
+            "sha256": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204",
+            "file": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\tests\\native\\wmma_integer_rounding_probe.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-r1.ps1",
+        "command_file_sha256": "5bc44049846ee0fedd380037249c42a5342357b39e85781ea6412a410aa379f0",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\tests\\native\\wmma_dot_float_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\wmma-dot-float.exe"
+        ],
+        "run_record_sha256": "ae21d52259ef763f25f0ab1c04e5ef30ab0d39cf016ff69d9c0a89525d6df0c4",
+        "executable": {
+          "sha256": "012bdd2bdba4f63cdaac99fe59c4b8e109b0cb15a1728ed1e96e11abccd395a7",
+          "file": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\wmma-dot-float.exe",
+          "bytes": 369664
+        }
+      }
+    },
+    "discovery_test": {
+      "name": "wmma-dot-float-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\wmma-dot-float.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\capture"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-dot-float-20260916",
+        "repo_commit": "31ba6ce32a56d835b8bd889922334faca22b8b60",
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-r1.ps1",
+        "command_file_sha256": "5bc44049846ee0fedd380037249c42a5342357b39e85781ea6412a410aa379f0",
+        "model": "none; generated floating operands and independent carries",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes.",
+        "build_provenance_sha256": "8d6f7563c5b2b7fa98206bf2bdfc3a8a7465dcf23c110066a9eeb556ad189108",
+        "output_directory": "D:\\projects\\AIMA-public-wmma-dot-float-20260916\\build\\wmma-dot-float\\capture"
+      },
+      "launch": {
+        "pid": 3964,
+        "utc": "2026-09-16T08:57:24.3418397Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 438.551,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "012bdd2bdba4f63cdaac99fe59c4b8e109b0cb15a1728ed1e96e11abccd395a7",
+      "canonical_raw_sha256": {
+        "capture-manifest.json": "188ea2b0e1c78fa514835e19df55ffb69bf98cf7eec83d4becb39393b6a4f0cd",
+        "carry.bin": "2e14cca7a09789e7ef650ba37864f3dbecdba5350f95efe60ac536f58daa3c3b",
+        "dispatch.json": "9166000999deaeefcfae90d01cc63716744e03d38c47df44ce7c57fb613eaa1a",
+        "launch.json": "f5c2e98d77aad94430a5b2f8cadf4b8e94b34d4bbd588e4ce08f0a4a3df367dd",
+        "left-half.bin": "f06bd8aa46de6bc61a82374a1f94e6f6e15f5a4b81d3e75d9fb3204bec5742ca",
+        "model-prefix.bin": "7b405090478703f5fa64ee9d8117f9c0fdaf5f8e53b3b6cc5d5d313d41beb874",
+        "prefix.bin": "dc2e514caa20b7a233ff010d031a45f640cff4b550df9a7552583ac056dcf7c7",
+        "preflight.json": "2abfac06939178ef0e408da8bcfd0b4450ae501b8f1dd60d5ed5d09c8f0a9257",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "877486785f8e6c681c8e8781677a6af0dfe156f4b6523f281acdcce9591aa6af",
+        "reports.json": "5734b588c36390a70fb6fd390feff2e2e839413f245856c8da0c0e230c29c848",
+        "right-half.bin": "051d5976a3cf2a58426f8858ff1339fe99e0487d127ac349d9072bcdea788b72",
+        "run-record.json": "c423e73d3c4dd3bea8d2f822c25be18d2f528c1ec3f818a8c1c76ca0620a6cbb",
+        "wmma-bf16.bin": "13d96e72c408e404eb6b142ab126cadef60b717701e185f8bfca814ad4a8af65",
+        "wmma-fp16.bin": "eea821f79d4ed009c5bebc031eee0d5d34bc60f9e3b35086837333bea6a43975"
+      },
+      "reports": [
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 0,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 831,
+          "recursive_model_mismatches": 2350,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 224,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 1,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 538,
+          "recursive_model_mismatches": 1884,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 131360,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 2,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 2094,
+          "recursive_model_mismatches": 15596,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 262152,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 3,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 798,
+          "recursive_model_mismatches": 6384,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 393368,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 4,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 732,
+          "recursive_model_mismatches": 1906,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 524408,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 5,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 454,
+          "recursive_model_mismatches": 1437,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 655448,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 6,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 1040,
+          "recursive_model_mismatches": 2965,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 786432,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 7,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 7872,
+          "recursive_model_mismatches": 14796,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 917544,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    },
+    "holdout_build": {
+      "name": "wmma-dot-float-holdout-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\tests\\native\\wmma_dot_float_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\wmma-dot-float-holdout.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916",
+        "repo_commit": "2316a122853943385eda76f11a1c3c74f0426ad7",
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-holdout-r1.ps1",
+        "command_file_sha256": "6e8e608447d44a0e4ffc993b0932bb85d747ab8ee890c4163e524ce0006b0834",
+        "model": "none; generated floating operands and independent carries",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Use the independent seed salt0x93517a2d after signed-zero and subnormal model corrections. Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes."
+      },
+      "launch": {
+        "pid": 8088,
+        "utc": "2026-09-16T09:08:26.0642967Z",
+        "timeout_seconds": 150,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2108.831,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "af04c08992a051381ad7540cc52efdaf3efbc8c29134b8e235ca99026e2b5bc4",
+        "dispatch.json": "4589227a7f9b63ea2df0bd0508cde51cb0301d0360f82165a3348cbc2e207b0e",
+        "launch.json": "2f3dad8457a21fafef8aefa97eb2892bf4045c361fa6052da4d76677d4f3e9e2",
+        "preflight.json": "1981ec2016da96ba528c86939f769f30191f8c637ec3dfed5f4211d06e1e0e0f",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "9634fe4ca97e870b581484704dc7b06b68a88b7d32a8b7ef87ba7d42cd900758",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "2316a122853943385eda76f11a1c3c74f0426ad7",
+        "source_inputs": [
+          {
+            "sha256": "ff3cb179cb9c52e400faf15b21b9ce7305909bc70f37190b4996b017b2d7e045",
+            "file": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\tests\\native\\wmma_dot_float_probe.cpp"
+          },
+          {
+            "sha256": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204",
+            "file": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\tests\\native\\wmma_integer_rounding_probe.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-holdout-r1.ps1",
+        "command_file_sha256": "6e8e608447d44a0e4ffc993b0932bb85d747ab8ee890c4163e524ce0006b0834",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\tests\\native\\wmma_dot_float_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\wmma-dot-float-holdout.exe"
+        ],
+        "run_record_sha256": "9634fe4ca97e870b581484704dc7b06b68a88b7d32a8b7ef87ba7d42cd900758",
+        "executable": {
+          "sha256": "ca3265ed4b1f8f65c26a66edc86433fe98f38a1f59cc73ec51ada3c0299c5722",
+          "file": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\wmma-dot-float-holdout.exe",
+          "bytes": 371712
+        }
+      }
+    },
+    "holdout_test": {
+      "name": "wmma-dot-float-holdout-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\wmma-dot-float-holdout.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\capture",
+          "0x93517a2d"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916",
+        "repo_commit": "2316a122853943385eda76f11a1c3c74f0426ad7",
+        "command_file": "D:\\projects\\run-native-wmma-dot-float-holdout-r1.ps1",
+        "command_file_sha256": "6e8e608447d44a0e4ffc993b0932bb85d747ab8ee890c4163e524ce0006b0834",
+        "model": "none; generated floating operands and independent carries",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Use the independent seed salt0x93517a2d after signed-zero and subnormal model corrections. Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes.",
+        "build_provenance_sha256": "af04c08992a051381ad7540cc52efdaf3efbc8c29134b8e235ca99026e2b5bc4",
+        "output_directory": "D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916\\build\\wmma-dot-float-holdout\\capture"
+      },
+      "launch": {
+        "pid": 12412,
+        "utc": "2026-09-16T09:09:48.0824129Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 427.69,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "ca3265ed4b1f8f65c26a66edc86433fe98f38a1f59cc73ec51ada3c0299c5722",
+      "canonical_raw_sha256": {
+        "capture-manifest.json": "468773e5ae9934fd09f3f18c411a8b317a7adedd1a2194d1d5abd4d6c8b650e9",
+        "carry.bin": "d29dd348a50b61882e94db5a20b56c04dd067bfde80442aa53d04d44d69a608a",
+        "dispatch.json": "ae13f2348bd4a3de82d531c9735d326417a0e5987543f4fca5d181052d8b7a9b",
+        "launch.json": "b8f32e483be0311e831877a077808d1ac53e14449a280d3e0dd7b275e7a22211",
+        "left-half.bin": "5b64fee0996af39992378bead24b14f17b888fbe58a5737f1fb5a3b99a1ef73d",
+        "model-prefix.bin": "2afeab5c416a17952f22128f87d65c4f1cddb7e51e5a83bf974cb57aca4bb16c",
+        "prefix.bin": "2afeab5c416a17952f22128f87d65c4f1cddb7e51e5a83bf974cb57aca4bb16c",
+        "preflight.json": "28540a83a1fd8646dd8e447af5395deffb01e15cc1233cac6cb9121b6446e157",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "81802834a360494550483e6730a3c5d0b3eeebe3f4112e19010530b856dd4873",
+        "reports.json": "fcfeaf92188b06bb18bfb02bf1c44d4c9a5a9817b31563ead82396542ecb8fbd",
+        "right-half.bin": "d29f8753598a5328ba11a31b252b37a2bc450ef7bf5621f63aaf4366341006cb",
+        "run-record.json": "1c75ab1d01cbeae30c9066957c1b0c251dc4336913d55da0a4667dd4ebf3597e",
+        "wmma-bf16.bin": "de92264b94f06bd069be42b4a0b75e984c40ab3b323fe8b62119f17528519539",
+        "wmma-fp16.bin": "ad3b1b63cb1bd2e0b9af2db0c85f37552fed5471f8b3c9856a687c49c197ac55"
+      },
+      "reports": [
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 0,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 1,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 2,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 3,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 4,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 5,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 6,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_dot_float_diagnostic",
+          "family": 7,
+          "cells": 16384,
+          "prefix_states": 131072,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_wmma_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "capture_manifests": {
+    "discovery": [
+      {
+        "sha256": "2e14cca7a09789e7ef650ba37864f3dbecdba5350f95efe60ac536f58daa3c3b",
+        "name": "carry.bin",
+        "bytes": 524288
+      },
+      {
+        "sha256": "f06bd8aa46de6bc61a82374a1f94e6f6e15f5a4b81d3e75d9fb3204bec5742ca",
+        "name": "left-half.bin",
+        "bytes": 262144
+      },
+      {
+        "sha256": "7b405090478703f5fa64ee9d8117f9c0fdaf5f8e53b3b6cc5d5d313d41beb874",
+        "name": "model-prefix.bin",
+        "bytes": 4194304
+      },
+      {
+        "sha256": "dc2e514caa20b7a233ff010d031a45f640cff4b550df9a7552583ac056dcf7c7",
+        "name": "prefix.bin",
+        "bytes": 4194304
+      },
+      {
+        "sha256": "051d5976a3cf2a58426f8858ff1339fe99e0487d127ac349d9072bcdea788b72",
+        "name": "right-half.bin",
+        "bytes": 262144
+      },
+      {
+        "sha256": "13d96e72c408e404eb6b142ab126cadef60b717701e185f8bfca814ad4a8af65",
+        "name": "wmma-bf16.bin",
+        "bytes": 393216
+      },
+      {
+        "sha256": "eea821f79d4ed009c5bebc031eee0d5d34bc60f9e3b35086837333bea6a43975",
+        "name": "wmma-fp16.bin",
+        "bytes": 524288
+      }
+    ],
+    "holdout": [
+      {
+        "sha256": "d29dd348a50b61882e94db5a20b56c04dd067bfde80442aa53d04d44d69a608a",
+        "name": "carry.bin",
+        "bytes": 524288
+      },
+      {
+        "sha256": "5b64fee0996af39992378bead24b14f17b888fbe58a5737f1fb5a3b99a1ef73d",
+        "name": "left-half.bin",
+        "bytes": 262144
+      },
+      {
+        "sha256": "2afeab5c416a17952f22128f87d65c4f1cddb7e51e5a83bf974cb57aca4bb16c",
+        "name": "model-prefix.bin",
+        "bytes": 4194304
+      },
+      {
+        "sha256": "2afeab5c416a17952f22128f87d65c4f1cddb7e51e5a83bf974cb57aca4bb16c",
+        "name": "prefix.bin",
+        "bytes": 4194304
+      },
+      {
+        "sha256": "d29f8753598a5328ba11a31b252b37a2bc450ef7bf5621f63aaf4366341006cb",
+        "name": "right-half.bin",
+        "bytes": 262144
+      },
+      {
+        "sha256": "de92264b94f06bd069be42b4a0b75e984c40ab3b323fe8b62119f17528519539",
+        "name": "wmma-bf16.bin",
+        "bytes": 393216
+      },
+      {
+        "sha256": "ad3b1b63cb1bd2e0b9af2db0c85f37552fed5471f8b3c9856a687c49c197ac55",
+        "name": "wmma-fp16.bin",
+        "bytes": 524288
+      }
+    ]
+  },
+  "independent_analyses": {
+    "discovery": {
+      "kind": "independent_wmma_dot_float_analysis",
+      "families": [
+        {
+          "family": 0,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 831,
+          "recursive_model_mismatches": 2350,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=0,ep-ec=132": 8,
+            "negativeC=0,negP=0,ep-ec=145": 8,
+            "negativeC=0,negP=2,ep-ec=147": 8,
+            "negativeC=0,negP=2,ep-ec=128": 9,
+            "negativeC=0,negP=0,ep-ec=134": 8,
+            "negativeC=0,negP=1,ep-ec=128": 8,
+            "negativeC=0,negP=0,ep-ec=143": 4,
+            "negativeC=0,negP=1,ep-ec=142": 12,
+            "negativeC=0,negP=2,ep-ec=127": 11,
+            "negativeC=0,negP=1,ep-ec=129": 12,
+            "negativeC=0,negP=0,ep-ec=130": 8,
+            "negativeC=0,negP=1,ep-ec=123": 12,
+            "negativeC=0,negP=2,ep-ec=117": 5,
+            "negativeC=0,negP=0,ep-ec=110": 1,
+            "negativeC=0,negP=1,ep-ec=134": 19,
+            "negativeC=0,negP=1,ep-ec=125": 9,
+            "negativeC=0,negP=2,ep-ec=133": 7,
+            "negativeC=0,negP=1,ep-ec=124": 10,
+            "negativeC=0,negP=0,ep-ec=122": 3,
+            "negativeC=0,negP=1,ep-ec=116": 2,
+            "negativeC=0,negP=0,ep-ec=120": 3,
+            "negativeC=0,negP=0,ep-ec=123": 10,
+            "negativeC=0,negP=2,ep-ec=137": 12,
+            "negativeC=0,negP=1,ep-ec=141": 11,
+            "negativeC=0,negP=2,ep-ec=130": 12,
+            "negativeC=0,negP=1,ep-ec=131": 14,
+            "negativeC=0,negP=1,ep-ec=137": 12,
+            "negativeC=0,negP=1,ep-ec=140": 15,
+            "negativeC=0,negP=1,ep-ec=151": 4,
+            "negativeC=0,negP=0,ep-ec=137": 9,
+            "negativeC=0,negP=2,ep-ec=140": 7,
+            "negativeC=0,negP=1,ep-ec=122": 7,
+            "negativeC=0,negP=2,ep-ec=132": 11,
+            "negativeC=0,negP=2,ep-ec=141": 6,
+            "negativeC=0,negP=1,ep-ec=144": 13,
+            "negativeC=0,negP=1,ep-ec=154": 3,
+            "negativeC=0,negP=1,ep-ec=130": 13,
+            "negativeC=0,negP=0,ep-ec=150": 2,
+            "negativeC=0,negP=0,ep-ec=154": 2,
+            "negativeC=0,negP=2,ep-ec=135": 6,
+            "negativeC=0,negP=2,ep-ec=123": 7,
+            "negativeC=0,negP=0,ep-ec=141": 10,
+            "negativeC=0,negP=0,ep-ec=138": 7,
+            "negativeC=0,negP=2,ep-ec=131": 11,
+            "negativeC=0,negP=1,ep-ec=121": 8,
+            "negativeC=0,negP=1,ep-ec=147": 8,
+            "negativeC=0,negP=1,ep-ec=138": 13,
+            "negativeC=0,negP=2,ep-ec=145": 6,
+            "negativeC=0,negP=1,ep-ec=150": 8,
+            "negativeC=0,negP=0,ep-ec=127": 9,
+            "negativeC=0,negP=2,ep-ec=142": 8,
+            "negativeC=0,negP=1,ep-ec=135": 16,
+            "negativeC=0,negP=0,ep-ec=147": 5,
+            "negativeC=0,negP=1,ep-ec=132": 14,
+            "negativeC=0,negP=1,ep-ec=152": 3,
+            "negativeC=0,negP=0,ep-ec=151": 5,
+            "negativeC=0,negP=1,ep-ec=120": 6,
+            "negativeC=0,negP=2,ep-ec=115": 2,
+            "negativeC=0,negP=0,ep-ec=135": 7,
+            "negativeC=0,negP=2,ep-ec=138": 7,
+            "negativeC=0,negP=1,ep-ec=146": 6,
+            "negativeC=0,negP=0,ep-ec=128": 8,
+            "negativeC=0,negP=2,ep-ec=125": 8,
+            "negativeC=0,negP=0,ep-ec=129": 7,
+            "negativeC=0,negP=0,ep-ec=136": 8,
+            "negativeC=0,negP=0,ep-ec=133": 10,
+            "negativeC=0,negP=2,ep-ec=122": 2,
+            "negativeC=0,negP=1,ep-ec=119": 3,
+            "negativeC=0,negP=0,ep-ec=111": 3,
+            "negativeC=0,negP=0,ep-ec=124": 5,
+            "negativeC=0,negP=0,ep-ec=121": 3,
+            "negativeC=0,negP=2,ep-ec=139": 8,
+            "negativeC=0,negP=1,ep-ec=149": 7,
+            "negativeC=0,negP=1,ep-ec=126": 6,
+            "negativeC=0,negP=1,ep-ec=117": 3,
+            "negativeC=0,negP=2,ep-ec=144": 4,
+            "negativeC=0,negP=2,ep-ec=152": 2,
+            "negativeC=0,negP=1,ep-ec=145": 10,
+            "negativeC=0,negP=2,ep-ec=129": 8,
+            "negativeC=0,negP=0,ep-ec=131": 14,
+            "negativeC=0,negP=2,ep-ec=136": 7,
+            "negativeC=0,negP=2,ep-ec=134": 8,
+            "negativeC=0,negP=1,ep-ec=136": 14,
+            "negativeC=0,negP=2,ep-ec=111": 2,
+            "negativeC=0,negP=2,ep-ec=126": 4,
+            "negativeC=0,negP=0,ep-ec=139": 8,
+            "negativeC=0,negP=0,ep-ec=146": 11,
+            "negativeC=0,negP=2,ep-ec=150": 3,
+            "negativeC=0,negP=0,ep-ec=119": 3,
+            "negativeC=0,negP=2,ep-ec=143": 6,
+            "negativeC=0,negP=0,ep-ec=117": 2,
+            "negativeC=0,negP=0,ep-ec=142": 8,
+            "negativeC=0,negP=0,ep-ec=126": 5,
+            "negativeC=0,negP=2,ep-ec=151": 6,
+            "negativeC=0,negP=1,ep-ec=143": 14,
+            "negativeC=0,negP=1,ep-ec=139": 9,
+            "negativeC=0,negP=0,ep-ec=153": 5,
+            "negativeC=0,negP=0,ep-ec=149": 5,
+            "negativeC=0,negP=1,ep-ec=115": 2,
+            "negativeC=0,negP=2,ep-ec=124": 3,
+            "negativeC=0,negP=1,ep-ec=155": 2,
+            "negativeC=0,negP=0,ep-ec=140": 8,
+            "negativeC=0,negP=2,ep-ec=146": 9,
+            "negativeC=0,negP=2,ep-ec=153": 2,
+            "negativeC=0,negP=1,ep-ec=118": 3,
+            "negativeC=0,negP=0,ep-ec=156": 1,
+            "negativeC=0,negP=1,ep-ec=156": 2,
+            "negativeC=0,negP=1,ep-ec=113": 1,
+            "negativeC=0,negP=1,ep-ec=133": 8,
+            "negativeC=0,negP=2,ep-ec=148": 4,
+            "negativeC=0,negP=1,ep-ec=148": 2,
+            "negativeC=0,negP=0,ep-ec=144": 6,
+            "negativeC=0,negP=2,ep-ec=149": 5,
+            "negativeC=0,negP=2,ep-ec=119": 1,
+            "negativeC=0,negP=0,ep-ec=118": 3,
+            "negativeC=0,negP=0,ep-ec=125": 4,
+            "negativeC=0,negP=2,ep-ec=116": 3,
+            "negativeC=0,negP=2,ep-ec=154": 1,
+            "negativeC=0,negP=1,ep-ec=127": 10,
+            "negativeC=0,negP=0,ep-ec=116": 1,
+            "negativeC=0,negP=2,ep-ec=118": 1,
+            "negativeC=0,negP=2,ep-ec=114": 1,
+            "negativeC=0,negP=2,ep-ec=120": 2,
+            "negativeC=0,negP=0,ep-ec=152": 1,
+            "negativeC=0,negP=2,ep-ec=121": 1,
+            "negativeC=0,negP=1,ep-ec=108": 1,
+            "negativeC=0,negP=2,ep-ec=155": 1,
+            "negativeC=0,negP=1,ep-ec=114": 1
+          },
+          "examples": [
+            {
+              "cell": 28,
+              "step": 0,
+              "a": [
+                51456,
+                1712
+              ],
+              "b": [
+                52200,
+                16912
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 158.1253204345703,
+              "actual_bits": 1126047765,
+              "predicted": 158.12530517578125,
+              "prediction_bits": 1126047764,
+              "product_exponents": [
+                6,
+                -13
+              ],
+              "carry_exponent": -126,
+              "E": 6,
+              "q": 3.814697265625e-06,
+              "products": [
+                158.125,
+                0.00030931830406188965
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 48,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                6976,
+                54544
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 938304.0625,
+              "actual_bits": 1231361025,
+              "predicted": 938304.0,
+              "prediction_bits": 1231361024,
+              "product_exponents": [
+                -20,
+                19
+              ],
+              "carry_exponent": -126,
+              "E": 19,
+              "q": 0.03125,
+              "products": [
+                1.7690472304821014e-06,
+                938304.0
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 49,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                50200,
+                23840
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -3799552.0,
+              "actual_bits": 3395807232,
+              "predicted": -3799552.25,
+              "prediction_bits": 3395807233,
+              "product_exponents": [
+                -9,
+                21
+              ],
+              "carry_exponent": -126,
+              "E": 21,
+              "q": 0.125,
+              "products": [
+                -0.002045750617980957,
+                -3799552.0
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 51,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                43568,
+                4824
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -9.67751407623291,
+              "actual_bits": 3239761689,
+              "predicted": -9.677515029907227,
+              "prediction_bits": 3239761690,
+              "product_exponents": [
+                -16,
+                2
+              ],
+              "carry_exponent": -126,
+              "E": 2,
+              "q": 2.384185791015625e-07,
+              "products": [
+                -2.4156644940376282e-05,
+                -9.677490234375
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 80,
+              "step": 0,
+              "a": [
+                20448,
+                50984
+              ],
+              "b": [
+                6976,
+                54544
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 579.767822265625,
+              "actual_bits": 1141960996,
+              "predicted": 579.7677612304688,
+              "prediction_bits": 1141960995,
+              "product_exponents": [
+                -5,
+                8
+              ],
+              "carry_exponent": -126,
+              "E": 8,
+              "q": 1.52587890625e-05,
+              "products": [
+                0.11151123046875,
+                579.65625
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 1,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 538,
+          "recursive_model_mismatches": 1884,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=2,ep-ec=127": 15,
+            "negativeC=0,negP=0,ep-ec=125": 8,
+            "negativeC=0,negP=2,ep-ec=129": 22,
+            "negativeC=0,negP=0,ep-ec=134": 7,
+            "negativeC=0,negP=1,ep-ec=127": 15,
+            "negativeC=0,negP=1,ep-ec=134": 12,
+            "negativeC=0,negP=2,ep-ec=130": 14,
+            "negativeC=0,negP=1,ep-ec=124": 8,
+            "negativeC=0,negP=2,ep-ec=121": 1,
+            "negativeC=0,negP=1,ep-ec=126": 22,
+            "negativeC=0,negP=2,ep-ec=124": 2,
+            "negativeC=0,negP=0,ep-ec=119": 2,
+            "negativeC=0,negP=1,ep-ec=123": 10,
+            "negativeC=0,negP=1,ep-ec=130": 28,
+            "negativeC=0,negP=0,ep-ec=131": 23,
+            "negativeC=0,negP=2,ep-ec=136": 3,
+            "negativeC=0,negP=0,ep-ec=130": 13,
+            "negativeC=0,negP=2,ep-ec=131": 16,
+            "negativeC=0,negP=0,ep-ec=127": 13,
+            "negativeC=0,negP=1,ep-ec=120": 4,
+            "negativeC=0,negP=0,ep-ec=128": 15,
+            "negativeC=0,negP=2,ep-ec=128": 6,
+            "negativeC=0,negP=0,ep-ec=135": 12,
+            "negativeC=0,negP=0,ep-ec=123": 3,
+            "negativeC=0,negP=1,ep-ec=135": 17,
+            "negativeC=0,negP=1,ep-ec=128": 12,
+            "negativeC=0,negP=2,ep-ec=133": 25,
+            "negativeC=0,negP=1,ep-ec=133": 19,
+            "negativeC=0,negP=2,ep-ec=125": 10,
+            "negativeC=0,negP=0,ep-ec=129": 23,
+            "negativeC=0,negP=1,ep-ec=131": 15,
+            "negativeC=0,negP=2,ep-ec=134": 14,
+            "negativeC=0,negP=2,ep-ec=122": 2,
+            "negativeC=0,negP=2,ep-ec=135": 7,
+            "negativeC=0,negP=1,ep-ec=122": 5,
+            "negativeC=0,negP=0,ep-ec=132": 13,
+            "negativeC=0,negP=2,ep-ec=126": 12,
+            "negativeC=0,negP=1,ep-ec=136": 5,
+            "negativeC=0,negP=0,ep-ec=136": 3,
+            "negativeC=0,negP=1,ep-ec=129": 9,
+            "negativeC=0,negP=2,ep-ec=123": 3,
+            "negativeC=0,negP=1,ep-ec=125": 14,
+            "negativeC=0,negP=2,ep-ec=132": 8,
+            "negativeC=0,negP=1,ep-ec=119": 2,
+            "negativeC=0,negP=1,ep-ec=121": 4,
+            "negativeC=0,negP=1,ep-ec=132": 13,
+            "negativeC=0,negP=1,ep-ec=117": 1,
+            "negativeC=0,negP=1,ep-ec=118": 1,
+            "negativeC=0,negP=0,ep-ec=133": 14,
+            "negativeC=0,negP=2,ep-ec=120": 1,
+            "negativeC=0,negP=0,ep-ec=122": 2,
+            "negativeC=0,negP=0,ep-ec=126": 8,
+            "negativeC=0,negP=0,ep-ec=124": 2
+          },
+          "examples": [
+            {
+              "cell": 16420,
+              "step": 0,
+              "a": [
+                16624,
+                11536
+              ],
+              "b": [
+                48168,
+                50304
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -2.921142578125,
+              "actual_bits": 3225089024,
+              "predicted": -2.921142816543579,
+              "prediction_bits": 3225089025,
+              "product_exponents": [
+                1,
+                -2
+              ],
+              "carry_exponent": -126,
+              "E": 1,
+              "q": 1.1920928955078125e-07,
+              "products": [
+                -2.565185546875,
+                -0.35595703125
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 16425,
+              "step": 0,
+              "a": [
+                16624,
+                11536
+              ],
+              "b": [
+                13672,
+                13320
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.8540974259376526,
+              "actual_bits": 1062905377,
+              "predicted": 0.8540973663330078,
+              "prediction_bits": 1062905376,
+              "product_exponents": [
+                -1,
+                -6
+              ],
+              "carry_exponent": -126,
+              "E": -1,
+              "q": 2.9802322387695312e-08,
+              "products": [
+                0.83416748046875,
+                0.019929885864257812
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 16455,
+              "step": 0,
+              "a": [
+                12184,
+                48472
+              ],
+              "b": [
+                48976,
+                18816
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -14.912223815917969,
+              "actual_bits": 3245250680,
+              "predicted": -14.912224769592285,
+              "prediction_bits": 3245250681,
+              "product_exponents": [
+                -4,
+                3
+              ],
+              "carry_exponent": -126,
+              "E": 3,
+              "q": 4.76837158203125e-07,
+              "products": [
+                -0.21691131591796875,
+                -14.6953125
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 16479,
+              "step": 0,
+              "a": [
+                15328,
+                54056
+              ],
+              "b": [
+                14504,
+                51392
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 544.447998046875,
+              "actual_bits": 1141382316,
+              "predicted": 544.4479370117188,
+              "prediction_bits": 1141382315,
+              "product_exponents": [
+                -2,
+                8
+              ],
+              "carry_exponent": -126,
+              "E": 8,
+              "q": 1.52587890625e-05,
+              "products": [
+                0.57293701171875,
+                543.875
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 16505,
+              "step": 0,
+              "a": [
+                51136,
+                19336
+              ],
+              "b": [
+                13672,
+                13320
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 1.1763917207717896,
+              "actual_bits": 1066832897,
+              "predicted": 1.1763914823532104,
+              "prediction_bits": 1066832895,
+              "product_exponents": [
+                0,
+                1
+              ],
+              "carry_exponent": -126,
+              "E": 1,
+              "q": 1.1920928955078125e-07,
+              "products": [
+                -2.61865234375,
+                3.7950439453125
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 2,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 2094,
+          "recursive_model_mismatches": 15596,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=1,ep-ec=136": 49,
+            "negativeC=0,negP=1,ep-ec=128": 69,
+            "negativeC=0,negP=1,ep-ec=146": 23,
+            "negativeC=0,negP=1,ep-ec=137": 49,
+            "negativeC=0,negP=1,ep-ec=134": 47,
+            "negativeC=0,negP=1,ep-ec=125": 58,
+            "negativeC=0,negP=1,ep-ec=126": 75,
+            "negativeC=0,negP=1,ep-ec=120": 61,
+            "negativeC=0,negP=1,ep-ec=109": 38,
+            "negativeC=0,negP=1,ep-ec=141": 33,
+            "negativeC=0,negP=1,ep-ec=122": 48,
+            "negativeC=0,negP=1,ep-ec=123": 56,
+            "negativeC=0,negP=1,ep-ec=131": 57,
+            "negativeC=0,negP=1,ep-ec=127": 92,
+            "negativeC=0,negP=1,ep-ec=111": 28,
+            "negativeC=0,negP=1,ep-ec=139": 34,
+            "negativeC=0,negP=1,ep-ec=142": 31,
+            "negativeC=0,negP=1,ep-ec=145": 26,
+            "negativeC=0,negP=1,ep-ec=151": 17,
+            "negativeC=0,negP=1,ep-ec=129": 52,
+            "negativeC=0,negP=1,ep-ec=114": 41,
+            "negativeC=0,negP=1,ep-ec=121": 62,
+            "negativeC=0,negP=1,ep-ec=110": 31,
+            "negativeC=0,negP=1,ep-ec=113": 31,
+            "negativeC=0,negP=1,ep-ec=115": 43,
+            "negativeC=0,negP=1,ep-ec=138": 40,
+            "negativeC=0,negP=1,ep-ec=132": 63,
+            "negativeC=0,negP=1,ep-ec=135": 52,
+            "negativeC=0,negP=1,ep-ec=116": 41,
+            "negativeC=0,negP=1,ep-ec=106": 19,
+            "negativeC=0,negP=1,ep-ec=119": 59,
+            "negativeC=0,negP=1,ep-ec=117": 41,
+            "negativeC=0,negP=1,ep-ec=112": 43,
+            "negativeC=0,negP=1,ep-ec=118": 44,
+            "negativeC=0,negP=1,ep-ec=105": 28,
+            "negativeC=0,negP=1,ep-ec=124": 71,
+            "negativeC=0,negP=1,ep-ec=143": 39,
+            "negativeC=0,negP=1,ep-ec=152": 6,
+            "negativeC=0,negP=1,ep-ec=144": 27,
+            "negativeC=0,negP=1,ep-ec=130": 60,
+            "negativeC=0,negP=1,ep-ec=156": 2,
+            "negativeC=0,negP=1,ep-ec=155": 5,
+            "negativeC=0,negP=1,ep-ec=140": 37,
+            "negativeC=0,negP=1,ep-ec=133": 63,
+            "negativeC=0,negP=1,ep-ec=148": 19,
+            "negativeC=0,negP=1,ep-ec=149": 13,
+            "negativeC=0,negP=1,ep-ec=153": 7,
+            "negativeC=0,negP=1,ep-ec=107": 29,
+            "negativeC=0,negP=1,ep-ec=147": 21,
+            "negativeC=0,negP=1,ep-ec=104": 18,
+            "negativeC=0,negP=1,ep-ec=150": 16,
+            "negativeC=0,negP=1,ep-ec=102": 13,
+            "negativeC=0,negP=1,ep-ec=108": 27,
+            "negativeC=0,negP=1,ep-ec=99": 5,
+            "negativeC=0,negP=1,ep-ec=154": 3,
+            "negativeC=0,negP=1,ep-ec=100": 6,
+            "negativeC=0,negP=1,ep-ec=103": 15,
+            "negativeC=0,negP=1,ep-ec=101": 7,
+            "negativeC=0,negP=1,ep-ec=98": 4
+          },
+          "examples": [
+            {
+              "cell": 32769,
+              "step": 0,
+              "a": [
+                24080,
+                24080
+              ],
+              "b": [
+                50200,
+                17432
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 6.103515625e-05,
+              "actual_bits": 947912704,
+              "predicted": -6.103515625e-05,
+              "prediction_bits": 3095396352,
+              "product_exponents": [
+                10,
+                10
+              ],
+              "carry_exponent": -126,
+              "E": 10,
+              "q": 6.103515625e-05,
+              "products": [
+                -1588.375,
+                1588.375
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 32774,
+              "step": 0,
+              "a": [
+                24080,
+                24080
+              ],
+              "b": [
+                9928,
+                42696
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 2.384185791015625e-07,
+              "actual_bits": 880803840,
+              "predicted": -2.384185791015625e-07,
+              "prediction_bits": 3028287488,
+              "product_exponents": [
+                2,
+                2
+              ],
+              "carry_exponent": -126,
+              "E": 2,
+              "q": 2.384185791015625e-07,
+              "products": [
+                10.27783203125,
+                -10.27783203125
+              ],
+              "negative_products": [
+                false,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 32775,
+              "step": 0,
+              "a": [
+                24080,
+                24080
+              ],
+              "b": [
+                61264,
+                28496
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.0625,
+              "actual_bits": 1031798784,
+              "predicted": -0.0625,
+              "prediction_bits": 3179282432,
+              "product_exponents": [
+                20,
+                20
+              ],
+              "carry_exponent": -126,
+              "E": 20,
+              "q": 0.0625,
+              "products": [
+                -2905344.0,
+                2905344.0
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 32777,
+              "step": 0,
+              "a": [
+                24080,
+                24080
+              ],
+              "b": [
+                9576,
+                42344
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 2.384185791015625e-07,
+              "actual_bits": 880803840,
+              "predicted": -2.384185791015625e-07,
+              "prediction_bits": 3028287488,
+              "product_exponents": [
+                2,
+                2
+              ],
+              "carry_exponent": -126,
+              "E": 2,
+              "q": 2.384185791015625e-07,
+              "products": [
+                8.19384765625,
+                -8.19384765625
+              ],
+              "negative_products": [
+                false,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 32780,
+              "step": 0,
+              "a": [
+                24080,
+                24080
+              ],
+              "b": [
+                52200,
+                19432
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.0001220703125,
+              "actual_bits": 956301312,
+              "predicted": -0.0001220703125,
+              "prediction_bits": 3103784960,
+              "product_exponents": [
+                11,
+                11
+              ],
+              "carry_exponent": -126,
+              "E": 11,
+              "q": 0.0001220703125,
+              "products": [
+                -6135.25,
+                6135.25
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 3,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 798,
+          "recursive_model_mismatches": 6384,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=0,ep-ec=124": 7,
+            "negativeC=0,negP=1,ep-ec=134": 14,
+            "negativeC=0,negP=2,ep-ec=130": 13,
+            "negativeC=0,negP=1,ep-ec=143": 8,
+            "negativeC=0,negP=1,ep-ec=150": 3,
+            "negativeC=0,negP=2,ep-ec=150": 6,
+            "negativeC=0,negP=2,ep-ec=151": 4,
+            "negativeC=0,negP=1,ep-ec=145": 6,
+            "negativeC=0,negP=0,ep-ec=147": 6,
+            "negativeC=0,negP=0,ep-ec=144": 12,
+            "negativeC=0,negP=2,ep-ec=138": 6,
+            "negativeC=0,negP=1,ep-ec=133": 13,
+            "negativeC=0,negP=0,ep-ec=143": 9,
+            "negativeC=0,negP=1,ep-ec=142": 10,
+            "negativeC=0,negP=1,ep-ec=144": 15,
+            "negativeC=0,negP=1,ep-ec=122": 9,
+            "negativeC=0,negP=0,ep-ec=128": 5,
+            "negativeC=0,negP=0,ep-ec=135": 8,
+            "negativeC=0,negP=1,ep-ec=138": 10,
+            "negativeC=0,negP=1,ep-ec=127": 14,
+            "negativeC=0,negP=0,ep-ec=129": 3,
+            "negativeC=0,negP=2,ep-ec=126": 3,
+            "negativeC=0,negP=0,ep-ec=108": 2,
+            "negativeC=0,negP=0,ep-ec=122": 6,
+            "negativeC=0,negP=1,ep-ec=116": 4,
+            "negativeC=0,negP=1,ep-ec=106": 1,
+            "negativeC=0,negP=2,ep-ec=122": 5,
+            "negativeC=0,negP=2,ep-ec=131": 13,
+            "negativeC=0,negP=1,ep-ec=118": 4,
+            "negativeC=0,negP=2,ep-ec=128": 14,
+            "negativeC=0,negP=1,ep-ec=125": 15,
+            "negativeC=0,negP=2,ep-ec=124": 8,
+            "negativeC=0,negP=1,ep-ec=121": 4,
+            "negativeC=0,negP=0,ep-ec=145": 5,
+            "negativeC=0,negP=2,ep-ec=135": 7,
+            "negativeC=0,negP=1,ep-ec=120": 6,
+            "negativeC=0,negP=2,ep-ec=145": 7,
+            "negativeC=0,negP=2,ep-ec=140": 10,
+            "negativeC=0,negP=0,ep-ec=136": 7,
+            "negativeC=0,negP=0,ep-ec=130": 9,
+            "negativeC=0,negP=2,ep-ec=141": 7,
+            "negativeC=0,negP=0,ep-ec=120": 3,
+            "negativeC=0,negP=1,ep-ec=137": 8,
+            "negativeC=0,negP=1,ep-ec=132": 14,
+            "negativeC=0,negP=1,ep-ec=123": 6,
+            "negativeC=0,negP=1,ep-ec=130": 12,
+            "negativeC=0,negP=1,ep-ec=135": 8,
+            "negativeC=0,negP=2,ep-ec=153": 5,
+            "negativeC=0,negP=2,ep-ec=139": 8,
+            "negativeC=0,negP=1,ep-ec=128": 7,
+            "negativeC=0,negP=0,ep-ec=146": 6,
+            "negativeC=0,negP=2,ep-ec=118": 4,
+            "negativeC=0,negP=2,ep-ec=125": 8,
+            "negativeC=0,negP=2,ep-ec=142": 4,
+            "negativeC=0,negP=1,ep-ec=131": 10,
+            "negativeC=0,negP=0,ep-ec=121": 3,
+            "negativeC=0,negP=0,ep-ec=148": 7,
+            "negativeC=0,negP=1,ep-ec=153": 6,
+            "negativeC=0,negP=1,ep-ec=108": 1,
+            "negativeC=0,negP=0,ep-ec=131": 6,
+            "negativeC=0,negP=2,ep-ec=144": 6,
+            "negativeC=0,negP=2,ep-ec=155": 3,
+            "negativeC=0,negP=0,ep-ec=132": 11,
+            "negativeC=0,negP=2,ep-ec=152": 3,
+            "negativeC=0,negP=1,ep-ec=124": 8,
+            "negativeC=0,negP=0,ep-ec=141": 7,
+            "negativeC=0,negP=2,ep-ec=132": 11,
+            "negativeC=0,negP=1,ep-ec=147": 6,
+            "negativeC=0,negP=0,ep-ec=134": 11,
+            "negativeC=0,negP=2,ep-ec=136": 8,
+            "negativeC=0,negP=2,ep-ec=134": 11,
+            "negativeC=0,negP=0,ep-ec=133": 15,
+            "negativeC=0,negP=2,ep-ec=129": 10,
+            "negativeC=0,negP=0,ep-ec=123": 6,
+            "negativeC=0,negP=1,ep-ec=136": 10,
+            "negativeC=0,negP=2,ep-ec=133": 9,
+            "negativeC=0,negP=0,ep-ec=117": 3,
+            "negativeC=0,negP=2,ep-ec=120": 4,
+            "negativeC=0,negP=0,ep-ec=119": 4,
+            "negativeC=0,negP=0,ep-ec=126": 4,
+            "negativeC=0,negP=0,ep-ec=142": 6,
+            "negativeC=0,negP=2,ep-ec=148": 7,
+            "negativeC=0,negP=0,ep-ec=111": 1,
+            "negativeC=0,negP=1,ep-ec=129": 14,
+            "negativeC=0,negP=2,ep-ec=137": 10,
+            "negativeC=0,negP=1,ep-ec=140": 11,
+            "negativeC=0,negP=1,ep-ec=115": 2,
+            "negativeC=0,negP=0,ep-ec=139": 9,
+            "negativeC=0,negP=2,ep-ec=149": 6,
+            "negativeC=0,negP=2,ep-ec=123": 5,
+            "negativeC=0,negP=2,ep-ec=115": 3,
+            "negativeC=0,negP=2,ep-ec=119": 1,
+            "negativeC=0,negP=1,ep-ec=126": 10,
+            "negativeC=0,negP=0,ep-ec=115": 1,
+            "negativeC=0,negP=0,ep-ec=140": 7,
+            "negativeC=0,negP=2,ep-ec=127": 5,
+            "negativeC=0,negP=1,ep-ec=139": 10,
+            "negativeC=0,negP=1,ep-ec=146": 7,
+            "negativeC=0,negP=0,ep-ec=138": 6,
+            "negativeC=0,negP=1,ep-ec=152": 3,
+            "negativeC=0,negP=1,ep-ec=141": 7,
+            "negativeC=0,negP=2,ep-ec=143": 6,
+            "negativeC=0,negP=2,ep-ec=116": 3,
+            "negativeC=0,negP=1,ep-ec=113": 1,
+            "negativeC=0,negP=2,ep-ec=147": 7,
+            "negativeC=0,negP=0,ep-ec=125": 4,
+            "negativeC=0,negP=0,ep-ec=137": 2,
+            "negativeC=0,negP=2,ep-ec=146": 4,
+            "negativeC=0,negP=1,ep-ec=151": 4,
+            "negativeC=0,negP=0,ep-ec=151": 4,
+            "negativeC=0,negP=0,ep-ec=127": 4,
+            "negativeC=0,negP=2,ep-ec=112": 2,
+            "negativeC=0,negP=0,ep-ec=149": 5,
+            "negativeC=0,negP=1,ep-ec=156": 1,
+            "negativeC=0,negP=1,ep-ec=149": 2,
+            "negativeC=0,negP=1,ep-ec=154": 1,
+            "negativeC=0,negP=1,ep-ec=155": 1,
+            "negativeC=0,negP=2,ep-ec=117": 3,
+            "negativeC=0,negP=0,ep-ec=150": 3,
+            "negativeC=0,negP=0,ep-ec=152": 1,
+            "negativeC=0,negP=0,ep-ec=116": 2,
+            "negativeC=0,negP=0,ep-ec=114": 1,
+            "negativeC=0,negP=1,ep-ec=105": 1,
+            "negativeC=0,negP=0,ep-ec=153": 2,
+            "negativeC=0,negP=1,ep-ec=110": 1,
+            "negativeC=0,negP=0,ep-ec=107": 1,
+            "negativeC=0,negP=1,ep-ec=148": 3,
+            "negativeC=0,negP=2,ep-ec=121": 2,
+            "negativeC=0,negP=0,ep-ec=112": 1,
+            "negativeC=0,negP=0,ep-ec=154": 1
+          },
+          "examples": [
+            {
+              "cell": 49171,
+              "step": 0,
+              "a": [
+                51456,
+                1712
+              ],
+              "b": [
+                43568,
+                4824
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.48339855670928955,
+              "actual_bits": 1056407556,
+              "predicted": 0.4833984971046448,
+              "prediction_bits": 1056407554,
+              "product_exponents": [
+                -2,
+                -25
+              ],
+              "carry_exponent": -126,
+              "E": -2,
+              "q": 1.4901161193847656e-08,
+              "products": [
+                0.4833984375,
+                8.524875738658011e-08
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 49173,
+              "step": 0,
+              "a": [
+                51456,
+                1712
+              ],
+              "b": [
+                53304,
+                46840
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 337.5,
+              "actual_bits": 1135132672,
+              "predicted": 337.49993896484375,
+              "prediction_bits": 1135132670,
+              "product_exponents": [
+                8,
+                -16
+              ],
+              "carry_exponent": -126,
+              "E": 8,
+              "q": 1.52587890625e-05,
+              "products": [
+                337.5,
+                -4.4444575905799866e-05
+              ],
+              "negative_products": [
+                false,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 49188,
+              "step": 0,
+              "a": [
+                20720,
+                4368
+              ],
+              "b": [
+                47144,
+                60544
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -23.369140625,
+              "actual_bits": 3250254848,
+              "predicted": -23.369142532348633,
+              "prediction_bits": 3250254849,
+              "product_exponents": [
+                4,
+                1
+              ],
+              "carry_exponent": -126,
+              "E": 4,
+              "q": 9.5367431640625e-07,
+              "products": [
+                -20.521484375,
+                -2.84765625
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 49191,
+              "step": 0,
+              "a": [
+                20720,
+                4368
+              ],
+              "b": [
+                61264,
+                20864
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -295775.96875,
+              "actual_bits": 3364908031,
+              "predicted": -295776.0,
+              "prediction_bits": 3364908032,
+              "product_exponents": [
+                17,
+                -6
+              ],
+              "carry_exponent": -126,
+              "E": 17,
+              "q": 0.0078125,
+              "products": [
+                -295776.0,
+                0.027191162109375
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 49213,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                60904,
+                59656
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 29840382.0,
+              "actual_bits": 1273211391,
+              "predicted": 29840380.0,
+              "prediction_bits": 1273211390,
+              "product_exponents": [
+                1,
+                24
+              ],
+              "carry_exponent": -126,
+              "E": 24,
+              "q": 1.0,
+              "products": [
+                -3.0223388671875,
+                29840384.0
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 4,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 732,
+          "recursive_model_mismatches": 1906,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=0,ep-ec=148": 1,
+            "negativeC=0,negP=2,ep-ec=0": 274,
+            "negativeC=0,negP=0,ep-ec=125": 8,
+            "negativeC=0,negP=0,ep-ec=145": 4,
+            "negativeC=0,negP=2,ep-ec=134": 7,
+            "negativeC=0,negP=2,ep-ec=119": 4,
+            "negativeC=0,negP=2,ep-ec=128": 6,
+            "negativeC=0,negP=0,ep-ec=139": 5,
+            "negativeC=0,negP=0,ep-ec=128": 8,
+            "negativeC=0,negP=1,ep-ec=137": 5,
+            "negativeC=0,negP=0,ep-ec=126": 5,
+            "negativeC=0,negP=2,ep-ec=140": 3,
+            "negativeC=0,negP=1,ep-ec=123": 1,
+            "negativeC=0,negP=0,ep-ec=119": 3,
+            "negativeC=0,negP=2,ep-ec=129": 5,
+            "negativeC=0,negP=1,ep-ec=134": 6,
+            "negativeC=0,negP=1,ep-ec=129": 6,
+            "negativeC=0,negP=1,ep-ec=139": 3,
+            "negativeC=0,negP=2,ep-ec=143": 2,
+            "negativeC=0,negP=0,ep-ec=137": 4,
+            "negativeC=0,negP=0,ep-ec=142": 4,
+            "negativeC=0,negP=1,ep-ec=138": 4,
+            "negativeC=0,negP=0,ep-ec=134": 9,
+            "negativeC=0,negP=0,ep-ec=138": 3,
+            "negativeC=0,negP=2,ep-ec=131": 7,
+            "negativeC=0,negP=0,ep-ec=115": 3,
+            "negativeC=0,negP=0,ep-ec=133": 6,
+            "negativeC=0,negP=0,ep-ec=123": 5,
+            "negativeC=0,negP=1,ep-ec=136": 4,
+            "negativeC=0,negP=0,ep-ec=149": 7,
+            "negativeC=0,negP=2,ep-ec=136": 5,
+            "negativeC=0,negP=1,ep-ec=151": 1,
+            "negativeC=0,negP=0,ep-ec=131": 5,
+            "negativeC=0,negP=2,ep-ec=130": 2,
+            "negativeC=0,negP=2,ep-ec=155": 1,
+            "negativeC=0,negP=2,ep-ec=148": 5,
+            "negativeC=0,negP=1,ep-ec=126": 3,
+            "negativeC=0,negP=0,ep-ec=141": 3,
+            "negativeC=0,negP=1,ep-ec=119": 1,
+            "negativeC=0,negP=0,ep-ec=127": 9,
+            "negativeC=0,negP=2,ep-ec=113": 3,
+            "negativeC=0,negP=0,ep-ec=140": 5,
+            "negativeC=0,negP=2,ep-ec=147": 5,
+            "negativeC=0,negP=1,ep-ec=118": 1,
+            "negativeC=0,negP=2,ep-ec=144": 5,
+            "negativeC=0,negP=2,ep-ec=153": 4,
+            "negativeC=0,negP=2,ep-ec=124": 6,
+            "negativeC=0,negP=2,ep-ec=127": 6,
+            "negativeC=0,negP=0,ep-ec=102": 1,
+            "negativeC=0,negP=1,ep-ec=135": 7,
+            "negativeC=0,negP=0,ep-ec=118": 2,
+            "negativeC=0,negP=2,ep-ec=114": 1,
+            "negativeC=0,negP=1,ep-ec=130": 5,
+            "negativeC=0,negP=1,ep-ec=120": 2,
+            "negativeC=0,negP=1,ep-ec=131": 6,
+            "negativeC=0,negP=0,ep-ec=120": 4,
+            "negativeC=0,negP=2,ep-ec=121": 5,
+            "negativeC=0,negP=2,ep-ec=126": 4,
+            "negativeC=0,negP=0,ep-ec=150": 5,
+            "negativeC=0,negP=2,ep-ec=150": 2,
+            "negativeC=0,negP=1,ep-ec=140": 6,
+            "negativeC=0,negP=0,ep-ec=132": 7,
+            "negativeC=0,negP=0,ep-ec=136": 5,
+            "negativeC=0,negP=2,ep-ec=102": 1,
+            "negativeC=0,negP=2,ep-ec=111": 2,
+            "negativeC=0,negP=2,ep-ec=112": 1,
+            "negativeC=0,negP=0,ep-ec=104": 1,
+            "negativeC=0,negP=2,ep-ec=138": 4,
+            "negativeC=0,negP=2,ep-ec=135": 3,
+            "negativeC=0,negP=0,ep-ec=108": 2,
+            "negativeC=0,negP=2,ep-ec=115": 2,
+            "negativeC=0,negP=1,ep-ec=122": 3,
+            "negativeC=0,negP=2,ep-ec=133": 1,
+            "negativeC=0,negP=2,ep-ec=139": 3,
+            "negativeC=0,negP=1,ep-ec=147": 2,
+            "negativeC=0,negP=0,ep-ec=129": 5,
+            "negativeC=0,negP=2,ep-ec=123": 1,
+            "negativeC=0,negP=1,ep-ec=145": 3,
+            "negativeC=0,negP=1,ep-ec=132": 5,
+            "negativeC=0,negP=1,ep-ec=127": 3,
+            "negativeC=0,negP=2,ep-ec=142": 7,
+            "negativeC=0,negP=1,ep-ec=142": 5,
+            "negativeC=0,negP=2,ep-ec=122": 6,
+            "negativeC=0,negP=0,ep-ec=130": 4,
+            "negativeC=0,negP=2,ep-ec=146": 4,
+            "negativeC=0,negP=2,ep-ec=132": 2,
+            "negativeC=0,negP=0,ep-ec=114": 3,
+            "negativeC=0,negP=0,ep-ec=107": 1,
+            "negativeC=0,negP=2,ep-ec=149": 4,
+            "negativeC=0,negP=1,ep-ec=113": 2,
+            "negativeC=0,negP=2,ep-ec=125": 4,
+            "negativeC=0,negP=2,ep-ec=117": 3,
+            "negativeC=0,negP=2,ep-ec=105": 1,
+            "negativeC=0,negP=1,ep-ec=121": 4,
+            "negativeC=0,negP=1,ep-ec=141": 4,
+            "negativeC=0,negP=0,ep-ec=122": 4,
+            "negativeC=0,negP=2,ep-ec=141": 4,
+            "negativeC=0,negP=0,ep-ec=116": 5,
+            "negativeC=0,negP=1,ep-ec=143": 4,
+            "negativeC=0,negP=2,ep-ec=116": 2,
+            "negativeC=0,negP=0,ep-ec=109": 1,
+            "negativeC=0,negP=1,ep-ec=144": 2,
+            "negativeC=0,negP=1,ep-ec=128": 2,
+            "negativeC=0,negP=0,ep-ec=147": 3,
+            "negativeC=0,negP=1,ep-ec=150": 2,
+            "negativeC=0,negP=1,ep-ec=125": 2,
+            "negativeC=0,negP=0,ep-ec=146": 3,
+            "negativeC=0,negP=1,ep-ec=124": 2,
+            "negativeC=0,negP=1,ep-ec=146": 2,
+            "negativeC=0,negP=0,ep-ec=135": 1,
+            "negativeC=0,negP=0,ep-ec=151": 2,
+            "negativeC=0,negP=0,ep-ec=124": 6,
+            "negativeC=0,negP=2,ep-ec=137": 2,
+            "negativeC=0,negP=1,ep-ec=153": 1,
+            "negativeC=0,negP=1,ep-ec=133": 4,
+            "negativeC=0,negP=2,ep-ec=145": 2,
+            "negativeC=0,negP=0,ep-ec=113": 2,
+            "negativeC=0,negP=2,ep-ec=154": 2,
+            "negativeC=0,negP=0,ep-ec=117": 2,
+            "negativeC=0,negP=2,ep-ec=103": 2,
+            "negativeC=0,negP=2,ep-ec=120": 1,
+            "negativeC=0,negP=2,ep-ec=118": 3,
+            "negativeC=0,negP=2,ep-ec=110": 2,
+            "negativeC=0,negP=1,ep-ec=155": 1,
+            "negativeC=0,negP=2,ep-ec=151": 2,
+            "negativeC=0,negP=0,ep-ec=143": 2,
+            "negativeC=0,negP=0,ep-ec=144": 3,
+            "negativeC=0,negP=0,ep-ec=110": 1,
+            "negativeC=0,negP=1,ep-ec=105": 1,
+            "negativeC=0,negP=0,ep-ec=101": 1,
+            "negativeC=0,negP=2,ep-ec=152": 1,
+            "negativeC=0,negP=0,ep-ec=111": 1,
+            "negativeC=0,negP=1,ep-ec=148": 2,
+            "negativeC=0,negP=0,ep-ec=100": 1,
+            "negativeC=0,negP=0,ep-ec=121": 1,
+            "negativeC=0,negP=2,ep-ec=108": 1,
+            "negativeC=0,negP=0,ep-ec=153": 2,
+            "negativeC=0,negP=2,ep-ec=107": 1,
+            "negativeC=0,negP=2,ep-ec=101": 1
+          },
+          "examples": [
+            {
+              "cell": 65551,
+              "step": 0,
+              "a": [
+                24080,
+                54992
+              ],
+              "b": [
+                29864,
+                32768
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 7399936.5,
+              "actual_bits": 1256313857,
+              "predicted": 7399936.0,
+              "prediction_bits": 1256313856,
+              "product_exponents": [
+                22,
+                -126
+              ],
+              "carry_exponent": -126,
+              "E": 22,
+              "q": 0.25,
+              "products": [
+                7399936.0,
+                0.0
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 65567,
+              "step": 0,
+              "a": [
+                32768,
+                1712
+              ],
+              "b": [
+                29864,
+                32768
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.0,
+              "actual_bits": 0,
+              "predicted": -1.401298464324817e-45,
+              "prediction_bits": 2147483649,
+              "product_exponents": [
+                -126,
+                -126
+              ],
+              "carry_exponent": -126,
+              "E": -126,
+              "q": 7.006492321624085e-46,
+              "products": [
+                -0.0,
+                -0.0
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 65577,
+              "step": 0,
+              "a": [
+                20720,
+                4368
+              ],
+              "b": [
+                9576,
+                5128
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.8341681361198425,
+              "actual_bits": 1062571019,
+              "predicted": 0.8341680765151978,
+              "prediction_bits": 1062571018,
+              "product_exponents": [
+                -1,
+                -21
+              ],
+              "carry_exponent": -126,
+              "E": -1,
+              "q": 2.9802322387695312e-08,
+              "products": [
+                0.83416748046875,
+                6.082118488848209e-07
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 65584,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                0,
+                54544
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 938304.0625,
+              "actual_bits": 1231361025,
+              "predicted": 938304.0,
+              "prediction_bits": 1231361024,
+              "product_exponents": [
+                -126,
+                19
+              ],
+              "carry_exponent": -126,
+              "E": 19,
+              "q": 0.03125,
+              "products": [
+                0.0,
+                938304.0
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 65592,
+              "step": 0,
+              "a": [
+                4120,
+                61864
+              ],
+              "b": [
+                32768,
+                0
+              ],
+              "carry": 0.0,
+              "carry_bits": 0,
+              "actual": 0.0,
+              "actual_bits": 0,
+              "predicted": -1.401298464324817e-45,
+              "prediction_bits": 2147483649,
+              "product_exponents": [
+                -126,
+                -126
+              ],
+              "carry_exponent": -126,
+              "E": -126,
+              "q": 7.006492321624085e-46,
+              "products": [
+                -0.0,
+                -0.0
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": 0.0
+            }
+          ]
+        },
+        {
+          "family": 5,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 454,
+          "recursive_model_mismatches": 1437,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=2,ep-ec=147": 13,
+            "negativeC=0,negP=0,ep-ec=145": 3,
+            "negativeC=0,negP=2,ep-ec=152": 17,
+            "negativeC=0,negP=1,ep-ec=144": 10,
+            "negativeC=0,negP=0,ep-ec=151": 17,
+            "negativeC=0,negP=2,ep-ec=150": 15,
+            "negativeC=0,negP=2,ep-ec=154": 7,
+            "negativeC=0,negP=2,ep-ec=148": 18,
+            "negativeC=0,negP=2,ep-ec=153": 13,
+            "negativeC=0,negP=1,ep-ec=147": 36,
+            "negativeC=0,negP=0,ep-ec=149": 18,
+            "negativeC=0,negP=1,ep-ec=150": 19,
+            "negativeC=0,negP=0,ep-ec=147": 13,
+            "negativeC=0,negP=1,ep-ec=148": 26,
+            "negativeC=0,negP=1,ep-ec=143": 3,
+            "negativeC=0,negP=0,ep-ec=148": 15,
+            "negativeC=0,negP=2,ep-ec=145": 6,
+            "negativeC=0,negP=1,ep-ec=149": 30,
+            "negativeC=0,negP=1,ep-ec=152": 12,
+            "negativeC=0,negP=0,ep-ec=152": 13,
+            "negativeC=0,negP=0,ep-ec=154": 3,
+            "negativeC=0,negP=1,ep-ec=146": 15,
+            "negativeC=0,negP=1,ep-ec=142": 5,
+            "negativeC=0,negP=1,ep-ec=154": 4,
+            "negativeC=0,negP=0,ep-ec=153": 19,
+            "negativeC=0,negP=2,ep-ec=151": 14,
+            "negativeC=0,negP=0,ep-ec=150": 15,
+            "negativeC=0,negP=2,ep-ec=149": 19,
+            "negativeC=0,negP=1,ep-ec=151": 15,
+            "negativeC=0,negP=0,ep-ec=144": 2,
+            "negativeC=0,negP=2,ep-ec=146": 9,
+            "negativeC=0,negP=1,ep-ec=145": 9,
+            "negativeC=0,negP=1,ep-ec=141": 2,
+            "negativeC=0,negP=0,ep-ec=146": 7,
+            "negativeC=0,negP=1,ep-ec=153": 9,
+            "negativeC=0,negP=2,ep-ec=144": 1,
+            "negativeC=0,negP=2,ep-ec=142": 1,
+            "negativeC=0,negP=0,ep-ec=143": 1
+          },
+          "examples": [
+            {
+              "cell": 81931,
+              "step": 0,
+              "a": [
+                25104,
+                58064
+              ],
+              "b": [
+                55880,
+                27728
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -4006728.0,
+              "actual_bits": 3396635936,
+              "predicted": -4006728.25,
+              "prediction_bits": 3396635937,
+              "product_exponents": [
+                16,
+                21
+              ],
+              "carry_exponent": -126,
+              "E": 21,
+              "q": 0.125,
+              "products": [
+                -155976.0,
+                -3850752.0
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 81937,
+              "step": 0,
+              "a": [
+                59648,
+                24240
+              ],
+              "b": [
+                56344,
+                24864
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 951488.0625,
+              "actual_bits": 1231571969,
+              "predicted": 951488.0,
+              "prediction_bits": 1231571968,
+              "product_exponents": [
+                19,
+                17
+              ],
+              "carry_exponent": -126,
+              "E": 19,
+              "q": 0.03125,
+              "products": [
+                670720.0,
+                280768.0
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 81976,
+              "step": 0,
+              "a": [
+                27672,
+                61864
+              ],
+              "b": [
+                63136,
+                23264
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -116302592.0,
+              "actual_bits": 3437089888,
+              "predicted": -116302600.0,
+              "prediction_bits": 3437089889,
+              "product_exponents": [
+                26,
+                20
+              ],
+              "carry_exponent": -126,
+              "E": 26,
+              "q": 4.0,
+              "products": [
+                -113754112.0,
+                -2548480.0
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 81989,
+              "step": 0,
+              "a": [
+                23448,
+                58712
+              ],
+              "b": [
+                59448,
+                57080
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 85248.015625,
+              "actual_bits": 1202094082,
+              "predicted": 85247.984375,
+              "prediction_bits": 1202094078,
+              "product_exponents": [
+                18,
+                18
+              ],
+              "carry_exponent": -126,
+              "E": 18,
+              "q": 0.015625,
+              "products": [
+                -524880.0,
+                610128.0
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 82068,
+              "step": 0,
+              "a": [
+                62928,
+                55752
+              ],
+              "b": [
+                59432,
+                58496
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 50876548.0,
+              "actual_bits": 1279398945,
+              "predicted": 50876544.0,
+              "prediction_bits": 1279398944,
+              "product_exponents": [
+                25,
+                17
+              ],
+              "carry_exponent": -126,
+              "E": 25,
+              "q": 2.0,
+              "products": [
+                50663424.0,
+                213120.0
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 6,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 1040,
+          "recursive_model_mismatches": 2965,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=0,negP=0,ep-ec=138": 14,
+            "negativeC=0,negP=1,ep-ec=144": 11,
+            "negativeC=0,negP=1,ep-ec=134": 15,
+            "negativeC=0,negP=0,ep-ec=123": 7,
+            "negativeC=0,negP=0,ep-ec=132": 15,
+            "negativeC=0,negP=0,ep-ec=125": 9,
+            "negativeC=0,negP=1,ep-ec=145": 17,
+            "negativeC=0,negP=2,ep-ec=133": 6,
+            "negativeC=0,negP=1,ep-ec=127": 12,
+            "negativeC=0,negP=1,ep-ec=143": 9,
+            "negativeC=0,negP=1,ep-ec=133": 14,
+            "negativeC=0,negP=1,ep-ec=142": 20,
+            "negativeC=0,negP=0,ep-ec=140": 8,
+            "negativeC=0,negP=0,ep-ec=135": 15,
+            "negativeC=0,negP=1,ep-ec=125": 16,
+            "negativeC=0,negP=1,ep-ec=129": 12,
+            "negativeC=0,negP=1,ep-ec=135": 19,
+            "negativeC=0,negP=2,ep-ec=135": 20,
+            "negativeC=0,negP=0,ep-ec=128": 18,
+            "negativeC=0,negP=1,ep-ec=106": 2,
+            "negativeC=0,negP=2,ep-ec=115": 4,
+            "negativeC=0,negP=1,ep-ec=139": 13,
+            "negativeC=0,negP=1,ep-ec=122": 6,
+            "negativeC=0,negP=1,ep-ec=136": 13,
+            "negativeC=0,negP=1,ep-ec=137": 14,
+            "negativeC=0,negP=2,ep-ec=126": 12,
+            "negativeC=0,negP=0,ep-ec=148": 16,
+            "negativeC=0,negP=1,ep-ec=151": 1,
+            "negativeC=0,negP=2,ep-ec=145": 6,
+            "negativeC=0,negP=0,ep-ec=118": 5,
+            "negativeC=0,negP=0,ep-ec=136": 11,
+            "negativeC=0,negP=2,ep-ec=131": 11,
+            "negativeC=0,negP=1,ep-ec=140": 18,
+            "negativeC=0,negP=1,ep-ec=131": 23,
+            "negativeC=0,negP=1,ep-ec=149": 8,
+            "negativeC=0,negP=0,ep-ec=151": 8,
+            "negativeC=0,negP=2,ep-ec=150": 6,
+            "negativeC=0,negP=2,ep-ec=117": 3,
+            "negativeC=0,negP=0,ep-ec=141": 11,
+            "negativeC=0,negP=2,ep-ec=142": 9,
+            "negativeC=0,negP=1,ep-ec=128": 20,
+            "negativeC=0,negP=2,ep-ec=151": 7,
+            "negativeC=0,negP=1,ep-ec=152": 4,
+            "negativeC=0,negP=1,ep-ec=126": 16,
+            "negativeC=0,negP=0,ep-ec=122": 2,
+            "negativeC=0,negP=0,ep-ec=150": 4,
+            "negativeC=0,negP=0,ep-ec=129": 8,
+            "negativeC=0,negP=1,ep-ec=121": 6,
+            "negativeC=0,negP=1,ep-ec=138": 15,
+            "negativeC=0,negP=1,ep-ec=123": 7,
+            "negativeC=0,negP=2,ep-ec=140": 6,
+            "negativeC=0,negP=1,ep-ec=118": 4,
+            "negativeC=0,negP=1,ep-ec=114": 4,
+            "negativeC=0,negP=0,ep-ec=137": 9,
+            "negativeC=0,negP=1,ep-ec=147": 9,
+            "negativeC=0,negP=0,ep-ec=147": 7,
+            "negativeC=0,negP=0,ep-ec=144": 10,
+            "negativeC=0,negP=2,ep-ec=132": 14,
+            "negativeC=0,negP=2,ep-ec=116": 1,
+            "negativeC=0,negP=0,ep-ec=130": 8,
+            "negativeC=0,negP=2,ep-ec=130": 13,
+            "negativeC=0,negP=0,ep-ec=124": 8,
+            "negativeC=0,negP=2,ep-ec=128": 8,
+            "negativeC=0,negP=1,ep-ec=141": 13,
+            "negativeC=0,negP=1,ep-ec=120": 10,
+            "negativeC=0,negP=2,ep-ec=134": 11,
+            "negativeC=0,negP=0,ep-ec=155": 3,
+            "negativeC=0,negP=0,ep-ec=149": 5,
+            "negativeC=0,negP=2,ep-ec=138": 13,
+            "negativeC=0,negP=2,ep-ec=121": 2,
+            "negativeC=0,negP=0,ep-ec=133": 4,
+            "negativeC=0,negP=2,ep-ec=111": 2,
+            "negativeC=0,negP=0,ep-ec=131": 13,
+            "negativeC=0,negP=1,ep-ec=124": 16,
+            "negativeC=0,negP=1,ep-ec=155": 3,
+            "negativeC=0,negP=1,ep-ec=153": 6,
+            "negativeC=0,negP=2,ep-ec=129": 8,
+            "negativeC=0,negP=2,ep-ec=153": 6,
+            "negativeC=0,negP=0,ep-ec=134": 6,
+            "negativeC=0,negP=2,ep-ec=136": 7,
+            "negativeC=0,negP=2,ep-ec=146": 8,
+            "negativeC=0,negP=0,ep-ec=142": 11,
+            "negativeC=0,negP=1,ep-ec=113": 4,
+            "negativeC=0,negP=2,ep-ec=144": 10,
+            "negativeC=0,negP=2,ep-ec=119": 7,
+            "negativeC=0,negP=1,ep-ec=112": 2,
+            "negativeC=0,negP=0,ep-ec=117": 2,
+            "negativeC=0,negP=1,ep-ec=146": 10,
+            "negativeC=0,negP=2,ep-ec=139": 7,
+            "negativeC=0,negP=0,ep-ec=139": 8,
+            "negativeC=0,negP=0,ep-ec=146": 3,
+            "negativeC=0,negP=0,ep-ec=143": 4,
+            "negativeC=0,negP=2,ep-ec=143": 13,
+            "negativeC=0,negP=0,ep-ec=127": 9,
+            "negativeC=0,negP=2,ep-ec=125": 4,
+            "negativeC=0,negP=0,ep-ec=113": 3,
+            "negativeC=0,negP=1,ep-ec=115": 3,
+            "negativeC=0,negP=2,ep-ec=124": 9,
+            "negativeC=0,negP=1,ep-ec=130": 22,
+            "negativeC=0,negP=1,ep-ec=132": 11,
+            "negativeC=0,negP=2,ep-ec=123": 5,
+            "negativeC=0,negP=0,ep-ec=120": 3,
+            "negativeC=0,negP=0,ep-ec=126": 3,
+            "negativeC=0,negP=2,ep-ec=147": 10,
+            "negativeC=0,negP=0,ep-ec=121": 3,
+            "negativeC=0,negP=1,ep-ec=108": 2,
+            "negativeC=0,negP=0,ep-ec=119": 4,
+            "negativeC=0,negP=1,ep-ec=119": 4,
+            "negativeC=0,negP=2,ep-ec=141": 9,
+            "negativeC=0,negP=2,ep-ec=120": 3,
+            "negativeC=0,negP=1,ep-ec=111": 1,
+            "negativeC=0,negP=1,ep-ec=109": 3,
+            "negativeC=0,negP=2,ep-ec=148": 6,
+            "negativeC=0,negP=2,ep-ec=156": 1,
+            "negativeC=0,negP=0,ep-ec=153": 2,
+            "negativeC=0,negP=1,ep-ec=148": 10,
+            "negativeC=0,negP=2,ep-ec=127": 8,
+            "negativeC=0,negP=2,ep-ec=152": 3,
+            "negativeC=0,negP=2,ep-ec=137": 5,
+            "negativeC=0,negP=0,ep-ec=145": 2,
+            "negativeC=0,negP=1,ep-ec=150": 5,
+            "negativeC=0,negP=2,ep-ec=122": 3,
+            "negativeC=0,negP=2,ep-ec=154": 1,
+            "negativeC=0,negP=2,ep-ec=112": 2,
+            "negativeC=0,negP=1,ep-ec=117": 5,
+            "negativeC=0,negP=2,ep-ec=155": 2,
+            "negativeC=0,negP=0,ep-ec=111": 1,
+            "negativeC=0,negP=0,ep-ec=154": 2,
+            "negativeC=0,negP=1,ep-ec=154": 1,
+            "negativeC=0,negP=1,ep-ec=116": 1,
+            "negativeC=0,negP=0,ep-ec=106": 1,
+            "negativeC=0,negP=0,ep-ec=108": 1,
+            "negativeC=0,negP=1,ep-ec=110": 1,
+            "negativeC=0,negP=0,ep-ec=152": 2
+          },
+          "examples": [
+            {
+              "cell": 98304,
+              "step": 0,
+              "a": [
+                24258,
+                55002
+              ],
+              "b": [
+                6632,
+                55202
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 13389.201171875,
+              "actual_bits": 1179727054,
+              "predicted": 13389.2001953125,
+              "prediction_bits": 1179727053,
+              "product_exponents": [
+                -1,
+                12
+              ],
+              "carry_exponent": -126,
+              "E": 12,
+              "q": 0.000244140625,
+              "products": [
+                1.2472915649414062,
+                13387.953125
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 98308,
+              "step": 0,
+              "a": [
+                24258,
+                55002
+              ],
+              "b": [
+                47237,
+                61200
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 792563.6875,
+              "actual_bits": 1229029179,
+              "predicted": 792563.625,
+              "prediction_bits": 1229029178,
+              "product_exponents": [
+                7,
+                18
+              ],
+              "carry_exponent": -126,
+              "E": 18,
+              "q": 0.015625,
+              "products": [
+                -244.337158203125,
+                792808.0
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 98325,
+              "step": 0,
+              "a": [
+                51232,
+                1494
+              ],
+              "b": [
+                53255,
+                46559
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 265.8046875,
+              "actual_bits": 1132783360,
+              "predicted": 265.80462646484375,
+              "prediction_bits": 1132783358,
+              "product_exponents": [
+                8,
+                -16
+              ],
+              "carry_exponent": -126,
+              "E": 8,
+              "q": 1.52587890625e-05,
+              "products": [
+                265.8046875,
+                -3.2676063710823655e-05
+              ],
+              "negative_products": [
+                false,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 98331,
+              "step": 0,
+              "a": [
+                51232,
+                1494
+              ],
+              "b": [
+                42057,
+                16778
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 0.1383424997329712,
+              "actual_bits": 1041082792,
+              "predicted": 0.1383424699306488,
+              "prediction_bits": 1041082790,
+              "product_exponents": [
+                -3,
+                -13
+              ],
+              "carry_exponent": -126,
+              "E": -3,
+              "q": 7.450580596923828e-09,
+              "products": [
+                0.13809585571289062,
+                0.0002466249279677868
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 98332,
+              "step": 0,
+              "a": [
+                51232,
+                1494
+              ],
+              "b": [
+                51837,
+                16450
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": 107.05683898925781,
+              "actual_bits": 1121328410,
+              "predicted": 107.05682373046875,
+              "prediction_bits": 1121328408,
+              "product_exponents": [
+                6,
+                -13
+              ],
+              "carry_exponent": -126,
+              "E": 6,
+              "q": 3.814697265625e-06,
+              "products": [
+                107.056640625,
+                0.00018957769498229027
+              ],
+              "negative_products": [
+                false,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        },
+        {
+          "family": 7,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 7872,
+          "recursive_model_mismatches": 14796,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {
+            "negativeC=1,negP=1,ep-ec=41": 10,
+            "negativeC=0,negP=2,ep-ec=119": 17,
+            "negativeC=0,negP=2,ep-ec=131": 7,
+            "negativeC=1,negP=1,ep-ec=5": 59,
+            "negativeC=0,negP=1,ep-ec=114": 29,
+            "negativeC=0,negP=2,ep-ec=114": 9,
+            "negativeC=0,negP=1,ep-ec=1": 90,
+            "negativeC=0,negP=1,ep-ec=0": 94,
+            "negativeC=0,negP=2,ep-ec=41": 6,
+            "negativeC=1,negP=0,ep-ec=13": 16,
+            "negativeC=0,negP=2,ep-ec=-1": 70,
+            "negativeC=1,negP=0,ep-ec=0": 72,
+            "negativeC=1,negP=2,ep-ec=23": 8,
+            "negativeC=0,negP=1,ep-ec=18": 16,
+            "negativeC=0,negP=1,ep-ec=9": 50,
+            "negativeC=1,negP=0,ep-ec=44": 5,
+            "negativeC=0,negP=2,ep-ec=36": 6,
+            "negativeC=1,negP=1,ep-ec=2": 77,
+            "negativeC=0,negP=1,ep-ec=-2": 58,
+            "negativeC=0,negP=1,ep-ec=-1": 106,
+            "negativeC=0,negP=2,ep-ec=14": 16,
+            "negativeC=1,negP=2,ep-ec=9": 13,
+            "negativeC=1,negP=0,ep-ec=4": 40,
+            "negativeC=0,negP=1,ep-ec=14": 23,
+            "negativeC=1,negP=0,ep-ec=-1": 90,
+            "negativeC=1,negP=1,ep-ec=-6": 5,
+            "negativeC=0,negP=2,ep-ec=48": 2,
+            "negativeC=0,negP=1,ep-ec=95": 50,
+            "negativeC=1,negP=0,ep-ec=3": 33,
+            "negativeC=1,negP=2,ep-ec=36": 3,
+            "negativeC=0,negP=0,ep-ec=-3": 4,
+            "negativeC=1,negP=0,ep-ec=23": 9,
+            "negativeC=0,negP=1,ep-ec=6": 55,
+            "negativeC=1,negP=0,ep-ec=2": 67,
+            "negativeC=0,negP=2,ep-ec=104": 11,
+            "negativeC=1,negP=1,ep-ec=4": 69,
+            "negativeC=0,negP=2,ep-ec=15": 11,
+            "negativeC=1,negP=1,ep-ec=-1": 93,
+            "negativeC=1,negP=1,ep-ec=3": 72,
+            "negativeC=0,negP=2,ep-ec=112": 26,
+            "negativeC=1,negP=1,ep-ec=14": 29,
+            "negativeC=0,negP=0,ep-ec=104": 4,
+            "negativeC=0,negP=1,ep-ec=8": 43,
+            "negativeC=0,negP=1,ep-ec=29": 16,
+            "negativeC=0,negP=1,ep-ec=3": 78,
+            "negativeC=0,negP=1,ep-ec=5": 64,
+            "negativeC=0,negP=1,ep-ec=115": 44,
+            "negativeC=0,negP=1,ep-ec=2": 86,
+            "negativeC=1,negP=2,ep-ec=1": 25,
+            "negativeC=0,negP=2,ep-ec=8": 31,
+            "negativeC=1,negP=0,ep-ec=6": 31,
+            "negativeC=1,negP=1,ep-ec=33": 8,
+            "negativeC=1,negP=0,ep-ec=1": 68,
+            "negativeC=0,negP=1,ep-ec=7": 48,
+            "negativeC=0,negP=1,ep-ec=111": 26,
+            "negativeC=1,negP=1,ep-ec=6": 73,
+            "negativeC=0,negP=1,ep-ec=10": 32,
+            "negativeC=0,negP=0,ep-ec=117": 14,
+            "negativeC=0,negP=2,ep-ec=39": 4,
+            "negativeC=1,negP=1,ep-ec=7": 43,
+            "negativeC=1,negP=1,ep-ec=22": 21,
+            "negativeC=1,negP=2,ep-ec=49": 2,
+            "negativeC=1,negP=1,ep-ec=20": 22,
+            "negativeC=0,negP=1,ep-ec=117": 23,
+            "negativeC=0,negP=2,ep-ec=3": 51,
+            "negativeC=0,negP=0,ep-ec=13": 18,
+            "negativeC=0,negP=0,ep-ec=6": 14,
+            "negativeC=0,negP=2,ep-ec=107": 8,
+            "negativeC=0,negP=2,ep-ec=100": 18,
+            "negativeC=1,negP=2,ep-ec=17": 10,
+            "negativeC=1,negP=2,ep-ec=10": 11,
+            "negativeC=0,negP=1,ep-ec=34": 11,
+            "negativeC=0,negP=1,ep-ec=32": 9,
+            "negativeC=0,negP=1,ep-ec=100": 25,
+            "negativeC=0,negP=1,ep-ec=21": 26,
+            "negativeC=0,negP=2,ep-ec=54": 4,
+            "negativeC=0,negP=2,ep-ec=21": 14,
+            "negativeC=1,negP=1,ep-ec=1": 104,
+            "negativeC=0,negP=1,ep-ec=124": 42,
+            "negativeC=1,negP=0,ep-ec=41": 7,
+            "negativeC=0,negP=2,ep-ec=125": 23,
+            "negativeC=1,negP=1,ep-ec=25": 18,
+            "negativeC=0,negP=2,ep-ec=0": 66,
+            "negativeC=0,negP=2,ep-ec=115": 18,
+            "negativeC=1,negP=1,ep-ec=38": 5,
+            "negativeC=1,negP=2,ep-ec=-3": 4,
+            "negativeC=1,negP=1,ep-ec=-2": 61,
+            "negativeC=0,negP=1,ep-ec=107": 27,
+            "negativeC=1,negP=0,ep-ec=22": 13,
+            "negativeC=0,negP=0,ep-ec=11": 9,
+            "negativeC=0,negP=2,ep-ec=9": 20,
+            "negativeC=1,negP=1,ep-ec=0": 113,
+            "negativeC=0,negP=0,ep-ec=110": 17,
+            "negativeC=0,negP=1,ep-ec=96": 88,
+            "negativeC=1,negP=2,ep-ec=12": 15,
+            "negativeC=0,negP=0,ep-ec=125": 6,
+            "negativeC=0,negP=1,ep-ec=105": 30,
+            "negativeC=1,negP=1,ep-ec=19": 16,
+            "negativeC=1,negP=0,ep-ec=-2": 72,
+            "negativeC=0,negP=0,ep-ec=101": 8,
+            "negativeC=1,negP=1,ep-ec=13": 37,
+            "negativeC=1,negP=2,ep-ec=11": 16,
+            "negativeC=0,negP=2,ep-ec=28": 8,
+            "negativeC=0,negP=1,ep-ec=16": 22,
+            "negativeC=0,negP=2,ep-ec=95": 17,
+            "negativeC=0,negP=2,ep-ec=10": 27,
+            "negativeC=1,negP=1,ep-ec=8": 52,
+            "negativeC=0,negP=1,ep-ec=24": 12,
+            "negativeC=0,negP=1,ep-ec=113": 43,
+            "negativeC=0,negP=2,ep-ec=43": 7,
+            "negativeC=0,negP=1,ep-ec=125": 37,
+            "negativeC=0,negP=2,ep-ec=57": 2,
+            "negativeC=0,negP=1,ep-ec=56": 4,
+            "negativeC=0,negP=2,ep-ec=105": 15,
+            "negativeC=0,negP=2,ep-ec=33": 8,
+            "negativeC=0,negP=0,ep-ec=21": 9,
+            "negativeC=0,negP=1,ep-ec=11": 31,
+            "negativeC=0,negP=2,ep-ec=7": 29,
+            "negativeC=0,negP=1,ep-ec=-3": 20,
+            "negativeC=0,negP=1,ep-ec=94": 22,
+            "negativeC=1,negP=0,ep-ec=-3": 23,
+            "negativeC=1,negP=0,ep-ec=20": 9,
+            "negativeC=0,negP=0,ep-ec=108": 11,
+            "negativeC=0,negP=1,ep-ec=22": 21,
+            "negativeC=0,negP=2,ep-ec=6": 39,
+            "negativeC=0,negP=1,ep-ec=12": 34,
+            "negativeC=1,negP=1,ep-ec=9": 33,
+            "negativeC=0,negP=2,ep-ec=-2": 67,
+            "negativeC=0,negP=1,ep-ec=118": 32,
+            "negativeC=1,negP=1,ep-ec=24": 17,
+            "negativeC=1,negP=2,ep-ec=4": 26,
+            "negativeC=0,negP=0,ep-ec=120": 14,
+            "negativeC=0,negP=1,ep-ec=13": 33,
+            "negativeC=1,negP=2,ep-ec=2": 24,
+            "negativeC=0,negP=2,ep-ec=1": 61,
+            "negativeC=1,negP=1,ep-ec=10": 32,
+            "negativeC=0,negP=2,ep-ec=2": 63,
+            "negativeC=0,negP=0,ep-ec=111": 11,
+            "negativeC=0,negP=0,ep-ec=27": 7,
+            "negativeC=1,negP=1,ep-ec=27": 21,
+            "negativeC=0,negP=2,ep-ec=109": 12,
+            "negativeC=1,negP=1,ep-ec=31": 12,
+            "negativeC=0,negP=0,ep-ec=95": 14,
+            "negativeC=1,negP=0,ep-ec=25": 13,
+            "negativeC=0,negP=1,ep-ec=110": 27,
+            "negativeC=1,negP=1,ep-ec=12": 30,
+            "negativeC=1,negP=0,ep-ec=15": 19,
+            "negativeC=0,negP=2,ep-ec=31": 2,
+            "negativeC=0,negP=2,ep-ec=45": 5,
+            "negativeC=0,negP=2,ep-ec=13": 16,
+            "negativeC=0,negP=2,ep-ec=16": 15,
+            "negativeC=0,negP=1,ep-ec=93": 6,
+            "negativeC=0,negP=0,ep-ec=3": 25,
+            "negativeC=0,negP=1,ep-ec=4": 61,
+            "negativeC=0,negP=0,ep-ec=7": 24,
+            "negativeC=0,negP=1,ep-ec=15": 27,
+            "negativeC=0,negP=2,ep-ec=94": 3,
+            "negativeC=0,negP=1,ep-ec=20": 18,
+            "negativeC=1,negP=2,ep-ec=15": 8,
+            "negativeC=1,negP=1,ep-ec=26": 15,
+            "negativeC=1,negP=0,ep-ec=-4": 12,
+            "negativeC=1,negP=2,ep-ec=14": 9,
+            "negativeC=0,negP=1,ep-ec=108": 29,
+            "negativeC=0,negP=0,ep-ec=100": 6,
+            "negativeC=0,negP=0,ep-ec=9": 14,
+            "negativeC=0,negP=0,ep-ec=1": 17,
+            "negativeC=0,negP=2,ep-ec=-5": 6,
+            "negativeC=1,negP=2,ep-ec=5": 20,
+            "negativeC=1,negP=1,ep-ec=30": 14,
+            "negativeC=1,negP=1,ep-ec=11": 37,
+            "negativeC=0,negP=0,ep-ec=15": 16,
+            "negativeC=0,negP=2,ep-ec=27": 12,
+            "negativeC=0,negP=2,ep-ec=106": 16,
+            "negativeC=0,negP=0,ep-ec=98": 5,
+            "negativeC=0,negP=2,ep-ec=30": 9,
+            "negativeC=0,negP=1,ep-ec=123": 46,
+            "negativeC=0,negP=2,ep-ec=12": 18,
+            "negativeC=0,negP=0,ep-ec=113": 21,
+            "negativeC=0,negP=0,ep-ec=2": 21,
+            "negativeC=1,negP=2,ep-ec=21": 4,
+            "negativeC=1,negP=2,ep-ec=34": 3,
+            "negativeC=0,negP=0,ep-ec=112": 22,
+            "negativeC=1,negP=0,ep-ec=45": 5,
+            "negativeC=0,negP=1,ep-ec=98": 23,
+            "negativeC=0,negP=0,ep-ec=127": 4,
+            "negativeC=1,negP=1,ep-ec=36": 5,
+            "negativeC=1,negP=2,ep-ec=-1": 16,
+            "negativeC=1,negP=0,ep-ec=33": 11,
+            "negativeC=0,negP=2,ep-ec=35": 6,
+            "negativeC=1,negP=0,ep-ec=46": 7,
+            "negativeC=0,negP=2,ep-ec=93": 3,
+            "negativeC=1,negP=0,ep-ec=8": 26,
+            "negativeC=0,negP=1,ep-ec=122": 36,
+            "negativeC=1,negP=2,ep-ec=16": 7,
+            "negativeC=0,negP=2,ep-ec=22": 8,
+            "negativeC=0,negP=0,ep-ec=121": 16,
+            "negativeC=0,negP=2,ep-ec=5": 35,
+            "negativeC=0,negP=0,ep-ec=122": 20,
+            "negativeC=0,negP=1,ep-ec=101": 23,
+            "negativeC=1,negP=1,ep-ec=43": 6,
+            "negativeC=0,negP=1,ep-ec=99": 12,
+            "negativeC=0,negP=1,ep-ec=119": 35,
+            "negativeC=1,negP=1,ep-ec=15": 24,
+            "negativeC=0,negP=0,ep-ec=137": 4,
+            "negativeC=0,negP=1,ep-ec=140": 2,
+            "negativeC=0,negP=1,ep-ec=31": 11,
+            "negativeC=0,negP=0,ep-ec=116": 24,
+            "negativeC=1,negP=2,ep-ec=18": 10,
+            "negativeC=0,negP=0,ep-ec=18": 8,
+            "negativeC=0,negP=1,ep-ec=28": 11,
+            "negativeC=0,negP=1,ep-ec=17": 25,
+            "negativeC=0,negP=0,ep-ec=41": 1,
+            "negativeC=0,negP=0,ep-ec=0": 18,
+            "negativeC=0,negP=2,ep-ec=120": 26,
+            "negativeC=0,negP=1,ep-ec=112": 41,
+            "negativeC=0,negP=0,ep-ec=4": 16,
+            "negativeC=0,negP=1,ep-ec=116": 38,
+            "negativeC=0,negP=0,ep-ec=133": 5,
+            "negativeC=0,negP=0,ep-ec=16": 6,
+            "negativeC=0,negP=1,ep-ec=120": 29,
+            "negativeC=0,negP=0,ep-ec=-1": 20,
+            "negativeC=0,negP=1,ep-ec=52": 7,
+            "negativeC=1,negP=0,ep-ec=5": 30,
+            "negativeC=0,negP=1,ep-ec=19": 25,
+            "negativeC=0,negP=0,ep-ec=123": 16,
+            "negativeC=0,negP=2,ep-ec=133": 4,
+            "negativeC=0,negP=2,ep-ec=142": 1,
+            "negativeC=0,negP=0,ep-ec=131": 4,
+            "negativeC=0,negP=0,ep-ec=126": 6,
+            "negativeC=1,negP=1,ep-ec=16": 25,
+            "negativeC=0,negP=1,ep-ec=27": 13,
+            "negativeC=1,negP=1,ep-ec=18": 21,
+            "negativeC=0,negP=1,ep-ec=23": 15,
+            "negativeC=1,negP=2,ep-ec=47": 3,
+            "negativeC=0,negP=1,ep-ec=135": 3,
+            "negativeC=0,negP=0,ep-ec=102": 8,
+            "negativeC=1,negP=2,ep-ec=6": 22,
+            "negativeC=0,negP=0,ep-ec=114": 13,
+            "negativeC=0,negP=0,ep-ec=107": 12,
+            "negativeC=0,negP=2,ep-ec=32": 5,
+            "negativeC=1,negP=0,ep-ec=28": 7,
+            "negativeC=0,negP=2,ep-ec=4": 34,
+            "negativeC=1,negP=0,ep-ec=17": 12,
+            "negativeC=0,negP=2,ep-ec=116": 18,
+            "negativeC=0,negP=2,ep-ec=56": 2,
+            "negativeC=0,negP=2,ep-ec=123": 22,
+            "negativeC=0,negP=0,ep-ec=5": 20,
+            "negativeC=1,negP=2,ep-ec=3": 28,
+            "negativeC=0,negP=2,ep-ec=96": 17,
+            "negativeC=0,negP=2,ep-ec=126": 23,
+            "negativeC=1,negP=0,ep-ec=9": 24,
+            "negativeC=0,negP=0,ep-ec=115": 17,
+            "negativeC=1,negP=0,ep-ec=14": 18,
+            "negativeC=1,negP=0,ep-ec=55": 2,
+            "negativeC=0,negP=0,ep-ec=96": 23,
+            "negativeC=0,negP=2,ep-ec=20": 17,
+            "negativeC=0,negP=2,ep-ec=121": 22,
+            "negativeC=1,negP=1,ep-ec=28": 16,
+            "negativeC=0,negP=2,ep-ec=-3": 29,
+            "negativeC=1,negP=2,ep-ec=25": 1,
+            "negativeC=1,negP=1,ep-ec=-3": 28,
+            "negativeC=1,negP=0,ep-ec=50": 3,
+            "negativeC=0,negP=0,ep-ec=109": 12,
+            "negativeC=0,negP=0,ep-ec=106": 7,
+            "negativeC=1,negP=1,ep-ec=23": 15,
+            "negativeC=0,negP=1,ep-ec=109": 30,
+            "negativeC=0,negP=1,ep-ec=47": 2,
+            "negativeC=1,negP=1,ep-ec=-4": 19,
+            "negativeC=0,negP=1,ep-ec=121": 55,
+            "negativeC=1,negP=0,ep-ec=16": 15,
+            "negativeC=0,negP=1,ep-ec=36": 7,
+            "negativeC=0,negP=0,ep-ec=17": 7,
+            "negativeC=0,negP=1,ep-ec=139": 1,
+            "negativeC=1,negP=0,ep-ec=7": 25,
+            "negativeC=0,negP=1,ep-ec=127": 5,
+            "negativeC=0,negP=2,ep-ec=11": 21,
+            "negativeC=0,negP=1,ep-ec=26": 11,
+            "negativeC=0,negP=0,ep-ec=124": 14,
+            "negativeC=0,negP=2,ep-ec=140": 1,
+            "negativeC=0,negP=2,ep-ec=29": 6,
+            "negativeC=1,negP=1,ep-ec=45": 6,
+            "negativeC=0,negP=2,ep-ec=128": 5,
+            "negativeC=0,negP=0,ep-ec=119": 20,
+            "negativeC=1,negP=0,ep-ec=32": 5,
+            "negativeC=0,negP=2,ep-ec=118": 21,
+            "negativeC=0,negP=1,ep-ec=41": 6,
+            "negativeC=1,negP=2,ep-ec=-4": 3,
+            "negativeC=0,negP=0,ep-ec=-7": 2,
+            "negativeC=1,negP=1,ep-ec=21": 17,
+            "negativeC=0,negP=2,ep-ec=98": 8,
+            "negativeC=0,negP=0,ep-ec=103": 14,
+            "negativeC=0,negP=2,ep-ec=19": 9,
+            "negativeC=0,negP=2,ep-ec=108": 12,
+            "negativeC=0,negP=2,ep-ec=122": 16,
+            "negativeC=0,negP=1,ep-ec=102": 22,
+            "negativeC=1,negP=1,ep-ec=59": 2,
+            "negativeC=0,negP=1,ep-ec=50": 3,
+            "negativeC=0,negP=2,ep-ec=99": 6,
+            "negativeC=1,negP=2,ep-ec=7": 14,
+            "negativeC=0,negP=2,ep-ec=113": 13,
+            "negativeC=1,negP=1,ep-ec=54": 1,
+            "negativeC=1,negP=0,ep-ec=48": 4,
+            "negativeC=0,negP=1,ep-ec=97": 14,
+            "negativeC=0,negP=2,ep-ec=124": 18,
+            "negativeC=0,negP=2,ep-ec=149": 1,
+            "negativeC=1,negP=1,ep-ec=29": 18,
+            "negativeC=0,negP=2,ep-ec=110": 13,
+            "negativeC=1,negP=0,ep-ec=10": 19,
+            "negativeC=1,negP=2,ep-ec=39": 2,
+            "negativeC=1,negP=2,ep-ec=0": 11,
+            "negativeC=0,negP=2,ep-ec=136": 3,
+            "negativeC=1,negP=1,ep-ec=17": 26,
+            "negativeC=1,negP=0,ep-ec=37": 6,
+            "negativeC=0,negP=0,ep-ec=145": 2,
+            "negativeC=0,negP=1,ep-ec=30": 7,
+            "negativeC=1,negP=2,ep-ec=13": 12,
+            "negativeC=0,negP=0,ep-ec=52": 1,
+            "negativeC=0,negP=2,ep-ec=18": 14,
+            "negativeC=0,negP=2,ep-ec=24": 8,
+            "negativeC=0,negP=2,ep-ec=17": 20,
+            "negativeC=0,negP=1,ep-ec=-4": 17,
+            "negativeC=0,negP=2,ep-ec=102": 8,
+            "negativeC=0,negP=2,ep-ec=42": 6,
+            "negativeC=1,negP=0,ep-ec=18": 13,
+            "negativeC=1,negP=0,ep-ec=12": 23,
+            "negativeC=1,negP=0,ep-ec=21": 10,
+            "negativeC=0,negP=1,ep-ec=145": 2,
+            "negativeC=0,negP=2,ep-ec=111": 10,
+            "negativeC=0,negP=1,ep-ec=133": 5,
+            "negativeC=0,negP=2,ep-ec=51": 4,
+            "negativeC=0,negP=0,ep-ec=141": 2,
+            "negativeC=0,negP=0,ep-ec=8": 15,
+            "negativeC=0,negP=0,ep-ec=105": 11,
+            "negativeC=0,negP=1,ep-ec=39": 7,
+            "negativeC=1,negP=2,ep-ec=20": 9,
+            "negativeC=0,negP=0,ep-ec=128": 4,
+            "negativeC=1,negP=0,ep-ec=27": 7,
+            "negativeC=0,negP=0,ep-ec=38": 2,
+            "negativeC=0,negP=1,ep-ec=134": 5,
+            "negativeC=0,negP=2,ep-ec=117": 17,
+            "negativeC=1,negP=0,ep-ec=35": 9,
+            "negativeC=1,negP=1,ep-ec=37": 6,
+            "negativeC=0,negP=1,ep-ec=25": 15,
+            "negativeC=1,negP=0,ep-ec=11": 11,
+            "negativeC=0,negP=1,ep-ec=104": 21,
+            "negativeC=0,negP=1,ep-ec=106": 22,
+            "negativeC=0,negP=1,ep-ec=-6": 2,
+            "negativeC=1,negP=1,ep-ec=39": 6,
+            "negativeC=0,negP=1,ep-ec=48": 6,
+            "negativeC=1,negP=1,ep-ec=48": 2,
+            "negativeC=1,negP=0,ep-ec=31": 11,
+            "negativeC=0,negP=1,ep-ec=91": 1,
+            "negativeC=0,negP=0,ep-ec=35": 2,
+            "negativeC=0,negP=0,ep-ec=91": 1,
+            "negativeC=0,negP=0,ep-ec=12": 8,
+            "negativeC=1,negP=2,ep-ec=35": 3,
+            "negativeC=1,negP=1,ep-ec=34": 6,
+            "negativeC=0,negP=1,ep-ec=42": 5,
+            "negativeC=0,negP=0,ep-ec=10": 8,
+            "negativeC=1,negP=0,ep-ec=26": 9,
+            "negativeC=0,negP=0,ep-ec=22": 6,
+            "negativeC=0,negP=1,ep-ec=-8": 1,
+            "negativeC=1,negP=1,ep-ec=40": 6,
+            "negativeC=0,negP=1,ep-ec=40": 5,
+            "negativeC=0,negP=2,ep-ec=-4": 13,
+            "negativeC=1,negP=1,ep-ec=44": 5,
+            "negativeC=0,negP=1,ep-ec=126": 16,
+            "negativeC=1,negP=0,ep-ec=-8": 1,
+            "negativeC=0,negP=1,ep-ec=-9": 1,
+            "negativeC=0,negP=0,ep-ec=58": 2,
+            "negativeC=0,negP=0,ep-ec=118": 13,
+            "negativeC=0,negP=2,ep-ec=44": 4,
+            "negativeC=0,negP=0,ep-ec=134": 3,
+            "negativeC=1,negP=2,ep-ec=19": 2,
+            "negativeC=0,negP=1,ep-ec=92": 3,
+            "negativeC=0,negP=0,ep-ec=31": 2,
+            "negativeC=0,negP=1,ep-ec=44": 11,
+            "negativeC=1,negP=2,ep-ec=-2": 5,
+            "negativeC=0,negP=0,ep-ec=99": 6,
+            "negativeC=1,negP=1,ep-ec=49": 5,
+            "negativeC=0,negP=1,ep-ec=37": 4,
+            "negativeC=0,negP=1,ep-ec=103": 18,
+            "negativeC=0,negP=1,ep-ec=131": 2,
+            "negativeC=0,negP=0,ep-ec=54": 1,
+            "negativeC=0,negP=1,ep-ec=35": 7,
+            "negativeC=0,negP=1,ep-ec=147": 1,
+            "negativeC=0,negP=1,ep-ec=46": 2,
+            "negativeC=0,negP=1,ep-ec=43": 5,
+            "negativeC=0,negP=1,ep-ec=141": 4,
+            "negativeC=0,negP=2,ep-ec=26": 7,
+            "negativeC=0,negP=2,ep-ec=101": 12,
+            "negativeC=1,negP=0,ep-ec=19": 17,
+            "negativeC=1,negP=1,ep-ec=-5": 1,
+            "negativeC=0,negP=1,ep-ec=49": 4,
+            "negativeC=0,negP=0,ep-ec=14": 10,
+            "negativeC=0,negP=0,ep-ec=23": 5,
+            "negativeC=1,negP=2,ep-ec=8": 18,
+            "negativeC=0,negP=1,ep-ec=138": 1,
+            "negativeC=1,negP=2,ep-ec=22": 6,
+            "negativeC=0,negP=0,ep-ec=139": 1,
+            "negativeC=0,negP=2,ep-ec=141": 2,
+            "negativeC=0,negP=2,ep-ec=103": 6,
+            "negativeC=0,negP=2,ep-ec=23": 19,
+            "negativeC=0,negP=2,ep-ec=97": 2,
+            "negativeC=1,negP=0,ep-ec=38": 6,
+            "negativeC=0,negP=2,ep-ec=34": 3,
+            "negativeC=0,negP=2,ep-ec=55": 2,
+            "negativeC=0,negP=1,ep-ec=54": 3,
+            "negativeC=0,negP=0,ep-ec=151": 3,
+            "negativeC=1,negP=2,ep-ec=50": 1,
+            "negativeC=1,negP=2,ep-ec=45": 2,
+            "negativeC=0,negP=2,ep-ec=38": 9,
+            "negativeC=0,negP=2,ep-ec=25": 12,
+            "negativeC=1,negP=2,ep-ec=33": 5,
+            "negativeC=1,negP=1,ep-ec=57": 1,
+            "negativeC=1,negP=0,ep-ec=-5": 2,
+            "negativeC=0,negP=2,ep-ec=49": 1,
+            "negativeC=1,negP=2,ep-ec=41": 1,
+            "negativeC=1,negP=2,ep-ec=27": 2,
+            "negativeC=1,negP=0,ep-ec=42": 4,
+            "negativeC=1,negP=1,ep-ec=46": 3,
+            "negativeC=0,negP=1,ep-ec=45": 6,
+            "negativeC=0,negP=1,ep-ec=128": 5,
+            "negativeC=0,negP=0,ep-ec=36": 2,
+            "negativeC=0,negP=1,ep-ec=129": 3,
+            "negativeC=0,negP=2,ep-ec=127": 4,
+            "negativeC=1,negP=1,ep-ec=32": 7,
+            "negativeC=1,negP=0,ep-ec=34": 3,
+            "negativeC=0,negP=0,ep-ec=94": 7,
+            "negativeC=1,negP=0,ep-ec=-6": 2,
+            "negativeC=1,negP=2,ep-ec=28": 3,
+            "negativeC=1,negP=1,ep-ec=56": 1,
+            "negativeC=0,negP=0,ep-ec=132": 3,
+            "negativeC=0,negP=0,ep-ec=-2": 8,
+            "negativeC=0,negP=2,ep-ec=137": 3,
+            "negativeC=0,negP=2,ep-ec=132": 8,
+            "negativeC=1,negP=1,ep-ec=55": 3,
+            "negativeC=0,negP=0,ep-ec=129": 1,
+            "negativeC=1,negP=0,ep-ec=29": 4,
+            "negativeC=0,negP=1,ep-ec=155": 1,
+            "negativeC=0,negP=1,ep-ec=33": 5,
+            "negativeC=1,negP=1,ep-ec=47": 7,
+            "negativeC=0,negP=1,ep-ec=130": 6,
+            "negativeC=0,negP=0,ep-ec=143": 2,
+            "negativeC=0,negP=2,ep-ec=129": 4,
+            "negativeC=0,negP=0,ep-ec=25": 4,
+            "negativeC=0,negP=2,ep-ec=144": 3,
+            "negativeC=1,negP=0,ep-ec=39": 3,
+            "negativeC=0,negP=0,ep-ec=32": 1,
+            "negativeC=0,negP=1,ep-ec=55": 5,
+            "negativeC=0,negP=0,ep-ec=135": 4,
+            "negativeC=0,negP=1,ep-ec=148": 1,
+            "negativeC=0,negP=2,ep-ec=37": 4,
+            "negativeC=0,negP=0,ep-ec=150": 1,
+            "negativeC=1,negP=1,ep-ec=53": 4,
+            "negativeC=1,negP=0,ep-ec=47": 2,
+            "negativeC=0,negP=1,ep-ec=136": 2,
+            "negativeC=0,negP=1,ep-ec=53": 1,
+            "negativeC=0,negP=1,ep-ec=137": 1,
+            "negativeC=1,negP=2,ep-ec=31": 2,
+            "negativeC=0,negP=2,ep-ec=-8": 1,
+            "negativeC=0,negP=0,ep-ec=147": 2,
+            "negativeC=0,negP=0,ep-ec=142": 2,
+            "negativeC=1,negP=0,ep-ec=36": 5,
+            "negativeC=1,negP=2,ep-ec=26": 1,
+            "negativeC=0,negP=0,ep-ec=19": 3,
+            "negativeC=0,negP=2,ep-ec=135": 2,
+            "negativeC=1,negP=0,ep-ec=49": 4,
+            "negativeC=1,negP=0,ep-ec=56": 2,
+            "negativeC=1,negP=0,ep-ec=53": 3,
+            "negativeC=0,negP=1,ep-ec=38": 8,
+            "negativeC=0,negP=0,ep-ec=28": 2,
+            "negativeC=0,negP=2,ep-ec=134": 6,
+            "negativeC=0,negP=2,ep-ec=143": 1,
+            "negativeC=0,negP=0,ep-ec=93": 3,
+            "negativeC=0,negP=0,ep-ec=20": 3,
+            "negativeC=0,negP=2,ep-ec=53": 2,
+            "negativeC=1,negP=2,ep-ec=30": 1,
+            "negativeC=0,negP=2,ep-ec=147": 2,
+            "negativeC=1,negP=0,ep-ec=24": 4,
+            "negativeC=0,negP=2,ep-ec=138": 1,
+            "negativeC=0,negP=1,ep-ec=150": 1,
+            "negativeC=1,negP=2,ep-ec=43": 1,
+            "negativeC=0,negP=2,ep-ec=130": 2,
+            "negativeC=1,negP=1,ep-ec=35": 5,
+            "negativeC=1,negP=0,ep-ec=30": 3,
+            "negativeC=0,negP=1,ep-ec=146": 2,
+            "negativeC=0,negP=0,ep-ec=45": 3,
+            "negativeC=0,negP=1,ep-ec=-7": 1,
+            "negativeC=1,negP=0,ep-ec=51": 2,
+            "negativeC=1,negP=0,ep-ec=43": 2,
+            "negativeC=0,negP=0,ep-ec=140": 1,
+            "negativeC=0,negP=2,ep-ec=139": 3,
+            "negativeC=0,negP=0,ep-ec=136": 1,
+            "negativeC=1,negP=0,ep-ec=54": 2,
+            "negativeC=0,negP=2,ep-ec=-6": 2,
+            "negativeC=0,negP=0,ep-ec=42": 1,
+            "negativeC=1,negP=2,ep-ec=-5": 1,
+            "negativeC=1,negP=0,ep-ec=58": 1,
+            "negativeC=0,negP=2,ep-ec=47": 2,
+            "negativeC=1,negP=2,ep-ec=29": 1,
+            "negativeC=1,negP=0,ep-ec=-7": 1,
+            "negativeC=0,negP=0,ep-ec=-5": 2,
+            "negativeC=1,negP=0,ep-ec=40": 3,
+            "negativeC=0,negP=0,ep-ec=26": 1,
+            "negativeC=1,negP=2,ep-ec=58": 1,
+            "negativeC=0,negP=0,ep-ec=29": 1,
+            "negativeC=1,negP=1,ep-ec=42": 3,
+            "negativeC=1,negP=1,ep-ec=51": 2,
+            "negativeC=0,negP=1,ep-ec=-5": 7,
+            "negativeC=0,negP=1,ep-ec=57": 1,
+            "negativeC=0,negP=2,ep-ec=146": 1,
+            "negativeC=0,negP=2,ep-ec=150": 1,
+            "negativeC=0,negP=0,ep-ec=144": 1,
+            "negativeC=1,negP=2,ep-ec=40": 1,
+            "negativeC=0,negP=0,ep-ec=44": 1,
+            "negativeC=0,negP=0,ep-ec=33": 2,
+            "negativeC=0,negP=0,ep-ec=37": 1,
+            "negativeC=0,negP=2,ep-ec=50": 4,
+            "negativeC=0,negP=1,ep-ec=58": 1,
+            "negativeC=1,negP=2,ep-ec=24": 1,
+            "negativeC=0,negP=0,ep-ec=146": 1,
+            "negativeC=0,negP=2,ep-ec=-10": 1,
+            "negativeC=1,negP=0,ep-ec=57": 1,
+            "negativeC=0,negP=0,ep-ec=49": 1,
+            "negativeC=0,negP=0,ep-ec=148": 1,
+            "negativeC=0,negP=1,ep-ec=151": 1,
+            "negativeC=0,negP=0,ep-ec=50": 1,
+            "negativeC=0,negP=0,ep-ec=47": 1,
+            "negativeC=0,negP=2,ep-ec=52": 1,
+            "negativeC=1,negP=2,ep-ec=37": 1,
+            "negativeC=0,negP=0,ep-ec=97": 1,
+            "negativeC=0,negP=0,ep-ec=130": 2,
+            "negativeC=0,negP=0,ep-ec=-4": 1,
+            "negativeC=1,negP=2,ep-ec=42": 1
+          },
+          "examples": [
+            {
+              "cell": 114693,
+              "step": 0,
+              "a": [
+                24258,
+                55002
+              ],
+              "b": [
+                32775,
+                33247
+              ],
+              "carry": -8.398540253889649e-16,
+              "carry_bits": 2792493642,
+              "actual": 0.002949410118162632,
+              "actual_bits": 994134756,
+              "predicted": 0.0029494091868400574,
+              "prediction_bits": 994134752,
+              "product_exponents": [
+                -14,
+                -10
+              ],
+              "carry_exponent": -51,
+              "E": -10,
+              "q": 5.820766091346741e-11,
+              "products": [
+                -0.00018045306205749512,
+                0.0031298622488975525
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -1.4428582289838232e-05
+            },
+            {
+              "cell": 114702,
+              "step": 0,
+              "a": [
+                24258,
+                55002
+              ],
+              "b": [
+                33505,
+                159
+              ],
+              "carry": 0.0,
+              "carry_bits": 0,
+              "actual": -0.0200380627065897,
+              "actual_bits": 3164874461,
+              "predicted": -0.02003806084394455,
+              "prediction_bits": 3164874460,
+              "product_exponents": [
+                -7,
+                -11
+              ],
+              "carry_exponent": -126,
+              "E": -7,
+              "q": 4.656612873077393e-10,
+              "products": [
+                -0.0189991295337677,
+                -0.0010389313101768494
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": 0.0
+            },
+            {
+              "cell": 114706,
+              "step": 0,
+              "a": [
+                51232,
+                1494
+              ],
+              "b": [
+                18342,
+                33143
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -63.099609375,
+              "actual_bits": 3262932480,
+              "predicted": -63.099613189697266,
+              "prediction_bits": 3262932481,
+              "product_exponents": [
+                5,
+                -30
+              ],
+              "carry_exponent": -126,
+              "E": 5,
+              "q": 1.9073486328125e-06,
+              "products": [
+                -63.099609375,
+                -1.9904078385479806e-09
+              ],
+              "negative_products": [
+                true,
+                true
+              ],
+              "carry_q": -0.0
+            },
+            {
+              "cell": 114713,
+              "step": 1,
+              "a": [
+                32981,
+                945
+              ],
+              "b": [
+                7688,
+                23734
+              ],
+              "carry": -0.0004627243906725198,
+              "carry_bits": 3119684049,
+              "actual": 0.016519609838724136,
+              "actual_bits": 1015501858,
+              "predicted": 0.016519607976078987,
+              "prediction_bits": 1015501857,
+              "product_exponents": [
+                -25,
+                -7
+              ],
+              "carry_exponent": -12,
+              "E": -7,
+              "q": 4.656612873077393e-10,
+              "products": [
+                -7.477683539036661e-08,
+                0.01698240637779236
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -993693.0625
+            },
+            {
+              "cell": 114714,
+              "step": 0,
+              "a": [
+                51232,
+                1494
+              ],
+              "b": [
+                917,
+                49
+              ],
+              "carry": -0.0,
+              "carry_bits": 2147483648,
+              "actual": -0.0004509237769525498,
+              "actual_bits": 3119278583,
+              "predicted": -0.00045092380605638027,
+              "prediction_bits": 3119278584,
+              "product_exponents": [
+                -12,
+                -33
+              ],
+              "carry_exponent": -126,
+              "E": -12,
+              "q": 1.4551915228366852e-11,
+              "products": [
+                -0.0004509240388870239,
+                2.6007995757026947e-10
+              ],
+              "negative_products": [
+                true,
+                false
+              ],
+              "carry_q": -0.0
+            }
+          ]
+        }
+      ],
+      "prefix_states": 1048576,
+      "fp16_wmma_cells": 131072,
+      "bf16_wmma_cells": 98304,
+      "script_sha256": "1c47a5417a2989767159833da065a450a89320cc7e64c39c561f69dfffb01919",
+      "capture_manifest_sha256": "188ea2b0e1c78fa514835e19df55ffb69bf98cf7eec83d4becb39393b6a4f0cd",
+      "wall_seconds": 4.436923583969474,
+      "general_model_proven": false
+    },
+    "holdout": {
+      "kind": "independent_wmma_dot_float_analysis",
+      "families": [
+        {
+          "family": 0,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 1,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 2,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 3,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 4,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 5,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": true,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 6,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        },
+        {
+          "family": 7,
+          "cells": 16384,
+          "actual_prefix_model_mismatches": 0,
+          "recursive_model_mismatches": 0,
+          "independent_cpu_model_bit_mismatches": 0,
+          "fp16_wmma_dot2_mismatches": 0,
+          "bf16_checked": false,
+          "bf16_wmma_dot2_mismatches": 0,
+          "mismatch_strata": {},
+          "examples": []
+        }
+      ],
+      "prefix_states": 1048576,
+      "fp16_wmma_cells": 131072,
+      "bf16_wmma_cells": 98304,
+      "script_sha256": "43cf9c0d1b24d0c504a22923703cf153bb651a82232a61ca81823f0fa9f285b6",
+      "capture_manifest_sha256": "468773e5ae9934fd09f3f18c411a8b317a7adedd1a2194d1d5abd4d6c8b650e9",
+      "wall_seconds": 4.466785333119333,
+      "general_model_proven": false
+    }
+  },
+  "revised_discovery_analysis": {
+    "kind": "signed_zero_and_subnormal_dot2_hypothesis",
+    "actual_prefix_steps": 1048576,
+    "modes": [
+      "normalized_operand_exponents",
+      "unshifted_subnormal_exponent_minus14",
+      "unshifted_subnormal_exponent_minus15"
+    ],
+    "actual_prefix_mismatches_by_family": [
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        7276
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        6819
+      ]
+    ],
+    "best": 1,
+    "recursive_prefix_mismatches": 0,
+    "recursive_endpoint_mismatches": 0,
+    "examples": {
+      "0": [
+        {
+          "cell": 114693,
+          "step": 0,
+          "a": [
+            24258,
+            55002
+          ],
+          "b": [
+            32775,
+            33247
+          ],
+          "carry_bits": 2792493642,
+          "carry": -8.398540253889649e-16,
+          "native_bits": 994134756,
+          "native": 0.002949410118162632,
+          "prediction_bits": 994134752,
+          "prediction": 0.0029494091868400574
+        },
+        {
+          "cell": 114702,
+          "step": 0,
+          "a": [
+            24258,
+            55002
+          ],
+          "b": [
+            33505,
+            159
+          ],
+          "carry_bits": 0,
+          "carry": 0.0,
+          "native_bits": 3164874461,
+          "native": -0.0200380627065897,
+          "prediction_bits": 3164874460,
+          "prediction": -0.02003806084394455
+        },
+        {
+          "cell": 114713,
+          "step": 1,
+          "a": [
+            32981,
+            945
+          ],
+          "b": [
+            7688,
+            23734
+          ],
+          "carry_bits": 3119684049,
+          "carry": -0.0004627243906725198,
+          "native_bits": 1015501858,
+          "native": 0.016519609838724136,
+          "prediction_bits": 1015501857,
+          "prediction": 0.016519607976078987
+        },
+        {
+          "cell": 114719,
+          "step": 0,
+          "a": [
+            51232,
+            1494
+          ],
+          "b": [
+            533,
+            41496
+          ],
+          "carry_bits": 0,
+          "carry": 0.0,
+          "native_bits": 3112826946,
+          "native": -0.00026315642753615975,
+          "prediction_bits": 3112826945,
+          "prediction": -0.0002631563984323293
+        },
+        {
+          "cell": 114720,
+          "step": 1,
+          "a": [
+            63412,
+            6252
+          ],
+          "b": [
+            32897,
+            33391
+          ],
+          "carry_bits": 1035178864,
+          "carry": 0.08768355846405029,
+          "native_bits": 1051269976,
+          "native": 0.33028674125671387,
+          "prediction_bits": 1051269977,
+          "prediction": 0.33028677105903625
+        },
+        {
+          "cell": 114720,
+          "step": 2,
+          "a": [
+            833,
+            32843
+          ],
+          "b": [
+            62338,
+            48582
+          ],
+          "carry_bits": 1051269976,
+          "carry": 0.33028674125671387,
+          "native_bits": 3202204657,
+          "native": -0.4331355392932892,
+          "prediction_bits": 3202204656,
+          "prediction": -0.4331355094909668
+        },
+        {
+          "cell": 114725,
+          "step": 0,
+          "a": [
+            21278,
+            4386
+          ],
+          "b": [
+            32775,
+            33247
+          ],
+          "carry_bits": 581370052,
+          "carry": 4.526625133827011e-18,
+          "native_bits": 3083300544,
+          "native": -2.37742206081748e-05,
+          "prediction_bits": 3083300459,
+          "prediction": -2.37740659940755e-05
+        },
+        {
+          "cell": 114725,
+          "step": 1,
+          "a": [
+            63412,
+            6252
+          ],
+          "b": [
+            32921,
+            309
+          ],
+          "carry_bits": 3083300544,
+          "carry": -2.37742206081748e-05,
+          "native_bits": 1049841512,
+          "native": 0.28771519660949707,
+          "prediction_bits": 1049841508,
+          "prediction": 0.2877150774002075
+        }
+      ],
+      "1": [],
+      "2": [
+        {
+          "cell": 114693,
+          "step": 0,
+          "a": [
+            24258,
+            55002
+          ],
+          "b": [
+            32775,
+            33247
+          ],
+          "carry_bits": 2792493642,
+          "carry": -8.398540253889649e-16,
+          "native_bits": 994134756,
+          "native": 0.002949410118162632,
+          "prediction_bits": 994134754,
+          "prediction": 0.0029494096525013447
+        },
+        {
+          "cell": 114702,
+          "step": 0,
+          "a": [
+            24258,
+            55002
+          ],
+          "b": [
+            33505,
+            159
+          ],
+          "carry_bits": 0,
+          "carry": 0.0,
+          "native_bits": 3164874461,
+          "native": -0.0200380627065897,
+          "prediction_bits": 3164874460,
+          "prediction": -0.02003806084394455
+        },
+        {
+          "cell": 114713,
+          "step": 1,
+          "a": [
+            32981,
+            945
+          ],
+          "b": [
+            7688,
+            23734
+          ],
+          "carry_bits": 3119684049,
+          "carry": -0.0004627243906725198,
+          "native_bits": 1015501858,
+          "native": 0.016519609838724136,
+          "prediction_bits": 1015501857,
+          "prediction": 0.016519607976078987
+        },
+        {
+          "cell": 114719,
+          "step": 0,
+          "a": [
+            51232,
+            1494
+          ],
+          "b": [
+            533,
+            41496
+          ],
+          "carry_bits": 0,
+          "carry": 0.0,
+          "native_bits": 3112826946,
+          "native": -0.00026315642753615975,
+          "prediction_bits": 3112826945,
+          "prediction": -0.0002631563984323293
+        },
+        {
+          "cell": 114720,
+          "step": 1,
+          "a": [
+            63412,
+            6252
+          ],
+          "b": [
+            32897,
+            33391
+          ],
+          "carry_bits": 1035178864,
+          "carry": 0.08768355846405029,
+          "native_bits": 1051269976,
+          "native": 0.33028674125671387,
+          "prediction_bits": 1051269977,
+          "prediction": 0.33028677105903625
+        },
+        {
+          "cell": 114720,
+          "step": 2,
+          "a": [
+            833,
+            32843
+          ],
+          "b": [
+            62338,
+            48582
+          ],
+          "carry_bits": 1051269976,
+          "carry": 0.33028674125671387,
+          "native_bits": 3202204657,
+          "native": -0.4331355392932892,
+          "prediction_bits": 3202204656,
+          "prediction": -0.4331355094909668
+        },
+        {
+          "cell": 114725,
+          "step": 0,
+          "a": [
+            21278,
+            4386
+          ],
+          "b": [
+            32775,
+            33247
+          ],
+          "carry_bits": 581370052,
+          "carry": 4.526625133827011e-18,
+          "native_bits": 3083300544,
+          "native": -2.37742206081748e-05,
+          "prediction_bits": 3083300512,
+          "prediction": -2.3774162400513887e-05
+        },
+        {
+          "cell": 114725,
+          "step": 1,
+          "a": [
+            63412,
+            6252
+          ],
+          "b": [
+            32921,
+            309
+          ],
+          "carry_bits": 3083300544,
+          "carry": -2.37742206081748e-05,
+          "native_bits": 1049841512,
+          "native": 0.28771519660949707,
+          "prediction_bits": 1049841510,
+          "prediction": 0.2877151370048523
+        }
+      ]
+    },
+    "script_sha256": "9d9df6bccffd09e85509f8421d01c866673f681e688aebb0efe8e099fd5bb8e0",
+    "wall_seconds": 7.845458541996777,
+    "general_model_proven": false
+  },
+  "analysis_methods": {
+    "analyze_wmma_dot_float_r1.py": {
+      "sha256": "1c47a5417a2989767159833da065a450a89320cc7e64c39c561f69dfffb01919",
+      "text": "from pathlib import Path\nfrom array import array\nimport struct,math,json,hashlib,time\nB=Path(__file__).resolve().parent;D=B/'wmma-dot-float-test-r1'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'));sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nfor r in read(D/'capture-manifest.json'):assert (D/r['name']).stat().st_size==r['bytes'] and sha(D/r['name'])==r['sha256']\ndef words(name,code):\n    a=array(code);a.frombytes((D/name).read_bytes());return a\nleft,right=words('left-half.bin','H'),words('right-half.bin','H')\ninitial,trace,host_model=words('carry.bin','I'),words('prefix.bin','I'),words('model-prefix.bin','I')\nwmma,bf=words('wmma-fp16.bin','I'),words('wmma-bf16.bin','I')\ndef bits(x):return struct.unpack('<I',struct.pack('<f',x))[0]\ndef value(x):return struct.unpack('<f',struct.pack('<I',x))[0]\ndef half(h):\n    e=(h>>10)&31;m=h&1023\n    return math.ldexp((1024+m) if e else m,e-25 if e else -24)*(-1 if h&0x8000 else 1)\ndef half_e(h):\n    e=(h>>10)&31;m=h&1023\n    return e-15 if e else m.bit_length()-25 if m else -126\ndef predict(a,b,c):\n    exps=[half_e(a[i])+half_e(b[i]) if (a[i]&0x7fff) and (b[i]&0x7fff) else -126 for i in range(2)]\n    ce=((bits(c)>>23)&255)-127 if c else -126;e=max(*exps,ce-2);q=math.ldexp(1.0,e-24)\n    neg=[bool((a[i]^b[i])&0x8000) for i in range(2)];p=[half(a[i])*half(b[i]) for i in range(2)]\n    total=math.trunc(c/q)+(2 if c<0 else 0)\n    for v,n in zip(p,neg):total+=-(math.trunc(abs(v)/q)+1) if n else math.trunc(abs(v)/q)\n    raw=bits(total*q);raw=0 if not (raw&0x7fffffff) else raw\n    return raw,dict(product_exponents=exps,carry_exponent=ce,E=e,q=q,products=p,negative_products=neg,carry_q=c/q)\nstarted=time.monotonic();out=[]\nreports=read(D/'reports.json');assert len(reports)==8\nfor family in range(8):\n    bad=recursive_bad=cpu_host_bad=wmma_bad=bf_bad=0;strata={};examples=[]\n    for cell in range(family*16384,(family+1)*16384):\n        tile,pos=divmod(cell,256);row,col=divmod(pos,16)\n        a=left[tile*256+row*16:tile*256+row*16+16];b=right[tile*256+col*16:tile*256+col*16+16];c_model=value(initial[cell])\n        for step in range(8):\n            index=cell*8+step;c=value(trace[index-1] if step else initial[cell])\n            raw,context=predict(a[step*2:step*2+2],b[step*2:step*2+2],c)\n            rec,_=predict(a[step*2:step*2+2],b[step*2:step*2+2],c_model);c_model=value(rec)\n            recursive_bad+=rec!=trace[index];cpu_host_bad+=rec!=host_model[index]\n            if raw!=trace[index]:\n                bad+=1;label=f\"negativeC={int(c<0)},negP={sum(context['negative_products'])},ep-ec={max(context['product_exponents'])-context['carry_exponent']}\";strata[label]=strata.get(label,0)+1\n                if len(examples)<5:examples.append(dict(cell=cell,step=step,a=list(a[step*2:step*2+2]),b=list(b[step*2:step*2+2]),carry=c,carry_bits=bits(c),actual=value(trace[index]),actual_bits=trace[index],predicted=value(raw),prediction_bits=raw,**context))\n        wmma_bad+=wmma[cell]!=trace[cell*8+7]\n        if family<6:bf_bad+=bf[cell]!=trace[cell*8+7]\n    native=reports[family];assert native['family']==family and native['actual_prefix_model_mismatches']==bad and native['recursive_model_mismatches']==recursive_bad and native['fp16_wmma_dot2_mismatches']==wmma_bad and native['bf16_wmma_dot2_mismatches']==bf_bad and cpu_host_bad==0\n    record=dict(family=family,cells=16384,actual_prefix_model_mismatches=bad,recursive_model_mismatches=recursive_bad,independent_cpu_model_bit_mismatches=cpu_host_bad,fp16_wmma_dot2_mismatches=wmma_bad,bf16_checked=family<6,bf16_wmma_dot2_mismatches=bf_bad,mismatch_strata=strata,examples=examples);out.append(record)\n    print(json.dumps(record),flush=True)\nrecord=dict(kind='independent_wmma_dot_float_analysis',families=out,prefix_states=1048576,fp16_wmma_cells=131072,bf16_wmma_cells=98304,script_sha256=sha(Path(__file__)),capture_manifest_sha256=sha(D/'capture-manifest.json'),wall_seconds=time.monotonic()-started,general_model_proven=False)\nwith (B/'wmma-dot-float-analysis-r1.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\n"
+    },
+    "analyze_wmma_dot_float_holdout_r1.py": {
+      "sha256": "43cf9c0d1b24d0c504a22923703cf153bb651a82232a61ca81823f0fa9f285b6",
+      "text": "from pathlib import Path\nfrom array import array\nimport struct,math,json,hashlib,time\nB=Path(__file__).resolve().parent;D=B/'wmma-dot-float-holdout-test-r1'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'));sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nfor r in read(D/'capture-manifest.json'):assert (D/r['name']).stat().st_size==r['bytes'] and sha(D/r['name'])==r['sha256']\ndef words(name,code):\n    a=array(code);a.frombytes((D/name).read_bytes());return a\nleft,right=words('left-half.bin','H'),words('right-half.bin','H')\ninitial,trace,host_model=words('carry.bin','I'),words('prefix.bin','I'),words('model-prefix.bin','I')\nwmma,bf=words('wmma-fp16.bin','I'),words('wmma-bf16.bin','I')\ndef bits(x):return struct.unpack('<I',struct.pack('<f',x))[0]\ndef value(x):return struct.unpack('<f',struct.pack('<I',x))[0]\ndef half(h):\n    e=(h>>10)&31;m=h&1023\n    return math.ldexp((1024+m) if e else m,e-25 if e else -24)*(-1 if h&0x8000 else 1)\ndef half_e(h):\n    e=(h>>10)&31;m=h&1023\n    return e-15 if e else -14 if m else -126\ndef predict(a,b,c):\n    exps=[half_e(a[i])+half_e(b[i]) if (a[i]&0x7fff) and (b[i]&0x7fff) else -126 for i in range(2)]\n    ce=((bits(c)>>23)&255)-127 if c else -126;e=max(*exps,ce-2);q=math.ldexp(1.0,e-24)\n    neg=[bool((a[i]^b[i])&0x8000) for i in range(2)];p=[half(a[i])*half(b[i]) for i in range(2)]\n    total=math.trunc(c/q)+2*(bits(c)>>31)\n    for v,n in zip(p,neg):total+=-(math.trunc(abs(v)/q)+1) if n else math.trunc(abs(v)/q)\n    raw=bits(total*q);raw=0 if (raw&0x7fffffff)<0x800000 else raw\n    return raw,dict(product_exponents=exps,carry_exponent=ce,E=e,q=q,products=p,negative_products=neg,carry_q=c/q)\nstarted=time.monotonic();out=[]\nreports=read(D/'reports.json');assert len(reports)==8\nfor family in range(8):\n    bad=recursive_bad=cpu_host_bad=wmma_bad=bf_bad=0;strata={};examples=[]\n    for cell in range(family*16384,(family+1)*16384):\n        tile,pos=divmod(cell,256);row,col=divmod(pos,16)\n        a=left[tile*256+row*16:tile*256+row*16+16];b=right[tile*256+col*16:tile*256+col*16+16];c_model=value(initial[cell])\n        for step in range(8):\n            index=cell*8+step;c=value(trace[index-1] if step else initial[cell])\n            raw,context=predict(a[step*2:step*2+2],b[step*2:step*2+2],c)\n            rec,_=predict(a[step*2:step*2+2],b[step*2:step*2+2],c_model);c_model=value(rec)\n            recursive_bad+=rec!=trace[index];cpu_host_bad+=rec!=host_model[index]\n            if raw!=trace[index]:\n                bad+=1;label=f\"negativeC={int(c<0)},negP={sum(context['negative_products'])},ep-ec={max(context['product_exponents'])-context['carry_exponent']}\";strata[label]=strata.get(label,0)+1\n                if len(examples)<5:examples.append(dict(cell=cell,step=step,a=list(a[step*2:step*2+2]),b=list(b[step*2:step*2+2]),carry=c,carry_bits=bits(c),actual=value(trace[index]),actual_bits=trace[index],predicted=value(raw),prediction_bits=raw,**context))\n        wmma_bad+=wmma[cell]!=trace[cell*8+7]\n        if family<6:bf_bad+=bf[cell]!=trace[cell*8+7]\n    native=reports[family];assert native['family']==family and native['actual_prefix_model_mismatches']==bad and native['recursive_model_mismatches']==recursive_bad and native['fp16_wmma_dot2_mismatches']==wmma_bad and native['bf16_wmma_dot2_mismatches']==bf_bad and cpu_host_bad==0\n    record=dict(family=family,cells=16384,actual_prefix_model_mismatches=bad,recursive_model_mismatches=recursive_bad,independent_cpu_model_bit_mismatches=cpu_host_bad,fp16_wmma_dot2_mismatches=wmma_bad,bf16_checked=family<6,bf16_wmma_dot2_mismatches=bf_bad,mismatch_strata=strata,examples=examples);out.append(record)\n    print(json.dumps({k:v for k,v in record.items() if k not in (\"examples\",\"mismatch_strata\")}),flush=True)\nrecord=dict(kind='independent_wmma_dot_float_analysis',families=out,prefix_states=1048576,fp16_wmma_cells=131072,bf16_wmma_cells=98304,script_sha256=sha(Path(__file__)),capture_manifest_sha256=sha(D/'capture-manifest.json'),wall_seconds=time.monotonic()-started,general_model_proven=False)\nwith (B/'wmma-dot-float-holdout-analysis-r1.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\n"
+    },
+    "analyze_dot2_signed_zero_r1.py": {
+      "sha256": "9d9df6bccffd09e85509f8421d01c866673f681e688aebb0efe8e099fd5bb8e0",
+      "text": "from pathlib import Path\nimport math,json,hashlib,time\nB=Path(__file__).resolve().parent;p=B/'analyze_wmma_dot_float_r1.py';s={'__file__':str(p)}\nexec(p.read_text().split('started=time.monotonic()')[0],s)\nleft,right,initial,trace,half,half_e,bits,value=[s[n] for n in ('left','right','initial','trace','half','half_e','bits','value')]\ndef predict(a,b,craw,mode):\n    def exponent(h):\n        return half_e(h) if mode==0 else max((h>>10)&31,1)-15 if mode==1 else ((h>>10)&31)-15\n    ep=max(exponent(a[i])+exponent(b[i]) if (a[i]&0x7fff) and (b[i]&0x7fff) else -126 for i in range(2))\n    c=value(craw);ce=((craw>>23)&255)-127 if c else -126;e=max(ep,ce-2);q=math.ldexp(1.0,e-24)\n    total=math.trunc(c/q)+2*(craw>>31)\n    for av,bv in zip(a,b):\n        magnitude=math.trunc(abs(half(av)*half(bv))/q);total+=-(magnitude+1) if (av^bv)&0x8000 else magnitude\n    raw=bits(total*q)\n    return 0 if (raw&0x7fffffff)<0x800000 else raw\nstarted=time.monotonic();counts=[[0]*8 for _ in range(3)];examples={m:[] for m in range(3)}\nfor cell in range(131072):\n    tile,pos=divmod(cell,256);row,col=divmod(pos,16);family=cell//16384\n    a=left[tile*256+row*16:tile*256+row*16+16];b=right[tile*256+col*16:tile*256+col*16+16]\n    for step in range(8):\n        index=cell*8+step;craw=trace[index-1] if step else initial[cell]\n        for mode in range(3):\n            got=predict(a[2*step:2*step+2],b[2*step:2*step+2],craw,mode)\n            if got!=trace[index]:\n                counts[mode][family]+=1\n                if len(examples[mode])<8:examples[mode].append(dict(cell=cell,step=step,a=list(a[2*step:2*step+2]),b=list(b[2*step:2*step+2]),carry_bits=craw,carry=value(craw),native_bits=trace[index],native=value(trace[index]),prediction_bits=got,prediction=value(got)))\nprint(json.dumps(dict(actual_prefix_mismatches=counts,examples=examples),indent=2),flush=True)\nbest=min(range(3),key=lambda m:sum(counts[m]));recursive_bad=0;end_bad=0\nfor cell in range(131072):\n    tile,pos=divmod(cell,256);row,col=divmod(pos,16);a=left[tile*256+row*16:tile*256+row*16+16];b=right[tile*256+col*16:tile*256+col*16+16];carry=initial[cell]\n    for step in range(8):\n        carry=predict(a[2*step:2*step+2],b[2*step:2*step+2],carry,best);recursive_bad+=carry!=trace[cell*8+step]\n    end_bad+=carry!=trace[cell*8+7]\nrecord=dict(kind='signed_zero_and_subnormal_dot2_hypothesis',actual_prefix_steps=1048576,modes=['normalized_operand_exponents','unshifted_subnormal_exponent_minus14','unshifted_subnormal_exponent_minus15'],actual_prefix_mismatches_by_family=counts,best=best,recursive_prefix_mismatches=recursive_bad,recursive_endpoint_mismatches=end_bad,examples=examples,script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),wall_seconds=time.monotonic()-started,general_model_proven=False)\nwith (B/'dot2-signed-zero-analysis-r1.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps({k:v for k,v in record.items() if k!='examples'},indent=2),flush=True)\n"
+    }
+  },
+  "source_audit": {
+    "changed_files": [
+      "tests/native/wmma_dot_float_probe.cpp"
+    ],
+    "product_dispatch_changed": false
+  },
+  "unchanged_full_suite": {
+    "file": "benchmarks/correctness/dyadic-scan-qk-native-components-20260916.json",
+    "bytes": 197763,
+    "sha256": "aa5305ce921551548a6797ad80fe52eddec6a4faca7e76610a3b1baa3af53f65"
+  },
+  "prior_integer_characterization": {
+    "file": "benchmarks/correctness/wmma-dot-chain-native-characterization-20260916.json",
+    "bytes": 279398,
+    "sha256": "43a6c0ec2b88f3fea0b4822f2a713d8a48dcf3a96c8e1de4da7fe70f1ad8d995"
+  },
+  "command_files": {
+    "discovery": {
+      "file": "run-native-wmma-dot-float-r1.ps1",
+      "sha256": "5bc44049846ee0fedd380037249c42a5342357b39e85781ea6412a410aa379f0",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-wmma-dot-float-20260916';$seed='D:\\projects\\AIMA-public-wmma-dot-prefix-20260916';$sha='31ba6ce32a56d835b8bd889922334faca22b8b60';$bundle='D:\\projects\\wmma-dot-float-31ba6ce.bundle'\nfunction Verify-File([string]$Path,[string]$Hash){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Hash){throw ('Changed input: '+$Path)}}\nVerify-File $bundle 'a9f6e1b1685104614c500d0f2f7bc35caeb71ad2cde8f4926126f4234419d8ac'\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\wmma-dot-float';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\wmma_dot_float_probe.cpp';$exe=Join-Path $build 'wmma-dot-float.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@(@($source,(Join-Path $repo 'tests\\native\\wmma_integer_rounding_probe.cpp'))|ForEach-Object {@{file=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}})\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated floating operands and independent carries';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=150\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha){throw 'Build commit mismatch'}\n Verify-File $exe $meta.executable.sha256\n foreach($file in $meta.source_inputs){Verify-File $file.file $file.sha256}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n $capture=Join-Path $build 'capture';if(Test-Path $capture){throw 'Capture already exists'};$null=New-Item -ItemType Directory -Path $capture\n $spec.executable=$exe;$spec.arguments=@($capture);$spec.output_directory=$capture;$timeout=120\n}\n$out=Join-Path $repo ('build\\wmma-dot-float-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(2000,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic action failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $diagnostics=@($reports|Where-Object {$_.kind -eq 'wmma_dot_float_diagnostic'})\n if($diagnostics.Count -ne 8){throw 'Incomplete floating diagnostic'}\n foreach($r in $diagnostics){if(-not $r.redzones_pass -or -not $r.repeat_bit_parity -or -not $r.immutable_inputs -or $r.cells -ne 16384 -or $r.prefix_states -ne 131072){throw 'Floating validation failed'}}\n $files=@(Get-ChildItem -LiteralPath $capture -Filter '*.bin' -File|Sort-Object Name|ForEach-Object {@{name=$_.Name;bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n if($files.Count -ne 7){throw 'Incomplete raw outputs'}\n [IO.File]::WriteAllText((Join-Path $build 'capture-manifest.json'),($files|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n}\n"
+    },
+    "holdout": {
+      "file": "run-native-wmma-dot-float-holdout-r1.ps1",
+      "sha256": "6e8e608447d44a0e4ffc993b0932bb85d747ab8ee890c4163e524ce0006b0834",
+      "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916';$seed='D:\\projects\\AIMA-public-wmma-dot-float-20260916';$sha='2316a122853943385eda76f11a1c3c74f0426ad7';$bundle='D:\\projects\\wmma-dot-float-holdout-2316a12.bundle'\nfunction Verify-File([string]$Path,[string]$Hash){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Hash){throw ('Changed input: '+$Path)}}\nVerify-File $bundle 'abecb8a092909d1fa4b14b851d62abd59148b81f12ac278d7dc50cd212a311fd'\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\wmma-dot-float-holdout';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\wmma_dot_float_probe.cpp';$exe=Join-Path $build 'wmma-dot-float-holdout.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@(@($source,(Join-Path $repo 'tests\\native\\wmma_integer_rounding_probe.cpp'))|ForEach-Object {@{file=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}})\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated floating operands and independent carries';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Use the independent seed salt0x93517a2d after signed-zero and subnormal model corrections. Compare independent floating FP16 WMMA, exact-encoding BF16 WMMA controls and natural FP16 DOT2 chains with arbitrary initial FP32 carries. Eight deterministic families cover normal exponents, full FP16 mantissas, zeros, cancellation and subnormals. Save all operands and every DOT2 prefix, repeat hardware outputs, compare the empirical guard-alignment model using actual incoming carries, and validate inputs and redzones. Model disagreements are diagnostic results, not native-process failures. No runtime route or inference/performance acceptance changes.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=150\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha){throw 'Build commit mismatch'}\n Verify-File $exe $meta.executable.sha256\n foreach($file in $meta.source_inputs){Verify-File $file.file $file.sha256}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n $capture=Join-Path $build 'capture';if(Test-Path $capture){throw 'Capture already exists'};$null=New-Item -ItemType Directory -Path $capture\n $spec.executable=$exe;$spec.arguments=@($capture,'0x93517a2d');$spec.output_directory=$capture;$timeout=120\n}\n$out=Join-Path $repo ('build\\wmma-dot-float-holdout-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(2000,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic action failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $diagnostics=@($reports|Where-Object {$_.kind -eq 'wmma_dot_float_diagnostic'})\n if($diagnostics.Count -ne 8){throw 'Incomplete floating diagnostic'}\n foreach($r in $diagnostics){if(-not $r.redzones_pass -or -not $r.repeat_bit_parity -or -not $r.immutable_inputs -or $r.cells -ne 16384 -or $r.prefix_states -ne 131072){throw 'Floating validation failed'}}\n $files=@(Get-ChildItem -LiteralPath $capture -Filter '*.bin' -File|Sort-Object Name|ForEach-Object {@{name=$_.Name;bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n if($files.Count -ne 7){throw 'Incomplete raw outputs'}\n [IO.File]::WriteAllText((Join-Path $build 'capture-manifest.json'),($files|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n}\n"
+    }
+  },
+  "fixture_scope": {
+    "families": [
+      "normal BF16-exact half operands with wide independent carries",
+      "narrower normal exponents with relative carries",
+      "exact opposite-product pairs",
+      "two nonzero terms plus zero padding",
+      "signed zero operands",
+      "integer significands shifted0..7",
+      "full ten-bit FP16 fractions",
+      "FP16 subnormal/normal mixtures"
+    ],
+    "tiles_per_family": 64,
+    "cells_per_family": 16384,
+    "prefix_states_per_run": 1048576,
+    "discovery_seed_salt": 0,
+    "holdout_seed_salt": 2471590445,
+    "normal_carry_exponent_domain": [
+      -100,
+      100
+    ],
+    "zero_carries_include_both_signs": true,
+    "bf16_controls_only_first6_families": true,
+    "bf16_controls_exactly_represent_same_values": true
+  },
+  "observed_model": {
+    "quantum": "q=2^(max(ep0,ep1,ec-2)-24); ep is the sum of operand encoded exponents with nonzero FP16 subnormals using-14 without normalization",
+    "sum": "trunc(C/q)+2*signbit(C)+sum(signbit(a)^signbit(b)?-(trunc(abs(a*b)/q)+1):trunc(abs(a*b)/q))",
+    "output": "FP32 RNE of q times the integer sum; diagnostic implementation flushes subnormal outputs to positive zero",
+    "limits": "No NaN/infinity/overflow cases, arbitrary FP32 subnormal carries, all BF16-only exponent ranges, alternate denormal mode or universal hardware contract are established. The output-flush choice is not separately qualified for all subnormal outputs."
+  },
+  "totals": {
+    "fp16_wmma_dot2_endpoint_comparisons": 262144,
+    "bf16_wmma_dot2_endpoint_comparisons": 196608,
+    "native_samples_per_output": 2,
+    "discovery_initial_actual_prefix_model_mismatches": 14359,
+    "revised_discovery_actual_prefix_mismatches": 0,
+    "revised_discovery_recursive_prefix_mismatches": 0,
+    "independent_holdout_actual_prefix_mismatches": 0,
+    "independent_holdout_recursive_prefix_mismatches": 0,
+    "independent_cpu_vs_cpp_recursive_model_mismatches": 0
+  },
+  "conclusions": [
+    "Every native FP16 WMMA endpoint in both seeds equals its natural eight-DOT2 chain, including arbitrary initial carries, normal/subnormal half operands and signed zero. Exact-encoding BF16 controls also match all first-six-family endpoints. This is finite observed parity, not a general instruction contract.",
+    "The initial integer-fit formula fails wider fixtures. Its ordinary negative comparison misses the-0 carry sign; renormalizing a nonzero subnormal half operand also selects the wrong alignment exponent. The captured counterexamples and initial failed counts remain attached.",
+    "Using carry sign bits and unshifted subnormal exponent-14 fits all1048576 discovery states and recursive endpoints. A separately compiled native holdout with seed0x93517a2d then reports no mismatch for actual-input or recursively predicted states. An independent Python implementation cross-checks all capture words and native counts.",
+    "This standalone diagnostic changes no product provider, replay policy or error coefficient. It does not load the model or establish a GB10 token boundary, retained speed, inference acceptance or release qualification."
+  ],
+  "general_model_proven": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
