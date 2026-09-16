@@ -250,7 +250,7 @@ void run(Case c) {
             if(i<guard || i>=cells+guard) {
                 if(a[i]!=0xa5a5a5a5u || b[i]!=0xa5a5a5a5u)throw std::runtime_error("QK score redzone changed");
             }else if(a[i]!=b[i]) {
-                std::fprintf(stderr,"groups=%u tokens=%u start=%u count=%u mode=%u index=%zu expected=%08x actual=%08x\n",groups,c.tokens,c.start,c.count,c.mode,i-guard,a[i],b[i]);
+                std::fprintf(stderr,"variant=%u tokens=%u start=%u count=%u mode=%u index=%zu expected=%08x actual=%08x\n",variant,c.tokens,c.start,c.count,c.mode,i-guard,a[i],b[i]);
                 throw std::runtime_error("cooperative matrix QK differs from original scores");
             }
         }
