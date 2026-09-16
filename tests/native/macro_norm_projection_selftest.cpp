@@ -1,5 +1,6 @@
 #include "../../native/providers/moe_accumulator/sm121_prefix_replay_projection.h"
 #include "../../native/providers/moe_accumulator/sm121_macro_norm_projection.h"
+#include "../../native/providers/moe_accumulator/sm121_cooperative_norm_metadata.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -18,6 +19,7 @@ namespace bound=qrt_sm121_coarse_projection_bound;
 namespace original=qrt_q1_moe_hawkeye;
 using Row=kernel::Row;
 namespace macro=qrt_sm121_macro_norm_projection;
+namespace cooperative=qrt_sm121_cooperative_norm_metadata;
 using Summary=macro::Summary;
 constexpr unsigned guard=64u,marker=0xa5a5a5a5u,window=262144u;
 void require(bool ok,const char* message){if(!ok)throw std::runtime_error(message);}
@@ -59,8 +61,12 @@ std::vector<uint16_t> read_words(const char* name,size_t words){
     std::ifstream file(name,std::ios::binary|std::ios::ate);require(bool(file)&&file.tellg()==std::streamoff(words*2u),"capture span");
     std::vector<uint16_t> v(words);file.seekg(0);file.read(reinterpret_cast<char*>(v.data()),words*2u);require(bool(file),"capture read");return v;
 }
-struct Measurement {double ms=0.0,prefix_ms=0.0;unsigned selected=0u;};
-constexpr unsigned variants[]={0u,8u,16u,32u,64u};
+struct Measurement {double ms=0.0,prefix_ms=0.0;unsigned selected=0u;double audit_ms[5]{};};
+struct Configuration {unsigned groups,metadata;};
+// Metadata0 is the original per-thread F64 scan,1 cooperative F64,2 F32.
+constexpr Configuration variants[]={{0u,0u},{8u,0u},{16u,0u},{32u,0u},{64u,0u},
+    {8u,1u},{16u,1u},{32u,1u},{64u,1u},{8u,2u},{16u,2u},{32u,2u},{64u,2u}};
+constexpr unsigned variant_count=unsigned(sizeof(variants)/sizeof(variants[0]));
 struct Test {
     unsigned rows,tokens,width,cells;bool captured;
     std::vector<uint16_t> weights,inputs,reference;
@@ -96,13 +102,19 @@ struct Test {
             else hipLaunchKernelGGL((kernel::full_replay<false>),dim3((n+63u)/64u),dim3(256u),0u,nullptr,pw.data(),px.data(),nullptr,destination,rows,width,offset,n);
             check(hipGetLastError());}
     }
-    template<unsigned Groups>void encode(){
+    template<unsigned Groups>void encode(unsigned method){
         const unsigned chunks=(width+Groups*16u-1u)/(Groups*16u);
-        hipLaunchKernelGGL((macro::prepare<Groups>),dim3((size_t(rows)*chunks+255u)/256u),dim3(256u),0u,nullptr,w.data(),wn.data(),rows,width);check(hipGetLastError());
-        hipLaunchKernelGGL((macro::prepare<Groups>),dim3((size_t(tokens)*chunks+255u)/256u),dim3(256u),0u,nullptr,x.data(),xn.data(),tokens,width);check(hipGetLastError());
+        for(unsigned side=0u;side<2u;++side){
+            const unsigned n=side?tokens:rows;const auto* input=side?x.data():w.data();auto* output=side?xn.data():wn.data();
+            if(method==0u)hipLaunchKernelGGL((macro::prepare<Groups>),dim3((size_t(n)*chunks+255u)/256u),dim3(256u),0u,nullptr,input,output,n,width);
+            else if(method==1u)hipLaunchKernelGGL((cooperative::prepare<Groups,double>),dim3((size_t(n)*chunks+7u)/8u),dim3(256u),0u,nullptr,input,output,n,width);
+            else if(method==2u)hipLaunchKernelGGL((cooperative::prepare<Groups,float>),dim3((size_t(n)*chunks+7u)/8u),dim3(256u),0u,nullptr,input,output,n,width);
+            else throw std::runtime_error("metadata method");
+            check(hipGetLastError());
+        }
     }
-    void metadata(unsigned variant){
-        switch(variant){case 0u:break;case 8u:encode<8u>();break;case 16u:encode<16u>();break;case 32u:encode<32u>();break;case 64u:encode<64u>();break;default:throw std::runtime_error("metadata variant");}
+    void metadata(unsigned variant,unsigned method){
+        switch(variant){case 0u:require(!method,"control metadata method");break;case 8u:encode<8u>(method);break;case 16u:encode<16u>(method);break;case 32u:encode<32u>(method);break;case 64u:encode<64u>(method);break;default:throw std::runtime_error("metadata variant");}
     }
     template<unsigned Groups>void produce(){
         hipLaunchKernelGGL((macro::produce<Groups>),dim3((rows+127u)/128u,(tokens+15u)/16u),dim3(256u),0u,nullptr,
@@ -133,18 +145,23 @@ struct Test {
             }
         }
     }
-    Measurement run(unsigned variant,bool audit){
+    Measurement run(unsigned variant,unsigned method,bool audit){
         ids.reset();wn.reset();xn.reset();output.reset();centers.reset();errors.reset();check(hipMemset(counter.data(),0,4u));
-        finish();const auto begin=std::chrono::steady_clock::now();prepare();
+        finish();const auto begin=std::chrono::steady_clock::now();auto stage=begin;Measurement result;prepare();
+        auto completed_stage=[&](unsigned index){finish();const auto now=std::chrono::steady_clock::now();result.audit_ms[index]=std::chrono::duration<double,std::milli>(now-stage).count();stage=now;};
         hipLaunchKernelGGL(matrix::eligibility,dim3(rows),dim3(256u),0u,nullptr,w.data(),wf.data(),rows,width);check(hipGetLastError());
-        hipLaunchKernelGGL(matrix::eligibility,dim3(tokens),dim3(256u),0u,nullptr,x.data(),xf.data(),tokens,width);check(hipGetLastError());metadata(variant);
+        hipLaunchKernelGGL(matrix::eligibility,dim3(tokens),dim3(256u),0u,nullptr,x.data(),xf.data(),tokens,width);check(hipGetLastError());
+        if(audit)completed_stage(0u);metadata(variant,method);if(audit)completed_stage(1u);
         std::vector<Summary> before_w,before_x;
-        if(audit){finish();before_w=wn.read();before_x=xn.read();verify_metadata(variant);}
+        if(audit){before_w=wn.read();before_x=xn.read();verify_metadata(variant);stage=std::chrono::steady_clock::now();}
         producer(variant);
+        if(audit)completed_stage(2u);
         hipLaunchKernelGGL(matrix::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,centers.data(),errors.data(),output.data(),ids.data(),counter.data(),cells);
-        check(hipGetLastError());finish();Measurement result;check(hipMemcpy(&result.selected,counter.data(),4u,hipMemcpyDeviceToHost));require(result.selected<=cells,"candidate capacity");
+        check(hipGetLastError());finish();check(hipMemcpy(&result.selected,counter.data(),4u,hipMemcpyDeviceToHost));require(result.selected<=cells,"candidate capacity");
+        if(audit){const auto now=std::chrono::steady_clock::now();result.audit_ms[3]=std::chrono::duration<double,std::milli>(now-stage).count();stage=now;}
         result.prefix_ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
         full(true,output.data(),result.selected);finish();result.ms=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
+        if(audit)result.audit_ms[4]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-stage).count();
         verify_metadata(variant);if(audit){wn.unchanged(before_w);xn.unchanged(before_x);}verify(result);return result;
     }
     void verify(const Measurement& measurement){
@@ -164,17 +181,18 @@ struct Test {
             for(unsigned row=0u;row<n;++row){bool valid=true;for(unsigned k=0u;k<width;++k)valid=valid&&bound::eligible(raw[size_t(row)*width+k]);require(flags[row]==unsigned(valid),"eligibility flags changed");}}
     }
     void execute(unsigned mode){
-        double samples[5][3]{},prefix_samples[5][3]{};Measurement first[5];const unsigned attempts=captured?4u:1u;
-        for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<5u;++position){
-            const unsigned index=(attempt+position)%5u;const auto result=run(variants[index],false);
+        double samples[variant_count][3]{},prefix_samples[variant_count][3]{};Measurement first[variant_count],audited[variant_count];const unsigned attempts=captured?4u:1u;
+        for(unsigned attempt=0u;attempt<attempts;++attempt)for(unsigned position=0u;position<variant_count;++position){
+            const unsigned index=(attempt*5u+position)%variant_count;const auto config=variants[index];const auto result=run(config.groups,config.metadata,false);
             if(!attempt)first[index]=result;else{require(result.selected==first[index].selected,"selection changed between attempts");samples[index][attempt-1u]=result.ms;prefix_samples[index][attempt-1u]=result.prefix_ms;}
         }
-        for(unsigned index=0u;index<5u;++index){const auto audited=run(variants[index],true);require(audited.selected==first[index].selected,"audit selection parity");}
+        for(unsigned index=0u;index<variant_count;++index){const auto config=variants[index];audited[index]=run(config.groups,config.metadata,true);require(audited[index].selected==first[index].selected,"audit selection parity");}
         immutable();
-        for(unsigned index=0u;index<5u;++index){
-            const unsigned variant=variants[index];std::array<double,3> total{samples[index][0],samples[index][1],samples[index][2]},prefix{prefix_samples[index][0],prefix_samples[index][1],prefix_samples[index][2]};std::sort(total.begin(),total.end());std::sort(prefix.begin(),prefix.end());
+        for(unsigned index=0u;index<variant_count;++index){
+            const unsigned variant=variants[index].groups;std::array<double,3> total{samples[index][0],samples[index][1],samples[index][2]},prefix{prefix_samples[index][0],prefix_samples[index][1],prefix_samples[index][2]};std::sort(total.begin(),total.end());std::sort(prefix.begin(),prefix.end());
             const size_t entries=variant?size_t(rows+tokens)*((width+variant*16u-1u)/(variant*16u)):0u;
-            std::printf("{\"kind\":\"macro_norm_projection\",\"captured\":%s,\"rows\":%u,\"tokens\":%u,\"width\":%u,\"mode\":%u,\"variant\":%u,\"cells\":%u,\"candidates\":%u,\"metadata_entries\":%zu,\"metadata_bytes\":%zu,\"selected_groups\":%zu,\"completed_total_ms\":%.6f,\"preparation_producer_selection_ms\":%.6f,\"completed_samples_ms\":[%.6f,%.6f,%.6f],\"preparation_producer_selection_samples_ms\":[%.6f,%.6f,%.6f],\"warmups\":%u,\"measured_attempts\":%u,\"cpu_full_dots\":%u,\"bf16_mismatches\":0,\"selected_raw_mismatches\":0,\"canonical_interval_undercoverage\":0,\"all_attempts_verified\":true,\"complete_candidate_permutation_checked\":true,\"all_metadata_bounds_checked\":true,\"metadata_immutable_in_audit\":true,\"production_audit_selection_parity\":true,\"all_prepared_words_checked\":true,\"redzones_pass\":true,\"unused_workspace_tail_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"real_model_prompt\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",captured?"true":"false",rows,tokens,width,mode,variant,cells,first[index].selected,entries,entries*sizeof(Summary),size_t(first[index].selected)*(width/16u),captured?total[1]:first[index].ms,captured?prefix[1]:first[index].prefix_ms,samples[index][0],samples[index][1],samples[index][2],prefix_samples[index][0],prefix_samples[index][1],prefix_samples[index][2],unsigned(captured),captured?3u:1u,cpu_dots);
+            std::printf("{\"metadata_method\":%u,\"audit_phase_ms\":[%.6f,%.6f,%.6f,%.6f,%.6f],",variants[index].metadata,audited[index].audit_ms[0],audited[index].audit_ms[1],audited[index].audit_ms[2],audited[index].audit_ms[3],audited[index].audit_ms[4]);
+            std::printf("\"kind\":\"cooperative_norm_projection\",\"captured\":%s,\"rows\":%u,\"tokens\":%u,\"width\":%u,\"mode\":%u,\"variant\":%u,\"cells\":%u,\"candidates\":%u,\"metadata_entries\":%zu,\"metadata_bytes\":%zu,\"selected_groups\":%zu,\"completed_total_ms\":%.6f,\"preparation_producer_selection_ms\":%.6f,\"completed_samples_ms\":[%.6f,%.6f,%.6f],\"preparation_producer_selection_samples_ms\":[%.6f,%.6f,%.6f],\"warmups\":%u,\"measured_attempts\":%u,\"cpu_full_dots\":%u,\"bf16_mismatches\":0,\"selected_raw_mismatches\":0,\"canonical_interval_undercoverage\":0,\"all_attempts_verified\":true,\"complete_candidate_permutation_checked\":true,\"all_metadata_bounds_checked\":true,\"metadata_immutable_in_audit\":true,\"production_audit_selection_parity\":true,\"all_prepared_words_checked\":true,\"redzones_pass\":true,\"unused_workspace_tail_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"real_model_prompt\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",captured?"true":"false",rows,tokens,width,mode,variant,cells,first[index].selected,entries,entries*sizeof(Summary),size_t(first[index].selected)*(width/16u),captured?total[1]:first[index].ms,captured?prefix[1]:first[index].prefix_ms,samples[index][0],samples[index][1],samples[index][2],prefix_samples[index][0],prefix_samples[index][1],prefix_samples[index][2],unsigned(captured),captured?3u:1u,cpu_dots);
             std::fflush(stdout);
         }
     }
