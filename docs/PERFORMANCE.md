@@ -1,5 +1,14 @@
 # Real-model performance
 
+## Shared exponent-mask GDN, 2026-09-16
+
+Source `185546a` passes full bitwise component comparisons using the provider's
+eight 1024-token q8192 segments. Product U=V totals are 69.4084 ms for the
+original route and 71.4949 / 72.1455 ms for the masked 64/32-row output tiles.
+The unmasked 32-row ablation is 66.9655 ms. Keep all variants isolated; the
+certificate does not improve the complete alias path. No real-model or GB10
+acceptance is claimed. See [the complete experiment](EXPONENT_MASK_GDN_EXPERIMENT.md).
+
 ## Exact exponent-mask QK, 2026-09-16
 
 The same-DLL q8192/out512 pair at `e63b66f` passes every GB10 output ID,
