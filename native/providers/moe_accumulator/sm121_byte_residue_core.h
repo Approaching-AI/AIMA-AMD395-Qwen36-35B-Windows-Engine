@@ -22,7 +22,7 @@ struct Row {
 static_assert(sizeof(Row)==116u);
 template<unsigned Headroom>
 QRT_BYTE_RESIDUE_INLINE void prepare(Row& row) {
-    static_assert(Headroom==5u || Headroom==6u);
+    static_assert(Headroom==4u || Headroom==5u || Headroom==6u);
     integer::Row original{};
     for(unsigned i=0u;i<16u;++i)original.original[i]=row.original[i];
     integer::prepare(original);
@@ -49,7 +49,7 @@ QRT_BYTE_RESIDUE_INLINE void prepare(Row& row) {
 }
 template<unsigned Headroom>
 QRT_BYTE_RESIDUE_INLINE bool recover(float approximate,uint32_t residue,int64_t* result) {
-    static_assert(Headroom==5u || Headroom==6u);
+    static_assert(Headroom==4u || Headroom==5u || Headroom==6u);
     constexpr int64_t max_core=int64_t(255)<<Headroom;
     constexpr int64_t maximum_dot=16*max_core*max_core;
     if(!(approximate>-float(maximum_dot+512) && approximate<float(maximum_dot+512)))return false;

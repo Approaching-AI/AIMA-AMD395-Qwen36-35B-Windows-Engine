@@ -193,6 +193,7 @@ template<unsigned Headroom> void run() {
 
     std::printf("{\"kind\":\"byte_residue_core_native\",\"headroom\":%u,\"tiles\":8192,\"dot_positions\":2097152,\"original_bf16_bit_patterns\":65536,\"eligible_rows\":%zu,\"exact_core_encodings_checked\":4194304,\"integer_control_mismatches\":%zu,\"residue_mismatches\":%zu,\"accepted_recovery_mismatches\":%zu,\"recovery_rejections\":%zu,\"conditional_bound_violations\":%zu,\"maximum_native_absolute_error\":%.9g,\"recovery_half_spacing\":128,\"initial_preparation_ms\":%.6f,\"prepared_row_bytes\":116,\"redzones_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",Headroom,eligible_rows,integer_bad,residue_bad,recovery_bad,rejected,bound_bad,max_error,preparation_ms);
     std::fflush(stdout);
+    if constexpr(Headroom==4u){if(recovery_bad || rejected || bound_bad || max_error>61.25)throw std::runtime_error("H4 conditional recovery or bound failed");}
     if(integer_bad || residue_bad)throw std::runtime_error("integer residue differs from independent oracle");
     // Numerical diagnostic failures are reported without claiming acceptance.
     // Only a configuration with all successful recoveries enters throughput.
@@ -225,4 +226,4 @@ template<unsigned Headroom> void run() {
 }
 
 }
-int main() try {hipDeviceProp_t device{};check(hipGetDeviceProperties(&device,0));if(std::strncmp(device.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");byte_probe::run<5u>();byte_probe::run<6u>();return 0;} catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
+int main(int argc,char** argv) try {hipDeviceProp_t device{};check(hipGetDeviceProperties(&device,0));if(std::strncmp(device.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");if(argc==2 && !std::strcmp(argv[1],"--headroom4")){byte_probe::run<4u>();return 0;}if(argc!=1)throw std::runtime_error("use --headroom4 or no arguments");byte_probe::run<5u>();byte_probe::run<6u>();return 0;} catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}

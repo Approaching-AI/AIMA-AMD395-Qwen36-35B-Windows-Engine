@@ -83,3 +83,25 @@ analysis source are recorded in
 [`wmma-dot-chain-native-characterization-20260916.json`](../benchmarks/correctness/wmma-dot-chain-native-characterization-20260916.json),
 [`wmma-dot-float-native-characterization-20260916.json`](../benchmarks/correctness/wmma-dot-float-native-characterization-20260916.json), and
 [`wmma-bf16-guard-native-characterization-20260916.json`](../benchmarks/correctness/wmma-bf16-guard-native-characterization-20260916.json).
+# Conditional integer residue recovery
+
+The isolated H4 path represents each BF16 operand by an exactly encoded FP16
+integer core of magnitude at most4080. Original low exponent terms remain as
+explicit exceptions. One zero-C FP16 WMMA estimates the16-product integer sum;
+one unsigned IU8 WMMA gives its exact low byte. The nearest congruent integer
+is unique if the FP16 estimate has absolute error strictly below128.
+
+Under the observed pair model, let P=4080² and e be the accumulated error before
+a pair. The carried magnitude is at most2(j-1)P+e. Product quantum is at most1/4;
+carry quantum is2^(floor(log2(carried_bound))-26). The alignment error is bounded
+by the larger of three product quanta and two carry quanta; the initial positive
+zero needs only two product quanta. Add half an FP32 ulp at the largest possible
+pre-round magnitude. Exact rational recurrence gives errors
+1.5,4.25,9.25,15.25,25.25,37.25,49.25,61.25 through eight pairs. The executable
+derivation is `tests/test_wmma_integer_bound.py`.
+
+This arithmetic bound is conditional on the empirical hardware model. It does
+not certify H5/H6 recovery: the same conservative calculation gives245/980,
+respectively. Those are inconclusive bounds, not observed counterexamples.
+The windowed QK experiment preserves the original exception compensation,
+carry order, normalization and fallback. It has no product dispatcher.

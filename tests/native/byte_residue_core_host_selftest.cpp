@@ -1,4 +1,5 @@
 #include "../../native/providers/moe_accumulator/sm121_byte_residue_core.h"
+#include "../../native/providers/moe_accumulator/sm121_byte_residue4_core.h"
 #include "../../native/providers/moe_accumulator/sm121_canonical_normalize.h"
 #include <cassert>
 #include <cmath>
@@ -18,6 +19,7 @@ template<unsigned Headroom> void run(){
         core::Row row{};int maximum=0;bool valid=true;uint32_t nonzero=0u,exceptions=0u;
         for(unsigned i=0u;i<16u;++i){const uint16_t x=uint16_t(pattern+(i&7u)*8192u);row.original[i]=x;if(x&0x7fffu){nonzero|=1u<<i;const int e=int((x>>7u)&255u);valid=valid&&e&&e!=255;maximum=maximum>e?maximum:e;}}
         const auto before=row;core::prepare<Headroom>(row);
+        if constexpr(Headroom==4u){auto narrow=before;qrt_sm121_byte_residue4::prepare(narrow);assert(!std::memcmp(&row,&narrow,sizeof(row)));}
         const int unit=!valid?-1:!nonzero?127:maximum>int(Headroom+1u)?maximum-int(Headroom):1;
         assert(row.unit==unit && row.nonzero==nonzero && !std::memcmp(row.original,before.original,32u));
         for(unsigned i=0u;i<16u;++i){
@@ -40,6 +42,7 @@ template<unsigned Headroom> void run(){
         for(double delta:{-128.0,-127.5,-64.0,-0.5,0.0,0.5,64.0,127.5,128.0}){
             const float approximate=float(double(expected)+delta);if(std::abs(double(approximate)-double(expected))>=128.0)continue;
             int64_t result=0x3958192;assert(core::recover<Headroom>(approximate,uint32_t(expected),&result) && result==expected);++recoveries;
+            if constexpr(Headroom==4u){int32_t narrow=123;assert(qrt_sm121_byte_residue4::recover(approximate,uint32_t(expected),&narrow) && narrow==expected);}
         }
     }
     for(float x:{std::numeric_limits<float>::quiet_NaN(),std::numeric_limits<float>::infinity(),-std::numeric_limits<float>::infinity(),float(maximum_dot+1024),-float(maximum_dot+1024),128.0f,-128.0f}){int64_t result=123;assert(!core::recover<Headroom>(x,0u,&result) && result==123);}
@@ -74,7 +77,8 @@ template<unsigned Headroom> void run(){
         if(sample%4u==1u)terms[0]=previous;
         previous=qrt_q1_moe_hawkeye::group_sum<26,-133>(terms,17u);
         core::AlignedSum actual{{0xdeadbeefu,true},123};
-        if(core::sum(terms[0],a,b,mathematical,&actual)){
+        const bool success=Headroom==4u?qrt_sm121_byte_residue4::sum(terms[0],a,b,int32_t(mathematical),&actual):core::sum(terms[0],a,b,mathematical,&actual);
+        if(success){
             const auto value=qrt_sm121_canonical::normalize(actual.value.magnitude,actual.value.negative,actual.max_exponent);
             assert(value.significand==previous.significand && value.exponent==previous.exponent && value.negative==previous.negative);++accepted;
         }else{assert(actual.value.magnitude==0xdeadbeefu && actual.value.negative && actual.max_exponent==123);++declined;}
@@ -83,4 +87,4 @@ template<unsigned Headroom> void run(){
     assert(accepted>100000u && declined>1000u);
     std::printf("{\"kind\":\"byte_residue_core_host\",\"headroom\":%u,\"exact_encodings\":%zu,\"conditional_recovery_checks\":%zu,\"remainder_mask_checks\":%zu,\"canonical_groups\":%zu,\"accepted_groups\":%zu,\"declined_groups\":%zu,\"mismatches\":0,\"row_bytes\":116,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false}\n",Headroom,encodings,recoveries,remainders,groups,accepted,declined);
 }
-int main(){run<5u>();run<6u>();}
+int main(){run<4u>();run<5u>();run<6u>();}
