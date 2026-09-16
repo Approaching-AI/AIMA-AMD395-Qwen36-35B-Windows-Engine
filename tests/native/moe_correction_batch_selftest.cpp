@@ -274,12 +274,12 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
         hip_ok(launch_moe_routed_correction<false>(
             routed_gate_batched_hawkeye_correction_kernel<P::Local>, routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
             routed_gate_batched_hawkeye_correction_kernel<P::Replay>, routed_gate_batched_hawkeye_correction_kernel<P::Local>,
-            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
+            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
             routes, radius, exponent), "compaction gate");
         hip_ok(launch_moe_routed_correction<true>(
             routed_up_batched_hawkeye_correction_activation_kernel<P::Local>, routed_up_batched_hawkeye_correction_activation_kernel<P::Collect>,
             routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>, routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
-            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
+            blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr, dn.data(), di.data(), dw.data(), did.data(), da.data(), dl.data(),
             routes, radius, exponent), "compaction up");
         if (compact == 2u || compact >= 4u) {
             prepare_view(MoeL2::RoutedActivated, da.data(), dei.data(), defi.data(), routes, kIntermediate);
@@ -289,7 +289,7 @@ void compare_routed_compaction(uint32_t tokens, uint32_t mode,
             routed_down_batched_hawkeye_correction_kernel<P::Local>, routed_down_batched_hawkeye_correction_kernel<P::Collect>,
             routed_down_batched_hawkeye_correction_kernel<P::Replay>, routed_down_batched_hawkeye_correction_kernel<P::Local>,
             static_cast<uint32_t>((down_elements + kNativeThreads - 1u) / kNativeThreads), stream,
-            MoeL2::RoutedActivated, MoeL2::RoutedDown, dd.data(), dt.data(), did.data(), da.data(), ddw.data(), routes, radius, exponent), "compaction down");
+            MoeL2::RoutedActivated, MoeL2::RoutedDown, nullptr, dd.data(), dt.data(), did.data(), da.data(), ddw.data(), routes, radius, exponent), "compaction down");
         hip_ok(hipEventRecord(end, stream), "compaction timing end");
         const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(10);
         for (;;) {

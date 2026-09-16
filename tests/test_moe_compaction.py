@@ -127,6 +127,9 @@ template<unsigned Groups> float dot(const Row* a,const Row* b,unsigned columns) 
     return value;
 }
 }
+namespace qrt_moe_down_consumer_audit {
+inline void observe(float,float,float,unsigned*) { assert(false && "disabled down audit unexpectedly observed"); }
+}
 namespace qrt_routed_consumer_audit {
 template<class... T> void observe(T...) { assert(false); }
 }
@@ -280,13 +283,13 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     auto status=launch_moe_routed_correction<false>(
         routed_gate_batched_hawkeye_correction_kernel<P::Local>,routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
         routed_gate_batched_hawkeye_correction_kernel<P::Replay>,routed_gate_batched_hawkeye_correction_kernel<P::Local>,
-        blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
+        blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,nullptr,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
         d.activated.data(),d.lut.data(),routes,radius,exponent,d.gate_debug.data(),d.gate_f32.data(),&d.debug_count,0u);
     if(status!=hipSuccess)return status;
     status=launch_moe_routed_correction<true>(
         routed_up_batched_hawkeye_correction_activation_kernel<P::Local>,routed_up_batched_hawkeye_correction_activation_kernel<P::Collect>,
         routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>,routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
-        blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
+        blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,nullptr,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
         d.activated.data(),d.lut.data(),routes,radius,exponent,d.up_debug.data(),d.up_f32.data(),&d.debug_count,0u);
     if(status!=hipSuccess)return status;
     blocks=(routes*kHidden+kNativeThreads-1)/kNativeThreads;
@@ -296,7 +299,7 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     return launch_moe_routed_correction<false>(
         routed_down_batched_hawkeye_correction_kernel<P::Local>,routed_down_batched_hawkeye_correction_kernel<P::Collect>,
         routed_down_batched_hawkeye_correction_kernel<P::Replay>,routed_down_batched_hawkeye_correction_kernel<P::Local>,
-        blocks,wanted_stream,MoeL2::RoutedActivated,MoeL2::RoutedDown,d.down.data(),d.topk.data(),d.ids.data(),d.activated.data(),
+        blocks,wanted_stream,MoeL2::RoutedActivated,MoeL2::RoutedDown,nullptr,d.down.data(),d.topk.data(),d.ids.data(),d.activated.data(),
         d.down_weights.data(),routes,radius,exponent);
 }
 int main() {
