@@ -1,5 +1,17 @@
 # Real-model performance
 
+## Adaptive strict attention-denominator components, 2026-09-17
+
+Sources `1f13077` / `065b258` preserve every tested original attention output
+and all 29364224 GB10 context cells per captured configuration. Adaptive
+refinement reduces q8192 score replay to 36.4895%, but remains slower than
+the original full-score path. Scalar/shared-tile and 18/6-round comparisons
+put the best candidate at 2177.5395 ms versus 445.1504 ms for its original
+QK/probability control. Collection plus interval initialization alone exceed
+the original control. Keep every variant isolated and continue structural
+MoE consumer work. These are captured components, with no new model token
+loop, TTFT or release acceptance. See [complete scope and evidence](ADAPTIVE_DENOMINATOR_QK_EXPERIMENT.md).
+
 ## Queued adaptive linear OUT replay, 2026-09-17
 
 Source `6e4908b` separates original K16 replay from per-token certification.
