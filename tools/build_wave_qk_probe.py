@@ -43,9 +43,12 @@ def main():
         commands.append(common + ['-Xarch_device', flag,
                                   '-DQRT_QK_WAVE_BITS=' + str(width),
                                   '-c', str(source), '-o', str(obj)])
+    # The Windows hipcc wrapper leaves its injected '-x hip' active for .obj
+    # operands. Pass these already compiled COFF files directly to the linker.
+    link_objects = [arg for obj in objects for arg in ('-Xlinker', str(obj))]
     commands.append(common + ['-Xarch_device', '-mno-wavefrontsize64',
                               '-L', str(build), str(fixture),
-                              *map(str, objects), '-o', str(executable), '-lhipblaslt'])
+                              *link_objects, '-o', str(executable), '-lhipblaslt'])
     record = dict(source=str(source), source_sha256=digest(source),
                   fixture=str(fixture), fixture_sha256=digest(fixture),
                   per_command_timeout_seconds=90, steps=[], completed=False)
