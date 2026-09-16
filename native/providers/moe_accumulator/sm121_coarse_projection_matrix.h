@@ -2,6 +2,7 @@
 #define QRT_SM121_COARSE_PROJECTION_MATRIX_H
 #include <hip/hip_runtime.h>
 #include "sm121_coarse_projection_bound.h"
+#include "sm121_wmma_operand_load.h"
 
 // Isolated complete producer, with no product dispatcher. Original selected
 // replay supplies ambiguous or unsupported BF16 endpoints in its test owner.
@@ -21,7 +22,7 @@ __global__ void eligibility(const uint16_t* input,unsigned* flags,unsigned rows,
     for(unsigned stride=threads/2u;stride;stride>>=1u){if(lane<stride)all[lane]&=all[lane+stride];__syncthreads();}
     if(!lane)flags[row]=all[0];
 }
-template<unsigned Chunk,unsigned Fragments=1u>
+template<unsigned Chunk,unsigned Fragments=1u,bool VectorLoads=false>
 __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const uint16_t* inputs,
     const unsigned* weight_ok,const unsigned* input_ok,float* centers,float* errors,
     unsigned rows,unsigned tokens,unsigned width) {
@@ -31,20 +32,44 @@ __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const
     const unsigned row=blockIdx.x*row_tile+wave*16u+source;
     const unsigned first_token=blockIdx.y*(16u*Fragments);
     const bool valid_weight=row<rows && weight_ok[row];
+    // This route's operand/eligibility spans are immutable for the launch.
+    const uint16_t* vector_weight=nullptr;const uint16_t* vector_inputs[Fragments]{};
+    bool vector_input_ok[Fragments]{};
+    if constexpr(VectorLoads){
+        if(valid_weight)vector_weight=weights+size_t(row)*width;
+#pragma unroll
+        for(unsigned fragment=0u;fragment<Fragments;++fragment){
+            const unsigned token=first_token+fragment*16u+source;
+            vector_input_ok[fragment]=token<tokens&&input_ok[token];
+            if(vector_input_ok[fragment])vector_inputs[fragment]=inputs+size_t(token)*width;
+        }
+    }
     F8 centers_local[Fragments]{},errors_local[Fragments]{};
     for(unsigned coarse=0u;coarse<width;coarse+=Chunk) {
         F8 partial[Fragments]{},positive[Fragments]{};
 #pragma unroll 1
         for(unsigned base=coarse;base<coarse+Chunk && base<width;base+=16u) {
             B16 w{},wa{};
+            if constexpr(VectorLoads){
+                w=qrt_sm121_wmma_operand_load::read<B16>(vector_weight,base,valid_weight);
 #pragma unroll
-            for(unsigned k=0u;k<16u;++k){w[k]=valid_weight?weights[size_t(row)*width+base+k]:0u;wa[k]=w[k]&0x7fffu;}
+                for(unsigned k=0u;k<16u;++k)wa[k]=w[k]&0x7fffu;
+            }else{
+#pragma unroll
+                for(unsigned k=0u;k<16u;++k){w[k]=valid_weight?weights[size_t(row)*width+base+k]:0u;wa[k]=w[k]&0x7fffu;}
+            }
 #pragma unroll
             for(unsigned fragment=0u;fragment<Fragments;++fragment) {
                 const unsigned token=first_token+fragment*16u+source;
-                const bool valid_input=token<tokens && input_ok[token];B16 x{},xa{};
+                B16 x{},xa{};
+                if constexpr(VectorLoads){
+                    x=qrt_sm121_wmma_operand_load::read<B16>(vector_inputs[fragment],base,vector_input_ok[fragment]);
 #pragma unroll
-                for(unsigned k=0u;k<16u;++k){x[k]=valid_input?inputs[size_t(token)*width+base+k]:0u;xa[k]=x[k]&0x7fffu;}
+                    for(unsigned k=0u;k<16u;++k)xa[k]=x[k]&0x7fffu;
+                }else{const bool valid_input=token<tokens&&input_ok[token];
+#pragma unroll
+                    for(unsigned k=0u;k<16u;++k){x[k]=valid_input?inputs[size_t(token)*width+base+k]:0u;xa[k]=x[k]&0x7fffu;}
+                }
                 const F8 zero{};
                 // Explicit zero-C products followed by FP32 additions. Native
                 // C accumulation is not substituted for this error model.

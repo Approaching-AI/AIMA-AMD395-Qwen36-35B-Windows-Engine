@@ -38,7 +38,7 @@ __global__ void prepare(const uint16_t* input,Summary* output,unsigned rows,unsi
  if(!lane)output[entry]=meta::finish(sum,maximum,invalid);
 }
 
-template<unsigned Parts>
+template<unsigned Parts,bool VectorLoads=false>
 __global__ __launch_bounds__(256) void produce(const uint16_t* weights,const uint16_t* inputs,
  const unsigned* weight_ok,const unsigned* input_ok,const Summary* weight_norms,const Summary* input_norms,
  float* centers,float* errors,unsigned rows,unsigned tokens,unsigned width,
@@ -48,17 +48,27 @@ __global__ __launch_bounds__(256) void produce(const uint16_t* weights,const uin
  const unsigned row=blockIdx.x*128u+wave*16u+source,first_token=blockIdx.y*16u,groups=width/16u;
  const size_t cells=size_t(rows)*tokens;
  const bool valid_weight=row<rows&&weight_ok[row];
+ const uint16_t* vector_weight=nullptr;const uint16_t* vector_input=nullptr;bool vector_input_ok=false;
+ if constexpr(VectorLoads){
+  const unsigned token=first_token+source;vector_input_ok=token<tokens&&input_ok[token];
+  if(valid_weight)vector_weight=weights+size_t(row)*width;
+  if(vector_input_ok)vector_input=inputs+size_t(token)*width;
+ }
  F8 sum{},maximum{};
  for(unsigned part=0u;part<Parts;++part){
   const unsigned first=part*groups/Parts,end=(part+1u)*groups/Parts;
 #pragma unroll 1
   for(unsigned group=first;group<end;++group){
-   B16 w{},x{};const unsigned token=first_token+source;
-   const bool valid_input=token<tokens&&input_ok[token];
+   B16 w{},x{};
+   if constexpr(VectorLoads){
+    w=qrt_sm121_wmma_operand_load::read<B16>(vector_weight,group*16u,valid_weight);
+    x=qrt_sm121_wmma_operand_load::read<B16>(vector_input,group*16u,vector_input_ok);
+   }else{const unsigned token=first_token+source;const bool valid_input=token<tokens&&input_ok[token];
 #pragma unroll
-   for(unsigned k=0u;k<16u;++k){
-    w[k]=valid_weight?weights[size_t(row)*width+group*16u+k]:0u;
-    x[k]=valid_input?inputs[size_t(token)*width+group*16u+k]:0u;
+    for(unsigned k=0u;k<16u;++k){
+     w[k]=valid_weight?weights[size_t(row)*width+group*16u+k]:0u;
+     x[k]=valid_input?inputs[size_t(token)*width+group*16u+k]:0u;
+    }
    }
    sum+=__builtin_amdgcn_wmma_f32_16x16x16_bf16_w32(x,w,F8{});
 #pragma unroll
