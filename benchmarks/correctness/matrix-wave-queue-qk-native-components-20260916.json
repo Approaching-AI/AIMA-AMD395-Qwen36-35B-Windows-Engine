@@ -1,0 +1,3712 @@
+{
+  "schema_version": 1,
+  "kind": "exact_matrix_qk_with_per_wave_scalar_fallback_queues",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B; captured layer3 q7169 Q/K and explicit repeated-row q8192 operator extension",
+  "model_loaded": false,
+  "source": {
+    "canonical_source_record": "matrix-wave-queue-qk-native-source-r2.json",
+    "canonical_source_record_sha256": "3dfb44b8f408b2c450720aee76f84189fc928e5402e7a00fc99ec8a605884142",
+    "documentation_snapshot_differences": {},
+    "source_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+    "repo": "D:/projects/AIMA-public-matrix-wave-queue-qk-20260916-r2",
+    "seed": "D:/projects/AIMA-public-matrix-wave-queue-qk-20260916",
+    "prerequisite_commit": "8fa15f1022418f7a8c903452afc77ef503e26129",
+    "bundle": "matrix-wave-queue-qk-14aab5e.bundle",
+    "bundle_sha256": "1194a6f35346ef3ac9e496b514a1d81d1052e3ca18f11684b5866acf38c43d7d",
+    "script": "run-native-matrix-wave-queue-qk-r2.ps1",
+    "script_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+    "source_sha256": {
+      "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+      "tests/native/matrix_wave_queue_qk_selftest.cpp": "296ec680fdc12b66c57a38175c274c6b9fe66dfee5db046fd5239b27c19efd8a"
+    },
+    "local_validation": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.020050874911248684,
+      "source_sha256": {
+        "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+        "tests/native/matrix_wave_queue_qk_selftest.cpp": "296ec680fdc12b66c57a38175c274c6b9fe66dfee5db046fd5239b27c19efd8a"
+      },
+      "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+      "product_dispatch_changed": false,
+      "scope": "Only the diagnostic fprintf variable and label change from groups to variant. Native kernel and all fixture computation unchanged; previous C ABI and hygiene checks retained, new native build required.",
+      "prior_local_validation": {
+        "command": [
+          "make",
+          "c-smoke",
+          "public-hygiene",
+          "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+        ],
+        "returncode": 0,
+        "wall_seconds": 7.825032750144601,
+        "scope": "C ABI smoke and repository hygiene; new isolated HIP code awaits native compilation and raw-output numerical checks. No new full Rust/Python suite claim.",
+        "source_sha256": {
+          "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+          "tests/native/matrix_wave_queue_qk_selftest.cpp": "2ddd62d97f31f7c972c95b7d1ab8143d1ddc8c609d1fa9f3fb7f63cf8d2f881f"
+        },
+        "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+        "product_dispatch_changed": false,
+        "log": "matrix-wave-queue-qk-local-r1.log",
+        "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a"
+      },
+      "log": "matrix-wave-queue-qk-local-r1.log",
+      "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a"
+    },
+    "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11"
+  },
+  "initial_source": {
+    "canonical_source_record": "matrix-wave-queue-qk-native-source-r1.json",
+    "canonical_source_record_sha256": "34f100910ae41fcaf550aab89c9dd130fa8468431ef2029439096a55883ef7d7",
+    "documentation_snapshot_differences": {},
+    "source_commit": "8fa15f1022418f7a8c903452afc77ef503e26129",
+    "repo": "D:/projects/AIMA-public-matrix-wave-queue-qk-20260916",
+    "seed": "D:/projects/AIMA-public-gpu-execution-mode-20260916",
+    "prerequisite_commit": "4f60cfdbefadeb768baf9afbfd90a614726105aa",
+    "bundle": "matrix-wave-queue-qk-8fa15f1.bundle",
+    "bundle_sha256": "42624c194f3b83c182c2cb22eac4885c2925703adda322d1ded533138f9a0d2f",
+    "script": "run-native-matrix-wave-queue-qk-r1.ps1",
+    "script_sha256": "ec4005213c7320d3b41f0d4c42034dc4df7a5527954a348a882352f083bc5606",
+    "source_sha256": {
+      "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+      "tests/native/matrix_wave_queue_qk_selftest.cpp": "2ddd62d97f31f7c972c95b7d1ab8143d1ddc8c609d1fa9f3fb7f63cf8d2f881f"
+    },
+    "local_validation": {
+      "command": [
+        "make",
+        "c-smoke",
+        "public-hygiene",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 7.825032750144601,
+      "scope": "C ABI smoke and repository hygiene; new isolated HIP code awaits native compilation and raw-output numerical checks. No new full Rust/Python suite claim.",
+      "source_sha256": {
+        "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+        "tests/native/matrix_wave_queue_qk_selftest.cpp": "2ddd62d97f31f7c972c95b7d1ab8143d1ddc8c609d1fa9f3fb7f63cf8d2f881f"
+      },
+      "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+      "product_dispatch_changed": false,
+      "log": "matrix-wave-queue-qk-local-r1.log",
+      "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a"
+    },
+    "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11"
+  },
+  "prior_failed_build": {
+    "run": {
+      "name": "matrix-wave-queue-qk-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "-Xarch_device",
+          "-mno-cumode",
+          "-Xarch_device",
+          "-mno-wavefrontsize64",
+          "-L",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916\\build\\matrix-wave-queue-qk",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916\\tests\\native\\matrix_wave_queue_qk_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+          "-lhipblaslt"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916",
+        "repo_commit": "8fa15f1022418f7a8c903452afc77ef503e26129",
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r1.ps1",
+        "command_file_sha256": "ec4005213c7320d3b41f0d4c42034dc4df7a5527954a348a882352f083bc5606",
+        "model": "none; isolated exact matrix QK with per-wave scalar fallback queues",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.",
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916\\build\\matrix-wave-queue-qk\\hipblaslt.lib"
+          }
+        ]
+      },
+      "launch": {
+        "pid": 8492,
+        "utc": "2026-09-16T14:43:22.2670784Z",
+        "timeout_seconds": 180,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 1,
+      "wall_ms": 865.869,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "dispatch.json": "2744824e6139d241dc0291940914aac981aeea03db2d5412cb66d077c20af7d9",
+        "launch.json": "830707ba3a4a9deb47d42740c0bca2941c1e55992a564a11aeea46dac8b616ae",
+        "preflight.json": "77686bfa2e98f46b80b17debc09ceca726917a0ce8664abaac56d99b1e0568d1",
+        "product.stderr.log": "c2bbd973bd1304072a02867aa4b48a0fe490e579e38c88babd2c72f337a93bed",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "071319185a6100e651e8299e2253cd61514402e141d1f6a7da358b23423b5ccb",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      }
+    },
+    "diagnosis": "The initial native compile stopped at an old groups identifier in the fixture error message, before any GPU execution. The correction changes only that diagnostic identifier and label to variant; both attempts remain pinned."
+  },
+  "local_validation": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "returncode": 0,
+    "wall_seconds": 0.020050874911248684,
+    "source_sha256": {
+      "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+      "tests/native/matrix_wave_queue_qk_selftest.cpp": "296ec680fdc12b66c57a38175c274c6b9fe66dfee5db046fd5239b27c19efd8a"
+    },
+    "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+    "product_dispatch_changed": false,
+    "scope": "Only the diagnostic fprintf variable and label change from groups to variant. Native kernel and all fixture computation unchanged; previous C ABI and hygiene checks retained, new native build required.",
+    "prior_local_validation": {
+      "command": [
+        "make",
+        "c-smoke",
+        "public-hygiene",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 7.825032750144601,
+      "scope": "C ABI smoke and repository hygiene; new isolated HIP code awaits native compilation and raw-output numerical checks. No new full Rust/Python suite claim.",
+      "source_sha256": {
+        "native/providers/ck_fmha/matrix_wave_queue_qk.h": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+        "tests/native/matrix_wave_queue_qk_selftest.cpp": "2ddd62d97f31f7c972c95b7d1ab8143d1ddc8c609d1fa9f3fb7f63cf8d2f881f"
+      },
+      "unchanged_production_source_sha256": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+      "product_dispatch_changed": false,
+      "log": "matrix-wave-queue-qk-local-r1.log",
+      "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a"
+    },
+    "log": "matrix-wave-queue-qk-local-r1.log",
+    "log_sha256": "4fa6e2650fa95a37653a605515de86a4e08ed64effe5e1098d41dd4f2f0dcf6a"
+  },
+  "validation_summary": {
+    "c_abi_smoke_pass": true,
+    "public_hygiene_pass": true,
+    "new_full_rust_python_suite_run": false
+  },
+  "source_audit": {
+    "changed_files": [
+      "native/providers/ck_fmha/matrix_wave_queue_qk.h",
+      "tests/native/matrix_wave_queue_qk_selftest.cpp"
+    ],
+    "unchanged_arithmetic_and_runtime": {
+      "native/providers/whole_provider.cpp": "32c1e43801f72b8f28f66fcd847adb7baf0e508e3fa0ab7c723a7467f5b1da11",
+      "native/providers/ck_fmha/qrt_ck_fmha_q8192_provider.cpp": "064b7e87f5f29e584e893132c2047d0946790f737670484ba183a2463257e16c",
+      "native/providers/ck_fmha/blackwell_attention.h": "24d2294a6196d5b554529411e45ba3f2f7818812f79c4186572a0a21b550c5a5",
+      "native/providers/ck_fmha/prepared_decoded_qk.h": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+      "native/providers/ck_fmha/positive_integer_qk.h": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+      "native/providers/moe_accumulator/sm121_f32_carry.h": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+      "native/providers/moe_accumulator/sm121_integer_parts.h": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d"
+    }
+  },
+  "native_runs": {
+    "build": {
+      "name": "matrix-wave-queue-qk-build-r2",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "-Xarch_device",
+          "-mno-cumode",
+          "-Xarch_device",
+          "-mno-wavefrontsize64",
+          "-L",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\matrix_wave_queue_qk_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+          "-lhipblaslt"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2",
+        "repo_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r2.ps1",
+        "command_file_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+        "model": "none; isolated exact matrix QK with per-wave scalar fallback queues",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.",
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\hipblaslt.lib"
+          }
+        ]
+      },
+      "launch": {
+        "pid": 4040,
+        "utc": "2026-09-16T14:45:28.5974236Z",
+        "timeout_seconds": 180,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 13849.382,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "71edd677560004156703d6cdc103b76972e4e0ca33367378f9184aed2697f95a",
+        "dispatch.json": "0c5dec16286e07781ab53c1a60bc7e204899723d4d0a0700eebb4171f548ba5a",
+        "launch.json": "3ad9dda3f33c2fef2f8915f5406fb809c9d2b4505e78db90ab5831543da4c564",
+        "matrix-wave-queue-qk.exe": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+        "preflight.json": "d266f39728f8a47006cf636b38bfd103a973f9608509335a2d6ddd88f4b33151",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "6877d06520e6e9be581f75553baa7ae4c840628b6016e4356033caecc3f56ab5",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+        "source_inputs": [
+          {
+            "sha256": "d1f09cb678af6da392bf152da4f88a681afcb1b20363bc8b4ae8555e9ef82da0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\attention_deadline.h"
+          },
+          {
+            "sha256": "eab4082331f1999dbb6032bd6f3e5b5f3939fac1aa5933dd290a86507e491fcf",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\attention_slab_schedule.h"
+          },
+          {
+            "sha256": "24d2294a6196d5b554529411e45ba3f2f7818812f79c4186572a0a21b550c5a5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\blackwell_attention.h"
+          },
+          {
+            "sha256": "f2506bcc2c8b8bd498d82f98e006cfb7be67e6ec40586d3fdbe064827c54dd53",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\byte_residue_wave_qk.h"
+          },
+          {
+            "sha256": "2e6c6f70dae62f1a15bd746adc7de91f91bb9ffa32c057b29d2be82066444e18",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\byte_residue32_qk.h"
+          },
+          {
+            "sha256": "9f00e51fe24b277f8f0404c386dc00a856140db6e014940fa8ce42ea378f25c8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\coarse_pv_transfer.h"
+          },
+          {
+            "sha256": "9db42ba45d48dd391f548a4eca98509b2a2450a55487e433804fb46650f4f82f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\coarse_selective_qk.h"
+          },
+          {
+            "sha256": "4e4bc8af2f740bb54c66fbd63172861930ed483bf9489aa28c9ebe6de48a10e5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\compact_byte_qk.h"
+          },
+          {
+            "sha256": "ec66d4193c2445f8bd404868237a28f04e8064e658238c672891bb081e28f54d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\decoded_window_qk.h"
+          },
+          {
+            "sha256": "c34e5e291a9cca9e48009b16128cfac57ac09942fe59b1500520a0bc62b66d81",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\deferred_qk_fallback.h"
+          },
+          {
+            "sha256": "2496cb9f516cb97a7d9f78b4e576d6b82b48872285a6cf2308ebe37760c07b3c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\dominant_integer_qk.h"
+          },
+          {
+            "sha256": "2cd643aa2da1fca1dd9e5fb4322f4cd88d4b7a2c142fa5d84dcfe235640b86a8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\dyadic_scan_qk.h"
+          },
+          {
+            "sha256": "86c907d02eddb449af17873d243735da412ffef7af9d19cbc4c2526cf0678dae",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\f32_carry_qk.h"
+          },
+          {
+            "sha256": "e4fbadf67fe35059a01d43062a1abd8fff8a585775933e3c552914ff3647a6bc",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\float_alignment_qk.h"
+          },
+          {
+            "sha256": "fd7d0105948b723b80ffb0fffc4752d0472a4f62b2fda7961e5bccb848315b02",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\float_pv_replay.h"
+          },
+          {
+            "sha256": "9f38fc3291c1cfee12a0ad700a204d862129c52f668bf11cc49273a45f91b4ac",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\float_subgroup_qk.h"
+          },
+          {
+            "sha256": "50483c7a3788885d5120a59475b2f3bfc07c7b6bfbb0ab33260aa7005776e356",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\fused_predicted_group_qk.h"
+          },
+          {
+            "sha256": "5245142370a5eba3d3acbf82086325b2518f7e5b6b5d0bd8ffec4a49d42d341f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\fused_qk_probability.h"
+          },
+          {
+            "sha256": "5442735e7033244e4b5a27721e8064e2b93d6d2a01ab70ba385cde19517b5cff",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\half_f32_qk.h"
+          },
+          {
+            "sha256": "269450d9e2a22d5bb2943178f4b2e3b86869d9ac0654c892d9331eef602d39ca",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_consumer_qk.h"
+          },
+          {
+            "sha256": "bac7edfdb75a24d3a38b69db2019b8abb77ef41a946b796691b6616aeba38034",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_cooperative_qk.h"
+          },
+          {
+            "sha256": "a7be520171336e65eb71ab34a5a1408f0edb251ee49f49695be9bedeef22dd49",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_interval_qk.h"
+          },
+          {
+            "sha256": "5b19ab22515354bca29a0890395f889cf83fa5f6eea618eca177a6e7318735b4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_maximum_qk.h"
+          },
+          {
+            "sha256": "7ac5d2ec0027607351a6db207bea9cebbd554921dc210ccd5e00f885760f56d2",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_packed_remainder_qk.h"
+          },
+          {
+            "sha256": "18cc8375306d2caa873d93d013644f81570b00f9d95546c7e78eb7c1a2a925a7",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_predicted_group_qk.h"
+          },
+          {
+            "sha256": "701ded0a2729d0f6e25bf30ff9cbe07ed345c071f1c70685925422bd7429f24a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\matrix_wave_queue_qk.h"
+          },
+          {
+            "sha256": "be25f240060cbf55d111c902d3fb2e5c20255441a7e3b21e8c421edf526e622e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\modular_integer_qk.h"
+          },
+          {
+            "sha256": "0e08a8a27a2dcbb1064bfecfae3bc9c413b5995a15fd87e3620a6f83ae6508e8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\native_rz_qk.h"
+          },
+          {
+            "sha256": "f57e304ef6ff0fe784dc318cbe6108668f9baa61237b089dfaac09a705379412",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\packed_exponent_qk.h"
+          },
+          {
+            "sha256": "4a68dceacc7e0d89c29389ceedb5bded9829104185bf96955aed3f0320dfb012",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\parallel_pv_partials.h"
+          },
+          {
+            "sha256": "013969c3c5231ee775d05241dc905af3ad9a2b70510db63652393b9ace20e59b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\parallel_pv_plan.h"
+          },
+          {
+            "sha256": "34752d1e83417c32e106c656fc5943a9579e83e9560404a91c8edd381f792761",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\positive_integer_qk.h"
+          },
+          {
+            "sha256": "f36a63c7bfd0e3fdd3fbc36c5b320df14fea9112d1518f2bab985baa875721d0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\predicted_group_qk.h"
+          },
+          {
+            "sha256": "5b2c12fcc59eba1f8e7445101c3ffc7624f81bf01e9f3fa8d4ce5d90f48782d2",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\prepared_decoded_qk.h"
+          },
+          {
+            "sha256": "ff83e7abcfb279a115c0b016fe16a1e3b59d926f7c5de82d3a03cdc13e859f2b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\prepared_decoded_qk_range.h"
+          },
+          {
+            "sha256": "4a65c898d237e604a5e23383c311ba7d4e9b584d0ad6611f2864eaff45967028",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\prepared_decoded_qk_range_workspace.h"
+          },
+          {
+            "sha256": "f7aeef4016b182ad11c30aab4b3b8d178847b035b993473ed4acca7e99771774",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\prepared_decoded_qk_workspace.h"
+          },
+          {
+            "sha256": "45996743c23026c3164ed3a47292bba5555aa2b884e8df77cd0e272e852aa8a3",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\prepared_integer_pairs_qk.h"
+          },
+          {
+            "sha256": "63c564604c979ef04fe7ea98199e132b4dd1d03442f63579aeaa8558247c9107",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\pv_group_replay.h"
+          },
+          {
+            "sha256": "b6706ec7b82168d09047058290ff14e9b3e4a6cd7180a46431a898b9cf41364e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\query_lds_layout.h"
+          },
+          {
+            "sha256": "340c2bedb31638332f15135fcb78201d1d814db28f2e32a7bbd86320efeb731e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\query_lds_qk.h"
+          },
+          {
+            "sha256": "da842c62869afd825354d62816bda3c2deba17ce3a8b62913797c9a1b19e6a1e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\scalar_integer_qk.h"
+          },
+          {
+            "sha256": "ed37a684e1a6b3603890ec04e16cc8283816a009cd98b24e450a326d11d999d2",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\scaled_half_qk.h"
+          },
+          {
+            "sha256": "4470f9b35d46fb29468aa7e2cdf5e4ef286de86c7252796967219764f7b47324",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\selective_qk.h"
+          },
+          {
+            "sha256": "9ecd1679270881edacc8d435e1107771b8af8738bdfc42617d341d0b5a6f6aa4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\selective_qk_tail_policy.h"
+          },
+          {
+            "sha256": "eda77dbee4c8c8e137544a29b108389311d32276b1ca4f88b7bf876526f442df",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\shared_parallel_pv.h"
+          },
+          {
+            "sha256": "67eaf3d32c1dde9ae4899a8002bfc944aa65f61631d3b28829f0646e65eeee30",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\shared_predicted_group_qk.h"
+          },
+          {
+            "sha256": "92507e9f4df8ca0837d2f696aedf456cc188cd7bd5007c0356875f66d5cb8d7f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\staged_half_pv_replay.h"
+          },
+          {
+            "sha256": "d87c9fc987ad6db0ec0444e8f70d469ee61cde8c37066668bc3a3368de398cea",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\two_pass_packed_qk.h"
+          },
+          {
+            "sha256": "7828c9230099ed412bbbdfd1061cb1c3a4bb542dbd197d018fb29672b8a65289",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\wave_qk_probe.h"
+          },
+          {
+            "sha256": "b2a9ef1fb590bbeb60cb20ff013a870594902ea9211ebe38929cda9bbe63f278",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\wide_integer_qk.h"
+          },
+          {
+            "sha256": "0c2b81f34afb3605041068e5ae838d48a73d4551aded9689183a1688c2bd3760",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\windowed_residue_qk.h"
+          },
+          {
+            "sha256": "ec504bfd5dac7d14766343df6f018e0b9b357ad3bc12a76babd7bd86646905c9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\ck_fmha\\wmma_pv_operands.h"
+          },
+          {
+            "sha256": "b810dc9e97b400e3ad75322c568db5f6d977a629f3254af08a3de371736d08c3",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_accumulator.h"
+          },
+          {
+            "sha256": "edc0f2a46fa1fec3dc2e3673b36617e4b8b3ad8afe4e28fb152de967403e6b98",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_cooperative.h"
+          },
+          {
+            "sha256": "94a7df54c4be84c8742d46c43abcbb8fd3ffd50bca0fa3fce8b9d90c7766fd2a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_inverse.h"
+          },
+          {
+            "sha256": "ad2c4cfdf8ed21681351d32916e2406076589afaa7e820b7c08da89995bb2ce6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_inverse_math.h"
+          },
+          {
+            "sha256": "72a1af6ddcfa51334859081dbc3372f9bcb31362599c3e77e3b0ecb73d1bbf7d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_kkt.h"
+          },
+          {
+            "sha256": "e6ca7921c5a9e34aae88c9dd4ca378a1af4215fc5a51fdc6f3682a38596fc8b8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_l2norm.h"
+          },
+          {
+            "sha256": "b5afca4c6505188b010dea011493b839499aa3dc1972109b2e29d9111d521aaf",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_scalar_matrices.h"
+          },
+          {
+            "sha256": "5343f29f341763574afa65f1352112a3d2cf6b688592f3bef34ff3464e4a7ae8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_scalar_state.h"
+          },
+          {
+            "sha256": "b8037c3fbf2d7247341155904288e6f8123684b4fdf3e468b0cf8acb5c147d20",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_state.h"
+          },
+          {
+            "sha256": "a5a957a66f6a40c18eb789250ab389422b143331ea24e4ce0fac447573388f4b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\blackwell_wu_output.h"
+          },
+          {
+            "sha256": "34b5d01655bce0a92c4979bcaa3749b0a45f9f7998fc3361ff1215d7329880a5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\coarse_interval.h"
+          },
+          {
+            "sha256": "8e574b308afbf2193e09d910fa27ba10d0014ad9ca2a25a571fbd23f7980f542",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\coarse_interval_policy.h"
+          },
+          {
+            "sha256": "f21ecbf1836b9a1c5b72e2408d303c89fe46d229d888271f70ec5a47170cacfa",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\consumer_interval.h"
+          },
+          {
+            "sha256": "0ac58e53f17926f21ebb4bd34c5eeab479fd4f57edd717ef6987bd51dfe40417",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\f32_carry_matrices.h"
+          },
+          {
+            "sha256": "74a2bc1d6c88e808474297f4271023cca537f5f910ad1585fe7f257891a21667",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\first_call_capture.h"
+          },
+          {
+            "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\fla_checkpoint.h"
+          },
+          {
+            "sha256": "17230acfe1b4f7da52dd942faeda1dc38f52ac89c482b263c341d2308b069094",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\fused_state_output.h"
+          },
+          {
+            "sha256": "8fbdf69258599e8b84ee91e25cd3cdf2833f13aac1297cfbbef0ed2805f27a2a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\fused_state_output_policy.h"
+          },
+          {
+            "sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\gb10_gate_lookup.h"
+          },
+          {
+            "sha256": "a0d921e13a65674133bca20e1a55318767c982a451a0e2570188bbce07f0e72e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\interval_matrices.h"
+          },
+          {
+            "sha256": "c58b3824deb8b8fb747a233040620de1c24b019b95e8975dd5977670caa4f11b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\prepared_half_matrices.h"
+          },
+          {
+            "sha256": "51643f64cf8f455bb289e89574b87cbd9674a07dc3dcab700edfe38f335fa788",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_attention_rcp.h"
+          },
+          {
+            "sha256": "0664d9ad312f6a09f31766c78abdce6ec66e8216efff6e9b8565d78e4f1767a8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_exp2_interpolated.h"
+          },
+          {
+            "sha256": "ccd324b9188cbc61e56485988be72da70099e8c3c2fc67fd64de2617bc34d142",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_exp2_table.h"
+          },
+          {
+            "sha256": "4c4cbd490075bf69220191e022b1fe099ffd3312a6475640646ed71ab49420e1",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_q1_attention.h"
+          },
+          {
+            "sha256": "340e3ce1d3ee21844321d36767f3686a7175577732cd6fcaf83d0d59db5448e4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_q1_full.h"
+          },
+          {
+            "sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_q1_gdn.h"
+          },
+          {
+            "sha256": "b194d9507fea6bbcd1c185f4529fd51fcb84b2ed9f01c39409e43e245cbeda66",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_q1_math.h"
+          },
+          {
+            "sha256": "ecd04b9dd6036518aa1dab736a374f00a55d967c80e573302cf7d0b7b679731f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_rsqrt_table.h"
+          },
+          {
+            "sha256": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\gdn\\sm121_silu_table.h"
+          },
+          {
+            "sha256": "2fc6a4dfed7ba987a79f989fd918e3c406a3fc75ecc9c6d2cb4f2f2d837cd535",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\bf16_absolute_product_matrix.h"
+          },
+          {
+            "sha256": "96201826d5ca84e0d493564e749bbb031072869ef7b7e5b7e4a97074cf7b60d6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\bf16_absolute_product_views.h"
+          },
+          {
+            "sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\bf16_midpoint_selector.h"
+          },
+          {
+            "sha256": "5f9a62ffe517a54b8d46eccd7e9f1a7719364e85893d2a317224f2e9505d579c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\bf16_positive_sum_bound.h"
+          },
+          {
+            "sha256": "f54d67198f3392ec8b6b0dfd2d26829dd586bbdd2201f78ed44847b28d4f6dc3",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\bf16_scaled_l2.h"
+          },
+          {
+            "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h"
+          },
+          {
+            "sha256": "2cd3d638336965602bc59586a1490b246770306bc8e1316267d15ec225cbbcf8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\replay_weight_bucket_plan.h"
+          },
+          {
+            "sha256": "882f38d9cb0a9374cc6206367ff0bff360658bf026ee4b06b6ebae73ce2d0baf",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\replay_weight_buckets.h"
+          },
+          {
+            "sha256": "52bce35321f773c81ddd1d2ea58e88c0210601061226e3fa88809d662d88a998",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_biased_karatsuba_core.h"
+          },
+          {
+            "sha256": "81f62f2f1613e71b9386b2cb859b65d0dd04850998924c2c83f2c91d8be5815f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_blocked_half_layout.h"
+          },
+          {
+            "sha256": "0498bd411424913d8cb92af956c68519496a72c0d5ae301c2697b9a320a2317d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_blocked_half_projection.h"
+          },
+          {
+            "sha256": "85b972e735f3a794ae4a9a52479b7ff85c55bdff5a7c682cff35f4d62783b0ac",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_bounded_projection.h"
+          },
+          {
+            "sha256": "75d4f8fa8df275d2564c0577a33e53fe7a4e7728a48d398c33170b36b43400bf",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_byte_residue_core.h"
+          },
+          {
+            "sha256": "f237ffc22f90a65fa3b398d7bcbcf7eed64407551c34610ce55e7d6f4439b3eb",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_byte_residue32_core.h"
+          },
+          {
+            "sha256": "6240e3ac060f408ae080fb6184b7269c379cd5586631898ff22c66018c4f88cb",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_byte_residue4_core.h"
+          },
+          {
+            "sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_canonical_normalize.h"
+          },
+          {
+            "sha256": "29fdf460bb2c45193c11276de8f75c5e5139fb61b99825b13f491173bca2f641",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_carry_transfer.h"
+          },
+          {
+            "sha256": "6e659617209b38e91b07ae617c642c578f7a72e20c44130c9b979b9910736aaa",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_centered_karatsuba_core.h"
+          },
+          {
+            "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_coarse_projection_bound.h"
+          },
+          {
+            "sha256": "b3ee5d446102bbbce615c6e159192a797e561b8f3f94eb4b50ebd0d5cac6ebc5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_coarse_projection_matrix.h"
+          },
+          {
+            "sha256": "a4c2ec8b40e24e778b2e87cab40e57ab7a270f35c9b8051781ebbd3059a60ed8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_compact_byte_core.h"
+          },
+          {
+            "sha256": "64d864d35eaa731a6b5a863946ab437b2e59ed2a6ea844775530e5e1ee2238ce",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_compact_wide_integer_core.h"
+          },
+          {
+            "sha256": "6ae5eca7bef74662339d281a4230cc5046de810f702b633403b87f454f8c2fce",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_cooperative_half_projection.h"
+          },
+          {
+            "sha256": "1eef579ab2be4c3a9d03f1e7377e42720a710bf0da7a005fb2a034565a736820",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_cooperative_norm_metadata.h"
+          },
+          {
+            "sha256": "18a45385daa5405c198c8b2a46ac204cbdb97d5b6688c6aaf9be8f486d5f5bb8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_crt_integer_core.h"
+          },
+          {
+            "sha256": "861b7984ca4cb87c4f3d71c1e17b8e310aedaf32fe06257bca433ee03097b605",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_decoded_bf16.h"
+          },
+          {
+            "sha256": "e8a40456e17f92bc440b9df8159e031db44a7027c40de3a05e67f1158daa15c2",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_decoded_projection.h"
+          },
+          {
+            "sha256": "f579129483ba1fe4af8918a0c966fe1d5fb15416adde0df0c766ea293d35eb80",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dominant_half_products.h"
+          },
+          {
+            "sha256": "e8350f9e732798712cd8ff16445e9c72a027f7f0d870ed636a967b84e264e45f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dominant_half_projection.h"
+          },
+          {
+            "sha256": "2b03ef2ffb6327fac2904e8f7d8a1d9ee64a1b3419c4eb0b49e110f6fb81fe6c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dominant_integer_core.h"
+          },
+          {
+            "sha256": "4c39a29b54ab532d3673706e228a680f1f742bb5a3f45d772c566fbe3ebff658",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dot_certificate.h"
+          },
+          {
+            "sha256": "38ea79b4cfd01bb5faec9c7d2b099ad139d4ce8f9c4e0929813939f31e152523",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dual_lane_projection.h"
+          },
+          {
+            "sha256": "44e4a2197f8d1a0d7e781738421edf04513c81dcec8bc4e8a7032d426d16d8f0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_dyadic_carry_scan.h"
+          },
+          {
+            "sha256": "44a0fd9914fb64f34cdf76d646d4ed03fc2cf78e1333edb0744d5f8c8a876113",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_embedded_half_operands.h"
+          },
+          {
+            "sha256": "0fc194d6444195074430076140a478b1404aa4b5337befc82ab31ac1fd460ad5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_embedded_half_projection.h"
+          },
+          {
+            "sha256": "ccf55e266d504992e7061b0c1372c0a1f8a5cc1a2459ae2b52c45c7fc3dd28ea",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_exponent_loss_bound.h"
+          },
+          {
+            "sha256": "bb62412721e3f7597654a6b66a5bae78a7bd3fbf9c90799dcf0da9ec8faae29e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_exponent_loss_matrix.h"
+          },
+          {
+            "sha256": "8f0d5b00806f96dc0b116d19b104f9464450dfa8b7fef372b85325517b17e363",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_f32_carry.h"
+          },
+          {
+            "sha256": "7e34489fcb182a9539bd09bc61ab28ad0bedb21f203239b5d53e6474f33be41b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_f32_carry_projection.h"
+          },
+          {
+            "sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_float_alignment.h"
+          },
+          {
+            "sha256": "8f2de0baa62aded3ca9ce1bbfb134df2ef48bc8f6e3a0fe4bb2d0ab8ac6e2bb4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_float_row_bounds.h"
+          },
+          {
+            "sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_float_subgroup.h"
+          },
+          {
+            "sha256": "c5c23b9ae7bbd823d81a6a133b6094c23b2b50aaeb2aa21192c00b69651b0fc5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_folded_half_products.h"
+          },
+          {
+            "sha256": "8a9de13b2c1714208df879082569c9a27476e7bb01d0d9dbd5932b00110522fd",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_folded_half_projection.h"
+          },
+          {
+            "sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_group16_modulo.h"
+          },
+          {
+            "sha256": "1f8a61dfd5fc27828c247954f9c8c723ccfa0ca14a39434d59b72e10cd7a7376",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_half_f32_carry.h"
+          },
+          {
+            "sha256": "9454be5f04272f3eba4035e65e080093b408ade2ea0de808a2ee81179022f234",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_integer_core.h"
+          },
+          {
+            "sha256": "82afce3aa589ad01d054771f3db61311d885dd4ec7ad3f59b318bbd5c0d5bb87",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_integer_interval.h"
+          },
+          {
+            "sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_integer_parts.h"
+          },
+          {
+            "sha256": "ffea4b806ad6abc41576ba8e8919bc589b55fb3ca4f81c3cd92035836ccc40df",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_interleaved_projection.h"
+          },
+          {
+            "sha256": "31524a12adcab5e89970aa425e08d5730e0d3364ab0057db017e0de98a0313a1",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_karatsuba_core.h"
+          },
+          {
+            "sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_lane_reduce.h"
+          },
+          {
+            "sha256": "698ccfbd9246f9a58337f5490405496f5c0371940256d1ebea87f70f4da6408a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_macro_norm_bound.h"
+          },
+          {
+            "sha256": "a51bce0304d2d2e0a75b112d0c8987d16db29962b84fba5730b7a1c33d649c7a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_macro_norm_projection.h"
+          },
+          {
+            "sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_mantissa_parts.h"
+          },
+          {
+            "sha256": "e52b49816911e18c7e4c5fd075ff9c7cf9e0bc1fc82d68baa40d3db95d44c1a8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_mantissa_row_certificate.h"
+          },
+          {
+            "sha256": "6a2f53c1bb42774152dbce1442c45228269ea392a3b17b61282815575c6bc748",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_matrix_float_fallback.h"
+          },
+          {
+            "sha256": "b0b77f9cbda76ea63fe4f2d0c49b0169a89ef04a65aec9c16f0521bc21998585",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_matrix_maximum.h"
+          },
+          {
+            "sha256": "2a1227c758f6d54e5e08b6ccfade82184535c5fb474e9763056e3f54fe61c8ee",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_matrix_predicted_group.h"
+          },
+          {
+            "sha256": "e61d49407aa210ce81c9209a23c999d763d965579480cc1e041268e333892c76",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_matrix_projection.h"
+          },
+          {
+            "sha256": "09c5a1d7fd43aa1be48cc4ed0d11d6e3d22849ecdc975c129724125b10925af3",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_modular_integer_core.h"
+          },
+          {
+            "sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_native_product.h"
+          },
+          {
+            "sha256": "d1f07bd751c578d20c1c1734da7b7223787607c74be8ec2db92585d89d1b5901",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_native_rz_carry.h"
+          },
+          {
+            "sha256": "29a33f43aecce0418546376dafba9694ca68a855bcea37a9080c58f58448f55d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_observed_prefix_bound.h"
+          },
+          {
+            "sha256": "a1d65812dba51ef9c30da605a9745300f29a3caa35b7785b4533ba715cc55692",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_observed_prefix_projection.h"
+          },
+          {
+            "sha256": "4cbf70b4b423073560fdb8eec0333a15d463a74b1f09c79e123a6a6fc553d2e5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_packed_core_remainder.h"
+          },
+          {
+            "sha256": "635e94351893d47a5db10e5e5e42b8cba983a67b443de556ec9cae5dd5d9dd26",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_packed_exponents.h"
+          },
+          {
+            "sha256": "e8e0260ee7bb28f4cb037d3d95f6942842a26378678815ca2de7c20eef3d4889",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_packed_f32_dot.h"
+          },
+          {
+            "sha256": "9cf0a93658c695647a3cb5cee5da6805d03e34ebbe46d8f692fc7a8dc3bb200c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_packed_float_tiles.h"
+          },
+          {
+            "sha256": "a8d45f8f118d20cdf16d557a603411066501991974f0926890882698deac5d9f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pair_projection.h"
+          },
+          {
+            "sha256": "1b7ab288791d187a580dce611d00b1f5882c625103fb3f321a2b28a1b1cd8c74",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pair_projection_products.h"
+          },
+          {
+            "sha256": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pair_residue.h"
+          },
+          {
+            "sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_paired_products.h"
+          },
+          {
+            "sha256": "194f1cdbfcbecdcce94d5c21bd88276fabb8eb1a585d63aa40448ced698830f4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_parallel_transfer_projection.h"
+          },
+          {
+            "sha256": "83ba8f36cc940b579ed948c8c1c6c54a6e39d792c2c372d05558a8520c9f53b3",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_partitioned_half_projection.h"
+          },
+          {
+            "sha256": "1f557efed5a3f9f23eb29aa06d7cf54079c4ffee3051738b98ef9458d68fa9af",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_positive_karatsuba.h"
+          },
+          {
+            "sha256": "af673bcbbde5584a980a8ea52faaa439fb8ccfd3751ef8736e4cdd9f8a330778",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_predicted_group.h"
+          },
+          {
+            "sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prefill_projection.h"
+          },
+          {
+            "sha256": "6c98d804a50d68185e61990828fdfd5ea8b7388a292afbc531f0782a4dddb4ae",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prefix_replay_bound.h"
+          },
+          {
+            "sha256": "1e525048d2a572123f558874073866012e29eeddbd20b8f8c9f934b01df911c9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prefix_replay_projection.h"
+          },
+          {
+            "sha256": "b05621a82454f93e29bb508c07e1588504de900ab633dc34beba6c636a8ef2ab",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prepared_bf16.h"
+          },
+          {
+            "sha256": "fc611756401aee8f4fcef546747a7510c1b60fa6a930b6aced3d3c1e02effe6c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prepared_integer_pairs.h"
+          },
+          {
+            "sha256": "72ff02b885d7ff6c12674858b4db25be0304cbcb54bedef8ed424832789ddfff",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_prepared_projection.h"
+          },
+          {
+            "sha256": "0a3abcbe9c13413d4f90a1c416bd1b7460422ca08a9395f750a9d961195d0cf8",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_projection_interval.h"
+          },
+          {
+            "sha256": "cdbdef7c798efb6999198c9c99f04c19ad09258536c08eb576c8f98d9d786927",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_projection_interval_filter.h"
+          },
+          {
+            "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pv_error_bound.h"
+          },
+          {
+            "sha256": "d0d8d8a16b32049c9d92bf238e734da3046dc8cf309c90d48e0b0ceb268a044e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pv_final_bound.h"
+          },
+          {
+            "sha256": "07f4f02a919d9c515abb2606437ec20185c16422360eff456e3d3b5fb375e291",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pv_group_plan.h"
+          },
+          {
+            "sha256": "5ba85b0a74be1fe40c3c6d1378271fadde79436a1e95904e2dc9f2038079b08a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_pv_transfer_bound.h"
+          },
+          {
+            "sha256": "eec138cbe0794186df9f6a0e905e862c0fccd40b0fc30678f92da0f4968de01a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_q1_moe.h"
+          },
+          {
+            "sha256": "22db2c93356c9c0d2dbc06232838fbf668213135fb4867144ef87adb20cbabe0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_range_normalize.h"
+          },
+          {
+            "sha256": "bae8414a327b60bff73686007b57c639e50bb4ecaa1db52c4248a2260a34b9f0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_range_projection.h"
+          },
+          {
+            "sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_replay_partition.h"
+          },
+          {
+            "sha256": "29931e9f9462a27e375224159c2948eb6ffc128fa407cf6eaf7bba3bfba00662",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_resident_input_projection.h"
+          },
+          {
+            "sha256": "14459743baf044947fb9b863fe85c6b67da7bcfabcb46fff6859004273c942ad",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_router_exp.h"
+          },
+          {
+            "sha256": "610691c95b4f3e80fa1c5d670d74c89d1d56b90d233d868b2660fbf8e03aad8e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_row_max_projection.h"
+          },
+          {
+            "sha256": "d203d62154b431ce889819ec9082480aadc4874544f27c10abe40af4eeafff17",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_row_maximum.h"
+          },
+          {
+            "sha256": "adf2dd5d24e98632ef0239d3ea40170c683e1d06b5902b5f08e0e578ae010d66",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scalar_integer_core.h"
+          },
+          {
+            "sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scalar_projection.h"
+          },
+          {
+            "sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scaled_fallback.h"
+          },
+          {
+            "sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scaled_half_products.h"
+          },
+          {
+            "sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scaled_half_projection.h"
+          },
+          {
+            "sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scaled_projection.h"
+          },
+          {
+            "sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_scaled_significand.h"
+          },
+          {
+            "sha256": "5f976925b40275e672b863b8c648ff5423d37eadd11fea1a86d248a253ea206f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_shared_gate.h"
+          },
+          {
+            "sha256": "d35fca2e70992bdecea4456bb3fc5edcd47c6cd850e2d16f28760b24497ed06c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_slab_half_layout.h"
+          },
+          {
+            "sha256": "a29cc4a67133eafc0a96b92859aea75cefa07308fdb7cb9d7c1b4036495e4d37",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_slab_half_projection.h"
+          },
+          {
+            "sha256": "d3c91c9feee8d734b461176bcfa0df75904de290017cb44ed0decb339fc6836f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_spatial_indices.h"
+          },
+          {
+            "sha256": "1e65c563bcb923c47088b75e4fd5d9d1f85ddfa1921c15a7c9c3da8ed0b461bc",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_staged_half_f32_projection.h"
+          },
+          {
+            "sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_staged_half_projection.h"
+          },
+          {
+            "sha256": "9dfdfafcbaa6376b5fe2e6a8f7f3ea293645f569ecb1c5c151a727e57814b491",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_strided_pair.h"
+          },
+          {
+            "sha256": "cd07391bad22587e437cceff204d794091150b899ea608e43a3dc2ccade49bf9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_strong_float_subgroup.h"
+          },
+          {
+            "sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_subgroup.h"
+          },
+          {
+            "sha256": "895eda550ead0e24b727b77419952aa90c2b3d556f5a7f968df53125e7372851",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_tiled_projection.h"
+          },
+          {
+            "sha256": "187653f6b4c090840074a1da782e31f889d7fb0a159f26a2ee94ab38cbbed447",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_transfer_projection.h"
+          },
+          {
+            "sha256": "b02cd7024964f7f85016d46803d33c0f93e4f274160be725de53d4e67aa89f39",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_two_pass_packed_group.h"
+          },
+          {
+            "sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_wave16.h"
+          },
+          {
+            "sha256": "d18c19e038add09cef4cdbf0ec585673930a6ca1bedcf12188533a9c293adf4d",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_whole_dot_bound.h"
+          },
+          {
+            "sha256": "1e5f78594084e371472336d43b167cec7e08e2284771f3b8435e4b2d4d427246",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_whole_dot_projection.h"
+          },
+          {
+            "sha256": "b97a375283cdd98643686a4d8e9b60ff3de7d50565ee359e7399ef88f5555acf",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_wide_integer_core.h"
+          },
+          {
+            "sha256": "acfb766ac78697c80546290e42737372fd48241c24114f98418250794e1404e9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\moe_accumulator\\sm121_wmma_operand_load.h"
+          },
+          {
+            "sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\native\\providers\\sm121_attention_capacity.h"
+          },
+          {
+            "sha256": "2aadb7aff4121fcaa3d96018240c4c7afb192ef7b391f4b7784afced76396521",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\absolute_admission_audit_selftest.h"
+          },
+          {
+            "sha256": "27ed54200362061ecf5bd10d7e731da28d9532a106344a36e85f6eda83197967",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\absolute_product_bound_suite.h"
+          },
+          {
+            "sha256": "54d781bc34883dfaa8ca243dc5f37ff558d2a6c8c48be6f173875b90bbcfc377",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\absolute_product_hipblaslt_selftest.h"
+          },
+          {
+            "sha256": "1fcf4ed2feb02c11fe5532ded9d1070560ca9449896b68d0c4d9c91b81ecb03e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\convolution_real_replay.h"
+          },
+          {
+            "sha256": "d0233d69b1d49a37296099e46ef98b66df066864d511cc1d573e3c151cc502f6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\dominant_half_cases.h"
+          },
+          {
+            "sha256": "4fac35b1c3a4b26d6e62171f6967898f93032024ab6be6d383ce91bbb8d69fe7",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\f32_carry_cases.h"
+          },
+          {
+            "sha256": "d3dff171d7025b7ee97d387536d55310e2d567334f33ba6f3f4e51c54556c2c6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\final_norm_real_replay.h"
+          },
+          {
+            "sha256": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\float_alignment_cases.h"
+          },
+          {
+            "sha256": "1a991b1472da8529256c524dffbc0b4e9229d66cb1c719ff019759d82b4a8ab9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\folded_half_reference.h"
+          },
+          {
+            "sha256": "a1c5baf48a5e5d93167161aaa303cb36006285c8425f1b4d11da44266eb6c8b9",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\hawkeye_device_replay_selftest.h"
+          },
+          {
+            "sha256": "296ec680fdc12b66c57a38175c274c6b9fe66dfee5db046fd5239b27c19efd8a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\matrix_wave_queue_qk_selftest.cpp"
+          },
+          {
+            "sha256": "9950b744a96e95ac6c4453af5ec45bd163d1dd16ef6b0014aadd71ae02f57aad",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\modular_integer_core_native_probe.h"
+          },
+          {
+            "sha256": "1e61aead8a0c031d53a6158ee6901331abb0e8bfca9a491c598bdf0060d668c1",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\moe_expert_order_suite.h"
+          },
+          {
+            "sha256": "9ce5c54eb6ed1197f6f4db3ffc1992d194272bdba1dae1d4ec8437d86ff9d71a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\moe_shared_replay_suite.h"
+          },
+          {
+            "sha256": "1d24599c9ee65b693d16e8c00782c73acf52f0d565a0dc40cf6e2d35f9331650",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\moe_shared_staged_suite.h"
+          },
+          {
+            "sha256": "b2dc97714f28e21b33d8cfc8086aff12fc74c11457e871b84a3f3c2ec9016820",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\out_l1_magnitude_suite.h"
+          },
+          {
+            "sha256": "0e24c234fe417c2d6e5acbef70a21ccc2bfca9f1f181e8f6de65f2e8941e155e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\pair_projection_reference.h"
+          },
+          {
+            "sha256": "0b777b8ad7af3c39da33406a0c129fff1997aca3aa28c6c1d4ebfb0d16ba8e60",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_blocked_half_replay_suite.h"
+          },
+          {
+            "sha256": "76f8e9c23a54e2cfe469ac3c510542943ef63752b209394ea32b37b896dfa1fb",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_bounded_replay_suite.h"
+          },
+          {
+            "sha256": "8ed0993f57a678443651cc495480823dc1b7e8bcf02fe7f35c66394de7ff8634",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_carry_transfer_replay_suite.h"
+          },
+          {
+            "sha256": "0e8d73cd74cb10e329e4730c52b7b7db69877e3a8565a1e6b4f71bbf4a7aeeb2",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_coarse_interval_suite.h"
+          },
+          {
+            "sha256": "786a3ced3fabee21dbecc0a9b573e0ef50861c538234b59d357c6e599401cfce",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_coarse_owner_suite.h"
+          },
+          {
+            "sha256": "948f16a76c24183121bef208c7d84de9cee59f3d1745a8e79a835df97c95b99f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_cooperative_half_replay_suite.h"
+          },
+          {
+            "sha256": "39187db524222c54ec2c4daf586c5cdd9a753dde4eadccd62985a9756053cabe",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_decoded_replay_suite.h"
+          },
+          {
+            "sha256": "79f3a73bad2dc52e46335fd53c71e496106222a74c4895f5dd6043fb45297dad",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_dominant_half_replay_suite.h"
+          },
+          {
+            "sha256": "6a358732c73becaaee988872787a48d5801a934819fe4076496791ef7b9624a0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_dual_lane_replay_suite.h"
+          },
+          {
+            "sha256": "8821e78c829949e21f9a6dea89b2594f5c60135d661f76b4c121bf080f73d4a7",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_embedded_half_replay_suite.h"
+          },
+          {
+            "sha256": "7ab28df3fc31c8c8932f73bb4426e69f2ce12eaf60a18eb8746f538ceeacc8af",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_exponent_loss_suite.h"
+          },
+          {
+            "sha256": "9950f22cca0e006e42d056cbd1db58bc0aae996cd52810262d06cf646f74bbcb",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_f32_carry_replay_suite.h"
+          },
+          {
+            "sha256": "6ad373f352b21681fbcee6f5e187f12dcc8106ff7140939d8aac11f57bcd922e",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_folded_half_replay_suite.h"
+          },
+          {
+            "sha256": "e428ee3ee08b15c9b83caf8fb41372556054e1ec9e530e6f31a5584d3351710f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_interleaved_replay_suite.h"
+          },
+          {
+            "sha256": "88f66f6067da8992ee129f265ddc9207b6f94eeb562aa4b894c411b652b5047f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_interval_audit_suite.h"
+          },
+          {
+            "sha256": "bb0eaeafa0eace99fc9c48b067e48fc86e6bfdc921a5011ea6b24793c7dc3cde",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_matrix_replay_suite.h"
+          },
+          {
+            "sha256": "92dd87058370a745b05c098134d3287f5aea0ac85c4cebd71199a64c4883b2bd",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_packed_tiles_replay_suite.h"
+          },
+          {
+            "sha256": "1cdab84c67958761899d53e14b39647d34f4a6e6514f8c0fb44ff3c273b039be",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_pair_replay_suite.h"
+          },
+          {
+            "sha256": "5ffa6c4d21c807992c342ba8c1ff90560387cd7dc2bc6fd1856d17998a281693",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_parallel_transfer_replay_suite.h"
+          },
+          {
+            "sha256": "442a6edc199b1bec726277e7b4fbb1c85ca7ca2705ad19bbf729a129109d2f2f",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_partition_replay_suite.h"
+          },
+          {
+            "sha256": "e9c2de71bd35af830e987375d7c95b5914d49c2781457cd689af202e301d01ac",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_partitioned_half_replay_suite.h"
+          },
+          {
+            "sha256": "767c3e4e8e15137b272b1516c32f92afbb797eb859937f91b412a640871091e5",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_producer_selection_suite.h"
+          },
+          {
+            "sha256": "ad0169dd6c3c1871ec10afbf90d5eafd30b28684c9aa7f8c74ec86f0878cd6f1",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_range_replay_suite.h"
+          },
+          {
+            "sha256": "28797be3ca02911920ed7276d4221f931d5ededb6290af2f9c97b934dc46d738",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_real_replay.h"
+          },
+          {
+            "sha256": "e0b5a1a79e67f14b9cb905ac3f97a3de11bcabb0be998f885eaf7268c84d5d78",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_resident_input_replay_suite.h"
+          },
+          {
+            "sha256": "9a632c0b972c75ea0cf77ae0249cc230bd0dc3a4329d93d7c51729d888669624",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_row_max_replay_suite.h"
+          },
+          {
+            "sha256": "8ecacac0c56c1974c902d3c8c7fe0747937df2f45245449b9ad4a7a1a5510923",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_scalar_replay_suite.h"
+          },
+          {
+            "sha256": "777e6f357903df7331b138d040784d76411ce8a52cfc5f12fbda9a692192e311",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_scaled_half_replay_suite.h"
+          },
+          {
+            "sha256": "2a40d3bc95065ba3fe8700663b1459d7792f061d9af2827aa66855665a57df05",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_scaled_replay_suite.h"
+          },
+          {
+            "sha256": "ae99b88613a099de4d30942dfc508462bc1bbfdafb8512448bba1da6c37b22d4",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_slab_bucket_replay_suite.h"
+          },
+          {
+            "sha256": "b20eb39eb6ff7607632d9abc3d7d5882f9a0877b924319fe325d0d1a7f470d23",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_spatial_replay_suite.h"
+          },
+          {
+            "sha256": "f1deea2e1c18d1544079ddcf4da9046150351630e8fcc9b2a9509a47b218bbb6",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_staged_device_suite.h"
+          },
+          {
+            "sha256": "f540fb8509128dc7328ad3636c1f6cc2a7fc4383c9a7dd4adaea7d939526a089",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_staged_half_f32_replay_suite.h"
+          },
+          {
+            "sha256": "419086e593cd1694a4268d82f76086aca2c2fe219120f7b809552dd25b2fbc4c",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_staged_half_replay_suite.h"
+          },
+          {
+            "sha256": "90f8a465132487836b8c7ab2507d9cd2383dbdefe00cb8462948c78621ff912a",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_strong_replay_suite.h"
+          },
+          {
+            "sha256": "99ef1ed1eb745a65b9c37b629e528b4171bd470685c297432e385dd2b867ee11",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_tiled_replay_suite.h"
+          },
+          {
+            "sha256": "ac445340876252c41d22f59f4aff3f903a1596388fee8a1388c7a8b782f7a133",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\projection_weight_bucket_replay_suite.h"
+          },
+          {
+            "sha256": "e95c8dcc5e04841b781845a55862f7e5ebd04ad8721bfbf50a154594fb7be335",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\range_projection_cases.h"
+          },
+          {
+            "sha256": "7e45e81112eca3fea3bbf5f05d627f47309a2d743a1e24817a055a1d87bebe19",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\scaled_l2_reference.h"
+          },
+          {
+            "sha256": "c3815f0d8adbb9f8ef129c2bd2a09311ef6585314314d02fbe57d7da4cfe46a0",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\strong_float_replay_cases.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r2.ps1",
+        "command_file_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_CK_SM121_INTERPOLATED_EXP2=1",
+          "--offload-arch=gfx1151",
+          "-Xarch_device",
+          "-mno-cumode",
+          "-Xarch_device",
+          "-mno-wavefrontsize64",
+          "-L",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\tests\\native\\matrix_wave_queue_qk_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+          "-lhipblaslt"
+        ],
+        "link_inputs": [
+          {
+            "sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+            "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\hipblaslt.lib"
+          }
+        ],
+        "run_record_sha256": "6877d06520e6e9be581f75553baa7ae4c840628b6016e4356033caecc3f56ab5",
+        "executable": {
+          "sha256": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+          "file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+          "bytes": 1602560
+        }
+      }
+    },
+    "test": {
+      "name": "matrix-wave-queue-qk-test-r2",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+        "arguments": [
+          "--selftest"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2",
+        "repo_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r2.ps1",
+        "command_file_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+        "model": "none; isolated exact matrix QK with per-wave scalar fallback queues",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.",
+        "build_provenance_sha256": "71edd677560004156703d6cdc103b76972e4e0ca33367378f9184aed2697f95a"
+      },
+      "launch": {
+        "pid": 12380,
+        "utc": "2026-09-16T14:45:46.3431643Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2365.824,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+      "canonical_raw_sha256": {
+        "dispatch.json": "a0ba5566494f06e48c6cca6e520433032a02aa0f8ddab38a677d0bd860c7df7c",
+        "launch.json": "bd3709ab6edbaf24a5063dc247169965e9f5507b9309cde6cfc5ca98550d68f1",
+        "preflight.json": "14ac042c7136ee55287a9b3bd38e2f1246247e5a21bd860dbd18ed3bf152929e",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "5cf697510564cbfecaf4c76d75259a777dc3046b8ab21dc65f75f68d198b4d78",
+        "reports.json": "ad9a816dfdef15bcac1af9280bced0b927fd15af8349f1534737af58bd571d17",
+        "run-record.json": "0c1384140e9bf2742c110faa816b1ca7aee848008db4968b102c28fc00883931"
+      },
+      "reports": [
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "variant": 0,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "variant": 1,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "variant": 2,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 8,
+          "mode": 0,
+          "variant": 3,
+          "cells": 1024,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "variant": 0,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "variant": 1,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "variant": 2,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 2,
+          "variant": 3,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "variant": 0,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "variant": 1,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "variant": 2,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 0,
+          "variant": 3,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "variant": 0,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "variant": 1,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "variant": 2,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 1,
+          "variant": 3,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "variant": 0,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "variant": 1,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "variant": 2,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 1,
+          "query_start": 0,
+          "query_count": 1,
+          "mode": 0,
+          "variant": 3,
+          "cells": 16,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "variant": 0,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "variant": 1,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "variant": 2,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 9,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 1,
+          "variant": 3,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "variant": 0,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "variant": 1,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "variant": 2,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 35,
+          "query_start": 3,
+          "query_count": 17,
+          "mode": 2,
+          "variant": 3,
+          "cells": 5440,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "variant": 0,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "variant": 1,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "variant": 2,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 3,
+          "variant": 3,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "variant": 0,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "variant": 1,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "variant": 2,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 64,
+          "query_count": 3,
+          "mode": 4,
+          "variant": 3,
+          "cells": 3216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 0,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 1,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 2,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 3,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "variant": 0,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "variant": 1,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "variant": 2,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 7169,
+          "query_start": 7041,
+          "query_count": 128,
+          "mode": 1,
+          "variant": 3,
+          "cells": 14682112,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 0,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 1,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 2,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8064,
+          "query_count": 128,
+          "mode": 0,
+          "variant": 3,
+          "cells": 16777216,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "variant": 0,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "variant": 1,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "variant": 2,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8192,
+          "query_start": 8191,
+          "query_count": 1,
+          "mode": 2,
+          "variant": 3,
+          "cells": 131072,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "variant": 0,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "variant": 1,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "variant": 2,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 8193,
+          "query_start": 8191,
+          "query_count": 2,
+          "mode": 3,
+          "variant": 3,
+          "cells": 262176,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 5,
+          "variant": 0,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 5,
+          "variant": 1,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 5,
+          "variant": 2,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 17,
+          "query_start": 0,
+          "query_count": 9,
+          "mode": 5,
+          "variant": 3,
+          "cells": 1296,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 5,
+          "variant": 0,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 5,
+          "variant": 1,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 5,
+          "variant": 2,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 67,
+          "query_start": 33,
+          "query_count": 32,
+          "mode": 5,
+          "variant": 3,
+          "cells": 33280,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 6,
+          "variant": 0,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 6,
+          "variant": 1,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 6,
+          "variant": 2,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 1,
+          "query_count": 31,
+          "mode": 6,
+          "variant": 3,
+          "cells": 15872,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 7,
+          "variant": 0,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 7,
+          "variant": 1,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 7,
+          "variant": 2,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 33,
+          "query_start": 0,
+          "query_count": 16,
+          "mode": 7,
+          "variant": 3,
+          "cells": 4096,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 5,
+          "variant": 0,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 5,
+          "variant": 1,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 5,
+          "variant": 2,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 5,
+          "variant": 3,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 7,
+          "variant": 0,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 7,
+          "variant": 1,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 7,
+          "variant": 2,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 129,
+          "query_start": 1,
+          "query_count": 128,
+          "mode": 7,
+          "variant": 3,
+          "cells": 264192,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 8,
+          "variant": 0,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 8,
+          "variant": 1,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 8,
+          "variant": 2,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 8,
+          "variant": 3,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 9,
+          "variant": 0,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 9,
+          "variant": 1,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 9,
+          "variant": 2,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_safety",
+          "tokens": 257,
+          "query_start": 129,
+          "query_count": 128,
+          "mode": 9,
+          "variant": 3,
+          "cells": 526336,
+          "cpu_dots": 64,
+          "raw_bit_mismatches": 0,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        }
+      ]
+    },
+    "q7169": {
+      "name": "matrix-wave-queue-qk-q7169-r2",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+        "arguments": [
+          "--q7169",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2",
+        "repo_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r2.ps1",
+        "command_file_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured q7169 layer3 QK; q8192 repeats the first1023 captured rows as a component extension",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.",
+        "build_provenance_sha256": "71edd677560004156703d6cdc103b76972e4e0ca33367378f9184aed2697f95a",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "real_model_prompt": false,
+        "reference_is_compute_input": false
+      },
+      "launch": {
+        "pid": 12440,
+        "utc": "2026-09-16T14:45:52.1213865Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 13022.748,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+      "canonical_raw_sha256": {
+        "dispatch.json": "95bb73fdadace844770f465fd10bc6ed6433fbcca7a0765b49c849088ec9b5ee",
+        "launch.json": "2a1a4dc894e2df6149b0743bd1507478ee912c74eb95f29d160cd8c5d681fe8f",
+        "preflight.json": "839a8ea5719d7e2c05b7c7a02c173e9f06706e3a42e784fd1263cc35aa80a9d1",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "151674712e165cbf027d64faa62c5c7e4d22252dee1f7a21cf0775180a7ec749",
+        "reports.json": "c304ba961f93bbf6ae529b9144a6fdf11f0c3f8044691191559e130e41b09b3c",
+        "run-record.json": "a7650aa23ba26cacbd5c75c22acf4da93a2dbf32732ba75f59d01526d5b31b49"
+      },
+      "reports": [
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 0,
+          "query_rows": 16,
+          "key_columns": 16,
+          "wave_queue": false,
+          "tokens": 7169,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 418496528,
+          "compared_score_cells": 1673986112,
+          "cpu_dots": 228,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 8.5451,
+          "completed_query_with_slab_encoding_ms": 264.9768,
+          "completed_total_ms": 273.5219,
+          "completed_query_samples_ms": [
+            264.5857,
+            264.9768,
+            266.1286
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 9.9369,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 1,
+          "query_rows": 16,
+          "key_columns": 64,
+          "wave_queue": false,
+          "tokens": 7169,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 418496528,
+          "compared_score_cells": 1673986112,
+          "cpu_dots": 228,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.69,
+          "completed_query_with_slab_encoding_ms": 769.2703,
+          "completed_total_ms": 769.9603,
+          "completed_query_samples_ms": [
+            765.2077,
+            769.8676,
+            769.2703
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 29.0718,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 2,
+          "query_rows": 16,
+          "key_columns": 64,
+          "wave_queue": true,
+          "tokens": 7169,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 418496528,
+          "compared_score_cells": 1673986112,
+          "cpu_dots": 228,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.69,
+          "completed_query_with_slab_encoding_ms": 668.745,
+          "completed_total_ms": 669.435,
+          "completed_query_samples_ms": [
+            665.9574,
+            668.745,
+            676.6481
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 25.327,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 3,
+          "query_rows": 16,
+          "key_columns": 32,
+          "wave_queue": true,
+          "tokens": 7169,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 418496528,
+          "compared_score_cells": 1673986112,
+          "cpu_dots": 228,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.69,
+          "completed_query_with_slab_encoding_ms": 523.8528,
+          "completed_total_ms": 524.5428,
+          "completed_query_samples_ms": [
+            520.5649,
+            523.8528,
+            531.2548
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 20.6056,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    },
+    "q8192": {
+      "name": "matrix-wave-queue-qk-q8192-r2",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2\\build\\matrix-wave-queue-qk\\matrix-wave-queue-qk.exe",
+        "arguments": [
+          "--q8192",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin",
+          "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2",
+        "repo_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+        "command_file": "D:\\projects\\run-native-matrix-wave-queue-qk-r2.ps1",
+        "command_file_sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured q7169 layer3 QK; q8192 repeats the first1023 captured rows as a component extension",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.",
+        "build_provenance_sha256": "71edd677560004156703d6cdc103b76972e4e0ca33367378f9184aed2697f95a",
+        "input_files": [
+          {
+            "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_q_norm_rope-bf16.bin"
+          },
+          {
+            "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8",
+            "file": "D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1\\layer3-full-full_attention_k_norm_rope-bf16.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "input_run_sha256": "4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146",
+        "input_whole_source": "28c4f9df501e8e95ac357acc45d30daf48633bf8",
+        "real_model_prompt": false,
+        "reference_is_compute_input": false
+      },
+      "launch": {
+        "pid": 13152,
+        "utc": "2026-09-16T14:46:08.6491117Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 17312.489,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+      "canonical_raw_sha256": {
+        "dispatch.json": "a7a26bc4e9667ab11e3890539904d80ab88ffee9cb2bcfc6b44851c1db256cfa",
+        "launch.json": "d67c978e3d313fc03a81b62632931a2b9b1384678d57da73aac2b888927ea138",
+        "preflight.json": "fe1ae0aaa0db9105fc3f41ee01ff2a166845d349949bec0b8da1fe87b38218a4",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "0f223eb9650f404ddb9fdb8eef19488757eeaffb9effe46d68f828314e3dc0a5",
+        "reports.json": "43744f89dafd3339b82fb435143979e6475c37e52b8cf694ffad9aae747cc39e",
+        "run-record.json": "3c3d98a2765d4aeb216879ddcf052ddcea4c7d16736708b31718c2b65cbd477b"
+      },
+      "reports": [
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 0,
+          "query_rows": 16,
+          "key_columns": 16,
+          "wave_queue": false,
+          "tokens": 8192,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 545259520,
+          "compared_score_cells": 2181038080,
+          "cpu_dots": 256,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 9.431,
+          "completed_query_with_slab_encoding_ms": 339.5126,
+          "completed_total_ms": 348.9436,
+          "completed_query_samples_ms": [
+            337.2876,
+            339.7721,
+            339.5126
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 10.6111,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 1,
+          "query_rows": 16,
+          "key_columns": 64,
+          "wave_queue": false,
+          "tokens": 8192,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 545259520,
+          "compared_score_cells": 2181038080,
+          "cpu_dots": 256,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.982,
+          "completed_query_with_slab_encoding_ms": 1025.6076,
+          "completed_total_ms": 1026.5896,
+          "completed_query_samples_ms": [
+            1018.8902,
+            1025.6076,
+            1028.2655
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 33.7882,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 2,
+          "query_rows": 16,
+          "key_columns": 64,
+          "wave_queue": true,
+          "tokens": 8192,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 545259520,
+          "compared_score_cells": 2181038080,
+          "cpu_dots": 256,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.982,
+          "completed_query_with_slab_encoding_ms": 879.0298,
+          "completed_total_ms": 880.0118,
+          "completed_query_samples_ms": [
+            876.7456,
+            879.0298,
+            889.3937
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 29.6527,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "matrix_wave_queue_qk_capture",
+          "variant": 3,
+          "query_rows": 16,
+          "key_columns": 32,
+          "wave_queue": true,
+          "tokens": 8192,
+          "original_capture_tokens": 7169,
+          "real_model_prompt": false,
+          "query_batch": 128,
+          "unique_score_cells": 545259520,
+          "compared_score_cells": 2181038080,
+          "cpu_dots": 256,
+          "raw_bit_mismatches": 0,
+          "one_time_preparation_ms": 0.982,
+          "completed_query_with_slab_encoding_ms": 682.4815,
+          "completed_total_ms": 683.4635,
+          "completed_query_samples_ms": [
+            674.4101,
+            682.4815,
+            706.7029
+          ],
+          "warmup_per_slab": 1,
+          "samples_per_slab": 3,
+          "maximum_completed_slab_ms": 23.2798,
+          "all_attempts_verified": true,
+          "redzones_pass": true,
+          "unused_score_tail_pass": true,
+          "immutable_inputs": true,
+          "complete_cpu_encoding_check": true,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "comparisons": {
+    "q7169": {
+      "0": {
+        "route": "retained_prepared_scalar",
+        "completed_query_with_slab_encoding_ms": 264.9768,
+        "including_preparation_ms": 273.5219,
+        "preparation_ms": 8.5451,
+        "samples_ms": [
+          264.5857,
+          264.9768,
+          266.1286
+        ]
+      },
+      "1": {
+        "route": "matrix64_direct_scalar_fallback",
+        "completed_query_with_slab_encoding_ms": 769.2703,
+        "including_preparation_ms": 769.9603,
+        "preparation_ms": 0.69,
+        "samples_ms": [
+          765.2077,
+          769.8676,
+          769.2703
+        ]
+      },
+      "2": {
+        "route": "matrix64_per_wave_scalar_queue",
+        "completed_query_with_slab_encoding_ms": 668.745,
+        "including_preparation_ms": 669.435,
+        "preparation_ms": 0.69,
+        "samples_ms": [
+          665.9574,
+          668.745,
+          676.6481
+        ]
+      },
+      "3": {
+        "route": "matrix32_per_wave_scalar_queue",
+        "completed_query_with_slab_encoding_ms": 523.8528,
+        "including_preparation_ms": 524.5428,
+        "preparation_ms": 0.69,
+        "samples_ms": [
+          520.5649,
+          523.8528,
+          531.2548
+        ]
+      }
+    },
+    "q8192": {
+      "0": {
+        "route": "retained_prepared_scalar",
+        "completed_query_with_slab_encoding_ms": 339.5126,
+        "including_preparation_ms": 348.9436,
+        "preparation_ms": 9.431,
+        "samples_ms": [
+          337.2876,
+          339.7721,
+          339.5126
+        ]
+      },
+      "1": {
+        "route": "matrix64_direct_scalar_fallback",
+        "completed_query_with_slab_encoding_ms": 1025.6076,
+        "including_preparation_ms": 1026.5896,
+        "preparation_ms": 0.982,
+        "samples_ms": [
+          1018.8902,
+          1025.6076,
+          1028.2655
+        ]
+      },
+      "2": {
+        "route": "matrix64_per_wave_scalar_queue",
+        "completed_query_with_slab_encoding_ms": 879.0298,
+        "including_preparation_ms": 880.0118,
+        "preparation_ms": 0.982,
+        "samples_ms": [
+          876.7456,
+          879.0298,
+          889.3937
+        ]
+      },
+      "3": {
+        "route": "matrix32_per_wave_scalar_queue",
+        "completed_query_with_slab_encoding_ms": 682.4815,
+        "including_preparation_ms": 683.4635,
+        "preparation_ms": 0.982,
+        "samples_ms": [
+          674.4101,
+          682.4815,
+          706.7029
+        ]
+      }
+    }
+  },
+  "compiled_kernel_resources": {
+    "record": {
+      "kind": "read_only_embedded_amdgpu_kernel_metadata",
+      "executable_sha256": "108f872c91ccdce3f5b63ac107c3deb364c2657ac75fadc4de47dee967bf9b18",
+      "build_provenance_sha256": "71edd677560004156703d6cdc103b76972e4e0ca33367378f9184aed2697f95a",
+      "source_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+      "parser": "read_amdgpu_metadata_r1.py",
+      "parser_sha256": "3a73e524f738a8f325ccd2b880c60886c28f9f26cf87b6cb5c61d47613f4413f",
+      "kernels": [
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 24,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 32,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 4,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 36,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN23qrt_prepared_decoded_qk7prepareILb0EEEvPKtPjS3_Ptj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 12,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN23qrt_prepared_decoded_qk7prepareILb0EEEvPKtPjS3_Ptj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 7,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        },
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 24,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 32,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 4,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 36,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN23qrt_prepared_decoded_qk7prepareILb1EEEvPKtPjS3_Ptj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 18,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN23qrt_prepared_decoded_qk7prepareILb1EEEvPKtPjS3_Ptj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 9,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        },
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 24,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 32,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 40,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 48,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 56,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 60,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 64,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 68,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 16384,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 72,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN23qrt_prepared_decoded_qk6scoresILj128ELb1ELj16ELj16EEEvPKtS2_PKjS4_S4_S4_Pfjjjj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 50,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN23qrt_prepared_decoded_qk6scoresILj128ELb1ELj16ELj16EEEvPKtS2_PKjS4_S4_S4_Pfjjjj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 130,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        },
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 24,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 28,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 32,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 36,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 36416,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 40,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN24qrt_matrix_wave_queue_qk6scoresILj64ELb0EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 66,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN24qrt_matrix_wave_queue_qk6scoresILj64ELb0EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 93,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        },
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 24,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 28,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 32,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 36,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 40512,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 40,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN24qrt_matrix_wave_queue_qk6scoresILj64ELb1EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 66,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN24qrt_matrix_wave_queue_qk6scoresILj64ELb1EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 95,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        },
+        {
+          ".args": [
+            {
+              ".address_space": "global",
+              ".offset": 0,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 8,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".address_space": "global",
+              ".offset": 16,
+              ".size": 8,
+              ".value_kind": "global_buffer"
+            },
+            {
+              ".offset": 24,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 28,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 32,
+              ".size": 4,
+              ".value_kind": "by_value"
+            },
+            {
+              ".offset": 36,
+              ".size": 4,
+              ".value_kind": "by_value"
+            }
+          ],
+          ".group_segment_fixed_size": 21440,
+          ".kernarg_segment_align": 8,
+          ".kernarg_segment_size": 40,
+          ".language": "OpenCL C",
+          ".language_version": [
+            2,
+            0
+          ],
+          ".max_flat_workgroup_size": 1024,
+          ".name": "_ZN24qrt_matrix_wave_queue_qk6scoresILj32ELb1EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj",
+          ".private_segment_fixed_size": 0,
+          ".sgpr_count": 63,
+          ".sgpr_spill_count": 0,
+          ".symbol": "_ZN24qrt_matrix_wave_queue_qk6scoresILj32ELb1EEEvPKN23qrt_positive_integer_qk3RowES4_Pfjjjj.kd",
+          ".uniform_work_group_size": 1,
+          ".uses_dynamic_stack": false,
+          ".vgpr_count": 92,
+          ".vgpr_spill_count": 0,
+          ".wavefront_size": 32,
+          ".workgroup_processor_mode": 1
+        }
+      ]
+    },
+    "record_sha256": "d5998e6a7c8da9229fc0d2a21af219d6d9d743d33d06666b183d97cbbcf86131",
+    "scope": "Static compiler declarations, not measured occupancy or bank conflicts."
+  },
+  "verified_counts": {
+    "generated_cases": 88,
+    "generated_score_slots_across_variants": 135271616,
+    "generated_independent_cpu_dots": 5632,
+    "captured_score_slots_all_attempts": 15420096768,
+    "captured_independent_cpu_dots": 1936
+  },
+  "command": {
+    "file": "run-native-matrix-wave-queue-qk-r2.ps1",
+    "sha256": "73b89bfaadaa0474553700fd758d6370ff161df7a2eedd1797758f76bf8e3409",
+    "text": "param([ValidateSet('build','test','q7169','q8192')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916-r2';$seed='D:\\projects\\AIMA-public-matrix-wave-queue-qk-20260916';$sha='14aab5ed23ab7453fcbadaa04decb18110746cd3';$bundle='D:\\projects\\matrix-wave-queue-qk-14aab5e.bundle'\nfunction Verify-File([string]$Path,[string]$Hash){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Hash){throw ('Changed input: '+$Path)}}\nVerify-File $bundle '1194a6f35346ef3ac9e496b514a1d81d1052e3ca18f11684b5866acf38c43d7d'\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\matrix-wave-queue-qk';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\matrix_wave_queue_qk_selftest.cpp'\n$exe=Join-Path $build 'matrix-wave-queue-qk.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceFiles=@($source,(Join-Path $repo 'native\\providers\\sm121_attention_capacity.h'))\nforeach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn','native\\providers\\ck_fmha','tests\\native')){\n $sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName})\n}\n$sourceInputs=@($sourceFiles|Sort-Object -Unique|ForEach-Object {@{file=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}})\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; isolated exact matrix QK with per-wave scalar fallback queues';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Compare retained prepared scalar QK, direct matrix64 plus scalar fallback, and matrix64/matrix32 with wave-local ballot queues. Preserve original exact integer certificate, full internal carry across every K16, eligible scalar alignment and complete original-integer exceptional fallback. Every wave owns per_thread times32 LDS slots; original cells enter at most once per group, with no queue atomics or inter-wave consumers. Twenty-two generated cases include full-queue normal and subnormal inputs, empty/partial causal tiles, late exceptions, overflow, cancellation and signed zeros. Validate every original raw score, independent CPU dots, original encodings, tails and memory guards. Include candidate query encoding and key preparation in completed component timing. q8192 explicitly repeats1023 captured rows and is not new model/token evidence. No product dispatch or numerical threshold change.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action.StartsWith('build')){\n $link=Join-Path $build 'hipblaslt.lib';Copy-Item 'C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a' $link\n $spec.link_inputs=@(@{file=$link;sha256=(Get-FileHash $link -Algorithm SHA256).Hash.ToLowerInvariant()})\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','-DQRT_SM121_DPP_REDUCTION=1','-DQRT_SM121_COMPACT_NORMALIZE=1','-DQRT_CK_SM121_INTERPOLATED_EXP2=1','--offload-arch=gfx1151','-Xarch_device','-mno-cumode','-Xarch_device','-mno-wavefrontsize64','-L',$build,$source,'-o',$exe,'-lhipblaslt');$timeout=180\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha){throw 'Build commit mismatch'}\n Verify-File $exe $meta.executable.sha256\n foreach($file in $meta.source_inputs){Verify-File $file.file $file.sha256}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.executable=$exe;$spec.arguments=@('--selftest');$timeout=240\n if($Action -eq 'q7169' -or $Action -eq 'q8192'){\n  $capRoot='D:\\projects\\AIMA-public-fa-out-20260911\\build\\fla-model-q7169-fa-out-r1'\n  $q=Join-Path $capRoot 'layer3-full-full_attention_q_norm_rope-bf16.bin';$k=Join-Path $capRoot 'layer3-full-full_attention_k_norm_rope-bf16.bin'\n  $inputs=@(@{file=$q;sha256='c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d'},@{file=$k;sha256='99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8'})\n  foreach($file in $inputs){Verify-File $file.file $file.sha256}\n  $spec.input_files=$inputs;$spec.arguments=@(('--'+$Action),$q,$k)\n  $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured q7169 layer3 QK; q8192 repeats the first1023 captured rows as a component extension'\n  $spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83';$spec.input_run_sha256='4a4334d65056371866a10626bec395f9778a2cb6a182ead0560c35ea5cb20146';$spec.input_whole_source='28c4f9df501e8e95ac357acc45d30daf48633bf8'\n  $spec.real_model_prompt=$false;$spec.reference_is_compute_input=$false\n }\n\n}\n$out=Join-Path $repo ('build\\matrix-wave-queue-qk-'+$Action+'-r2');$specPath=Join-Path $build ($Action+'-spec-r2.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(2000,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic action failed'}\nif($Action.StartsWith('build')){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;link_inputs=$spec.link_inputs;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n  $expected=if($Action -eq 'test'){88}else{4}\n  if($reports.Count -ne $expected){throw 'Incomplete QK reports'}\n  foreach($r in $reports){if($r.raw_bit_mismatches -ne 0 -or -not $r.redzones_pass -or -not $r.immutable_inputs){throw 'QK numerical or memory comparison failed'}}\n foreach($file in $spec.input_files){Verify-File $file.file $file.sha256}\n}\n",
+    "dispatcher": "dispatch_matrix_wave_queue_qk_r2.py",
+    "dispatcher_sha256": "aa71dd0dccbdfc7a6166fec9cd384022d1049a16790a908d39acab933ad10087"
+  },
+  "prior_group_reuse_diagnostic": {
+    "record_sha256": "70737ba045409602780a989c37bed8956be044766f08a4eec4fa2eb987ed5563",
+    "counts": {
+      "q": {
+        "rows": 7169,
+        "heads": 16,
+        "total_occurrences": 1835264,
+        "distinct_sum": 1835264,
+        "repeated_sum": 0
+      },
+      "k": {
+        "rows": 7169,
+        "heads": 2,
+        "total_occurrences": 229408,
+        "distinct_sum": 229408,
+        "repeated_sum": 0
+      }
+    },
+    "scope": "Read-only statistics for one immutable layer3 q7169 capture; neither product speedup nor a carry-independent replay cache is established."
+  },
+  "current_product": {
+    "file": "benchmarks/correctness/gpu-execution-mode-product-20260916.json",
+    "bytes": 1362259,
+    "sha256": "e840d43358e81e1eda862569466ac48b58b74b4de42f64070f8fa716d5ea9c4e"
+  },
+  "dominant_wall": {
+    "file": "benchmarks/correctness/expert-coarse-stack-completed-profile-20260916.json",
+    "bytes": 296979,
+    "sha256": "b6fd9c32a07bbf990f868f9480346c66d8f3daacc08c261c48fad3f9e780a2a1"
+  },
+  "implementation": "Retain the existing exact integer matrix certificate and original internal K16 carry. Rejected cells enter a separate bounded queue per wave through ballot-prefix positions, without atomics. All32 scalar consumers execute dense live jobs. Eligible BF16 rows use existing exact scalar-FP32 alignment; wider inputs/carries retain original integer products and modulo normalization. Both queue widths and the direct64 matrix control own/timestamp all query encoding and key preparation. No product dispatcher includes the new header.",
+  "correctness_scope": "Every generated/captured raw score is compared with the original canonical GPU path, plus independent wide CPU dots, complete CPU row encodings, causal/output tails, immutable inputs and external redzones. Twenty-two generated shapes include fully uncertified normal/subnormal rows, partial/empty causal tiles, signed zeros, late exceptions, cancellation and wide carried exponents. The native fixture compares full buffers after every warmup and rotated sample. q8192 repeats1023 original captured rows; it is not a new real-model prompt, attention-context or GB10 token run.",
+  "timing_scope": "Completed per-slab host clocks include candidate query preparation and the complete score route; add the separate measured candidate key preparation or retained original metadata preparation. Allocations, buffer resets and validation are outside these timers. No TTFT, load, token, retained-performance or release acceptance follows.",
+  "decision": {
+    "source_commit": "14aab5ed23ab7453fcbadaa04decb18110746cd3",
+    "comparisons": {
+      "q7169": {
+        "0": {
+          "route": "retained_prepared_scalar",
+          "completed_query_with_slab_encoding_ms": 264.9768,
+          "including_preparation_ms": 273.5219,
+          "preparation_ms": 8.5451,
+          "samples_ms": [
+            264.5857,
+            264.9768,
+            266.1286
+          ]
+        },
+        "1": {
+          "route": "matrix64_direct_scalar_fallback",
+          "completed_query_with_slab_encoding_ms": 769.2703,
+          "including_preparation_ms": 769.9603,
+          "preparation_ms": 0.69,
+          "samples_ms": [
+            765.2077,
+            769.8676,
+            769.2703
+          ]
+        },
+        "2": {
+          "route": "matrix64_per_wave_scalar_queue",
+          "completed_query_with_slab_encoding_ms": 668.745,
+          "including_preparation_ms": 669.435,
+          "preparation_ms": 0.69,
+          "samples_ms": [
+            665.9574,
+            668.745,
+            676.6481
+          ]
+        },
+        "3": {
+          "route": "matrix32_per_wave_scalar_queue",
+          "completed_query_with_slab_encoding_ms": 523.8528,
+          "including_preparation_ms": 524.5428,
+          "preparation_ms": 0.69,
+          "samples_ms": [
+            520.5649,
+            523.8528,
+            531.2548
+          ]
+        }
+      },
+      "q8192": {
+        "0": {
+          "route": "retained_prepared_scalar",
+          "completed_query_with_slab_encoding_ms": 339.5126,
+          "including_preparation_ms": 348.9436,
+          "preparation_ms": 9.431,
+          "samples_ms": [
+            337.2876,
+            339.7721,
+            339.5126
+          ]
+        },
+        "1": {
+          "route": "matrix64_direct_scalar_fallback",
+          "completed_query_with_slab_encoding_ms": 1025.6076,
+          "including_preparation_ms": 1026.5896,
+          "preparation_ms": 0.982,
+          "samples_ms": [
+            1018.8902,
+            1025.6076,
+            1028.2655
+          ]
+        },
+        "2": {
+          "route": "matrix64_per_wave_scalar_queue",
+          "completed_query_with_slab_encoding_ms": 879.0298,
+          "including_preparation_ms": 880.0118,
+          "preparation_ms": 0.982,
+          "samples_ms": [
+            876.7456,
+            879.0298,
+            889.3937
+          ]
+        },
+        "3": {
+          "route": "matrix32_per_wave_scalar_queue",
+          "completed_query_with_slab_encoding_ms": 682.4815,
+          "including_preparation_ms": 683.4635,
+          "preparation_ms": 0.982,
+          "samples_ms": [
+            674.4101,
+            682.4815,
+            706.7029
+          ]
+        }
+      }
+    },
+    "disposition": "Keep the isolated matrix wave-queue experiment outside product dispatch and the retained stack.",
+    "reason": "All88 generated cases and both complete captured score comparisons pass. At q8192 the direct64/queue64/queue32 totals are1026.5896/880.0118/683.4635ms versus348.9436ms for retained prepared scalar QK. Queue64 improves the same64-column matrix control by146.5778ms, but the fastest matrix candidate remains about1.96times the retained path. The different32-column geometry has no direct32 ablation here. All three new kernels have zero declared private bytes; unmeasured spill/occupancy claims do not explain the result.",
+    "product_dispatch_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "release_qualified": false
+  },
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
