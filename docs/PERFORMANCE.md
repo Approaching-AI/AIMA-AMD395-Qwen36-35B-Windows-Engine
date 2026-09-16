@@ -1,5 +1,16 @@
 # Real-model performance
 
+## MoE down consumer audit, 2026-09-17
+
+Source `abb26a8` preserves all 512 GB10 IDs, actual callbacks and first logit
+10.375 in both same-DLL modes. The read-only audit checks all 671088640
+production F32 residuals with zero errors and conditionally certifies
+126904922 / 158740988 selected down replays (79.9446%) removable at the full
+combined consumer. Every original replay still executes. TTFT is
+27925.6884 / 28486.2800 ms off/on; observation adds time and demonstrates no
+speedup. Keep it off and test actual consumer filtering separately. All
+mission and release gates remain unchanged. See [scope and evidence](MOE_DOWN_CONSUMER_AUDIT.md).
+
 ## Adaptive strict attention-denominator components, 2026-09-17
 
 Sources `1f13077` / `065b258` preserve every tested original attention output
