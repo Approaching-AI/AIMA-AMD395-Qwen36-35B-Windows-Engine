@@ -1,0 +1,734 @@
+{
+  "schema_version": 1,
+  "kind": "isolated_wide_bf16_wmma_model_and_conditional_bound",
+  "host": "baiying",
+  "model": "none; generated normal BF16 operands in raw exponent80..174 plus zeros",
+  "model_loaded": false,
+  "source": {
+    "canonical_source_record": "wmma-bf16-guard-native-source-r1.json",
+    "canonical_source_record_sha256": "9b377d64a7415772b706e291655c592c9b47493999a61d63da4217d13fc21593",
+    "documentation_snapshot_differences": {},
+    "source_commit": "e77ecc0d9646778c6776c5b58d3c5712e75b3fed",
+    "repo": "D:/projects/AIMA-public-wmma-bf16-guard-20260916",
+    "seed": "D:/projects/AIMA-public-wmma-dot-float-holdout-20260916",
+    "prerequisite_commit": "2316a122853943385eda76f11a1c3c74f0426ad7",
+    "bundle": "wmma-bf16-guard-e77ecc0.bundle",
+    "bundle_sha256": "4efb12d7b0fe7c02b9b0b83cb1085090844d2b238e67126e026c7045c778ad67",
+    "script": "run-native-wmma-bf16-guard-r1.ps1",
+    "script_sha256": "2626745af26cc9525db3df58154881d3550b42b7a04d7b01c2c583c80ad5f44a",
+    "source_sha256": {
+      "tests/native/wmma_bf16_guard_probe.cpp": "864273bdfb468554fad8589052ec7a84f7ed55ccefe295985f6cb9c96466d284",
+      "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+    },
+    "local_validation": {
+      "commands": [
+        [
+          "c++",
+          "-std=c++17",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-fsanitize=undefined,address",
+          "-fno-sanitize-recover=all",
+          "<private-home>/projects/AIMA-public-r1191-candidate/tests/native/wmma_bf16_guard_probe.cpp",
+          "-o",
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-bf16-guard-host-r1"
+        ],
+        [
+          "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-bf16-guard-host-r1"
+        ],
+        [
+          "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+          "tools/public_hygiene.py",
+          "."
+        ]
+      ],
+      "returncode": 0,
+      "wall_seconds": 9.017954459413886,
+      "source_sha256": {
+        "tests/native/wmma_bf16_guard_probe.cpp": "864273bdfb468554fad8589052ec7a84f7ed55ccefe295985f6cb9c96466d284",
+        "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+      },
+      "log": "wmma-bf16-guard-local-r1.log",
+      "log_sha256": "583802bd41d06d94066a9243a3ca4e0459b367820393c7d1cc3371061e35e0fd",
+      "unchanged_full_suite": "dyadic-scan-qk-native-components-20260916.json",
+      "production_dispatch_changed": false
+    }
+  },
+  "local_validation": {
+    "commands": [
+      [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=undefined,address",
+        "-fno-sanitize-recover=all",
+        "<private-home>/projects/AIMA-public-r1191-candidate/tests/native/wmma_bf16_guard_probe.cpp",
+        "-o",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-bf16-guard-host-r1"
+      ],
+      [
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/wmma-bf16-guard-host-r1"
+      ],
+      [
+        "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+        "tools/public_hygiene.py",
+        "."
+      ]
+    ],
+    "returncode": 0,
+    "wall_seconds": 9.017954459413886,
+    "source_sha256": {
+      "tests/native/wmma_bf16_guard_probe.cpp": "864273bdfb468554fad8589052ec7a84f7ed55ccefe295985f6cb9c96466d284",
+      "tests/native/wmma_integer_rounding_probe.cpp": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204"
+    },
+    "log": "wmma-bf16-guard-local-r1.log",
+    "log_sha256": "583802bd41d06d94066a9243a3ca4e0459b367820393c7d1cc3371061e35e0fd",
+    "unchanged_full_suite": "dyadic-scan-qk-native-components-20260916.json",
+    "production_dispatch_changed": false
+  },
+  "native_runs": {
+    "build": {
+      "name": "wmma-bf16-guard-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\tests\\native\\wmma_bf16_guard_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\wmma-bf16-guard.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916",
+        "repo_commit": "e77ecc0d9646778c6776c5b58d3c5712e75b3fed",
+        "command_file": "D:\\projects\\run-native-wmma-bf16-guard-r1.ps1",
+        "command_file_sha256": "2626745af26cc9525db3df58154881d3550b42b7a04d7b01c2c583c80ad5f44a",
+        "model": "none; generated normal BF16 operands and zero carry",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare the empirical pair model with native masked-prefix BF16 WMMA results at prefix lengths2,4,6,8,10,12,14,16. All operands are zeros or normal BF16 values with raw exponents80..174. The initial carry is positive zero. These are separate zero-padded WMMA invocations, not directly observed internal states. Eight generated families cover signs, cancellation, wide exponent gaps and both range boundaries. Repeat every output, validate inputs and redzones, and save all operands and output words for independent exact-integer error-bound analysis. No production coefficient or runtime route changes."
+      },
+      "launch": {
+        "pid": 4488,
+        "utc": "2026-09-16T09:23:13.1865471Z",
+        "timeout_seconds": 150,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 2109.592,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "20dbac1a26d68806d0e492829ab2d8ec72a9f0807ae38f4c4930d2664764d581",
+        "dispatch.json": "7d2cd81726b83e23f1408a6bab02f00d2ef183181f8ffa3e69a79b0b52939cf2",
+        "launch.json": "57fb31cc2585a2de12652c0f9bc6a5261728c5ab93a3522f695dd318f5d91d28",
+        "preflight.json": "22ed693a372d4406a1400fab17c89b88563481b0fce5a5bfeb6c47ce05f5586e",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "deda65c639735481fda7ba8d5d4903361cb815ecd891469b5769f5e1e8bc7caf",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "e77ecc0d9646778c6776c5b58d3c5712e75b3fed",
+        "source_inputs": [
+          {
+            "sha256": "864273bdfb468554fad8589052ec7a84f7ed55ccefe295985f6cb9c96466d284",
+            "file": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\tests\\native\\wmma_bf16_guard_probe.cpp"
+          },
+          {
+            "sha256": "b4bc500abc7bc0a0d9d6ed8bb27106b7d5ddafd044147f5859cdb58ac4ccf204",
+            "file": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\tests\\native\\wmma_integer_rounding_probe.cpp"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-wmma-bf16-guard-r1.ps1",
+        "command_file_sha256": "2626745af26cc9525db3df58154881d3550b42b7a04d7b01c2c583c80ad5f44a",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\tests\\native\\wmma_bf16_guard_probe.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\wmma-bf16-guard.exe"
+        ],
+        "run_record_sha256": "deda65c639735481fda7ba8d5d4903361cb815ecd891469b5769f5e1e8bc7caf",
+        "executable": {
+          "sha256": "c30be7fe975efdb1e23d2101492e51861fe90c4e858f6d7dea1c3aa560a18d6f",
+          "file": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\wmma-bf16-guard.exe",
+          "bytes": 373760
+        }
+      }
+    },
+    "test": {
+      "name": "wmma-bf16-guard-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\wmma-bf16-guard.exe",
+        "arguments": [
+          "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\capture"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916",
+        "repo_commit": "e77ecc0d9646778c6776c5b58d3c5712e75b3fed",
+        "command_file": "D:\\projects\\run-native-wmma-bf16-guard-r1.ps1",
+        "command_file_sha256": "2626745af26cc9525db3df58154881d3550b42b7a04d7b01c2c583c80ad5f44a",
+        "model": "none; generated normal BF16 operands and zero carry",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Compare the empirical pair model with native masked-prefix BF16 WMMA results at prefix lengths2,4,6,8,10,12,14,16. All operands are zeros or normal BF16 values with raw exponents80..174. The initial carry is positive zero. These are separate zero-padded WMMA invocations, not directly observed internal states. Eight generated families cover signs, cancellation, wide exponent gaps and both range boundaries. Repeat every output, validate inputs and redzones, and save all operands and output words for independent exact-integer error-bound analysis. No production coefficient or runtime route changes.",
+        "build_provenance_sha256": "20dbac1a26d68806d0e492829ab2d8ec72a9f0807ae38f4c4930d2664764d581",
+        "output_directory": "D:\\projects\\AIMA-public-wmma-bf16-guard-20260916\\build\\wmma-bf16-guard\\capture"
+      },
+      "launch": {
+        "pid": 6116,
+        "utc": "2026-09-16T09:24:37.2694491Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 398.328,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "c30be7fe975efdb1e23d2101492e51861fe90c4e858f6d7dea1c3aa560a18d6f",
+      "canonical_raw_sha256": {
+        "capture-manifest.json": "fa61b1c8c7ccecb213d873dc7660ce3c5620e0dd2b9202bc45729a17b878efbd",
+        "dispatch.json": "f5524de0220c298066c52414dc42c112974c33bf3dc4f20b3083d903ba1865d8",
+        "launch.json": "524bbab511e192afd657d5525c593e5190456e49480a1559d1c1a552b29b7110",
+        "left-bf16.bin": "67f475921ca7b99614d7c09fc80482ed90920764e019743bfccd705a157b53d5",
+        "masked-prefix.bin": "84f4ac46edc2a8c9ce9a78c429747825baf5d71a30a22d40fa8df4ca6dc52d2b",
+        "model-prefix.bin": "84f4ac46edc2a8c9ce9a78c429747825baf5d71a30a22d40fa8df4ca6dc52d2b",
+        "preflight.json": "3b8896a1aee3e5ca7fddefd2e0270e578bf804a78f1e15a424ea48b2dd657855",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "0a0cd18cd9f445d090d56768c91c0415daf6153b8831fdcbe1b438645aaf3d95",
+        "reports.json": "d814a15c32b377be250e767d82bb68843e1031e2d56fede52bf68bf2263cee27",
+        "right-bf16.bin": "86694c69e05b4ab4b8294e8378822f77b52ad530a852fed0589b4d0b28ccd18d",
+        "run-record.json": "e74e89612f870b5f87c8f6a1cdc9a74033274dde3391c811df4e73c76851735f"
+      },
+      "reports": [
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 0,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 1,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 2,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 3,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 4,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 5,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 6,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "wmma_bf16_guard_diagnostic",
+          "family": 7,
+          "cells": 16384,
+          "masked_prefix_outputs": 131072,
+          "recursive_model_mismatches": 0,
+          "adjacent_prefix_transition_mismatches": 0,
+          "first_model_mismatch_index": 1048576,
+          "repeat_bit_parity": true,
+          "immutable_inputs": true,
+          "redzones_pass": true,
+          "internal_states_directly_observed": false,
+          "general_model_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "capture_manifest": [
+    {
+      "sha256": "67f475921ca7b99614d7c09fc80482ed90920764e019743bfccd705a157b53d5",
+      "name": "left-bf16.bin",
+      "bytes": 262144
+    },
+    {
+      "sha256": "84f4ac46edc2a8c9ce9a78c429747825baf5d71a30a22d40fa8df4ca6dc52d2b",
+      "name": "masked-prefix.bin",
+      "bytes": 4194304
+    },
+    {
+      "sha256": "84f4ac46edc2a8c9ce9a78c429747825baf5d71a30a22d40fa8df4ca6dc52d2b",
+      "name": "model-prefix.bin",
+      "bytes": 4194304
+    },
+    {
+      "sha256": "86694c69e05b4ab4b8294e8378822f77b52ad530a852fed0589b4d0b28ccd18d",
+      "name": "right-bf16.bin",
+      "bytes": 262144
+    }
+  ],
+  "independent_exact_integer_analysis": {
+    "kind": "independent_wide_bf16_wmma_guard_analysis",
+    "families": [
+      {
+        "family": 0,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 194,
+          "24": 6268
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 1,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 492,
+          "24": 19746
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 2,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 1123,
+          "24": 20526
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 3,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 0,
+          "24": 0
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 4,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 112,
+          "24": 14632
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 5,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 0,
+          "23": 0,
+          "24": 3174
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 6,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 1,
+          "23": 197,
+          "24": 6679
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      },
+      {
+        "family": 7,
+        "cells": 16384,
+        "masked_prefix_outputs": 131072,
+        "recursive_model_mismatches": 0,
+        "adjacent_prefix_transition_mismatches": 0,
+        "independent_cpp_model_mismatches": 0,
+        "exact_integer_error_bound_violations": {
+          "19": 0,
+          "20": 0,
+          "21": 0,
+          "22": 1,
+          "23": 197,
+          "24": 6679
+        },
+        "conditional_gamma_bound_violations": 0,
+        "first_model_mismatches": []
+      }
+    ],
+    "cells": 131072,
+    "masked_prefix_outputs": 1048576,
+    "exact_arithmetic_unit": "2^-149; all products, mathematical sums, native results and comparisons use arbitrary-size signed integers",
+    "maximum_error_over_L1": {
+      "numerator": "79",
+      "denominator": "322295533",
+      "decimal": 2.4511664578360756e-07,
+      "case": {
+        "cell": 108728,
+        "step": 6,
+        "native_bits": 2551457949,
+        "left": [
+          10699,
+          43480,
+          43086,
+          10665,
+          44001,
+          43298,
+          43605,
+          10505,
+          43639,
+          43205,
+          43684,
+          43065,
+          10704,
+          10851,
+          43494,
+          43490
+        ],
+        "right": [
+          10447,
+          10692,
+          43839,
+          43327,
+          11156,
+          10577,
+          43460,
+          43016,
+          11169,
+          10459,
+          43240,
+          43038,
+          10416,
+          43207,
+          11074,
+          43927
+        ]
+      }
+    },
+    "conditional_derivation_sha256": "a73b54e4664d66a8f6aa9715439b4ad3c3868b6da22597afae057fb33a8e8106",
+    "capture_manifest_sha256": "fa61b1c8c7ccecb213d873dc7660ce3c5620e0dd2b9202bc45729a17b878efbd",
+    "script_sha256": "fb19f3a60ad969847ea4ae23df937f6ed7a80ae52769cb47ea50c61bf4c1edb9",
+    "wall_seconds": 5.029745084233582,
+    "hardware_model_proven": false,
+    "production_coefficient_changed": false
+  },
+  "conditional_error_derivation": {
+    "kind": "conditional_eight_pair_wmma_forward_error_derivation",
+    "assumptions": [
+      "The empirical DOT2 guard-alignment/sign-complement model describes each of the eight native WMMA pair steps in natural order.",
+      "Inputs are positive/negative normal BF16 values with raw exponent80..174 or zeros, and the initial FP32 accumulator is positive zero.",
+      "Zero-input pairs preserve a normal FP32 carry; an all-zero result is positive zero. Nonzero pair inputs have exponent sums at least-94, so their quantization quantum is at least2^-118 and cancellation cannot create a nonzero FP32 subnormal.",
+      "No overflow, NaN, infinity or alternate denormal mode occurs. The L1 mathematical sum is below2^100 for the specified16-term domain."
+    ],
+    "local_error_inequality": "|D-(C+p0+p1)| <= alpha*|C| + beta*(|p0|+|p1|)",
+    "alpha": {
+      "numerator": "50331649",
+      "denominator": "562949953421312",
+      "decimal": 8.940696893944278e-08
+    },
+    "beta": {
+      "numerator": "67108867",
+      "denominator": "281474976710656",
+      "decimal": 2.3841858975970354e-07
+    },
+    "initial_positive_zero_beta": {
+      "numerator": "25165825",
+      "denominator": "140737488355328",
+      "decimal": 1.7881394143159923e-07
+    },
+    "recurrence": "gamma[1]=first; gamma[k]=max((1+alpha)*gamma[k-1]+alpha,beta). The previously accumulated mathematical magnitude is bounded by its prefix L1, so this bound covers every placement and sign of the16 products.",
+    "gamma_by_pair": [
+      {
+        "numerator": "25165825",
+        "denominator": "140737488355328",
+        "decimal": 1.7881394143159923e-07
+      },
+      {
+        "numerator": "21250651143238315933697",
+        "denominator": "79228162514264337593543950336",
+        "decimal": 2.682209263582545e-07
+      },
+      {
+        "numerator": "15950738207421785053029298329228410881",
+        "denominator": "44601490397061246283071436545296723011960832",
+        "decimal": 3.576279192785173e-07
+      },
+      {
+        "numerator": "11224334693272349588688819534964669655906571526340609",
+        "denominator": "25108406941546723055343157692830665664409421777856138051584",
+        "decimal": 4.470349201923884e-07
+      },
+      {
+        "numerator": "7582486782833252737672200729470744514210552846470239531524648075265",
+        "denominator": "14134776518227074636666380005943348126619871175004951664972849610340958208",
+        "decimal": 5.364419290998684e-07
+      },
+      {
+        "numerator": "4979987573261604030570727196842314257943924440122138765976976317558174394043334657",
+        "denominator": "7957171782556586274486115970349133441607298412757563479047423630290551952200534008528896",
+        "decimal": 6.258489460009581e-07
+      },
+      {
+        "numerator": "3203981600249661554950886444030034714735201362923417436154594623783183121720561032531256677498881",
+        "denominator": "4479489484355608421114884561136888556243290994469299069799978201927583742360321890761754986543214231552",
+        "decimal": 7.152559708956582e-07
+      },
+      {
+        "numerator": "2029141546310742437047170161003402698298538801243563589938859671133996800579134697871826394414225432627157925889",
+        "denominator": "2521728396569246669585858566409191283525103313309788586748690777871726193375821479130513040312634601011624191379636224",
+        "decimal": 8.046630037839693e-07
+      }
+    ],
+    "final_error_per_total_L1": {
+      "numerator": "2029141546310742437047170161003402698298538801243563589938859671133996800579134697871826394414225432627157925889",
+      "denominator": "2521728396569246669585858566409191283525103313309788586748690777871726193375821479130513040312634601011624191379636224",
+      "decimal": 8.046630037839693e-07
+    },
+    "final_error_in_fp32_unit_roundoff": 13.50000502169247,
+    "strict_upper_bound": {
+      "numerator": "1",
+      "denominator": "1048576",
+      "decimal": 9.5367431640625e-07
+    },
+    "derived_bound_holds_under_stated_model": true,
+    "arithmetic": "All coefficient comparisons and recurrence calculations use exact Python Fraction integers.",
+    "hardware_model_proven": false,
+    "production_coefficient_changed": false,
+    "inference_acceptance": false,
+    "performance_acceptance": false,
+    "script_sha256": "4d872865a28f10ab261e56870550832e78f3fc343b5e4192edb9e6928242ef00"
+  },
+  "analysis_methods": {
+    "analyze_wmma_bf16_guard_r1.py": {
+      "sha256": "fb19f3a60ad969847ea4ae23df937f6ed7a80ae52769cb47ea50c61bf4c1edb9",
+      "text": "from pathlib import Path\nfrom array import array\nfrom fractions import Fraction\nimport json,hashlib,struct,math,time\nB=Path(__file__).resolve().parent;D=B/'wmma-bf16-guard-test-r1'\nread=lambda p:json.loads(p.read_text(encoding='utf-8-sig'));sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()\nfor r in read(D/'capture-manifest.json'):assert (D/r['name']).stat().st_size==r['bytes'] and sha(D/r['name'])==r['sha256']\ndef words(name,code):\n    a=array(code);a.frombytes((D/name).read_bytes());return a\nleft,right=words('left-bf16.bin','H'),words('right-bf16.bin','H');native,host_model=words('masked-prefix.bin','I'),words('model-prefix.bin','I')\ndef value(x):return struct.unpack('<f',struct.pack('<I',x))[0]\ndef bits(x):return struct.unpack('<I',struct.pack('<f',x))[0]\ndef exact_float_units(x):\n    e=(x>>23)&255;m=x&0x7fffff;v=((m|0x800000)<<(e-1)) if e else m\n    return -v if x>>31 else v\ndef exact_product_units(a,b):\n    if not(a&0x7fff) or not(b&0x7fff):return 0\n    ea=(a>>7)&255;eb=(b>>7)&255;assert 80<=ea<=174 and 80<=eb<=174\n    v=((a&127)|128)*((b&127)|128)<<(ea+eb-119)\n    return -v if (a^b)&0x8000 else v\ndef predict(a,b,craw):\n    ep=max(((a[i]>>7)&255)+((b[i]>>7)&255)-254 if (a[i]&0x7fff) and (b[i]&0x7fff) else -126 for i in range(2))\n    c=value(craw);ce=((craw>>23)&255)-127 if c else -126;q=math.ldexp(1.0,max(ep,ce-2)-24)\n    total=math.trunc(c/q)+2*(craw>>31)\n    for av,bv in zip(a,b):\n        mag=math.trunc(abs(value(av<<16)*value(bv<<16))/q);total+=-(mag+1) if (av^bv)&0x8000 else mag\n    out=bits(total*q);return 0 if (out&0x7fffffff)<0x800000 else out\nstarted=time.monotonic();rows=[];maximum=(0,1);maximum_case=None;reports=read(D/'reports.json')\nderivation=read(B/'wmma-guard-conditional-bound-r1.json');gamma=[(int(g['numerator']),int(g['denominator'])) for g in derivation['gamma_by_pair']]\nfor family in range(8):\n    recursive_bad=transition_bad=cpp_bad=0;bound_bad={p:0 for p in range(19,25)};gamma_bad=0;first=[]\n    for cell in range(family*16384,(family+1)*16384):\n        tile,pos=divmod(cell,256);row,col=divmod(pos,16);a=left[tile*256+row*16:tile*256+row*16+16];b=right[tile*256+col*16:tile*256+col*16+16]\n        carried=0;mathematical=absolute=0\n        for step in range(8):\n            index=cell*8+step;got= native[index]\n            carried=predict(a[2*step:2*step+2],b[2*step:2*step+2],carried);recursive_bad+=carried!=got;cpp_bad+=carried!=host_model[index]\n            transition=predict(a[2*step:2*step+2],b[2*step:2*step+2],native[index-1] if step else 0);transition_bad+=transition!=got\n            for k in (2*step,2*step+1):\n                product=exact_product_units(a[k],b[k]);mathematical+=product;absolute+=abs(product)\n            error=abs(exact_float_units(got)-mathematical)\n            for p in bound_bad:bound_bad[p]+=(error<<p)>absolute\n            num,den=gamma[step];gamma_bad+=error*den>absolute*num\n            if absolute and error*maximum[1]>maximum[0]*absolute:maximum=(error,absolute);maximum_case=dict(cell=cell,step=step,native_bits=got,left=list(a),right=list(b))\n            if carried!=got and len(first)<6:first.append(dict(cell=cell,step=step,native_bits=got,prediction_bits=carried,carry_bits=native[index-1] if step else 0))\n    r=reports[family];assert r['family']==family and r['recursive_model_mismatches']==recursive_bad and r['adjacent_prefix_transition_mismatches']==transition_bad and cpp_bad==0\n    record=dict(family=family,cells=16384,masked_prefix_outputs=131072,recursive_model_mismatches=recursive_bad,adjacent_prefix_transition_mismatches=transition_bad,independent_cpp_model_mismatches=cpp_bad,exact_integer_error_bound_violations=bound_bad,conditional_gamma_bound_violations=gamma_bad,first_model_mismatches=first);rows.append(record);print(json.dumps(record),flush=True)\nratio=Fraction(*maximum)\nrecord=dict(kind='independent_wide_bf16_wmma_guard_analysis',families=rows,cells=131072,masked_prefix_outputs=1048576,exact_arithmetic_unit='2^-149; all products, mathematical sums, native results and comparisons use arbitrary-size signed integers',maximum_error_over_L1=dict(numerator=str(ratio.numerator),denominator=str(ratio.denominator),decimal=float(ratio),case=maximum_case),conditional_derivation_sha256=sha(B/'wmma-guard-conditional-bound-r1.json'),capture_manifest_sha256=sha(D/'capture-manifest.json'),script_sha256=sha(Path(__file__)),wall_seconds=time.monotonic()-started,hardware_model_proven=False,production_coefficient_changed=False)\nwith (B/'wmma-bf16-guard-analysis-r1.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps(record['maximum_error_over_L1']),flush=True)\n"
+    },
+    "derive_wmma_guard_bound_r1.py": {
+      "sha256": "4d872865a28f10ab261e56870550832e78f3fc343b5e4192edb9e6928242ef00",
+      "text": "from fractions import Fraction as F\nfrom pathlib import Path\nimport json,hashlib\nB=Path(__file__).resolve().parent;u=F(1,2**24)\n# Conditional on the observed three-input pair operation, all normal outputs\n# round once to nearest FP32. Let S=|p0|+|p1| and C be its actual FP32 input.\n# Product-dominant alignment: |delta|<=3*u*S, then RNE costs\n# u*(|C|+S+|delta|). Carry-dominant alignment has C/q integral;\n# |delta|<=2*q<=u*|C|/2. The larger coefficients cover both cases.\nalpha=F(3,2)*u+F(1,2)*u*u\nbeta=4*u+3*u*u\n# The positive-zero initial C removes its alignment/complement contribution.\nfirst=3*u+2*u*u\ngamma=first;steps=[gamma]\nfor _ in range(7):\n    gamma=max((1+alpha)*gamma+alpha,beta);steps.append(gamma)\nassert all(g>=0 for g in steps) and gamma<F(1,2**20)\ndef exact(x):return dict(numerator=str(x.numerator),denominator=str(x.denominator),decimal=float(x))\nrecord=dict(kind='conditional_eight_pair_wmma_forward_error_derivation',\n    assumptions=[\n        'The empirical DOT2 guard-alignment/sign-complement model describes each of the eight native WMMA pair steps in natural order.',\n        'Inputs are positive/negative normal BF16 values with raw exponent80..174 or zeros, and the initial FP32 accumulator is positive zero.',\n        'Zero-input pairs preserve a normal FP32 carry; an all-zero result is positive zero. Nonzero pair inputs have exponent sums at least-94, so their quantization quantum is at least2^-118 and cancellation cannot create a nonzero FP32 subnormal.',\n        'No overflow, NaN, infinity or alternate denormal mode occurs. The L1 mathematical sum is below2^100 for the specified16-term domain.'\n    ],local_error_inequality='|D-(C+p0+p1)| <= alpha*|C| + beta*(|p0|+|p1|)',\n    alpha=exact(alpha),beta=exact(beta),initial_positive_zero_beta=exact(first),\n    recurrence='gamma[1]=first; gamma[k]=max((1+alpha)*gamma[k-1]+alpha,beta). The previously accumulated mathematical magnitude is bounded by its prefix L1, so this bound covers every placement and sign of the16 products.',\n    gamma_by_pair=[exact(g) for g in steps],final_error_per_total_L1=exact(gamma),final_error_in_fp32_unit_roundoff=float(gamma/u),\n    strict_upper_bound=exact(F(1,2**20)),derived_bound_holds_under_stated_model=True,\n    arithmetic='All coefficient comparisons and recurrence calculations use exact Python Fraction integers.',\n    hardware_model_proven=False,production_coefficient_changed=False,inference_acceptance=False,performance_acceptance=False,\n    script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())\nwith (B/'wmma-guard-conditional-bound-r1.json').open('x') as f:json.dump(record,f,indent=2);f.write('\\n')\nprint(json.dumps({k:record[k] for k in ('final_error_per_total_L1','final_error_in_fp32_unit_roundoff','strict_upper_bound','hardware_model_proven')},indent=2))\n"
+    }
+  },
+  "source_audit": {
+    "changed_files": [
+      "tests/native/wmma_bf16_guard_probe.cpp"
+    ],
+    "product_dispatch_changed": false
+  },
+  "unchanged_full_suite": {
+    "file": "benchmarks/correctness/dyadic-scan-qk-native-components-20260916.json",
+    "bytes": 197763,
+    "sha256": "aa5305ce921551548a6797ad80fe52eddec6a4faca7e76610a3b1baa3af53f65"
+  },
+  "prior_floating_characterization": {
+    "file": "benchmarks/correctness/wmma-dot-float-native-characterization-20260916.json",
+    "bytes": 172696,
+    "sha256": "bcd18b37e93a9fe368e2ccc1f75a5cfae60a4ff8c25133f0a835e33817162fba"
+  },
+  "earlier_error_characterization": {
+    "file": "benchmarks/correctness/wmma-error-native-characterization-20260916.json",
+    "bytes": 99890,
+    "sha256": "18afacc8729ed34b013a2486e3b1f2c9eb4678394ff87bd892de86b434077a43"
+  },
+  "command": {
+    "file": "run-native-wmma-bf16-guard-r1.ps1",
+    "sha256": "2626745af26cc9525db3df58154881d3550b42b7a04d7b01c2c583c80ad5f44a",
+    "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-wmma-bf16-guard-20260916';$seed='D:\\projects\\AIMA-public-wmma-dot-float-holdout-20260916';$sha='e77ecc0d9646778c6776c5b58d3c5712e75b3fed';$bundle='D:\\projects\\wmma-bf16-guard-e77ecc0.bundle'\nfunction Verify-File([string]$Path,[string]$Hash){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Hash){throw ('Changed input: '+$Path)}}\nVerify-File $bundle '4efb12d7b0fe7c02b9b0b83cb1085090844d2b238e67126e026c7045c778ad67'\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\wmma-bf16-guard';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\wmma_bf16_guard_probe.cpp';$exe=Join-Path $build 'wmma-bf16-guard.exe';$provenance=Join-Path $build 'build-provenance.json'\n$sourceInputs=@(@($source,(Join-Path $repo 'tests\\native\\wmma_integer_rounding_probe.cpp'))|ForEach-Object {@{file=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}})\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated normal BF16 operands and zero carry';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Compare the empirical pair model with native masked-prefix BF16 WMMA results at prefix lengths2,4,6,8,10,12,14,16. All operands are zeros or normal BF16 values with raw exponents80..174. The initial carry is positive zero. These are separate zero-padded WMMA invocations, not directly observed internal states. Eight generated families cover signs, cancellation, wide exponent gaps and both range boundaries. Repeat every output, validate inputs and redzones, and save all operands and output words for independent exact-integer error-bound analysis. No production coefficient or runtime route changes.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=150\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha){throw 'Build commit mismatch'}\n Verify-File $exe $meta.executable.sha256\n foreach($file in $meta.source_inputs){Verify-File $file.file $file.sha256}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n $capture=Join-Path $build 'capture';if(Test-Path $capture){throw 'Capture already exists'};$null=New-Item -ItemType Directory -Path $capture\n $spec.executable=$exe;$spec.arguments=@($capture);$spec.output_directory=$capture;$timeout=120\n}\n$out=Join-Path $repo ('build\\wmma-bf16-guard-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(2000,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic action failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $diagnostics=@($reports|Where-Object {$_.kind -eq 'wmma_bf16_guard_diagnostic'})\n if($diagnostics.Count -ne 8){throw 'Incomplete floating diagnostic'}\n foreach($r in $diagnostics){if(-not $r.redzones_pass -or -not $r.repeat_bit_parity -or -not $r.immutable_inputs -or $r.cells -ne 16384 -or $r.masked_prefix_outputs -ne 131072){throw 'Floating validation failed'}}\n $files=@(Get-ChildItem -LiteralPath $capture -Filter '*.bin' -File|Sort-Object Name|ForEach-Object {@{name=$_.Name;bytes=$_.Length;sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()}})\n if($files.Count -ne 4){throw 'Incomplete raw outputs'}\n [IO.File]::WriteAllText((Join-Path $build 'capture-manifest.json'),($files|ConvertTo-Json -Depth 5),[Text.UTF8Encoding]::new($false))\n}\n"
+  },
+  "totals": {
+    "generated_full_dots": 131072,
+    "masked_prefix_outputs": 1048576,
+    "native_repeats": 2,
+    "model_mismatches": 0,
+    "exact_integer_p20_bound_violations": 0,
+    "conditional_gamma_bound_violations": 0
+  },
+  "conclusions": [
+    "All eight separate zero-padded K2..K16 WMMA results match the empirical pair model, including mixed signs, exact cancellation, sparse terms, wide gaps and both BF16 exponent boundaries. These are separate matrix instructions, not directly captured internal WMMA states.",
+    "Independent signed integers in units2^-149 exactly represent every product, mathematical sum and captured FP32 result. All1048576 prefix comparisons satisfy2^-20 times L1 and the stronger length-specific conditional bound. Native repeats, immutable inputs and redzones pass.",
+    "Under the explicit observed pair model, exact rational recurrence gives13.50000502169247 times2^-24 for the eight-pair forward-error coefficient, strictly below2^-20. The arithmetic proof is conditional on the hardware model; finite capture agreement does not prove that premise for every input.",
+    "This fixture has no observed2^-21 violation, but the earlier wider adversarial characterization does. No threshold below the conditional2^-20 bound follows from this sample. No production coefficient, dispatch, model run, retained performance or release qualification changes."
+  ],
+  "hardware_model_proven": false,
+  "production_coefficient_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
