@@ -151,10 +151,17 @@ __global__ __launch_bounds__(256) void execute(const Row* weight,const Row* inpu
  }
 }
 
+} // namespace qrt_out_variance_replay
+#include "q8192_out_variance_queue.h"
+namespace qrt_out_variance_replay {
 struct Stats {uint64_t selected=0,first=0,additional=0,skipped=0,rounds=0,fallback_rows=0,certified_rows=0,boundary_failures=0;double completed_ms=0.0;const char* operation="arguments";};
+inline size_t allocation_bytes(unsigned variant) {
+ return workspace_bytes+(variant==2u?qrt_out_variance_queue::additional_workspace_bytes:0u);
+}
 inline int setting(const char* value) {
  if(!value||!*value||!std::strcmp(value,"0"))return 0;
- return !std::strcmp(value,"1")?1:-1;
+ if(!std::strcmp(value,"1"))return 1;
+ return !std::strcmp(value,"2")?2:-1;
 }
 inline bool applicable(unsigned r,unsigned t,unsigned k,unsigned radius,unsigned ppb,
  bool corrected,bool consumer,bool diagnostics) {
@@ -171,13 +178,13 @@ inline bool options_compatible() {
 }
 
 inline hipError_t run(const uint16_t* weights,const uint16_t* inputs,const float* residual,
- const uint16_t* norm,const uint8_t* rsqrt,uint16_t* output,float* raw,hipStream_t stream,Stats* stats) {
- if(!weights||!inputs||!residual||!norm||!rsqrt||!output||!raw||!stats||raw==residual||!options_compatible())return hipErrorInvalidValue;
+ const uint16_t* norm,const uint8_t* rsqrt,uint16_t* output,float* raw,hipStream_t stream,Stats* stats,unsigned variant=1u) {
+ if(!weights||!inputs||!residual||!norm||!rsqrt||!output||!raw||!stats||raw==residual||(variant!=1u&&variant!=2u)||!options_compatible())return hipErrorInvalidValue;
  *stats=Stats{};const auto start=std::chrono::steady_clock::now();void* storage=nullptr;
  std::vector<unsigned> host(size_t(tokens)*fields);
  hipError_t status=[&]()->hipError_t {
   hipError_t result;stats->operation="allocate";
-  if((result=hipMalloc(&storage,workspace_bytes))!=hipSuccess)return result;
+  if((result=hipMalloc(&storage,allocation_bytes(variant)))!=hipSuccess)return result;
   auto* pw=static_cast<Row*>(storage);auto* px=pw+size_t(rows)*(width/16u);
   auto* xn=reinterpret_cast<float*>(px+size_t(tokens)*(width/16u));auto* wn=xn+tokens;
   auto* reports=reinterpret_cast<unsigned*>(wn+rows);
@@ -198,11 +205,37 @@ inline hipError_t run(const uint16_t* weights,const uint16_t* inputs,const float
   hipLaunchKernelGGL(bf16_row_l2_upper_bound_kernel,dim3(rows),dim3(256u),0u,stream,weights,wn,rows,width);
   if((result=hipGetLastError())!=hipSuccess)return result;
   stats->operation="adaptive_replay";
-  hipLaunchKernelGGL(execute,dim3(tokens),dim3(256u),0u,stream,pw,px,raw,residual,norm,rsqrt,xn,wn,tokens,width,512u,1000u,reports);
-  if((result=hipGetLastError())!=hipSuccess)return result;
-  stats->operation="bf16_endpoint";
-  hipLaunchKernelGGL(f32_to_bf16_kernel,dim3(cells/256u),dim3(256u),0u,stream,raw,output,cells);
-  if((result=hipGetLastError())!=hipSuccess)return result;
+  if(variant==1u) {
+   hipLaunchKernelGGL(execute,dim3(tokens),dim3(256u),0u,stream,pw,px,raw,residual,norm,rsqrt,xn,wn,tokens,width,512u,1000u,reports);
+   if((result=hipGetLastError())!=hipSuccess)return result;
+   stats->operation="bf16_endpoint";
+   hipLaunchKernelGGL(f32_to_bf16_kernel,dim3(cells/256u),dim3(256u),0u,stream,raw,output,cells);
+   if((result=hipGetLastError())!=hipSuccess)return result;
+  }else {
+   auto* states=reports+size_t(tokens)*fields;
+   auto* maximum=reinterpret_cast<float*>(states+size_t(tokens)*256u);
+   auto* queue=reinterpret_cast<unsigned*>(maximum+tokens);auto* count=queue+cells;
+   stats->operation="initial_queue_reset";
+   if((result=hipMemsetAsync(count,0,sizeof(unsigned),stream))!=hipSuccess)return result;
+   stats->operation="initial_queue";
+   hipLaunchKernelGGL(qrt_out_variance_queue::initialize,dim3(tokens),dim3(256u),0u,stream,raw,output,residual,xn,wn,tokens,512u,1000u,states,maximum,queue,count,reports);
+   if((result=hipGetLastError())!=hipSuccess)return result;
+   stats->operation="initial_replay";
+   hipLaunchKernelGGL(qrt_out_variance_queue::replay,dim3(4096u),dim3(256u),0u,stream,pw,px,output,queue,count,width);
+   if((result=hipGetLastError())!=hipSuccess)return result;
+   for(unsigned round=0u;round<18u;++round) {
+    stats->operation="round_queue_reset";
+    if((result=hipMemsetAsync(count,0,sizeof(unsigned),stream))!=hipSuccess)return result;
+    stats->operation="round_certificate";
+    hipLaunchKernelGGL(qrt_out_variance_queue::certify,dim3(tokens),dim3(256u),0u,stream,raw,output,residual,norm,rsqrt,tokens,round,states,maximum,queue,count,reports);
+    if((result=hipGetLastError())!=hipSuccess)return result;
+    if(round<17u) {
+     stats->operation="round_replay";
+     hipLaunchKernelGGL(qrt_out_variance_queue::replay,dim3(4096u),dim3(256u),0u,stream,pw,px,output,queue,count,width);
+     if((result=hipGetLastError())!=hipSuccess)return result;
+    }
+   }
+  }
   stats->operation="rounded_f32_carrier";
   hipLaunchKernelGGL(bf16_to_f32_kernel,dim3(cells/256u),dim3(256u),0u,stream,output,raw,cells);
   if((result=hipGetLastError())!=hipSuccess)return result;

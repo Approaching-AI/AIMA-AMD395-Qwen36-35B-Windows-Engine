@@ -7,7 +7,7 @@ void variance_consumer(const float* residual,const uint16_t* update,const uint16
  hip_ok(hipGetLastError(),"variance_consumer");
 }
 
-void run_out_variance_safety(const char* correction_path) {
+void run_out_variance_safety(const char* correction_path,bool queue_variant=false) {
  const uint8_t* table=nullptr;std::string failure;
  require(load_gfx1151_sm121_rsqrt_correction(&table,&failure,correction_path),failure.c_str());
  constexpr unsigned rows=2048u;
@@ -62,12 +62,45 @@ void run_out_variance_safety(const char* correction_path) {
            !std::memcmp(&px[i],&guarded,sizeof(Row))&&!std::memcmp(&px[px.size()-kGuard+i],&guarded,sizeof(Row)),"variance prepared guards");
    require(wn[i]==kF32Guard&&wn[wn.size()-kGuard+i]==kF32Guard&&xn[i]==kF32Guard&&xn[xn.size()-kGuard+i]==kF32Guard,"variance norm guards");
   }
-  hipLaunchKernelGGL(qrt_out_variance_replay::execute,dim3(count),dim3(256u),0u,nullptr,dpw.data(),dpx.data(),dc.data(),dr.data(),dn.data(),table,dxn.data(),dwn.data(),count,width,512u,1000u,ds.data());
-  hip_ok(hipGetLastError(),"variance_execute");hip_ok(hipDeviceSynchronize(),"variance_execute_complete");
-  ds.read(reports);
   std::vector<uint16_t> candidate(cells+2*kGuard,kBf16Guard),norm_ref(candidate),norm_got(candidate);
   DeviceBuffer<uint16_t> dout(candidate),dbref(norm_ref),dbgot(norm_got);
-  hipLaunchKernelGGL(f32_to_bf16_kernel,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,dc.data(),dout.data(),cells);
+  if(queue_variant) {
+   constexpr unsigned guard=0xa5a5a5a5u;
+   std::vector<unsigned> state(size_t(count)*256u+2*kGuard,guard),queue(cells+2*kGuard,guard),queued(1u+2*kGuard,guard);
+   std::vector<float> maximum(count+2*kGuard,kF32Guard);
+   DeviceBuffer<unsigned> dstate(state),dqueue(queue),dqueued(queued);DeviceBuffer<float> dmaximum(maximum);
+   hip_ok(hipMemsetAsync(dqueued.data(),0,sizeof(unsigned),nullptr),"variance_initial_queue_reset");
+   hipLaunchKernelGGL(qrt_out_variance_queue::initialize,dim3(count),dim3(256u),0u,nullptr,dc.data(),dout.data(),dr.data(),dxn.data(),dwn.data(),count,512u,1000u,dstate.data(),dmaximum.data(),dqueue.data(),dqueued.data(),ds.data());
+   hip_ok(hipGetLastError(),"variance_initial_queue");
+   // Four CTAs force multiple grid-stride iterations even at these small
+   // token counts. The real q8192 owner uses4096 CTAs and the same kernel.
+   hipLaunchKernelGGL(qrt_out_variance_queue::replay,dim3(4u),dim3(256u),0u,nullptr,dpw.data(),dpx.data(),dout.data(),dqueue.data(),dqueued.data(),width);
+   hip_ok(hipGetLastError(),"variance_initial_global_replay");
+   for(unsigned round=0;round<18u;++round) {
+    hip_ok(hipMemsetAsync(dqueued.data(),0,sizeof(unsigned),nullptr),"variance_round_queue_reset");
+    hipLaunchKernelGGL(qrt_out_variance_queue::certify,dim3(count),dim3(256u),0u,nullptr,dc.data(),dout.data(),dr.data(),dn.data(),table,count,round,dstate.data(),dmaximum.data(),dqueue.data(),dqueued.data(),ds.data());
+    hip_ok(hipGetLastError(),"variance_round_certificate");
+    if(round<17u) {
+     hipLaunchKernelGGL(qrt_out_variance_queue::replay,dim3(4u),dim3(256u),0u,nullptr,dpw.data(),dpx.data(),dout.data(),dqueue.data(),dqueued.data(),width);
+     hip_ok(hipGetLastError(),"variance_round_global_replay");
+    }
+   }
+   hip_ok(hipDeviceSynchronize(),"variance_global_queue_complete");
+   dstate.read(state);dqueue.read(queue);dqueued.read(queued);dmaximum.read(maximum);
+   for(size_t i=0;i<kGuard;++i) {
+    require(state[i]==guard&&state[state.size()-kGuard+i]==guard&&queue[i]==guard&&queue[queue.size()-kGuard+i]==guard&&queued[i]==guard&&queued[queued.size()-kGuard+i]==guard,"variance global queue and state guards");
+    require(maximum[i]==kF32Guard&&maximum[maximum.size()-kGuard+i]==kF32Guard,"variance maximum cost guards");
+   }
+   require(queued[kGuard]==0u,"variance final queue must be empty");
+  }else {
+   hipLaunchKernelGGL(qrt_out_variance_replay::execute,dim3(count),dim3(256u),0u,nullptr,dpw.data(),dpx.data(),dc.data(),dr.data(),dn.data(),table,dxn.data(),dwn.data(),count,width,512u,1000u,ds.data());
+   hip_ok(hipGetLastError(),"variance_execute");
+   hipLaunchKernelGGL(f32_to_bf16_kernel,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,dc.data(),dout.data(),cells);
+   hip_ok(hipGetLastError(),"variance_output_bf16");
+  }
+  hipLaunchKernelGGL(bf16_to_f32_kernel,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,dout.data(),dc.data(),cells);
+  hip_ok(hipGetLastError(),"variance_rounded_carrier");hip_ok(hipDeviceSynchronize(),"variance_execute_complete");
+  ds.read(reports);
   std::vector<float> rref(cells+2*kGuard,kF32Guard),rg(rref),nref(rref),ng(rref);
   DeviceBuffer<float> drr(rref),drg(rg),dnr(nref),dng(ng);
   variance_consumer(dr.data(),dref.data(),dn.data(),table,drr.data(),dnr.data(),dbref.data(),count);
@@ -87,6 +120,7 @@ void run_out_variance_safety(const char* correction_path) {
   auto pwcheck=pw,pxcheck=px;dpw.read(pwcheck);dpx.read(pxcheck);require(!std::memcmp(pwcheck.data(),pw.data(),pw.size()*sizeof(Row))&&!std::memcmp(pxcheck.data(),px.data(),px.size()*sizeof(Row)),"variance immutable prepared inputs");
   auto wncheck=wn,xncheck=xn;dwn.read(wncheck);dxn.read(xncheck);require(wncheck==wn&&xncheck==xn,"variance immutable norms");
   dc.read(centers);
+  for(size_t i=0;i<cells;++i)require(qrt_out_consumer_interval::bits(centers[kGuard+i])==uint32_t(candidate[kGuard+i])<<16u,"variance rounded F32 carrier");
   for(size_t i=0;i<kGuard;++i){require(centers[i]==kF32Guard&&centers[kGuard+cells+i]==kF32Guard,"variance raw guards");require(candidate[i]==kBf16Guard&&candidate[kGuard+cells+i]==kBf16Guard,"variance BF16 guards");require(reports[i]==0xa5a5a5a5u&&reports[kGuard+size_t(count)*8u+i]==0xa5a5a5a5u,"variance report guards");}
   uint64_t first=0,additional=0,skipped=0,fallback=0,boundaries=0;
   for(unsigned token=0;token<count;++token){
@@ -98,9 +132,9 @@ void run_out_variance_safety(const char* correction_path) {
    first+=r[1];additional+=r[2];skipped+=r[3];fallback+=r[5];boundaries+=r[7];
   }
   total_cells+=cells;total_first+=first;total_additional+=additional;total_skipped+=skipped;total_fallback+=fallback;total_boundaries+=boundaries;++cases;
-  std::printf("{\"kind\":\"out_variance_replay_safety\",\"width\":%u,\"tokens\":%u,\"mode\":%u,\"cells\":%zu,\"first_replay\":%llu,\"additional_replay\":%llu,\"skipped\":%llu,\"fallback_rows\":%llu,\"observed_boundary_failures\":%llu,\"all_residual_and_norm_bits_match\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",width,count,mode,cells,(unsigned long long)first,(unsigned long long)additional,(unsigned long long)skipped,(unsigned long long)fallback,(unsigned long long)boundaries);std::fflush(stdout);
+  std::printf("{\"kind\":\"out_variance_replay_safety\",\"variant\":%u,\"width\":%u,\"tokens\":%u,\"mode\":%u,\"cells\":%zu,\"first_replay\":%llu,\"additional_replay\":%llu,\"skipped\":%llu,\"fallback_rows\":%llu,\"observed_boundary_failures\":%llu,\"all_residual_and_norm_bits_match\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",queue_variant?2u:1u,width,count,mode,cells,(unsigned long long)first,(unsigned long long)additional,(unsigned long long)skipped,(unsigned long long)fallback,(unsigned long long)boundaries);std::fflush(stdout);
  }
  require(total_first&&total_additional&&total_skipped&&total_fallback&&total_boundaries,"variance branch coverage");
- std::printf("{\"kind\":\"out_variance_replay_safety_complete\",\"cases\":%u,\"cpu_dots\":%llu,\"all_residual_and_norm_bits_match\":true,\"inference_acceptance\":false}\n",cases,(unsigned long long)total_cells);std::fflush(stdout);
+ std::printf("{\"kind\":\"out_variance_replay_safety_complete\",\"variant\":%u,\"cases\":%u,\"cpu_dots\":%llu,\"all_residual_and_norm_bits_match\":true,\"inference_acceptance\":false}\n",queue_variant?2u:1u,cases,(unsigned long long)total_cells);std::fflush(stdout);
 }
 } // namespace projection_safety_test

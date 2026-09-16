@@ -116910,7 +116910,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         std::getenv("QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY"));
     if (variance_linear_out_setting < 0) {
         run->failure_stage = prefix + "_variance_linear_out_setting";
-        run->failure = "QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY requires 0 or 1";
+        run->failure = "QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY requires 0, 1 or 2";
         return false;
     }
     const bool whole_repeated_layer_provider =
@@ -123001,14 +123001,15 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                 const hipError_t status = qrt_out_variance_replay::run(
                     device_out_weight, device_gated_bf16, device_previous,
                     device_post_norm_weight, device_gfx1151_sm121_rsqrt_correction,
-                    device_out_bf16, device_out, 0, &stats);
-                std::fprintf(stderr,"BATCH_MARK variance_linear_out_projection layer=%u tokens=%u rows=%u k=%u radius=512 ppb=1000 selected=%llu first_replay=%llu additional_replay=%llu skipped=%llu rounds=%llu fallback_rows=%llu certified_rows=%llu observed_boundary_failures=%llu workspace_bytes=%zu completed_ms=%.6f original_k16=1 full_residual_norm_certificate=1 bounded_rounds=18 rounded_f32_carrier=1 completed=%u\n",
+                    device_out_bf16, device_out, 0, &stats, unsigned(variance_linear_out_setting));
+                std::fprintf(stderr,"BATCH_MARK variance_linear_out_projection layer=%u tokens=%u rows=%u k=%u radius=512 ppb=1000 selected=%llu first_replay=%llu additional_replay=%llu skipped=%llu rounds=%llu fallback_rows=%llu certified_rows=%llu observed_boundary_failures=%llu variant=%u workspace_bytes=%zu completed_ms=%.6f original_k16=1 full_residual_norm_certificate=1 bounded_rounds=18 rounded_f32_carrier=1 completed=%u\n",
                     descriptor.layer_index,target_token_count,kOutProjectionRows,kValueFeatures,
                     (unsigned long long)stats.selected,(unsigned long long)stats.first,
                     (unsigned long long)stats.additional,(unsigned long long)stats.skipped,
                     (unsigned long long)stats.rounds,(unsigned long long)stats.fallback_rows,
                     (unsigned long long)stats.certified_rows,(unsigned long long)stats.boundary_failures,
-                    qrt_out_variance_replay::workspace_bytes,stats.completed_ms,status==hipSuccess?1u:0u);
+                    unsigned(variance_linear_out_setting),
+                    qrt_out_variance_replay::allocation_bytes(unsigned(variance_linear_out_setting)),stats.completed_ms,status==hipSuccess?1u:0u);
                 if (!fail_hip(status,prefix+"_variance_linear_out_"+stats.operation))goto cleanup;
             } else if (coarse_linear_out) {
                 if (exact_arbitrary_repeated_heuristic_sweep ||
