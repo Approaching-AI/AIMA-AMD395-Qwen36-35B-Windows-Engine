@@ -1,5 +1,14 @@
 # Real-model performance
 
+## Native GPU execution modes, 2026-09-16
+
+Same-source WGP/CU builds of all four in-tree HIP providers pass the real
+q8192/out512 GB10 token, first-logit and callback boundaries. TTFT is
+27936.2702 / 27730.1676 ms; the single206.1026 ms reduction accompanies a
+higher CU TPOT. Keep the default and retained stack unchanged. Actual kernel
+descriptors confirm all637 entries in the requested mode, all wave32.
+See [the build scope and evidence](GPU_EXECUTION_MODE_EXPERIMENT.md).
+
 ## Coarse linear OUT, 2026-09-16
 
 A same-DLL real q8192/out512 pair at `768d054` passes every GB10 token,
