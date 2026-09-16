@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Exact CPU QK partition components, 2026-09-17
+
+Sources `5986f7f` / `6599691` preserve original raw attention and all available
+GB10 context cells with exact AVX-512 K16 arithmetic. A paired q8192 layout
+comparison reduces 32-worker CPU QK from 4278.4413 to 2043.3010 ms by adding
+one cache line between feature rows. Complete attention remains 3606.5788 ms
+against the same-executable GPU control's 982.5672 ms. All safety cases and
+captured comparisons pass, but no CPU/GPU overlap or model token loop was
+measured. Keep it isolated and continue broader GPU arithmetic/dataflow work.
+See [scope, preparation costs and evidence](CPU_EXACT_QK_EXPERIMENT.md).
+
 ## Exact native EXP correction components, 2026-09-17
 
 Sources `4fca895` / `d89c260` verify all328728576 exp2 inputs twice and all
