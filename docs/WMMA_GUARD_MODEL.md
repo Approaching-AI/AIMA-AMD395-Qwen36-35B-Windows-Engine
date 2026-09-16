@@ -121,3 +121,20 @@ observed native model. This premise is explicit; the unrounded FP16 result is
 not claimed to be an integer. The isolated centered-Karatsuba fixture compares
 all partials and reconstructed integers with independent CPU sums and retains
 the original four-IU8 control. Provider dispatch remains unchanged.
+
+## H7 coprime residues
+
+The isolated CRT integer core retains the H7 domain: absolute values at most
+32640 with at most eight significant bits, exactly representable in FP16.
+There are2303 distinct signed integer encodings in this domain. One zero-C
+FP16 WMMA estimates the full K16 dot, while two unsigned IU8 matrices compute
+residues modulo255 and256. Their coprime product is65280, so the exact dot is
+the unique congruent integer within32640 of an approximation.
+
+The conditional eight-pair recurrence gives absolute error3920 at H7. This
+is smaller than half the CRT modulus. Recovery uses signed int64 arithmetic
+and explicit ties/range rejection; it does not assume an int32 full sum.
+The maximum full dot magnitude is17045913600. All modular reductions, signed
+encodings and nearest-class recovery have independent host checks. Actual
+native matrix outputs still require hardware comparisons, and no provider
+dispatch or model qualification follows from the conditional bound.

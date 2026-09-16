@@ -37,6 +37,10 @@ def integer_envelope(limit):
 
 
 class ConditionalIntegerBoundTests(unittest.TestCase):
+    def test_h7_coprime_residue_domain(self):
+        self.assertEqual(envelope(7)[-1], 3920)
+        self.assertLess(envelope(7)[-1], (255 * 256) // 2)
+
     def test_centered_signed16_combination_domain(self):
         self.assertEqual(integer_envelope(256)[-1], Fraction(85, 256))
         self.assertLess(integer_envelope(256)[-1], Fraction(1, 2))
