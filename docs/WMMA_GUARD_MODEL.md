@@ -83,7 +83,8 @@ analysis source are recorded in
 [`wmma-dot-chain-native-characterization-20260916.json`](../benchmarks/correctness/wmma-dot-chain-native-characterization-20260916.json),
 [`wmma-dot-float-native-characterization-20260916.json`](../benchmarks/correctness/wmma-dot-float-native-characterization-20260916.json), and
 [`wmma-bf16-guard-native-characterization-20260916.json`](../benchmarks/correctness/wmma-bf16-guard-native-characterization-20260916.json).
-# Conditional integer residue recovery
+
+## Conditional integer residue recovery
 
 The isolated H4 path represents each BF16 operand by an exactly encoded FP16
 integer core of magnitude at most4080. Original low exponent terms remain as
@@ -105,3 +106,18 @@ not certify H5/H6 recovery: the same conservative calculation gives245/980,
 respectively. Those are inconclusive bounds, not observed counterexamples.
 The windowed QK experiment preserves the original exception compensation,
 carry order, normalization and fallback. It has no product dispatcher.
+
+## Centered signed16 cross terms
+
+For a signed16 integer write x=256h+l, where h is a signed high byte and l
+an unsigned low byte. Set s=h+l-128. Then s is in[-256,254], exactly encoded
+in FP16. For sixteen pairs the cross term is
+`SS-HH-LL+128*(sum(sA)+sum(sB))+262144`. Thus two IU8 matrices for HH/LL and
+one FP16 matrix for SS can reconstruct the complete signed16 dot.
+
+The same conditional error recurrence, now with maximum absolute operand256,
+gives85/256<1/2. Nearest-integer conversion therefore recovers SS under the
+observed native model. This premise is explicit; the unrounded FP16 result is
+not claimed to be an integer. The isolated centered-Karatsuba fixture compares
+all partials and reconstructed integers with independent CPU sums and retains
+the original four-IU8 control. Provider dispatch remains unchanged.

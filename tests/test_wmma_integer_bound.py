@@ -13,8 +13,12 @@ def exponent(value):
 
 
 def envelope(headroom):
-    product = (255 << headroom) ** 2
-    product_quantum = power(2 * (7 + headroom) - 24)
+    return integer_envelope(255 << headroom)
+
+
+def integer_envelope(limit):
+    product = limit ** 2
+    product_quantum = power(2 * (limit.bit_length() - 1) - 24)
     error = Fraction(0)
     steps = []
     for pair in range(1, 9):
@@ -33,6 +37,11 @@ def envelope(headroom):
 
 
 class ConditionalIntegerBoundTests(unittest.TestCase):
+    def test_centered_signed16_combination_domain(self):
+        self.assertEqual(integer_envelope(256)[-1], Fraction(85, 256))
+        self.assertLess(integer_envelope(256)[-1], Fraction(1, 2))
+        self.assertEqual(integer_envelope(255)[-1], Fraction(245, 1024))
+
     def test_h4_mod256_domain_and_wider_limits(self):
         self.assertEqual(envelope(4), [Fraction(x, 4) for x in (6, 17, 37, 61, 101, 149, 197, 245)])
         self.assertLess(envelope(4)[-1], 128)
