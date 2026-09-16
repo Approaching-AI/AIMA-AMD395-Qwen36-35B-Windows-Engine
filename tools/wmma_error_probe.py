@@ -99,8 +99,11 @@ def generate(path, cases=64):
 
 
 def digest(path):
+    result = hashlib.sha256()
     with Path(path).open("rb") as source:
-        return hashlib.file_digest(source, "sha256").hexdigest()
+        for chunk in iter(lambda: source.read(1 << 20), b""):
+            result.update(chunk)
+    return result.hexdigest()
 
 
 def bf16_integer(word):
