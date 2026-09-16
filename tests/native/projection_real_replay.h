@@ -29,6 +29,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool transfer_replay = transfer_option && !std::strcmp(transfer_option,"1");
     const char* slab_bucket_option = std::getenv("QRT_PROJECTION_SAFETY_SLAB_BUCKET_REPLAY");
     const bool slab_bucket_replay = slab_bucket_option && !std::strcmp(slab_bucket_option,"1");
+    const char* pair_option = std::getenv("QRT_PROJECTION_SAFETY_PAIR_REPLAY");
+    const bool pair_replay = pair_option && !std::strcmp(pair_option,"1");
     const char* folded_option = std::getenv("QRT_PROJECTION_SAFETY_FOLDED_HALF_REPLAY");
     const bool folded_replay = folded_option && !std::strcmp(folded_option,"1");
     const char* resident_input_option = std::getenv("QRT_PROJECTION_SAFETY_RESIDENT_INPUT_REPLAY");
@@ -45,7 +47,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const char* staged_device_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_DEVICE_REPLAY");
     const bool staged_device_replay = staged_device_option && !std::strcmp(staged_device_option,"1");
     require(!output_projection || (extend_q8192 && ppb == 10000u &&
-        ((cooperative && !std::strcmp(cooperative,"1")) || staged_device_replay || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
+        ((cooperative && !std::strcmp(cooperative,"1")) || staged_device_replay || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || pair_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
         "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
@@ -75,7 +77,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
             dw.data(),di.data(),dout.data(),rows,k,tokens,0u,nullptr,
             "real_out_producer",&stage,&failure);
         require(produced, (stage+": "+failure).c_str());
-    } else if (staged_device_replay) {
+    } else if (staged_device_replay || pair_replay) {
         std::string stage, failure;
         require(resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
             dw.data(),di.data(),dout.data(),rows,k,tokens,4u,nullptr,
@@ -142,7 +144,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const float margin = std::fabs(value - midpoint);
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const float error = upper * (static_cast<float>(ppb) * 1e-9f);
-        const bool selected = distance <= 512u || tiny || (partitioned_half_replay
+        const bool selected = distance <= 512u || tiny || ((partitioned_half_replay || pair_replay)
             ? qrt_bf16_midpoint::within_error(value,error) : margin <= error);
         candidates += selected;
         if (selected) selected_indices.push_back(static_cast<unsigned>(i));
@@ -195,6 +197,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     if (dominant_replay) {
         run_dominant_half_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
+        return;
+    }
+    if (pair_replay) {
+        run_pair_half_replays(dw,di,dout,weights,inputs,reference,output,selected_indices,rows,tokens,k);
         return;
     }
     if (folded_replay) {
