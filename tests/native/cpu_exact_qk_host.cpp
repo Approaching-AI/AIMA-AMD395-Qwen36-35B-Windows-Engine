@@ -25,18 +25,18 @@ uint16_t operand(unsigned row,unsigned feature,unsigned mode,unsigned salt) {
 }
 void portable() {
     uint64_t cells=0;
-    for(unsigned n:{1u,3u,17u,33u,129u}) {
+    for(unsigned n:{1u,3u,17u,33u,129u})for(unsigned padding:{0u,16u}) {
         std::vector<uint16_t> q(size_t(n)*4096u),k(size_t(n)*512u);
         for(size_t i=0;i<q.size();++i)q[i]=uint16_t(i);
         for(size_t i=0;i<k.size();++i)k[i]=uint16_t(i*7919u);
         const auto before_q=q,before_k=k;
-        cpu::Prepared p(q.data(),k.data(),n);p.verify();
+        cpu::Prepared p(q.data(),k.data(),n,padding);p.verify();
         require(q==before_q&&k==before_k,"preparation mutated originals");cells+=p.values.size();
     }
     bool rejected=false;uint16_t word=0;
     try {cpu::Prepared p(&word,&word,0u);}catch(const std::invalid_argument&){rejected=true;}
     require(rejected,"zero shape accepted");
-    std::printf("{\"kind\":\"cpu_exact_qk_preparation\",\"shapes\":5,\"prepared_cells\":%llu,\"all_bf16_encodings\":true,\"padding_and_flags_pass\":true,\"immutable_inputs\":true}\n",(unsigned long long)cells);
+    std::printf("{\"kind\":\"cpu_exact_qk_preparation\",\"shapes\":10,\"prepared_cells\":%llu,\"all_bf16_encodings\":true,\"padding_and_flags_pass\":true,\"immutable_inputs\":true}\n",(unsigned long long)cells);
 }
 #if !defined(__HIP_DEVICE_COMPILE__) && (defined(__x86_64__) || defined(_M_X64))
 void native() {

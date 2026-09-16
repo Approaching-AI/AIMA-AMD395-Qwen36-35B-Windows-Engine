@@ -26,8 +26,10 @@ struct Prepared {
     std::vector<float> values;
     std::vector<int> exponents;
     std::vector<unsigned char> query_ok,key_ok;
-    Prepared(const uint16_t* q,const uint16_t* k,unsigned n):query(q),key(k),tokens(n),pitch((n+15u)&~15u) {
-        if(!q||!k||!n||n>8192u)throw std::invalid_argument("CPU QK preparation shape");
+    // One cache line between feature rows avoids a power-of-two feature
+    // stride at q8192. Zero padding remains available for paired measurement.
+    Prepared(const uint16_t* q,const uint16_t* k,unsigned n,unsigned padding=16u):query(q),key(k),tokens(n),pitch(((n+15u)&~15u)+padding) {
+        if(!q||!k||!n||n>8192u||(padding!=0u&&padding!=16u))throw std::invalid_argument("CPU QK preparation shape");
         values.resize(size_t(key_heads)*width*pitch);
         exponents.resize(values.size(),qrt_sm121_decoded_bf16::zero_exponent);
         query_ok.assign(size_t(n)*query_heads,1u);key_ok.assign(size_t(n)*key_heads,1u);

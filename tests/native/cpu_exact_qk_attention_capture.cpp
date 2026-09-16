@@ -182,10 +182,11 @@ void cpu_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     check(hipMemcpy(host_k.data(),dk.data(),dk.bytes,hipMemcpyDeviceToHost));
     const double readback_ms=elapsed(input_begin);
     const auto prepare_begin=std::chrono::steady_clock::now();
-    cpu::Prepared host_prepared(host_q.data(),host_k.data(),tokens);
+    cpu::Prepared host_prepared(host_q.data(),host_k.data(),tokens,0u);
     const double cpu_prepare_ms=elapsed(prepare_begin);
-    const auto worker16_begin=std::chrono::steady_clock::now();cpu::Workers workers16(16u);
-    workers16.run(0u,[](size_t){});const double workers16_ms=elapsed(worker16_begin);
+    const auto padded_begin=std::chrono::steady_clock::now();
+    cpu::Prepared padded(host_q.data(),host_k.data(),tokens,16u);
+    const double padded_prepare_ms=elapsed(padded_begin);
     const auto worker32_begin=std::chrono::steady_clock::now();cpu::Workers workers32(32u);
     workers32.run(0u,[](size_t){});const double workers32_ms=elapsed(worker32_begin);
     AttentionOutputs expected(tokens),actual(tokens);
@@ -210,7 +211,7 @@ void cpu_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
             actual.reset();std::fill(host_scores.begin(),host_scores.end(),qrt_sm121_float_alignment::from_bits(0xa5a5a5a5u));finish();
             const auto begin=std::chrono::steady_clock::now();double score_ms=0.0,copy_ms=0.0;uint64_t fallback=0;
             if(variant){
-                fallback=cpu::scores(host_prepared,variant==1u?workers16:workers32,start,queries,host_scores.data()+64u,expected.tensor.cells);
+                fallback=cpu::scores(variant==1u?host_prepared:padded,workers32,start,queries,host_scores.data()+64u,expected.tensor.cells);
                 score_ms=elapsed(begin);
             }
             attention(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,actual,start,queries,tokens,de.data(),nullptr,dc.data(),false,nullptr,
@@ -231,15 +232,16 @@ void cpu_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
         }
     }
     dq.immutable(q);dk.immutable(k);dv.immutable(v);dr.immutable(reference);de.immutable(exp);dc.immutable(rcp);
-    dt.immutable(transposed);vt.immutable(transposed_v);prepared.verify();host_prepared.verify();
+    dt.immutable(transposed);vt.immutable(transposed_v);prepared.verify();host_prepared.verify();padded.verify();
     if(host_q!=q||host_k!=k)throw std::runtime_error("CPU original input changed");
     if(pv_candidates[0]!=pv_candidates[1]||pv_candidates[0]!=pv_candidates[2]||fallbacks[1]!=fallbacks[2])throw std::runtime_error("CPU control counters differ");
     for(unsigned variant=0;variant<3u;++variant){
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
-        const unsigned workers=variant==1u?16u:variant==2u?32u:0u;
-        const double startup=variant==1u?workers16_ms:variant==2u?workers32_ms:0.0;
-        const double preparation=transpose_ms+(variant?readback_ms+cpu_prepare_ms+startup:prepared.ms);
-        std::printf("{\"kind\":\"cpu_exact_qk_attention_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"cpu_workers\":%u,\"score_probability_slots\":%llu,\"scale_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"independent_cpu_dots\":%u,\"pv_candidates\":%llu,\"cpu_fallback_scores\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"cpu_score_samples_ms\":[%.9f,%.9f,%.9f],\"score_upload_samples_ms\":[%.9f,%.9f,%.9f],\"value_transpose_ms\":%.9f,\"gpu_qk_prepare_ms\":%.9f,\"cpu_input_readback_ms\":%.9f,\"cpu_encoding_ms\":%.9f,\"cpu_worker_startup_ms\":%.9f,\"candidate_preparation_ms\":%.9f,\"preparation_plus_median_ms\":%.9f,\"cpu_encoding_bytes\":%llu,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_probability_and_pv\":true,\"cpu_gpu_overlap\":false,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,workers,(unsigned long long)score_slots,(unsigned long long)scale_slots,tokens*4096u,cpu_dots,(unsigned long long)pv_candidates[variant],(unsigned long long)fallbacks[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],cpu_ms[variant][0],cpu_ms[variant][1],cpu_ms[variant][2],transfer_ms[variant][0],transfer_ms[variant][1],transfer_ms[variant][2],transpose_ms,variant?0.0:prepared.ms,variant?readback_ms:0.0,variant?cpu_prepare_ms:0.0,startup,preparation,preparation+sorted[1],(unsigned long long)(variant?host_prepared.bytes():0u));std::fflush(stdout);
+        const unsigned workers=variant?32u:0u;
+        const double startup=variant?workers32_ms:0.0;
+        const double encoding=variant==1u?cpu_prepare_ms:variant==2u?padded_prepare_ms:0.0;
+        const double preparation=transpose_ms+(variant?readback_ms+encoding+startup:prepared.ms);
+        std::printf("{\"kind\":\"cpu_exact_qk_padded_attention_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"cpu_workers\":%u,\"feature_padding_floats\":%u,\"score_probability_slots\":%llu,\"scale_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"independent_cpu_dots\":%u,\"pv_candidates\":%llu,\"cpu_fallback_scores\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"cpu_score_samples_ms\":[%.9f,%.9f,%.9f],\"score_upload_samples_ms\":[%.9f,%.9f,%.9f],\"value_transpose_ms\":%.9f,\"gpu_qk_prepare_ms\":%.9f,\"cpu_input_readback_ms\":%.9f,\"cpu_encoding_ms\":%.9f,\"cpu_worker_startup_ms\":%.9f,\"candidate_preparation_ms\":%.9f,\"preparation_plus_median_ms\":%.9f,\"cpu_encoding_bytes\":%llu,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_probability_and_pv\":true,\"cpu_gpu_overlap\":false,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,workers,variant==2u?16u:0u,(unsigned long long)score_slots,(unsigned long long)scale_slots,tokens*4096u,cpu_dots,(unsigned long long)pv_candidates[variant],(unsigned long long)fallbacks[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],cpu_ms[variant][0],cpu_ms[variant][1],cpu_ms[variant][2],transfer_ms[variant][0],transfer_ms[variant][1],transfer_ms[variant][2],transpose_ms,variant?0.0:prepared.ms,variant?readback_ms:0.0,encoding,startup,preparation,preparation+sorted[1],(unsigned long long)(variant==1u?host_prepared.bytes():variant==2u?padded.bytes():0u));std::fflush(stdout);
     }
 }
 } // namespace
