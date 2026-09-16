@@ -33,6 +33,7 @@
 #include "attention_deadline.h"
 #include "selective_qk.h"
 #include "selective_qk_tail_policy.h"
+#include "register_pv_policy.h"
 #include "prepared_decoded_qk.h"
 #include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
@@ -428,6 +429,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         (!tiled_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
         return int(hipErrorInvalidValue);
     const bool uses_selective_qk = selective_qk || selective_prefix_queries != 0u;
+    bool register_pv_rescale = false;
+    if (!qrt_register_pv_policy::select(std::getenv("QRT_CK_SM121_REGISTER_PV_RESCALE"),
+            query_start, query_count, final_pv_bound, direct_pv_operands,
+            transpose_value, uses_selective_qk, register_pv_rescale))
+        return int(hipErrorInvalidValue);
     const char* float_alignment_option = std::getenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
     if (float_alignment_option && *float_alignment_option && std::strcmp(float_alignment_option,"0") &&
         std::strcmp(float_alignment_option,"1")) return int(hipErrorInvalidValue);
@@ -690,7 +696,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             nullptr, profile_stages ? &observer : nullptr,
             transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
-            prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr, all_pv_replay);
+            prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr,
+            all_pv_replay, register_pv_rescale);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -763,6 +770,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start,query_count);
     if (direct_pv_operands && !all_pv_replay)
         std::fprintf(stderr,"SM121_DIRECT_PV_OPERANDS query_start=%u query_count=%u token_major_values=1 additional_workspace_bytes=0\n",
+            query_start,query_count);
+    if (register_pv_rescale)
+        std::fprintf(stderr,"SM121_REGISTER_PV_RESCALE query_start=%u query_count=%u native_and_exact=1 original_k16=1 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (all_pv_replay)
         std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",

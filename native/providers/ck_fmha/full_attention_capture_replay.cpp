@@ -4,6 +4,7 @@
 #define NOMINMAX
 #endif
 #include "blackwell_attention.h"
+#include "register_pv_policy.h"
 #include <windows.h>
 #include <bcrypt.h>
 #include <algorithm>
@@ -82,7 +83,7 @@ bool report(const char* route, const std::vector<float>& output,
             float probabilities_ms = 0.0f, float value_ms = 0.0f,
             float preparation_ms = 0.0f, bool native_products = false,
             double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u,
-            bool all_pv_replay = false) {
+            bool all_pv_replay = false, bool register_pv_rescale = false) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -169,6 +170,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"selective_exact_pv_replay\":" << (!all_pv_replay && (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) ? "true" : "false")
               << ",\"compacted_pv_replay\":" << (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
               << ",\"all_pv_replay\":" << (all_pv_replay ? "true" : "false")
+              << ",\"register_pv_rescale\":" << (register_pv_rescale ? "true" : "false")
               << ",\"all_pv_replay_cells\":" << (all_pv_replay ? output.size() : 0u)
               << ",\"parallel_probability\":" << (memory_layout == 24u ? "true" : "false")
               << ",\"compacted_pv_cells\":" << compacted_pv_cells
@@ -385,6 +387,12 @@ int main(int argc, char** argv) {
         if (all_pv_replay && ((memory_layout!=22u && memory_layout!=24u) || float_pv_lanes))
             throw std::runtime_error("all-cell PV requires the exact global replay layout");
         std::fprintf(stderr,"ALL_PV_REPLAY enabled=%u original_k16=1 additional_workspace_bytes=0\n",unsigned(all_pv_replay));
+        bool register_pv_rescale = false;
+        if (!qrt_register_pv_policy::select(std::getenv("QRT_ATTENTION_REPLAY_REGISTER_PV_RESCALE"),
+                start, count, final_pv_bound, direct_pv_operands, transpose_value, false,
+                register_pv_rescale) || (register_pv_rescale && (all_pv_replay || float_pv_lanes)))
+            throw std::runtime_error("invalid register PV rescale option or owner");
+        std::fprintf(stderr,"REGISTER_PV_RESCALE enabled=%u native_and_exact=1\n",unsigned(register_pv_rescale));
         std::fprintf(stderr,"FLOAT_ALIGNMENT_QK enabled=%u\n",unsigned(float_alignment_qk));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
@@ -565,7 +573,8 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
-                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,nullptr,all_pv_replay)));
+                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,nullptr,
+                all_pv_replay,register_pv_rescale)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u)) {
@@ -753,7 +762,7 @@ int main(int argc, char** argv) {
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
                           scores_total, probabilities_total, value_total, preparation_ms, native_products,
-                          completed_host_ms, compacted_pv_cells, all_pv_replay);
+                          completed_host_ms, compacted_pv_cells, all_pv_replay, register_pv_rescale);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

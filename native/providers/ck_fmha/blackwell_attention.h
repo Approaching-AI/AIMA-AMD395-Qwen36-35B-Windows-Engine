@@ -1145,7 +1145,7 @@ __global__ void blackwell_collect_pv_replay_kernel(
 
 // An optional lossless V transpose makes each cooperative subgroup read
 // contiguous K positions. Candidate ownership and the ordered dot are shared.
-template<bool TransposedValue = false, bool AllCells = false>
+template<bool TransposedValue = false, bool AllCells = false, bool RegisterRescale = false>
 __global__ void blackwell_compacted_pv_replay_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned query_start, unsigned output_start, unsigned score_stride,
@@ -1167,7 +1167,15 @@ __global__ void blackwell_compacted_pv_replay_kernel(
         float accumulator = 0.0f;
         for (unsigned tile = 0u; tile < tile_count; ++tile) {
             const float alpha = scales[size_t(row) * (tile_stride + 1u) + tile];
-            volatile float rounded = accumulator * alpha;
+            float rounded;
+            if constexpr (RegisterRescale) {
+                // Explicit FP32 instruction preserves the rounding boundary
+                // without the volatile temporary's private store/wait/load.
+                rounded = qrt_sm121_pv_final_bound::multiply(accumulator, alpha);
+            } else {
+                volatile float original = accumulator * alpha;
+                rounded = original;
+            }
             auto partial = qrt_q1_moe_hawkeye::value_from_float(rounded, kBlackwellZeroExponent);
             for (unsigned begin = 0u; begin < kExactTileTokens; begin += kBlackwellMmaGroup) {
                 uint32_t products[items];
@@ -1826,7 +1834,7 @@ __global__ void blackwell_mantissa_scores_kernel(
 }
 
 template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false,
-         bool FinalBound = false, bool DirectOperands = false>
+         bool FinalBound = false, bool DirectOperands = false, bool RegisterRescale = false>
 __global__ void blackwell_mantissa_value_kernel(
     const uint16_t* value, const uint16_t* probabilities, const float* scales,
     float* output, unsigned int query_start, unsigned int query_count, unsigned int output_start,
@@ -1837,6 +1845,7 @@ __global__ void blackwell_mantissa_value_kernel(
     static_assert(!BoundError || NativeMma);
     static_assert(!FinalBound || BoundError);
     static_assert(!DirectOperands || (NativeMma && !Prepacked));
+    static_assert(!RegisterRescale || (DirectOperands && FinalBound));
     using OperandRow = std::conditional_t<NativeMma, NativeOperandRow, IntegerOperandRow>;
     __shared__ OperandRow left[16], right[kIntegerMatrixColumns];
     const unsigned int lane = threadIdx.x % 32u, wave = threadIdx.x / 32u, head = blockIdx.y;
@@ -1915,8 +1924,12 @@ __global__ void blackwell_mantissa_value_kernel(
                             else
                                 errors[element] = qrt_sm121_pv_bound::rescale(errors[element], accumulator[element], alpha);
                         }
-                        volatile float rounded = accumulator[element] * alpha;
-                        accumulator[element] = rounded;
+                        if constexpr (RegisterRescale) {
+                            accumulator[element] = qrt_sm121_pv_final_bound::multiply(accumulator[element], alpha);
+                        } else {
+                            volatile float rounded = accumulator[element] * alpha;
+                            accumulator[element] = rounded;
+                        }
                     }
                 }
             }
@@ -2103,7 +2116,8 @@ inline int launch_compacted_pv_replay(
     float* raw_denominator, const float* errors, unsigned* indices, unsigned* count,
     hipStream_t stream, SplitCompletionObserver* observer = nullptr,
     const uint16_t* transposed_value = nullptr, unsigned value_stride = 0u,
-    unsigned float_pv_lanes = 0u, const unsigned* float_pv_flags = nullptr) {
+    unsigned float_pv_lanes = 0u, const unsigned* float_pv_flags = nullptr,
+    bool register_rescale = false) {
     if (!value || !probabilities || !scales || !output || !errors || !indices || !count ||
         !query_count || query_count > split_query_limit(22u, score_stride) || query_start >= score_stride ||
         query_count > score_stride - query_start || score_stride > kSplitMaxTokens ||
@@ -2113,6 +2127,8 @@ inline int launch_compacted_pv_replay(
         return int(hipErrorInvalidValue);
     if (float_pv_lanes ? (float_pv_lanes != 1u && float_pv_lanes != 4u) ||
             !float_pv_flags || score_stride > 8192u || value_stride > 8192u : float_pv_flags != nullptr)
+        return int(hipErrorInvalidValue);
+    if (register_rescale && (!transposed_value || float_pv_lanes || score_stride > 8192u))
         return int(hipErrorInvalidValue);
     const unsigned cells = query_count * kQueryHeads * kHeadDim;
     auto status = hipMemsetAsync(count, 0, sizeof(unsigned), stream);
@@ -2134,7 +2150,12 @@ inline int launch_compacted_pv_replay(
     }
     const unsigned maximum_blocks = (cells + kThreads / 4u - 1u) / (kThreads / 4u);
     const unsigned blocks = maximum_blocks < 1024u ? maximum_blocks : 1024u;
-    if (transposed_value) {
+    if (register_rescale) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_compacted_pv_replay_kernel<true, false, true>),
+            dim3(blocks), dim3(kThreads), 0u, stream,
+            value, probabilities, scales, output, query_start, output_start, score_stride,
+            rcp_table, raw_accumulator, raw_denominator, indices, count, transposed_value, value_stride, 0u);
+    } else if (transposed_value) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_compacted_pv_replay_kernel<true>),
             dim3(blocks), dim3(kThreads), 0u, stream,
             value, probabilities, scales, output, query_start, output_start, score_stride,
@@ -2203,7 +2224,7 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool final_pv_bound = false, bool direct_pv_operands = false,
     bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
     bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr,
-    bool all_pv_replay = false) {
+    bool all_pv_replay = false, bool register_pv_rescale = false) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= kSplitMaxTokens ||
         query_count > kSplitMaxTokens - query_start || output_start >= kSplitMaxTokens ||
@@ -2214,6 +2235,9 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         prepared_value_tokens > kSplitMaxTokens)) return int(hipErrorInvalidValue);
     if (native_products && memory_layout != 4u) return int(hipErrorInvalidValue);
     if (all_pv_replay && ((memory_layout != 22u && memory_layout != 24u) || float_pv_lanes))
+        return int(hipErrorInvalidValue);
+    if (register_pv_rescale && (!final_pv_bound || !direct_pv_operands ||
+            !transposed_value || all_pv_replay || float_pv_lanes))
         return int(hipErrorInvalidValue);
     if (qk_producer && (!qk_producer->state || !qk_producer->launch || !float_alignment_qk ||
             (memory_layout != 22u && memory_layout != 24u)))
@@ -2402,7 +2426,12 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
             } else if (memory_layout == 13u || memory_layout == 22u || memory_layout == 23u || memory_layout == 24u) {
                 auto* errors = scales + size_t(query_count) * kQueryHeads *
                     ((stride + 31u) / 32u + 1u);
-                if (direct_pv_operands && final_pv_bound) {
+                if (register_pv_rescale) {
+                hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true, true, true>),
+                    dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
+                    v, probabilities, scales, output, query_start, query_count, output_start, stride,
+                    rcp_table, raw_accumulator, raw_denominator, nullptr, nullptr, errors);
+                } else if (direct_pv_operands && final_pv_bound) {
                 hipLaunchKernelGGL(HIP_KERNEL_NAME(blackwell_mantissa_value_kernel<true, false, true, true, true>),
                     dim3(kHeadDim / kIntegerMatrixColumns, kQueryHeads, (query_count + 15u) / 16u), dim3(kThreads), 0u, stream,
                     v, probabilities, scales, output, query_start, query_count, output_start, stride,
@@ -2444,7 +2473,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
                     return launch_compacted_pv_replay(v, probabilities, scales, output,
                         query_start, query_count, output_start, stride, rcp_table,
                         raw_accumulator, raw_denominator, errors, indices, count, stream, observer,
-                        transposed_value, value_stride, float_flags ? float_pv_lanes : 0u, float_flags);
+                        transposed_value, value_stride, float_flags ? float_pv_lanes : 0u, float_flags,
+                        register_pv_rescale);
                 }
                 hipLaunchKernelGGL(blackwell_probability_value_kernel,
                     dim3(kQueryHeads, query_count), dim3(kHeadDim), 0u, stream,

@@ -90,3 +90,20 @@ Shared reciprocals add only 1.3510 ms of improvement there, so the first
 provider experiment will use register rescaling alone. Product TTFT,
 512-token GB10 continuation, retained performance and release qualification
 still require real-model measurements. All mission thresholds remain fixed.
+
+## Provider option under qualification
+
+`QRT_CK_SM121_REGISTER_PV_RESCALE=1` selects register rescaling in both the
+native producer and compacted canonical replay. It defaults to zero and
+accepts only `0` or `1` (unset/empty is also off). An eligible prefill must
+end at or before token8192, have more than one query, and use the existing
+final PV bound, direct operands, transposed V and non-selective QK owner.
+An incompatible eligible configuration is rejected. Decode and calls
+extending beyond8192 retain their original dispatch. No workspace, exported
+ABI or numerical table changes are needed.
+
+The native harness additionally exercises the production kernel and replay
+launcher against the isolated copies and original arithmetic. The full
+attention capture tool exposes `QRT_ATTENTION_REPLAY_REGISTER_PV_RESCALE`
+to test the actual query launcher. Integration evidence and real-model
+acceptance are pending; this option is not enabled in the package.

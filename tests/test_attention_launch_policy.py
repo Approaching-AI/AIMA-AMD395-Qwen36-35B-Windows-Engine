@@ -63,9 +63,9 @@ void blackwell_parallel_probability_kernel() {}
 void blackwell_staged_probability_kernel() {}
 void blackwell_probability_value_kernel() {}
 void blackwell_collect_pv_replay_kernel() {}
-template<bool TransposedValue = false, bool AllCells = false> void blackwell_compacted_pv_replay_kernel() {}
+template<bool TransposedValue = false, bool AllCells = false, bool RegisterRescale = false> void blackwell_compacted_pv_replay_kernel() {}
 template<bool NativeMma = false, bool Prepacked = false, bool SparseCore = false> void blackwell_mantissa_scores_kernel() {}
-template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false, bool DirectOperands = false> void blackwell_mantissa_value_kernel() {}
+template<bool NativeMma = false, bool Prepacked = false, bool BoundError = false, bool FinalBound = false, bool DirectOperands = false, bool RegisterRescale = false> void blackwell_mantissa_value_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_rows_kernel() {}
 template<IntegerRowKind Kind> void blackwell_prepare_integer_core_rows_kernel() {}
 template<bool SerialValue, bool PrecomputedScores = false, bool SplitDecodeValue = false,
@@ -771,6 +771,32 @@ int main() {
            all_stages.count!=submitted || memsets ||
            std::memcmp(all_stages.stages,expected_stages,submitted*sizeof(unsigned))) return 158;
     }
+    auto register_pv=[&](bool enabled,bool final=true,bool direct=true,bool transpose=true,
+                         bool all=false,unsigned floating=0u,unsigned start=1u) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,16u,3u,
+            nullptr,nullptr,nullptr,true,rcp,22u,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+16u,
+            false,nullptr,nullptr,0u,nullptr,nullptr,transpose?&operand:nullptr,transpose?start+16u:0u,
+            1u,1u,final,direct,true,floating,false,nullptr,all,enabled);
+    };
+    launches=error_queries=memsets=fail_launch=0u;
+    if(register_pv(true,false)!=hipErrorInvalidValue || register_pv(true,true,false)!=hipErrorInvalidValue ||
+       register_pv(true,true,true,false)!=hipErrorInvalidValue || register_pv(true,true,true,true,true)!=hipErrorInvalidValue ||
+       register_pv(true,true,true,true,false,4u)!=hipErrorInvalidValue ||
+       register_pv(true,true,true,true,false,0u,8192u)!=hipErrorInvalidValue || launches || memsets) return 159;
+    for(bool enabled:{false,true}) {
+        launches=error_queries=memsets=fail_launch=0u;
+        if(register_pv(enabled)!=hipSuccess || launches!=5u || memsets!=1u ||
+           !std::strstr(launch_names[2],enabled?"blackwell_mantissa_value_kernel<true, false, true, true, true, true>":
+               "blackwell_mantissa_value_kernel<true, false, true, true, true>") ||
+           !std::strstr(launch_names[4],enabled?"blackwell_compacted_pv_replay_kernel<true, false, true>":
+               "blackwell_compacted_pv_replay_kernel<true>")) return 160;
+    }
+    for(unsigned failure=1u;failure<=5u;++failure) {
+        launches=error_queries=memsets=0u;fail_launch=failure;
+        if(register_pv(true)!=hipErrorUnknown || launches!=failure || error_queries!=failure) return 161;
+    }
+    launches=error_queries=memsets=fail_launch=0u;fail_memset=true;
+    if(register_pv(true)!=hipErrorUnknown || launches!=3u || memsets!=1u) return 162;
     return 0;
 }
 '''

@@ -45,6 +45,16 @@ void arithmetic_run(unsigned variant,Stage& s,Device& ids,ArithmeticBuffer& reci
         check(hipGetLastError());
         if(!only_produce){check(hipMemsetAsync(count,0,4u,nullptr));queue_collect(s,ids);queue_exact(s,ids,v,tv,n,rcp);}return;
     }
+    if(variant==4u){
+        hipLaunchKernelGGL((blackwell_mantissa_value_kernel<true,false,true,true,true,true>),
+            dim3(2u,16u,(q.queries+15u)/16u),dim3(256u),0u,nullptr,v,s.p.as<uint16_t>()+guard,s.s.as<float>()+guard,
+            s.o.as<float>()+guard,q.start,q.queries,q.output_start,q.stride,rcp,s.a.as<float>()+guard,s.d.as<float>()+guard,nullptr,nullptr,s.e.as<float>()+guard);
+        check(hipGetLastError());
+        if(!only_produce)check(hipError_t(launch_compacted_pv_replay(v,s.p.as<uint16_t>()+guard,s.s.as<float>()+guard,
+            s.o.as<float>()+guard,q.start,q.queries,q.output_start,q.stride,rcp,s.a.as<float>()+guard,s.d.as<float>()+guard,
+            s.e.as<float>()+guard,indices,count,nullptr,nullptr,tv,n,0u,nullptr,true)));
+        return;
+    }
     if(only_produce){
         if(variant==3u){hipLaunchKernelGGL(arithmetic::prepare_reciprocals,dim3((q.queries*16u+255u)/256u),dim3(256u),0u,nullptr,
             s.s.as<float>()+guard,reciprocals.data<float>(),q.queries,q.stride,rcp);check(hipGetLastError());}
@@ -138,7 +148,17 @@ void arithmetic_generated(unsigned start,unsigned queries,unsigned mode,bool vll
         q.start,q.queries,q.output_start,q.stride,rcp,dvt.as<uint16_t>()+guard,q.stride,
         ids.as<unsigned>()+guard,ids.as<unsigned>()+guard+q.cells(),q.cells()-1u,nullptr,
         0u,nullptr)!=int(hipErrorInvalidValue))throw std::runtime_error("short candidate workspace accepted");
-    for(unsigned variant=1u;variant<=3u;++variant){
+    if(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,original.p.as<uint16_t>()+guard,
+        original.s.as<float>()+guard,candidate.o.as<float>()+guard,q.start,q.queries,q.output_start,q.stride,
+        rcp,nullptr,nullptr,candidate.e.as<float>()+guard,ids.as<unsigned>()+guard,
+        ids.as<unsigned>()+guard+q.cells(),nullptr,nullptr,nullptr,0u,0u,nullptr,true)!=int(hipErrorInvalidValue))
+        throw std::runtime_error("register replay accepted missing transpose");
+    if(launch_compacted_pv_replay(dv.as<uint16_t>()+guard,original.p.as<uint16_t>()+guard,
+        original.s.as<float>()+guard,candidate.o.as<float>()+guard,q.start,q.queries,q.output_start,8193u,
+        rcp,nullptr,nullptr,candidate.e.as<float>()+guard,ids.as<unsigned>()+guard,
+        ids.as<unsigned>()+guard+q.cells(),nullptr,nullptr,dvt.as<uint16_t>()+guard,8193u,0u,nullptr,true)!=int(hipErrorInvalidValue))
+        throw std::runtime_error("register replay accepted unqualified history");
+    for(unsigned variant=1u;variant<=4u;++variant){
         candidate.reset();copy_probability(candidate,original);reciprocals.reset();reset_indices(ids,q);
         arithmetic_run(variant,candidate,ids,reciprocals,dv.as<uint16_t>()+guard,dvt.as<uint16_t>()+guard,q.stride,rcp,true);finish();
         raw_surfaces(native,candidate,bad);reciprocal_observer(reciprocals,q,hs,host_rcp,variant==3u);
@@ -189,8 +209,8 @@ void arithmetic_capture(unsigned tokens,const char* qfile,const char* kfile,cons
     ArithmeticBuffer reciprocals(size_t(batch)*16u*4u);
     Device scores(q.pwords()*4u),score_copy(q.pwords()*4u),bad(4u),stats(9u*8u);
     Device ids((size_t(batch)*4096u+1u+2u*guard)*4u);
-    double samples[4][3]{},maximum[4]{},qk_ms=0.0,probability_ms=0.0;
-    size_t selected_total[4]{};unsigned long long groups_total[4]{};size_t endpoints=0,score_cells=0,verified[4]{},external[4]{},cpu=0;
+    double samples[5][3]{},maximum[5]{},qk_ms=0.0,probability_ms=0.0;
+    size_t selected_total[5]{};unsigned long long groups_total[5]{};size_t endpoints=0,score_cells=0,verified[5]{},external[5]{},cpu=0;
     for(unsigned start=0;start<tokens;start+=batch){
         q.start=start;q.queries=std::min(batch,tokens-start);q.stride=start+q.queries;
         original.shape=q;native.shape=q;candidate.shape=q;
@@ -227,13 +247,13 @@ void arithmetic_capture(unsigned tokens,const char* qfile,const char* kfile,cons
             if(bits(ref)!=bits(raw[guard+cell]))throw std::runtime_error("register captured CPU PV");++cpu;
         }
         // Check every native pre-replay raw surface before measuring this slab.
-        for(unsigned variant=1u;variant<=3u;++variant){
+        for(unsigned variant=1u;variant<=4u;++variant){
             candidate.reset();copy_probability(candidate,original);reciprocals.reset();
             arithmetic_run(variant,candidate,ids,reciprocals,dv.as<uint16_t>()+guard,dvt.as<uint16_t>()+guard,tokens,drcp.as<unsigned char>(),true);finish();
             raw_surfaces(native,candidate,bad);reciprocal_observer(reciprocals,q,hs,rcp.data(),variant==3u);
         }
-        for(unsigned attempt=0;attempt<4u;++attempt)for(unsigned position=0;position<4u;++position){
-            const unsigned variant=(position+start/batch+attempt)%4u;
+        for(unsigned attempt=0;attempt<4u;++attempt)for(unsigned position=0;position<5u;++position){
+            const unsigned variant=(position+start/batch+attempt)%5u;
             candidate.reset();copy_probability(candidate,original);reciprocals.reset();reset_indices(ids,q);finish();
             begin=std::chrono::steady_clock::now();
             arithmetic_run(variant,candidate,ids,reciprocals,dv.as<uint16_t>()+guard,dvt.as<uint16_t>()+guard,tokens,drcp.as<unsigned char>());finish();
@@ -257,8 +277,8 @@ void arithmetic_capture(unsigned tokens,const char* qfile,const char* kfile,cons
     unchanged(dq,hq);unchanged(dk,hk);unchanged(dv,hv);unchanged(dkt,kt_before);unchanged(dvt,tv);
     unchanged(dex,exp);unchanged(drcp,rcp);prepared.verify();
     if(endpoints!=size_t(tokens)*4096u)throw std::runtime_error("register incomplete capture");
-    const char* names[]={"original","copied_control","register_rescale","register_and_row_reciprocal"};
-    for(unsigned variant=0;variant<4u;++variant){
+    const char* names[]={"original","copied_control","register_rescale","register_and_row_reciprocal","production_register_rescale"};
+    for(unsigned variant=0;variant<5u;++variant){
         std::array<double,3> sorted{samples[variant][0],samples[variant][1],samples[variant][2]};std::sort(sorted.begin(),sorted.end());
         std::printf("{\"kind\":\"register_pv_capture\",\"tokens\":%u,\"variant\":%u,\"name\":\"%s\",\"query_batch\":128,\"unique_output_cells\":%zu,\"verified_output_cells\":%zu,\"external_gb10_cells_checked\":%zu,\"external_unique_gb10_cells\":29364224,\"repeated_first_capture_rows\":%u,\"selected\":%zu,\"replayed_groups\":%llu,\"cpu_pv_dots\":%zu,\"probability_cells\":%zu,\"qk_ms\":%.6f,\"qk_preparation_ms\":%.6f,\"probability_ms\":%.6f,\"value_transpose_ms\":%.6f,\"producer_collect_replay_median_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"maximum_completed_slab_ms\":%.6f,\"reciprocal_workspace_bytes\":%zu,\"warmups\":1,\"samples\":3,\"raw_bit_mismatches\":0,\"bf16_mismatches\":0,\"native_pre_replay_raw_parity\":true,\"complete_original_membership\":true,\"cpu_reciprocal_parity\":true,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"all_attempts_checked\":true,\"reference_is_compute_input\":false,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",
             tokens,variant,names[variant],endpoints,verified[variant],external[variant],tokens-7169u,

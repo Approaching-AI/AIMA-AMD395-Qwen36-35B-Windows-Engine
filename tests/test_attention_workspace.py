@@ -54,6 +54,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
         actual = actual.replace("std::chrono::steady_clock::now()", "mock_now()")
         actual = (ROOT / "native/providers/ck_fmha/selective_qk_tail_policy.h").read_text().replace(
             "#pragma once", "") + actual
+        actual = (ROOT / "native/providers/ck_fmha/register_pv_policy.h").read_text().replace(
+            "#pragma once", "") + actual
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -109,6 +111,7 @@ unsigned fail_query = 0;
 unsigned fail_sync = 0, profile_observations = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
+unsigned register_pv_queries = 0;
 unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
@@ -245,7 +248,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
                    bool direct_pv_operands = false, bool float_alignment_qk = false,
                    unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr,
-                   bool all_pv_replay = false) {
+                   bool all_pv_replay = false, bool register_pv_rescale = false) {
     ++queries;
     if (track_submissions) {
         ++pending_submissions;
@@ -274,6 +277,11 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
             std::abort();
         ++float_alignment_queries;
+    }
+    if(register_pv_rescale) {
+        if(!final_pv_bound || !direct_pv_operands || !transposed_value || all_pv_replay || start+count>8192u)
+            std::abort();
+        ++register_pv_queries;
     }
     if(final_pv_bound) {
         if((layout!=22u && layout!=24u) || start+count>8192u) std::abort();
@@ -355,6 +363,7 @@ void reset() {
     last_allocation_bytes=0u;
     fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
+    register_pv_queries = 0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
@@ -1180,6 +1189,37 @@ int main() {
         if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 239;
     }
     reset();unsetenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL");
+    setenv("QRT_CK_SM121_REGISTER_PV_RESCALE","1",1);
+    setenv("QRT_CK_SM121_FINAL_PV_BOUND","1",1);
+    setenv("QRT_CK_SM121_DIRECT_PV_OPERANDS","1",1);
+    setenv("QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE","1",1);
+    for(unsigned count:{129u,7169u,8192u}) {
+        reset();
+        if(launch(0u,count)!=hipSuccess || register_pv_queries!=(count+127u)/128u ||
+           register_pv_queries!=queries || value_transposes!=1u) return 240;
+    }
+    for(unsigned start:{0u,8191u,8192u}) {
+        reset();if(launch(start,1u)!=hipSuccess || register_pv_queries) return 241;
+    }
+    reset();if(launch(8191u,2u)!=hipSuccess || register_pv_queries) return 242;
+    for(const char* missing:{"QRT_CK_SM121_FINAL_PV_BOUND","QRT_CK_SM121_DIRECT_PV_OPERANDS",
+                            "QRT_CK_SM121_COMPACT_PV_TRANSPOSE_VALUE"}) {
+        reset();setenv(missing,"0",1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 243;
+        setenv(missing,"1",1);
+    }
+    for(const char* conflict:{"QRT_CK_SM121_SELECTIVE_QK_PROBABILITY","QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL"}) {
+        reset();setenv(conflict,"1",1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 244;
+        unsetenv(conflict);
+    }
+    for(const char* invalid:{"01","2","-1","1 ","true"}) {
+        reset();setenv("QRT_CK_SM121_REGISTER_PV_RESCALE",invalid,1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 245;
+    }
+    reset();setenv("QRT_CK_SM121_REGISTER_PV_RESCALE","0",1);
+    if(launch(0u,129u)!=hipSuccess || register_pv_queries || queries!=2u) return 246;
+    reset();unsetenv("QRT_CK_SM121_REGISTER_PV_RESCALE");
     return 0;
 }
 '''
