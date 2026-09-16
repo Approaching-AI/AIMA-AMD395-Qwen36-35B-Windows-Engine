@@ -1,5 +1,9 @@
 # Actual adaptive linear OUT replay
 
+The [queued follow-up](OUT_VARIANCE_QUEUE_EXPERIMENT.md) separates replay from
+certificate state, preserves the same numerical policy and measures all 30
+linear layers. Both variants remain default-off.
+
 Default-off `QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY=1` implements the
 linear shape identified by the [variance-budget observer](OUT_VARIANCE_BUDGET_AUDIT.md).
 It admits only 2048 rows, 8192 tokens, K4096, radius 512 and PPB 1000, with the

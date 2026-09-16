@@ -1,5 +1,17 @@
 # Real-model performance
 
+## Queued adaptive linear OUT replay, 2026-09-17
+
+Source `6e4908b` separates original K16 replay from per-token certification.
+Both same-DLL q8192/out512 modes pass all GB10 output IDs, actual callbacks
+and the first-logit boundary; all 30 intended layers execute the queue.
+TTFT is 27870.9080 / 27193.1037 ms off/on. All 245760 token rows certify,
+with zero observed interval failures and the same 49.9088567% candidate
+reduction as the fused route. The single 677.8043 ms difference does not
+establish a repeatable gain or meet the 10000 ms gate. Keep variant 2
+default-off and the retained stack unchanged; continue structural attention
+work. See [implementation, limits and complete evidence](OUT_VARIANCE_QUEUE_EXPERIMENT.md).
+
 ## Actual adaptive linear OUT replay, 2026-09-17
 
 Corrected source `5c085c9` activates all 30 intended linear layers and passes
