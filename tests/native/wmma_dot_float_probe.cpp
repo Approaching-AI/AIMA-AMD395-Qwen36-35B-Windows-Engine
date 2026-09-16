@@ -8,6 +8,7 @@
 namespace {
 constexpr unsigned float_families=8u,float_samples=64u;
 constexpr unsigned float_tiles=float_families*float_samples,float_cells=float_tiles*256u;
+uint32_t float_seed_salt=0u;
 float from_word(uint32_t raw) {float value;std::memcpy(&value,&raw,4u);return value;}
 double half_value(uint16_t raw) {
     const unsigned e=(raw>>10u)&31u,m=raw&1023u;
@@ -17,13 +18,11 @@ double half_value(uint16_t raw) {
 int half_exponent(uint16_t raw) {
     const unsigned e=(raw>>10u)&31u,m=raw&1023u;
     if(e)return int(e)-15;
-    if(!m)return -126;
-    unsigned top=0u;for(unsigned n=m;n>1u;n>>=1u)++top;
-    return int(top)-24;
+    return m?-14:-126;
 }
 uint16_t float_operand(unsigned family,unsigned sample,unsigned row,unsigned k,bool right) {
     const unsigned index=family==2u?k/2u:k;
-    const uint32_t h=hash(0x6d395a17u^sample*137u^row*65537u^index*104729u^unsigned(right)*99991u);
+    const uint32_t h=hash(0x6d395a17u^float_seed_salt^sample*137u^row*65537u^index*104729u^unsigned(right)*99991u);
     unsigned sign=(h>>16u)&0x8000u;
     if(family==2u&&right&&(k&1u))sign^=0x8000u;
     if(family==3u&&k>=2u)return 0u;
@@ -43,12 +42,12 @@ float modeled_pair(uint16_t a0,uint16_t a1,uint16_t b0,uint16_t b1,float carry) 
     const int ce=carry?int((bits(carry)>>23u)&255u)-127:-126;
     const int e=std::max({product_exponent(a0,b0),product_exponent(a1,b1),ce-2});
     const double quantum=std::ldexp(1.0,e-24);
-    double sum=std::trunc(double(carry)/quantum)+(carry<0.0f?2.0:0.0);
+    double sum=std::trunc(double(carry)/quantum)+2.0*double(bits(carry)>>31u);
     for(auto pair:{std::make_pair(a0,b0),std::make_pair(a1,b1)}) {
         const double magnitude=std::trunc(std::abs(half_value(pair.first)*half_value(pair.second))/quantum);
         sum+=((pair.first^pair.second)&0x8000u)?-(magnitude+1.0):magnitude;
     }
-    const float result=float(sum*quantum);return result==0.0f?0.0f:result;
+    const float result=float(sum*quantum);return (bits(result)&0x7fffffffu)<0x00800000u?0.0f:result;
 }
 struct FloatInputs {
     std::vector<uint16_t> left,right;
@@ -65,7 +64,7 @@ struct FloatInputs {
                 const unsigned cell=tile*256u+row*16u+col;
                 const auto* a=left.data()+guard+tile*256u+row*16u;
                 const auto* b=right.data()+guard+tile*256u+col*16u;
-                const uint32_t h=hash(0x8a9153cdu^cell*7919u);int ep=-126;
+                const uint32_t h=hash(0x8a9153cdu^float_seed_salt^cell*7919u);int ep=-126;
                 for(unsigned k=0;k<16u;++k)if((a[k]&0x7fffu)&&(b[k]&0x7fffu))ep=std::max(ep,half_exponent(a[k])+half_exponent(b[k]));
                 const int ce=(family==1u||family==2u||family==3u||family==4u)?std::max(-100,std::min(100,ep+int((h>>16u)%25u)-12)):int((h>>16u)%121u)-60;
                 const uint32_t raw=(h&0x80000000u)|(uint32_t(ce+127)<<23u)|(h&0x7fffffu);
@@ -190,14 +189,19 @@ void run_float(const std::string& directory) {
 } // namespace
 
 int main(int argc,char** argv)try {
+    if(argc>2) {
+        char* end=nullptr;const auto salt=std::strtoul(argv[2],&end,0);
+        if(!end||*end||salt>UINT32_MAX)throw std::runtime_error("invalid fixture seed salt");
+        float_seed_salt=uint32_t(salt);
+    }
 #if defined(__HIPCC__)
     hipDeviceProp_t device{};check(hipGetDeviceProperties(&device,0));
     if(std::strncmp(device.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
-    if(argc!=2)throw std::runtime_error("requires floating capture directory");
+    if(argc!=2&&argc!=3)throw std::runtime_error("requires floating capture directory and optional seed salt");
     run_float(argv[1]);
 #else
     (void)argc;(void)argv;const FloatInputs input;
-    std::printf("{\"kind\":\"wmma_dot_float_host_inputs\",\"cells\":%u,\"modeled_prefix_states\":%u,\"native_executed\":false,\"general_model_proven\":false}\n",float_cells,float_cells*8u);
+    std::printf("{\"kind\":\"wmma_dot_float_host_inputs\",\"fixture_seed_salt\":%u,\"cells\":%u,\"modeled_prefix_states\":%u,\"native_executed\":false,\"general_model_proven\":false}\n",float_seed_salt,float_cells,float_cells*8u);
 #endif
     return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
