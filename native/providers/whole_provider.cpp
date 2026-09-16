@@ -122982,7 +122982,9 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     exact_arbitrary_early_out_hawkeye_midpoint_radius,
                     exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
                     use_exact_arbitrary_early_out_hawkeye,
-                    use_bf16_pointwise_fusion && use_q65536_vllm_bf16_residual_norm,
+                    // Early F32 layers also materialize the corrected BF16
+                    // OUT and enter the same unrounded residual consumer.
+                    use_q65536_vllm_bf16_residual_norm,
                     materialize_host_diagnostics);
             if (variance_linear_out) {
                 if (exact_arbitrary_repeated_heuristic_sweep ||
