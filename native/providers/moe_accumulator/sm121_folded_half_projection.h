@@ -81,7 +81,7 @@ __device__ __forceinline__ float dot(const Row* left, const Row* right, unsigned
 #pragma unroll
         for (unsigned i = 0u; i < StagingGroups; ++i) if (i < count) {
             bool used;
-            carry = accumulate(carry, operands[i], Audit ? &used : nullptr);
+            carry = qrt_sm121_folded_half_projection::accumulate(carry, operands[i], Audit ? &used : nullptr);
             if constexpr (Audit) {
                 counts.folded += used; counts.fallback += !used;
                 if (!lane && raw_trace) {
