@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Globally split probability components, 2026-09-17
+
+Source `7ff6cd1` preserves all tested raw attention surfaces, PV candidate
+counts and available GB10 context cells. All 240 native cases and both
+complete captures pass. Four global probability stages give q8192 attention
+796.8697 ms versus existing staged 786.9070 ms and online 800.9081 ms;
+the probability interval itself also fails to improve. Keep the variant
+isolated and investigate larger arithmetic/correction costs. No new model
+tokens, TTFT or release qualification were measured.
+See [scope and evidence](SPLIT_PROBABILITY_EXPERIMENT.md).
+
 ## C64 finite-domain recurrence components, 2026-09-17
 
 Source `b99fb00` removes repeated exceptional checks within a proved finite
