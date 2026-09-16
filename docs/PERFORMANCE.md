@@ -1,5 +1,15 @@
 # Real-model performance
 
+## Shared-memory C64 projection components, 2026-09-17
+
+Source `2c020c1` preserves all tested raw centers, error intervals, candidate
+masks and original selected outputs. All 75 native safety configurations
+and both captured q8192 operators match their independent references.
+Shared-memory OUT is at best 96.3518 ms versus vector control 93.6715 ms;
+QKV is at best 162.2570 ms versus 151.6550 ms. Keep the three variants
+isolated and investigate common arithmetic costs. No model tokens, TTFT or
+release qualification were measured. See [scope and evidence](SHARED_COARSE_PROJECTION_EXPERIMENT.md).
+
 ## Exact CPU QK partition components, 2026-09-17
 
 Sources `5986f7f` / `6599691` preserve original raw attention and all available
