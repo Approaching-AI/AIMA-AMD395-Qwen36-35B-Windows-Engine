@@ -84220,6 +84220,8 @@ bool preload_whole_repeated_layer_fixed_weights(
 
 #define hipMalloc qrt_descriptor_device_malloc
 
+#include "q8192_coarse_out.h"
+
 void destroy_event(hipEvent_t event) {
     if (event != nullptr) {
         (void)hipEventDestroy(event);
@@ -116894,6 +116896,13 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         return false;
     }
     const std::string prefix = descriptor.label + "_resident_linear_stack";
+    const int coarse_linear_out_setting = qrt_coarse_out::setting(
+        std::getenv("QRT_QWEN36_COARSE_LINEAR_OUT_PRODUCER"));
+    if (coarse_linear_out_setting < 0) {
+        run->failure_stage = prefix + "_coarse_linear_out_setting";
+        run->failure = "QRT_QWEN36_COARSE_LINEAR_OUT_PRODUCER requires 0 or 1";
+        return false;
+    }
     const bool whole_repeated_layer_provider =
         qwen36_whole_repeated_layer_provider_enabled(
             descriptor.layer_index,
@@ -122949,6 +122958,38 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     run->gated_rmsnorm_window.output_elements
                 );
             }
+            const bool coarse_linear_out = coarse_linear_out_setting &&
+                qrt_coarse_out::linear_applicable(kOutProjectionRows,
+                    target_token_count, kValueFeatures,
+                    exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                    exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
+                    use_exact_arbitrary_early_out_hawkeye,
+                    use_bf16_pointwise_fusion || use_q65536_vllm_bf16_residual_norm,
+                    materialize_host_diagnostics);
+            if (coarse_linear_out) {
+                if (exact_arbitrary_repeated_heuristic_sweep ||
+                    exact_arbitrary_early_bf16_out_heuristic_sweep ||
+                    exact_arbitrary_early_out_hawkeye_terminal_diagnostic ||
+                    exact_arbitrary_early_out_hawkeye_trace_terminal ||
+                    exact_arbitrary_early_out_hawkeye_stop_after_correction_layer != UINT_MAX ||
+                    !qrt_coarse_out::linear_options_compatible()) {
+                    run->failure_stage = prefix + "_coarse_linear_out_conflict";
+                    run->failure = "coarse linear OUT requires original OUT diagnostic and filter options disabled";
+                    goto cleanup;
+                }
+                qrt_coarse_out::Stats stats;
+                const hipError_t status = qrt_coarse_out::run(
+                    device_out_weight, device_gated_bf16, device_out_bf16,
+                    selected_hawkeye_correction_maximum_blocks_per_launch(),
+                    0, &stats, device_out);
+                std::fprintf(stderr,"BATCH_MARK coarse_linear_out_projection layer=%u tokens=%u rows=%u k=%u chunk=64 fragments=1 candidates=%u dispatches=%u workspace_bytes=%zu completed_ms=%.6f original_k16=1 bf16_consumer=1 rounded_f32_carrier=%u native_error_coefficient=0.0000019073486328125 hardware_error_bound_proven=0 completed=%u\n",
+                    descriptor.layer_index,target_token_count,kOutProjectionRows,
+                    kValueFeatures,stats.candidates,stats.dispatches,
+                    qrt_coarse_out::workspace_bytes,stats.completed_ms,
+                    device_out?1u:0u,status==hipSuccess?1u:0u);
+                if (!fail_hip(status, prefix + "_coarse_linear_out_" + stats.operation))
+                    goto cleanup;
+            } else {
             const bool matrix_ok = use_bf16_output_projection
                 ? resident_bf16_matrix_matmul_with_heuristic_index(
                       device_out_weight,
@@ -123503,6 +123544,7 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     run->out_projection_window.output_elements
                 );
             }
+            } // original linear OUT producer and correction
             std::cerr << "BATCH_MARK resident_bf16_matrix_provider"
                       << " surface=repeated_output"
                       << " layer=" << descriptor.layer_index
@@ -127785,8 +127827,6 @@ uint16_t host_full_attention_bf16_rne(float value) {
         ((bits >> 16u) & UINT32_C(1));
     return static_cast<uint16_t>(rounded >> 16u);
 }
-
-#include "q8192_coarse_out.h"
 
 bool full_attention_output_projection_bf16_tile(
     const uint16_t *weights,

@@ -17,6 +17,7 @@ std::vector<Allocation> allocations;std::deque<std::function<void()>> work;
 unsigned steps=0u,fail_at=0u,selected=0u,replayed=0u,converted=0u,launches=0u;
 unsigned maximum_grid=4096u;dim3 grid(1u),threads(1u);
 uint16_t weight=17u,input=29u,output=0u;
+float rounded_output=-1.0f;
 hipError_t touch(){return ++steps==fail_at?hipErrorUnknown:hipSuccess;}
 void span(const void* pointer,size_t bytes){
  const uintptr_t p=reinterpret_cast<uintptr_t>(pointer);
@@ -86,8 +87,12 @@ void f32_to_bf16_kernel(const float* raw,uint16_t* target,size_t cells){
  assert(target==&output&&cells==16777216u&&grid.x==cells/256u&&replayed==selected);span(raw,cells*4u);
  output=0x3f80u;++converted;
 }
+void bf16_to_f32_kernel(const uint16_t* source,float* target,size_t cells){
+ assert(source==&output&&target==&rounded_output&&cells==16777216u&&grid.x==cells/256u&&converted==1u&&output==0x3f80u);
+ rounded_output=1.0f;
+}
 #include "q8192_coarse_out.h"
-void reset(unsigned failure=0u){assert(allocations.empty()&&work.empty());steps=0u;fail_at=failure;replayed=converted=launches=0u;output=0u;}
+void reset(unsigned failure=0u){assert(allocations.empty()&&work.empty());steps=0u;fail_at=failure;replayed=converted=launches=0u;output=0u;rounded_output=-1.0f;}
 int main(){
  assert(qrt_coarse_out::workspace_bytes==295739396u);
  for(const char* value:{static_cast<const char*>(nullptr),"","0"})assert(qrt_coarse_out::setting(value)==0);
@@ -95,13 +100,28 @@ int main(){
  for(const char* value:{"2","-1","01","true"," 1"})assert(qrt_coarse_out::setting(value)==-1);
  assert(qrt_coarse_out::applicable(2048u,8192u,4096u,512u,10000u));
  for(unsigned i=0u;i<5u;++i){unsigned p[]={2048u,8192u,4096u,512u,10000u};--p[i];assert(!qrt_coarse_out::applicable(p[0],p[1],p[2],p[3],p[4]));}
+ for(unsigned flags=0u;flags<8u;++flags)
+  assert(qrt_coarse_out::linear_applicable(2048u,8192u,4096u,512u,1000u,flags&1u,flags&2u,flags&4u)==(flags==3u));
+ for(unsigned i=0u;i<5u;++i){unsigned p[]={2048u,8192u,4096u,512u,1000u};--p[i];assert(!qrt_coarse_out::linear_applicable(p[0],p[1],p[2],p[3],p[4],true,true,false));}
+ for(unsigned n:{0u,1u,7169u,8191u,8193u,16384u,262144u})
+  assert(!qrt_coarse_out::linear_applicable(2048u,n,4096u,512u,1000u,true,true,false));
+ const char* options[]={"QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_BOUND","QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER","QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT"};
+ for(const char* name:options)unsetenv(name);
+ assert(qrt_coarse_out::linear_options_compatible());
+ for(const char* name:options){
+  for(const char* value:{"","0","1","2","01","invalid"}){
+   assert(!setenv(name,value,1));assert(qrt_coarse_out::linear_options_compatible()==(qrt_coarse_out::setting(value)==0));
+  }
+  unsetenv(name);
+ }
  unsigned failure_cases=0u,success_cases=0u;
- for(unsigned n:{0u,1u,63u,64u,65u,262144u,262145u,16777216u}){
+ for(bool linear:{false,true})for(unsigned n:{0u,1u,63u,64u,65u,262144u,262145u,16777216u}){
   selected=n;maximum_grid=4096u;reset();qrt_coarse_out::Stats stats;
-  assert(qrt_coarse_out::run(&weight,&input,&output,maximum_grid,nullptr,&stats)==hipSuccess);
+  assert(qrt_coarse_out::run(&weight,&input,&output,maximum_grid,nullptr,&stats,linear?&rounded_output:nullptr)==hipSuccess);
   assert(stats.candidates==selected&&stats.dispatches==(n+262143u)/262144u&&converted==1u&&output==0x3f80u&&allocations.empty()&&work.empty());
+  assert(rounded_output==(linear?1.0f:-1.0f));
   const unsigned count=steps;++success_cases;
-  for(unsigned failure=1u;failure<=count;++failure){reset(failure);assert(qrt_coarse_out::run(&weight,&input,&output,maximum_grid,nullptr,&stats)!=hipSuccess);assert(allocations.empty()&&work.empty());++failure_cases;}
+  for(unsigned failure=1u;failure<=count;++failure){reset(failure);assert(qrt_coarse_out::run(&weight,&input,&output,maximum_grid,nullptr,&stats,linear?&rounded_output:nullptr)!=hipSuccess);assert(allocations.empty()&&work.empty());++failure_cases;}
  }
  selected=65u;maximum_grid=1u;reset();qrt_coarse_out::Stats stats;
  assert(qrt_coarse_out::run(&weight,&input,&output,1u,nullptr,&stats)==hipSuccess&&stats.dispatches==2u);++success_cases;
