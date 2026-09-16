@@ -1,5 +1,18 @@
 # Real-model performance
 
+## Actual MoE down consumer filter, 2026-09-17
+
+Sources `0cfe413` / `d852ff7` pass the complete same-DLL q8192/out512 GB10
+boundary and actually omit 126904922 / 158740988 selected down replays
+(79.9446%), exactly reproducing the prior observer in all 40 calls.
+TTFT is 27851.3224 / 27889.4209 ms off/on, with no measured net saving.
+The same-DLL MoE profile also preserves the full GB10 boundary: down correction
+is 805.620793 / 663.870898 ms, while complete MoE saves only 81.955012 ms.
+Nested intervals overlap and diagnostic TTFT includes profiling overhead.
+Keep the filter default-off and continue a broader arithmetic or dataflow
+replacement. The retained stack and all mission/release thresholds remain
+unchanged. See [implementation and complete evidence](MOE_DOWN_CONSUMER_FILTER.md).
+
 ## MoE down consumer audit, 2026-09-17
 
 Source `abb26a8` preserves all 512 GB10 IDs, actual callbacks and first logit
