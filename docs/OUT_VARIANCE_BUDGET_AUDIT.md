@@ -61,11 +61,11 @@ further refinement rather than an unsupported rsqrt certificate. All original
 model inputs remain unchanged. FA classification regenerates algorithm0 and
 does not describe the retained coarse FA producer's candidates.
 
-Advance the linear algorithm0 shape to an actual default-off replay experiment.
+The linear algorithm0 shape subsequently received an [actual default-off replay experiment](OUT_VARIANCE_REPLAY_EXPERIMENT.md). Its full 30-layer run reproduces these aggregate counts and passes all GB10 boundaries, but the single 99.3839 ms TTFT difference does not establish a repeatable gain.
 The conditional 49.91% candidate reduction warrants testing whether real
 saved work exceeds scheduling overhead. Keep the observer default-off and
-retain the existing product stack. Actual candidate replay still requires a
-new full GB10 comparison and product measurement. No performance, prefix,
+retain the existing product stack. That follow-up supplies the actual candidate replay and complete GB10 comparison;
+this observer alone does not measure either. No performance, prefix,
 long-context, package or release acceptance follows. The original 10,000 ms
 TTFT gate, 4,187.415605 ms retained target and 30,000 ms loading limit remain
 unchanged.

@@ -1,5 +1,17 @@
 # Real-model performance
 
+## Actual adaptive linear OUT replay, 2026-09-17
+
+Corrected source `5c085c9` activates all 30 intended linear layers and passes
+all 512 original GB10 output and callback IDs plus first logit 10.375 in both
+same-DLL modes. Actual replay skips 29,191,574 of 58,489,767 candidates,
+matching the prior observer, with zero observed interval failures. TTFT is
+27777.4475 / 27678.0636 ms off/on; the single 99.3839 ms difference does not
+establish a repeatable gain. Keep it default-off and preserve the retained
+stack. The next experiment separates original K16 replay from per-token
+certification to assess the fused execution cost. All mission and release
+gates remain unchanged. See [implementation, activation fix and complete evidence](OUT_VARIANCE_REPLAY_EXPERIMENT.md).
+
 ## Adaptive OUT variance-budget audit, 2026-09-17
 
 The same-DLL q8192/out512 pair at `c3b4ad5` preserves every GB10 output and
