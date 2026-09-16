@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Prefix-certified PV replay components, 2026-09-17
+
+Source `3e41f70` preserves all tested BF16 results, original native centers,
+error bits and candidate membership. A suffix certificate lets selected
+cells stop after an exact prefix; q8192 replay work falls 31.63% / 28.06%
+at 512 / 1024 keys. Complete PV remains slower: 329.6917 ms original versus
+369.6577 / 336.9665 ms. All 252 generated configurations and both captured
+GB10 context comparisons pass. Keep it isolated and investigate common
+arithmetic costs. No model tokens or TTFT were measured.
+See [certificate, scope and evidence](PREFIX_CERTIFIED_PV_EXPERIMENT.md).
+
 ## Globally split probability components, 2026-09-17
 
 Source `7ff6cd1` preserves all tested raw attention surfaces, PV candidate
