@@ -35,7 +35,7 @@ template<class T>struct Buffer{
   return std::vector<T>(result.begin()+guard,result.end()-guard);
  }
 };
-bool selected(float native,float contribution,float error,unsigned radius,unsigned exponent){
+bool selected_candidate(float native,float contribution,float error,unsigned radius,unsigned exponent){
  const unsigned low=c::bits(contribution)&65535u,distance=low>=32768u?low-32768u:32768u-low;
  return (radius&&distance<=radius)||(exponent&&((c::bits(native)>>23u)&255u)<=exponent)||qrt_bf16_midpoint::within_error(contribution,error);
 }
@@ -82,7 +82,7 @@ void run(unsigned tokens,unsigned mode){
   auto actual=output.read(),actual_routes=dn.read();
   if(!filtered){control=actual;control_routes=actual_routes;
    for(unsigned r=0;r<routes;++r)for(unsigned n=0;n<columns;++n){const size_t index=size_t(r)*columns+n;
-    if(selected(raw[index],in::multiply(topk[r],raw[index]),input_norm[r]*512e-9f*fabsf(topk[r]),radius,0u)){
+    if(selected_candidate(raw[index],in::multiply(topk[r],raw[index]),input_norm[r]*512e-9f*fabsf(topk[r]),radius,0u)){
      require(c::bits(actual_routes[index])==c::bits(cpu_exact[index]),"independent CPU K16");++cpu_compared;
     }
    }
@@ -92,7 +92,7 @@ void run(unsigned tokens,unsigned mode){
    unsigned selected=0,skipped=0,invariant=0;
    for(size_t index=0;index<cells;++index){unsigned mask=bitmap[index];if(mask)++invariant;skipped+=unsigned(__builtin_popcount(mask));}
    for(unsigned r=0;r<routes;++r)for(unsigned n=0;n<columns;++n){const size_t index=size_t(r)*columns+n;
-    const bool chosen=selected(raw[index],in::multiply(topk[r],raw[index]),input_norm[r]*512e-9f*fabsf(topk[r]),radius,0u);
+    const bool chosen=selected_candidate(raw[index],in::multiply(topk[r],raw[index]),input_norm[r]*512e-9f*fabsf(topk[r]),radius,0u);
     selected+=chosen;const bool skip=(bitmap[size_t(r/8u)*columns+n]>>(r%8u))&1u;
     require(!skip||chosen,"removed noncandidate");
     require(c::bits(actual_routes[index])==c::bits(skip?raw[index]:control_routes[index]),"actual skip or original replay");
