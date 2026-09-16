@@ -52,6 +52,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "QRT_CK_EXPORT int qrt_ck_fmha_q8192_release()",
         ))
         actual = actual.replace("std::chrono::steady_clock::now()", "mock_now()")
+        actual = (ROOT / "native/providers/ck_fmha/selective_qk_tail_policy.h").read_text().replace(
+            "#pragma once", "") + actual
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -1061,6 +1063,61 @@ int main() {
     setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","0",1);
     if(launch(16384,65)!=hipErrorInvalidValue || allocations || queries) return 230;
     reset();
+    // Exercise the actual mixed provider dispatch, including the transition
+    // slab, output offsets, full exact fallback and failures on either side.
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","1",1);
+    for(const char* batch : {"32","64","128"})
+    for(const char* tail : {"0","1","1024","4096","8192"})
+    for(unsigned tokens : {1u,129u,7169u,8192u,8193u}) {
+        setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH",batch,1);
+        setenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL",tail,1);
+        reset();track_submissions=true;
+        const unsigned selected=qrt_selective_qk_tail::prefix_queries(
+            unsigned(std::atoi(tail)),0u,tokens,unsigned(std::atoi(batch)));
+        const unsigned slab=tokens==1u?8u:tokens>8192u?32u:unsigned(std::atoi(batch));
+        const unsigned total=(tokens+slab-1u)/slab;
+        if(launch_sm121_attention(&operand,&operand,&operand,&output,nullptr,0u,tokens,37u)!=hipSuccess ||
+           queries!=total || selective_qk_queries!=selected/slab ||
+           decoded_queries!=(tokens>1u && tokens<=8192u?total-selected/slab:0u) ||
+           bool(g_sm121_selective_qk)!=bool(selected) || syncs!=total ||
+           pending_submissions || maximum_pending!=1u || submitted_ranges.size()!=total) return 231;
+        unsigned covered=0u;
+        for(const auto& range : submitted_ranges) {
+            if(range[0]!=covered || range[2]!=37u+covered ||
+               !range[1] || range[1]>slab || range[1]>tokens-covered) return 232;
+            covered+=range[1];
+        }
+        if(covered!=tokens) return 233;
+    }
+    setenv("QRT_CK_SM121_PREFILL_QUERY_BATCH","128",1);
+    setenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL","1024",1);
+    for(unsigned start : {7168u,8192u,262144u}) {
+        reset();
+        if(launch(start,65u)!=hipSuccess || selective_qk_queries || g_sm121_selective_qk) return 234;
+    }
+    for(unsigned failure : {1u,56u,57u,64u}) {
+        reset();track_submissions=true;fail_query=failure;
+        if(launch(0u,8192u)!=hipErrorUnknown || queries!=failure || syncs!=failure ||
+           selective_qk_queries!=std::min(failure,56u) ||
+           decoded_queries!=(failure>56u?failure-56u:0u) || pending_submissions) return 235;
+    }
+    reset();fail_allocation=6u;
+    if(launch(0u,8192u)!=hipErrorUnknown || g_sm121_selective_qk ||
+       queries || transposes || syncs || live.size()!=5u) return 236;
+    for(const char* conflict : {"QRT_CK_SM121_SELECTIVE_QK_PROBABILITY",
+                                "QRT_CK_SM121_PROFILE_COMPLETED_STAGES"}) {
+        reset();setenv(conflict,"1",1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 237;
+        unsetenv(conflict);
+    }
+    reset();setenv("QRT_CK_SM121_SUBMIT_SLABS","8",1);
+    if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 238;
+    setenv("QRT_CK_SM121_SUBMIT_SLABS","1",1);
+    for(const char* invalid : {"8193","01","-1","true","1024x"}) {
+        reset();setenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL",invalid,1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries) return 239;
+    }
+    reset();unsetenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL");
     return 0;
 }
 '''

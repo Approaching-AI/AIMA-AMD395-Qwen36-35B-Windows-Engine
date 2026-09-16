@@ -67,6 +67,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "float_pv_replay.h"),
     (Join-Path $sourceDir "prepared_decoded_qk.h"),
     (Join-Path $sourceDir "prepared_decoded_qk_workspace.h"),
+    (Join-Path $sourceDir "selective_qk_tail_policy.h"),
     (Join-Path $sourceDir "decoded_window_qk.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_decoded_bf16.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_f32_carry.h"),

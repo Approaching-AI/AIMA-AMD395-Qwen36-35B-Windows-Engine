@@ -32,6 +32,7 @@
 #include "blackwell_attention.h"
 #include "attention_deadline.h"
 #include "selective_qk.h"
+#include "selective_qk_tail_policy.h"
 #include "prepared_decoded_qk.h"
 #include "prepared_decoded_qk_range.h"
 #endif
@@ -415,6 +416,17 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(selective_option,"1")) return int(hipErrorInvalidValue);
     const bool selective_qk = selective_option && std::strcmp(selective_option,"1")==0 &&
         (compact_pv_mode==1u || compact_pv_mode==3u) && query_start+query_count<=8192u;
+    unsigned exact_tail = 0u;
+    if (!qrt_selective_qk_tail::parse(
+            std::getenv("QRT_CK_SM121_SELECTIVE_QK_EXACT_TAIL"), exact_tail) ||
+        (exact_tail && selective_option && std::strcmp(selective_option,"1")==0))
+        return int(hipErrorInvalidValue);
+    const unsigned selective_prefix_queries = qrt_selective_qk_tail::prefix_queries(
+        exact_tail, query_start, query_count, requested_batch);
+    if (selective_prefix_queries &&
+        (!tiled_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
+        return int(hipErrorInvalidValue);
+    const bool uses_selective_qk = selective_qk || selective_prefix_queries != 0u;
     const char* float_alignment_option = std::getenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
     if (float_alignment_option && *float_alignment_option && std::strcmp(float_alignment_option,"0") &&
         std::strcmp(float_alignment_option,"1")) return int(hipErrorInvalidValue);
@@ -442,7 +454,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
     const bool profile_stages = query_count > 1u && profile_option &&
         std::strcmp(profile_option,"1") == 0;
-    if (profile_stages && (selective_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
+    if (profile_stages && (uses_selective_qk || (compact_pv_mode != 1u && compact_pv_mode != 3u)))
         return int(hipErrorInvalidValue);
     const char* submission_option = std::getenv("QRT_CK_SM121_SUBMIT_SLABS");
     unsigned requested_submission_slabs = 1u;
@@ -454,7 +466,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     }
     const unsigned submission_slabs = query_start == 0u && query_count > 1u && query_count <= 8192u
         ? requested_submission_slabs : 1u;
-    if (submission_slabs > 1u && (profile_stages || selective_qk ||
+    if (submission_slabs > 1u && (profile_stages || uses_selective_qk ||
         (compact_pv_mode != 1u && compact_pv_mode != 3u))) return int(hipErrorInvalidValue);
     // Own tables, score/probability slabs and the transposed-key slab until all
     // submitted work completes. No request or release can reuse them early.
@@ -546,7 +558,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             mantissa_elements * sizeof(float)));
         if (status != int(hipSuccess)) { mantissa_scores = nullptr; return status; }
     }
-    if (selective_qk && !g_sm121_selective_qk) {
+    if (uses_selective_qk && !g_sm121_selective_qk) {
         status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_selective_qk),
             kSm121SelectiveQkElements * sizeof(float)));
         if (status != int(hipSuccess)) { g_sm121_selective_qk = nullptr; return status; }
@@ -649,7 +661,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     unsigned pending_slabs = 0u, completion_groups = 0u;
     for (unsigned int offset = 0; offset < query_count; offset += query_batch) {
         if (profile_stages) profile.last = std::chrono::steady_clock::now();
-        if (selective_qk) {
+        if (selective_qk || offset < selective_prefix_queries) {
             status = qrt_selective_qk::launch_probability_attention(q, k, v, output, stream,
                 query_start + offset, std::min(query_batch, query_count - offset), output_start + offset,
                 g_sm121_exp2, g_sm121_rcp, memory_layout, mantissa_scores, mantissa_elements,
@@ -745,8 +757,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (float_alignment_qk)
-        std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0\n",
-            query_start,query_count);
+        std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",
+            query_start,query_count,selective_prefix_queries);
     if (prepared_decoded_qk)
         std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1\n",
             query_start,query_count,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
@@ -757,6 +769,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (selective_qk)
         std::fprintf(stderr,"SM121_SELECTIVE_QK_PROBABILITY query_start=%u query_count=%u probability_endpoint_repair=1 approximate_denominator=1 workspace_bytes=%zu gb10_product_gate_required=1\n",
             query_start,query_count,kSm121SelectiveQkElements*sizeof(float));
+    if (exact_tail && query_start == 0u && query_count > 1u && query_count <= 8192u)
+        std::fprintf(stderr,"SM121_SELECTIVE_QK_EXACT_TAIL query_start=%u query_count=%u requested_tail=%u selective_queries=%u exact_queries=%u query_batch=%u probability_endpoint_repair=1 approximate_prefix_denominator=%u original_suffix_accumulator=1 stream_drained=1 gb10_product_gate_required=1\n",
+            query_start,query_count,exact_tail,selective_prefix_queries,
+            query_count-selective_prefix_queries,query_batch,unsigned(selective_prefix_queries != 0u));
     std::fprintf(stderr, "SM121_FULL_ATTENTION query_start=%u query_count=%u maximum_queries_per_dispatch=%u split_qk_pv=1 transposed_keys=%u native_products=%u mantissa_wmma=%u native_bf16_matrix=%u tiled_exact_qk=%u warp_softmax=%u prepared_value=%u diagnostic_only=1\n",
         query_start, query_count, query_batch, unsigned(independent_dots), unsigned(native_products), unsigned(mantissa_wmma), matrix_mode, unsigned(tiled_qk), unsigned(warp_softmax), unsigned(prepared_value));
     return int(hipSuccess);
