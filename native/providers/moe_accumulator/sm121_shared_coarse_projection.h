@@ -43,7 +43,7 @@ __device__ __forceinline__ void publish(uint32_t (&shared)[Layout<Rows>::total][
         shared[cell/32u][cell%32u]=words[i];
     }
 }
-template<unsigned Rows,bool Prefetch>
+template<unsigned Rows,bool Prefetch,bool DomainBound=false>
 __global__ __launch_bounds__(256) void produce(const uint16_t* weights,const uint16_t* inputs,
     const unsigned* weight_ok,const unsigned* input_ok,float* centers,float* errors,
     unsigned rows,unsigned tokens,unsigned width) {
@@ -87,7 +87,12 @@ __global__ __launch_bounds__(256) void produce(const uint16_t* weights,const uin
         for(unsigned fragment=0;fragment<2u;++fragment) {
 #pragma unroll
             for(unsigned i=0;i<8u;++i) {
-                const auto next=bound::advance<4u,19u>({center[fragment][i],error[fragment][i]},partial[fragment][i],positive[fragment][i]);
+                bound::State next;
+                if constexpr(DomainBound) {
+                    if(qrt_sm121_domain_coarse_bound::width_supported(width))
+                        next=qrt_sm121_domain_coarse_bound::advance({center[fragment][i],error[fragment][i]},partial[fragment][i],positive[fragment][i]);
+                    else next=bound::advance<4u,19u>({center[fragment][i],error[fragment][i]},partial[fragment][i],positive[fragment][i]);
+                }else next=bound::advance<4u,19u>({center[fragment][i],error[fragment][i]},partial[fragment][i],positive[fragment][i]);
                 center[fragment][i]=next.center;error[fragment][i]=next.error;
             }
         }

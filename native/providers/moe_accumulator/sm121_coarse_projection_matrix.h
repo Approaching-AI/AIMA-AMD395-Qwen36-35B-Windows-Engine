@@ -2,6 +2,7 @@
 #define QRT_SM121_COARSE_PROJECTION_MATRIX_H
 #include <hip/hip_runtime.h>
 #include "sm121_coarse_projection_bound.h"
+#include "sm121_domain_coarse_bound.h"
 #include "sm121_wmma_operand_load.h"
 
 // Isolated complete producer, with no product dispatcher. Original selected
@@ -22,12 +23,13 @@ __global__ void eligibility(const uint16_t* input,unsigned* flags,unsigned rows,
     for(unsigned stride=threads/2u;stride;stride>>=1u){if(lane<stride)all[lane]&=all[lane+stride];__syncthreads();}
     if(!lane)flags[row]=all[0];
 }
-template<unsigned Chunk,unsigned Fragments=1u,bool VectorLoads=false,unsigned NativeErrorBits=19u>
+template<unsigned Chunk,unsigned Fragments=1u,bool VectorLoads=false,unsigned NativeErrorBits=19u,bool DomainBound=false>
 __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const uint16_t* inputs,
     const unsigned* weight_ok,const unsigned* input_ok,float* centers,float* errors,
     unsigned rows,unsigned tokens,unsigned width) {
     static_assert(Chunk==64u || Chunk==128u || Chunk==256u);
     static_assert(Fragments==1u || Fragments==2u);
+    static_assert(!DomainBound || (Chunk==64u && NativeErrorBits==19u));
     const unsigned lane=threadIdx.x%32u,wave=threadIdx.x/32u,source=lane%16u;
     const unsigned row=blockIdx.x*row_tile+wave*16u+source;
     const unsigned first_token=blockIdx.y*(16u*Fragments);
@@ -82,7 +84,12 @@ __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const
         for(unsigned fragment=0u;fragment<Fragments;++fragment) {
 #pragma unroll
             for(unsigned item=0u;item<8u;++item) {
-                const auto next=bound::advance<Chunk/16u,NativeErrorBits>({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
+                bound::State next;
+                if constexpr(DomainBound) {
+                    if(qrt_sm121_domain_coarse_bound::width_supported(width))
+                        next=qrt_sm121_domain_coarse_bound::advance({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
+                    else next=bound::advance<Chunk/16u,NativeErrorBits>({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
+                }else next=bound::advance<Chunk/16u,NativeErrorBits>({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
                 centers_local[fragment][item]=next.center;errors_local[fragment][item]=next.error;
             }
         }
