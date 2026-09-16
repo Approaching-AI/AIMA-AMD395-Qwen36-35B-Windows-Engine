@@ -113,6 +113,8 @@ unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
 unsigned decoded_preparations=0, decoded_queries=0, fail_decoded_prepare=0;
+unsigned mask_preparations=0, mask_queries=0;
+bool masked_arena=false;
 unsigned range_preparations=0, range_queries=0, fail_range_prepare=0;
 unsigned range_start=0, range_count=0;
 unsigned selective_qk_queries = 0;
@@ -155,8 +157,22 @@ hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Val
 namespace qrt_prepared_decoded_qk {
 int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t) {
     ++decoded_preparations;
+    masked_arena=false;
     if(!valid(workspace) || workspace.words!=g_sm121_prepared_decoded_qk || transposed!=g_sm121_transposed_keys)
         std::abort();
+    if(fail_decoded_prepare) return hipErrorUnknown;
+    ++transposes;return hipSuccess;
+}
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned) {
+    return hipSuccess;
+}
+}
+namespace qrt_exponent_mask_qk {
+int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,
+    const qrt_prepared_decoded_qk::Workspace& workspace,hipStream_t) {
+    ++mask_preparations;masked_arena=true;
+    if(!qrt_prepared_decoded_qk::valid(workspace) || workspace.words!=g_sm121_prepared_decoded_qk ||
+       transposed!=g_sm121_transposed_keys) std::abort();
     if(fail_decoded_prepare) return hipErrorUnknown;
     ++transposes;return hipSuccess;
 }
@@ -249,9 +265,10 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
         if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
            workspace->words!=g_sm121_prepared_decoded_qk || workspace->tokens!=key_stride ||
-           producer->launch!=qrt_prepared_decoded_qk::launch_workspace || !decoded_preparations ||
+           producer->launch!=(masked_arena?qrt_exponent_mask_qk::launch_workspace:qrt_prepared_decoded_qk::launch_workspace) ||
+           !(masked_arena?mask_preparations:decoded_preparations) ||
            !float_alignment_qk || (layout!=22u && layout!=24u)) std::abort();
-        ++decoded_queries;
+        if(masked_arena)++mask_queries;else ++decoded_queries;
     }
     if(float_alignment_qk) {
         if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
@@ -339,6 +356,7 @@ void reset() {
     fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
+    mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
     fail_transpose = false;
     preparations = 0; fail_preparation = false;
@@ -867,6 +885,50 @@ int main() {
     setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
     reset();setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","0",1);
     if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 143;
+    setenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK","1",1);
+    for(const char* bad : {"2","-1","true","1junk"," 1"}) {
+        reset();setenv("QRT_CK_SM121_EXPONENT_MASK_QK",bad,1);
+        if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 240;
+    }
+    setenv("QRT_CK_SM121_EXPONENT_MASK_QK","1",1);
+    for(unsigned tokens : {2u,7169u,8192u}) {
+        reset();
+        if(launch(0,tokens)!=hipSuccess || allocations!=6u || mask_preparations!=1u ||
+           mask_queries!=queries || decoded_preparations || decoded_queries || transposes!=1u) return 241;
+    }
+    // Switching the option on the same live allocation must refresh both its
+    // representation and its consumer before submitting the next call.
+    reset();
+    for(const char* selected : {"1","0","1","0"}) {
+        setenv("QRT_CK_SM121_EXPONENT_MASK_QK",selected,1);
+        queries=transposes=syncs=decoded_queries=mask_queries=0u;
+        if(launch(0,8192)!=hipSuccess || allocations!=6u || queries!=64u || transposes!=1u ||
+           mask_queries!=(*selected=='1'?64u:0u) || decoded_queries!=(*selected=='0'?64u:0u)) return 242;
+    }
+    setenv("QRT_CK_SM121_EXPONENT_MASK_QK","1",1);
+    for(unsigned tokens : {1u,8193u,17408u}) {
+        reset();
+        if(launch(0,tokens)!=hipSuccess || mask_preparations || mask_queries ||
+           decoded_preparations || decoded_queries || g_sm121_prepared_decoded_qk) return 243;
+    }
+    reset();setenv("QRT_CK_SM121_PREPARED_DECODED_QK","0",1);
+    if(launch(0,8192)!=hipErrorInvalidValue || allocations || queries || syncs) return 244;
+    setenv("QRT_CK_SM121_PREPARED_DECODED_QK","1",1);
+    reset();fail_allocation=6u;
+    if(launch(0,8192)!=hipErrorUnknown || g_sm121_prepared_decoded_qk || mask_preparations || queries || syncs) return 245;
+    reset();fail_decoded_prepare=1u;
+    if(launch(0,8192)!=hipErrorUnknown || mask_preparations!=1u || decoded_preparations ||
+       transposes || queries || syncs!=1u) return 246;
+    reset();fail_query=2u;
+    if(launch(0,8192)!=hipErrorUnknown || queries!=2u || syncs!=2u || mask_queries!=2u || decoded_queries) return 247;
+    setenv("QRT_CK_SM121_SUBMIT_SLABS","8",1);
+    reset();track_submissions=true;
+    if(launch(0,1025)!=hipSuccess || queries!=9u || mask_queries!=9u || syncs!=2u ||
+       maximum_pending!=8u || pending_submissions) return 248;
+    reset();track_submissions=true;fail_sync=1u;
+    if(launch(0,1025)!=hipErrorUnknown || queries!=8u || mask_queries!=8u || syncs!=1u || pending_submissions) return 249;
+    unsetenv("QRT_CK_SM121_SUBMIT_SLABS");
+    unsetenv("QRT_CK_SM121_EXPONENT_MASK_QK");
     unsetenv("QRT_CK_SM121_PREPARED_DECODED_QK");
     unsetenv("QRT_CK_SM121_FLOAT_ALIGNMENT_QK");
     // Exercise actual provider scheduling with original kernel arguments and

@@ -2,10 +2,11 @@
 #include "decoded_window_qk.h"
 #include "../moe_accumulator/sm121_f32_carry.h"
 #include "../moe_accumulator/sm121_exponent_mask.h"
+#include "prepared_decoded_qk_workspace.h"
 
-// Isolated component experiment. K16 position masks certify exact exponent
+// Opt-in experiment. K16 position masks certify exact exponent
 // maxima without changing products, carry order, or exceptional-row replay.
-// The original preparation and provider dispatch remain unchanged.
+// Preparation and its consumer must be selected together on every call.
 namespace qrt_exponent_mask_qk {
 namespace decoded = qrt_sm121_decoded_bf16;
 
@@ -112,5 +113,40 @@ __global__ void scores(const uint16_t* query, const uint16_t* transposed_key,
     unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
     scores_body<Window, CarryAware, Rows, Keys>(query, transposed_key, packed_query,
         packed_key, query_flags, key_flags, output, query_start, query_count, stride, key_stride, 0u);
+}
+inline int prepare_workspace(const uint16_t* query, const uint16_t* key,
+    uint16_t* transposed, const qrt_prepared_decoded_qk::Workspace& workspace, hipStream_t stream) {
+    namespace arena = qrt_prepared_decoded_qk;
+    if (!query || !key || !transposed || !arena::valid(workspace)) return int(hipErrorInvalidValue);
+    auto* q = workspace.words;
+    auto* k = q + arena::query_words;
+    auto* qflags = k + arena::key_words;
+    auto* kflags = qflags + arena::query_flag_words;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<false>), dim3(workspace.tokens * qrt_blackwell_attention::kQueryHeads),
+        dim3(qrt_blackwell_attention::kHeadDim), 0u, stream, query, q, qflags, nullptr, workspace.tokens);
+    auto status = hipGetLastError();
+    if (status != hipSuccess) return int(status);
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(prepare<true>), dim3(workspace.tokens * qrt_blackwell_attention::kKvHeads),
+        dim3(qrt_blackwell_attention::kHeadDim), 0u, stream, key, k, kflags, transposed, workspace.tokens);
+    return int(hipGetLastError());
+}
+inline int launch_workspace(const void* state, const uint16_t* query,
+    const uint16_t* transposed_key, float* output, hipStream_t stream,
+    unsigned start, unsigned count, unsigned stride, unsigned key_stride) {
+    namespace arena = qrt_prepared_decoded_qk;
+    if (!state || !query || !transposed_key || !output) return int(hipErrorInvalidValue);
+    const auto& workspace = *static_cast<const arena::Workspace*>(state);
+    if (!arena::valid(workspace) || !count || count > 128u || start >= workspace.tokens ||
+        count > workspace.tokens - start || stride != start + count || key_stride != workspace.tokens)
+        return int(hipErrorInvalidValue);
+    const auto* q = workspace.words;
+    const auto* k = q + arena::query_words;
+    const auto* qflags = k + arena::key_words;
+    const auto* kflags = qflags + arena::query_flag_words;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(scores<128u, true>),
+        dim3((stride + 15u) / 16u, qrt_blackwell_attention::kQueryHeads, (count + 15u) / 16u), dim3(qrt_blackwell_attention::kThreads),
+        0u, stream, query, transposed_key, q, k, qflags, kflags, output,
+        start, count, stride, key_stride);
+    return int(hipGetLastError());
 }
 } // namespace qrt_exponent_mask_qk

@@ -10,7 +10,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 class PreparedDecodedQkLaunchTests(unittest.TestCase):
     def test_arena_views_and_failed_launches(self):
-        header=(ROOT/'native/providers/ck_fmha/prepared_decoded_qk.h').read_text()
+        self.check_arena_views_and_failed_launches('prepared_decoded_qk')
+
+    def test_exponent_mask_arena_views_and_failed_launches(self):
+        self.check_arena_views_and_failed_launches('exponent_mask_qk')
+
+    def check_arena_views_and_failed_launches(self, name):
+        header=(ROOT/f'native/providers/ck_fmha/{name}.h').read_text()
         actual='\n'.join(function(header,name) for name in ('inline int prepare_workspace(', 'inline int launch_workspace('))
         source=r'''
 #include <cstddef>
@@ -103,6 +109,11 @@ int main() {
     return 0;
 }
 '''
+        if name == 'exponent_mask_qk':
+            source=source.replace('namespace qrt_prepared_decoded_qk {',
+                'namespace qrt_exponent_mask_qk {\nusing namespace qrt_prepared_decoded_qk;')
+            source=source.replace('    using namespace qrt_prepared_decoded_qk;',
+                '    using namespace qrt_exponent_mask_qk;')
         with tempfile.TemporaryDirectory(prefix='qrt-prepared-qk-launch-') as tmp:
             exe=str(Path(tmp)/'launch')
             subprocess.run([os.environ.get('CXX','c++'),'-std=c++17','-Wall','-Wextra','-Werror','-x','c++','-','-o',exe],input=source,text=True,check=True,timeout=30)

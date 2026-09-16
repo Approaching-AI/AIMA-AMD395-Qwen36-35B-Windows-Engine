@@ -34,6 +34,7 @@
 #include "selective_qk.h"
 #include "selective_qk_tail_policy.h"
 #include "prepared_decoded_qk.h"
+#include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
 #endif
 
@@ -449,6 +450,13 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         query_start + query_count > 8192u;
     if ((prepared_decoded_qk || long_prepared_decoded_qk) && (!float_alignment_qk || selective_qk ||
         (compact_pv_mode != 1u && compact_pv_mode != 3u))) return int(hipErrorInvalidValue);
+    const char* exponent_mask_option = std::getenv("QRT_CK_SM121_EXPONENT_MASK_QK");
+    if (exponent_mask_option && *exponent_mask_option && std::strcmp(exponent_mask_option,"0") &&
+        std::strcmp(exponent_mask_option,"1")) return int(hipErrorInvalidValue);
+    const bool exponent_mask_requested = exponent_mask_option && std::strcmp(exponent_mask_option,"1") == 0;
+    if (exponent_mask_requested && query_start == 0u && query_count > 1u && query_count <= 8192u &&
+        !prepared_decoded_qk) return int(hipErrorInvalidValue);
+    const bool exponent_mask_qk = exponent_mask_requested && prepared_decoded_qk;
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -587,7 +595,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t transposed_value_elements = size_t(transposed_value_capacity) * kKvHeads * kHeadDim;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
-        qrt_prepared_decoded_qk::launch_workspace};
+        exponent_mask_qk ? qrt_exponent_mask_qk::launch_workspace : qrt_prepared_decoded_qk::launch_workspace};
     qrt_prepared_decoded_qk_range::Workspace long_decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer long_decoded_producer{&long_decoded_workspace,
         qrt_prepared_decoded_qk_range::launch_workspace};
@@ -598,8 +606,11 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             if (status != int(hipSuccess)) { g_sm121_prepared_decoded_qk = nullptr; return status; }
         }
         decoded_workspace = {g_sm121_prepared_decoded_qk, key_stride};
-        status = qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys,
-            decoded_workspace, stream);
+        // Reuse the arena but refresh its representation and matching consumer
+        // together. Nothing from a previous call or layer is reused implicitly.
+        status = exponent_mask_qk
+            ? qrt_exponent_mask_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream)
+            : qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
     }
     if (long_prepared_decoded_qk) {
@@ -762,6 +773,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (prepared_decoded_qk)
         std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1\n",
             query_start,query_count,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
+    if (exponent_mask_qk)
+        std::fprintf(stderr,"SM121_EXPONENT_MASK_QK query_start=%u query_count=%u exact_maximum=1 carry_bound=1 original_fallback=1 refreshed=1 additional_workspace_bytes=0\n",
+            query_start,query_count);
     if (long_prepared_decoded_qk)
         std::fprintf(stderr,"SM121_LONG_PREPARED_DECODED_QK query_start=%u query_count=%u key_tokens=%u capacity_tokens=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1 prepared_query_history=0\n",
             query_start,query_count,key_stride,long_decoded_workspace.key_capacity,
