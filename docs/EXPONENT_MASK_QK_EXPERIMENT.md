@@ -47,3 +47,30 @@ Evidence: [source, commands and complete component comparisons](../benchmarks/co
 SHA256 `89bd3e265307310e00645aaa24a53f3b4b8c57d91d8fb17304346958b894c2ca`.
 These component results do not establish TTFT, prefix, long-context or release
 acceptance. The 10,000 ms gate and 4,187.415605 ms retained target remain open.
+
+The default-off provider integration at `e63b66f` passes actual arena-view,
+shape-rejection, preparation-failure and provider scheduling tests. They cover
+switching the representation on an existing allocation, allocation and query
+failures, batched completion failures and unsupported call ranges. The HIP
+build completes in 45,959.848 ms with all host guards passing. Its CK DLL is
+1,702,912 bytes, SHA256
+`2e4dd74c82ebeabfe216cb37393d3c2b167fa176cf613caaccb84db8402104a2`.
+The compiled candidate is wave32, with the same component kernel bodies.
+
+The real q8192/out512 comparison uses that same DLL in both modes and fixes
+the remaining retained stack, original prompt and GB10 oracle. Both runs
+match all 512 output IDs, all actual callbacks and first logit 10.375.
+
+| Exact mask option | Load ms | TTFT ms | TPOT ms | Active mask calls |
+| --- | ---: | ---: | ---: | ---: |
+| Off | 21495.2359 | 27552.9067 | 100.516660 | 0 |
+| On | 21227.2016 | 27452.0422 | 100.230828 | 10 |
+
+The single observed TTFT difference is -100.8645 ms. It does not establish
+a repeatable whole-model gain, and component savings do not transfer directly
+to TTFT. Keep the option off and the retained stack unchanged; both product
+results remain well above 10 seconds. Investigate larger GDN/correction costs.
+No prefix, long-context, package or release qualification follows.
+
+Product evidence: [same-DLL runs and unchanged GB10 boundaries](../benchmarks/correctness/exponent-mask-qk-product-20260916.json),
+SHA256 `597e2dfcb77eb80e6ea35337153c7ec2d3e085987de2061a72e120473a3cd9ef`.

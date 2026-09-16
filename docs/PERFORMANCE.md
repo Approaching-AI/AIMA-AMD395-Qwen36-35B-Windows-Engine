@@ -1,5 +1,15 @@
 # Real-model performance
 
+## Exact exponent-mask QK, 2026-09-16
+
+The same-DLL q8192/out512 pair at `e63b66f` passes every GB10 output ID,
+first-logit boundary and actual callback in both modes. TTFT is
+27552.9067 / 27452.0422 ms with the exact mask option off/on; all 10 attention
+layers execute it when enabled. This single 100.8645 ms difference does not
+establish a repeatable product gain. Keep the option default-off and the
+retained stack unchanged. The 10-second gate remains open.
+See [component, integration and product evidence](EXPONENT_MASK_QK_EXPERIMENT.md).
+
 ## Native GPU execution modes, 2026-09-16
 
 Same-source WGP/CU builds of all four in-tree HIP providers pass the real
