@@ -1,5 +1,18 @@
 # Real-model performance
 
+## Register PV rescaling product comparison, 2026-09-17
+
+Source `e669940` adds a default-off register-rescale option. Four fresh
+same-DLL q8192/out512 processes, ordered OFF/ON/ON/OFF, pass all2048 GB10
+output IDs and actual callback IDs, original prompt IDs and first logit10.375.
+TTFT medians are27866.6750/27328.8799ms OFF/ON, a537.7951ms reduction;
+both ON samples are below both OFF samples. All loads remain below30s.
+Retain the enabled option in the next experimental q8192 control, with code
+and package defaults unchanged. This limited comparison does not satisfy
+the10000ms gate, retained performance or release acceptance. Native integration
+also passes336 generated configurations, full captured comparisons and the
+repository suite. See [implementation, boundaries and evidence](REGISTER_PV_ARITHMETIC_EXPERIMENT.md).
+
 ## Register PV arithmetic components, 2026-09-17
 
 Source `bae2730` replaces volatile accumulator rescaling barriers with an
