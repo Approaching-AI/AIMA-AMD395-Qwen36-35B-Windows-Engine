@@ -1,0 +1,2243 @@
+{
+  "schema_version": 1,
+  "kind": "moe512_retained_provider_saved_prefix_gb10_branches",
+  "host": "baiying",
+  "model": "D:\\models\\Qwen3.6-35B-A3B",
+  "model_loaded": true,
+  "source_commits": {
+    "whole": "1ee36e7beae5ff2c259f162c34cabd5aee4c3c12",
+    "moe": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+    "cli": "24c4304a16a1665701d05444619d46b832c73e43"
+  },
+  "command_sources": {
+    "r1": {
+      "record": {
+        "source_commit": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+        "repo": "D:/projects/AIMA-public-expert-order-moe-20260916",
+        "provider_source_record": "expert-order-moe-native-source-r1.json",
+        "provider_source_record_sha256": "fd1d0a5f7a22fdd710f5b60e8936cbc0f30234362fb2e261f24af491db610381",
+        "build_metadata_sha256": "89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943",
+        "build_run_sha256": "36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758",
+        "moe_provider": {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 832000,
+          "sha256": "d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f"
+        },
+        "whole_commit": "1ee36e7beae5ff2c259f162c34cabd5aee4c3c12",
+        "whole_dll_sha256": "9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84",
+        "cli_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "numeric_oracle": "contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+        "required_marker_filter_both_arms": true,
+        "coarse_out_enabled_both_arms": true,
+        "default_enabled": false,
+        "expert_order_workspace_bytes": 16780292,
+        "process_timeout_seconds": 300,
+        "transport_timeout_seconds": 390,
+        "execution_order": [
+          1,
+          0
+        ],
+        "prior_pair_source_sha256": "379eeb00079d632cf271c1759900be09047e8c0ab3e9446dc65c0304ec7fc682",
+        "script": "run-native-moe-margin-prefix-r1.ps1",
+        "script_sha256": "a7f8c1d8f6d32abbba55e508730f3fe285aa1ff9cd8aa1e0d64a84c57e87e259",
+        "dispatcher": "dispatch_moe_margin_prefix_r1.py",
+        "dispatcher_sha256": "7752265cb6c5e10cca50adbc2fd020b5f97ffc05be045b11cb351ab35de0fa8d",
+        "previous_source_record": "expert-order-moe-product-source-r2.json",
+        "previous_source_record_sha256": "73efc17451f41e6dc6d94265340f4abaef7744793dc0ca35f78325e972baac27",
+        "expert_order_enabled": true,
+        "selector_coefficients": [
+          256,
+          512,
+          768,
+          1000
+        ],
+        "gb10_thresholds_unchanged": true,
+        "release_qualified": false,
+        "performance_acceptance": false,
+        "coefficient_reduction_proven": false,
+        "dense_ppb": 1000,
+        "moe_ppb": 512,
+        "cases": [
+          "q6209-prefix6208-branch-out32",
+          "q6657-prefix6656-branch-out32",
+          "q7169-prefix7168-branch-out32",
+          "q7173-prefix7168-branch-out32"
+        ],
+        "prior_qualification": "selector-margin-product-q8192-out512-d1000-m512-r2",
+        "default_profile_changed": false,
+        "cold_cases": [
+          "q7169-out32",
+          "q8193-out32",
+          "q7168-out32",
+          "q7170-out32",
+          "q8191-out32",
+          "q7169-out512",
+          "q8192-out32"
+        ],
+        "cold_qualification_required": true
+      },
+      "record_sha256": "1869a8e9499605b92ab4690b46f98c54745a5c6659bb3b47ba686a66eb36d5b2",
+      "command_file_text": "param([ValidateSet('q6209-prefix6208-branch-out32','q6657-prefix6656-branch-out32','q7169-prefix7168-branch-out32','q7173-prefix7168-branch-out32')][string]$Case='q6209-prefix6208-branch-out32')\n$DensePpb=1000\n$MoePpb=512\n$ExpertOrder=1\n$CoarseOut=1\n$RequiredMarkers=1\n$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-environment-20260915'\n$sha='e7d605f6d88422d8067bbb8b82bff586b84386c6'\n$cliCommit='24c4304a16a1665701d05444619d46b832c73e43'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){\n    if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}\n}\n$runtime=Join-Path $repo 'build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3'\nif(Test-Path -LiteralPath (Join-Path $repo 'build\\runtime-current-package-r3')){throw 'Original staging directory must remain unavailable'}\n$manifestPath=Join-Path $runtime 'runtime-manifest.json'\n$manifestSha='0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729'\nVerify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.dirty_tree -or $manifest.artifacts.Count -ne 268){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){\n    $p=Join-Path $runtime $e.path\n    Verify-File $p $e.sha256\n    if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}\n}\nforeach($component in $manifest.source_component_builds.PSObject.Properties){\n    $e=$component.Value\n    Verify-File $e.metadata.path $e.metadata.sha256\n    $m=[IO.File]::ReadAllText($e.metadata.path)|ConvertFrom-Json\n    if($m.repo_commit -ne $e.commit -or $m.dirty_tree){throw 'Component source mismatch'}\n    Verify-File (Join-Path $runtime $e.package_path) $e.artifact.sha256\n}\n$cli=Join-Path $runtime 'product-cli\\qrt-product.exe'\n$cliSha='eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf'\nVerify-File $cli $cliSha\n$provider=Join-Path $runtime 'whole-provider\\qrt_qwen36_whole_provider.dll'\nVerify-File $provider '1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469'\n$wholeRepo='D:\\projects\\AIMA-public-coarse-out-owner-20260915';$wholeSha='1ee36e7beae5ff2c259f162c34cabd5aee4c3c12';$wholeDir=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-provider'\nif((& git -C $wholeRepo rev-parse HEAD).Trim() -ne $wholeSha -or @(& git -C $wholeRepo status --porcelain).Count -ne 0){throw 'coarse OUT owner whole-provider source mismatch'}\n$wholeMetaPath=Join-Path $wholeDir 'build-provenance.json'\n$wholeRunPath=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-r1\\run-record.json'\nVerify-File $wholeMetaPath '33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409'\nVerify-File $wholeRunPath 'd1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeSha -or $wholeMeta.dirty_tree -or $wholeRun.reason -ne 'completed' -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass){throw 'Unqualified whole-provider build'}\nforeach($a in $wholeMeta.artifacts){Verify-File (Join-Path $wholeDir $a.name) $a.sha256}\nforeach($a in $wholeRun.spec.source_inputs){Verify-File (Join-Path $wholeRepo $a.file) $a.sha256}\n$provider=Join-Path $wholeDir 'qrt_qwen36_whole_provider.dll'\nVerify-File $provider '9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84'\n$wholeBuild=[ordered]@{commit=$wholeSha;metadata_path=$wholeMetaPath;metadata_sha256='33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409';build_run_sha256='d1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c';dll_path=$provider;dll_sha256='9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84';artifacts=$wholeMeta.artifacts;source_sha256=$wholeMeta.source_sha256;dispatch_policy_sha256=$wholeMeta.hawkeye_dispatch_policy_sha256}\n\n$moeRepo='D:\\projects\\AIMA-public-expert-order-moe-20260916';$moeSha='3828bfe845758c7f941bab4efd5ef7f9a640a6d8';$moeDir=Join-Path $moeRepo 'build\\expert-order-moe-provider'\nif((& git -C $moeRepo rev-parse HEAD).Trim() -ne $moeSha -or @(& git -C $moeRepo status --porcelain).Count -ne 0){throw 'Expert-order MoE source mismatch'}\n$moeMetaPath=Join-Path $moeDir 'build-provenance.json';$moeRunPath=Join-Path $moeRepo 'build\\expert-order-moe-provider-build-r1\\run-record.json'\nVerify-File $moeMetaPath '89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';Verify-File $moeRunPath '36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json;$moeRun=[IO.File]::ReadAllText($moeRunPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeSha -or $moeMeta.dirty_tree -or $moeRun.reason -ne 'completed' -or $moeRun.exit_code -ne 0 -or -not $moeRun.host_checks_pass){throw 'Unqualified MoE build'}\nforeach($a in $moeMeta.artifacts){Verify-File (Join-Path $moeDir $a.file) $a.sha256}\nforeach($a in $moeRun.spec.source_inputs){Verify-File (Join-Path $moeRepo $a.file) $a.sha256}\n$moeDll=Join-Path $moeDir 'qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll 'd65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f'\n$moeBuild=[ordered]@{commit=$moeSha;metadata_path=$moeMetaPath;metadata_sha256='89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';build_run_sha256='36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758';dll_path=$moeDll;dll_sha256='d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f';artifacts=$moeMeta.artifacts;provider_source_sha256=$moeMeta.provider_source_sha256}\n\n$matrixKind='saved_prefix_branches'\n$data='D:\\projects\\gb10-partial-prefix-inputs-20260912-r1'\n$oraclePath=Join-Path $data 'gb10_partial_prefix_actual_tokens_20260912_oracle.json'\n$oracleSha='240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7'\n$dataSha='eef84535640fed0cb9766a3fe291c5ab49ede28652c3d39a5aca43141e06e7c5'\nVerify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json\n$cases=@($matrix.cases|Where-Object {$_.name -eq $Case})\nif($cases.Count -ne 1){throw 'Oracle case missing'}\n$oracle=$cases[0]\n$dataManifestPath=Join-Path $data 'manifest.json'\nVerify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json')\n$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$ownerPath=Join-Path $data 'owner-q7169-prompt.json'\nVerify-File $ownerPath $dataManifest.([IO.Path]::GetFileName($ownerPath))\nif((Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $matrix.owner.prompt_file_sha256){throw 'Owner reference changed'}\n$ownerTokens=@([IO.File]::ReadAllText($ownerPath)|ConvertFrom-Json).Count\nif($ownerTokens -ne 7169){throw 'Owner token extent changed'}\n\n$choice='d'+$DensePpb+'-m'+$MoePpb\n$name='moe-margin-prefix-'+$Case+'-r1'\n$out=Join-Path $moeRepo ('build\\'+$name)\n$envPath=Join-Path $moeRepo ('build\\'+$name+'.env')\n$specPath=Join-Path $moeRepo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env'\n$profileSha='a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f'\nVerify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath)\n$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\n$pattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=0\\r?$'\nif(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw 'Expected one disabled marker filter'}\n$resolved=[regex]::Replace($resolved,$pattern,('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY='+$RequiredMarkers))\nif($resolved -match '(?m)^QRT_QWEN36_COARSE_OUT_PRODUCER='){throw 'Unexpected existing coarse OUT owner option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_COARSE_OUT_PRODUCER=\"+$CoarseOut+\"`n\"\n$moePattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=[^\\r\\n]+\\r?$'\nif(([regex]::Matches($resolved,$moePattern)).Count -ne 1){throw 'Expected one MoE DLL path'}\n$resolved=[regex]::Replace($resolved,$moePattern,('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')))\nif($resolved -match '(?m)^QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='){throw 'Unexpected existing expert-order option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_EXPERT_ORDER_REPLAY=\"+$ExpertOrder+\"`n\"\nif($resolved -match '(?m)^QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY='){throw 'Unexpected existing shared staged option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0`n\"\n\n$selectorOverrides=[ordered]@{\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB=$MoePpb\n}\nforeach($key in $selectorOverrides.Keys){\n $pattern='(?m)^'+[regex]::Escape($key)+'=1000\\r?$'\n if(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw ('Expected original selector: '+$key)}\n $resolved=[regex]::Replace($resolved,$pattern,($key+'='+$selectorOverrides[$key]))\n}\nif($resolved -notmatch '(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=10000\\r?$'){throw 'Full-attention OUT selector changed'}\n\n$checkpointPattern='(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$'\nif(([regex]::Matches($resolved,$checkpointPattern)).Count -ne 1){throw 'Expected disabled prefix checkpoints'}\n$resolved=[regex]::Replace($resolved,$checkpointPattern,'QRT_QWEN36_PREFIX_CHECKPOINTS=1')\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$spec=[ordered]@{\n    executable=$cli;working_directory=$moeRepo;repo_commit=$moeSha;runtime_owner_commit=$sha;cli_commit=$cliCommit;cli_sha256=$cliSha\n    cli_build_metadata_sha256=$manifest.source_component_builds.cli.metadata.sha256\n    command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    model='D:\\models\\Qwen3.6-35B-A3B'\n    arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider,'--checkpoint-owner',$ownerPath,'--prefix-tokens',[string]$oracle.prefix_tokens,'--prefix-hits','2','--prefix-negative-guard')\n    oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;matrix_kind=$matrixKind\n    reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha\n    prompt_file_sha256=(Get-FileHash $promptPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    expected_file_sha256=(Get-FileHash $expectedPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    runtime_directory=$runtime;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha\n    runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits\n    component_builds=$manifest.source_component_builds;source_profile_sha256=$profileSha\n    portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    selector_overrides=$selectorOverrides;dense_ppb=$DensePpb;moe_ppb=$MoePpb;selector_experiment_only=$true\n    expert_order_moe_provider=$moeBuild;expert_order=$ExpertOrder;expert_order_workspace_bytes=16780292;packaged_moe_overridden=$true\n    coarse_out_provider=$wholeBuild;coarse_out=$CoarseOut;same_dll_comparison=$true;packaged_whole_overridden=$true\n    environment_options_overridden=@('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=1',('QRT_QWEN36_COARSE_OUT_PRODUCER='+$CoarseOut),('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')),('QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='+$ExpertOrder),'QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0','QRT_QWEN36_PREFIX_CHECKPOINTS=1')+@($selectorOverrides.Keys|ForEach-Object {$_+'='+$selectorOverrides[$_]});original_staging_directory_unavailable=$true\n    cold_prefill_seed_included=$false;prefix_checkpoints_enabled=$true;model_loaded_from_new_process=$true\n    checkpoint_owner_prompt=$ownerPath;checkpoint_owner_prompt_sha256=(Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant();warm_prefix_measurement=$true;prefix_first_logit_extension='qrt-prefix-logit-v1'\n    purpose='Qualify dense1000/MoE512 with retained expert-order and coarse OUT providers on four original GB10 branches from saved checkpoints of a complete7169-token cold owner. Require two actual32-token callback sequences, first logit tolerance0.125, immutable owner rollback and rejection of a mismatched prefix before provider dispatch. The owner seed is measured separately and is excluded from warm TTFT. No performance or release acceptance is inferred.'\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 14),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $moeRepo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 300|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass -or $r.exit_code -ne 0){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids)\n$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne (2*$expected.Count)){throw 'Actual stream callback boundary failed'}\n$stderr=[IO.File]::ReadAllText((Join-Path $out 'product.stderr.log'))\n$markers=@([regex]::Matches($stderr,'BATCH_MARK coarse_out_projection [^\\r\\n]*'))\nif(($markers.Count % 10) -ne 0){throw 'Incomplete coarse owner layer group'}\nif($CoarseOut -eq 0 -and $markers.Count){throw 'Disabled coarse owner executed'}\nforeach($marker in $markers){\n if($marker.Value -notmatch ' tokens=8192 rows=2048 k=4096 chunk=64 fragments=1 ' -or $marker.Value -notmatch ' hardware_error_bound_proven=0 completed=1$'){throw 'Coarse owner shape or completion mismatch'}\n $counts=[regex]::Match($marker.Value,' candidates=(\\d+) dispatches=(\\d+) workspace_bytes=295739396 ')\n if(-not $counts.Success){throw 'Coarse owner count metadata missing'}\n $n=[int64]$counts.Groups[1].Value;$dispatches=[int64]$counts.Groups[2].Value\n if($n -gt 16777216 -or $dispatches -ne [Math]::Ceiling($n/262144.0)){throw 'Coarse owner capacity or bounded dispatch mismatch'}\n}\n$expertMarkers=@([regex]::Matches($stderr,'BATCH_MARK moe_expert_order [^\\r\\n]*'))\nif(($expertMarkers.Count % 40) -ne 0){throw 'Incomplete expert-order layer group'}\nforeach($marker in $expertMarkers){if($marker.Value -ne 'BATCH_MARK moe_expert_order tokens=8192 buckets=256 permutation_only=1 scratch_bytes=16780292 host_count_reads=0 original_candidates=1 original_k16=1 original_stream=1'){throw 'Expert-order identity mismatch'}}\nif($stderr -match 'BATCH_MARK moe_shared_staged_half '){throw 'Shared staged replay unexpectedly active'}\n$checkpointLines=@([IO.File]::ReadAllLines((Join-Path $out 'product.stderr.log'))|Where-Object {$_ -match '^BATCH_MARK qwen36_prefix_checkpoint_capture '})\nif($checkpointLines.Count -ne 3 -or @($checkpointLines|Where-Object {$_ -notmatch ' complete=1 '}).Count -ne 0){throw 'Complete model checkpoints were not captured'}\nif($r.summary.checkpoint_owner_tokens -ne $ownerTokens -or $r.summary.checkpoint_owner_first_token -ne 82 -or -not $r.summary.checkpoint_owner_logit_valid -or [Math]::Abs($r.summary.checkpoint_owner_first_logit-9.25) -gt 0.125){throw 'Owner GB10 token/logit boundary failed'}\nif($r.summary.prefix_hit_count -ne 2 -or $r.summary.prefix_contract_pass_count -ne 2 -or $r.summary.prefix_output_match_count -ne 2 -or $r.summary.prefix_stream_match_count -ne 2 -or $r.summary.prefix_state_restored_count -ne 2 -or -not $r.summary.prefix_negative_guard_pass -or $r.summary.prefix_negative_guard_provider_invoked -ne 0){throw 'Repeated prefix hit, rollback or negative guard failed'}\nexit 0\n"
+    },
+    "r2": {
+      "record": {
+        "source_commit": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+        "repo": "D:/projects/AIMA-public-expert-order-moe-20260916",
+        "provider_source_record": "expert-order-moe-native-source-r1.json",
+        "provider_source_record_sha256": "fd1d0a5f7a22fdd710f5b60e8936cbc0f30234362fb2e261f24af491db610381",
+        "build_metadata_sha256": "89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943",
+        "build_run_sha256": "36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758",
+        "moe_provider": {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 832000,
+          "sha256": "d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f"
+        },
+        "whole_commit": "1ee36e7beae5ff2c259f162c34cabd5aee4c3c12",
+        "whole_dll_sha256": "9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84",
+        "cli_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "numeric_oracle": "contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+        "required_marker_filter_both_arms": true,
+        "coarse_out_enabled_both_arms": true,
+        "default_enabled": false,
+        "expert_order_workspace_bytes": 16780292,
+        "process_timeout_seconds": 300,
+        "transport_timeout_seconds": 390,
+        "execution_order": [
+          1,
+          0
+        ],
+        "prior_pair_source_sha256": "379eeb00079d632cf271c1759900be09047e8c0ab3e9446dc65c0304ec7fc682",
+        "script": "run-native-moe-margin-prefix-r2.ps1",
+        "script_sha256": "7cdb69332c85fa31691d884b9573dec7958817c4b708c504aaab0323ade24764",
+        "dispatcher": "dispatch_moe_margin_prefix_r2.py",
+        "dispatcher_sha256": "de6df4bdca2c46f4acd35bc3caac05de35077132946c3effaf6a98c242b3097e",
+        "previous_source_record": "expert-order-moe-product-source-r2.json",
+        "previous_source_record_sha256": "73efc17451f41e6dc6d94265340f4abaef7744793dc0ca35f78325e972baac27",
+        "expert_order_enabled": true,
+        "selector_coefficients": [
+          256,
+          512,
+          768,
+          1000
+        ],
+        "gb10_thresholds_unchanged": true,
+        "release_qualified": false,
+        "performance_acceptance": false,
+        "coefficient_reduction_proven": false,
+        "dense_ppb": 1000,
+        "moe_ppb": 512,
+        "cases": [
+          "q6209-prefix6208-branch-out32",
+          "q6657-prefix6656-branch-out32",
+          "q7169-prefix7168-branch-out32",
+          "q7173-prefix7168-branch-out32"
+        ],
+        "prior_qualification": "selector-margin-product-q8192-out512-d1000-m512-r2",
+        "default_profile_changed": false,
+        "cold_cases": [
+          "q7169-out32",
+          "q8193-out32",
+          "q7168-out32",
+          "q7170-out32",
+          "q8191-out32",
+          "q7169-out512",
+          "q8192-out32"
+        ],
+        "cold_qualification_required": true,
+        "prior_preflight_failure": {
+          "source": "moe-margin-prefix-source-r1.json",
+          "source_sha256": "1869a8e9499605b92ab4690b46f98c54745a5c6659bb3b47ba686a66eb36d5b2",
+          "dispatch_sha256": "b9a3030cdf5ed3e61711eaf2228018aab0aca7897955ce9b02d8cf1b40e16df5",
+          "model_dispatched": false,
+          "reason": "PowerShell5 pipeline array count wrapped the deserialized owner array as one item; assign then read its Count as in the previously qualified prefix runner."
+        }
+      },
+      "record_sha256": "3b975f4ab063699b1fdc0aa1c069638feeb235772ee60579b271dbea94d3ad19",
+      "command_file_text": "param([ValidateSet('q6209-prefix6208-branch-out32','q6657-prefix6656-branch-out32','q7169-prefix7168-branch-out32','q7173-prefix7168-branch-out32')][string]$Case='q6209-prefix6208-branch-out32')\n$DensePpb=1000\n$MoePpb=512\n$ExpertOrder=1\n$CoarseOut=1\n$RequiredMarkers=1\n$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-environment-20260915'\n$sha='e7d605f6d88422d8067bbb8b82bff586b84386c6'\n$cliCommit='24c4304a16a1665701d05444619d46b832c73e43'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){\n    if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}\n}\n$runtime=Join-Path $repo 'build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3'\nif(Test-Path -LiteralPath (Join-Path $repo 'build\\runtime-current-package-r3')){throw 'Original staging directory must remain unavailable'}\n$manifestPath=Join-Path $runtime 'runtime-manifest.json'\n$manifestSha='0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729'\nVerify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.dirty_tree -or $manifest.artifacts.Count -ne 268){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){\n    $p=Join-Path $runtime $e.path\n    Verify-File $p $e.sha256\n    if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}\n}\nforeach($component in $manifest.source_component_builds.PSObject.Properties){\n    $e=$component.Value\n    Verify-File $e.metadata.path $e.metadata.sha256\n    $m=[IO.File]::ReadAllText($e.metadata.path)|ConvertFrom-Json\n    if($m.repo_commit -ne $e.commit -or $m.dirty_tree){throw 'Component source mismatch'}\n    Verify-File (Join-Path $runtime $e.package_path) $e.artifact.sha256\n}\n$cli=Join-Path $runtime 'product-cli\\qrt-product.exe'\n$cliSha='eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf'\nVerify-File $cli $cliSha\n$provider=Join-Path $runtime 'whole-provider\\qrt_qwen36_whole_provider.dll'\nVerify-File $provider '1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469'\n$wholeRepo='D:\\projects\\AIMA-public-coarse-out-owner-20260915';$wholeSha='1ee36e7beae5ff2c259f162c34cabd5aee4c3c12';$wholeDir=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-provider'\nif((& git -C $wholeRepo rev-parse HEAD).Trim() -ne $wholeSha -or @(& git -C $wholeRepo status --porcelain).Count -ne 0){throw 'coarse OUT owner whole-provider source mismatch'}\n$wholeMetaPath=Join-Path $wholeDir 'build-provenance.json'\n$wholeRunPath=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-r1\\run-record.json'\nVerify-File $wholeMetaPath '33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409'\nVerify-File $wholeRunPath 'd1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeSha -or $wholeMeta.dirty_tree -or $wholeRun.reason -ne 'completed' -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass){throw 'Unqualified whole-provider build'}\nforeach($a in $wholeMeta.artifacts){Verify-File (Join-Path $wholeDir $a.name) $a.sha256}\nforeach($a in $wholeRun.spec.source_inputs){Verify-File (Join-Path $wholeRepo $a.file) $a.sha256}\n$provider=Join-Path $wholeDir 'qrt_qwen36_whole_provider.dll'\nVerify-File $provider '9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84'\n$wholeBuild=[ordered]@{commit=$wholeSha;metadata_path=$wholeMetaPath;metadata_sha256='33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409';build_run_sha256='d1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c';dll_path=$provider;dll_sha256='9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84';artifacts=$wholeMeta.artifacts;source_sha256=$wholeMeta.source_sha256;dispatch_policy_sha256=$wholeMeta.hawkeye_dispatch_policy_sha256}\n\n$moeRepo='D:\\projects\\AIMA-public-expert-order-moe-20260916';$moeSha='3828bfe845758c7f941bab4efd5ef7f9a640a6d8';$moeDir=Join-Path $moeRepo 'build\\expert-order-moe-provider'\nif((& git -C $moeRepo rev-parse HEAD).Trim() -ne $moeSha -or @(& git -C $moeRepo status --porcelain).Count -ne 0){throw 'Expert-order MoE source mismatch'}\n$moeMetaPath=Join-Path $moeDir 'build-provenance.json';$moeRunPath=Join-Path $moeRepo 'build\\expert-order-moe-provider-build-r1\\run-record.json'\nVerify-File $moeMetaPath '89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';Verify-File $moeRunPath '36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json;$moeRun=[IO.File]::ReadAllText($moeRunPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeSha -or $moeMeta.dirty_tree -or $moeRun.reason -ne 'completed' -or $moeRun.exit_code -ne 0 -or -not $moeRun.host_checks_pass){throw 'Unqualified MoE build'}\nforeach($a in $moeMeta.artifacts){Verify-File (Join-Path $moeDir $a.file) $a.sha256}\nforeach($a in $moeRun.spec.source_inputs){Verify-File (Join-Path $moeRepo $a.file) $a.sha256}\n$moeDll=Join-Path $moeDir 'qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll 'd65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f'\n$moeBuild=[ordered]@{commit=$moeSha;metadata_path=$moeMetaPath;metadata_sha256='89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';build_run_sha256='36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758';dll_path=$moeDll;dll_sha256='d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f';artifacts=$moeMeta.artifacts;provider_source_sha256=$moeMeta.provider_source_sha256}\n\n$matrixKind='saved_prefix_branches'\n$data='D:\\projects\\gb10-partial-prefix-inputs-20260912-r1'\n$oraclePath=Join-Path $data 'gb10_partial_prefix_actual_tokens_20260912_oracle.json'\n$oracleSha='240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7'\n$dataSha='eef84535640fed0cb9766a3fe291c5ab49ede28652c3d39a5aca43141e06e7c5'\nVerify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json\n$cases=@($matrix.cases|Where-Object {$_.name -eq $Case})\nif($cases.Count -ne 1){throw 'Oracle case missing'}\n$oracle=$cases[0]\n$dataManifestPath=Join-Path $data 'manifest.json'\nVerify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json')\n$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$ownerPath=Join-Path $data 'owner-q7169-prompt.json'\nVerify-File $ownerPath $dataManifest.([IO.Path]::GetFileName($ownerPath))\nif((Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $matrix.owner.prompt_file_sha256){throw 'Owner reference changed'}\n$ownerArray=[IO.File]::ReadAllText($ownerPath)|ConvertFrom-Json;$ownerTokens=$ownerArray.Count\nif($ownerTokens -ne 7169){throw 'Owner token extent changed'}\n\n$choice='d'+$DensePpb+'-m'+$MoePpb\n$name='moe-margin-prefix-'+$Case+'-r2'\n$out=Join-Path $moeRepo ('build\\'+$name)\n$envPath=Join-Path $moeRepo ('build\\'+$name+'.env')\n$specPath=Join-Path $moeRepo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env'\n$profileSha='a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f'\nVerify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath)\n$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\n$pattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=0\\r?$'\nif(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw 'Expected one disabled marker filter'}\n$resolved=[regex]::Replace($resolved,$pattern,('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY='+$RequiredMarkers))\nif($resolved -match '(?m)^QRT_QWEN36_COARSE_OUT_PRODUCER='){throw 'Unexpected existing coarse OUT owner option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_COARSE_OUT_PRODUCER=\"+$CoarseOut+\"`n\"\n$moePattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=[^\\r\\n]+\\r?$'\nif(([regex]::Matches($resolved,$moePattern)).Count -ne 1){throw 'Expected one MoE DLL path'}\n$resolved=[regex]::Replace($resolved,$moePattern,('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')))\nif($resolved -match '(?m)^QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='){throw 'Unexpected existing expert-order option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_EXPERT_ORDER_REPLAY=\"+$ExpertOrder+\"`n\"\nif($resolved -match '(?m)^QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY='){throw 'Unexpected existing shared staged option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0`n\"\n\n$selectorOverrides=[ordered]@{\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB=$MoePpb\n}\nforeach($key in $selectorOverrides.Keys){\n $pattern='(?m)^'+[regex]::Escape($key)+'=1000\\r?$'\n if(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw ('Expected original selector: '+$key)}\n $resolved=[regex]::Replace($resolved,$pattern,($key+'='+$selectorOverrides[$key]))\n}\nif($resolved -notmatch '(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=10000\\r?$'){throw 'Full-attention OUT selector changed'}\n\n$checkpointPattern='(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$'\nif(([regex]::Matches($resolved,$checkpointPattern)).Count -ne 1){throw 'Expected disabled prefix checkpoints'}\n$resolved=[regex]::Replace($resolved,$checkpointPattern,'QRT_QWEN36_PREFIX_CHECKPOINTS=1')\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$spec=[ordered]@{\n    executable=$cli;working_directory=$moeRepo;repo_commit=$moeSha;runtime_owner_commit=$sha;cli_commit=$cliCommit;cli_sha256=$cliSha\n    cli_build_metadata_sha256=$manifest.source_component_builds.cli.metadata.sha256\n    command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    model='D:\\models\\Qwen3.6-35B-A3B'\n    arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider,'--checkpoint-owner',$ownerPath,'--prefix-tokens',[string]$oracle.prefix_tokens,'--prefix-hits','2','--prefix-negative-guard')\n    oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;matrix_kind=$matrixKind\n    reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha\n    prompt_file_sha256=(Get-FileHash $promptPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    expected_file_sha256=(Get-FileHash $expectedPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    runtime_directory=$runtime;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha\n    runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits\n    component_builds=$manifest.source_component_builds;source_profile_sha256=$profileSha\n    portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    selector_overrides=$selectorOverrides;dense_ppb=$DensePpb;moe_ppb=$MoePpb;selector_experiment_only=$true\n    expert_order_moe_provider=$moeBuild;expert_order=$ExpertOrder;expert_order_workspace_bytes=16780292;packaged_moe_overridden=$true\n    coarse_out_provider=$wholeBuild;coarse_out=$CoarseOut;same_dll_comparison=$true;packaged_whole_overridden=$true\n    environment_options_overridden=@('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=1',('QRT_QWEN36_COARSE_OUT_PRODUCER='+$CoarseOut),('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')),('QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='+$ExpertOrder),'QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0','QRT_QWEN36_PREFIX_CHECKPOINTS=1')+@($selectorOverrides.Keys|ForEach-Object {$_+'='+$selectorOverrides[$_]});original_staging_directory_unavailable=$true\n    cold_prefill_seed_included=$false;prefix_checkpoints_enabled=$true;model_loaded_from_new_process=$true\n    checkpoint_owner_prompt=$ownerPath;checkpoint_owner_prompt_sha256=(Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant();warm_prefix_measurement=$true;prefix_first_logit_extension='qrt-prefix-logit-v1'\n    purpose='Qualify dense1000/MoE512 with retained expert-order and coarse OUT providers on four original GB10 branches from saved checkpoints of a complete7169-token cold owner. Require two actual32-token callback sequences, first logit tolerance0.125, immutable owner rollback and rejection of a mismatched prefix before provider dispatch. The owner seed is measured separately and is excluded from warm TTFT. No performance or release acceptance is inferred.'\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 14),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $moeRepo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 300|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass -or $r.exit_code -ne 0){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids)\n$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne (2*$expected.Count)){throw 'Actual stream callback boundary failed'}\n$stderr=[IO.File]::ReadAllText((Join-Path $out 'product.stderr.log'))\n$markers=@([regex]::Matches($stderr,'BATCH_MARK coarse_out_projection [^\\r\\n]*'))\nif(($markers.Count % 10) -ne 0){throw 'Incomplete coarse owner layer group'}\nif($CoarseOut -eq 0 -and $markers.Count){throw 'Disabled coarse owner executed'}\nforeach($marker in $markers){\n if($marker.Value -notmatch ' tokens=8192 rows=2048 k=4096 chunk=64 fragments=1 ' -or $marker.Value -notmatch ' hardware_error_bound_proven=0 completed=1$'){throw 'Coarse owner shape or completion mismatch'}\n $counts=[regex]::Match($marker.Value,' candidates=(\\d+) dispatches=(\\d+) workspace_bytes=295739396 ')\n if(-not $counts.Success){throw 'Coarse owner count metadata missing'}\n $n=[int64]$counts.Groups[1].Value;$dispatches=[int64]$counts.Groups[2].Value\n if($n -gt 16777216 -or $dispatches -ne [Math]::Ceiling($n/262144.0)){throw 'Coarse owner capacity or bounded dispatch mismatch'}\n}\n$expertMarkers=@([regex]::Matches($stderr,'BATCH_MARK moe_expert_order [^\\r\\n]*'))\nif(($expertMarkers.Count % 40) -ne 0){throw 'Incomplete expert-order layer group'}\nforeach($marker in $expertMarkers){if($marker.Value -ne 'BATCH_MARK moe_expert_order tokens=8192 buckets=256 permutation_only=1 scratch_bytes=16780292 host_count_reads=0 original_candidates=1 original_k16=1 original_stream=1'){throw 'Expert-order identity mismatch'}}\nif($stderr -match 'BATCH_MARK moe_shared_staged_half '){throw 'Shared staged replay unexpectedly active'}\n$checkpointLines=@([IO.File]::ReadAllLines((Join-Path $out 'product.stderr.log'))|Where-Object {$_ -match '^BATCH_MARK qwen36_prefix_checkpoint_capture '})\nif($checkpointLines.Count -ne 3 -or @($checkpointLines|Where-Object {$_ -notmatch ' complete=1 '}).Count -ne 0){throw 'Complete model checkpoints were not captured'}\nif($r.summary.checkpoint_owner_tokens -ne $ownerTokens -or $r.summary.checkpoint_owner_first_token -ne 82 -or -not $r.summary.checkpoint_owner_logit_valid -or [Math]::Abs($r.summary.checkpoint_owner_first_logit-9.25) -gt 0.125){throw 'Owner GB10 token/logit boundary failed'}\nif($r.summary.prefix_hit_count -ne 2 -or $r.summary.prefix_contract_pass_count -ne 2 -or $r.summary.prefix_output_match_count -ne 2 -or $r.summary.prefix_stream_match_count -ne 2 -or $r.summary.prefix_state_restored_count -ne 2 -or -not $r.summary.prefix_negative_guard_pass -or $r.summary.prefix_negative_guard_provider_invoked -ne 0){throw 'Repeated prefix hit, rollback or negative guard failed'}\nexit 0\n"
+    },
+    "r3": {
+      "record": {
+        "source_commit": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+        "repo": "D:/projects/AIMA-public-expert-order-moe-20260916",
+        "provider_source_record": "expert-order-moe-native-source-r1.json",
+        "provider_source_record_sha256": "fd1d0a5f7a22fdd710f5b60e8936cbc0f30234362fb2e261f24af491db610381",
+        "build_metadata_sha256": "89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943",
+        "build_run_sha256": "36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758",
+        "moe_provider": {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 832000,
+          "sha256": "d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f"
+        },
+        "whole_commit": "1ee36e7beae5ff2c259f162c34cabd5aee4c3c12",
+        "whole_dll_sha256": "9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84",
+        "cli_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "numeric_oracle": "contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+        "required_marker_filter_both_arms": true,
+        "coarse_out_enabled_both_arms": true,
+        "default_enabled": false,
+        "expert_order_workspace_bytes": 16780292,
+        "process_timeout_seconds": 300,
+        "transport_timeout_seconds": 390,
+        "execution_order": [
+          1,
+          0
+        ],
+        "prior_pair_source_sha256": "379eeb00079d632cf271c1759900be09047e8c0ab3e9446dc65c0304ec7fc682",
+        "script": "run-native-moe-margin-prefix-r3.ps1",
+        "script_sha256": "6048bad35754a72f0747a932ae547bd748a2d6fc9612f179e2244ae22289155f",
+        "dispatcher": "dispatch_moe_margin_prefix_r3.py",
+        "dispatcher_sha256": "4d80939fbd2d40c632d3fcef872037a5c8bd5fc73ce1e36024e56f89db6811d6",
+        "previous_source_record": "expert-order-moe-product-source-r2.json",
+        "previous_source_record_sha256": "73efc17451f41e6dc6d94265340f4abaef7744793dc0ca35f78325e972baac27",
+        "expert_order_enabled": true,
+        "selector_coefficients": [
+          256,
+          512,
+          768,
+          1000
+        ],
+        "gb10_thresholds_unchanged": true,
+        "release_qualified": false,
+        "performance_acceptance": false,
+        "coefficient_reduction_proven": false,
+        "dense_ppb": 1000,
+        "moe_ppb": 512,
+        "cases": [
+          "q6209-prefix6208-branch-out32",
+          "q6657-prefix6656-branch-out32",
+          "q7169-prefix7168-branch-out32",
+          "q7173-prefix7168-branch-out32"
+        ],
+        "prior_qualification": "selector-margin-product-q8192-out512-d1000-m512-r2",
+        "default_profile_changed": false,
+        "cold_cases": [
+          "q7169-out32",
+          "q8193-out32",
+          "q7168-out32",
+          "q7170-out32",
+          "q8191-out32",
+          "q7169-out512",
+          "q8192-out32"
+        ],
+        "cold_qualification_required": true,
+        "prior_preflight_failure": {
+          "source": "moe-margin-prefix-source-r1.json",
+          "source_sha256": "1869a8e9499605b92ab4690b46f98c54745a5c6659bb3b47ba686a66eb36d5b2",
+          "dispatch_sha256": "b9a3030cdf5ed3e61711eaf2228018aab0aca7897955ce9b02d8cf1b40e16df5",
+          "model_dispatched": false,
+          "reason": "PowerShell5 pipeline array count wrapped the deserialized owner array as one item; assign then read its Count as in the previously qualified prefix runner."
+        },
+        "prior_postflight_failure": {
+          "source": "moe-margin-prefix-source-r2.json",
+          "source_sha256": "3b975f4ab063699b1fdc0aa1c069638feeb235772ee60579b271dbea94d3ad19",
+          "dispatch_sha256": "1644aa896535544b3ce32906d6ce35a91f8774e863151bb6471c394b4a6da79e",
+          "native_run_sha256": "6c5da985de3f9c6dbc9e8205b098d10f83fd037486a9dcffbc0054fd5584ff90",
+          "native_cli_exit_code": 0,
+          "dispatcher_returncode": 1,
+          "reason": "The retained marker filter suppresses checkpoint-capture diagnostics. Require the two actual partial-checkpoint restores and existing CLI prefix contracts; independently revalidate the completed r2 model result from raw callbacks, per-hit logits and rollback markers. No runtime or numerical gate changes."
+        }
+      },
+      "record_sha256": "d6a211ef135787e58bf50f934d6842608ae3c6ba04a1dc0efdb003629c793106",
+      "command_file_text": "param([ValidateSet('q6209-prefix6208-branch-out32','q6657-prefix6656-branch-out32','q7169-prefix7168-branch-out32','q7173-prefix7168-branch-out32')][string]$Case='q6209-prefix6208-branch-out32')\n$DensePpb=1000\n$MoePpb=512\n$ExpertOrder=1\n$CoarseOut=1\n$RequiredMarkers=1\n$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-runtime-environment-20260915'\n$sha='e7d605f6d88422d8067bbb8b82bff586b84386c6'\n$cliCommit='24c4304a16a1665701d05444619d46b832c73e43'\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\nfunction Verify-File([string]$Path,[string]$Sha){\n    if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Sha){throw ('Changed input: '+$Path)}\n}\n$runtime=Join-Path $repo 'build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3'\nif(Test-Path -LiteralPath (Join-Path $repo 'build\\runtime-current-package-r3')){throw 'Original staging directory must remain unavailable'}\n$manifestPath=Join-Path $runtime 'runtime-manifest.json'\n$manifestSha='0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729'\nVerify-File $manifestPath $manifestSha\n$manifest=[IO.File]::ReadAllText($manifestPath)|ConvertFrom-Json\nif($manifest.repo_commit -ne $sha -or $manifest.dirty_tree -or $manifest.artifacts.Count -ne 268){throw 'Runtime manifest mismatch'}\nforeach($e in $manifest.artifacts){\n    $p=Join-Path $runtime $e.path\n    Verify-File $p $e.sha256\n    if((Get-Item -LiteralPath $p).Length -ne $e.bytes){throw 'Runtime size mismatch'}\n}\nforeach($component in $manifest.source_component_builds.PSObject.Properties){\n    $e=$component.Value\n    Verify-File $e.metadata.path $e.metadata.sha256\n    $m=[IO.File]::ReadAllText($e.metadata.path)|ConvertFrom-Json\n    if($m.repo_commit -ne $e.commit -or $m.dirty_tree){throw 'Component source mismatch'}\n    Verify-File (Join-Path $runtime $e.package_path) $e.artifact.sha256\n}\n$cli=Join-Path $runtime 'product-cli\\qrt-product.exe'\n$cliSha='eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf'\nVerify-File $cli $cliSha\n$provider=Join-Path $runtime 'whole-provider\\qrt_qwen36_whole_provider.dll'\nVerify-File $provider '1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469'\n$wholeRepo='D:\\projects\\AIMA-public-coarse-out-owner-20260915';$wholeSha='1ee36e7beae5ff2c259f162c34cabd5aee4c3c12';$wholeDir=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-provider'\nif((& git -C $wholeRepo rev-parse HEAD).Trim() -ne $wholeSha -or @(& git -C $wholeRepo status --porcelain).Count -ne 0){throw 'coarse OUT owner whole-provider source mismatch'}\n$wholeMetaPath=Join-Path $wholeDir 'build-provenance.json'\n$wholeRunPath=Join-Path $wholeRepo 'build\\coarse-out-owner-whole-r1\\run-record.json'\nVerify-File $wholeMetaPath '33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409'\nVerify-File $wholeRunPath 'd1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c'\n$wholeMeta=[IO.File]::ReadAllText($wholeMetaPath)|ConvertFrom-Json\n$wholeRun=[IO.File]::ReadAllText($wholeRunPath)|ConvertFrom-Json\nif($wholeMeta.repo_commit -ne $wholeSha -or $wholeMeta.dirty_tree -or $wholeRun.reason -ne 'completed' -or $wholeRun.exit_code -ne 0 -or -not $wholeRun.host_checks_pass){throw 'Unqualified whole-provider build'}\nforeach($a in $wholeMeta.artifacts){Verify-File (Join-Path $wholeDir $a.name) $a.sha256}\nforeach($a in $wholeRun.spec.source_inputs){Verify-File (Join-Path $wholeRepo $a.file) $a.sha256}\n$provider=Join-Path $wholeDir 'qrt_qwen36_whole_provider.dll'\nVerify-File $provider '9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84'\n$wholeBuild=[ordered]@{commit=$wholeSha;metadata_path=$wholeMetaPath;metadata_sha256='33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409';build_run_sha256='d1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c';dll_path=$provider;dll_sha256='9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84';artifacts=$wholeMeta.artifacts;source_sha256=$wholeMeta.source_sha256;dispatch_policy_sha256=$wholeMeta.hawkeye_dispatch_policy_sha256}\n\n$moeRepo='D:\\projects\\AIMA-public-expert-order-moe-20260916';$moeSha='3828bfe845758c7f941bab4efd5ef7f9a640a6d8';$moeDir=Join-Path $moeRepo 'build\\expert-order-moe-provider'\nif((& git -C $moeRepo rev-parse HEAD).Trim() -ne $moeSha -or @(& git -C $moeRepo status --porcelain).Count -ne 0){throw 'Expert-order MoE source mismatch'}\n$moeMetaPath=Join-Path $moeDir 'build-provenance.json';$moeRunPath=Join-Path $moeRepo 'build\\expert-order-moe-provider-build-r1\\run-record.json'\nVerify-File $moeMetaPath '89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';Verify-File $moeRunPath '36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758'\n$moeMeta=[IO.File]::ReadAllText($moeMetaPath)|ConvertFrom-Json;$moeRun=[IO.File]::ReadAllText($moeRunPath)|ConvertFrom-Json\nif($moeMeta.repo_commit -ne $moeSha -or $moeMeta.dirty_tree -or $moeRun.reason -ne 'completed' -or $moeRun.exit_code -ne 0 -or -not $moeRun.host_checks_pass){throw 'Unqualified MoE build'}\nforeach($a in $moeMeta.artifacts){Verify-File (Join-Path $moeDir $a.file) $a.sha256}\nforeach($a in $moeRun.spec.source_inputs){Verify-File (Join-Path $moeRepo $a.file) $a.sha256}\n$moeDll=Join-Path $moeDir 'qrt_triton_moe_q8192_provider.dll';Verify-File $moeDll 'd65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f'\n$moeBuild=[ordered]@{commit=$moeSha;metadata_path=$moeMetaPath;metadata_sha256='89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943';build_run_sha256='36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758';dll_path=$moeDll;dll_sha256='d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f';artifacts=$moeMeta.artifacts;provider_source_sha256=$moeMeta.provider_source_sha256}\n\n$matrixKind='saved_prefix_branches'\n$data='D:\\projects\\gb10-partial-prefix-inputs-20260912-r1'\n$oraclePath=Join-Path $data 'gb10_partial_prefix_actual_tokens_20260912_oracle.json'\n$oracleSha='240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7'\n$dataSha='eef84535640fed0cb9766a3fe291c5ab49ede28652c3d39a5aca43141e06e7c5'\nVerify-File $oraclePath $oracleSha\n$matrix=[IO.File]::ReadAllText($oraclePath)|ConvertFrom-Json\n$cases=@($matrix.cases|Where-Object {$_.name -eq $Case})\nif($cases.Count -ne 1){throw 'Oracle case missing'}\n$oracle=$cases[0]\n$dataManifestPath=Join-Path $data 'manifest.json'\nVerify-File $dataManifestPath $dataSha\n$dataManifest=[IO.File]::ReadAllText($dataManifestPath)|ConvertFrom-Json\n$promptPath=Join-Path $data ($Case+'-prompt.json')\n$expectedPath=Join-Path $data ($Case+'-expected.json')\nforeach($p in @($promptPath,$expectedPath)){Verify-File $p $dataManifest.([IO.Path]::GetFileName($p))}\n$ownerPath=Join-Path $data 'owner-q7169-prompt.json'\nVerify-File $ownerPath $dataManifest.([IO.Path]::GetFileName($ownerPath))\nif((Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $matrix.owner.prompt_file_sha256){throw 'Owner reference changed'}\n$ownerArray=[IO.File]::ReadAllText($ownerPath)|ConvertFrom-Json;$ownerTokens=$ownerArray.Count\nif($ownerTokens -ne 7169){throw 'Owner token extent changed'}\n\n$choice='d'+$DensePpb+'-m'+$MoePpb\n$name='moe-margin-prefix-'+$Case+'-r3'\n$out=Join-Path $moeRepo ('build\\'+$name)\n$envPath=Join-Path $moeRepo ('build\\'+$name+'.env')\n$specPath=Join-Path $moeRepo ('build\\'+$name+'.json')\nforeach($p in @($out,$envPath,$specPath)){if(Test-Path -LiteralPath $p){throw ('Existing evidence: '+$p)}}\n$profilePath=Join-Path $runtime 'runtime.env'\n$profileSha='a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f'\nVerify-File $profilePath $profileSha\n$original=[IO.File]::ReadAllText($profilePath)\n$portableCount=([regex]::Matches($original,[regex]::Escape('${RUNTIME_DIR}'))).Count\nif($portableCount -ne 33 -or $original -notmatch '(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$' -or $original -notmatch '(?m)^QRT_QWEN36_DYNAMIC_LOGICAL_MOE_PROVIDER=0\\r?$'){throw 'Profile mismatch'}\n$resolved=$original.Replace('${RUNTIME_DIR}',$runtime.Replace('\\','/'))\n$pattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=0\\r?$'\nif(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw 'Expected one disabled marker filter'}\n$resolved=[regex]::Replace($resolved,$pattern,('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY='+$RequiredMarkers))\nif($resolved -match '(?m)^QRT_QWEN36_COARSE_OUT_PRODUCER='){throw 'Unexpected existing coarse OUT owner option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_COARSE_OUT_PRODUCER=\"+$CoarseOut+\"`n\"\n$moePattern='(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=[^\\r\\n]+\\r?$'\nif(([regex]::Matches($resolved,$moePattern)).Count -ne 1){throw 'Expected one MoE DLL path'}\n$resolved=[regex]::Replace($resolved,$moePattern,('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')))\nif($resolved -match '(?m)^QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='){throw 'Unexpected existing expert-order option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_EXPERT_ORDER_REPLAY=\"+$ExpertOrder+\"`n\"\nif($resolved -match '(?m)^QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY='){throw 'Unexpected existing shared staged option'}\n$resolved=$resolved.TrimEnd([char[]]\"`r`n\")+\"`nQRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0`n\"\n\n$selectorOverrides=[ordered]@{\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=$DensePpb\n QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB=$MoePpb\n}\nforeach($key in $selectorOverrides.Keys){\n $pattern='(?m)^'+[regex]::Escape($key)+'=1000\\r?$'\n if(([regex]::Matches($resolved,$pattern)).Count -ne 1){throw ('Expected original selector: '+$key)}\n $resolved=[regex]::Replace($resolved,$pattern,($key+'='+$selectorOverrides[$key]))\n}\nif($resolved -notmatch '(?m)^QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=10000\\r?$'){throw 'Full-attention OUT selector changed'}\n\n$checkpointPattern='(?m)^QRT_QWEN36_PREFIX_CHECKPOINTS=0\\r?$'\nif(([regex]::Matches($resolved,$checkpointPattern)).Count -ne 1){throw 'Expected disabled prefix checkpoints'}\n$resolved=[regex]::Replace($resolved,$checkpointPattern,'QRT_QWEN36_PREFIX_CHECKPOINTS=1')\nif($resolved.Contains('${RUNTIME_DIR}') -or $resolved -match '(?m)^QRT_\\w*DUMP_PREFIX=.+$'){throw 'Unresolved or tracing profile'}\n[IO.File]::WriteAllText($envPath,$resolved,[Text.UTF8Encoding]::new($false))\n$spec=[ordered]@{\n    executable=$cli;working_directory=$moeRepo;repo_commit=$moeSha;runtime_owner_commit=$sha;cli_commit=$cliCommit;cli_sha256=$cliSha\n    cli_build_metadata_sha256=$manifest.source_component_builds.cli.metadata.sha256\n    command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    model='D:\\models\\Qwen3.6-35B-A3B'\n    arguments=@('run','--model','D:\\models\\Qwen3.6-35B-A3B','--tokens',$promptPath,'--output-tokens',[string]$oracle.expected.continuation_token_count,'--expected-output',$expectedPath,'--expected-prompt-fnv',$oracle.prompt.u32le_fnv1a64,'--expected-output-fnv',$oracle.expected.output_token_ids_u32le_fnv1a64,'--env-file',$envPath,'--provider-dll',$provider,'--checkpoint-owner',$ownerPath,'--prefix-tokens',[string]$oracle.prefix_tokens,'--prefix-hits','2','--prefix-negative-guard')\n    oracle=$oraclePath;oracle_sha256=$oracleSha;oracle_case=$Case;matrix_kind=$matrixKind\n    reference_case_sha256=$oracle.capture_case_sha256;reference_data_manifest_sha256=$dataSha\n    prompt_file_sha256=(Get-FileHash $promptPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    expected_file_sha256=(Get-FileHash $expectedPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    runtime_directory=$runtime;runtime_manifest=$manifestPath;runtime_manifest_sha256=$manifestSha\n    runtime_artifacts_verified=$manifest.artifacts.Count;component_commits=$manifest.component_commits\n    component_builds=$manifest.source_component_builds;source_profile_sha256=$profileSha\n    portable_paths_resolved=$portableCount;environment_sha256=(Get-FileHash $envPath -Algorithm SHA256).Hash.ToLowerInvariant()\n    selector_overrides=$selectorOverrides;dense_ppb=$DensePpb;moe_ppb=$MoePpb;selector_experiment_only=$true\n    expert_order_moe_provider=$moeBuild;expert_order=$ExpertOrder;expert_order_workspace_bytes=16780292;packaged_moe_overridden=$true\n    coarse_out_provider=$wholeBuild;coarse_out=$CoarseOut;same_dll_comparison=$true;packaged_whole_overridden=$true\n    environment_options_overridden=@('QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=1',('QRT_QWEN36_COARSE_OUT_PRODUCER='+$CoarseOut),('QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL='+$moeDll.Replace('\\','/')),('QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY='+$ExpertOrder),'QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0','QRT_QWEN36_PREFIX_CHECKPOINTS=1')+@($selectorOverrides.Keys|ForEach-Object {$_+'='+$selectorOverrides[$_]});original_staging_directory_unavailable=$true\n    cold_prefill_seed_included=$false;prefix_checkpoints_enabled=$true;model_loaded_from_new_process=$true\n    checkpoint_owner_prompt=$ownerPath;checkpoint_owner_prompt_sha256=(Get-FileHash $ownerPath -Algorithm SHA256).Hash.ToLowerInvariant();warm_prefix_measurement=$true;prefix_first_logit_extension='qrt-prefix-logit-v1'\n    purpose='Qualify dense1000/MoE512 with retained expert-order and coarse OUT providers on four original GB10 branches from saved checkpoints of a complete7169-token cold owner. Require two actual32-token callback sequences, first logit tolerance0.125, immutable owner rollback and rejection of a mismatched prefix before provider dispatch. The owner seed is measured separately and is excluded from warm TTFT. No performance or release acceptance is inferred.'\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 14),[Text.UTF8Encoding]::new($false))\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n& (Join-Path $moeRepo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds 300|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,summary,host_checks|ConvertTo-Json -Depth 6\nif($r.reason -ne 'completed' -or -not $r.host_checks_pass -or $r.exit_code -ne 0){throw 'Product or host guard failed'}\n$observed=@($r.summary.output_token_ids);$expected=@($oracle.expected.output_token_ids)\n$same=$observed.Count -eq $expected.Count\nfor($i=0;$same -and $i -lt $expected.Count;$i++){if($observed[$i] -ne $expected[$i]){$same=$false}}\nif(-not $same -or $r.summary.prompt_token_ids_fnv1a64 -ne $oracle.prompt.u32le_fnv1a64 -or -not $r.summary.first_token_raw_logit_available -or [Math]::Abs($r.summary.first_token_raw_logit-$oracle.expected.first_token_raw_logit) -gt $oracle.expected.first_token_raw_logit_tolerance){throw 'GB10 token/logit boundary failed'}\nif(-not $r.summary.stream_matches_output -or -not $r.summary.callbacks_before_return -or $r.summary.stream_callback_count -ne (2*$expected.Count)){throw 'Actual stream callback boundary failed'}\n$stderr=[IO.File]::ReadAllText((Join-Path $out 'product.stderr.log'))\n$markers=@([regex]::Matches($stderr,'BATCH_MARK coarse_out_projection [^\\r\\n]*'))\nif(($markers.Count % 10) -ne 0){throw 'Incomplete coarse owner layer group'}\nif($CoarseOut -eq 0 -and $markers.Count){throw 'Disabled coarse owner executed'}\nforeach($marker in $markers){\n if($marker.Value -notmatch ' tokens=8192 rows=2048 k=4096 chunk=64 fragments=1 ' -or $marker.Value -notmatch ' hardware_error_bound_proven=0 completed=1$'){throw 'Coarse owner shape or completion mismatch'}\n $counts=[regex]::Match($marker.Value,' candidates=(\\d+) dispatches=(\\d+) workspace_bytes=295739396 ')\n if(-not $counts.Success){throw 'Coarse owner count metadata missing'}\n $n=[int64]$counts.Groups[1].Value;$dispatches=[int64]$counts.Groups[2].Value\n if($n -gt 16777216 -or $dispatches -ne [Math]::Ceiling($n/262144.0)){throw 'Coarse owner capacity or bounded dispatch mismatch'}\n}\n$expertMarkers=@([regex]::Matches($stderr,'BATCH_MARK moe_expert_order [^\\r\\n]*'))\nif(($expertMarkers.Count % 40) -ne 0){throw 'Incomplete expert-order layer group'}\nforeach($marker in $expertMarkers){if($marker.Value -ne 'BATCH_MARK moe_expert_order tokens=8192 buckets=256 permutation_only=1 scratch_bytes=16780292 host_count_reads=0 original_candidates=1 original_k16=1 original_stream=1'){throw 'Expert-order identity mismatch'}}\nif($stderr -match 'BATCH_MARK moe_shared_staged_half '){throw 'Shared staged replay unexpectedly active'}\n$checkpointRestores=@([regex]::Matches($stderr,'BATCH_MARK qwen36_resident_shadow_transaction_begin [^\\r\\n]*'))\nif($checkpointRestores.Count -ne 2){throw 'Expected two actual checkpoint restores'}\nforeach($marker in $checkpointRestores){\n $pattern=' partial_checkpoint=1 restored_prefix_tokens='+[string]$oracle.prefix_tokens+' committed_decode_tokens=0 '\n if($marker.Value -notmatch $pattern){throw 'Saved branch checkpoint was not restored'}\n}\nif($r.summary.checkpoint_owner_tokens -ne $ownerTokens -or $r.summary.checkpoint_owner_first_token -ne 82 -or -not $r.summary.checkpoint_owner_logit_valid -or [Math]::Abs($r.summary.checkpoint_owner_first_logit-9.25) -gt 0.125){throw 'Owner GB10 token/logit boundary failed'}\nif($r.summary.prefix_hit_count -ne 2 -or $r.summary.prefix_contract_pass_count -ne 2 -or $r.summary.prefix_output_match_count -ne 2 -or $r.summary.prefix_stream_match_count -ne 2 -or $r.summary.prefix_state_restored_count -ne 2 -or -not $r.summary.prefix_negative_guard_pass -or $r.summary.prefix_negative_guard_provider_invoked -ne 0){throw 'Repeated prefix hit, rollback or negative guard failed'}\nexit 0\n"
+    }
+  },
+  "verifier": {
+    "file": "analyze_moe_margin_prefix_r2.py",
+    "sha256": "23ac318936ff79ddfcb22e343ee917746c7517f4d94c0f0d8e49eeeba2714dc4"
+  },
+  "common_native_spec": {
+    "executable": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\product-cli\\qrt-product.exe",
+    "working_directory": "D:\\projects\\AIMA-public-expert-order-moe-20260916",
+    "repo_commit": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+    "runtime_owner_commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+    "cli_commit": "24c4304a16a1665701d05444619d46b832c73e43",
+    "cli_sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf",
+    "cli_build_metadata_sha256": "6608778b2638340447b05e0af677e4d11febca515128757430dea9bab2b3b757",
+    "model": "D:\\models\\Qwen3.6-35B-A3B",
+    "oracle": "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+    "oracle_sha256": "240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7",
+    "matrix_kind": "saved_prefix_branches",
+    "reference_data_manifest_sha256": "eef84535640fed0cb9766a3fe291c5ab49ede28652c3d39a5aca43141e06e7c5",
+    "runtime_directory": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3",
+    "runtime_manifest": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\relocated current package r3\\AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3\\runtime-manifest.json",
+    "runtime_manifest_sha256": "0f3eac0003c04a8a2e4856f492e7c356a139c83d3a8fe3e9ae206b25ce290729",
+    "runtime_artifacts_verified": 268,
+    "component_commits": {
+      "server": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+      "cli": "24c4304a16a1665701d05444619d46b832c73e43",
+      "whole": "24c4304a16a1665701d05444619d46b832c73e43",
+      "ck": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+      "moe": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+      "fla": "2ee62152cc808e97974f7d3d4346255a4438a213"
+    },
+    "component_builds": {
+      "server": {
+        "commit": "e7d605f6d88422d8067bbb8b82bff586b84386c6",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/environment-handoff-server/build-provenance.json",
+          "sha256": "0fccafc14c57dfb8903b8c1d4d08f16271ad6799ba2d1e3796b7393f06500bdd"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-environment-20260915\\build\\environment-handoff-server\\qrt.exe",
+          "sha256": "b900dfb252dcd3abe6aa44d0444cf7facb445a97e2ccb02f08af90697a62d380"
+        },
+        "package_path": "engine/qrt.exe"
+      },
+      "cli": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/product-cli/build-provenance.json",
+          "sha256": "6608778b2638340447b05e0af677e4d11febca515128757430dea9bab2b3b757"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-runtime-tail-20260914\\build\\product-cli\\qrt-product.exe",
+          "sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf"
+        },
+        "package_path": "product-cli/qrt-product.exe"
+      },
+      "whole": {
+        "commit": "24c4304a16a1665701d05444619d46b832c73e43",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/build-provenance.json",
+          "sha256": "8280270c4c48115cbc11921b39ec11d4a9a832d67a2b11fc24568ccbf9b79a4f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-runtime-tail-20260914/build/runtime-tail-whole-provider/qrt_qwen36_whole_provider.dll",
+          "sha256": "1f3e8416bbcaae92e2958c971c60c46381e0fdc8ee986430e90671dee2724469",
+          "bytes": 13112320
+        },
+        "package_path": "whole-provider/qrt_qwen36_whole_provider.dll"
+      },
+      "ck": {
+        "commit": "42c2f0f46786906a4c38d8ed5372e6336aaff21b",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-long-decoded-qk-20260915/build/long-decoded-qk/build-ck-provenance.json",
+          "sha256": "449a7be6c4c1482e9d62ba387736a58ccb9c11c9d825a282af436560c0da8d97"
+        },
+        "artifact": {
+          "path": "D:\\projects\\AIMA-public-long-decoded-qk-20260915\\build\\long-decoded-qk\\qrt_ck_fmha_sm121.dll",
+          "sha256": "21dd57d002c493765e59260c8b299d65165f379f84c8b1a2ecc52815e28cd11b",
+          "bytes": 1674752
+        },
+        "package_path": "ck-fmha/qrt_ck_fmha_sm121.dll"
+      },
+      "moe": {
+        "commit": "4a7f0c41f0583a6b2ca3e24e5493fd263bedec07",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/build-provenance.json",
+          "sha256": "5a8ce889b2166319242fa6cda9f4ba061cb9927cd088f5e65e1ef92020772d8f"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-staged-half-moe-20260914/build/staged-half-moe-provider/qrt_triton_moe_q8192_provider.dll",
+          "sha256": "6934bb7ba7d811adf58991ded949fb15c226e6fc0a5409921d0fe2a22d44f2ee",
+          "bytes": 818688
+        },
+        "package_path": "q8192-moe/qrt_triton_moe_q8192_provider.dll"
+      },
+      "fla": {
+        "commit": "2ee62152cc808e97974f7d3d4346255a4438a213",
+        "metadata": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/build-provenance.json",
+          "sha256": "156ac3a3026604b2e970a609ec5496cbde8e1924ba5dde789179d270b4070975"
+        },
+        "artifact": {
+          "path": "D:/projects/AIMA-public-fla-scalar-state-20260913/build/fla/qrt_fla_chunk_gdn_provider.dll",
+          "sha256": "80851cc1c92939cace5efe169b68bfce7c33ec2f85d3ede9938adbf6e8b00d4d",
+          "bytes": 645120
+        },
+        "package_path": "fla/qrt_fla_chunk_gdn_provider.dll"
+      }
+    },
+    "source_profile_sha256": "a8b0a9d17716268ddc6e5eb82a98abba498153b24727536cb65e7f3264c5b11f",
+    "portable_paths_resolved": 33,
+    "environment_sha256": "d2ad63c7f19be19c4374e94a3a4a79b489bf99a63c29c51f80f7b181db21f122",
+    "selector_overrides": {
+      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB": 1000,
+      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB": 1000,
+      "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB": 1000,
+      "QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB": 512
+    },
+    "dense_ppb": 1000,
+    "moe_ppb": 512,
+    "selector_experiment_only": true,
+    "expert_order_moe_provider": {
+      "commit": "3828bfe845758c7f941bab4efd5ef7f9a640a6d8",
+      "metadata_path": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\expert-order-moe-provider\\build-provenance.json",
+      "metadata_sha256": "89c874e9a6f032cee5155f66a94fe3d94ee1c9defbe10578cad1be2d21eb0943",
+      "build_run_sha256": "36982d55d235d089770dc6002cc6997694252153eabb6f24eed5af2d9b814758",
+      "dll_path": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\expert-order-moe-provider\\qrt_triton_moe_q8192_provider.dll",
+      "dll_sha256": "d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f",
+      "artifacts": [
+        {
+          "file": "q8192_selected_moe_route_count.hsaco",
+          "bytes": 4816,
+          "sha256": "48cc7d3660fa6051f085996e827fe9d0485f52be306273d4d1a9bea8d7b39a39"
+        },
+        {
+          "file": "q8192_selected_moe_route_prefix_by_program.hsaco",
+          "bytes": 4960,
+          "sha256": "3aaec2826f234daad9a308ebc8957e0cc309d524ddc92984c39e5027eb80db4d"
+        },
+        {
+          "file": "q8192_selected_moe_route_padded_prefix.hsaco",
+          "bytes": 5040,
+          "sha256": "8c6fd362ea0b5e9b7d43ec99ae404ddef021ffed9844ad1203a82c307483b914"
+        },
+        {
+          "file": "q8192_selected_moe_route_scatter.hsaco",
+          "bytes": 5608,
+          "sha256": "dd87e1236cda5eb292b0c918ee98d04218e1ee174a2e9b86e98bf21644d15c7f"
+        },
+        {
+          "file": "q8192_selected_moe_gate_up_silu.hsaco",
+          "bytes": 17752,
+          "sha256": "945acb545a0cdbdb333ad7ed863a081b4e4a6a0b0872142482e307713529c0fe"
+        },
+        {
+          "file": "q8192_selected_moe_down.hsaco",
+          "bytes": 11384,
+          "sha256": "bd8b6970d1bcc86fe8eb8f9ee4a8d70fb24222badeddf9e477e9596c29d6c30a"
+        },
+        {
+          "file": "qrt_triton_moe_q8192_provider.dll",
+          "bytes": 832000,
+          "sha256": "d65b87143f23583d7494ee8d2030527316da199360a43db5f8faba89b1fb6c0f"
+        },
+        {
+          "file": "q8192_triton_0626_row_major_sorted_conditional_exact_gate_rows256.hsaco",
+          "bytes": 7736,
+          "sha256": "cba71fdc8d510bc8f41d1e2501d3a64a8e7f2d3eb1078d4a940cc1c23a25be54"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize.hsaco",
+          "bytes": 6824,
+          "sha256": "8105adcbd809bb01982c065bcd8f03b168313ff8f31fd78a4ffd04728846a4c6"
+        },
+        {
+          "file": "q8192_triton_0626_zero_correction_gate_finalize_retained_fused_f32_silu.hsaco",
+          "bytes": 6696,
+          "sha256": "2120153032fca2210eb73ba07b63e95a2c4517055a12176e2a78ceebf82d8cc0"
+        },
+        {
+          "file": "q8192_triton_0626_conditional_exact_down_rows4.hsaco",
+          "bytes": 7504,
+          "sha256": "2b430b0226d09af12b36018eed1a9f761141bee37793d5879c142cdd9cb8c1c4"
+        }
+      ],
+      "provider_source_sha256": "06b62a7021c305c0bf5a0a46bae9f80ad5aabba425a6514d5ebde461582f494d"
+    },
+    "expert_order": 1,
+    "expert_order_workspace_bytes": 16780292,
+    "packaged_moe_overridden": true,
+    "coarse_out_provider": {
+      "commit": "1ee36e7beae5ff2c259f162c34cabd5aee4c3c12",
+      "metadata_path": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\build-provenance.json",
+      "metadata_sha256": "33e634f7ff6ef194558688f7961ea427c7bb3247e8184992c3457038667b7409",
+      "build_run_sha256": "d1fb03e6827d3d83404df6abf338aca6cc92c398e5a1e8431f145bf3a391b97c",
+      "dll_path": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+      "dll_sha256": "9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84",
+      "artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 13241856,
+          "sha256": "9e04857236128b6eab32bbe8516e36bd377c2def76af6087c80dd84746d8ea84"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "58f56dfe6eae43801b787edb342925ec5564d945da2d51a8900c69d00ff75f81"
+        }
+      ],
+      "source_sha256": "62b0edccd7a433e192306172ddaf61a110c16df550f058272452b83a4d7c5025",
+      "dispatch_policy_sha256": "48483e1e6a51ca3dda41e26150f3e69351cc25f81d3a532484c9a6f6eb9d758e"
+    },
+    "coarse_out": 1,
+    "same_dll_comparison": true,
+    "packaged_whole_overridden": true,
+    "environment_options_overridden": [
+      "QRT_PREFILL_DESCRIPTOR_BATCH_REQUIRED_MARKERS_ONLY=1",
+      "QRT_QWEN36_COARSE_OUT_PRODUCER=1",
+      "QRT_PREFILL_DESCRIPTOR_BATCH_Q8192_TRITON_SELECTED_MOE_DLL=D:/projects/AIMA-public-expert-order-moe-20260916/build/expert-order-moe-provider/qrt_triton_moe_q8192_provider.dll",
+      "QRT_QWEN36_MOE_EXPERT_ORDER_REPLAY=1",
+      "QRT_QWEN36_MOE_SHARED_STAGED_HALF_REPLAY=0",
+      "QRT_QWEN36_PREFIX_CHECKPOINTS=1",
+      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_QKVZ_WMMA_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000",
+      "QRT_QWEN36_EXACT_ARBITRARY_EARLY_OUT_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000",
+      "QRT_PREFILL_DESCRIPTOR_BATCH_FULL_ATTENTION_QKV_HAWKEYE_ABSOLUTE_ERROR_BOUND_PPB=1000",
+      "QRT_QWEN36_SM121_MOE_HAWKEYE_ABSOLUTE_ERROR_PPB=512"
+    ],
+    "original_staging_directory_unavailable": true,
+    "cold_prefill_seed_included": false,
+    "prefix_checkpoints_enabled": true,
+    "model_loaded_from_new_process": true,
+    "checkpoint_owner_prompt": "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\owner-q7169-prompt.json",
+    "checkpoint_owner_prompt_sha256": "5ad0b0c5be46c031dda62966d0866a796d8494b7b1386808900be160c9beaf6b",
+    "warm_prefix_measurement": true,
+    "prefix_first_logit_extension": "qrt-prefix-logit-v1",
+    "purpose": "Qualify dense1000/MoE512 with retained expert-order and coarse OUT providers on four original GB10 branches from saved checkpoints of a complete7169-token cold owner. Require two actual32-token callback sequences, first logit tolerance0.125, immutable owner rollback and rejection of a mismatched prefix before provider dispatch. The owner seed is measured separately and is excluded from warm TTFT. No performance or release acceptance is inferred."
+  },
+  "runs": [
+    {
+      "name": "moe-margin-prefix-q6209-prefix6208-branch-out32-r2",
+      "native": {
+        "name": "moe-margin-prefix-q6209-prefix6208-branch-out32-r2",
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\scripts\\baiying_guarded_inference.ps1",
+        "launch": {
+          "pid": 2972,
+          "utc": "2026-09-16T05:22:01.8269418Z",
+          "timeout_seconds": 300,
+          "job_kill_on_close": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 56254.22,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "executable_sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf",
+        "canonical_raw_sha256": {
+          "dispatch.json": "1644aa896535544b3ce32906d6ce35a91f8774e863151bb6471c394b4a6da79e",
+          "launch.json": "9be386e25869456266ceccba03ddb86e48c7591157d69e3beb73e4dc6b255dae",
+          "preflight.json": "b3813b68d5aada6a046cb292d8e1b306455b434f93c85a80f400a958a3fffa0f",
+          "product.stderr.log": "71ca6593aa3ab3ca9bf1a46646e4336d24c12264798477386afc9f15654903ab",
+          "product.stdout.jsonl": "afe578f3a25033d2f772e08fa9dc98118514710b24cbf2e50f321f619c2077ab",
+          "run-record.json": "6c5da985de3f9c6dbc9e8205b098d10f83fd037486a9dcffbc0054fd5584ff90",
+          "runtime.env": "d2ad63c7f19be19c4374e94a3a4a79b489bf99a63c29c51f80f7b181db21f122",
+          "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+          "transfers.json": "4992d58f3f04862cd4114b74e20baa998313f9835ea3de231e7dde4234458480"
+        },
+        "spec_overrides": {
+          "command_file": "D:\\projects\\run-native-moe-margin-prefix-r2.ps1",
+          "command_file_sha256": "7cdb69332c85fa31691d884b9573dec7958817c4b708c504aaab0323ade24764",
+          "arguments": [
+            "run",
+            "--model",
+            "D:\\models\\Qwen3.6-35B-A3B",
+            "--tokens",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q6209-prefix6208-branch-out32-prompt.json",
+            "--output-tokens",
+            "32",
+            "--expected-output",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q6209-prefix6208-branch-out32-expected.json",
+            "--expected-prompt-fnv",
+            "e615cd971ac95d0f",
+            "--expected-output-fnv",
+            "dc40f9a65e6c26cd",
+            "--env-file",
+            "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\moe-margin-prefix-q6209-prefix6208-branch-out32-r2.env",
+            "--provider-dll",
+            "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+            "--checkpoint-owner",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\owner-q7169-prompt.json",
+            "--prefix-tokens",
+            "6208",
+            "--prefix-hits",
+            "2",
+            "--prefix-negative-guard"
+          ],
+          "oracle_case": "q6209-prefix6208-branch-out32",
+          "reference_case_sha256": "b839e7175b588875befb4e67c7da754ce91cc2a5fb85ed024db093dcc71487ac",
+          "prompt_file_sha256": "2bc8a26d3d4bb09690261fbf3ad753ea0655f63c55d860a4801b49f02b50bd05",
+          "expected_file_sha256": "c1ddfb6b09315012570cfd26aef040c9a1b5d76f1e882cbca5ca77f4cbd8a231"
+        }
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 82,
+        "first_token_report_top1_token_id": 82,
+        "first_token_raw_logit": 9.4375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 6209,
+        "prefix_tokens": 6208,
+        "suffix_tokens": 1,
+        "output_tokens": 32,
+        "prefix_hit_count": 2,
+        "prefix_contract_pass_count": 2,
+        "prefix_output_match_count": 2,
+        "prefix_stream_match_count": 2,
+        "prefix_state_restored_count": 2,
+        "prefix_negative_guard_requested": true,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 4,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "e615cd971ac95d0f",
+        "output_token_ids_fnv1a64": "dc40f9a65e6c26cd",
+        "engine_load_ms": 21333.6122,
+        "provider_preload_ms": 21321.4344,
+        "provider_preload_reported_ms": 21320.7387,
+        "provider_preload_dll_load_ms": 10.99,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1708,
+        "prefix_seed_ms": 27980.0603,
+        "request_wall_ms": 3232.559,
+        "ttft_ms": 301.26725,
+        "provider_ttft_ms": 301.17005,
+        "prefill_tokens_per_second": 20609.608246,
+        "tpot_ms": 94.081903,
+        "decode_tokens_per_second": 10.629037,
+        "stream_callback_count": 64,
+        "first_callback_wall_ms": 301.26725,
+        "last_callback_wall_ms": 3225.48485,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220,
+          196,
+          82,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [
+          3399.4901,
+          3065.6279
+        ],
+        "prefix_hit_first_callback_wall_ms": [
+          456.3308,
+          146.2037
+        ],
+        "prefix_hit_provider_ttft_ms": [
+          456.2314,
+          146.1087
+        ],
+        "prefix_hit_suffix_ms": [
+          445.0138,
+          137.4022
+        ],
+        "prefix_hit_tpot_ms": [
+          94.39049,
+          93.773316
+        ],
+        "prefix_hit_total_ms": [
+          3395.0257,
+          3061.3955
+        ],
+        "prefix_hit_input_token_ids_fnv1a64": [
+          "e615cd971ac95d0f",
+          "e615cd971ac95d0f"
+        ],
+        "prefix_hit_suffix_token_ids_fnv1a64": [
+          "528ea0b4a83fbbc8",
+          "528ea0b4a83fbbc8"
+        ],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": [
+          "efb4b12acb01a561",
+          "efb4b12acb01a561"
+        ],
+        "checkpoint_owner_tokens": 7169,
+        "checkpoint_owner_first_token": 82,
+        "checkpoint_owner_logit_valid": true,
+        "checkpoint_owner_first_logit": 9.25
+      },
+      "gb10_gate": {
+        "qualified": true,
+        "original_prompt_ids_match": true,
+        "prompt_token_count": 6209,
+        "prefix_tokens": 6208,
+        "suffix_tokens": 1,
+        "hit_count": 2,
+        "matching_output_tokens_and_actual_callbacks": 64,
+        "first_logit_tolerance": 0.125,
+        "both_hit_first_logits_pass": true,
+        "owner_first_token_and_logit_pass": true
+      },
+      "actual_callbacks": [
+        {
+          "request_index": 0,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 0,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 82,
+            "step_ms": 456.2314,
+            "request_elapsed_ms": 456.3254
+          },
+          "last": {
+            "type": "token",
+            "request_index": 0,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 94.4335,
+            "request_elapsed_ms": 3392.3046
+          }
+        },
+        {
+          "request_index": 1,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 1,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 82,
+            "step_ms": 146.1087,
+            "request_elapsed_ms": 146.203
+          },
+          "last": {
+            "type": "token",
+            "request_index": 1,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 94.6902,
+            "request_elapsed_ms": 3058.6597
+          }
+        }
+      ],
+      "first_logit_markers": [
+        {
+          "output_index": "1",
+          "position": "6208",
+          "input_token": "203",
+          "output_token": "82",
+          "output_logit": "9.4375",
+          "step_ms": "442.772",
+          "end_ms": "442.772",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "82",
+          "top1_logit": "9.4375",
+          "top2_id": "220",
+          "top2_logit": "9.4375",
+          "top2_margin": "0",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "82",
+          "greedy_token_logit": "9.4375",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "82",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "output_index": "1",
+          "position": "6208",
+          "input_token": "203",
+          "output_token": "82",
+          "output_logit": "9.4375",
+          "step_ms": "135.413",
+          "end_ms": "135.413",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "82",
+          "top1_logit": "9.4375",
+          "top2_id": "220",
+          "top2_logit": "9.4375",
+          "top2_margin": "0",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "82",
+          "greedy_token_logit": "9.4375",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "82",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "checkpoints": [],
+      "prefix_requests": [
+        {
+          "generation": "1",
+          "prefix_tokens": "6208",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "10.044",
+          "suffix_ms": "445.014",
+          "decode_ms": "2935.74",
+          "rollback_ms": "2.7037",
+          "total_ms": "3395.03",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "prefix_tokens": "6208",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "7.4858",
+          "suffix_ms": "137.402",
+          "decode_ms": "2912.42",
+          "rollback_ms": "2.7783",
+          "total_ms": "3061.4",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "rollback_markers": [
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        },
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        }
+      ],
+      "environment_identical_to_qualified_cold_except_checkpoint_capture": true,
+      "gb10_thresholds_unchanged": true,
+      "warm_ttft_excludes_separate_cold_owner": true,
+      "coefficient_reduction_proven": false,
+      "retained_performance_acceptance": false,
+      "release_qualified": false,
+      "published": false,
+      "actual_checkpoint_restores": [
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "6208",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        },
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "6208",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        }
+      ],
+      "dispatcher_returncode": 1,
+      "postflight_diagnostic_check_misclassified": true,
+      "canonical_boundary_analysis_sha256": "9d8e76216f712de50d3c29c06bd6d279f97b57181a2adc6c5180b37e1bdb2441"
+    },
+    {
+      "name": "moe-margin-prefix-q6657-prefix6656-branch-out32-r3",
+      "native": {
+        "name": "moe-margin-prefix-q6657-prefix6656-branch-out32-r3",
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\scripts\\baiying_guarded_inference.ps1",
+        "launch": {
+          "pid": 9836,
+          "utc": "2026-09-16T05:25:46.9865138Z",
+          "timeout_seconds": 300,
+          "job_kill_on_close": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 56142.536,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "executable_sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf",
+        "canonical_raw_sha256": {
+          "dispatch.json": "701a8de31a652c8d0c2d5037297a1874a0c5ed244d978ad53adda0fd51efaa14",
+          "launch.json": "ca8c311d921065262670a53704064bd1578b7b491ec94212685b7a8a478b406e",
+          "preflight.json": "8f22068e8f906d6a8ef19f38980da58b9a33af2a41f26c260bbfbfabc20ee750",
+          "product.stderr.log": "65297f70b68685e61b5261794198808d8cbaf5ab9eab31f2c853a19bd674f55a",
+          "product.stdout.jsonl": "90cd505362dcb7e6d54206db3ee075f96eabfe0d2dc93266e6db3420adaa0266",
+          "run-record.json": "9b88c75d131b704cd66b10524fc07e370d4e116494c5f20984a9b824b27158e3",
+          "runtime.env": "d2ad63c7f19be19c4374e94a3a4a79b489bf99a63c29c51f80f7b181db21f122",
+          "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+          "transfers.json": "4992d58f3f04862cd4114b74e20baa998313f9835ea3de231e7dde4234458480"
+        },
+        "spec_overrides": {
+          "command_file": "D:\\projects\\run-native-moe-margin-prefix-r3.ps1",
+          "command_file_sha256": "6048bad35754a72f0747a932ae547bd748a2d6fc9612f179e2244ae22289155f",
+          "arguments": [
+            "run",
+            "--model",
+            "D:\\models\\Qwen3.6-35B-A3B",
+            "--tokens",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q6657-prefix6656-branch-out32-prompt.json",
+            "--output-tokens",
+            "32",
+            "--expected-output",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q6657-prefix6656-branch-out32-expected.json",
+            "--expected-prompt-fnv",
+            "3e36446b2b249ef5",
+            "--expected-output-fnv",
+            "45dbd21ceb759123",
+            "--env-file",
+            "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\moe-margin-prefix-q6657-prefix6656-branch-out32-r3.env",
+            "--provider-dll",
+            "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+            "--checkpoint-owner",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\owner-q7169-prompt.json",
+            "--prefix-tokens",
+            "6656",
+            "--prefix-hits",
+            "2",
+            "--prefix-negative-guard"
+          ],
+          "oracle_case": "q6657-prefix6656-branch-out32",
+          "reference_case_sha256": "609ee38aef6ab322880055dd66f0589e9f4a47a36d7d38f2148818a7134077de",
+          "prompt_file_sha256": "dd051fa45eb518300266f70b5e5349fe7734291a832ffd3d8e53f9fdd56de2a8",
+          "expected_file_sha256": "8db736593334cdfd7f3e460bf6f68cf0d52755be631e5ead401fe2133a74c780"
+        }
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 220,
+        "first_token_report_top1_token_id": 220,
+        "first_token_raw_logit": 9,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 6657,
+        "prefix_tokens": 6656,
+        "suffix_tokens": 1,
+        "output_tokens": 32,
+        "prefix_hit_count": 2,
+        "prefix_contract_pass_count": 2,
+        "prefix_output_match_count": 2,
+        "prefix_stream_match_count": 2,
+        "prefix_state_restored_count": 2,
+        "prefix_negative_guard_requested": true,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 4,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "3e36446b2b249ef5",
+        "output_token_ids_fnv1a64": "45dbd21ceb759123",
+        "engine_load_ms": 21331.527,
+        "provider_preload_ms": 21320.6422,
+        "provider_preload_reported_ms": 21319.9974,
+        "provider_preload_dll_load_ms": 9.7393,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1291,
+        "prefix_seed_ms": 27824.7794,
+        "request_wall_ms": 3262.73585,
+        "ttft_ms": 302.32145,
+        "provider_ttft_ms": 302.21935,
+        "prefill_tokens_per_second": 22019.608599,
+        "tpot_ms": 95.103881,
+        "decode_tokens_per_second": 10.514818,
+        "stream_callback_count": 64,
+        "first_callback_wall_ms": 302.32145,
+        "last_callback_wall_ms": 3255.82555,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [
+          3422.8181,
+          3102.6536
+        ],
+        "prefix_hit_first_callback_wall_ms": [
+          459.1033,
+          145.5396
+        ],
+        "prefix_hit_provider_ttft_ms": [
+          459.0006,
+          145.4381
+        ],
+        "prefix_hit_suffix_ms": [
+          446.377,
+          135.5927
+        ],
+        "prefix_hit_tpot_ms": [
+          95.192967,
+          95.014793
+        ],
+        "prefix_hit_total_ms": [
+          3418.3689,
+          3098.4222
+        ],
+        "prefix_hit_input_token_ids_fnv1a64": [
+          "3e36446b2b249ef5",
+          "3e36446b2b249ef5"
+        ],
+        "prefix_hit_suffix_token_ids_fnv1a64": [
+          "b26954ef03b7e3bf",
+          "b26954ef03b7e3bf"
+        ],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": [
+          "b21415746713accf",
+          "b21415746713accf"
+        ],
+        "checkpoint_owner_tokens": 7169,
+        "checkpoint_owner_first_token": 82,
+        "checkpoint_owner_logit_valid": true,
+        "checkpoint_owner_first_logit": 9.25
+      },
+      "gb10_gate": {
+        "qualified": true,
+        "original_prompt_ids_match": true,
+        "prompt_token_count": 6657,
+        "prefix_tokens": 6656,
+        "suffix_tokens": 1,
+        "hit_count": 2,
+        "matching_output_tokens_and_actual_callbacks": 64,
+        "first_logit_tolerance": 0.125,
+        "both_hit_first_logits_pass": true,
+        "owner_first_token_and_logit_pass": true
+      },
+      "actual_callbacks": [
+        {
+          "request_index": 0,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 0,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 220,
+            "step_ms": 459.0006,
+            "request_elapsed_ms": 459.1005
+          },
+          "last": {
+            "type": "token",
+            "request_index": 0,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 96.1383,
+            "request_elapsed_ms": 3415.9947
+          }
+        },
+        {
+          "request_index": 1,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 1,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 220,
+            "step_ms": 145.4381,
+            "request_elapsed_ms": 145.5387
+          },
+          "last": {
+            "type": "token",
+            "request_index": 1,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 95.5343,
+            "request_elapsed_ms": 3095.6535
+          }
+        }
+      ],
+      "first_logit_markers": [
+        {
+          "output_index": "1",
+          "position": "6656",
+          "input_token": "204",
+          "output_token": "220",
+          "output_logit": "9",
+          "step_ms": "444.749",
+          "end_ms": "444.749",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "220",
+          "top1_logit": "9",
+          "top2_id": "82",
+          "top2_logit": "8.875",
+          "top2_margin": "0.125",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "220",
+          "greedy_token_logit": "9",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "220",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "output_index": "1",
+          "position": "6656",
+          "input_token": "204",
+          "output_token": "220",
+          "output_logit": "9",
+          "step_ms": "133.774",
+          "end_ms": "133.774",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "220",
+          "top1_logit": "9",
+          "top2_id": "82",
+          "top2_logit": "8.875",
+          "top2_margin": "0.125",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "220",
+          "greedy_token_logit": "9",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "220",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "checkpoints": [],
+      "prefix_requests": [
+        {
+          "generation": "1",
+          "prefix_tokens": "6656",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "11.2327",
+          "suffix_ms": "446.377",
+          "decode_ms": "2956.6",
+          "rollback_ms": "2.3871",
+          "total_ms": "3418.37",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "prefix_tokens": "6656",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "8.6613",
+          "suffix_ms": "135.593",
+          "decode_ms": "2950.1",
+          "rollback_ms": "2.8177",
+          "total_ms": "3098.42",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "rollback_markers": [
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        },
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        }
+      ],
+      "environment_identical_to_qualified_cold_except_checkpoint_capture": true,
+      "gb10_thresholds_unchanged": true,
+      "warm_ttft_excludes_separate_cold_owner": true,
+      "coefficient_reduction_proven": false,
+      "retained_performance_acceptance": false,
+      "release_qualified": false,
+      "published": false,
+      "actual_checkpoint_restores": [
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "6656",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        },
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "6656",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        }
+      ],
+      "dispatcher_returncode": 0,
+      "postflight_diagnostic_check_misclassified": false,
+      "canonical_boundary_analysis_sha256": "8cc2904b876e2086950cee8f9c7d02c3325bef90f2e58dcf4dcc2e9336212fcc"
+    },
+    {
+      "name": "moe-margin-prefix-q7169-prefix7168-branch-out32-r3",
+      "native": {
+        "name": "moe-margin-prefix-q7169-prefix7168-branch-out32-r3",
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\scripts\\baiying_guarded_inference.ps1",
+        "launch": {
+          "pid": 1680,
+          "utc": "2026-09-16T05:27:10.2096568Z",
+          "timeout_seconds": 300,
+          "job_kill_on_close": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 56245.751,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "executable_sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf",
+        "canonical_raw_sha256": {
+          "dispatch.json": "60d0f9700f752865fa97d9983284f90392e5854489e25e0dfaddd7278abf9b26",
+          "launch.json": "30671610e90f383140f09b2ea04e18b301b03d4bdb87c83aec31167ffc7618d1",
+          "preflight.json": "9d0805c40b62e6948db610e676dff7dedd13e1f4018076b05f6d8df30ec53740",
+          "product.stderr.log": "2a3674023f444b5029137e27d95b82dafcf56b24e686814f8d210046af20c5a2",
+          "product.stdout.jsonl": "0e54d8447ee385d765f544e5dc56390bca17460641d94d721c4ab2fe6e9a0855",
+          "run-record.json": "1760ef42141802006e2db5e02d3f3260325c58818567b22ef87fb0304a47cbd1",
+          "runtime.env": "d2ad63c7f19be19c4374e94a3a4a79b489bf99a63c29c51f80f7b181db21f122",
+          "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+          "transfers.json": "4992d58f3f04862cd4114b74e20baa998313f9835ea3de231e7dde4234458480"
+        },
+        "spec_overrides": {
+          "command_file": "D:\\projects\\run-native-moe-margin-prefix-r3.ps1",
+          "command_file_sha256": "6048bad35754a72f0747a932ae547bd748a2d6fc9612f179e2244ae22289155f",
+          "arguments": [
+            "run",
+            "--model",
+            "D:\\models\\Qwen3.6-35B-A3B",
+            "--tokens",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q7169-prefix7168-branch-out32-prompt.json",
+            "--output-tokens",
+            "32",
+            "--expected-output",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q7169-prefix7168-branch-out32-expected.json",
+            "--expected-prompt-fnv",
+            "68fb6d8f5988e9fb",
+            "--expected-output-fnv",
+            "07a464a221ce5bff",
+            "--env-file",
+            "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\moe-margin-prefix-q7169-prefix7168-branch-out32-r3.env",
+            "--provider-dll",
+            "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+            "--checkpoint-owner",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\owner-q7169-prompt.json",
+            "--prefix-tokens",
+            "7168",
+            "--prefix-hits",
+            "2",
+            "--prefix-negative-guard"
+          ],
+          "oracle_case": "q7169-prefix7168-branch-out32",
+          "reference_case_sha256": "9babed8b84266fb159384dccb4e9738142b6442492aac8e9303fc577cae57146",
+          "prompt_file_sha256": "9d7d5dd9fde706e3b7fb7be3f9db0e34eed587b0fa177cd856f1571b6120288e",
+          "expected_file_sha256": "4e00f31823c5f1c7e02bded3d7a15d923b33180f24fce901616e7a40066f8913"
+        }
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 64,
+        "first_token_report_top1_token_id": 64,
+        "first_token_raw_logit": 9.4375,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7169,
+        "prefix_tokens": 7168,
+        "suffix_tokens": 1,
+        "output_tokens": 32,
+        "prefix_hit_count": 2,
+        "prefix_contract_pass_count": 2,
+        "prefix_output_match_count": 2,
+        "prefix_stream_match_count": 2,
+        "prefix_state_restored_count": 2,
+        "prefix_negative_guard_requested": true,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 4,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "68fb6d8f5988e9fb",
+        "output_token_ids_fnv1a64": "07a464a221ce5bff",
+        "engine_load_ms": 21325.6032,
+        "provider_preload_ms": 21314.919,
+        "provider_preload_reported_ms": 21314.2913,
+        "provider_preload_dll_load_ms": 9.5569,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1109,
+        "prefix_seed_ms": 27884.7074,
+        "request_wall_ms": 3283.4788,
+        "ttft_ms": 301.5727,
+        "provider_ttft_ms": 301.46605,
+        "prefill_tokens_per_second": 23772.045679,
+        "tpot_ms": 95.796784,
+        "decode_tokens_per_second": 10.438764,
+        "stream_callback_count": 64,
+        "first_callback_wall_ms": 301.5727,
+        "last_callback_wall_ms": 3276.4595,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          64,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220,
+          196,
+          220,
+          220
+        ],
+        "prefix_hit_request_wall_ms": [
+          3430.7013,
+          3136.2563
+        ],
+        "prefix_hit_first_callback_wall_ms": [
+          456.8321,
+          146.3133
+        ],
+        "prefix_hit_provider_ttft_ms": [
+          456.7247,
+          146.2074
+        ],
+        "prefix_hit_suffix_ms": [
+          445.3452,
+          136.5986
+        ],
+        "prefix_hit_tpot_ms": [
+          95.519,
+          96.074567
+        ],
+        "prefix_hit_total_ms": [
+          3426.1773,
+          3132.0569
+        ],
+        "prefix_hit_input_token_ids_fnv1a64": [
+          "68fb6d8f5988e9fb",
+          "68fb6d8f5988e9fb"
+        ],
+        "prefix_hit_suffix_token_ids_fnv1a64": [
+          "528ea0b4a83fbbc8",
+          "528ea0b4a83fbbc8"
+        ],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": [
+          "2fff48b614115573",
+          "2fff48b614115573"
+        ],
+        "checkpoint_owner_tokens": 7169,
+        "checkpoint_owner_first_token": 82,
+        "checkpoint_owner_logit_valid": true,
+        "checkpoint_owner_first_logit": 9.25
+      },
+      "gb10_gate": {
+        "qualified": true,
+        "original_prompt_ids_match": true,
+        "prompt_token_count": 7169,
+        "prefix_tokens": 7168,
+        "suffix_tokens": 1,
+        "hit_count": 2,
+        "matching_output_tokens_and_actual_callbacks": 64,
+        "first_logit_tolerance": 0.125,
+        "both_hit_first_logits_pass": true,
+        "owner_first_token_and_logit_pass": true
+      },
+      "actual_callbacks": [
+        {
+          "request_index": 0,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 0,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 64,
+            "step_ms": 456.7247,
+            "request_elapsed_ms": 456.8286
+          },
+          "last": {
+            "type": "token",
+            "request_index": 0,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 94.456,
+            "request_elapsed_ms": 3423.6579
+          }
+        },
+        {
+          "request_index": 1,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 1,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 64,
+            "step_ms": 146.2074,
+            "request_elapsed_ms": 146.3126
+          },
+          "last": {
+            "type": "token",
+            "request_index": 1,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 220,
+            "step_ms": 94.5544,
+            "request_elapsed_ms": 3129.2574
+          }
+        }
+      ],
+      "first_logit_markers": [
+        {
+          "output_index": "1",
+          "position": "7168",
+          "input_token": "203",
+          "output_token": "64",
+          "output_logit": "9.4375",
+          "step_ms": "443.709",
+          "end_ms": "443.709",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "64",
+          "top1_logit": "9.4375",
+          "top2_id": "220",
+          "top2_logit": "9.4375",
+          "top2_margin": "0",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "64",
+          "greedy_token_logit": "9.4375",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "64",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "output_index": "1",
+          "position": "7168",
+          "input_token": "203",
+          "output_token": "64",
+          "output_logit": "9.4375",
+          "step_ms": "134.766",
+          "end_ms": "134.766",
+          "committed_decode_tokens": "1",
+          "top2_valid": "1",
+          "top1_id": "64",
+          "top1_logit": "9.4375",
+          "top2_id": "220",
+          "top2_logit": "9.4375",
+          "top2_margin": "0",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "64",
+          "greedy_token_logit": "9.4375",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "64",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "checkpoints": [],
+      "prefix_requests": [
+        {
+          "generation": "1",
+          "prefix_tokens": "7168",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "10.1564",
+          "suffix_ms": "445.345",
+          "decode_ms": "2966.55",
+          "rollback_ms": "2.5384",
+          "total_ms": "3426.18",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "prefix_tokens": "7168",
+          "suffix_tokens": "1",
+          "output_tokens": "32",
+          "teacher_predictions": "1",
+          "shadow_bytes": "96468992",
+          "clone_ms": "8.2615",
+          "suffix_ms": "136.599",
+          "decode_ms": "2982.93",
+          "rollback_ms": "2.8522",
+          "total_ms": "3132.06",
+          "base_committed": "0",
+          "mutated_committed": "32",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "rollback_markers": [
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        },
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "32",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        }
+      ],
+      "environment_identical_to_qualified_cold_except_checkpoint_capture": true,
+      "gb10_thresholds_unchanged": true,
+      "warm_ttft_excludes_separate_cold_owner": true,
+      "coefficient_reduction_proven": false,
+      "retained_performance_acceptance": false,
+      "release_qualified": false,
+      "published": false,
+      "actual_checkpoint_restores": [
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "7168",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        },
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "7168",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        }
+      ],
+      "dispatcher_returncode": 0,
+      "postflight_diagnostic_check_misclassified": false,
+      "canonical_boundary_analysis_sha256": "72cdabf4d45bdcb1e8392b2057a9dd699047509c0db2299ec5fafa01c7264bc4"
+    },
+    {
+      "name": "moe-margin-prefix-q7173-prefix7168-branch-out32-r3",
+      "native": {
+        "name": "moe-margin-prefix-q7173-prefix7168-branch-out32-r3",
+        "host": "BAIYING",
+        "command_file": "D:\\projects\\AIMA-public-expert-order-moe-20260916\\scripts\\baiying_guarded_inference.ps1",
+        "launch": {
+          "pid": 12280,
+          "utc": "2026-09-16T05:28:59.3879786Z",
+          "timeout_seconds": 300,
+          "job_kill_on_close": true
+        },
+        "reason": "completed",
+        "exit_code": 0,
+        "wall_ms": 56969.631,
+        "host_checks": {
+          "same_boot": true,
+          "no_engine_process": true,
+          "host_memory_reserve": true,
+          "commit_reserve": true,
+          "amd_gpu_ok": true
+        },
+        "host_checks_pass": true,
+        "executable_sha256": "eccc16fe523693c9547ac3b764c59ee208f1ee61a407ab656af414f522cc08cf",
+        "canonical_raw_sha256": {
+          "dispatch.json": "aa66e333e8b2784a3c9b2759eafcfa93101c625f472f5028ebd244f2e9afc25f",
+          "launch.json": "a0976952ea2c4c534095032c492c6aa43c52a6ee965441a5dd289d6ac09c7772",
+          "preflight.json": "b390445c67209acf61227e3a05fbf021381164da7945efb7e07d5378a931f34b",
+          "product.stderr.log": "811568d0f2ba12fbe8895fec4a28921d233a14cb60cc49875fa52b0f0714ab75",
+          "product.stdout.jsonl": "5ff4dd32d4730eea92fe880ce7c487129b0a52d03c8fe980c8eaf4c6035f1e48",
+          "run-record.json": "3c4b5e653b5307c5f9f653ec7656100ae5c6c2eebd4cd2e4092210d097d8ca49",
+          "runtime.env": "d2ad63c7f19be19c4374e94a3a4a79b489bf99a63c29c51f80f7b181db21f122",
+          "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+          "transfers.json": "4992d58f3f04862cd4114b74e20baa998313f9835ea3de231e7dde4234458480"
+        },
+        "spec_overrides": {
+          "command_file": "D:\\projects\\run-native-moe-margin-prefix-r3.ps1",
+          "command_file_sha256": "6048bad35754a72f0747a932ae547bd748a2d6fc9612f179e2244ae22289155f",
+          "arguments": [
+            "run",
+            "--model",
+            "D:\\models\\Qwen3.6-35B-A3B",
+            "--tokens",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q7173-prefix7168-branch-out32-prompt.json",
+            "--output-tokens",
+            "32",
+            "--expected-output",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\q7173-prefix7168-branch-out32-expected.json",
+            "--expected-prompt-fnv",
+            "26b038b223b8921f",
+            "--expected-output-fnv",
+            "bf3e085d3cfa0f77",
+            "--env-file",
+            "D:\\projects\\AIMA-public-expert-order-moe-20260916\\build\\moe-margin-prefix-q7173-prefix7168-branch-out32-r3.env",
+            "--provider-dll",
+            "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+            "--checkpoint-owner",
+            "D:\\projects\\gb10-partial-prefix-inputs-20260912-r1\\owner-q7169-prompt.json",
+            "--prefix-tokens",
+            "7168",
+            "--prefix-hits",
+            "2",
+            "--prefix-negative-guard"
+          ],
+          "oracle_case": "q7173-prefix7168-branch-out32",
+          "reference_case_sha256": "1837183750d27e0de62f178b81ee3b23f5c672aeffbde6f959de4d3ec78b7536",
+          "prompt_file_sha256": "32dcb2b658e2ca3e5b9260d77245ada9ae98ed6ad77e05fdf1ad2c4e62d4baab",
+          "expected_file_sha256": "8d5fe35a0cbc976b3fb06f295449a113b30aa6c969ebcbf76069e17d87f61fc0"
+        }
+      },
+      "summary": {
+        "type": "summary",
+        "status": "pass",
+        "host": "BAIYING",
+        "model_path": "D:\\models\\Qwen3.6-35B-A3B",
+        "provider_dll": "D:\\projects\\AIMA-public-coarse-out-owner-20260915\\build\\coarse-out-owner-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "first_token_raw_logit_contract_version": 1,
+        "first_token_report_available": true,
+        "first_token_report_token_emitted": true,
+        "first_token_report_matches_output": true,
+        "first_token_raw_logit_available": true,
+        "first_token_report_token_id": 198,
+        "first_token_report_top1_token_id": 198,
+        "first_token_raw_logit": 10.625,
+        "first_token_raw_logit_source": "qrt_engine_report.baseline_output_head_topk_logits[0]",
+        "batch_size": 1,
+        "input_tokens": 7173,
+        "prefix_tokens": 7168,
+        "suffix_tokens": 5,
+        "output_tokens": 32,
+        "prefix_hit_count": 2,
+        "prefix_contract_pass_count": 2,
+        "prefix_output_match_count": 2,
+        "prefix_stream_match_count": 2,
+        "prefix_state_restored_count": 2,
+        "prefix_negative_guard_requested": true,
+        "prefix_negative_guard_pass": true,
+        "prefix_negative_guard_status": 4,
+        "prefix_negative_guard_provider_invoked": 0,
+        "prompt_token_ids_fnv1a64": "26b038b223b8921f",
+        "output_token_ids_fnv1a64": "bf3e085d3cfa0f77",
+        "engine_load_ms": 21306.8958,
+        "provider_preload_ms": 21295.7491,
+        "provider_preload_reported_ms": 21295.1297,
+        "provider_preload_dll_load_ms": 10.0243,
+        "provider_preload_stored_entries": 256,
+        "engine_create_ms": 1.1066,
+        "prefix_seed_ms": 27902.9914,
+        "request_wall_ms": 3646.7244,
+        "ttft_ms": 658.7531,
+        "provider_ttft_ms": 658.6422,
+        "prefill_tokens_per_second": 10888.753313,
+        "tpot_ms": 95.963116,
+        "decode_tokens_per_second": 10.42067,
+        "stream_callback_count": 64,
+        "first_callback_wall_ms": 658.7531,
+        "last_callback_wall_ms": 3639.21845,
+        "callbacks_before_return": true,
+        "stream_matches_output": true,
+        "expected_prompt_match": true,
+        "expected_output_tokens_match": true,
+        "expected_output_digest_match": true,
+        "state_restored": true,
+        "output_token_ids": [
+          198,
+          248046,
+          198,
+          248045,
+          74455,
+          198,
+          248068,
+          271,
+          248069,
+          271,
+          2064,
+          7701,
+          421,
+          279,
+          1414,
+          488,
+          3766,
+          369,
+          16421,
+          47739,
+          11,
+          8222,
+          264,
+          6311,
+          314,
+          4055,
+          5587,
+          11,
+          17210,
+          11,
+          321,
+          83123
+        ],
+        "prefix_hit_request_wall_ms": [
+          3786.8905,
+          3506.5583
+        ],
+        "prefix_hit_first_callback_wall_ms": [
+          803.6201,
+          513.8861
+        ],
+        "prefix_hit_provider_ttft_ms": [
+          803.5053,
+          513.7791
+        ],
+        "prefix_hit_suffix_ms": [
+          793.2065,
+          504.5079
+        ],
+        "prefix_hit_tpot_ms": [
+          95.81708,
+          96.109151
+        ],
+        "prefix_hit_total_ms": [
+          3782.1904,
+          3501.7094
+        ],
+        "prefix_hit_input_token_ids_fnv1a64": [
+          "26b038b223b8921f",
+          "26b038b223b8921f"
+        ],
+        "prefix_hit_suffix_token_ids_fnv1a64": [
+          "7bc06a1b31b7562c",
+          "7bc06a1b31b7562c"
+        ],
+        "prefix_hit_teacher_prediction_ids_fnv1a64": [
+          "a66bb9841c06dbe9",
+          "a66bb9841c06dbe9"
+        ],
+        "checkpoint_owner_tokens": 7169,
+        "checkpoint_owner_first_token": 82,
+        "checkpoint_owner_logit_valid": true,
+        "checkpoint_owner_first_logit": 9.25
+      },
+      "gb10_gate": {
+        "qualified": true,
+        "original_prompt_ids_match": true,
+        "prompt_token_count": 7173,
+        "prefix_tokens": 7168,
+        "suffix_tokens": 5,
+        "hit_count": 2,
+        "matching_output_tokens_and_actual_callbacks": 64,
+        "first_logit_tolerance": 0.125,
+        "both_hit_first_logits_pass": true,
+        "owner_first_token_and_logit_pass": true
+      },
+      "actual_callbacks": [
+        {
+          "request_index": 0,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 0,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 198,
+            "step_ms": 803.5053,
+            "request_elapsed_ms": 803.6162
+          },
+          "last": {
+            "type": "token",
+            "request_index": 0,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 83123,
+            "step_ms": 94.1615,
+            "request_elapsed_ms": 3779.6829
+          }
+        },
+        {
+          "request_index": 1,
+          "count": 32,
+          "all_gb10_ids_indices_phases_and_timestamps_pass": true,
+          "first": {
+            "type": "token",
+            "request_index": 1,
+            "index": 0,
+            "phase": "prefill",
+            "token_id": 198,
+            "step_ms": 513.7791,
+            "request_elapsed_ms": 513.885
+          },
+          "last": {
+            "type": "token",
+            "request_index": 1,
+            "index": 31,
+            "phase": "decode",
+            "token_id": 83123,
+            "step_ms": 98.5595,
+            "request_elapsed_ms": 3498.7505
+          }
+        }
+      ],
+      "first_logit_markers": [
+        {
+          "output_index": "1",
+          "position": "7172",
+          "input_token": "124",
+          "output_token": "198",
+          "output_logit": "10.625",
+          "step_ms": "95.6018",
+          "end_ms": "95.6018",
+          "committed_decode_tokens": "5",
+          "top2_valid": "1",
+          "top1_id": "198",
+          "top1_logit": "10.625",
+          "top2_id": "271",
+          "top2_logit": "10.0625",
+          "top2_margin": "0.5625",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "198",
+          "greedy_token_logit": "10.625",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "198",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "output_index": "1",
+          "position": "7172",
+          "input_token": "124",
+          "output_token": "198",
+          "output_logit": "10.625",
+          "step_ms": "96.3408",
+          "end_ms": "96.3408",
+          "committed_decode_tokens": "5",
+          "top2_valid": "1",
+          "top1_id": "198",
+          "top1_logit": "10.625",
+          "top2_id": "271",
+          "top2_logit": "10.0625",
+          "top2_margin": "0.5625",
+          "minimum_output_tokens": "0",
+          "minimum_output_token_index": "0",
+          "stop_token_suppressed": "0",
+          "greedy_token_id": "198",
+          "greedy_token_logit": "10.625",
+          "gb10_teacher_forced_input": "0",
+          "gb10_reference_token": "198",
+          "prediction_matches_gb10_reference": "1",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "checkpoints": [],
+      "prefix_requests": [
+        {
+          "generation": "1",
+          "prefix_tokens": "7168",
+          "suffix_tokens": "5",
+          "output_tokens": "32",
+          "teacher_predictions": "5",
+          "shadow_bytes": "96468992",
+          "clone_ms": "9.1287",
+          "suffix_ms": "793.207",
+          "decode_ms": "2975.69",
+          "rollback_ms": "2.5568",
+          "total_ms": "3782.19",
+          "base_committed": "0",
+          "mutated_committed": "36",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        },
+        {
+          "generation": "1",
+          "prefix_tokens": "7168",
+          "suffix_tokens": "5",
+          "output_tokens": "32",
+          "teacher_predictions": "5",
+          "shadow_bytes": "96468992",
+          "clone_ms": "7.7226",
+          "suffix_ms": "504.508",
+          "decode_ms": "2984.73",
+          "rollback_ms": "3.0048",
+          "total_ms": "3501.71",
+          "base_committed": "0",
+          "mutated_committed": "36",
+          "restored_committed": "0",
+          "state_restored": "1",
+          "copy_on_write": "1",
+          "immutable_prefix_kv_shared": "1",
+          "gb10_continuation_teacher_forced": "0",
+          "ignore_eos": "1",
+          "minimum_output_tokens": "0",
+          "generation_stop_token_ids": "248044,248046",
+          "weight_bits": "16",
+          "quantized": "0",
+          "dflash_active": "0",
+          "mtp_active": "0",
+          "mtp_top2_arbitration": "0",
+          "speculative_decode": "0",
+          "numerical_correctness_claimed": "0"
+        }
+      ],
+      "rollback_markers": [
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "36",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        },
+        {
+          "generation": "1",
+          "reason": "resident_prefix_request_complete",
+          "base_committed_decode_tokens": "0",
+          "mutated_committed_decode_tokens": "36",
+          "restored_committed_decode_tokens": "0",
+          "original_allocations_restored": "1",
+          "live_state_unchanged": "1",
+          "sync_status": "0"
+        }
+      ],
+      "environment_identical_to_qualified_cold_except_checkpoint_capture": true,
+      "gb10_thresholds_unchanged": true,
+      "warm_ttft_excludes_separate_cold_owner": true,
+      "coefficient_reduction_proven": false,
+      "retained_performance_acceptance": false,
+      "release_qualified": false,
+      "published": false,
+      "actual_checkpoint_restores": [
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "7168",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        },
+        {
+          "generation": "1",
+          "partial_checkpoint": "1",
+          "restored_prefix_tokens": "7168",
+          "committed_decode_tokens": "0",
+          "shadow_bytes": "96468992",
+          "linear_allocations": "30",
+          "full_attention_allocations": "0",
+          "full_attention_tail_allocations": "10"
+        }
+      ],
+      "dispatcher_returncode": 0,
+      "postflight_diagnostic_check_misclassified": false,
+      "actual_suffix_route": "sequential_short_suffix",
+      "canonical_boundary_analysis_sha256": "2dc705adcc07b3846d9d108bc8ca0f762711fd25467bbcb1ae426660dcdef24f"
+    }
+  ],
+  "oracle": {
+    "file": "contracts/gb10_partial_prefix_actual_tokens_20260912_oracle.json",
+    "sha256": "240855912800eb232b0149fb7696c8bd6af395e337e7f8dbb9ea6345d99a2bc7"
+  },
+  "cold_qualification": {
+    "file": "benchmarks/correctness/moe-selector-cold-matrix-20260916.json",
+    "bytes": 134920,
+    "sha256": "ed187afbe0bd474d269fbf8537ee6ba2e1a5b9d6db752127376f50c683e98f83"
+  },
+  "original_q8192_isolation": {
+    "file": "benchmarks/correctness/selector-margin-q8192-20260916.json",
+    "bytes": 881446,
+    "sha256": "6b79cf7fed6f9c1503e74d4c44a795f99f621835887949fdc5a11cbc0dc468be"
+  },
+  "tested_saved_branches": 4,
+  "repeated_hits": 8,
+  "gb10_matching_output_tokens_and_actual_callbacks": 256,
+  "per_hit_first_logits_checked": 8,
+  "owner_first_token_logit_checks": 4,
+  "restored_owner_transactions": 8,
+  "wrong_prefix_rejected_before_provider_dispatch": 4,
+  "engine_load_under30s_all_cases": true,
+  "prior_failures": {
+    "preflight": {
+      "model_dispatched": false,
+      "reason": "PowerShell5 deserialized-array count corrected before dispatch.",
+      "source_record_sha256": "1869a8e9499605b92ab4690b46f98c54745a5c6659bb3b47ba686a66eb36d5b2",
+      "dispatch_sha256": "b9a3030cdf5ed3e61711eaf2228018aab0aca7897955ce9b02d8cf1b40e16df5"
+    },
+    "postflight": {
+      "native_cli_exit_code": 0,
+      "native_host_guards_pass": true,
+      "dispatcher_returncode": 1,
+      "case": "q6209-prefix6208-branch-out32",
+      "reason": "Required-marker filtering suppresses capture diagnostics. The completed model run is independently revalidated from all64 raw callbacks, both original GB10 logits, two actual partial-checkpoint restores, both transaction rollbacks and CLI negative guard. The remaining scripts require these exercised contracts; no hidden capture marker is assumed.",
+      "source_record_sha256": "3b975f4ab063699b1fdc0aa1c069638feeb235772ee60579b271dbea94d3ad19"
+    }
+  },
+  "gb10_thresholds_unchanged": true,
+  "production_sources_changed": false,
+  "default_profile_changed": false,
+  "coefficient_reduction_proven": false,
+  "performance_qualified": false,
+  "long_context_qualified": false,
+  "http_qualified": false,
+  "soak_qualified": false,
+  "release_qualified": false,
+  "published": false,
+  "scope": "Four original divergent GB10 branches from a complete7169-token owner; three one-token suffixes and one five-token suffix. Each is exercised twice on its new cold process with all268 package assets and both overriding provider builds verified. All256 output IDs and actual callbacks, all eight branch first logits within0.125, four owner first tokens/logits, eight checkpoint restores/rollbacks and four mismatched-prefix rejection checks pass. Warm per-hit TTFT excludes separately recorded27.8..28.0-second owner prefill and21.3-second load. It does not qualify1024-token suffixes,512-token prefix outputs, long contexts, HTTP, soak or release. Finite success is not a universal coefficient proof."
+}
