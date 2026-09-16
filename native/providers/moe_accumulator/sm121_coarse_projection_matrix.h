@@ -22,7 +22,7 @@ __global__ void eligibility(const uint16_t* input,unsigned* flags,unsigned rows,
     for(unsigned stride=threads/2u;stride;stride>>=1u){if(lane<stride)all[lane]&=all[lane+stride];__syncthreads();}
     if(!lane)flags[row]=all[0];
 }
-template<unsigned Chunk,unsigned Fragments=1u,bool VectorLoads=false>
+template<unsigned Chunk,unsigned Fragments=1u,bool VectorLoads=false,unsigned NativeErrorBits=19u>
 __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const uint16_t* inputs,
     const unsigned* weight_ok,const unsigned* input_ok,float* centers,float* errors,
     unsigned rows,unsigned tokens,unsigned width) {
@@ -82,7 +82,7 @@ __global__ __launch_bounds__(threads) void produce(const uint16_t* weights,const
         for(unsigned fragment=0u;fragment<Fragments;++fragment) {
 #pragma unroll
             for(unsigned item=0u;item<8u;++item) {
-                const auto next=bound::advance<Chunk/16u>({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
+                const auto next=bound::advance<Chunk/16u,NativeErrorBits>({centers_local[fragment][item],errors_local[fragment][item]},partial[fragment][item],positive[fragment][item]);
                 centers_local[fragment][item]=next.center;errors_local[fragment][item]=next.error;
             }
         }

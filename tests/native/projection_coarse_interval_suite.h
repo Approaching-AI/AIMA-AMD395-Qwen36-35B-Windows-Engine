@@ -24,6 +24,7 @@ __global__ void coarse_original_compact(const float* centers,const float* input_
     __syncthreads();if(cell<cells)output[cell]=centers[cell];
     if(selected)indices[first+offsets[wave]+__popc(mask&((1u<<lane)-1u))]=cell;
 }
+template<bool CompareGuardModel=false>
 void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint16_t>& di,
     DeviceBuffer<float>& dout,const std::vector<uint16_t>& weights,const std::vector<uint16_t>& inputs,
     const std::vector<uint16_t>& reference,const std::vector<float>& initial,const std::vector<unsigned>& old_selected,
@@ -55,9 +56,10 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
         require(!std::memcmp(&expected,&canonical[kGuard+cell],4u),"complete canonical differs from independent CPU dot");}
     std::vector<unsigned char> initial_seen(cells,0u);
     for(unsigned cell:old_selected){require(cell<cells&&!initial_seen[cell],"initial selector duplicate or invalid cell");initial_seen[cell]=1u;}
-    double samples[5][3]{},prefix_samples[5][3]{};unsigned selected_counts[5]{};
-    for(unsigned attempt=0u;attempt<4u;++attempt)for(unsigned position=0u;position<5u;++position){
-        const unsigned variant=(attempt+position)%5u;
+    constexpr unsigned variants=CompareGuardModel?9u:5u;
+    double samples[variants][3]{},prefix_samples[variants][3]{};unsigned selected_counts[variants]{};
+    for(unsigned attempt=0u;attempt<4u;++attempt)for(unsigned position=0u;position<variants;++position){
+        const unsigned variant=(attempt+position)%variants;
         hip_ok(hipMemset(dids.base,0xa5,ids.size()*4u),"coarse_reset_ids");hip_ok(hipMemset(dcount.data(),0,4u),"coarse_reset_counter");
         complete_strong_projection();const auto start=std::chrono::steady_clock::now();prepare();
         if(!variant){
@@ -69,8 +71,9 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
         }else{
             hipLaunchKernelGGL(coarse_matrix::eligibility,dim3(rows),dim3(256u),0u,nullptr,dw.data(),dwf.data(),rows,width);hip_ok(hipGetLastError(),"coarse_weight_domain");
             hipLaunchKernelGGL(coarse_matrix::eligibility,dim3(tokens),dim3(256u),0u,nullptr,di.data(),dxf.data(),tokens,width);hip_ok(hipGetLastError(),"coarse_input_domain");
-#define QRT_COARSE_PRODUCE(v,c,f) if(variant==v)hipLaunchKernelGGL((coarse_matrix::produce<c,f>),dim3((rows+127u)/128u,(tokens+16u*f-1u)/(16u*f)),dim3(256u),0u,nullptr,dw.data(),di.data(),dwf.data(),dxf.data(),dc.data(),de.data(),rows,tokens,width)
-            QRT_COARSE_PRODUCE(1u,64u,1u);QRT_COARSE_PRODUCE(2u,128u,1u);QRT_COARSE_PRODUCE(3u,256u,1u);QRT_COARSE_PRODUCE(4u,128u,2u);
+#define QRT_COARSE_PRODUCE(v,c,f,b) if(variant==v)hipLaunchKernelGGL((coarse_matrix::produce<c,f,false,b>),dim3((rows+127u)/128u,(tokens+16u*f-1u)/(16u*f)),dim3(256u),0u,nullptr,dw.data(),di.data(),dwf.data(),dxf.data(),dc.data(),de.data(),rows,tokens,width)
+            QRT_COARSE_PRODUCE(1u,64u,1u,19u);QRT_COARSE_PRODUCE(2u,128u,1u,19u);QRT_COARSE_PRODUCE(3u,256u,1u,19u);QRT_COARSE_PRODUCE(4u,128u,2u,19u);
+            if constexpr(CompareGuardModel){QRT_COARSE_PRODUCE(5u,64u,1u,20u);QRT_COARSE_PRODUCE(6u,128u,1u,20u);QRT_COARSE_PRODUCE(7u,256u,1u,20u);QRT_COARSE_PRODUCE(8u,128u,2u,20u);}
 #undef QRT_COARSE_PRODUCE
             hip_ok(hipGetLastError(),"coarse_matrix_producer");
             hipLaunchKernelGGL(coarse_matrix::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,dc.data(),de.data(),dout.data(),dids.data(),dcount.data(),cells);
@@ -119,8 +122,8 @@ void run_coarse_interval_projection(DeviceBuffer<uint16_t>& dw,DeviceBuffer<uint
         if(!variant)std::cout<<",\"original_live_selector_cpu_checked\":true,\"producer_changed_cells_vs_initial\":"<<producer_changed<<",\"selection_added_vs_initial\":"<<selection_added<<",\"selection_removed_vs_initial\":"<<selection_removed;
         std::cout<<"}"<<std::endl;
     }
-    for(unsigned variant=0u;variant<5u;++variant){std::array<double,3> total{samples[variant][0],samples[variant][1],samples[variant][2]},prefix{prefix_samples[variant][0],prefix_samples[variant][1],prefix_samples[variant][2]};std::sort(total.begin(),total.end());std::sort(prefix.begin(),prefix.end());
-        std::cout<<"{\"type\":\"coarse_projection_full_route\",\"variant\":"<<variant<<",\"rows\":"<<rows<<",\"tokens\":"<<tokens<<",\"width\":"<<width<<",\"cells\":"<<cells<<",\"candidates\":"<<selected_counts[variant]<<",\"chunk\":"<<(variant==1u?64u:variant==3u?256u:variant?128u:0u)<<",\"fragments\":"<<(variant==4u?2u:variant?1u:0u)<<",\"complete_route_ms\":"<<total[1]<<",\"preparation_producer_selection_ms\":"<<prefix[1]<<",\"complete_samples_ms\":["<<samples[variant][0]<<","<<samples[variant][1]<<","<<samples[variant][2]<<"],\"preparation_producer_selection_samples_ms\":["<<prefix_samples[variant][0]<<","<<prefix_samples[variant][1]<<","<<prefix_samples[variant][2]<<"],\"warmups\":1,\"measured_attempts\":3,\"maximum_candidates_per_dispatch\":262144,\"bf16_mismatches\":0,\"canonical_interval_undercoverage\":0,\"selected_raw_mismatches\":0,\"independent_cpu_dots\":256,\"all_attempts_verified\":true,\"all_prepared_words_checked\":true,\"complete_candidate_permutation_checked\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"native_error_coefficient\":0.0000019073486328125,\"hardware_error_bound_proven\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}"<<std::endl;
+    for(unsigned variant=0u;variant<variants;++variant){const unsigned shape=variant>=5u?variant-4u:variant;std::array<double,3> total{samples[variant][0],samples[variant][1],samples[variant][2]},prefix{prefix_samples[variant][0],prefix_samples[variant][1],prefix_samples[variant][2]};std::sort(total.begin(),total.end());std::sort(prefix.begin(),prefix.end());
+        std::cout<<"{\"type\":\"coarse_projection_full_route\",\"variant\":"<<variant<<",\"rows\":"<<rows<<",\"tokens\":"<<tokens<<",\"width\":"<<width<<",\"cells\":"<<cells<<",\"candidates\":"<<selected_counts[variant]<<",\"chunk\":"<<(shape==1u?64u:shape==3u?256u:shape?128u:0u)<<",\"fragments\":"<<(shape==4u?2u:shape?1u:0u)<<",\"complete_route_ms\":"<<total[1]<<",\"preparation_producer_selection_ms\":"<<prefix[1]<<",\"complete_samples_ms\":["<<samples[variant][0]<<","<<samples[variant][1]<<","<<samples[variant][2]<<"],\"preparation_producer_selection_samples_ms\":["<<prefix_samples[variant][0]<<","<<prefix_samples[variant][1]<<","<<prefix_samples[variant][2]<<"],\"warmups\":1,\"measured_attempts\":3,\"maximum_candidates_per_dispatch\":262144,\"bf16_mismatches\":0,\"canonical_interval_undercoverage\":0,\"selected_raw_mismatches\":0,\"independent_cpu_dots\":256,\"all_attempts_verified\":true,\"all_prepared_words_checked\":true,\"complete_candidate_permutation_checked\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"native_error_bits\":"<<(variant>=5u?20u:19u)<<",\"native_error_coefficient\":"<<(variant>=5u?0x1p-20:0x1p-19)<<",\"hardware_error_bound_proven\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}"<<std::endl;
     }
 }
 }

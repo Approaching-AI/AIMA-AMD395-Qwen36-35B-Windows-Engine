@@ -7,10 +7,11 @@
 #define QRT_COARSE_BOUND_INLINE inline
 #endif
 
-// Experimental BF16 producer envelope. Its native zero-C WMMA coefficient
-// remains2^-19, as in the existing group interval. Finite comparisons do not
-// prove that native hardware bound. Canonical loss accounting is independent
-// of that assumption and includes EVERY K16 alignment and normalization.
+// Experimental BF16 producer envelope. Production defaults to2^-19. The
+// explicit2^-20 diagnostic arm has an arithmetic derivation conditional on
+// the observed eight-DOT2 hardware model; finite hardware comparisons do not
+// prove that premise. Canonical loss accounting is independent of the native
+// assumption and includes EVERY K16 alignment and normalization.
 namespace qrt_sm121_coarse_projection_bound {
 namespace scalar=qrt_sm121_pv_bound;
 struct State{float center=0.0f,error=0.0f;};
@@ -28,13 +29,14 @@ QRT_COARSE_BOUND_INLINE float unit(float magnitude,unsigned fractional) {
     // minimum positive float rather than constructing a negative exponent.
     return scalar::value(exponent>=-149?1u<<unsigned(exponent+149):1u);
 }
-template<unsigned Groups>
+template<unsigned Groups,unsigned NativeErrorBits=19u>
 QRT_COARSE_BOUND_INLINE State advance(State before,float partial,float absolute) {
     static_assert(Groups==4u || Groups==8u || Groups==16u || Groups==32u);
+    static_assert(NativeErrorBits==19u || NativeErrorBits==20u);
     State result{before.center+partial,scalar::infinity()};
     if(!scalar::finite(before.center)||!scalar::finite(before.error)||before.error<0.0f||
         !scalar::finite(partial)||!scalar::finite(absolute)||absolute<0.0f)return result;
-    constexpr float epsilon=0x1p-19f,floor=float(Groups)*0x1p-118f;
+    constexpr float epsilon=1.0f/float(1u<<NativeErrorBits),floor=float(Groups)*0x1p-118f;
     // The extra Groups*2^-23 covers the explicit FP32 sums of zero-C K16
     // outputs. Two outward steps cover constant reciprocal/product rounding.
     constexpr float inflation=1.0f/(1.0f-epsilon-float(Groups)*0x1p-23f);

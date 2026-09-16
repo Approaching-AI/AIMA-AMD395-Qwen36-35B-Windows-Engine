@@ -11,7 +11,8 @@ uint32_t state=0x3958192u;
 uint32_t random_word(){state^=state<<13u;state^=state>>17u;state^=state<<5u;return state;}
 float f32(uint16_t x){return bound::scalar::value(uint32_t(x)<<16u);}
 float add(float a,float b){volatile float value=a+b;return value;}
-template<unsigned Groups> void run(){
+template<unsigned Groups,unsigned NativeErrorBits=19u> void run(){
+ constexpr double epsilon=1.0/double(1u<<NativeErrorBits);
  constexpr unsigned cases=16384u,width=512u;size_t checkpoints=0,certificates=0;
  for(unsigned sample=0u;sample<cases;++sample){
   std::vector<float> products[3],positive[3],canonical;
@@ -34,9 +35,9 @@ template<unsigned Groups> void run(){
    }
    carry=original::group_sum<26,-133>(terms,17u);canonical.push_back(original::value_to_float(carry));
    for(unsigned mode=0u;mode<3u;++mode){
-    const double perturbation=mode==0u?0.0:(mode==1u?0.75:-0.75)*0x1p-19*absolute;
+    const double perturbation=mode==0u?0.0:(mode==1u?0.75:-0.75)*epsilon*absolute;
     const float dot=float(sum+perturbation),abs=float(absolute-perturbation);
-    assert(std::abs(double(dot)-sum)<=0x1p-19*absolute && std::abs(double(abs)-absolute)<=0x1p-19*absolute);
+    assert(std::abs(double(dot)-sum)<=epsilon*absolute && std::abs(double(abs)-absolute)<=epsilon*absolute);
     products[mode].push_back(dot);positive[mode].push_back(abs);
    }
   }
@@ -45,14 +46,14 @@ template<unsigned Groups> void run(){
    for(unsigned base=0u;base<width/16u;base+=Groups){
     float dot=0.0f,abs=0.0f;
     for(unsigned i=0u;i<Groups;++i){dot=add(dot,products[mode][base+i]);abs=add(abs,positive[mode][base+i]);}
-    value=bound::advance<Groups>(value,dot,abs);
+    value=bound::advance<Groups,NativeErrorBits>(value,dot,abs);
     const double difference=std::abs(double(value.center)-double(canonical[base+Groups-1u]));
     assert(bound::scalar::finite(value.error)&&difference<=double(value.error));++checkpoints;
     if(bound::certified(value)){assert(bound::scalar::bf16(value.center)==bound::scalar::bf16(canonical[base+Groups-1u]));++certificates;}
    }
   }
  }
- std::printf("{\"kind\":\"coarse_projection_bound_host\",\"groups_per_block\":%u,\"cases\":16384,\"native_error_modes\":3,\"original_prefix_checkpoints\":%zu,\"certified_prefixes\":%zu,\"undercoverage\":0,\"false_certificates\":0,\"native_matrix_executed\":false,\"hardware_error_bound_proven\":false}\n",Groups,checkpoints,certificates);
+ std::printf("{\"kind\":\"coarse_projection_bound_host\",\"native_error_bits\":%u,\"groups_per_block\":%u,\"cases\":16384,\"native_error_modes\":3,\"original_prefix_checkpoints\":%zu,\"certified_prefixes\":%zu,\"undercoverage\":0,\"false_certificates\":0,\"native_matrix_executed\":false,\"hardware_error_bound_proven\":false}\n",NativeErrorBits,Groups,checkpoints,certificates);
 }
 int main(){
  for(unsigned x=0u;x<65536u;++x){const unsigned exponent=(x>>7u)&255u;assert(bound::eligible(uint16_t(x))==(!(x&0x7fffu)||(exponent>=80u&&exponent<=174u)));}
@@ -69,4 +70,5 @@ int main(){
   assert(!bound::certified(bound::advance<4u>({0.0f,invalid},0.0f,0.0f)));
  }
  run<4u>();run<8u>();run<16u>();run<32u>();
+ run<4u,20u>();run<8u,20u>();run<16u,20u>();run<32u,20u>();
 }

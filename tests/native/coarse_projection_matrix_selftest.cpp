@@ -22,13 +22,13 @@ struct Device{
 template<class T>std::vector<T> read(Device& d,size_t n){std::vector<T> result(n+2u*guard);check(hipMemcpy(result.data(),d.pointer,result.size()*sizeof(T),hipMemcpyDeviceToHost));return result;}
 template<class T>void guards(const std::vector<T>& values){const auto* bytes=reinterpret_cast<const unsigned char*>(values.data());for(size_t i=0u;i<guard*sizeof(T);++i)require(bytes[i]==0xa5u&&bytes[(values.size()-guard)*sizeof(T)+i]==0xa5u,"coarse matrix guard");}
 void finish(){hipEvent_t event;check(hipEventCreate(&event));check(hipEventRecord(event));const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){const auto s=hipEventQuery(event);if(s==hipSuccess)break;if(s!=hipErrorNotReady)check(s);require(std::chrono::steady_clock::now()<deadline,"coarse matrix completion deadline");std::this_thread::yield();}check(hipEventDestroy(event));}
-template<unsigned Chunk,unsigned Fragments>
+template<unsigned Chunk,unsigned Fragments,unsigned NativeErrorBits=19u>
 void variant(unsigned rows,unsigned tokens,unsigned width,unsigned mode,Device& w,Device& x,Device& wf,Device& xf,
  Device& centers,Device& errors,Device& output,Device& indices,Device& counter,const std::vector<float>& canonical,
  const std::vector<uint16_t>& weights,const std::vector<uint16_t>& inputs,const std::vector<unsigned>& weight_ok,const std::vector<unsigned>& input_ok){
  const unsigned cells=rows*tokens;
  check(hipMemset(indices.pointer,0xa5,(size_t(cells)+2u*guard)*4u));check(hipMemset(counter.data<unsigned>(),0,4u));
- hipLaunchKernelGGL((matrix::produce<Chunk,Fragments>),dim3((rows+127u)/128u,(tokens+16u*Fragments-1u)/(16u*Fragments)),dim3(256u),0u,nullptr,w.data<uint16_t>(),x.data<uint16_t>(),wf.data<unsigned>(),xf.data<unsigned>(),centers.data<float>(),errors.data<float>(),rows,tokens,width);check(hipGetLastError());
+ hipLaunchKernelGGL((matrix::produce<Chunk,Fragments,false,NativeErrorBits>),dim3((rows+127u)/128u,(tokens+16u*Fragments-1u)/(16u*Fragments)),dim3(256u),0u,nullptr,w.data<uint16_t>(),x.data<uint16_t>(),wf.data<unsigned>(),xf.data<unsigned>(),centers.data<float>(),errors.data<float>(),rows,tokens,width);check(hipGetLastError());
  hipLaunchKernelGGL(matrix::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,centers.data<float>(),errors.data<float>(),output.data<float>(),indices.data<unsigned>(),counter.data<unsigned>(),cells);check(hipGetLastError());finish();
  const auto c=read<float>(centers,cells),e=read<float>(errors,cells),out=read<float>(output,cells);
  const auto ids=read<unsigned>(indices,cells),count=read<unsigned>(counter,1u);guards(c);guards(e);guards(out);guards(ids);guards(count);
@@ -47,8 +47,9 @@ void variant(unsigned rows,unsigned tokens,unsigned width,unsigned mode,Device& 
  }
  for(unsigned side=0u;side<2u;++side){const auto& expected=side?inputs:weights;const auto source=read<uint16_t>(side?x:w,expected.size());guards(source);require(!std::memcmp(source.data()+guard,expected.data(),expected.size()*2u),"coarse matrix input changed");
   const auto& flags=side?input_ok:weight_ok;const auto actual=read<unsigned>(side?xf:wf,flags.size());guards(actual);require(!std::memcmp(actual.data()+guard,flags.data(),flags.size()*4u),"coarse matrix eligibility changed");}
- std::printf("{\"kind\":\"coarse_projection_matrix_safety\",\"rows\":%u,\"tokens\":%u,\"width\":%u,\"mode\":%u,\"chunk\":%u,\"fragments\":%u,\"cells\":%u,\"candidates\":%u,\"unsupported_cells\":%u,\"independent_cpu_dots\":%u,\"canonical_interval_undercoverage\":0,\"false_certificates\":0,\"complete_candidate_permutation_checked\":true,\"unused_index_tail_pass\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"inference_acceptance\":false}\n",rows,tokens,width,mode,Chunk,Fragments,cells,selected,rejected,cells);std::fflush(stdout);
+ std::printf("{\"kind\":\"coarse_projection_matrix_safety\",\"native_error_bits\":%u,\"rows\":%u,\"tokens\":%u,\"width\":%u,\"mode\":%u,\"chunk\":%u,\"fragments\":%u,\"cells\":%u,\"candidates\":%u,\"unsupported_cells\":%u,\"independent_cpu_dots\":%u,\"canonical_interval_undercoverage\":0,\"false_certificates\":0,\"complete_candidate_permutation_checked\":true,\"unused_index_tail_pass\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"inference_acceptance\":false}\n",NativeErrorBits,rows,tokens,width,mode,Chunk,Fragments,cells,selected,rejected,cells);std::fflush(stdout);
 }
+template<unsigned NativeErrorBits=19u>
 void run(unsigned rows,unsigned tokens,unsigned width,unsigned mode){
  const unsigned cells=rows*tokens;std::vector<uint16_t> weights(size_t(rows)*width),inputs(size_t(tokens)*width);std::vector<unsigned> weight_ok(rows,1u),input_ok(tokens,1u);
  for(unsigned side=0u;side<2u;++side){auto& values=side?inputs:weights;auto& flags=side?input_ok:weight_ok;const unsigned n=side?tokens:rows;
@@ -65,11 +66,14 @@ void run(unsigned rows,unsigned tokens,unsigned width,unsigned mode){
  check(hipMemcpy(w.data<uint16_t>(),weights.data(),weights.size()*2u,hipMemcpyHostToDevice));check(hipMemcpy(x.data<uint16_t>(),inputs.data(),inputs.size()*2u,hipMemcpyHostToDevice));
  hipLaunchKernelGGL(matrix::eligibility,dim3(rows),dim3(256u),0u,nullptr,w.data<uint16_t>(),wf.data<unsigned>(),rows,width);check(hipGetLastError());
  hipLaunchKernelGGL(matrix::eligibility,dim3(tokens),dim3(256u),0u,nullptr,x.data<uint16_t>(),xf.data<unsigned>(),tokens,width);check(hipGetLastError());finish();
- variant<64u,1u>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
- variant<128u,1u>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
- variant<256u,1u>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
- variant<128u,2u>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
+ variant<64u,1u,NativeErrorBits>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
+ variant<128u,1u,NativeErrorBits>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
+ variant<256u,1u,NativeErrorBits>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
+ variant<128u,2u,NativeErrorBits>(rows,tokens,width,mode,w,x,wf,xf,centers,errors,output,indices,counter,canonical,weights,inputs,weight_ok,input_ok);
 }
 int main()try{hipDeviceProp_t p{};check(hipGetDeviceProperties(&p,0));require(!std::strncmp(p.gcnArchName,"gfx1151",7u),"requires gfx1151");
- for(unsigned mode=0u;mode<3u;++mode){run(19u,17u,16u,mode);run(65u,67u,64u,mode);run(31u,33u,80u,mode);run(129u,35u,272u,mode);run(65u,67u,512u,mode);run(33u,129u,4096u,mode);}return 0;
+ for(unsigned mode=0u;mode<3u;++mode){
+  run<19u>(19u,17u,16u,mode);run<19u>(65u,67u,64u,mode);run<19u>(31u,33u,80u,mode);run<19u>(129u,35u,272u,mode);run<19u>(65u,67u,512u,mode);run<19u>(33u,129u,4096u,mode);
+  run<20u>(19u,17u,16u,mode);run<20u>(65u,67u,64u,mode);run<20u>(31u,33u,80u,mode);run<20u>(129u,35u,272u,mode);run<20u>(65u,67u,512u,mode);run<20u>(33u,129u,4096u,mode);
+ }return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
