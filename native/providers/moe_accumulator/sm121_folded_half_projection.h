@@ -95,3 +95,4 @@ __device__ __forceinline__ float dot(const Row* left, const Row* right, unsigned
     if constexpr (Audit) if (!lane && stats) *stats = counts;
     return lane ? 0.0f : qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry));
 }
+} // namespace qrt_sm121_folded_half_projection
