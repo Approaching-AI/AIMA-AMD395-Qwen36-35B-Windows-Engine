@@ -1,5 +1,16 @@
 # Real-model performance
 
+## C64 finite-domain recurrence components, 2026-09-17
+
+Source `b99fb00` removes repeated exceptional checks within a proved finite
+input domain, preserving the identical original recurrence and all tested
+raw centers, intervals and replay work. Host sanitizers, 2097152 direct GPU
+states, 95 generated configurations and both complete captured operators
+pass. OUT improves from vector control93.8090 to87.3077ms, and C64 QKV from
+150.4241 to136.0386ms. Keep it isolated: these component gains do not close
+the TTFT gap or qualify a replacement for the retained QKV producer.
+See [domain argument and evidence](DOMAIN_COARSE_PROJECTION_EXPERIMENT.md).
+
 ## Shared-memory C64 projection components, 2026-09-17
 
 Source `2c020c1` preserves all tested raw centers, error intervals, candidate
