@@ -3,6 +3,7 @@ param(
     [Parameter(Mandatory = $false)][ValidateSet(4, 8, 16)][int]$HawkeyeReplayLanes = 16,
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
     [ValidateSet(0, 1)][int]$CompactNormalize = 0,
+    [ValidateSet('default', 'cu', 'wgp')][string]$GpuExecutionMode = 'default',
     [Parameter(Mandatory = $false)]
         [ValidateRange(1, 600)]
         [int]$CompileTimeoutSeconds = 300,
@@ -192,6 +193,10 @@ $providerArguments = @(
     "-Xlinker", $hostObject
 )
 if (-not $ProjectionSafetyTest -and -not $AttentionAdmissionReplay) { $providerArguments += '-shared' }
+$deviceModeArguments = @()
+if ($GpuExecutionMode -eq 'cu') { $deviceModeArguments = @('-Xarch_device', '-mcumode') }
+if ($GpuExecutionMode -eq 'wgp') { $deviceModeArguments = @('-Xarch_device', '-mno-cumode') }
+$providerArguments += $deviceModeArguments
 $providerRun = Invoke-BoundedProcess -FilePath $hipcc `
     -Arguments $providerArguments -WorkingDirectory $repo `
     -StdOutPath (Join-Path $OutDir "compile-provider.stdout.txt") `
@@ -215,6 +220,8 @@ $record = [ordered]@{
     dirty_tree = @(& git -C $repo status --porcelain).Count -ne 0
     command_file = $PSCommandPath
     offload_arch = $OffloadArch
+    gpu_execution_mode = $GpuExecutionMode
+    device_mode_arguments = $deviceModeArguments
     w8a8_group_size = $W8A8GroupSize
     q8192_weight_int8_scale_fp16 = ($W8A8ScaleFp16 -ne 0)
     compile_timeout_seconds = $CompileTimeoutSeconds

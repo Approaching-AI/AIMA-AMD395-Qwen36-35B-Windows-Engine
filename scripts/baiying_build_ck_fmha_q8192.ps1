@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory = $false)][string]$HipccPath = "",
     [Parameter(Mandatory = $false)][ValidateSet(0, 1)][int]$DppReduction = 0,
     [ValidateSet(0, 1)][int]$CompactNormalize = 0,
+    [ValidateSet('default', 'cu', 'wgp')][string]$GpuExecutionMode = 'default',
     [Parameter(Mandatory = $false)][switch]$Sm121InterpolatedExp2,
     [Parameter(Mandatory = $false)][int]$RunDirectSmoke = 0,
     [Parameter(Mandatory = $false)][string]$DirectSmokePath = "",
@@ -123,6 +124,10 @@ $arguments = @(
 )
 
 if ($Sm121InterpolatedExp2) { $arguments += "-DQRT_CK_SM121_INTERPOLATED_EXP2=1" }
+$deviceModeArguments = @()
+if ($GpuExecutionMode -eq 'cu') { $deviceModeArguments = @('-Xarch_device', '-mcumode') }
+if ($GpuExecutionMode -eq 'wgp') { $deviceModeArguments = @('-Xarch_device', '-mno-cumode') }
+$arguments += $deviceModeArguments
 & $HipccPath @arguments
 if ($LASTEXITCODE -ne 0) {
     throw "hipcc exited $LASTEXITCODE while building the q8192 CK-Tile provider"
@@ -244,6 +249,8 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
     bytes = $item.Length
     sha256 = $sha256
     offload_arch = $OffloadArch
+    gpu_execution_mode = $GpuExecutionMode
+    device_mode_arguments = $deviceModeArguments
     ck_root = (Resolve-Path -LiteralPath $CkRoot).Path
     ck_arch_type = $ckArchType
     ck_tile_n = 32

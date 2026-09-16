@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory = $false)][string]$BuildDir = "",
     [Parameter(Mandatory = $false)][string]$OutDir = "",
     [Parameter(Mandatory = $false)][string]$OffloadArch = "gfx1151",
+    [ValidateSet('default', 'cu', 'wgp')][string]$GpuExecutionMode = 'default',
     [Parameter(Mandatory = $false)][int]$Repetitions = 5,
     [Parameter(Mandatory = $false)][int]$BlockM = 64,
     [Parameter(Mandatory = $false)][int]$BlockN = 64,
@@ -1054,13 +1055,18 @@ if (-not (Test-Path -LiteralPath $hipblasLtImport -PathType Leaf)) {
 }
 $hipblasLtLink = Join-Path $BuildDir "hipblaslt.lib"
 Copy-Item -LiteralPath $hipblasLtImport -Destination $hipblasLtLink -Force
+$deviceModeArguments = @()
+if ($GpuExecutionMode -eq 'cu') { $deviceModeArguments = @('-Xarch_device', '-mcumode') }
+if ($GpuExecutionMode -eq 'wgp') { $deviceModeArguments = @('-Xarch_device', '-mno-cumode') }
 & $HipccPath -std=c++17 -O3 "--offload-arch=$OffloadArch" `
+    @deviceModeArguments `
     $variantDefines -I $rocmInclude -L $BuildDir -shared $providerSource -o $providerDll `
     -lhipblaslt
 if ($LASTEXITCODE -ne 0) {
     throw "hipcc exited $LASTEXITCODE while building the selected-MoE provider"
 }
 & $HipccPath -std=c++17 -O3 "--offload-arch=$OffloadArch" `
+    @deviceModeArguments `
     $smokeVariantDefines $smokeSource -o $smokeExe
 if ($LASTEXITCODE -ne 0) {
     throw "hipcc exited $LASTEXITCODE while building the selected-MoE smoke"
@@ -1296,6 +1302,8 @@ $record = [ordered]@{
         Get-FileHash -Algorithm SHA256 -LiteralPath $PSCommandPath
     ).Hash.ToLowerInvariant()
     offload_arch = $OffloadArch
+    gpu_execution_mode = $GpuExecutionMode
+    device_mode_arguments = $deviceModeArguments
     wsl_distribution = $WslDistribution
     triton_python = $TritonPython
     wsl_llvm_strip = $WslLlvmStrip

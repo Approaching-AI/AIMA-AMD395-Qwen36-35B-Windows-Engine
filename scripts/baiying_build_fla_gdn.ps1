@@ -6,6 +6,7 @@ param(
     [string]$AotDir = '',
     [ValidateSet(0, 1)][int]$DppReduction = 0,
     [ValidateSet(0, 1)][int]$CompactNormalize = 0,
+    [ValidateSet('default', 'cu', 'wgp')][string]$GpuExecutionMode = 'default',
     [ValidateSet('wmma','ieee')][string]$StateDot = 'wmma'
 )
 
@@ -133,6 +134,17 @@ $lines += 'if not "%errorlevel%"=="0" exit /b 27'
 $upstreamExe = Join-Path $OutDir 'fla-upstream-capture-replay.exe'
 $lines += "$(Quote-Arg $hipcc) -std=c++17 -O2 --offload-arch=gfx1151 -DQRT_SM121_DPP_REDUCTION=$DppReduction -DQRT_SM121_COMPACT_NORMALIZE=$CompactNormalize $(Quote-Arg $upstreamReplay) $(Quote-Arg $blackwellState) $(Quote-Arg $blackwellAux) $(Quote-Arg $blackwellCooperative) $(Quote-Arg $blackwellNorm) $(Quote-Arg $blackwellInverse) -o $(Quote-Arg $upstreamExe)"
 $lines += 'if not "%errorlevel%"=="0" exit /b 28'
+$deviceModeArguments = @()
+if ($GpuExecutionMode -eq 'cu') { $deviceModeArguments = @('-Xarch_device', '-mcumode') }
+if ($GpuExecutionMode -eq 'wgp') { $deviceModeArguments = @('-Xarch_device', '-mno-cumode') }
+if ($deviceModeArguments.Count) {
+    # Apply only to the HIP compilations. Reused Triton AOT stays unchanged.
+    $lines = @($lines | ForEach-Object {
+        if ($_.StartsWith((Quote-Arg $hipcc) + ' ')) {
+            $_ + ' ' + ($deviceModeArguments -join ' ')
+        } else { $_ }
+    })
+}
 [IO.File]::WriteAllText($batch, ($lines -join [Environment]::NewLine) + [Environment]::NewLine, $utf8)
 $stdout = Join-Path $OutDir 'build.stdout.log'
 $stderr = Join-Path $OutDir 'build.stderr.log'
@@ -174,6 +186,7 @@ $record = [ordered]@{
     dirty_tree=@(& git -C $repo status --porcelain).Count -ne 0
     command_file=$PSCommandPath; timeout_seconds=$TimeoutSeconds; wall_ms=$watch.Elapsed.TotalMilliseconds
     hipcc=$hipcc; wsl_distribution=$WslDistribution; triton_python=$TritonPython; precompiled_aot=$AotDir; state_dot=$StateDot
+    gpu_execution_mode=$GpuExecutionMode; device_mode_arguments=$deviceModeArguments
     native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
     sm121_dpp_reduction=($DppReduction -ne 0)
     sm121_compact_normalize=($CompactNormalize -ne 0)
