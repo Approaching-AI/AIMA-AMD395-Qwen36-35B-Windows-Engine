@@ -388,6 +388,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_partition_replay_suite.h"
 #include "projection_interval_audit_suite.h"
 #include "projection_producer_selection_suite.h"
+#include "projection_folded_half_replay_suite.h"
 #include "projection_real_replay.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "out_l1_magnitude_suite.h"

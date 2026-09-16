@@ -29,6 +29,8 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool transfer_replay = transfer_option && !std::strcmp(transfer_option,"1");
     const char* slab_bucket_option = std::getenv("QRT_PROJECTION_SAFETY_SLAB_BUCKET_REPLAY");
     const bool slab_bucket_replay = slab_bucket_option && !std::strcmp(slab_bucket_option,"1");
+    const char* folded_option = std::getenv("QRT_PROJECTION_SAFETY_FOLDED_HALF_REPLAY");
+    const bool folded_replay = folded_option && !std::strcmp(folded_option,"1");
     const char* resident_input_option = std::getenv("QRT_PROJECTION_SAFETY_RESIDENT_INPUT_REPLAY");
     const bool resident_input_replay = resident_input_option && !std::strcmp(resident_input_option,"1");
     const char* weight_bucket_option = std::getenv("QRT_PROJECTION_SAFETY_WEIGHT_BUCKET_REPLAY");
@@ -41,7 +43,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const char* staged_f32_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_HALF_F32_REPLAY");
     const bool staged_f32_replay = staged_f32_option && !std::strcmp(staged_f32_option,"1");
     require(!output_projection || (extend_q8192 && ppb == 10000u &&
-        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
+        ((cooperative && !std::strcmp(cooperative,"1")) || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
         "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
@@ -182,6 +184,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     if (dominant_replay) {
         run_dominant_half_replays(dw,di,dout,weights,inputs,reference,output,
             selected_indices,rows,tokens,k);
+        return;
+    }
+    if (folded_replay) {
+        run_folded_half_replays(dw,di,dout,weights,inputs,reference,output,selected_indices,rows,tokens,k);
         return;
     }
     if (resident_input_replay) {
