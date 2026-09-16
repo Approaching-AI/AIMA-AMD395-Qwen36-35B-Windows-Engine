@@ -34,6 +34,7 @@
 #include "routed_parallel_gate.h"
 #include "routed_consumer_audit.h"
 #include "down_consumer_audit.h"
+#include "down_consumer_filter.h"
 #include "expert_candidate_order.h"
 
 #if defined(_WIN32)
@@ -1747,6 +1748,8 @@ struct MoeCorrectionBounds {
     uint32_t partition_capacity = 0u;
     uint32_t *consumer_interval_audit = nullptr;
     uint32_t *down_consumer_audit = nullptr;
+    const uint8_t *down_consumer_filter = nullptr;
+    uint32_t *down_consumer_filter_stats = nullptr;
 };
 
 template<uint32_t ProjectionRows, uint32_t InputDivisor, uint32_t WeightRows, uint32_t WeightOffset>
@@ -11419,6 +11422,7 @@ void routed_down_batched_hawkeye_correction_kernel(
     __shared__ uint32_t candidate_indices[kNativeThreads];
     if constexpr (Phase == MoeCorrectionPhase::Local ||
                   Phase == MoeCorrectionPhase::Collect) {
+        unsigned filter_selected = 0u, filter_skipped = 0u;
         if (threadIdx.x == 0u) {
             candidate_count = 0u;
         }
@@ -11445,10 +11449,17 @@ void routed_down_batched_hawkeye_correction_kernel(
                 moe_l2_candidate(contribution, bounds, route,
                     static_cast<uint32_t>(topk_ids[route]) * kHidden + index % kHidden,
                     topk_weights[route])) {
-                const uint32_t slot = atomicAdd(&candidate_count, 1u);
-                candidate_indices[slot] = static_cast<uint32_t>(index);
+                filter_selected = 1u;
+                filter_skipped = bounds.down_consumer_filter &&
+                    qrt_moe_down_consumer_filter::omitted(bounds.down_consumer_filter, static_cast<uint32_t>(index));
+                if (!filter_skipped) {
+                    const uint32_t slot = atomicAdd(&candidate_count, 1u);
+                    candidate_indices[slot] = static_cast<uint32_t>(index);
+                }
             }
         }
+        if (bounds.down_consumer_filter_stats)
+            qrt_moe_down_consumer_filter::collected(bounds.down_consumer_filter_stats, filter_selected, filter_skipped);
         __syncthreads();
 
     }
@@ -11472,6 +11483,7 @@ void routed_down_batched_hawkeye_correction_kernel(
 
     if constexpr (Phase == MoeCorrectionPhase::Local ||
                   Phase == MoeCorrectionPhase::Replay) {
+        unsigned filter_replayed = 0u;
         const uint32_t subgroup = threadIdx.x / kReplayLanes;
         const uint32_t lane = threadIdx.x & (kReplayLanes - 1u);
         const uint32_t replay_count = Phase == MoeCorrectionPhase::Replay
@@ -11499,8 +11511,11 @@ void routed_down_batched_hawkeye_correction_kernel(
                         __fmul_rn(weight, exact), error, bounds.down_consumer_audit);
                 }
                 route_outputs[candidate] = exact;
+                ++filter_replayed;
             }
         }
+        if (bounds.down_consumer_filter_stats)
+            qrt_moe_down_consumer_filter::replayed(bounds.down_consumer_filter_stats, filter_replayed);
 
     }
 }
@@ -12570,7 +12585,8 @@ template<bool NeedsFinalize, typename Kernel, typename... Args>
 hipError_t launch_moe_routed_correction(
     Kernel local, Kernel collect, Kernel replay, Kernel finalize,
     uint32_t blocks, hipStream_t stream, MoeL2 input, MoeL2 weights,
-    uint32_t* down_consumer_audit, Args... arguments
+    uint32_t* down_consumer_audit, const uint8_t* down_consumer_filter,
+    uint32_t* down_consumer_filter_stats, Args... arguments
 ) {
     const char* audit_setting = std::getenv("QRT_QWEN36_MOE_CONSUMER_INTERVAL_AUDIT");
     if (audit_setting && *audit_setting && std::strcmp(audit_setting, "0") && std::strcmp(audit_setting, "1"))
@@ -12594,7 +12610,9 @@ hipError_t launch_moe_routed_correction(
     }
     const bool gate_up_order = input == MoeL2::Input && weights == MoeL2::RoutedGateUp;
     const bool down_order = input == MoeL2::RoutedActivated && weights == MoeL2::RoutedDown;
-    if (down_consumer_audit && !down_order) return hipErrorInvalidValue;
+    if ((down_consumer_audit || down_consumer_filter || down_consumer_filter_stats) && !down_order) return hipErrorInvalidValue;
+    if (bool(down_consumer_filter) != bool(down_consumer_filter_stats) ||
+        (down_consumer_audit && down_consumer_filter)) return hipErrorInvalidValue;
     if (g_state.moe_expert_order_active &&
         (!g_state.moe_expert_order_storage || !g_state.topk_ids || g_state.partition_replay ||
          (!gate_up_order && !down_order))) return hipErrorInvalidValue;
@@ -12612,6 +12630,8 @@ hipError_t launch_moe_routed_correction(
         };
         bounds.consumer_interval_audit = audit.data();
         bounds.down_consumer_audit = down_consumer_audit;
+        bounds.down_consumer_filter = down_consumer_filter;
+        bounds.down_consumer_filter_stats = down_consumer_filter_stats;
         bounds.float_replay = g_state.float_replay_active;
         if ((g_state.prepared_replay_active || g_state.prevalidated_float_active) &&
             ((input == MoeL2::Input && weights == MoeL2::RoutedGateUp) ||
@@ -13866,7 +13886,9 @@ bool launch_routed_matrices_after_input_conversion(
     hipEvent_t gate_done = nullptr,
     hipEvent_t tail_done = nullptr,
     const RoutedProfileEvents *routed_profile = nullptr,
-    qrt_moe_down_consumer_audit::Owner* down_audit = nullptr
+    qrt_moe_down_consumer_audit::Owner* down_audit = nullptr,
+    qrt_moe_down_consumer_filter::Owner* down_filter = nullptr,
+    hipEvent_t shared_done = nullptr
 ) {
     struct PreparedReplayScope {
         explicit PreparedReplayScope(uint32_t tokens) {
@@ -14565,7 +14587,7 @@ bool launch_routed_matrices_after_input_conversion(
             routed_gate_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Collect>,
             routed_gate_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Replay>,
             routed_gate_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Local>,
-            correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr,
+            correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr, nullptr, nullptr,
             g_state.route_outputs,
             g_state.input_bf16,
             gate_up_bf16,
@@ -14592,7 +14614,7 @@ bool launch_routed_matrices_after_input_conversion(
                 routed_up_batched_hawkeye_correction_activation_kernel<MoeCorrectionPhase::Collect>,
                 routed_up_batched_hawkeye_correction_activation_kernel<MoeCorrectionPhase::Replay>,
                 routed_up_batched_hawkeye_correction_activation_kernel<MoeCorrectionPhase::Finalize>,
-                correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr,
+                correction_blocks, stream, MoeL2::Input, MoeL2::RoutedGateUp, nullptr, nullptr, nullptr,
                 g_state.route_outputs,
                 g_state.input_bf16,
                 gate_up_bf16,
@@ -15020,13 +15042,25 @@ bool launch_routed_matrices_after_input_conversion(
                 g_state.routed_down_hawkeye_low_exponent_threshold);
             if (status != hipSuccess) { set_error("MoE down consumer snapshot", status); return false; }
         }
+        if (down_filter) {
+            status = down_filter->prepare(g_state.route_outputs, g_state.topk_weights, g_state.topk_ids,
+                g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedActivated)],
+                g_state.moe_l2[static_cast<size_t>(MoeL2::RoutedDown)],
+                static_cast<float>(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
+                g_state.routed_down_contribution_hawkeye_midpoint_radius,
+                g_state.routed_down_hawkeye_low_exponent_threshold,
+                g_state.shared_down_projection, g_state.shared_gate_scales, shared_done);
+            if (status != hipSuccess) { set_error("MoE down consumer filter", status); return false; }
+        }
         const hipError_t correction_status = launch_moe_routed_correction<false>(
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Local>,
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Collect>,
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Replay>,
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Local>,
             correction_blocks, stream, MoeL2::RoutedActivated, MoeL2::RoutedDown,
-            down_audit ? down_audit->data() : nullptr, g_state.route_outputs,
+            down_audit ? down_audit->data() : nullptr,
+            down_filter ? down_filter->data() : nullptr, down_filter ? down_filter->stats() : nullptr,
+            g_state.route_outputs,
             g_state.topk_weights,
             g_state.topk_ids,
             g_state.activated,
@@ -16470,6 +16504,17 @@ int launch_full_v3_impl(
     if (down_audit_status != hipSuccess) {
         set_error("MoE down consumer audit initialization", down_audit_status); return 0;
     }
+    const char* down_filter_setting = std::getenv("QRT_QWEN36_MOE_DOWN_CONSUMER_FILTER");
+    if (down_filter_setting && *down_filter_setting && std::strcmp(down_filter_setting, "0") && std::strcmp(down_filter_setting, "1")) {
+        set_error_text("invalid MoE down consumer filter setting"); return 0;
+    }
+    const bool down_filter_enabled = down_filter_setting && !std::strcmp(down_filter_setting, "1") && logical_tokens == 8192u;
+    qrt_moe_down_consumer_filter::Owner down_filter(stream);
+    const auto down_filter_status = down_filter.initialize(down_filter_enabled,
+        down_audit_compatible && !down_audit_enabled && !g_state.partition_replay);
+    if (down_filter_status != hipSuccess) {
+        set_error("MoE down consumer filter initialization", down_filter_status); return 0;
+    }
 
     const bool full_shared_hawkeye =
 #if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
@@ -16600,7 +16645,9 @@ int launch_full_v3_impl(
             nullptr,
 #endif
             profile_routed_detail ? &slot->routed_detail : nullptr,
-            down_audit_enabled ? &down_audit : nullptr
+            down_audit_enabled ? &down_audit : nullptr,
+            down_filter_enabled ? &down_filter : nullptr,
+            down_filter_enabled ? slot->shared_done : nullptr
         )) {
         drain_full_v3_streams(stream);
         return 0;
@@ -16652,6 +16699,11 @@ int launch_full_v3_impl(
         g_state.shared_down_projection, g_state.shared_gate_scales, output_f32);
     if (status != hipSuccess) {
         set_error("MoE down consumer audit completion", status);
+        drain_full_v3_streams(stream); return 0;
+    }
+    status = down_filter.finish();
+    if (status != hipSuccess) {
+        set_error("MoE down consumer filter completion", status);
         drain_full_v3_streams(stream); return 0;
     }
     status = hipEventRecord(slot->caller_done, stream);
