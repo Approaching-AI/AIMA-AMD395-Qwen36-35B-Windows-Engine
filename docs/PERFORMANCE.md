@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Exact native EXP correction components, 2026-09-17
+
+Sources `4fca895` / `d89c260` verify all328728576 exp2 inputs twice and all
+120 generated probability cases. An input-indexed two-bit correction uses
+the actual gfx1151 EXP instruction; unencodable inputs retain the original
+table. Complete captured q8192 attention is786.5368 /745.8377ms original/new,
+or790.2496 /757.1356ms including preparation. Every original raw output and
+all29364224 available GB10 context cells match; q8192 repeats1023 source rows
+and supplies no new model token loop. Keep the representation isolated: its
+measured scope cannot resolve the TTFT gap. See [implementation and evidence](NATIVE_EXP2_DELTA_EXPERIMENT.md).
+
 ## Actual MoE down consumer filter, 2026-09-17
 
 Sources `0cfe413` / `d852ff7` pass the complete same-DLL q8192/out512 GB10
