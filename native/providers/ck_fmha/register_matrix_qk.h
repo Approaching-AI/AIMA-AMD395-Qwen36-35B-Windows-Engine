@@ -95,7 +95,7 @@ __global__ void scores(const Row* query, const Row* key, float* output,
             for (unsigned item = 0u; item < per_thread; ++item) if (positions[item] != cells) {
                 const unsigned slot = positions[item], cell = threadIdx.x + item * kThreads;
                 // Cell IDs use fewer than31 bits. Store the sign with that ID,
-                // preserving all32 significand and exponent bits independently.
+                // preserving every original significand and exponent bit.
                 scratch[0][slot] = int32_t(cell | (carries[item].negative ? 0x80000000u : 0u));
                 scratch[1][slot] = int32_t(carries[item].significand);
                 scratch[2][slot] = carries[item].exponent;
@@ -104,7 +104,7 @@ __global__ void scores(const Row* query, const Row* key, float* output,
             for (unsigned offset = lane; offset < queued; offset += 32u) {
                 const unsigned slot = wave * queue_capacity + offset;
                 const uint32_t tagged = uint32_t(scratch[0][slot]), cell = tagged & 0x7fffffffu;
-                const Value carry{uint32_t(scratch[1][slot]), scratch[2][slot], bool(tagged >> 31u)};
+                const Value carry{uint32_t(scratch[1][slot]), int16_t(scratch[2][slot]), bool(tagged >> 31u)};
                 const auto value = qrt_matrix_wave_queue_qk::fallback(carry, left[cell / Columns], right[cell % Columns]);
                 scratch[0][slot] = int32_t(cell | (value.negative ? 0x80000000u : 0u));
                 scratch[1][slot] = int32_t(value.significand);
@@ -114,7 +114,7 @@ __global__ void scores(const Row* query, const Row* key, float* output,
 #pragma unroll
             for (unsigned item = 0u; item < per_thread; ++item) if (positions[item] != cells) {
                 const unsigned slot = positions[item];
-                carries[item] = {uint32_t(scratch[1][slot]), scratch[2][slot],
+                carries[item] = {uint32_t(scratch[1][slot]), int16_t(scratch[2][slot]),
                     bool(uint32_t(scratch[0][slot]) >> 31u)};
             }
         }
