@@ -399,14 +399,15 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "convolution_real_replay.h"
 #include "final_norm_real_replay.h"
 #include "hawkeye_device_replay_selftest.h"
+#include "out_variance_replay_suite.h"
 
 int main(int argc, char **argv) {
     using namespace projection_safety_test;
     try {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
-        require(argc == ((mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv, --real-qkv-q8192 or --real-out-q8192 INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
-        require(mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--staged-device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
+        require(argc == (mode == "--out-variance-replay" ? 3 : (mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv, --real-qkv-q8192 or --real-out-q8192 INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
+        require(mode == "--out-variance-replay" || mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--staged-device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
         host_contract();
         unsigned int cases = 0u;
         if (mode != "--host-only") {
@@ -443,6 +444,9 @@ int main(int argc, char **argv) {
                     run_staging_case(shape.first, shape.second);
                     ++cases;
                 }
+            } else if (mode == "--out-variance-replay") {
+                run_out_variance_safety(argv[2]);
+                cases = 63u;
             } else if (mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192") {
                 const auto ppb = std::stoul(argv[5]);
                 require(ppb > 0u && ppb <= 1000000u, "invalid real projection selector bound");
@@ -477,7 +481,7 @@ int main(int argc, char **argv) {
         std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"" << mode
                   << "\",\"gpu_cases\":" << cases
                   << ",\"inference_success_claimed\":false,\"numerical_scope\":\""
-                  << (mode == "--matrix-producers-q8192" ? "full_q8192_bf16_endpoint_producer_comparison_with_raw_f32_diagnostics" : mode == "--wmma-staging" ? "synthetic_full_f32_staging_vs_original_wmma" : mode == "--real-out-q8192" ? "real_bf16_full_attention_out_projection" : (mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192") ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
+                  << (mode == "--out-variance-replay" ? "synthetic_original_k16_replay_and_complete_residual_normalization_consumer" : mode == "--matrix-producers-q8192" ? "full_q8192_bf16_endpoint_producer_comparison_with_raw_f32_diagnostics" : mode == "--wmma-staging" ? "synthetic_full_f32_staging_vs_original_wmma" : mode == "--real-out-q8192" ? "real_bf16_full_attention_out_projection" : (mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192") ? "real_bf16_qkv_projection" : mode == "--real-conv" ? "real_bf16_convolution" : mode == "--real-finalnorm" ? "real_final_norm_bf16_endpoint" : "synthetic_bf16_projection_endpoint") << "\"}" << std::endl;
         return 0;
     } catch (const std::exception &error) {
         std::cerr << "projection_safety_failure: " << error.what() << std::endl;

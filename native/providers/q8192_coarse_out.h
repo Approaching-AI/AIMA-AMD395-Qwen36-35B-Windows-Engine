@@ -33,6 +33,8 @@ inline bool linear_options_compatible() {
         "QRT_QWEN36_Q8192_OUT_L1_SHADOW_AUDIT",
         "QRT_QWEN36_Q8192_OUT_L1_BOUND",
         "QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER",
+        "QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY",
+        "QRT_QWEN36_Q8192_OUT_VARIANCE_BUDGET_AUDIT",
         "QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT"})
         if(setting(std::getenv(name))!=0)return false;
     return true;

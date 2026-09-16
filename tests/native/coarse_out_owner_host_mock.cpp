@@ -105,7 +105,7 @@ int main(){
  for(unsigned i=0u;i<5u;++i){unsigned p[]={2048u,8192u,4096u,512u,1000u};--p[i];assert(!qrt_coarse_out::linear_applicable(p[0],p[1],p[2],p[3],p[4],true,true,false));}
  for(unsigned n:{0u,1u,7169u,8191u,8193u,16384u,262144u})
   assert(!qrt_coarse_out::linear_applicable(2048u,n,4096u,512u,1000u,true,true,false));
- const char* options[]={"QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_BOUND","QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER","QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT"};
+ const char* options[]={"QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_SHADOW_AUDIT","QRT_QWEN36_Q8192_OUT_L1_BOUND","QRT_QWEN36_Q8192_OUT_RESIDUAL_FILTER","QRT_QWEN36_Q8192_OUT_CONSUMER_AUDIT","QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY","QRT_QWEN36_Q8192_OUT_VARIANCE_BUDGET_AUDIT"};
  for(const char* name:options)unsetenv(name);
  assert(qrt_coarse_out::linear_options_compatible());
  for(const char* name:options){

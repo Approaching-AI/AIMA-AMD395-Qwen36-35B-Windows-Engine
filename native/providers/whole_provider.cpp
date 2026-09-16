@@ -84223,6 +84223,7 @@ bool preload_whole_repeated_layer_fixed_weights(
 #define hipMalloc qrt_descriptor_device_malloc
 
 #include "q8192_coarse_out.h"
+#include "q8192_out_variance_replay.h"
 
 void destroy_event(hipEvent_t event) {
     if (event != nullptr) {
@@ -116905,6 +116906,13 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
         run->failure = "QRT_QWEN36_COARSE_LINEAR_OUT_PRODUCER requires 0 or 1";
         return false;
     }
+    const int variance_linear_out_setting = qrt_out_variance_replay::setting(
+        std::getenv("QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY"));
+    if (variance_linear_out_setting < 0) {
+        run->failure_stage = prefix + "_variance_linear_out_setting";
+        run->failure = "QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY requires 0 or 1";
+        return false;
+    }
     const bool whole_repeated_layer_provider =
         qwen36_whole_repeated_layer_provider_enabled(
             descriptor.layer_index,
@@ -122968,7 +122976,39 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                     use_exact_arbitrary_early_out_hawkeye,
                     use_bf16_pointwise_fusion || use_q65536_vllm_bf16_residual_norm,
                     materialize_host_diagnostics);
-            if (coarse_linear_out) {
+            const bool variance_linear_out = variance_linear_out_setting &&
+                qrt_out_variance_replay::applicable(kOutProjectionRows,
+                    target_token_count, kValueFeatures,
+                    exact_arbitrary_early_out_hawkeye_midpoint_radius,
+                    exact_arbitrary_early_out_hawkeye_absolute_error_bound_ppb,
+                    use_exact_arbitrary_early_out_hawkeye,
+                    use_bf16_pointwise_fusion && use_q65536_vllm_bf16_residual_norm,
+                    materialize_host_diagnostics);
+            if (variance_linear_out) {
+                if (exact_arbitrary_repeated_heuristic_sweep ||
+                    exact_arbitrary_early_bf16_out_heuristic_sweep ||
+                    exact_arbitrary_early_out_hawkeye_terminal_diagnostic ||
+                    exact_arbitrary_early_out_hawkeye_trace_terminal ||
+                    exact_arbitrary_early_out_hawkeye_stop_after_correction_layer != UINT_MAX ||
+                    !qrt_out_variance_replay::options_compatible()) {
+                    run->failure_stage = prefix + "_variance_linear_out_conflict";
+                    run->failure = "variance linear OUT requires algorithm0 and original diagnostic/filter options disabled";
+                    goto cleanup;
+                }
+                qrt_out_variance_replay::Stats stats;
+                const hipError_t status = qrt_out_variance_replay::run(
+                    device_out_weight, device_gated_bf16, device_previous,
+                    device_post_norm_weight, device_gfx1151_sm121_rsqrt_correction,
+                    device_out_bf16, device_out, 0, &stats);
+                std::fprintf(stderr,"BATCH_MARK variance_linear_out_projection layer=%u tokens=%u rows=%u k=%u radius=512 ppb=1000 selected=%llu first_replay=%llu additional_replay=%llu skipped=%llu rounds=%llu fallback_rows=%llu certified_rows=%llu observed_boundary_failures=%llu workspace_bytes=%zu completed_ms=%.6f original_k16=1 full_residual_norm_certificate=1 bounded_rounds=18 rounded_f32_carrier=1 completed=%u\n",
+                    descriptor.layer_index,target_token_count,kOutProjectionRows,kValueFeatures,
+                    (unsigned long long)stats.selected,(unsigned long long)stats.first,
+                    (unsigned long long)stats.additional,(unsigned long long)stats.skipped,
+                    (unsigned long long)stats.rounds,(unsigned long long)stats.fallback_rows,
+                    (unsigned long long)stats.certified_rows,(unsigned long long)stats.boundary_failures,
+                    qrt_out_variance_replay::workspace_bytes,stats.completed_ms,status==hipSuccess?1u:0u);
+                if (!fail_hip(status,prefix+"_variance_linear_out_"+stats.operation))goto cleanup;
+            } else if (coarse_linear_out) {
                 if (exact_arbitrary_repeated_heuristic_sweep ||
                     exact_arbitrary_early_bf16_out_heuristic_sweep ||
                     exact_arbitrary_early_out_hawkeye_terminal_diagnostic ||
