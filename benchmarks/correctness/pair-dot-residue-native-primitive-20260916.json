@@ -1,0 +1,427 @@
+{
+  "schema_version": 1,
+  "kind": "native_fp16_dot2_with_exact_iu8_residue_characterization",
+  "host": "baiying",
+  "model": "none; generated BF16-significand integer cores",
+  "model_loaded": false,
+  "source": {
+    "canonical_source_record": "pair-dot-residue-native-source-r1.json",
+    "canonical_source_record_sha256": "c08ec990bfb66d3c672b99cf29d1ddbb412455249f1bf3e61d7ab6a822069dcb",
+    "documentation_snapshot_differences": {},
+    "source_commit": "6a158f505da5654d62230902f9626247a273c2bb",
+    "repo": "D:/projects/AIMA-public-pair-dot-residue-20260916",
+    "seed": "D:/projects/AIMA-public-staged-device-20260916",
+    "prerequisite_commit": "90e9e0b862d9cc6d8213c07832d59bc5b1d911fb",
+    "bundle": "pair-dot-residue-6a158f5.bundle",
+    "bundle_sha256": "23112aa4e6caacf34d93ae4e5bba3c0ee62e8ef027f604297d9aa81badd356d7",
+    "script": "run-native-pair-dot-residue-r1.ps1",
+    "script_sha256": "724c25fa060fea8792ab771c2d95ca3927e6d987d3df5b6b5b4959eccae2c265",
+    "source_sha256": {
+      "native/providers/moe_accumulator/sm121_pair_residue.h": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+      "tests/native/pair_dot_residue_selftest.cpp": "5c9138b8cff950636fe7f1e1e34f8e8e309c8659c4edbb1875767307b8a2d73e",
+      "tests/native/pair_residue_host.cpp": "1a78609bd4934622fc7d5e60c9d39caa136da719c77e00397c11c38bb31c0f27",
+      "tests/test_pair_residue.py": "0818dc757847b392c98fcfe1b2f529affcea99980d951cea871fdb3d1cc96540"
+    },
+    "local_validation": {
+      "commands": [
+        {
+          "command": [
+            "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_pair_residue.py",
+            "-v"
+          ],
+          "returncode": 0
+        },
+        {
+          "command": [
+            "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+            "tools/public_hygiene.py",
+            "."
+          ],
+          "returncode": 0
+        },
+        {
+          "command": [
+            "git",
+            "diff",
+            "--check"
+          ],
+          "returncode": 0
+        }
+      ],
+      "returncode": 0,
+      "wall_seconds": 8.219420332461596,
+      "source_sha256": {
+        "native/providers/moe_accumulator/sm121_pair_residue.h": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+        "tests/native/pair_dot_residue_selftest.cpp": "5c9138b8cff950636fe7f1e1e34f8e8e309c8659c4edbb1875767307b8a2d73e",
+        "tests/native/pair_residue_host.cpp": "1a78609bd4934622fc7d5e60c9d39caa136da719c77e00397c11c38bb31c0f27",
+        "tests/test_pair_residue.py": "0818dc757847b392c98fcfe1b2f529affcea99980d951cea871fdb3d1cc96540"
+      },
+      "log": "pair-dot-residue-local-r1.log",
+      "log_sha256": "f4f5cfe32dff29b97abeb47341a8a04f2137097addef29b7084673e57ac564f8",
+      "unchanged_production_source_sha256": "dcd4b67aa53b5a80fbab2da5b25e5ec5a0436c40dba5201c6ea270d5fe5ffa18",
+      "product_dispatch_changed": false,
+      "full_suite_scope": "The existing staged-device full check passed54 Rust and458 Python before this isolated header/test addition. This change adds a focused sanitizer test and passes hygiene; no new full-suite result is claimed."
+    }
+  },
+  "local_validation": {
+    "commands": [
+      {
+        "command": [
+          "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-p",
+          "test_pair_residue.py",
+          "-v"
+        ],
+        "returncode": 0
+      },
+      {
+        "command": [
+          "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+          "tools/public_hygiene.py",
+          "."
+        ],
+        "returncode": 0
+      },
+      {
+        "command": [
+          "git",
+          "diff",
+          "--check"
+        ],
+        "returncode": 0
+      }
+    ],
+    "returncode": 0,
+    "wall_seconds": 8.219420332461596,
+    "source_sha256": {
+      "native/providers/moe_accumulator/sm121_pair_residue.h": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+      "tests/native/pair_dot_residue_selftest.cpp": "5c9138b8cff950636fe7f1e1e34f8e8e309c8659c4edbb1875767307b8a2d73e",
+      "tests/native/pair_residue_host.cpp": "1a78609bd4934622fc7d5e60c9d39caa136da719c77e00397c11c38bb31c0f27",
+      "tests/test_pair_residue.py": "0818dc757847b392c98fcfe1b2f529affcea99980d951cea871fdb3d1cc96540"
+    },
+    "log": "pair-dot-residue-local-r1.log",
+    "log_sha256": "f4f5cfe32dff29b97abeb47341a8a04f2137097addef29b7084673e57ac564f8",
+    "unchanged_production_source_sha256": "dcd4b67aa53b5a80fbab2da5b25e5ec5a0436c40dba5201c6ea270d5fe5ffa18",
+    "product_dispatch_changed": false,
+    "full_suite_scope": "The existing staged-device full check passed54 Rust and458 Python before this isolated header/test addition. This change adds a focused sanitizer test and passes hygiene; no new full-suite result is claimed."
+  },
+  "native_runs": {
+    "build": {
+      "name": "pair-dot-residue-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\tests\\native\\pair_dot_residue_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\build\\pair-dot-residue\\pair-dot-residue.exe"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-pair-dot-residue-20260916",
+        "repo_commit": "6a158f505da5654d62230902f9626247a273c2bb",
+        "command_file": "D:\\projects\\run-native-pair-dot-residue-r1.ps1",
+        "command_file_sha256": "724c25fa060fea8792ab771c2d95ca3927e6d987d3df5b6b5b4959eccae2c265",
+        "model": "none; generated BF16-significand integer pairs and exact residues",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Characterize native FP16 DOT2 and IU8 residue recovery on four deterministic million-pair families. Signed core values are exact FP16 BF16-significands shifted0..7, magnitude<=32640. Compare every accepted recovered integer to independent signed CPU products and all nine per-product truncation shifts0..8; report ambiguous rejections and actual estimate error. Two complete launches must agree, immutable inputs and guards must pass. This finite primitive diagnostic does not prove a universal hardware error bound, run the model or change product dispatch."
+      },
+      "launch": {
+        "pid": 6976,
+        "utc": "2026-09-16T06:26:54.8865412Z",
+        "timeout_seconds": 150,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 1493.141,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "75e6b2c26ec6c44c9c3a3c96a043dad9dcbf0ae6070652bbc98dedc11db9f939",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "9740ebcc1fcaf262e2a5e79fa231e8df5378b3ce31f1497f971fcb8d9ba831e9",
+        "dispatch.json": "e4d6849086d9810be9bbab806eb253c1a43ef42f38bd7be5c9a527b1aa4c5d93",
+        "launch.json": "0246487799e8f6af60f7f5d9ba5671b890c75c87e9458a907b6776dfb2e40dbd",
+        "preflight.json": "5b0799b89dd7dcdf7283c997c7278349e1010b6195790154832ecb756d6bc887",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "run-record.json": "47c506b214dabea1274fc8a5f893b4c61e0f85e3011cc399acd464d734245f17",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "host": "BAIYING",
+        "repo_commit": "6a158f505da5654d62230902f9626247a273c2bb",
+        "source_inputs": [
+          {
+            "sha256": "5c9138b8cff950636fe7f1e1e34f8e8e309c8659c4edbb1875767307b8a2d73e",
+            "file": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\tests\\native\\pair_dot_residue_selftest.cpp"
+          },
+          {
+            "sha256": "c74a5efecd22a0531928a45a5009706df11db1721654d1583468501b07d0e93b",
+            "file": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\native\\providers\\moe_accumulator\\sm121_pair_residue.h"
+          }
+        ],
+        "command_file": "D:\\projects\\run-native-pair-dot-residue-r1.ps1",
+        "command_file_sha256": "724c25fa060fea8792ab771c2d95ca3927e6d987d3df5b6b5b4959eccae2c265",
+        "compiler": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "arguments": [
+          "-std=c++17",
+          "-O3",
+          "--offload-arch=gfx1151",
+          "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\tests\\native\\pair_dot_residue_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\build\\pair-dot-residue\\pair-dot-residue.exe"
+        ],
+        "run_record_sha256": "47c506b214dabea1274fc8a5f893b4c61e0f85e3011cc399acd464d734245f17",
+        "executable": {
+          "sha256": "9bb478eebf2cae262ff4aef75137b1457f3c24742646150d7a7e69635b735889",
+          "file": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\build\\pair-dot-residue\\pair-dot-residue.exe",
+          "bytes": 174592
+        }
+      }
+    },
+    "test": {
+      "name": "pair-dot-residue-test-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-pair-dot-residue-20260916\\build\\pair-dot-residue\\pair-dot-residue.exe",
+        "arguments": [],
+        "working_directory": "D:\\projects\\AIMA-public-pair-dot-residue-20260916",
+        "repo_commit": "6a158f505da5654d62230902f9626247a273c2bb",
+        "command_file": "D:\\projects\\run-native-pair-dot-residue-r1.ps1",
+        "command_file_sha256": "724c25fa060fea8792ab771c2d95ca3927e6d987d3df5b6b5b4959eccae2c265",
+        "model": "none; generated BF16-significand integer pairs and exact residues",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "product_dispatch_changed": false,
+        "purpose": "Characterize native FP16 DOT2 and IU8 residue recovery on four deterministic million-pair families. Signed core values are exact FP16 BF16-significands shifted0..7, magnitude<=32640. Compare every accepted recovered integer to independent signed CPU products and all nine per-product truncation shifts0..8; report ambiguous rejections and actual estimate error. Two complete launches must agree, immutable inputs and guards must pass. This finite primitive diagnostic does not prove a universal hardware error bound, run the model or change product dispatch.",
+        "build_provenance_sha256": "9740ebcc1fcaf262e2a5e79fa231e8df5378b3ce31f1497f971fcb8d9ba831e9"
+      },
+      "launch": {
+        "pid": 12128,
+        "utc": "2026-09-16T06:27:50.3592685Z",
+        "timeout_seconds": 120,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 580.878,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "9bb478eebf2cae262ff4aef75137b1457f3c24742646150d7a7e69635b735889",
+      "canonical_raw_sha256": {
+        "dispatch.json": "9811ba568e206b4bafedc103905b23c15423a527efe612e1dc4e4835ca127b9f",
+        "launch.json": "69f0ac9377178c62ea844d34d2a2f9b6fc66771f36ba17985445d29b3b646eab",
+        "preflight.json": "179c11c08dce395922e893aae8172d9052e43042a75d4245215c18dd55aa6af5",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "448126432f45ace71b02bf52f346bde2deed83235f35ac70d049a6ccd3312085",
+        "reports.json": "e6c061657ebd47b0bb77c6e6012140cb5179d4da3e74549a228ad6ca7774d13a",
+        "run-record.json": "b39a5ff1dd862e6f230bc153125c6e0454012daaff4f37ca2408d4ebfd48f3e1"
+      },
+      "reports": [
+        {
+          "kind": "pair_dot2_integer_residue",
+          "family": 0,
+          "pairs": 1048576,
+          "accepted": 1048576,
+          "rejected_ambiguous": 0,
+          "maximum_observed_absolute_error": 64,
+          "integer_mismatches": 0,
+          "alignment_shifts_checked": 9,
+          "repeat_bit_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "pair_dot2_integer_residue",
+          "family": 1,
+          "pairs": 1048576,
+          "accepted": 1048576,
+          "rejected_ambiguous": 0,
+          "maximum_observed_absolute_error": 16,
+          "integer_mismatches": 0,
+          "alignment_shifts_checked": 9,
+          "repeat_bit_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "pair_dot2_integer_residue",
+          "family": 2,
+          "pairs": 1048576,
+          "accepted": 1048576,
+          "rejected_ambiguous": 0,
+          "maximum_observed_absolute_error": 16,
+          "integer_mismatches": 0,
+          "alignment_shifts_checked": 9,
+          "repeat_bit_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false
+        },
+        {
+          "kind": "pair_dot2_integer_residue",
+          "family": 3,
+          "pairs": 1048576,
+          "accepted": 1048576,
+          "rejected_ambiguous": 0,
+          "maximum_observed_absolute_error": 64,
+          "integer_mismatches": 0,
+          "alignment_shifts_checked": 9,
+          "repeat_bit_parity": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false
+        }
+      ]
+    }
+  },
+  "native_tested_pairs": 4194304,
+  "native_launches": 8,
+  "native_alignment_checks_including_repeats": 75497472,
+  "maximum_observed_absolute_error": 64,
+  "recovery_mismatches": 0,
+  "ambiguous_rejections": 0,
+  "command": {
+    "file": "run-native-pair-dot-residue-r1.ps1",
+    "sha256": "724c25fa060fea8792ab771c2d95ca3927e6d987d3df5b6b5b4959eccae2c265",
+    "text": "param([ValidateSet('build','test')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-pair-dot-residue-20260916';$seed='D:\\projects\\AIMA-public-staged-device-20260916';$sha='6a158f505da5654d62230902f9626247a273c2bb';$bundle='D:\\projects\\pair-dot-residue-6a158f5.bundle'\nfunction Verify-File([string]$Path,[string]$Hash){if((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $Hash){throw ('Changed input: '+$Path)}}\nVerify-File $bundle '23112aa4e6caacf34d93ae4e5bba3c0ee62e8ef027f604297d9aa81badd356d7'\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $sha;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $sha -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\pair-dot-residue';$null=New-Item -ItemType Directory -Path $build -Force\n$source=Join-Path $repo 'tests\\native\\pair_dot_residue_selftest.cpp';$exe=Join-Path $build 'pair-dot-residue.exe';$provenance=Join-Path $build 'build-provenance.json'\n$header=Join-Path $repo 'native\\providers\\moe_accumulator\\sm121_pair_residue.h'\n$sourceInputs=@();foreach($file in @($source,$header)){$sourceInputs+=@{file=$file;sha256=(Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$sha;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; generated BF16-significand integer pairs and exact residues';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;product_dispatch_changed=$false;purpose='Characterize native FP16 DOT2 and IU8 residue recovery on four deterministic million-pair families. Signed core values are exact FP16 BF16-significands shifted0..7, magnitude<=32640. Compare every accepted recovered integer to independent signed CPU products and all nine per-product truncation shifts0..8; report ambiguous rejections and actual estimate error. Two complete launches must agree, immutable inputs and guards must pass. This finite primitive diagnostic does not prove a universal hardware error bound, run the model or change product dispatch.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\nif($Action -eq 'build'){\n $spec.executable='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe'\n $spec.arguments=@('-std=c++17','-O3','--offload-arch=gfx1151',$source,'-o',$exe);$timeout=150\n}else{\n $meta=[IO.File]::ReadAllText($provenance)|ConvertFrom-Json\n if($meta.repo_commit -ne $sha){throw 'Build commit mismatch'}\n Verify-File $exe $meta.executable.sha256\n foreach($file in $meta.source_inputs){Verify-File $file.file $file.sha256}\n $spec.build_provenance_sha256=(Get-FileHash $provenance -Algorithm SHA256).Hash.ToLowerInvariant()\n $spec.executable=$exe;$spec.arguments=@();$timeout=120\n}\n$out=Join-Path $repo ('build\\pair-dot-residue-'+$Action+'-r1');$specPath=Join-Path $build ($Action+'-spec-r1.json')\nif((Test-Path $out) -or (Test-Path $specPath)){throw 'Evidence already exists'}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nforeach($name in @('product.stdout.jsonl','product.stderr.log')){Get-Content (Join-Path $out $name) -Tail 8|ForEach-Object {$_.Substring(0,[Math]::Min(2000,$_.Length))}}\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native diagnostic action failed'}\nif($Action -eq 'build'){\n $meta=[ordered]@{host=[Environment]::MachineName;repo_commit=$sha;source_inputs=$sourceInputs;command_file=$PSCommandPath;command_file_sha256=$spec.command_file_sha256;compiler=$spec.executable;arguments=$spec.arguments;run_record_sha256=(Get-FileHash (Join-Path $out 'run-record.json') -Algorithm SHA256).Hash.ToLowerInvariant();executable=@{file=$exe;bytes=(Get-Item $exe).Length;sha256=(Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant()}}\n [IO.File]::WriteAllText($provenance,($meta|ConvertTo-Json -Depth 8),[Text.UTF8Encoding]::new($false))\n}else{\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n if($reports.Count -ne 4){throw 'Incomplete pair diagnostic'}\n foreach($report in $reports){if($report.pairs -ne 1048576 -or $report.accepted+$report.rejected_ambiguous -ne $report.pairs -or $report.integer_mismatches -ne 0 -or -not $report.repeat_bit_parity -or -not $report.redzones_pass -or -not $report.immutable_inputs){throw 'Pair arithmetic or memory mismatch'}}\n}\n"
+  },
+  "preliminary_capture_coverage": {
+    "record": {
+      "host": "JiaweiMnideMini.lan",
+      "source_commit": "d9d6fbe8f3858787e001501f937a881935f2761a",
+      "model": "Qwen3.6-35B-A3B captured layer0 QKV and layer3 OUT",
+      "model_loaded": false,
+      "command": [
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/sample-pair-i16-coverage-r1",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/layer0-weights-r1/qkv.bin",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin"
+      ],
+      "build_command": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-fsanitize=address,undefined,float-cast-overflow",
+        "-fno-sanitize-recover=all",
+        "-I",
+        "<private-home>/projects/AIMA-public-r1191-candidate/native/providers/moe_accumulator",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/sample_pair_i16_coverage_r1.cpp",
+        "-o",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/sample-pair-i16-coverage-r1"
+      ],
+      "source_sha256": "f7c37a178f3b8af56558558fd05c4657d809630ab1f94df79a41071f14e45409",
+      "inputs": [
+        {
+          "path": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+          "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161"
+        },
+        {
+          "path": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/layer0-weights-r1/qkv.bin",
+          "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+        },
+        {
+          "path": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+          "sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65"
+        },
+        {
+          "path": "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+          "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab"
+        }
+      ],
+      "returncode": 0,
+      "stdout": "{\"kind\":\"pair_i16_exact_coverage\",\"label\":\"qkv\",\"dots\":8192,\"groups\":1048576,\"eligible_groups\":930358,\"pairs\":8388608,\"lossless_i16_pairs\":8264002,\"shift_le15_pairs\":8264001,\"no_remainder_pairs\":7813513,\"nonpositive_shift_pairs\":7014329,\"wave_groups\":131072,\"eligible_wave_groups\":78402,\"pair_mismatches\":0,\"native_executed\":false}\n{\"kind\":\"pair_i16_exact_coverage\",\"label\":\"out\",\"dots\":8192,\"groups\":2097152,\"eligible_groups\":1754544,\"pairs\":16777216,\"lossless_i16_pairs\":16405486,\"shift_le15_pairs\":16405463,\"no_remainder_pairs\":14777213,\"nonpositive_shift_pairs\":12272606,\"wave_groups\":262144,\"eligible_wave_groups\":143481,\"pair_mismatches\":0,\"native_executed\":false}\n",
+      "stderr": "",
+      "wall_seconds": 1.4126171246170998,
+      "native_executed": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false
+    },
+    "record_sha256": "169e41a1ae917d94c0398e2014efbb66bfaed8463e3fd7eaa9ee61400d1c44de",
+    "source_text": "#include \"q1_moe_hawkeye_bf16_accumulator.h\"\n#include \"sm121_group16_modulo.h\"\n#include \"sm121_canonical_normalize.h\"\n#include <algorithm>\n#include <cstdint>\n#include <cstdio>\n#include <fstream>\n#include <stdexcept>\n#include <vector>\nnamespace q=qrt_q1_moe_hawkeye;\nusing V=q::Value;\nstd::vector<uint16_t> read(const char* path,size_t words){std::ifstream f(path,std::ios::binary|std::ios::ate);if(!f||f.tellg()!=std::streamoff(words*2u))throw std::runtime_error(\"bad capture extent\");std::vector<uint16_t> v(words);f.seekg(0);f.read(reinterpret_cast<char*>(v.data()),words*2);if(!f)throw std::runtime_error(\"bad capture read\");return v;}\nuint32_t rng(uint32_t& r){r^=r<<13;r^=r>>17;r^=r<<5;return r;}\nstruct Pair{int a,b,unit;bool valid;};\nPair prepare(uint16_t a,uint16_t b){unsigned ea=(a>>7)&255u,eb=(b>>7)&255u;int lo=std::min(ea,eb);bool valid=ea&&ea<255&&eb&&eb<255&&std::max(ea,eb)-lo<=7;if(!valid)return {0,0,0,false};int ma=int((a&127)|128)<<(ea-lo),mb=int((b&127)|128)<<(eb-lo);return {(a&32768)?-ma:ma,(b&32768)?-mb:mb,lo,true};}\nuint32_t aligned(V v,int maximum){unsigned s=unsigned(maximum-v.exponent);uint32_t m=s>=32?0u:(v.significand<<2)>>s;return v.negative?0u-m:m;}\nvoid sample(const char* label,const std::vector<uint16_t>& a,const std::vector<uint16_t>& b,unsigned rows,unsigned width){uint64_t pairs=0,valid=0,short_shift=0,no_remainder=0,group=0,all_group=0,wave=0,all_wave=0,negative_shift=0;uint32_t random=0x43821917;for(unsigned s=0;s<1024;++s){unsigned token=rng(random)%7169,row=(rng(random)%(rows/8))*8;V carries[8];for(auto& c:carries)c={0,-133,false};for(unsigned k=0;k<width;k+=16){bool entire_wave=true;for(unsigned lane=0;lane<8;++lane){auto* x=a.data()+size_t(token)*width+k;auto* w=b.data()+size_t(row+lane)*width+k;V terms[17];terms[0]=carries[lane];int maximum=std::max(-133,int(terms[0].exponent));for(unsigned j=0;j<16;++j){terms[j+1]=q::multiply_bf16(x[j],w[j],-133);maximum=std::max(maximum,int(terms[j+1].exponent));}uint32_t total=aligned(terms[0],maximum);bool all=true;for(unsigned p=0;p<8;++p){Pair l=prepare(x[p*2],x[p*2+1]),r=prepare(w[p*2],w[p*2+1]);++pairs;bool okay=l.valid&&r.valid;valid+=okay;int shift=maximum-(l.unit+r.unit-254)-11;okay=okay&&shift<=15;short_shift+=okay;all&=okay;if(okay){int32_t dot=l.a*r.a+l.b*r.b;uint32_t value;if(shift<=0){negative_shift++;no_remainder++;value=uint32_t(dot)<<unsigned(-shift);}else{int32_t mask=int32_t((1u<<shift)-1);int32_t p0=l.a*r.a,p1=l.b*r.b;int32_t rem0=p0<0?-((-p0)&mask):(p0&mask),rem1=p1<0?-((-p1)&mask):(p1&mask);no_remainder+=!(rem0||rem1);int32_t v=dot-rem0-rem1;if(v%int32_t(1u<<shift))throw std::runtime_error(\"nonintegral\");value=uint32_t(v/int32_t(1u<<shift));}if(value!=aligned(terms[2*p+1],maximum)+aligned(terms[2*p+2],maximum))throw std::runtime_error(\"pair mismatch\");total+=value;}else total+=aligned(terms[2*p+1],maximum)+aligned(terms[2*p+2],maximum);}V expected=q::group_sum<26,-133>(terms,17);auto signed_sum=qrt_sm121_group16::decode_modulo_sum(total,terms[1].negative);auto actual=qrt_sm121_canonical::normalize(signed_sum.magnitude,signed_sum.negative,maximum);if(actual.significand!=expected.significand||actual.exponent!=expected.exponent||actual.negative!=expected.negative)throw std::runtime_error(\"raw carry mismatch\");carries[lane]=expected;++group;all_group+=all;entire_wave&=all;}++wave;all_wave+=entire_wave;}}\nstd::printf(\"{\\\"kind\\\":\\\"pair_i16_exact_coverage\\\",\\\"label\\\":\\\"%s\\\",\\\"dots\\\":8192,\\\"groups\\\":%llu,\\\"eligible_groups\\\":%llu,\\\"pairs\\\":%llu,\\\"lossless_i16_pairs\\\":%llu,\\\"shift_le15_pairs\\\":%llu,\\\"no_remainder_pairs\\\":%llu,\\\"nonpositive_shift_pairs\\\":%llu,\\\"wave_groups\\\":%llu,\\\"eligible_wave_groups\\\":%llu,\\\"pair_mismatches\\\":0,\\\"native_executed\\\":false}\\n\",label,(unsigned long long)group,(unsigned long long)all_group,(unsigned long long)pairs,(unsigned long long)valid,(unsigned long long)short_shift,(unsigned long long)no_remainder,(unsigned long long)negative_shift,(unsigned long long)wave,(unsigned long long)all_wave);}\nint main(int argc,char** argv)try{if(argc!=5)return 2;sample(\"qkv\",read(argv[1],size_t(7169)*2048),read(argv[2],size_t(8192)*2048),8192,2048);sample(\"out\",read(argv[3],size_t(7169)*4096),read(argv[4],size_t(2048)*4096),2048,4096);return 0;}catch(const std::exception& e){std::fprintf(stderr,\"%s\\n\",e.what());return 1;}\n",
+    "scope": "Mac host sampling of8192 adjacent-row dots per QKV/OUT capture, not selected candidates or GPU performance. Lossless integer-pair eligibility and shift<=15 allow exact individual-remainder repair; the native byte-residue primitive tests only shifts0..8. Do not transfer these coverage counts to the narrower native replay without another check."
+  },
+  "unsupported_i16_opcode": {
+    "record": {
+      "host": "baiying",
+      "command": [
+        "ssh",
+        "-o",
+        "BatchMode=yes",
+        "-o",
+        "ConnectTimeout=10",
+        "baiying",
+        "powershell.exe -NoProfile -EncodedCommand JABFAHIAcgBvAHIAQQBjAHQAaQBvAG4AUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwB0AG8AcAAnADsAJABQAHIAbwBnAHIAZQBzAHMAUAByAGUAZgBlAHIAZQBuAGMAZQA9ACcAUwBpAGwAZQBuAHQAbAB5AEMAbwBuAHQAaQBuAHUAZQAnADsAaQBmACgALQBuAG8AdAAgAFsARQBuAHYAaQByAG8AbgBtAGUAbgB0AF0AOgA6AE0AYQBjAGgAaQBuAGUATgBhAG0AZQAuAEUAcQB1AGEAbABzACgAJwBiAGEAaQB5AGkAbgBnACcALABbAFMAdAByAGkAbgBnAEMAbwBtAHAAYQByAGkAcwBvAG4AXQA6ADoATwByAGQAaQBuAGEAbABJAGcAbgBvAHIAZQBDAGEAcwBlACkAKQB7AHQAaAByAG8AdwAgACcAVwByAG8AbgBnACAAaABvAHMAdAAnAH0AOwAkAG0AYwA9ACcAQwA6AFwAUAByAG8AZwByAGEAbQAgAEYAaQBsAGUAcwBcAEEATQBEAFwAUgBPAEMAbQBcADcALgAxAFwAYgBpAG4AXABsAGwAdgBtAC0AbQBjAC4AZQB4AGUAJwA7AGkAZgAoAC0AbgBvAHQAKABUAGUAcwB0AC0AUABhAHQAaAAgACQAbQBjACkAKQB7AHQAaAByAG8AdwAgACcAbABsAHYAbQAtAG0AYwAgAHUAbgBhAHYAYQBpAGwAYQBiAGwAZQAnAH0AOwAmACAAJABtAGMAIAAtAC0AdgBlAHIAcwBpAG8AbgA7ACAAJwB2AF8AZABvAHQAMgBfAGkAMwAyAF8AaQAxADYAIAB2ADAALAAgAHYAMQAsACAAdgAyACwAIAAwACcAIAB8ACAAJgAgACQAbQBjACAALQBhAHIAYwBoAD0AYQBtAGQAZwBjAG4AIAAtAG0AYwBwAHUAPQBnAGYAeAAxADEANQAxACAALQAtAHMAaABvAHcALQBlAG4AYwBvAGQAaQBuAGcAOwBlAHgAaQB0ACAAJABMAEEAUwBUAEUAWABJAFQAQwBPAEQARQA="
+      ],
+      "command_text": "$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';if(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Wrong host'};$mc='C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\llvm-mc.exe';if(-not(Test-Path $mc)){throw 'llvm-mc unavailable'};& $mc --version; 'v_dot2_i32_i16 v0, v1, v2, 0' | & $mc -arch=amdgcn -mcpu=gfx1151 --show-encoding;exit $LASTEXITCODE",
+      "returncode": 1,
+      "stdout": "AOMP-18.0-12 (http://github.com/ROCm-Developer-Tools/aomp):\n Source ID:18.0-12-ce1873ac686bb90ddec72bb99889a4e80e2de382\n  LLVM version 21.0.0git\n  Optimized build.\n\n  Registered Targets:\n    amdgcn  - AMD GCN GPUs\n    r600    - AMD GPUs HD2XXX-HD6XXX\n    spirv   - SPIR-V Logical\n    spirv32 - SPIR-V 32-bit\n    spirv64 - SPIR-V 64-bit\n    x86     - 32-bit X86: Pentium-Pro and above\n    x86-64  - 64-bit X86: EM64T and AMD64\n",
+      "stderr": "<stdin>:1:1: error: instruction not supported on this GPU\nv_dot2_i32_i16 v0, v1, v2, 0\n^\n",
+      "wall_seconds": 0.4888962088152766,
+      "native_gpu_executed": false,
+      "inference_acceptance": false
+    },
+    "record_sha256": "792b824c714030f6edcd958d77c96aaa5513cd147a08d4b47c436391d16dcf73",
+    "scope": "Read-only installed ROCm7.1 llvm-mc check for gfx1151; no GPU execution or inference. It rejects v_dot2_i32_i16, so this candidate uses supported FP16 DOT2 plus IU8 residue."
+  },
+  "reference": {
+    "url": "https://docs.amd.com/api/khub/documents/UVVZM22UN7tMUeiW_4ShTQ/content",
+    "title": "AMD RDNA3.5 Instruction Set Architecture Reference Guide",
+    "sections": [
+      "7.5 packed opcodes",
+      "16.10 V_DOT2_F32_F16 and V_DOT4_I32_IU8"
+    ],
+    "scope": "Instruction availability, operand interpretation and pseudocode. No universal single-rounding or error-bound proof is inferred from these descriptions."
+  },
+  "implementation": "Two original signed BF16 significands shifted0..7 are exact normal FP16 core integers, each at most32640 in magnitude. Native zero-C FP16 DOT2 estimates their integer product sum. Native IU8 DOT4 on the two signed low bytes supplies an exact modulo256 residue. The nearest compatible integer is accepted with explicit range and midpoint rejection; exact individual signed residues then reconstruct original per-product truncation for shifts0..8.",
+  "correctness_scope": "Four finite families cover pair-relative minimum exponents, all two-varying mantissas at maximum scale with sign combinations, near/exact cancellation and independent full shift ranges. Every accepted integer and nine truncation results match independently formed signed CPU products. Both native launches agree; complete input/output guards and immutable operands pass. Maximum observed error64 is below the conditional128 recovery threshold. Input rows can repeat within these families;4194304 is tested cases, not a deduplicated-domain claim.",
+  "decision": "Continue to an isolated ordered-K16 and captured operator comparison. The primitive has no runtime dispatcher, complete dot, GB10 operator comparison, TTFT result or inference qualification. Keep the qualified product control unchanged.",
+  "hardware_error_bound_proven": false,
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
