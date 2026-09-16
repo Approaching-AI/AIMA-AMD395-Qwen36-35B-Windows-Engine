@@ -1,5 +1,15 @@
 # Real-model performance
 
+## Coarse linear OUT, 2026-09-16
+
+A same-DLL real q8192/out512 pair at `768d054` passes every GB10 token,
+first logit and actual callback with the new linear OUT owner both disabled
+and enabled. TTFT increases from27891.0528 to28559.2248 ms. All30 linear
+layers execute the experiment; candidate work grows to88762686 outputs.
+Keep the option default-off and outside the retained stack. The original
+10-second gate and4187.415605 ms retained target remain unmet.
+See [the implementation and exact evidence](COARSE_LINEAR_OUT_EXPERIMENT.md).
+
 ## Current unreleased measurements, 2026-09-15
 
 Source `5011e8b` audits exact input-row reuse before all170 q8192 dense

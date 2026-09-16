@@ -31,3 +31,41 @@ baiying using the real model, original 8192 prompt IDs, all 512 GB10 output
 tokens, the unchanged first-logit tolerance of 0.125 and actual streaming
 callbacks. The original TTFT and load targets remain in force. Nothing is
 published or enabled by this source change.
+
+## Real-model result, 2026-09-16
+
+Source `768d0544bbab73b4b2ca874afb800d1aa043b4c0` passes local C/ABI,
+54 Rust and 470 Python checks (two skipped), clippy and public hygiene in
+220.649260 seconds. The sanitized owner covers 17 successful paths and 342
+injected failures, including the rounded F32 carrier. Native whole-provider
+compilation completes in 92715.828 ms on baiying with all host guards.
+
+Both runs use `D:\models\Qwen3.6-35B-A3B`, the same new whole DLL, retained
+Dense1000/MoE512, expert-order MoE, coarse full-attention OUT and unchanged
+CK/FLA/CLI. DLL SHA256 is
+`05556424b4a55a9b71feaaf0ac188216abfac4f12136b0b1f67eba892a6456e1`.
+The command file is `run-native-coarse-linear-out-product-r1.ps1`, SHA256
+`07c5d606b963bfcdd05cea7a58741da7b8b81502a0b8aef8d02b58b289bd2a9b`.
+
+| New linear OUT option | GB10 output IDs | First logit | Load ms | TTFT ms | TPOT ms |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 0 | 512/512 | 10.375 | 21483.5723 | 27891.0528 | 101.818945 |
+| 1 | 512/512 | 10.375 | 21278.7260 | 28559.2248 | 100.569905 |
+
+Original prompt IDs, every actual streaming callback, callback ordering and
+both first-logit boundaries pass. The enabled route executes exactly the
+thirty linear layers, selects 88762686 cells and takes 3331.0106 ms across its
+complete owner calls. The control selects 58489767 linear OUT cells;
+its 1171.125 ms correction clock excludes its matrix producer and norm
+bounds and cannot be compared directly with the complete owner clock.
+
+The enabled product TTFT is 668.172 ms slower in this pair. Keep the option
+closed in the retained configuration; there is no performance reason to
+expand this experiment's qualification. A correct full-attention optimization
+did not transfer profitably to the linear projection's smaller selector.
+Both loads meet 30 seconds; both TTFT values remain above 10 seconds. No
+retained-performance, prefix, long-context, package or release gate is met.
+
+Evidence: [coarse-linear-out-product-20260916.json](../benchmarks/correctness/coarse-linear-out-product-20260916.json),
+372432 bytes, SHA256
+`4ca379c5d760aef9ea43db92d25a185aedbbfa34c2e2b0563c6d11a8083c4b41`.
