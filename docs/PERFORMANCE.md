@@ -1,5 +1,17 @@
 # Real-model performance
 
+## Register PV arithmetic components, 2026-09-17
+
+Source `bae2730` replaces volatile accumulator rescaling barriers with an
+explicit FP32 register multiply. All 1048576 multiply comparisons, 252
+native configurations and both complete captures pass with original raw
+outputs, error bounds, candidate membership and available GB10 context.
+Complete q8192 PV falls from323.8687 to269.5124ms; q7169 falls from209.0290
+to173.2841ms. Shared row reciprocals add only1.3510ms atq8192. Advance the
+register-only route to a default-off provider experiment. These captures
+measure no model tokens or TTFT and do not change the package or release
+status. See [arithmetic, timing and evidence](REGISTER_PV_ARITHMETIC_EXPERIMENT.md).
+
 ## Prefix-certified PV replay components, 2026-09-17
 
 Source `3e41f70` preserves all tested BF16 results, original native centers,
