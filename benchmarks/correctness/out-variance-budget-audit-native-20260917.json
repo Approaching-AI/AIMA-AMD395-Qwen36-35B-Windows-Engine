@@ -1,0 +1,411 @@
+{
+  "schema_version": 1,
+  "kind": "read_only_adaptive_out_variance_budget_local_and_native_build",
+  "host": "baiying",
+  "source": {
+    "canonical_source_record": "out-variance-budget-audit-native-source-r1.json",
+    "canonical_source_record_sha256": "cdcbba5e50f7b40019ee6b0b34e32cf10459ff34230ca997f4f4d06be29cdf16",
+    "documentation_snapshot_differences": {},
+    "source_commit": "c3b4ad53b6fc8a8842b77a2cbbc783f5cd632ee6",
+    "repo": "D:/projects/AIMA-public-out-variance-budget-audit-20260917",
+    "seed": "D:/projects/AIMA-public-register-matrix-qk-20260917-r2",
+    "prerequisite_commit": "5fceaec5817faf927194771a3e07f314ed091e1d",
+    "bundle": "out-variance-budget-audit-c3b4ad5.bundle",
+    "bundle_sha256": "0fc674ce85daa62bbb420bc98be912ffe6ca5cd873136ca2b54775fe0f0e58ef",
+    "script": "run-native-out-variance-budget-audit-build-r1.ps1",
+    "script_sha256": "1e5c7151b904efd253b5ba35c877e601627e2ba7a9d78e2f7265f5cd5d7e34d5",
+    "source_sha256": {
+      "native/providers/whole_provider.cpp": "6d03ad822a26a3e8f14316a7043599ead581fc18a6d2575ce78c253e49b6a3e4",
+      "native/providers/q8192_out_variance_budget_audit.h": "9208c9a19b67ab50cac61036e4134e6458590bc8b6c26bff328804fc8c4b16e4",
+      "tests/native/out_variance_budget_audit_host_mock.cpp": "e0b12f7eb9cb9d5280764372ac33ecea4e28648c30ac2ef1ff51d885ec0a6744",
+      "tests/test_out_variance_budget_audit.py": "629fe80dc7ce592d27d09c624707cfc533ac6f31fc00720fdedab92c365552c9",
+      "native/providers/hawkeye_dispatch_policy.h": "48483e1e6a51ca3dda41e26150f3e69351cc25f81d3a532484c9a6f6eb9d758e"
+    },
+    "local_validation": {
+      "returncode": 0,
+      "command": [
+        "make",
+        "check",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "wall_seconds": 226.86300391703844,
+      "log": "out-variance-budget-audit-local-r1.log",
+      "log_sha256": "58e60c1ff165895cdb25383a6ce922f9af9d89f2aeb1ea0943ee8ab25e62bf16",
+      "source_sha256": {
+        "native/providers/whole_provider.cpp": "6d03ad822a26a3e8f14316a7043599ead581fc18a6d2575ce78c253e49b6a3e4",
+        "native/providers/q8192_out_variance_budget_audit.h": "9208c9a19b67ab50cac61036e4134e6458590bc8b6c26bff328804fc8c4b16e4",
+        "tests/native/out_variance_budget_audit_host_mock.cpp": "e0b12f7eb9cb9d5280764372ac33ecea4e28648c30ac2ef1ff51d885ec0a6744",
+        "tests/test_out_variance_budget_audit.py": "629fe80dc7ce592d27d09c624707cfc533ac6f31fc00720fdedab92c365552c9"
+      },
+      "source_unchanged_during_validation": true
+    }
+  },
+  "native_build": {
+    "name": "out-variance-budget-audit-whole-build-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "working_directory": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917",
+      "repo_commit": "c3b4ad53b6fc8a8842b77a2cbbc783f5cd632ee6",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-File",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\scripts\\baiying_build_whole_provider.ps1",
+        "-OutDir",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\build\\out-variance-budget-audit-whole-provider",
+        "-DppReduction",
+        "1",
+        "-CompactNormalize",
+        "1",
+        "-HawkeyeReplayLanes",
+        "4",
+        "-CompileTimeoutSeconds",
+        "240"
+      ],
+      "command_file": "D:\\projects\\run-native-out-variance-budget-audit-build-r1.ps1",
+      "command_file_sha256": "1e5c7151b904efd253b5ba35c877e601627e2ba7a9d78e2f7265f5cd5d7e34d5",
+      "source_manifest_sha256": "cdcbba5e50f7b40019ee6b0b34e32cf10459ff34230ca997f4f4d06be29cdf16",
+      "model": "none; default-off adaptive OUT variance-budget classification audit build",
+      "model_loaded": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "purpose": "Build a read-only full-shape OUT variance-budget diagnostic. The original PPB/midpoint envelope is transported through residual rounding and the actual FMA variance reduction. Up to18 bounded rounds prioritize high interval variance contributions; original control values stand in only for selected hypothetical replay passes and do not select priority. Each round enumerates every FP32 variance up to4096 ULPs through the original rsqrt function, then certifies every BF16 normalized endpoint. Round17 restores all remaining candidates. Actual candidate execution and saved work are NOT measured. Every model input stays unchanged; original GB10 q8192/out512 and actual callbacks remain required."
+    },
+    "launch": {
+      "pid": 1672,
+      "utc": "2026-09-16T16:19:25.4549482Z",
+      "timeout_seconds": 300,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 93881.497,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+    "canonical_raw_sha256": {
+      "build-provenance.json": "e4bbd4ac55eb2a5effc3102b5826578c10bc456e60460cc1e2fc38c3c9b5d8c8",
+      "dispatch.json": "ad7659a5d96bed3d41596253ffa74060a6fd76edbb5d3dcbd1dfafec0faa74bc",
+      "launch.json": "6076a9463bd4ff934436b46c8041c3ee4b2b2e859a3cb1d5cb421702ab16511c",
+      "preflight.json": "5f231c2a35dcc60e6fedce061f6ca218c14de0330b515b4a8367473500bb4d66",
+      "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "product.stdout.jsonl": "b3f227b8201c1575b91c639d4802f75aec060fb24ef73de9d30cff7f8efb90a4",
+      "qrt_qwen36_whole_provider.dll": "7e92e62faeccc3c3bf26ece7a6e0f2c7086e23d6f75f21e8ae362e331d60ef81",
+      "run-record.json": "6326a3fae63dd22da593047b40e98b2e04ddda0afa0d17f819bd4248e5b5e1c7",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d",
+      "spec.json": "807280ef15536a7f9513f6a186c53c63969020ec7b330b5f4649692ffc91dd2c"
+    },
+    "build_provenance": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "c3b4ad53b6fc8a8842b77a2cbbc783f5cd632ee6",
+      "dirty_tree": false,
+      "command_file": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\scripts\\baiying_build_whole_provider.ps1",
+      "offload_arch": "gfx1151",
+      "gpu_execution_mode": "default",
+      "device_mode_arguments": [],
+      "w8a8_group_size": 128,
+      "q8192_weight_int8_scale_fp16": false,
+      "compile_timeout_seconds": 240,
+      "source_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\whole_provider.cpp",
+      "source_sha256": "6d03ad822a26a3e8f14316a7043599ead581fc18a6d2575ce78c253e49b6a3e4",
+      "projection_safety_test": false,
+      "hawkeye_device_replay_test_header_sha256": null,
+      "attention_admission_replay": false,
+      "compile_source_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\whole_provider.cpp",
+      "compile_source_sha256": "6d03ad822a26a3e8f14316a7043599ead581fc18a6d2575ce78c253e49b6a3e4",
+      "hawkeye_dispatch_policy_sha256": "48483e1e6a51ca3dda41e26150f3e69351cc25f81d3a532484c9a6f6eb9d758e",
+      "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+      "gb10_gate_lookup_sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+      "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+      "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+      "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+      "q8192_out_l1_policy_sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+      "q8192_out_l1_shadow_audit_sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+      "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "qrt_header_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\src\\qrt.h",
+      "qrt_header_sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+      "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+      "attention_capacity_header_sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+      "sm121_rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+      "sm121_q1_full_runtime_header_sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+      "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+      "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+      "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+      "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+      "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+      "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+      "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+      "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+      "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+      "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+      "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+      "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+      "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+      "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+      "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+      "hawkeye_replay_lanes": 4,
+      "sm121_dpp_reduction": true,
+      "sm121_compact_normalize": true,
+      "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+      "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+      "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+      "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+      "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+      "sm121_scaled_fallback_header_sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+      "sm121_staged_half_projection_header_sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+      "sm121_scaled_half_projection_header_sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+      "sm121_scaled_half_products_header_sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+      "sm121_scaled_projection_header_sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+      "sm121_scaled_significand_header_sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+      "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+      "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+      "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+      "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+      "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+      "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+      "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+      "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+      "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+      "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+      "host_compile": {
+        "completed": true,
+        "timed_out": false,
+        "exit_code": 0,
+        "wall_ms": 1460.1088
+      },
+      "provider_compile": {
+        "completed": true,
+        "timed_out": false,
+        "exit_code": 0,
+        "wall_ms": 91932.3476
+      },
+      "host_compile_arguments": [
+        "-std=c++17",
+        "-O3",
+        "-mavx512f",
+        "-mavx512bf16",
+        "-ffp-contract=off",
+        "-c",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "-o",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\build\\out-variance-budget-audit-whole-provider\\q1_moe_avx512bf16_host_provider.obj"
+      ],
+      "provider_compile_arguments": [
+        "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+        "-DQRT_SM121_DPP_REDUCTION=1",
+        "-DQRT_SM121_COMPACT_NORMALIZE=1",
+        "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+        "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+        "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+        "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+        "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+        "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+        "-I",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+        "-L",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\build\\out-variance-budget-audit-whole-provider",
+        "-I",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+        "-L",
+        "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+        "-std=c++17",
+        "-O2",
+        "--offload-arch=gfx1151",
+        "-DQRT_STATIC=1",
+        "-I",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\src",
+        "-I",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\native\\providers\\whole_provider.cpp",
+        "-o",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\build\\out-variance-budget-audit-whole-provider\\qrt_qwen36_whole_provider.dll",
+        "-lrocblas",
+        "-lhipblaslt",
+        "-Xlinker",
+        "D:\\projects\\AIMA-public-out-variance-budget-audit-20260917\\build\\out-variance-budget-audit-whole-provider\\q1_moe_avx512bf16_host_provider.obj",
+        "-shared"
+      ],
+      "artifacts": [
+        {
+          "name": "qrt_qwen36_whole_provider.dll",
+          "bytes": 13298176,
+          "sha256": "7e92e62faeccc3c3bf26ece7a6e0f2c7086e23d6f75f21e8ae362e331d60ef81"
+        },
+        {
+          "name": "q1_moe_avx512bf16_host_provider.obj",
+          "bytes": 183170,
+          "sha256": "3a7d52c762a6529b4c30dcc84a4ca61e61c63e9149bd2aa70dc886611ead2452"
+        }
+      ]
+    }
+  },
+  "provider_artifact": {
+    "name": "qrt_qwen36_whole_provider.dll",
+    "bytes": 13298176,
+    "sha256": "7e92e62faeccc3c3bf26ece7a6e0f2c7086e23d6f75f21e8ae362e331d60ef81"
+  },
+  "verified_native_source_inputs": 292,
+  "local_validation": {
+    "full_make_check": true,
+    "rust_tests": 54,
+    "python_tests": 476,
+    "python_skips": 2,
+    "c_abi_clippy_and_hygiene": true,
+    "address_and_undefined_behavior_sanitizers": true,
+    "actual_host_owner_executed": true,
+    "interval_cases": 130560,
+    "enumerated_bf16_values": 74576,
+    "injected_transport_failures": 24,
+    "strict_opt_in": true,
+    "invalid_context_and_combined_l1_rejected_before_hip": true,
+    "all_owned_allocations_drained_before_release": true,
+    "native_classifier_not_executed_by_host_mock": true
+  },
+  "unchanged_consumer_and_selector_function_body_sha256": {
+    "__device__ __forceinline__ float vllm_triton_lane8_sumsq(": "71538af0202fde4a8dbfe6c76d71e485c0785358c13d1c58d1394cb1ee6e95a2",
+    "__device__ __forceinline__ float vllm_triton_reduce_sumsq(": "418adc6b9b4aed0dc615cd6195dfdd0d5f441b449252b4fd90720b3f0f4ea9b1",
+    "__device__ float device_sm121_rsqrt_from_gfx1151(": "17f1c2e586a7e1c0ecbff53a47c66137810be5eb07602a8c1f3075fb6bbcc529",
+    "__global__ void output_bf16_residual_postnorm_vllm_kernel(": "fa9d36888937cc2ef1088f5ce038378af777231701aee07ac9e98e3e231e6eed",
+    "__device__ bool selected_bf16_projection_hawkeye_candidate(": "38902d5fe9fe85ff749b28528e7a08f3a4985680d718d8d12e7962dc35e37766"
+  },
+  "candidate_policy_changed": false,
+  "k16_arithmetic_changed": false,
+  "new_runtime_dependencies": false,
+  "shape": {
+    "rows": 2048,
+    "tokens": 8192,
+    "k": 4096
+  },
+  "original_output_matrix_algorithm": 0,
+  "workspace_bytes": 67808256,
+  "maximum_enumerated_variance_span_ulps": 4096,
+  "maximum_rounds": 18,
+  "compiled_kernel_resources": {
+    "kind": "read_only_embedded_amdgpu_kernel_metadata",
+    "artifact": {
+      "name": "qrt_qwen36_whole_provider.dll",
+      "bytes": 13298176,
+      "sha256": "7e92e62faeccc3c3bf26ece7a6e0f2c7086e23d6f75f21e8ae362e331d60ef81"
+    },
+    "build_provenance_sha256": "e4bbd4ac55eb2a5effc3102b5826578c10bc456e60460cc1e2fc38c3c9b5d8c8",
+    "source_commit": "c3b4ad53b6fc8a8842b77a2cbbc783f5cd632ee6",
+    "parser": "read_amdgpu_metadata_r1.py",
+    "parser_sha256": "3a73e524f738a8f325ccd2b880c60886c28f9f26cf87b6cb5c61d47613f4413f",
+    "kernels": [
+      {
+        ".args": [
+          {
+            ".address_space": "global",
+            ".offset": 0,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 8,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 16,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 24,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 32,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 40,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 48,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          },
+          {
+            ".offset": 56,
+            ".size": 4,
+            ".value_kind": "by_value"
+          },
+          {
+            ".offset": 60,
+            ".size": 4,
+            ".value_kind": "by_value"
+          },
+          {
+            ".offset": 64,
+            ".size": 1,
+            ".value_kind": "by_value"
+          },
+          {
+            ".address_space": "global",
+            ".offset": 72,
+            ".size": 8,
+            ".value_kind": "global_buffer"
+          }
+        ],
+        ".group_segment_fixed_size": 4188,
+        ".kernarg_segment_align": 8,
+        ".kernarg_segment_size": 80,
+        ".language": "OpenCL C",
+        ".language_version": [
+          2,
+          0
+        ],
+        ".max_flat_workgroup_size": 256,
+        ".name": "_ZN12_GLOBAL__N_129qrt_out_variance_budget_audit8classifyEPKfPKtS2_S4_PKhS2_S2_jjbPj",
+        ".private_segment_fixed_size": 0,
+        ".sgpr_count": 62,
+        ".sgpr_spill_count": 0,
+        ".symbol": "_ZN12_GLOBAL__N_129qrt_out_variance_budget_audit8classifyEPKfPKtS2_S4_PKhS2_S2_jjbPj.kd",
+        ".uniform_work_group_size": 1,
+        ".uses_dynamic_stack": false,
+        ".vgpr_count": 133,
+        ".vgpr_spill_count": 0,
+        ".wavefront_size": 32,
+        ".workgroup_processor_mode": 1
+      }
+    ]
+  },
+  "scope": "Default-off read-only prospective replay scheduling after original OUT completion. The diagnostic regenerates an algorithm0 matrix in private storage and transports the existing empirical PPB/midpoint envelope through BF16 residuals and the actual FMA reduction. It begins with residual-ambiguous cells hypothetically replayed, then prioritizes remaining candidates only from their interval variance contributions. At most18 rounds each enumerate the actual rsqrt output over bounded FP32 variance intervals and certify all normalized BF16 endpoints. The final round restores every remaining pending value. Completed original outputs stand in for hypothetical replay passes and never select priority. This does not execute candidate replay or measure saved work. Existing coarse FA OUT remains a different production producer; regenerated algorithm0 classifications alone do not describe its candidates. Host tests execute the actual allocation/transport/drain owner and interval primitives, not the GPU classifier. The native build and resources prove compilation only; real-model observer validity and all original GB10 tokens/logit/callbacks remain required.",
+  "model_loaded": false,
+  "default_enabled": false,
+  "existing_control_supplies_hypothetical_passes": true,
+  "priority_uses_control_values": false,
+  "candidate_replay_executed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

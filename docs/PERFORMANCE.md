@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Adaptive OUT variance-budget audit, 2026-09-17
+
+The same-DLL q8192/out512 pair at `c3b4ad5` preserves every GB10 output and
+callback ID, first-logit boundary and original correction count. A read-only
+observer conditionally certifies 29,191,574 of 58,489,767 linear OUT candidates
+removable while preserving the complete RMSNorm consumer. No candidate replay
+or saved execution runs; the audit adds 1,375.2279 ms in this single pair.
+Advance only the linear shape to an actual default-off experiment. The
+retained stack and all mission/release gates remain unchanged.
+See [classification, limitations and product evidence](OUT_VARIANCE_BUDGET_AUDIT.md).
+
 ## Shared exponent-mask GDN, 2026-09-16
 
 Source `185546a` passes full bitwise component comparisons using the provider's
