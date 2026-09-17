@@ -1,5 +1,29 @@
 # Real-model performance
 
+## Fused linear input preparation component, 2026-09-17
+
+Source `deb2fa9` directly produces normalized compact Q/K and V from projected
+QKV, preserving BF16 tap products, ordered FP32 sums, exact SiLU/RSQRT tables
+and the original normalization tree. All 78 generated configurations pass,
+including special values, causal halos and tails. The original convolution
+is extracted unchanged from the whole provider; normalization uses the actual
+FLA source. Full raw/compact outputs, sampled independent CPU heads, guards,
+immutable inputs/tables and production/capture parity pass.
+
+Three rotated complete-operator samples give q7169 medians of 5.4034/3.9577 ms
+and q8192 medians of 6.2084/4.4969 ms for original/fused. Both shapes match all
+58,728,448 held-out GB10 raw convolution cells; q8192 repeats 1023 captured
+projected rows. Clocks exclude common allocation/table loading and contain no
+gate or recurrent work. The broader instrumented whole convolution interval
+is not interchangeable with this operator clock. Keep the component isolated:
+this measured saving does not justify prioritizing provider integration while
+TTFT remains 26.386 seconds. Continue work on common exact replay and attention.
+No model tokens or product performance are newly qualified. Local contract,
+C smoke and hygiene checks, Windows build and host guards pass. Evidence:
+`benchmarks/correctness/linear-input-preparation-components-20260917.json`,
+188476 bytes, SHA256
+`9ad2a77c179ecda8e9eae5ba2b6e6762880c795f49cc99640be58ff677a62f2a`.
+
 ## Completed combined-attention stack profile, 2026-09-17
 
 The same qualified `cf0f889` CK DLL and pinned whole/MoE/FLA/CLI assets pass
