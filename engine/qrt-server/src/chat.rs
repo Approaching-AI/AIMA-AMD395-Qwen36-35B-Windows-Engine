@@ -152,16 +152,9 @@ fn tool_result_no_progress(value: &Value) -> bool {
     match value {
         Value::Null => true,
         Value::String(text) => {
-            let trimmed = text.trim();
-            if trimmed.is_empty() {
-                return true;
-            }
-            if let Ok(decoded) = serde_json::from_str::<Value>(trimmed) {
-                // A decoded string is strictly shorter than its quoted JSON
-                // representation. Preserve failures inside quoted tool output.
-                return tool_result_no_progress(&decoded);
-            }
-            let lower = trimmed.to_ascii_lowercase();
+            let mut trimmed = text.trim();
+            let normalized = trimmed.to_ascii_lowercase();
+            let mut lower = normalized.as_str();
             // Recognize command-wrapper status lines, including a traceback
             // followed by its exit status. A sentence merely mentioning a
             // nonzero status is not machine-readable failure evidence.
@@ -174,17 +167,29 @@ fn tool_result_no_progress(value: &Value) -> bool {
             }) {
                 return true;
             }
-            if let Some((prefix, _)) = lower.split_once("final output:") {
-                if matches!(
+            // Peel wrappers without recursive copies or stack growth. A tool
+            // can supply many nested labels within the HTTP body size limit.
+            while let Some((prefix, _)) = lower.split_once("final output:") {
+                if !matches!(
                     prefix.trim(),
                     "" | "exit code: 0" | "process exited with code 0"
                 ) {
-                    let payload = &trimmed[prefix.len() + "final output:".len()..];
-                    return tool_result_no_progress(&Value::String(payload.to_owned()));
+                    break;
                 }
+                let offset = prefix.len() + "final output:".len();
+                trimmed = trimmed[offset..].trim();
+                lower = lower[offset..].trim();
+            }
+            if trimmed.is_empty() {
+                return true;
+            }
+            if let Ok(decoded) = serde_json::from_str::<Value>(trimmed) {
+                // A decoded string is strictly shorter than its quoted JSON
+                // representation. Preserve failures inside quoted tool output.
+                return tool_result_no_progress(&decoded);
             }
             matches!(
-                lower.as_str(),
+                lower,
                 "no output"
                     | "<no output>"
                     | "null"
@@ -1234,6 +1239,22 @@ mod tests {
                 let recovered = proposed_verification(&history);
                 assert_eq!(recovered.tool_calls.len(), 1, "{content}");
                 assert_eq!(recovered.tool_progress.history_no_progress_streak, 0);
+            }
+        }
+    }
+
+    #[test]
+    fn deeply_wrapped_tool_output_has_bounded_stack_and_preserves_payload() {
+        let wrappers = "Process exited with code 0\r\nFinal output: ".repeat(16_384);
+        for (payload, no_progress) in [
+            ("Error: failed", true),
+            ("{\"error\":\"failed\"}", true),
+            ("", true),
+            ("Saved the repair 中文", false),
+        ] {
+            let text = format!("{wrappers}{payload}");
+            for content in [json!(text), json!([{"type":"text","text":text}])] {
+                assert_eq!(tool_content_status(&content), (no_progress, false));
             }
         }
     }

@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "kind": "windows_tool_text_parts_local_and_native_build",
+  "source": {
+    "canonical_source_record": "tool-text-parts-native-source-r1.json",
+    "canonical_source_record_sha256": "c06ce7baf487ed90b50fea06b621b91c6d92e043b89e03506664f07753ab207e",
+    "documentation_snapshot_differences": {},
+    "source_commit": "ac1a41fc8ecf27b4deed52dc64ade8231229611a",
+    "bundle_head": "ac1a41fc8ecf27b4deed52dc64ade8231229611a",
+    "repo": "D:/projects/AIMA-public-tool-text-parts-20260918-r1",
+    "seed": "D:/projects/AIMA-public-paired-score-gdn-provider-20260918-r1",
+    "prerequisite_commit": "7b20c9041e14b2db133afb7e5b05b4e3223ed04c",
+    "bundle": "tool-text-parts-ac1a41f.bundle",
+    "bundle_sha256": "99e498f8448a4e086cd2b0361b1de735a0afc5f507e0004b6e7c1aff53e4f019",
+    "script": "run-native-tool-text-parts-r1.ps1",
+    "script_sha256": "e0e1d9d92266d7e8552061d00a18c930a6be2ae019d9fa95187a1a3a44d52143",
+    "source_sha256": {
+      "Cargo.lock": "89adc25be45d0b731d55bf3671284d228ae58a32a6a66714f6ac9ae3de8a04b5",
+      "Cargo.toml": "c4f9cf8436e44ecdd1b4db764fc9c5969245bdd28339b805fad5f9b94236d743",
+      "docs/AGENT-INTEGRATION.md": "9176392639dc8f4ce4f972f86775917e77df55ed4ce7395fd1f25410c922f178",
+      "docs/API.md": "0a0d67f666e70fa3ffe937dff79ea040701c5cb6919c9bdcc3e239fd023d19c4",
+      "engine/qrt-server/Cargo.toml": "a27e5fd9c862b17eb580d9bbaba146a3428fb4d74cc6c4f1ac8027820b017ef9",
+      "engine/qrt-server/build.rs": "ac7ecdfbbe3207122327c2f9fdc84d650838850ad7066d4a6124694854f846c8",
+      "engine/qrt-server/src/api.rs": "abbd19bf8d3e1eba47a9aa72cf6877b452374724eb700c708d1eff6537a23bd5",
+      "engine/qrt-server/src/backend.rs": "f63db7637c263144b3f0009369a3c8d47c0bc10ac92af590e82a103fd47fcbd3",
+      "engine/qrt-server/src/chat.rs": "60eef33f5fc793de1dd94d445c94c2df0f12d2f2bab01b1768f7dc7a05da8353",
+      "engine/qrt-server/src/environment.rs": "609672b5077317c7ed5d290db9dc38e0e10120ef315cf57b9ccf3dbfd8f8001c",
+      "engine/qrt-server/src/lib.rs": "5bbd18a6af78f2a9e31584218a9c2a50ccbd7f29c6583d51d5f4c42849a37d93",
+      "engine/qrt-server/src/lifecycle.rs": "9739ed2353c173703a13385d2d60bf8f9a2416da529a87b6a8ac6797b6bf51ce",
+      "engine/qrt-server/src/main.rs": "b7f858794a3cd18ee18cbe64abe2c1f3d21ae4d72c4e43b0ccd8bb8147f2c4c1",
+      "engine/qrt-server/src/tokenizer.rs": "dd55911fbd658300aa90f117dea6595799917052e96f329d164fe8d0614ebd32",
+      "native/src/main.c": "2fce1d0f751b2c2803eb2e4d3085b7e1876d54591977e39122723c2568a85e04",
+      "native/src/product_cli.c": "877f462c0838f9769b7a46b388e83b4423184d6ddd2d7fea705047055ae5c58c",
+      "native/src/qrt.c": "851904c79ea9ff3230423f86a4d92bae27734df30bb6dd51632ffb219397c076",
+      "native/src/qrt.h": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+      "native/src/qrt_context_limits.h": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "native/src/qrt_prefix_checkpoint.h": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+      "native/src/qrt_prefix_logit.h": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+      "native/src/qrt_qwen36_q1024_owner.h": "50e57d93aa2f2d8d3c2d07b14a8539e682eace19c2614c7c21d85f3630e68e44",
+      "native/src/qrt_server_bridge.c": "fdd1d51b2542e4702323edae8ba6fabbdd0264d10fd50c167f56c1b6083e3d12",
+      "native/src/qrt_server_bridge.h": "c9abb1593b531ac5afa1cdf821f432feb74f17f0acdd07c2ba83875721bd195c",
+      "native/src/qwen36_baseline.c": "e3660fafa17c2613355d9dca195fb0ab951c19d08259015db7512fcc1286d061",
+      "native/src/qwen36_baseline.h": "46f32d3b00c19f63715098daebe147f024332c4653fbc05cf7dbb56769cf4c42",
+      "scripts/baiying_boot_identity.ps1": "f546c9951e4f143870e81a5a2c85fd0383e9dca047cdbbf9d5965de2c013deca",
+      "scripts/baiying_build_qrt_server.ps1": "64011f0941f98a3e5b801c353148d0cf0ced3d81c37efe3e9a46e743d2be7b59",
+      "scripts/baiying_guarded_inference.ps1": "068f659c3bbfa3fb6493433837b044744b70faf4518d859a159c791665e94b11",
+      "scripts/check-agent-documents.py": "20d28dadad874255ec96342056117ccd47912d8feacce4aa2491741a5a396d41",
+      "scripts/verify_qrt_openai_server.py": "26d9b33a13cb8bc2a648b0fa94f19ea6fd8e1fa112b089274b8a7b6ea03d2e6a",
+      "tests/test_agent_documents.py": "5c8587455b6d9c4aba9de58eca425cd22815c738bf9f9883af0abec056ce60c4",
+      "tests/test_tool_recovery_verifier.py": "3a252cb7614dc3510f4aee9dd8a5d9c6349ce87f5b97976ed7a25b6d61e45b34"
+    }
+  },
+  "host": "baiying",
+  "model": "none; CPU protocol/build regression",
+  "native": {
+    "name": "tool-text-parts-server-build-r1",
+    "host": "BAIYING",
+    "command_file": "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1\\scripts\\baiying_guarded_inference.ps1",
+    "spec": {
+      "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "arguments": [
+        "-NoLogo",
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1\\build\\tool-text-parts-server\\build-and-check.ps1"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1",
+      "repo_commit": "ac1a41fc8ecf27b4deed52dc64ade8231229611a",
+      "command_file": "D:\\projects\\run-native-tool-text-parts-r1.ps1",
+      "command_file_sha256": "e0e1d9d92266d7e8552061d00a18c930a6be2ae019d9fa95187a1a3a44d52143",
+      "generated_command_file": "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1\\build\\tool-text-parts-server\\build-and-check.ps1",
+      "generated_command_file_sha256": "cad118f93e1b0cf2b6e392f32911d47f793ed7c988421867e39dbf74a67a4b89",
+      "generated_command_text": "$ErrorActionPreference='Stop'\n$ProgressPreference='SilentlyContinue'\n[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\n$env:PYTHONIOENCODING='utf-8'\n$repo=(Get-Location).Path\n$build=Join-Path $repo 'build\\tool-text-parts-server'\n& 'C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe' -NoLogo -NoProfile -NonInteractive -ExecutionPolicy Bypass -File (Join-Path $repo 'scripts\\baiying_build_qrt_server.ps1') -OutDir $build -TimeoutSeconds 840\nif($LASTEXITCODE -ne 0){throw 'Windows Rust service build/tests failed'}\n$python='C:\\Program Files\\Python313\\python.exe'\n& $python -m unittest discover -s tests -p test_agent_documents.py\nif($LASTEXITCODE -ne 0){throw 'Native caller document tests failed'}\n& $python -m unittest discover -s tests -p test_tool_recovery_verifier.py\nif($LASTEXITCODE -ne 0){throw 'Native HTTP qualification-parser tests failed'}\n[ordered]@{kind='tool_text_parts_native_build_and_caller_checks';server_tests=53;document_tests=10;verifier_tests=2;model_loaded=$false;gpu_work_submitted=$false;pass=$true}|ConvertTo-Json -Compress",
+      "source_manifest_sha256": "c06ce7baf487ed90b50fea06b621b91c6d92e043b89e03506664f07753ab207e",
+      "model": "none; Windows CPU tool-recovery service build and caller-checker regression",
+      "model_loaded": false,
+      "gpu_work_submitted": false,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "prior_native_run_record_sha256": "04aacdde7d970defdb75dc2fb161242f0f8114f7764cf19007791698a810f4ec",
+      "cached_dependency_source": "D:\\projects\\AIMA-public-tool-recovery-r2-20260915\\build\\tool-recovery-server\\cargo-target",
+      "cache_copy_exit_code": null,
+      "cache_copy_wall_ms": 869.8253000000001
+    },
+    "launch": {
+      "pid": 12364,
+      "utc": "2026-09-17T21:46:47.6822491Z",
+      "timeout_seconds": 900,
+      "job_kill_on_close": true
+    },
+    "reason": "completed",
+    "exit_code": 0,
+    "wall_ms": 46532.409,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "host_checks_pass": true,
+    "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+    "canonical_raw_sha256": {
+      "build-provenance.json": "409a015c255910069eb806ebd6bb6c76dd61dfd4fbdbca608a86046bfa07bf7a",
+      "build.stderr.txt": "d8efc184aa0ad6c01edf3a4c08c885adbbd52a1f0d9bcca965490f5d431936e8",
+      "build.stdout.txt": "91f2367ee27bba0f9e0c3eb51bb3d2e1693f73f6b304db614bd3f10187218ded",
+      "dispatch.json": "1a984a6594e5b783ed22778af2b5f3445f17bca516c9f48c11ec59feec980b71",
+      "launch.json": "4de7904eee61d9c4bbad68a9dae1bdad4a31db053896a10edf15375bad30ca96",
+      "preflight.json": "b9fa1e31ff015e163bd3dee77026ba656afd8680b994cf615c967c7fad42809b",
+      "product.stderr.log": "792a95fadde9b4742122424b7902c325d0f973e462066dfff4d9a0b4ade693c7",
+      "product.stdout.jsonl": "3fbfb5be17f3c66b8ac5acbc9ff832e7932041f2f1187da71cdc33e19354076e",
+      "run-record.json": "165125758a4cccf2c8b28de2f386d6e72279c160fff02929fd1251b03f316c7a",
+      "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+    },
+    "build_provenance": {
+      "schema_version": 1,
+      "host": "BAIYING",
+      "execution": "local_windows_process",
+      "repo_commit": "ac1a41fc8ecf27b4deed52dc64ade8231229611a",
+      "dirty_tree": false,
+      "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+      "command_file": "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1\\scripts\\baiying_build_qrt_server.ps1",
+      "timeout_seconds": 840,
+      "validate_only": false,
+      "tests_run": true,
+      "wall_ms": 45049.5561,
+      "cargo": "C:\\Users\\sshuser\\.cargo\\bin\\cargo.exe",
+      "rustc_version": "rustc 1.95.0 (59807616e 2026-04-14)",
+      "executable": "D:\\projects\\AIMA-public-tool-text-parts-20260918-r1\\build\\tool-text-parts-server\\qrt.exe",
+      "executable_sha256": "0faacb17386b62566be64d2c3415eadd90befab6090d2aff1312be2541ba635f"
+    },
+    "reports": [
+      {
+        "kind": "tool_text_parts_native_build_and_caller_checks",
+        "server_tests": 53,
+        "document_tests": 10,
+        "verifier_tests": 2,
+        "model_loaded": false,
+        "gpu_work_submitted": false,
+        "pass": true
+      }
+    ]
+  },
+  "server_sha256": "0faacb17386b62566be64d2c3415eadd90befab6090d2aff1312be2541ba635f",
+  "linux_review": {
+    "file": "benchmarks/correctness/linux-tool-content-source-review-20260918.json",
+    "bytes": 16432,
+    "sha256": "109a911811760a25e0f0ab638c69a8b2b8a9e5e3dd7c3e5d7ac16f5eaf71d6cf"
+  },
+  "local_tests": [
+    {
+      "command": [
+        "cargo",
+        "test",
+        "-p",
+        "qrt-server",
+        "--no-fail-fast"
+      ],
+      "returncode": 0,
+      "wall_s": 8.460526332259178,
+      "output": "   Compiling qrt-server v1.0.1 (<private-home>/projects/AIMA-public-r1191-candidate/engine/qrt-server)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 7.21s\n     Running unittests src/lib.rs (target/debug/deps/qrt_server-046bbc5643864ab5)\n\nrunning 53 tests\ntest api::tests::admin_shutdown_requires_bearer_key_and_signals_once ... ok\ntest api::tests::eos_is_counted_but_not_decoded ... ok\ntest api::tests::completion_stream_ends_with_done ... ok\ntest api::tests::chat_completion_is_openai_shaped ... ok\ntest api::tests::completion_stream_does_not_publish_tokens_after_eos ... ok\ntest api::tests::chat_stream_does_not_publish_tokens_after_eos ... ok\ntest api::tests::chat_completion_returns_structured_named_tool_call ... ok\ntest api::tests::chat_stream_usage_chunk_precedes_done ... ok\ntest api::tests::duplicate_tool_results_fail_before_chat_or_tokenization ... ok\ntest api::tests::inference_queue_is_bounded_and_fifo ... ok\ntest api::tests::stop_is_not_streamed ... ok\ntest api::tests::shutdown_releases_waiters_and_rejects_new_requests ... ok\ntest api::tests::model_retrieve_is_openai_shaped ... ok\ntest api::tests::model_retrieve_unknown_model_returns_openai_error ... ok\ntest api::tests::thinking_defaults_aliases_conflicts_and_budget_are_explicit ... ok\ntest api::tests::duplicate_mutating_tools_are_suppressed_in_json_and_sse ... ok\ntest api::tests::exhausted_tools_return_an_error_even_if_tool_required ... ok\ntest api::tests::tpot_is_per_token_and_preserves_the_native_total ... ok\ntest api::tests::tools_none_cannot_turn_literal_markup_into_an_executable_call ... ok\ntest backend::callback_tests::callback_cancels_when_stream_receiver_is_gone ... ok\ntest backend::callback_tests::callback_publishes_to_a_live_stream_receiver ... ok\ntest chat::tests::basic_non_thinking_prompt_matches_qwen_template ... ok\ntest chat::tests::developer_message_uses_qwen_system_slot ... ok\ntest chat::tests::duplicate_tool_calls_are_canonical_and_keep_distinct_actions ... ok\ntest api::tests::thinking_tokens_and_health_arrive_before_generation_finishes ... ok\ntest chat::tests::failed_pending_and_claimed_repairs_do_not_reopen_the_window ... ok\ntest chat::tests::named_tool_choice_requires_function_type ... ok\ntest chat::tests::late_and_parallel_results_use_the_issuing_turn ... ok\ntest chat::tests::parses_xml_tool_call_and_reasoning ... ok\ntest chat::tests::no_progress_policy_allows_one_retry_then_exposes_exhaustion ... ok\ntest api::tests::invalid_thinking_is_rejected_before_inference ... ok\ntest chat::tests::renders_grouped_tool_responses ... ok\ntest chat::tests::reasoning_stream_preserves_all_delimiter_splits_and_final_parity ... ok\ntest chat::tests::result_replays_and_unbound_results_are_rejected_by_the_template ... ok\ntest chat::tests::tool_json_matches_huggingface_jinja_tojson ... ok\ntest api::tests::top_level_thinking_stream_nonstream_and_tokenizer_agree ... ok\ntest chat::tests::useful_tool_results_and_parallel_policy_remain_distinct ... ok\ntest lifecycle::tests::env_value_unquoting_is_bounded ... ok\ntest lifecycle::tests::health_response_binds_pid_and_model_identity ... ok\ntest chat::tests::status_only_and_failed_wrappers_do_not_confirm_repeated_progress ... ok\ntest chat::tests::completed_repairs_reopen_the_verification_retry_window ... ok\ntest chat::tests::useful_text_parts_and_json_data_arrays_remain_progress ... ok\ntest lifecycle::tests::portable_profile_follows_a_moved_runtime_directory ... ok\ntest lifecycle::tests::stopped_state_binds_the_completed_service_instance ... ok\ntest lifecycle::tests::portable_profile_rejects_escaping_or_malformed_paths ... ok\ntest api::tests::tool_media_parts_are_rejected_before_chat_or_tokenization ... ok\ntest api::tests::repaired_and_mixed_tool_calls_survive_json_and_sse ... ok\ntest tokenizer::tests::vocabulary_size_and_decode_include_added_special_tokens ... ok\ntest api::tests::tool_text_part_failures_and_repairs_match_json_and_sse ... ok\ntest api::tests::inference_queue_timeout_is_structured_and_recoverable ... ok\ntest lifecycle::tests::packaged_smooth_tail_layout_requires_every_provider_and_kernel ... ok\ntest api::tests::completion_context_accepts_exact_limit_and_rejects_one_token_over ... ok\ntest chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs ... ok\n\ntest result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s\n\n     Running unittests src/main.rs (target/debug/deps/qrt-ba8dd75f8a6e529f)\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n   Doc-tests qrt_server\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+    },
+    {
+      "command": [
+        "cargo",
+        "clippy",
+        "-p",
+        "qrt-server",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      "returncode": 0,
+      "wall_s": 5.855360499583185,
+      "output": "   Compiling qrt-server v1.0.1 (<private-home>/projects/AIMA-public-r1191-candidate/engine/qrt-server)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.81s\n"
+    }
+  ],
+  "local_observer_and_format_checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_tool_recovery_verifier.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.04819487500935793,
+      "stdout": "",
+      "stderr": "..\n----------------------------------------------------------------------\nRan 2 tests in 0.000s\n\nOK\n"
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "py_compile",
+        "scripts/verify_qrt_openai_server.py"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.02317387517541647,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--package",
+        "qrt-server",
+        "--",
+        "--check"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.06963908299803734,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.014311165548861027,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "before_fix_failure": {
+    "returncode": 101,
+    "wall_s": 5.81740808300674,
+    "output": "   Compiling qrt-server v1.0.1 (<private-home>/projects/AIMA-public-r1191-candidate/engine/qrt-server)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.89s\n     Running unittests src/lib.rs (target/debug/deps/qrt_server-046bbc5643864ab5)\n\nrunning 1 test\ntest chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs ... FAILED\n\nfailures:\n\n---- chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs stdout ----\n\nthread 'chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs' (945603766) panicked at engine/qrt-server/src/chat.rs:1155:17:\n[{\"text\":\"\",\"type\":\"text\"},{\"text\":\"\",\"type\":\"text\"}]\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\n\nfailures:\n    chat::tests::tool_text_parts_preserve_failures_empty_results_and_silent_repairs\n\ntest result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 50 filtered out; finished in 0.01s\n\nerror: test failed, to rerun pass `-p qrt-server --lib`\n"
+  },
+  "discarded_empty_test_selection": {
+    "file": "tool-text-parts-baseline-r1.log",
+    "sha256": "5f996c7db5ff70ed7c61c1fb89edc076d70fc590e57c456f21e38e0063ae90e2",
+    "tests_executed": 0,
+    "not_a_validation": true
+  },
+  "changed_server_or_c_abi_sources": [
+    "engine/qrt-server/src/api.rs",
+    "engine/qrt-server/src/chat.rs"
+  ],
+  "test_counts": {
+    "rust_server": 53,
+    "native_caller_documents": 10,
+    "native_protocol_verifier": 2
+  },
+  "new_http_inprocess_requests": {
+    "text_part_and_string_recovery": 56,
+    "media_admission": 27
+  },
+  "runtime_math_changed": false,
+  "cargo_dependencies_changed": false,
+  "real_model_qualified": false,
+  "package_qualified": false,
+  "performance_qualified": false,
+  "release_qualified": false,
+  "published": false
+}

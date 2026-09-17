@@ -1,6 +1,47 @@
 # Linux sibling fixes reviewed for the next Windows release
 
-Review date: 2026-09-13. The Windows upstream's previously reviewed open issue is
+## September 18 refresh: Linux `.10` tool content
+
+The release API retrieved at 2026-09-17T21:30:40Z identifies
+[`v1.5.1-native-vl.10`](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.10),
+published 2026-09-16T20:58:30Z, as the latest release. Its tag resolves to
+`0522a57caf24bf21e0e6fcc5b234a7fc361fbc94`; declared native source is
+`ec9934446911fdf376da8eebcd83e7b137efbb7c`. Comparing it with `.9` native
+source `29f67beda7199575c62020d2b95e24c0a754c9a9` changes only
+`native/src/native_chat_protocol.cpp` under native source. GPU arithmetic
+is unchanged. The [source review](../benchmarks/correctness/linux-tool-content-source-review-20260918.json)
+preserves the release response, immutable reference, file hashes and diff.
+
+Linux now accepts image/video/mixed tool results through its existing media
+pipeline. It keeps original status text separate from visual placeholders:
+media-only payload can count as progress, while explicit text/JSON failures
+cannot reopen an exhausted retry window merely by including media. Matching
+preceding calls, unique result IDs, a real user query and existing media
+limits remain required. Linux's published numerical matrix, soak and unchanged
+dependency inventory qualify that Linux artifact, not Windows.
+
+The audit found a Windows text-only analogue: the template concatenated text
+parts, but the retry policy treated every nonempty array as useful output.
+Server source `ac1a41f` now classifies the same concatenated text. Empty parts,
+explicit errors, encoded JSON failures and failed final-output wrappers retain
+their retry counts. Useful results and different-command silent repairs can
+still reopen the window; JSON arrays encoded inside result text remain data.
+Image/video and mixed-media tool results continue to fail explicitly at chat
+and tokenization admission. No Windows visual capability is inferred.
+
+The [local/native build record](../benchmarks/correctness/tool-text-parts-local-native-20260918.json)
+contains a before-fix failing regression, 53 passing Rust tests on both hosts,
+Windows MSVC/Rust service build, 10 caller-document tests and 2 verifier tests.
+The new in-process checks cover 56 JSON/SSE recovery requests and 27 media
+admission requests. Server C ABI sources, Cargo dependencies and provider math
+are unchanged. Real-model HTTP qualification is recorded separately after it
+completes; no package, performance or release acceptance follows from these
+CPU checks. The earlier `.9` repair/document changes remain in the unpublished
+R4 archive described in [performance evidence](PERFORMANCE.md).
+
+## Initial September 13 review
+
+The Windows upstream's previously reviewed open issue is
 [#1](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Windows-Engine/issues/1):
 the 8191/8193 TTFT cliff. The fork has issues disabled. No issue is closed and
 no candidate is published on the strength of this comparison.
