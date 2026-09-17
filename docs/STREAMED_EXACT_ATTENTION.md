@@ -42,7 +42,33 @@ this alone is not a measured occupancy or bottleneck explanation.
 94708 bytes, SHA256
 `3d9cba458d2df82cf68f46efe33530c22705f95afc44932d75a87c1a0490bcb6`.
 
-The revised consumer retains the independently parallel 2x2 exact QK
+An additional isolated complete-fusion experiment, source `53269f8`, keeps
+only 16 query rows resident and uses 64/32-feature shared key windows. It
+retains the same original arithmetic and fallback. All 200 generated
+configurations pass: 40 operand/shape cases, one current control and both
+candidates with/without diagnostic score writes. All q8192 live intermediates,
+outputs, guards, original PV selection counts and 29364224 GB10 context cells
+pass. Timed candidates leave the score allocation untouched; diagnostic
+warmups compare every score against independent original arithmetic.
+
+| Complete q8192 attention | Median ms | Three rotated samples, ms |
+| --- | ---: | --- |
+| Current separate QK plus fused P/PV | 605.3249 | 605.9914 / 605.3249 / 594.3344 |
+| Complete fusion, 16 queries, key window 64 | 1937.9484 | 2018.8205 / 1934.7158 / 1937.9484 |
+| Complete fusion, 16 queries, key window 32 | 3407.6074 | 3439.7026 / 3407.6074 / 3398.6673 |
+
+Common preparation is 3.7749 ms; each arm includes every selected exact PV
+replay. All select 3127598 candidates. Shared allocations fall to 27776/23680
+bytes, but private declarations rise to 640/864 bytes and both kernels still
+declare 192 VGPRs. These static declarations do not establish occupancy or a
+causal performance diagnosis. Keep both candidates outside runtime dispatch;
+no model run, package change or performance acceptance follows.
+
+[Smaller complete-fusion evidence](../benchmarks/correctness/compact-streamed-attention-components-20260918.json):
+107296 bytes, SHA256
+`491d47627cd517ab873a998f293649d7ce13d31d32c6cd995fdd99d4765d4380`.
+
+The retained revised consumer uses the independently parallel 2x2 exact QK
 producer and its complete fallback scan. Only softmax and native PV share a
 kernel. This removes repeated global probability/alpha reads by the native
 PV stage while preserving their writes for original exact replay. It retains
