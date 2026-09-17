@@ -41054,7 +41054,8 @@ private:
         if (line.rfind("BATCH_MARK ", 0u) != 0u) {
             return true;
         }
-        static constexpr std::array<const char *, 106> kRequiredMarkers = {{
+        static constexpr std::array<const char *, 107> kRequiredMarkers = {{
+            "BATCH_MARK final_query_liveness",
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -63502,6 +63503,7 @@ std::vector<unsigned int> begin_qwen36_prefix_checkpoints(
 }
 
 #include "prefix_batch_suffix.h"
+#include "final_query_liveness.h"
 
 bool qwen36_chunk_prefill_continuation_active() {
     const auto *scope = ScopedQwen36PrefixBatchSuffix::active;
@@ -129639,6 +129641,15 @@ bool run_full_attention_prefill_resident_core_for_targets(
     }
     const bool use_compact_ck_bf16 =
         compact_ck_bf16_exact_request && compact_ck_bf16_prerequisites;
+    if (qrt_final_query_liveness::active &&
+        (descriptor.layer_index != kDescriptorBatchFinalLayer ||
+         !use_compact_ck_bf16 || !triton_hsaco_q8192_exact_shape ||
+         ScopedQwen36PrefixBatchSuffix::active)) {
+        run->failure_stage = prefix + "_final_query_liveness_contract";
+        run->failure = "terminal query liveness requires the complete cold q8192 BF16 owner";
+        cleanup();
+        return false;
+    }
     const bool use_resident_q8191_ck_causal_pad =
         resident_q8191_ck_causal_pad_shape && use_compact_ck_bf16;
     const bool use_compact_ck_wave32_prep =
@@ -133325,7 +133336,10 @@ bool run_full_attention_prefill_resident_core_for_targets(
                            : (use_ck_fmha_q16384_full_attention_provider
                                   ? ck_fmha_q16384_launch
                                   : ck_fmha_launch));
-            const hipError_t ck_launch_status = ScopedQwen36PrefixBatchSuffix::active
+            const hipError_t ck_launch_status = qrt_final_query_liveness::active
+                ? qrt_final_query_liveness::launch(device_compact_q_bf16,
+                    device_k_bf16, device_v_bf16, device_score, prefill_tokens)
+                : ScopedQwen36PrefixBatchSuffix::active
                 ? ScopedQwen36PrefixBatchSuffix::active->attention(descriptor.layer_index,
                     device_compact_q_bf16, device_k_bf16, device_v_bf16, device_score, prefill_tokens)
                 : static_cast<hipError_t>(
@@ -141050,6 +141064,19 @@ bool run_prefill_linear_attention_descriptor_batch_probe(
                     &full_attention_selected_previous_output_residual;
             }
             const uint64_t full_attention_start_ns = qrt_now_ns();
+            // Only the final causal row may be consumed after this layer.
+            // Earlier layers, multi-row callers, prefix continuation, chunked
+            // prefill and MTP retain complete attention. Scope destruction
+            // restores the previous state on every success/failure return.
+            const qrt_final_query_liveness::Scope final_query_scope(
+                env_flag_enabled("QRT_QWEN36_FINAL_QUERY_LIVENESS") &&
+                final_full_prefix_attention && explicit_final_targets_are_q1 &&
+                prefill_tokens == kRetainedPrefillTokens &&
+                segment.full_attention_layer == kDescriptorBatchFinalLayer &&
+                !ScopedQwen36PrefixBatchSuffix::active &&
+                !g_qwen36_chunked_prefill_total_tokens &&
+                !raw_env_flag_enabled("QRT_QWEN36_PREFIX_CHECKPOINTS") &&
+                !g_qwen36_mtp_tensor_namespace_active);
             const bool full_attention_ok = run_full_attention_layer(
                     segment.full_attention_layer,
                     full_attention_target_tokens,
