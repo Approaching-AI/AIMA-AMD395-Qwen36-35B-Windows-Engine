@@ -231,6 +231,7 @@ void capture(unsigned tokens,const char* qfile,const char* kfile,const char* vfi
     }
 }
 } // namespace
+#ifndef QRT_COMBINED_ATTENTION_NO_MAIN
 int main(int argc,char** argv)try{
     if(argc!=8)throw std::runtime_error("usage: capture 7169|8192 Q K V GB10_CONTEXT EXP2 RCP");
     const unsigned tokens=!std::strcmp(argv[1],"7169")?7169u:!std::strcmp(argv[1],"8192")?8192u:0u;
@@ -239,3 +240,4 @@ int main(int argc,char** argv)try{
     if(std::strncmp(prop.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
     capture(tokens,argv[2],argv[3],argv[4],argv[5],argv[6],argv[7]);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"combined_exact_attention_error=%s\n",e.what());return 2;}
+#endif
