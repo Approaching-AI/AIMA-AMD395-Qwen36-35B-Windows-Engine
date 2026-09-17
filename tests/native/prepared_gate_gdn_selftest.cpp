@@ -38,7 +38,13 @@ struct PhaseEvents{
  explicit PhaseEvents(bool active):enabled(active){if(enabled)for(auto& event:events)check(hipEventCreate(&event));}
  ~PhaseEvents(){for(auto event:events)if(event && hipEventDestroy(event)!=hipSuccess)std::abort();}
  void mark(unsigned index){if(enabled)check(hipEventRecord(events[index],nullptr));}
- float elapsed(unsigned phase){float ms=0.0f;if(enabled)check(hipEventElapsedTime(&ms,events[phase],events[phase+1u]));require(std::isfinite(ms)&&ms>=0.0f,"invalid phase duration");return ms;}
+ float elapsed(unsigned phase){
+  float ms=0.0f;if(enabled)check(hipEventElapsedTime(&ms,events[phase],events[phase+1u]));
+  // Adjacent device events can return invalid intervals on this host. Preserve
+  // their bits as diagnostics without rejecting a completed numerical result.
+  if(!std::isfinite(ms)||ms<0.0f)std::fprintf(stderr,"GDN_INVALID_PHASE phase=%u raw_bits=%08x excluded=1\n",phase,bits(ms));
+  return std::isfinite(ms)?ms:-1.0f;
+ }
 };
 float dot(const uint16_t* a,const uint16_t* b,unsigned width){original::Value carry{0u,-133,false};for(unsigned base=0u;base<width;base+=16u){original::Value terms[17];terms[0]=carry;for(unsigned i=0u;i<16u;++i)terms[i+1u]=original::multiply_bf16(a[base+i],b[base+i],-133);carry=original::group_sum<26,-133>(terms,17u);}return original::value_to_float(qrt_sm121_group16::finish_accumulator(carry));}
 size_t cpu_column(unsigned count,unsigned head,unsigned column,const std::vector<uint16_t>& q,const std::vector<uint16_t>& k,const std::vector<uint16_t>& u,const std::vector<uint16_t>& w,const std::vector<float>& g,const std::vector<uint16_t>& scores,const std::vector<float>& seed,const std::vector<unsigned char>& table,const std::vector<float>& output,const std::vector<float>& final,const std::vector<uint16_t>& h,const std::vector<uint16_t>& vn){
@@ -174,7 +180,10 @@ void run(unsigned count,unsigned mode,unsigned measured,Device& table,const std:
   const char* names[4]={"gate_preparation","wu","state","output"};
   for(unsigned phase=0u;phase<4u;++phase){
    const auto* values=phase_samples[alias][variant][phase];double phase_sorted[3]={values[0],values[1],values[2]};std::sort(phase_sorted,phase_sorted+3u);
-   std::printf("%s\"%s\":{\"median\":%.6f,\"samples\":[%.6f,%.6f,%.6f]}",phase?",":"",names[phase],phase_sorted[1],values[0],values[1],values[2]);
+   const bool valid=std::all_of(values,values+3u,[](double x){return x>=0.0;});
+   std::printf("%s\"%s\":{\"valid\":%s,\"median\":",phase?",":"",names[phase],valid?"true":"false");
+   if(valid)std::printf("%.6f",phase_sorted[1]);else std::printf("null");
+   std::printf(",\"samples\":[%.6f,%.6f,%.6f]}",values[0],values[1],values[2]);
   }
   std::printf("},\"phase_events_same_stream\":true,\"intermediate_host_synchronization\":false,\"all_attempts_verified\":true,\"raw_bit_mismatches\":0,\"intermediate_and_alias_ownership_checked\":true,\"cpu_gate_values_checked\":true,\"redzones_pass\":true,\"immutable_nonaliased_inputs\":true,\"inference_acceptance\":false,\"performance_acceptance\":false}\n");
  }
