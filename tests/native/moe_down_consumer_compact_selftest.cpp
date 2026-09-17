@@ -24,6 +24,7 @@ hipStream_t stream=nullptr;
 void require(bool condition,const char* why){if(!condition)throw std::runtime_error(why);}
 void ok(hipError_t result,const char* why){if(result!=hipSuccess)throw std::runtime_error(std::string(why)+": "+hipGetErrorString(result));}
 void finish(){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){auto result=hipStreamQuery(stream);if(result==hipSuccess)return;ok(result==hipErrorNotReady?hipSuccess:result,"query");require(std::chrono::steady_clock::now()<deadline,"deadline");std::this_thread::yield();}}
+void finish_event(hipEvent_t event){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){auto result=hipEventQuery(event);if(result==hipSuccess)return;ok(result==hipErrorNotReady?hipSuccess:result,"event query");require(std::chrono::steady_clock::now()<deadline,"event deadline");std::this_thread::yield();}}
 template<class T>struct Buffer{
  std::vector<T> initial;T* storage=nullptr;size_t count;
  explicit Buffer(const std::vector<T>& values):initial(values.size()+2*guard,T(93)),count(values.size()){
@@ -126,7 +127,7 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
   fused::Owner owner(stream);ok(owner.initialize(filtered==3u,true),"actual compact owner initialization");
   hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,stream),"same-call shared completion record");
   if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=shared_recorded\n",tokens,mode,filtered);std::fflush(stderr);}
-  finish();
+  finish_event(shared_done);finish();
   const auto begin=std::chrono::steady_clock::now();
   if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=launch\n",tokens,mode,filtered);std::fflush(stderr);}
   if(filtered==1u){hipLaunchKernelGGL(f::certify,dim3(throughput?4096u:17u),dim3(256),0,stream,dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),512e-9f,radius,0u,ds.data(),dg.data(),masks.data(),stats.data(),tokens);ok(hipGetLastError(),"certificate");}
