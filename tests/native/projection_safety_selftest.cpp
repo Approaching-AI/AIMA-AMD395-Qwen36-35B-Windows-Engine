@@ -393,6 +393,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_pair_replay_suite.h"
 #include "projection_staged_device_suite.h"
 #include "projection_real_replay.h"
+#include "conv_consumer_audit_suite.h"
 #include "absolute_product_hipblaslt_selftest.h"
 #include "out_l1_magnitude_suite.h"
 #include "absolute_admission_audit_selftest.h"
@@ -406,6 +407,16 @@ int main(int argc, char **argv) {
     try {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
+        if (mode == "--conv-consumer-audit") {
+            require(argc == 8,"--conv-consumer-audit INPUT PROJECTION_WEIGHT PROJECTION_REFERENCE CONV_WEIGHT CONV_REFERENCE_DIR TABLE");
+            host_contract(); hip_ok(hipInit(0),"hip_init");
+            hipDeviceProp_t properties{};
+            hip_ok(hipGetDeviceProperties(&properties,0),"device_properties");
+            require(std::string(properties.gcnArchName).find("gfx1151") == 0u,"expected gfx1151 before audit dispatch");
+            run_conv_consumer_audit(argv[2],argv[3],argv[4],argv[5],argv[6],argv[7]);
+            std::cout << "{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"--conv-consumer-audit\",\"gpu_cases\":1,\"inference_success_claimed\":false,\"numerical_scope\":\"captured_layer_zero_projection_and_convolution_consumer_interval\"}" << std::endl;
+            return 0;
+        }
         require(argc == ((mode == "--out-variance-replay" || mode == "--out-variance-queue") ? 3 : (mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm") ? 6 : 2), "select a synthetic mode, --real-qkv, --real-qkv-q8192 or --real-out-q8192 INPUT WEIGHT REFERENCE PPB, --real-conv INPUT WEIGHT REFERENCE_DIR TABLE, or --real-finalnorm INPUT WEIGHT REFERENCE CORRECTION");
         require(mode == "--out-variance-queue" || mode == "--out-variance-replay" || mode == "--host-only" || mode == "--small" || mode == "--full-shape" || mode == "--correction" || mode == "--real-qkv" || mode == "--real-qkv-q8192" || mode == "--real-out-q8192" || mode == "--real-conv" || mode == "--real-finalnorm" || mode == "--wmma-staging" || mode == "--device-replay" || mode == "--staged-device-replay" || mode == "--prepared-correction" || mode == "--absolute-bound-correction" || mode == "--absolute-product-hipblaslt" || mode == "--absolute-admission-audit" || mode == "--matrix-producers-q8192" || mode == "--out-l1-magnitude", "unknown safety mode");
         host_contract();
