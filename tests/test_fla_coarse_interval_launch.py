@@ -20,6 +20,8 @@ class CoarseIntervalLaunchTests(unittest.TestCase):
 #include <tuple>
 #include <type_traits>
 #include "native/providers/gdn/coarse_interval_policy.h"
+#include "native/providers/gdn/paired_score_policy.h"
+namespace qrt_fla_lifetime { void output_kernel(){} template<unsigned C>void state_kernel(){} }
 #include "native/providers/gdn/fla_checkpoint.h"
 enum hipError_t{hipSuccess,hipErrorInvalidValue,hipErrorUnknown};
 using hipStream_t=void*;
@@ -50,6 +52,7 @@ template<class... Args>void record(void(*kernel)(),dim3 grid,dim3 block,unsigned
 hipError_t hipGetLastError(){++queries;return fail?hipErrorUnknown:hipSuccess;}
 ''' + wrappers + r'''
 int main(){
+    unsetenv("QRT_FLA_GDN_PAIRED_SCORE_ARENAS");
     unsetenv("QRT_FLA_GDN_COARSE_INTERVAL");assert(qrt_fla_coarse_policy::mode()==0);
     unsigned checked=0u;
     for(const char* setting:{"","0","1","2","-1","01","1 ","true"}){

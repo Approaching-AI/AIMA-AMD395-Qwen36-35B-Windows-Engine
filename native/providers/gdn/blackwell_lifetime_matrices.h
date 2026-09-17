@@ -1,7 +1,7 @@
 #pragma once
 #include "blackwell_scalar_state.h"
 
-// Isolated lifetime change. The original scalar dot and all numerical
+// Shared arena lifetime change. The original scalar dot and all numerical
 // operations remain unchanged; only nonoverlapping shared arrays reuse space.
 namespace qrt_fla_lifetime {
 namespace scalar=qrt_fla_blackwell_scalar;

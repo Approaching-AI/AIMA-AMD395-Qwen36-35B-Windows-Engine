@@ -23,6 +23,8 @@ class FlaScalarStateLaunchTests(unittest.TestCase):
 #include <initializer_list>
 #include <tuple>
 #include "native/providers/gdn/coarse_interval_policy.h"
+#include "native/providers/gdn/paired_score_policy.h"
+namespace qrt_fla_lifetime { void output_kernel(){} template<unsigned C>void state_kernel(){} }
 namespace qrt_fla_interval { template<bool C,bool A>void wu_kernel(){} template<bool C,bool A>void state_kernel(){} template<bool C,bool A>void output_kernel(){} }
 enum hipError_t { hipSuccess, hipErrorInvalidValue, hipErrorUnknown };
 using hipStream_t=void*;
@@ -46,6 +48,7 @@ template<class... Args> void record(void(*kernel)(),dim3 grid,dim3 block,unsigne
 hipError_t hipGetLastError() { ++queries;return fail?hipErrorUnknown:hipSuccess; }
 ''' + launch + r'''
 int main() {
+    unsetenv("QRT_FLA_GDN_PAIRED_SCORE_ARENAS");
     unsetenv("QRT_FLA_GDN_COARSE_INTERVAL");
     unsetenv("QRT_FLA_GDN_SCALAR_FLOAT_STATE");assert(qrt_fla_blackwell_scalar::state_columns()==0);
     for (const char* value:{"","0","4","8","1","-1","04","8 ","true"}) {

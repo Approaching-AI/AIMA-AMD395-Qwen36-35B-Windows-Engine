@@ -1,7 +1,7 @@
 #pragma once
 #include "blackwell_scalar_matrices.h"
 
-// Isolated complete score producer. Adjacent value heads use the same Q/K
+// Complete score producer. Adjacent value heads use the same Q/K
 // head; compute its original raw dot once and apply both original gates.
 // Callers own exactly count*32*64 score words; no padded query is stored.
 namespace qrt_fla_paired_score {

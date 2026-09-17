@@ -1,6 +1,9 @@
 #include "blackwell_cooperative.h"
 #include "blackwell_scalar_matrices.h"
 #include "blackwell_scalar_state.h"
+#include "blackwell_lifetime_matrices.h"
+#include "paired_score_matrices.h"
+#include "paired_score_policy.h"
 #include "fused_state_output.h"
 #include "interval_matrices.h"
 #include "coarse_interval_policy.h"
@@ -208,6 +211,19 @@ hipError_t wu(const uint16_t* k, const uint16_t* v, const uint16_t* beta,
 }
 hipError_t scores(const uint16_t* q, const uint16_t* k, const float* g, uint16_t* result,
                   unsigned count, const unsigned char* table, hipStream_t stream) {
+    const int paired_mode = qrt_fla_paired_policy::mode();
+    const int scalar_mode = qrt_fla_blackwell_scalar::mode();
+    const int coarse_mode = qrt_fla_coarse_policy::mode();
+    if (paired_mode < 0 || scalar_mode < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    if (qrt_fla_paired_policy::selected(paired_mode, scalar_mode == 1 && coarse_mode == 0, count)) {
+        hipLaunchKernelGGL(qrt_fla_paired_score::kernel,
+            dim3(2u, 16u, ((count + 63u) / 64u) * 8u), dim3(threads),
+            0u, stream, q, k, g, result, count, table);
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_PAIRED_SCORE_ARENAS operation=scores tokens=%u shared_qk_heads=16 original_k16=1 additional_device_bytes=0\n", count);
+        return status;
+    }
     hipLaunchKernelGGL(scores_kernel, dim3(64u * 64u / groups, 32u, (count + 63u) / 64u),
         dim3(threads), 0u, stream, q, k, g, result, count, table);
     return hipGetLastError();
@@ -217,7 +233,8 @@ hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const
                   const unsigned char* table, hipStream_t stream) {
     const int scalar_mode = qrt_fla_blackwell_scalar::mode();
     const int coarse_mode=qrt_fla_coarse_policy::mode();
-    if (scalar_mode < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    const int paired_mode = qrt_fla_paired_policy::mode();
+    if (scalar_mode < 0 || coarse_mode < 0 || paired_mode < 0) return hipErrorInvalidValue;
     if (qrt_fla_coarse_policy::selected(coarse_mode,scalar_mode==1,count)) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_interval::output_kernel<true,false>),
             dim3(4u,32u,(count+63u)/64u),dim3(threads),0u,stream,
@@ -225,6 +242,15 @@ hipError_t output(const uint16_t* q, const uint16_t* v, const uint16_t* h, const
         const hipError_t status=hipGetLastError();
         if(status==hipSuccess)std::fprintf(stderr,
             "FLA_COARSE_INTERVAL operation=output tokens=%u chunk=64 exact_fallback=1 additional_device_bytes=0\n",count);
+        return status;
+    }
+    if (qrt_fla_paired_policy::selected(paired_mode, scalar_mode == 1 && coarse_mode == 0, count)) {
+        hipLaunchKernelGGL(qrt_fla_lifetime::output_kernel,
+            dim3(16u, 32u, (count + 63u) / 64u), dim3(threads),
+            0u, stream, q, v, h, g, scores, result, count, table);
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_PAIRED_SCORE_ARENAS operation=output tokens=%u columns=8 original_k16=1 additional_device_bytes=0\n", count);
         return status;
     }
     if (scalar_mode) {
@@ -245,7 +271,8 @@ hipError_t state(const uint16_t* k, const uint16_t* u, const uint16_t* w, const 
                  const unsigned char* table, hipStream_t stream) {
     const int scalar_columns = qrt_fla_blackwell_scalar::state_columns();
     const int coarse_mode=qrt_fla_coarse_policy::mode();
-    if (scalar_columns < 0 || coarse_mode < 0) return hipErrorInvalidValue;
+    const int paired_mode = qrt_fla_paired_policy::mode();
+    if (scalar_columns < 0 || coarse_mode < 0 || paired_mode < 0) return hipErrorInvalidValue;
     if (qrt_fla_coarse_policy::selected(coarse_mode,scalar_columns==8,count)) {
         hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_interval::state_kernel<true,false>),
             dim3(8u,32u),dim3(threads),0u,stream,
@@ -253,6 +280,15 @@ hipError_t state(const uint16_t* k, const uint16_t* u, const uint16_t* w, const 
         const hipError_t status=hipGetLastError();
         if(status==hipSuccess)std::fprintf(stderr,
             "FLA_COARSE_INTERVAL operation=state tokens=%u chunk=64 exact_state_update=1 exact_fallback=1 additional_device_bytes=0\n",count);
+        return status;
+    }
+    if (qrt_fla_paired_policy::selected(paired_mode, scalar_columns == 8 && coarse_mode == 0, count)) {
+        hipLaunchKernelGGL(HIP_KERNEL_NAME(qrt_fla_lifetime::state_kernel<8u>),
+            dim3(16u, 32u), dim3(threads), 0u, stream,
+            k, u, w, g, h, v_new, state, count, table);
+        const hipError_t status = hipGetLastError();
+        if (status == hipSuccess) std::fprintf(stderr,
+            "FLA_PAIRED_SCORE_ARENAS operation=state tokens=%u columns=8 original_k16=1 additional_device_bytes=0 capture=0\n", count);
         return status;
     }
     if (scalar_columns) {

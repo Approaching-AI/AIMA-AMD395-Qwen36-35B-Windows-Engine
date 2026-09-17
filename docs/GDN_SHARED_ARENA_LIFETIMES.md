@@ -7,7 +7,8 @@ finishes every Q/H dot before scores replace queries and values replace
 checkpoints. Two original Q/H results remain in registers. All threads,
 including inactive tail threads, reach the barriers before either overwrite.
 The WU kernel, K16 dots, exceptional fallback, checkpoints, conversions, final
-FMAs and U=V ownership remain unchanged. These kernels have no provider dispatch.
+FMAs and U=V ownership remain unchanged. The initial fixture has no provider dispatch; subsequent opt-in integration
+is tracked in [paired score GDN](PAIRED_SCORE_GDN.md).
 
 All 288 native safety configurations pass, covering eight lengths through
 1,025, six data families, three variants and both U ownership modes. Checks
