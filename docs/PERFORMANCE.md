@@ -1,5 +1,25 @@
 # Real-model performance
 
+## Fused probability/native PV, 2026-09-17
+
+Four fresh same-DLL q8192/out512 processes compare the source `df2ea51`
+CK provider OFF/ON/ON/OFF. The retained whole, compact MoE, FLA and CLI
+assets and every other option are fixed. All 2048 original GB10 output IDs,
+prompts and actual callbacks match; every first logit is 10.375 with zero
+error. All loads are below 30 seconds and every owner/host guard passes.
+
+OFF/ON TTFT medians are 25376.85035/24835.3024 ms, saving 541.54795 ms
+(2.1340%); both ON samples are below both OFF samples. Mode 1 becomes the
+current experimental q8192 baseline. It retains independently parallel exact
+QK and fuses only softmax/native PV, followed by the original selective exact
+replay. It adds no persistent workspace. Two samples per arm do not establish
+a decode gain: TPOT medians are 101.276713/101.1726645 ms. TTFT still exceeds
+10 seconds. Code/package defaults, long-context and release gates remain
+unchanged. [Implementation and all four measurements](STREAMED_EXACT_ATTENTION.md).
+[Product evidence](../benchmarks/correctness/fused-probability-pv-product-20260917.json):
+965116 bytes, SHA256
+`9963b45485de6f944d2f5fadc1c5f588fa64e0c30f128359e019d3551e6a2758`.
+
 ## Complete convolution-consumer observation, 2026-09-17
 
 The default-off observer in whole source `0e5bf7d` leaves every original
@@ -13,7 +33,7 @@ It identifies 38931451 provisionally omittable corrections out of 160641307
 Load is 21241.5679 ms; TTFT is 26121.1392 ms and TPOT is 101.348289 ms.
 These clocks include private copies, certificates, duplicate convolution,
 reductions and synchronization. They are not a performance comparison or a
-replacement for the uninstrumented 25379.41695 ms baseline. Keep the
+replacement for the then-current uninstrumented 25379.41695 ms baseline. Keep the
 observer off and leave filtering unimplemented while prioritizing a broader
 attention route. [Implementation, component checks and model evidence](CONV_CONSUMER_INTERVAL.md).
 
@@ -21,7 +41,7 @@ attention route. [Implementation, component checks and model evidence](CONV_CONS
 
 Four fresh same-DLL q8192/out512 processes run OFF/ON/ON/OFF with adaptive
 linear OUT mode 2, combined exact attention and register PV held fixed.
-All2048 GB10 output IDs, original prompts and actual callbacks match; all
+All 2048 GB10 output IDs, original prompts and actual callbacks match; all
 first logits are 10.375 and all loads are below 30 seconds. The new MoE
 provider source is `9235750`; the other component builds remain pinned.
 

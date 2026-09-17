@@ -78,7 +78,7 @@ generated cases pass. OFF/ON launcher runs both match the original 29364224
 GB10 context elements and produce identical four raw output, accumulator
 and denominator files. Both select the original 2198673 PV replays and
 separately verify and reuse the complete native EXP owner. The CK DLL builds
-on baiying. Real-model qualification is pending.
+on baiying and passes the real-model comparison below.
 
 The full local suite passes 493 Python tests with two environment skips,
 C/Rust/clippy and public hygiene. Integration first exposed an outdated
@@ -92,4 +92,34 @@ build/capture is repeated for the final commit. Both failures are retained.
 260817 bytes, SHA256
 `742453e878d7196f86c76c27f59692b4ef2973beff693a85b0dc64656bd37add`.
 
-No package, default or release gate changes.
+## Real-model comparison
+
+Four fresh baiying processes run the original q8192/out512 case in
+OFF/ON/ON/OFF order. Both arms use the same source `df2ea51` CK DLL,
+1848832 bytes, SHA256
+`64c56d84091e979a4110118e026c6eedbfd9280840f683fc261f44b496f32676`.
+Whole `6e4908b`, compact MoE `9235750`, FLA `2ee6215` and CLI `24c4304`
+remain fixed. Only `QRT_CK_SM121_FUSED_PROBABILITY_PV=0/1` changes;
+adaptive OUT2, compact MoE1, combined exact attention and register PV stay on.
+
+| Order / mode | Load ms | TTFT ms | TPOT ms |
+| --- | ---: | ---: | ---: |
+| 1 / OFF | 21265.4320 | 25311.1634 | 101.569030 |
+| 2 / ON | 21373.5027 | 24818.1339 | 101.657110 |
+| 3 / ON | 21324.2583 | 24852.4709 | 100.688219 |
+| 4 / OFF | 21290.8780 | 25442.5373 | 100.984396 |
+
+All original prompts, 2048 GB10 output IDs and actual callbacks match.
+Every first logit is 10.375 with zero error. All ten fused attention owners
+activate in each enabled process; other retained owner counts and host guards
+pass. OFF/ON TTFT medians are 25376.85035/24835.3024 ms, saving
+541.54795 ms (2.1340%). Both ON observations are below both OFF observations.
+Retain mode 1 for subsequent experimental q8192 work. TPOT medians are
+101.276713/101.1726645 ms; this limited comparison does not establish a
+decode gain. All loads are below 30 seconds, but TTFT remains above 10
+seconds. Code and package defaults remain off; long-context, retained
+performance and release gates remain open.
+
+[Commands, artifacts and all four correctness boundaries](../benchmarks/correctness/fused-probability-pv-product-20260917.json):
+965116 bytes, SHA256
+`9963b45485de6f944d2f5fadc1c5f588fa64e0c30f128359e019d3551e6a2758`.
