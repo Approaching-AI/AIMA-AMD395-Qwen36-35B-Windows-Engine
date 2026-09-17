@@ -90,8 +90,19 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
     const double certificate_ms = std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-start).count();
     // Every original candidate is still replayed. The certificate cannot
     // influence either original projection correction or convolution.
-    hip_ok(launch_selected_bf16_projection_hawkeye_midpoint_correction(dw.data(),di.data(),nullptr,
-        dix.data(),dwx.data(),dp.data(),rows,tokens,k,512u,0u,1000u,4096u,stream.value),"conv_audit_original_replay");
+    unsigned long long runtime_counts[qrt_conv_consumer_audit::metrics]{};
+    unsigned failed_callbacks=0u;
+    const auto reject = [&]() { ++failed_callbacks; return hipErrorUnknown; };
+    require(qrt_conv_consumer_audit::run(nullptr,dix.data(),dwx.data(),dt.data(),table,0u,stream.value,reject)==hipErrorInvalidValue &&
+        failed_callbacks==0u,"invalid observer invoked callback");
+    require(qrt_conv_consumer_audit::run(dp.data(),dix.data(),dwx.data(),dt.data(),table,0u,stream.value,reject)==hipErrorUnknown &&
+        failed_callbacks==1u,"observer did not propagate original replay failure");
+    dp.read(projection);
+    require(std::memcmp(projection.data(),native.data(),projection.size()*sizeof(float))==0,"failed observer changed projection");
+    const auto replay = [&]() { return launch_selected_bf16_projection_hawkeye_midpoint_correction(dw.data(),di.data(),nullptr,
+        dix.data(),dwx.data(),dp.data(),rows,tokens,k,512u,0u,1000u,4096u,stream.value); };
+    hip_ok(qrt_conv_consumer_audit::run(dp.data(),dix.data(),dwx.data(),dt.data(),table,0u,stream.value,
+        replay,runtime_counts),"conv_audit_runtime_observer");
     hipLaunchKernelGGL(selected_conv_qkv_window_kernel,dim3(rows/256u,tokens),dim3(256u),0u,stream.value,
         dp.data(),dt.data(),nullptr,dc.data(),tokens,3u,nullptr,nullptr,0u,table);
     hip_ok(hipGetLastError(),"conv_audit_original_convolution"); stream.finish();
@@ -109,7 +120,7 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
     uint64_t selected = 0u, valid_ranges = 0u, range_failures = 0u, constants = 0u;
     uint64_t omitted = 0u, halo_selected = 0u, changed = 0u, omitted_changed = 0u;
     uint64_t selector_failures = 0u, certificate_failures = 0u, unselected_changes = 0u;
-    uint64_t projection_mismatches = 0u, conv_mismatches[3]{}, wide_ranges = 0u, wide_omittable = 0u, tiny_selected = 0u;
+    uint64_t projection_mismatches = 0u, conv_mismatches[3]{}, wide_ranges = 0u, wide_omittable = 0u, tiny_selected = 0u, tiny_nonzero = 0u;
     for (size_t i = 0u; i < cells; ++i) {
         const unsigned token = unsigned(i/rows), feature = unsigned(i%rows);
         const float raw = native[kGuard+i], corrected = projection[kGuard+i];
@@ -134,6 +145,7 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
             const auto range = c::endpoint(raw,error,true);
             const bool wide = range.valid && unsigned(range.high-range.low)>8u;
             wide_ranges += wide; tiny_selected += ((bits>>23u)&255u)<32u;
+            tiny_nonzero += ((bits>>23u)&255u)<32u && (bits&0x7fffffffu)!=0u;
             valid_ranges += range.valid;
             range_failures += range.valid && !c::c::contains(range,corrected);
             bool following[4]{};
@@ -156,9 +168,13 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
     auto after_input = input, after_weight = weights, after_taps = taps;
     di.read(after_input); dw.read(after_weight); dt.read(after_taps);
     require(after_input == input && after_weight == weights && after_taps == taps,"conv audit immutable input changed");
+    const unsigned long long expected_runtime[] = {cells,selected,valid_ranges,wide_ranges,tiny_selected,omitted,
+        wide_omittable,constants,halo_selected,changed,omitted_changed,range_failures,certificate_failures,unselected_changes,0u,tiny_nonzero};
+    static_assert(sizeof(expected_runtime)==sizeof(runtime_counts),"observer metric count");
+    require(std::equal(std::begin(expected_runtime),std::end(expected_runtime),runtime_counts),"runtime observer differs from complete host audit");
     std::cout << "{\"type\":\"conv_consumer_audit\",\"tokens\":" << tokens << ",\"source_tokens\":" << source_tokens
         << ",\"elements\":" << cells << ",\"selected\":" << selected << ",\"valid_ranges\":" << valid_ranges
-        << ",\"wide_intervals\":true,\"wide_ranges\":" << wide_ranges << ",\"wide_omittable\":" << wide_omittable << ",\"tiny_selected\":" << tiny_selected
+        << ",\"wide_intervals\":true,\"runtime_observer_parity\":true,\"owner_failure_cleanup_checks\":2,\"wide_ranges\":" << wide_ranges << ",\"wide_omittable\":" << wide_omittable << ",\"tiny_selected\":" << tiny_selected << ",\"tiny_nonzero\":" << tiny_nonzero
         << ",\"omittable\":" << omitted << ",\"constant_outputs\":" << constants << ",\"halo_selected_protected\":" << halo_selected
         << ",\"projection_bf16_changes\":" << changed << ",\"omittable_bf16_changes\":" << omitted_changed
         << ",\"selector_failures\":" << selector_failures << ",\"range_failures\":" << range_failures

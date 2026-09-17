@@ -25,6 +25,7 @@
 #include "prefix_checkpoint_policy.h"
 #include "gdn/fla_checkpoint.h"
 #include "gdn/gb10_gate_lookup.h"
+#include "gdn/conv_consumer_interval.h"
 #include "qrt_qwen36_q1024_owner.h"
 #include "hawkeye_dispatch_policy.h"
 #include "projection_output_policy.h"
@@ -39186,6 +39187,8 @@ __global__ void selected_conv_qkv_window_kernel(
                          device_bf16_round_to_float(acc)
                      ));
 }
+
+#include "gdn/conv_consumer_audit.h"
 
 std::string json_escape(const std::string &value) {
     std::ostringstream out;
@@ -118568,8 +118571,8 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                             return false;
                         }
                     }
-                    if (!check_hip(
-                            launch_selected_bf16_projection_hawkeye_midpoint_correction(
+                    const auto replay_qkvz = [&]() {
+                        return launch_selected_bf16_projection_hawkeye_midpoint_correction(
                                 device_weights,
                                 device_input_rmsnorm_bf16,
                                 nullptr,
@@ -118586,13 +118589,29 @@ bool run_repeated_prefill_resident_linear_stack_for_targets(
                                 ),
                                 exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb,
                                 selected_hawkeye_correction_maximum_blocks_per_launch(),
-                                stream
-                            ),
-                            prefix +
-                                "_early_qkvz_wmma_hawkeye_midpoint_correction",
-                            &run->failure_stage,
-                            &run->failure
-                        )) {
+                                stream);
+                    };
+                    const bool observe_conv_consumer = surface_bit == 1u && rows == 8192u &&
+                        target_token_count == 8192u && prefill_tokens == 8192u &&
+                        whole_repeated_layer_provider && !ScopedQwen36PrefixBatchSuffix::active &&
+                        !g_qwen36_resident_session.prefix_checkpoints &&
+                        raw_env_flag_enabled("QRT_QWEN36_Q8192_CONV_CONSUMER_AUDIT");
+                    if (observe_conv_consumer && (effective_hawkeye_midpoint_radius != 512u ||
+                        exact_arbitrary_early_qkvz_wmma_hawkeye_full_prefix_tokens != 0u ||
+                        exact_arbitrary_early_qkvz_wmma_hawkeye_absolute_error_bound_ppb != 1000u ||
+                        conv_arithmetic_mode != 3u || !device_sm121_silu_table ||
+                        use_bf16_conv_postconv_fusion)) {
+                        run->failure_stage = prefix + "_conv_consumer_audit_contract";
+                        run->failure = "convolution observer requires original q8192 PPB1000 and SM121 four-tap convolution";
+                        return false;
+                    }
+                    const hipError_t replay_status = observe_conv_consumer
+                        ? qrt_conv_consumer_audit::run(device_output,input_l2_upper_bounds,
+                            weight_l2_upper_bounds,device_conv_weight,device_sm121_silu_table,
+                            descriptor.layer_index,stream,replay_qkvz)
+                        : replay_qkvz();
+                    if (!check_hip(replay_status,prefix + "_early_qkvz_wmma_hawkeye_midpoint_correction",
+                        &run->failure_stage,&run->failure)) {
                         return false;
                     }
                 }
