@@ -20,8 +20,16 @@ __global__ void prepare_rows(const uint16_t* input, Row* output,
         words[i] = input[integer_row_input_index(Kind, row, i, tokens, start, count)];
     output[row] = prepare(words);
 }
+__device__ __forceinline__ void store_score(Value carry, bool active, float* output,
+    unsigned row, unsigned column, unsigned head, unsigned count, unsigned stride) {
+    if (row < count && column < stride)
+        output[(size_t(row) * 16u + head) * stride + column] = active
+            ? qrt_q1_moe_hawkeye::value_to_float(qrt_sm121_group16::finish_accumulator(carry)) * kExactScale
+            : -INFINITY;
+}
+
 template<unsigned Window>
-__global__ void scores(const Row* query, const Row* key, float* output,
+__global__ __launch_bounds__(256) void scores(const Row* query, const Row* key, float* output,
     unsigned query_start, unsigned query_count, unsigned stride, unsigned key_stride) {
     static_assert(Window == 64u || Window == 128u);
     constexpr unsigned groups = Window / 16u, rows = 32u, columns = 32u;
@@ -30,30 +38,24 @@ __global__ void scores(const Row* query, const Row* key, float* output,
     const unsigned head = blockIdx.y, kv_head = head / 8u;
     const unsigned query_tile = blockIdx.z * rows, key_tile = blockIdx.x * columns;
     const unsigned qr = threadIdx.x / 16u, kc = threadIdx.x % 16u;
+    const unsigned row0 = query_tile + qr, row1 = row0 + 16u;
+    const unsigned column0 = key_tile + kc, column1 = column0 + 16u;
     const unsigned last_query = query_start + min(query_tile + rows, query_count) - 1u;
+    const Value zero{0u, kBlackwellZeroExponent, false};
     if (key_tile > last_query) {
-#pragma unroll
-        for (unsigned q = 0u; q < 2u; ++q) {
-#pragma unroll
-            for (unsigned k = 0u; k < 2u; ++k) {
-                const unsigned r = query_tile + qr + q * 16u, c = key_tile + kc + k * 16u;
-                if (r < query_count && c < stride)
-                    output[(size_t(r) * 16u + head) * stride + c] = -INFINITY;
-            }
-        }
+        store_score(zero, false, output, row0, column0, head, query_count, stride);
+        store_score(zero, false, output, row0, column1, head, query_count, stride);
+        store_score(zero, false, output, row1, column0, head, query_count, stride);
+        store_score(zero, false, output, row1, column1, head, query_count, stride);
         return;
     }
-    Value integer[2][2];
-    bool active[2][2];
-#pragma unroll
-    for (unsigned q = 0u; q < 2u; ++q) {
-#pragma unroll
-        for (unsigned k = 0u; k < 2u; ++k) {
-            integer[q][k] = {0u, qrt_blackwell_attention::kBlackwellZeroExponent, false};
-            const unsigned r = query_tile + qr + q * 16u, c = key_tile + kc + k * 16u;
-            active[q][k] = r < query_count && c < stride && c <= query_start + r;
-        }
-    }
+    // Explicit independent SSA values avoid the compiler's private-array
+    // lowering of carry[2][2] into32 bytes of LDS per maximum workgroup lane.
+    Value carry00 = zero, carry01 = zero, carry10 = zero, carry11 = zero;
+    const bool active00 = row0 < query_count && column0 < stride && column0 <= query_start + row0;
+    const bool active01 = row0 < query_count && column1 < stride && column1 <= query_start + row0;
+    const bool active10 = row1 < query_count && column0 < stride && column0 <= query_start + row1;
+    const bool active11 = row1 < query_count && column1 < stride && column1 <= query_start + row1;
     for (unsigned start = 0u; start < 16u; start += groups) {
         for (unsigned item = threadIdx.x; item < groups * (rows + columns) * words; item += threads) {
             const unsigned index = item / words, word = item % words;
@@ -73,32 +75,17 @@ __global__ void scores(const Row* query, const Row* key, float* output,
         __syncthreads();
 #pragma unroll 1
         for (unsigned group = 0u; group < groups; ++group) {
-#pragma unroll
-            for (unsigned q = 0u; q < 2u; ++q) {
-#pragma unroll
-                for (unsigned k = 0u; k < 2u; ++k) if (active[q][k]) {
-                    integer[q][k] = qrt_sm121_compact_integer_dot4::accumulate(
-                        integer[q][k], left[group][qr + q * 16u], right[group][kc + k * 16u]);
-                }
-            }
+            if (active00) carry00 = qrt_sm121_compact_integer_dot4::accumulate(carry00, left[group][qr], right[group][kc]);
+            if (active01) carry01 = qrt_sm121_compact_integer_dot4::accumulate(carry01, left[group][qr], right[group][kc + 16u]);
+            if (active10) carry10 = qrt_sm121_compact_integer_dot4::accumulate(carry10, left[group][qr + 16u], right[group][kc]);
+            if (active11) carry11 = qrt_sm121_compact_integer_dot4::accumulate(carry11, left[group][qr + 16u], right[group][kc + 16u]);
         }
         // Inactive cells retain their whole-CTA barrier duties.
         __syncthreads();
     }
-#pragma unroll
-    for (unsigned q = 0u; q < 2u; ++q) {
-#pragma unroll
-        for (unsigned k = 0u; k < 2u; ++k) {
-            const unsigned r = query_tile + qr + q * 16u, c = key_tile + kc + k * 16u;
-            if (r < query_count && c < stride) {
-                float result = -INFINITY;
-                if (active[q][k]) {
-                    result = qrt_q1_moe_hawkeye::value_to_float(
-                        qrt_sm121_group16::finish_accumulator(integer[q][k])) * qrt_blackwell_attention::kExactScale;
-                }
-                output[(size_t(r) * 16u + head) * stride + c] = result;
-            }
-        }
-    }
+    store_score(carry00, active00, output, row0, column0, head, query_count, stride);
+    store_score(carry01, active01, output, row0, column1, head, query_count, stride);
+    store_score(carry10, active10, output, row1, column0, head, query_count, stride);
+    store_score(carry11, active11, output, row1, column1, head, query_count, stride);
 }
 } // namespace qrt_compact_integer_qk
