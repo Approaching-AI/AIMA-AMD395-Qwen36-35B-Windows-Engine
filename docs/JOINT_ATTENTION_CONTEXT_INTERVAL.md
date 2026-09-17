@@ -39,3 +39,48 @@ arithmetic and the GB10 context. Golden values remain comparison-only.
 The qualified experimental model baseline remains 24835.3024 ms q8192 TTFT.
 The 10-second boundary, retained performance, long contexts, package and
 release acceptance remain open.
+
+## Complete attention scheduler, 2026-09-18
+
+Source `a225ea1` constructs numerator and denominator enclosures from the
+candidate inputs. It retains the existing native QK bound, exact prefix-max
+and BF16 probability repair, and native PV with unit-denominator scales.
+Ambiguous numerator columns receive original PV replay. A single weighted
+uncertainty histogram selects original QK work; strict context certificates
+and complete remaining-score/PV fallback decide acceptance. Golden scores,
+denominators, numerators and GB10 values never select candidate work.
+
+The refactored arithmetic helper passes the same UBSan host audit. On
+baiying/gfx1151, 80 generated configurations pass, including causal tails,
+signed zeros, cancellation, subnormal and wide exponent inputs. Every q8192
+attempt checks all 536936448 causal score enclosures, original BF16
+probabilities and alpha values, original denominators, and 33554432 original
+raw PV numerator enclosures/context outputs. All 29364224 captured GB10
+context cells match. The additional 1023 rows repeat original Q/K/V and use
+original arithmetic as their observer; they have no new GB10 capture.
+All 131072 query/head rows certify. Input, table, prepared/transposed storage,
+redzones and unused tensor tails remain intact.
+
+| Complete q8192 attention | Current control | Joint intervals |
+| --- | ---: | ---: |
+| Samples, ms | 584.9506 / 589.2833 / 581.9830 | 1468.6504 / 1472.7099 / 1472.3998 |
+| Median, ms | 584.9506 | 1472.3998 |
+| Original score cells evaluated | 536936448 | 391202410 |
+| Original PV cells replayed | 3127598 | 3129599 |
+
+One warmup and three rotated samples run per 128-query slab. Candidate clocks
+include every producer, selector, certificate and full fallback, without
+intermediate host waits. Original full PV observers, allocations, resets and
+checks are outside timing. Common preparation adds 3.7317 ms; common EXP
+construction and full-domain verification add 9.0286 and 5.7869 ms.
+
+Keep this scheduler outside runtime dispatch. It remains 887.4492 ms slower
+than the current control and still evaluates 72.8582% of original scores.
+The candidate does not materially reduce PV replay. Its fixed selected QK
+kernel has 118 declared VGPRs, 32800 LDS bytes and no private allocation;
+these are compiler declarations, not occupancy or timing explanations.
+No new model-token run, performance acceptance or package change follows.
+
+[Complete source and native evidence](../benchmarks/correctness/joint-context-attention-components-20260918.json):
+124133 bytes, SHA256
+`cec03057ccc517d012f8251fb0c84fb0709e53bf8ac1aaac37c5e07db14c606a`.
