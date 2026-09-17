@@ -34,7 +34,21 @@ QRT_CONV_HD inline bool ordinary_term(uint16_t value) {
     return !magnitude || (magnitude >= 0x1000u && magnitude < 0x7f80u);
 }
 QRT_CONV_HD inline c::Range endpoint(float raw, float error, bool selected) {
-    if (selected) return c::range(raw, error);
+    if (selected) {
+        const auto word = c::bits(raw);
+        if (!c::finite(raw) || !c::finite(error) || error < 0.0f || ((word >> 23u) & 255u) < 32u) return {};
+        const float lower = c::outward(raw-error,false), upper = c::outward(raw+error,true);
+        if (!c::finite(lower) || !c::finite(upper)) return {};
+        uint16_t low = c::ordered(c::rounded(lower)), high = c::ordered(c::rounded(upper));
+        const uint16_t a = c::ordered(uint16_t(word>>16u)), b = c::ordered(uint16_t((word>>16u)+1u));
+        low = a < low ? a : low; low = b < low ? b : low;
+        high = a > high ? a : high; high = b > high ? b : high;
+        // Unlike the routed activation certificate, convolution encloses a
+        // monotone product without enumerating interior BF16 encodings. Its
+        // interval need not be limited to nine representable input values.
+        if (low < 0x0080u || high > 0xff7fu || high < low) return {};
+        return {low,high,true};
+    }
     const uint16_t rounded = c::rounded(raw), key = c::ordered(rounded);
     return c::finite(raw) && c::finite(c::widen(rounded)) ? c::Range{key,key,true} : c::Range{};
 }

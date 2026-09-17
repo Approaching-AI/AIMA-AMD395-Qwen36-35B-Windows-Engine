@@ -109,7 +109,7 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
     uint64_t selected = 0u, valid_ranges = 0u, range_failures = 0u, constants = 0u;
     uint64_t omitted = 0u, halo_selected = 0u, changed = 0u, omitted_changed = 0u;
     uint64_t selector_failures = 0u, certificate_failures = 0u, unselected_changes = 0u;
-    uint64_t projection_mismatches = 0u, conv_mismatches[3]{};
+    uint64_t projection_mismatches = 0u, conv_mismatches[3]{}, wide_ranges = 0u, wide_omittable = 0u, tiny_selected = 0u;
     for (size_t i = 0u; i < cells; ++i) {
         const unsigned token = unsigned(i/rows), feature = unsigned(i%rows);
         const float raw = native[kGuard+i], corrected = projection[kGuard+i];
@@ -132,6 +132,8 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
         if (candidate) {
             ++selected;
             const auto range = c::endpoint(raw,error,true);
+            const bool wide = range.valid && unsigned(range.high-range.low)>8u;
+            wide_ranges += wide; tiny_selected += ((bits>>23u)&255u)<32u;
             valid_ranges += range.valid;
             range_failures += range.valid && !c::c::contains(range,corrected);
             bool following[4]{};
@@ -140,6 +142,7 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
             const bool skip = c::can_omit(token,tokens,following);
             require(!skip || range.valid,"omitted candidate lacks valid range");
             omitted += skip; omitted_changed += skip && differs;
+            wide_omittable += skip && wide;
             halo_selected += tokens-token <= 3u;
         }
         if (token < source_tokens) {
@@ -155,6 +158,7 @@ void run_conv_consumer_audit(const char* input_path, const char* projection_weig
     require(after_input == input && after_weight == weights && after_taps == taps,"conv audit immutable input changed");
     std::cout << "{\"type\":\"conv_consumer_audit\",\"tokens\":" << tokens << ",\"source_tokens\":" << source_tokens
         << ",\"elements\":" << cells << ",\"selected\":" << selected << ",\"valid_ranges\":" << valid_ranges
+        << ",\"wide_intervals\":true,\"wide_ranges\":" << wide_ranges << ",\"wide_omittable\":" << wide_omittable << ",\"tiny_selected\":" << tiny_selected
         << ",\"omittable\":" << omitted << ",\"constant_outputs\":" << constants << ",\"halo_selected_protected\":" << halo_selected
         << ",\"projection_bf16_changes\":" << changed << ",\"omittable_bf16_changes\":" << omitted_changed
         << ",\"selector_failures\":" << selector_failures << ",\"range_failures\":" << range_failures

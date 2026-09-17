@@ -1,0 +1,634 @@
+{
+  "schema": "conv-consumer-interval-capture-20260917",
+  "host": "baiying",
+  "source": {
+    "canonical_source_record": "conv-consumer-native-source-r1.json",
+    "canonical_source_record_sha256": "729092b84bd7191686aa3e9f328d3be7cbaf113322f16fb6ed2ac8e4c2f27d88",
+    "documentation_snapshot_differences": {},
+    "source_commit": "f0ed6278f58a7c2370460bcdcbcbb688fac55da5",
+    "repo": "D:/projects/AIMA-public-conv-consumer-20260917-r1",
+    "seed": "D:/projects/AIMA-public-moe-down-compact-20260917-r6",
+    "prerequisite_commit": "9235750e81a899f6843bb9dfd3f11165ad4cdce9",
+    "bundle": "conv-consumer-f0ed627.bundle",
+    "bundle_sha256": "27ed2f8141b5fc5b510553cfae18208f296e7feb7b3fd4473dea7c5c29d84d8a",
+    "script": "run-native-conv-consumer-r1.ps1",
+    "script_sha256": "395b5cbb1dbd3f8a631b60aa8b7457414fe0f7c3216d3e20ac8c4b391e752555",
+    "source_sha256": {
+      "native/providers/gdn/conv_consumer_interval.h": "b2621dd5f05527a1d4ccaae4e3a396e023e8236d3e6a3283596e8aa8da5196e4",
+      "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+      "native/providers/triton_moe/routed_consumer_interval.h": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+      "tests/native/conv_consumer_interval_host.cpp": "f5cc29cbb67fd8398f81ae814bf3bffa87f8bcc319026d28d3174a4f10a3a824",
+      "tests/native/conv_consumer_audit_suite.h": "c02f6523234382a78a680b203c372d3ad392c907320059b70a54c8d409929ab6",
+      "tests/native/projection_safety_selftest.cpp": "17e131988c8a55f479cadf052f62e6aaa214dc35134770924648c1c61d8ace09",
+      "tests/test_conv_consumer_interval.py": "b06f30cff05dc1d8c8a7f3a4096c18c7bc769235146081048c9ffe4afddd6538"
+    },
+    "local_validation": {
+      "command": [
+        "make",
+        "check",
+        "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+      ],
+      "returncode": 0,
+      "wall_seconds": 251.5180165823549,
+      "log": "conv-consumer-local-r1.log",
+      "log_sha256": "94fd651b67ae76b1fe615d18309e44055ffa388222c6dcbb2f110fec0c9400b3",
+      "source_sha256": {
+        "native/providers/gdn/conv_consumer_interval.h": "b2621dd5f05527a1d4ccaae4e3a396e023e8236d3e6a3283596e8aa8da5196e4",
+        "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+        "native/providers/triton_moe/routed_consumer_interval.h": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+        "tests/native/conv_consumer_interval_host.cpp": "f5cc29cbb67fd8398f81ae814bf3bffa87f8bcc319026d28d3174a4f10a3a824",
+        "tests/native/conv_consumer_audit_suite.h": "c02f6523234382a78a680b203c372d3ad392c907320059b70a54c8d409929ab6",
+        "tests/native/projection_safety_selftest.cpp": "17e131988c8a55f479cadf052f62e6aaa214dc35134770924648c1c61d8ace09",
+        "tests/test_conv_consumer_interval.py": "b06f30cff05dc1d8c8a7f3a4096c18c7bc769235146081048c9ffe4afddd6538"
+      },
+      "unchanged_production_source_sha256": "df4b9c3eccf352c52a6dddff5cfa7d88fca71c77c3de3a685197a8780a54e7e7"
+    },
+    "unchanged_production_source_sha256": "df4b9c3eccf352c52a6dddff5cfa7d88fca71c77c3de3a685197a8780a54e7e7"
+  },
+  "command": {
+    "file": "run-native-conv-consumer-r1.ps1",
+    "sha256": "395b5cbb1dbd3f8a631b60aa8b7457414fe0f7c3216d3e20ac8c4b391e752555",
+    "text": "param([ValidateSet('build','audit')][string]$Action='build')\n$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue';[Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)\nif(-not [Environment]::MachineName.Equals('baiying',[StringComparison]::OrdinalIgnoreCase)){throw 'Requires baiying'}\n$repo='D:\\projects\\AIMA-public-conv-consumer-20260917-r1';$seed='D:\\projects\\AIMA-public-moe-down-compact-20260917-r6';$source='f0ed6278f58a7c2370460bcdcbcbb688fac55da5';$bundle='D:\\projects\\conv-consumer-f0ed627.bundle'\nif((Get-FileHash $bundle -Algorithm SHA256).Hash.ToLowerInvariant() -ne '27ed2f8141b5fc5b510553cfae18208f296e7feb7b3fd4473dea7c5c29d84d8a'){throw 'Bundle changed'}\nif(-not (Test-Path $repo)){\n & git -C $seed fetch $bundle HEAD;if($LASTEXITCODE -ne 0){throw 'Fetch failed'}\n & git -C $seed worktree add --detach $repo $source;if($LASTEXITCODE -ne 0){throw 'Worktree creation failed'}\n}\nif((& git -C $repo rev-parse HEAD).Trim() -ne $source -or @(& git -C $repo status --porcelain).Count -ne 0){throw 'Source mismatch'}\n$build=Join-Path $repo 'build\\conv-consumer-safety';$exe=Join-Path $build 'qrt-projection-safety.exe';$provider=Join-Path $repo 'build\\conv-consumer-provider'\n$out=Join-Path $repo ('build\\conv-consumer-'+$Action+'-r1');$specPath=Join-Path $repo ('build\\conv-consumer-'+$Action+'-r1.json')\nforeach($p in @($out,$specPath)){if(Test-Path $p){throw 'Evidence exists'}}\n$null=New-Item -ItemType Directory -Path (Join-Path $repo 'build') -Force\n$sourceFiles=@('native\\providers\\whole_provider.cpp','native\\providers\\triton_moe\\routed_consumer_interval.h','native\\providers\\q8192_matrix_producer_policy.h','tests\\native\\projection_safety_selftest.cpp','scripts\\baiying_build_whole_provider.ps1')\nforeach($dir in @('native\\providers\\moe_accumulator','native\\providers\\gdn','native\\providers\\ck_fmha','tests\\native')){\n $sourceFiles+=@(Get-ChildItem (Join-Path $repo $dir) -Filter '*.h' -File|ForEach-Object {$_.FullName.Substring($repo.Length+1)})\n}\n$sourceInputs=@();foreach($file in ($sourceFiles|Sort-Object -Unique)){$sourceInputs+=@{file=$file;sha256=(Get-FileHash (Join-Path $repo $file) -Algorithm SHA256).Hash.ToLowerInvariant()}}\n$spec=[ordered]@{executable='';arguments=@();working_directory=$repo;repo_commit=$source;command_file=$PSCommandPath;command_file_sha256=(Get-FileHash $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();source_inputs=$sourceInputs;model='none; native compile';model_loaded=$false;inference_acceptance=$false;performance_acceptance=$false;replay_lanes=4;staging_groups=2;purpose='Read-only full-q8192 convolution consumer interval audit on captured layer-zero inputs. Use retained matrix algorithm4, original PPB1000 selector and every original staged-half correction. Observe potential omissions only; validate all declared constant outputs, actual corrected endpoints, exact GB10 projection and first7169 convolution outputs. The final3 projected rows remain protected for continuation. No runtime dispatch or output is changed; capture extension repeats1023 input rows and is not a new prompt or inference result. Certificate wall time includes dispatch completion only, not allocation, matrix production, correction or validation.'}\n$env:PATH='C:\\Program Files\\AMD\\ROCm\\7.1\\bin;'+$env:PATH\n$env:QRT_QWEN36_PROFILE_MATRIX_PRODUCER_WALL='0';$env:QRT_QWEN36_PREFILL_HIPBLASLT_PRODUCER='1';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM='4';$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_SCOPE='qkv';$env:QRT_QWEN36_Q8192_OUT_MATRIX_SHADOW_AUDIT='0'\n$env:QRT_PROJECTION_SAFETY_STRONG_REPLAY='0';$env:QRT_PROJECTION_SAFETY_SPATIAL_REPLAY='0';$env:QRT_PROJECTION_SAFETY_PACKED_TILES_REPLAY='0';$env:QRT_PROJECTION_SAFETY_DUAL_LANE_REPLAY='0';$env:QRT_PROJECTION_SAFETY_DECODED_REPLAY='0';$env:QRT_PROJECTION_SAFETY_INTERLEAVED_REPLAY='0';$env:QRT_PROJECTION_SAFETY_SCALED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_STAGED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_BLOCKED_HALF_REPLAY='0';$env:QRT_PROJECTION_SAFETY_COOPERATIVE_HALF_REPLAY='1'\n$env:QRT_QWEN36_HAWKEYE_DEVICE_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_OPERANDS='1';$env:QRT_QWEN36_HAWKEYE_PREVALIDATED_FLOAT_REPLAY='1';$env:QRT_QWEN36_HAWKEYE_PARTITION_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_BOUND='0';$env:QRT_QWEN36_HAWKEYE_PREPARED_K16_MAJOR='0';$env:QRT_QWEN36_HAWKEYE_FLOAT_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_AUDIT='0';$env:QRT_QWEN36_HAWKEYE_ABSOLUTE_PRODUCT_HIPBLASLT='0';$env:QRT_QWEN36_HAWKEYE_PACKED_CANDIDATES='0';$env:QRT_QWEN36_HAWKEYE_CORRECTION_MAXIMUM_BLOCKS_PER_LAUNCH='4096'\nforeach($name in @('SCALAR','TILED','BOUNDED','SCALED','ROW_MAX','F32_CARRY','RANGE','PARTITION','INTERVAL')){[Environment]::SetEnvironmentVariable('QRT_PROJECTION_SAFETY_'+$name+'_REPLAY','0','Process')}\nforeach($item in @(Get-ChildItem Env:|Where-Object {$_.Name -like 'QRT_PROJECTION_SAFETY_*_REPLAY'})){[Environment]::SetEnvironmentVariable($item.Name,'0','Process')}\n$env:QRT_PROJECTION_SAFETY_PAIR_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_STAGED_HALF_REPLAY='1';$env:QRT_QWEN36_HAWKEYE_STAGED_DEVICE_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_QUEUED_REPLAY='0';$env:QRT_QWEN36_HAWKEYE_CORRECTION_COUNT_ONLY='0';$env:QRT_QWEN36_HAWKEYE_SCALED_FALLBACK='0'\n$spec.matrix_producer_algorithm=[int]$env:QRT_QWEN36_Q8192_MATRIX_PRODUCER_ALGORITHM\nfunction Check-Run([string]$action){\n $path=Join-Path $repo ('build\\conv-consumer-'+$action+'-r1\\run-record.json');$r=[IO.File]::ReadAllText($path)|ConvertFrom-Json\n if($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw ('Incomplete prerequisite '+$action)}\n return (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant()\n}\nif($Action -eq 'build'){\n if(Test-Path $build){throw 'Build exists'}\n $spec.executable='C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe'\n $spec.arguments=@('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $repo 'scripts\\baiying_build_whole_provider.ps1'),'-OutDir',$build,'-DppReduction','1','-CompactNormalize','1','-HawkeyeReplayLanes','4','-CompileTimeoutSeconds','240','-ProjectionSafetyTest');$timeout=270\n}else{\n $spec.build_run_sha256=Check-Run 'build'\n $metaPath=Join-Path $build 'build-provenance.json';$meta=[IO.File]::ReadAllText($metaPath)|ConvertFrom-Json\n $artifact=@($meta.artifacts|Where-Object {$_.name -eq 'qrt-projection-safety.exe'})\n if($meta.repo_commit -ne $source -or $meta.dirty_tree -or $artifact.Count -ne 1 -or (Get-FileHash $exe -Algorithm SHA256).Hash.ToLowerInvariant() -ne $artifact[0].sha256){throw 'Executable provenance mismatch'}\n $spec.build_provenance_sha256=(Get-FileHash $metaPath -Algorithm SHA256).Hash.ToLowerInvariant()\n $tensors=@()\n $inputTensor='D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin';$tensors+=@{path=$inputTensor;sha256='6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161'}\n $weightTensor='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin';$tensors+=@{path=$weightTensor;sha256='b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f'}\n $referenceTensor='D:\\projects\\sm121-qkv-reference-9510d980.bin';$tensors+=@{path=$referenceTensor;sha256='9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37'}\n $convWeight='D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\conv.bin';$tensors+=@{path=$convWeight;sha256='196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38'}\n $qReference='D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-q-bf16.bin';$tensors+=@{path=$qReference;sha256='b060def5e5fcb028fdcd575d1be04275309ce2047601b984a6a18ef248e4ae1c'}\n $kReference='D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-k-bf16.bin';$tensors+=@{path=$kReference;sha256='601fa1266e4403da579bc7352a1a8650e4a8b22a06d847f730084aafd5080d14'}\n $vReference='D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-v-bf16.bin';$tensors+=@{path=$vReference;sha256='cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9'}\n $table='D:\\projects\\sm121-silu-bf16-673f8dd1.bin';$tensors+=@{path=$table;sha256='673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8'}\n foreach($tensor in $tensors){if((Get-FileHash $tensor.path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $tensor.sha256){throw 'Captured input changed'}}\n $spec.executable=$exe;$spec.arguments=@('--conv-consumer-audit',$inputTensor,$weightTensor,$referenceTensor,$convWeight,(Split-Path $qReference),$table);$spec.tensor_inputs=$tensors\n $spec.model='D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV and convolution';$spec.model_index_sha256='41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83';$spec.gb10_reference_host='aitopatom-66c4';$spec.gb10_capture_sha256='5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b';$spec.prompt_sha256='26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804';$spec.reference_is_compute_input=$false;$spec.selector_error_bound_ppb=1000;$spec.tokens=8192;$spec.source_tokens=7169;$spec.repeated_input_rows=1023;$timeout=240\n}\n[IO.File]::WriteAllText($specPath,($spec|ConvertTo-Json -Depth 12),[Text.UTF8Encoding]::new($false))\n& (Join-Path $repo 'scripts\\baiying_guarded_inference.ps1') -SpecPath $specPath -OutDir $out -TimeoutSeconds $timeout|Out-Null\n$r=[IO.File]::ReadAllText((Join-Path $out 'run-record.json'))|ConvertFrom-Json\n$r|Select-Object reason,exit_code,wall_ms,host_checks|ConvertTo-Json -Depth 5\nif($r.reason -ne 'completed' -or $r.exit_code -ne 0 -or -not $r.host_checks_pass){throw 'Native matrix algorithm action failed'}\nif($Action -eq 'audit'){\n $reports=@([IO.File]::ReadAllLines((Join-Path $out 'product.stdout.jsonl'))|Where-Object {$_.StartsWith('{')}|ForEach-Object {$_|ConvertFrom-Json})\n $result=@($reports|Where-Object {$_.type -eq 'conv_consumer_audit'});$summary=@($reports|Where-Object {$_.type -eq 'summary'})\n if($summary.Count -ne 1 -or $summary[0].status -ne 'pass' -or $summary[0].gpu_cases -ne 1 -or $result.Count -ne 1){throw 'Incomplete audit'}\n $x=$result[0]\n if($x.elements -ne 67108864 -or $x.selected -le 0 -or $x.selector_failures -ne 0 -or $x.range_failures -ne 0 -or $x.certificate_failures -ne 0 -or $x.unselected_endpoint_changes -ne 0 -or $x.gb10_projection_mismatches -ne 0 -or ($x.gb10_convolution_mismatches|Measure-Object -Sum).Sum -ne 0 -or -not $x.redzones_pass -or -not $x.immutable_inputs -or -not $x.all_original_candidates_replayed){throw 'Captured audit mismatch'}\n}\n",
+    "dispatcher": "dispatch_conv_consumer_r1.py",
+    "dispatcher_sha256": "a7be94af2ec3b6583f7f6329417d826c73b1766a2a798e88f69a11d41eb1c705"
+  },
+  "local_validation": {
+    "command": [
+      "make",
+      "check",
+      "PYTHON=<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12"
+    ],
+    "returncode": 0,
+    "wall_seconds": 251.5180165823549,
+    "log": "conv-consumer-local-r1.log",
+    "log_sha256": "94fd651b67ae76b1fe615d18309e44055ffa388222c6dcbb2f110fec0c9400b3",
+    "source_sha256": {
+      "native/providers/gdn/conv_consumer_interval.h": "b2621dd5f05527a1d4ccaae4e3a396e023e8236d3e6a3283596e8aa8da5196e4",
+      "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+      "native/providers/triton_moe/routed_consumer_interval.h": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+      "tests/native/conv_consumer_interval_host.cpp": "f5cc29cbb67fd8398f81ae814bf3bffa87f8bcc319026d28d3174a4f10a3a824",
+      "tests/native/conv_consumer_audit_suite.h": "c02f6523234382a78a680b203c372d3ad392c907320059b70a54c8d409929ab6",
+      "tests/native/projection_safety_selftest.cpp": "17e131988c8a55f479cadf052f62e6aaa214dc35134770924648c1c61d8ace09",
+      "tests/test_conv_consumer_interval.py": "b06f30cff05dc1d8c8a7f3a4096c18c7bc769235146081048c9ffe4afddd6538"
+    },
+    "unchanged_production_source_sha256": "df4b9c3eccf352c52a6dddff5cfa7d88fca71c77c3de3a685197a8780a54e7e7"
+  },
+  "host_validation": {
+    "command": [
+      "c++",
+      "-std=c++17",
+      "-O2",
+      "-ffp-contract=off",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-I",
+      "<private-home>/projects/AIMA-public-r1191-candidate/native/providers",
+      "<private-home>/projects/AIMA-public-r1191-candidate/tests/native/conv_consumer_interval_host.cpp",
+      "-o",
+      "build/recovery-20260910/conv-consumer-interval-host-r3"
+    ],
+    "compile_returncode": 0,
+    "runs": [
+      {
+        "command": [
+          "build/recovery-20260910/conv-consumer-interval-host-r3"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"conv_consumer_interval_host\",\"actual_sm121_table\":false,\"segments\":64304,\"nonfinite_segments_declined\":0,\"boundary_rejections\":64303,\"interior_points\":192912,\"enumerated_combinations\":397536,\"constant_intervals\":16599,\"constant_combinations\":81182,\"halo_cases\":131616,\"graph_changed_inputs\":1499,\"graph_output_checks\":139264,\"graph_halo_checks\":24576,\"false_certificates\":0,\"model_loaded\":false}\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "build/recovery-20260910/conv-consumer-interval-host-r3",
+          "build/recovery-20260910/qrt-silu-table-20260910-r2/capture/sm121-silu-bf16.bin"
+        ],
+        "returncode": 0,
+        "stdout": "{\"kind\":\"conv_consumer_interval_host\",\"actual_sm121_table\":true,\"segments\":64304,\"nonfinite_segments_declined\":1,\"boundary_rejections\":64303,\"interior_points\":192912,\"enumerated_combinations\":397536,\"constant_intervals\":20063,\"constant_combinations\":152403,\"halo_cases\":131616,\"graph_changed_inputs\":915,\"graph_output_checks\":139264,\"graph_halo_checks\":24576,\"false_certificates\":0,\"model_loaded\":false}\n",
+        "stderr": ""
+      }
+    ],
+    "wall_seconds": 1.2718993751332164,
+    "table_sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+    "executable_sha256": "8b2e9531d80032fef760a27c6d9c62185f524ae6f5f75ed183d64b95a2f5806b",
+    "source_sha256": {
+      "native/providers/gdn/conv_consumer_interval.h": "b2621dd5f05527a1d4ccaae4e3a396e023e8236d3e6a3283596e8aa8da5196e4",
+      "native/providers/gdn/sm121_silu_table.h": "61b4c69d3d2fe50bbc590facb9a1977b6fbf38d93851d8a51118cac5f9e26547",
+      "native/providers/triton_moe/routed_consumer_interval.h": "d81e7b4a654a443cf35c8473ae110ecc104d7e94b75ce6e74ad11ebf4c6cb29c",
+      "tests/native/conv_consumer_interval_host.cpp": "f5cc29cbb67fd8398f81ae814bf3bffa87f8bcc319026d28d3174a4f10a3a824",
+      "tests/test_conv_consumer_interval.py": "b06f30cff05dc1d8c8a7f3a4096c18c7bc769235146081048c9ffe4afddd6538"
+    }
+  },
+  "native_runs": {
+    "build": {
+      "name": "conv-consumer-build-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+        "arguments": [
+          "-NoLogo",
+          "-NoProfile",
+          "-NonInteractive",
+          "-File",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\scripts\\baiying_build_whole_provider.ps1",
+          "-OutDir",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety",
+          "-DppReduction",
+          "1",
+          "-CompactNormalize",
+          "1",
+          "-HawkeyeReplayLanes",
+          "4",
+          "-CompileTimeoutSeconds",
+          "240",
+          "-ProjectionSafetyTest"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1",
+        "repo_commit": "f0ed6278f58a7c2370460bcdcbcbb688fac55da5",
+        "command_file": "D:\\projects\\run-native-conv-consumer-r1.ps1",
+        "command_file_sha256": "395b5cbb1dbd3f8a631b60aa8b7457414fe0f7c3216d3e20ac8c4b391e752555",
+        "model": "none; native compile",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "purpose": "Read-only full-q8192 convolution consumer interval audit on captured layer-zero inputs. Use retained matrix algorithm4, original PPB1000 selector and every original staged-half correction. Observe potential omissions only; validate all declared constant outputs, actual corrected endpoints, exact GB10 projection and first7169 convolution outputs. The final3 projected rows remain protected for continuation. No runtime dispatch or output is changed; capture extension repeats1023 input rows and is not a new prompt or inference result. Certificate wall time includes dispatch completion only, not allocation, matrix production, correction or validation.",
+        "matrix_producer_algorithm": 4
+      },
+      "launch": {
+        "pid": 1260,
+        "utc": "2026-09-17T13:43:08.8138585Z",
+        "timeout_seconds": 270,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 117034.978,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "8bb6fa8c283b4d92120b1ef249a9b311b0f804d4cabbe9981159976c8be76a5e",
+      "canonical_raw_sha256": {
+        "build-provenance.json": "21b18d6897da9f12e075d56dd42e28e6d95c9fdd9f73e05ff24fa386381a3191",
+        "dispatch.json": "041c53d7986152fa710efe2360450320e816a5d013dd31374103ccd26f767559",
+        "launch.json": "37e93dd1c6ef88a89c78a36041abbde9d022cf2a0a1874870eddd4fc3358cf2f",
+        "preflight.json": "9d53babb078ed7c0d58cf5a5c01eecdaa6e3fae7aec351cf990123a7d5c36e0d",
+        "product.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "product.stdout.jsonl": "e86c220cb787cd9065f83597663722c5b4e5935160eedb9b71feae53aaef3dfd",
+        "run-record.json": "000c87cae330950ef42b08a71bbc3400c7741ce52869fce99d6332c16dad4a08",
+        "script-parse.json": "6379c17d798191f995d43b0950ea7787779fe29c9af7354b25de37a514ff207d"
+      },
+      "build_provenance": {
+        "schema_version": 1,
+        "host": "BAIYING",
+        "execution": "local_windows_process",
+        "repo_commit": "f0ed6278f58a7c2370460bcdcbcbb688fac55da5",
+        "dirty_tree": false,
+        "command_file": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\scripts\\baiying_build_whole_provider.ps1",
+        "offload_arch": "gfx1151",
+        "gpu_execution_mode": "default",
+        "device_mode_arguments": [],
+        "w8a8_group_size": 128,
+        "q8192_weight_int8_scale_fp16": false,
+        "compile_timeout_seconds": 240,
+        "source_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers\\whole_provider.cpp",
+        "source_sha256": "df4b9c3eccf352c52a6dddff5cfa7d88fca71c77c3de3a685197a8780a54e7e7",
+        "projection_safety_test": true,
+        "hawkeye_device_replay_test_header_sha256": "a1c5baf48a5e5d93167161aaa303cb36006285c8425f1b4d11da44266eb6c8b9",
+        "attention_admission_replay": false,
+        "compile_source_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\tests\\native\\projection_safety_selftest.cpp",
+        "compile_source_sha256": "17e131988c8a55f479cadf052f62e6aaa214dc35134770924648c1c61d8ace09",
+        "hawkeye_dispatch_policy_sha256": "48483e1e6a51ca3dda41e26150f3e69351cc25f81d3a532484c9a6f6eb9d758e",
+        "gate_input_capture_sha256": "a3efc27b99d604f5284edbc85c040535d783fb24e8b209beab89d48649b578b2",
+        "gb10_gate_lookup_sha256": "926729def66c5c32cc95c4fc2ebf7dc0f5b5de7d83f368a863343f4e97bdfe2c",
+        "projection_output_policy_sha256": "1f14f99e1b1edd8337a6d15f4e5296a8b34c41689bb49ac79a4eda9dcecc308f",
+        "q8192_matrix_producer_policy_sha256": "199a0c78a10fb1abdb2a18e13e04661001d03ac214209a3fd8ba58329c2e461c",
+        "q8192_out_matrix_shadow_audit_sha256": "3557c298731928d506dd57ca3cd5097d8e0fda8cd37dba48331c64da22f7f36d",
+        "q8192_out_l1_policy_sha256": "73c0e7482b43ec342e88c245808e03d326abea742721b013a6ee12bc7bc0eb06",
+        "q8192_out_l1_shadow_audit_sha256": "04ee940136402bf3b75625c1842667da0cb346811ad7bdb91bfc9ad06298243c",
+        "context_limits_header_sha256": "79c1bb68d2b9476a7fba23d8f6903a6bd6d3c5420a4fe9a0d5f7cebdb4c6ff00",
+        "qrt_header_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\src\\qrt.h",
+        "qrt_header_sha256": "c7af4d946b863eccbd98a540ffa0a034e1230685b5409514da05bfff9659bc4c",
+        "prefix_logit_header_sha256": "fb4acd2c522faf941d55ea633f0e84196e3d5b7bed24df348dab3ea6e80b2fbf",
+        "prefix_checkpoint_header_sha256": "1389137de3ccc7bbd564524a6ac08c0d06497148672cd29139a536ed3c473289",
+        "prefix_checkpoint_policy_sha256": "62e74eef22d494c18398a52007a990999d5ca482c6dbc3ea037f896c6c3bede8",
+        "attention_capacity_header_sha256": "83fe42d273654456053e9526291bce93b5db3eda8cc80b2010930ea04837a833",
+        "sm121_rope_cache_header_sha256": "5f200ce6a37b1406af02b83bd28581bf0f00a2c4fdb4c70e5067e6598d0e44a3",
+        "sm121_q1_full_runtime_header_sha256": "31b1fb88735d75ffd83e8b195efac2683ab10af9c3d10aa5aab49f69ae74ad49",
+        "prefix_batch_suffix_header_sha256": "d4a11d8e7f6832536a74bc2bf9f7678f6db422efd6c364173203315593584b5a",
+        "prefill_chunks_header_sha256": "feb007c50fe4c9a0efe0eb3afada3f8a284fba87b502c6991addbf22e966c23d",
+        "fla_checkpoint_header_sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+        "sm121_q1_gdn_header_sha256": "afce89ae1884141287d94bda0f67787bd09558a245121087cd064c76f1c27ea0",
+        "q1_moe_avx512bf16_host_provider_source_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+        "q1_moe_avx512bf16_host_provider_source_sha256": "db74aaeb28b5122e7df11786bb4606077bce71db71da4ef67a2597d92db25abd",
+        "q1_moe_avx512bf16_host_provider_header_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.h",
+        "q1_moe_avx512bf16_host_provider_header_sha256": "e6323a6b623de3772bfceae73381be30669a6dea83aea5921165583430a99a39",
+        "q1_moe_hawkeye_bf16_accumulator_header_path": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers\\moe_accumulator\\q1_moe_hawkeye_bf16_accumulator.h",
+        "q1_moe_hawkeye_bf16_accumulator_header_sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a",
+        "sm121_wave16_header_sha256": "c08f29c823d3089613bc934d9184c8f9712cddbfb4a7dfd211d916692fa8fd56",
+        "sm121_group16_modulo_header_sha256": "4022d3c2577e7e0c1adb9e8c74baec2b8e71d9e33a4018e70c57bb642ae9c2b9",
+        "sm121_native_product_header_sha256": "1843f2043dcc4992ff3a3b63e84e87b66ef3624c3cd3da625f503aa069bccc5a",
+        "sm121_mantissa_parts_header_sha256": "61674329808b717bd0271fda678d071af19bbf2e70316bacc445c074bda40b03",
+        "sm121_integer_parts_header_sha256": "6eae994e852c9334b9013e3e23e2fa79e9bba6226a3cc4a483bb1cb88f65802d",
+        "hawkeye_replay_lanes": 4,
+        "sm121_dpp_reduction": true,
+        "sm121_compact_normalize": true,
+        "sm121_canonical_normalize_header_sha256": "b9d092eed269b8d836f6ab98a27023c0c654b3180c8fabe996d75cdeb05fbf91",
+        "sm121_lane_reduce_header_sha256": "11bc1190a7a0824963db1be735eb4d2e68d1f324c21d71d2fa35ea321b4e2d22",
+        "sm121_prefill_projection_header_sha256": "24459aefbaffd06d9bbd208ae4f0367c5569dcf15a0f51fd1d5103739b7e6306",
+        "sm121_float_alignment_header_sha256": "c9fa70760428dfabf50e8805f1e0fb4c5f41a2912d972eaf1afe2e1ecb663ce7",
+        "sm121_scalar_projection_header_sha256": "5fc1d7b95fb908863a368f44b70b78c90470a12966102e35050b9d9cfd959f4e",
+        "sm121_scaled_fallback_header_sha256": "4374eb6599d630475e23bf49a45484441a541d827325a8eef3b737da941e1f69",
+        "sm121_staged_half_projection_header_sha256": "a6e580c1e4e8a27a8f5502bdd9e2e71c60a0029b0c3cb28efb9342c28635f672",
+        "sm121_scaled_half_projection_header_sha256": "6d0b6f1a250b79acd364bf5c490abd04d1686e1ff684ed2d26b7bb451ae6df12",
+        "sm121_scaled_half_products_header_sha256": "5433e85786b3a9b17fb1e55376a9c05b32725c34c8e8016c32204178b1566202",
+        "sm121_scaled_projection_header_sha256": "9bdb7cbce52ec10ffb9bbe8e9518c054b83954f438372d500c6a0f2fa2e54613",
+        "sm121_scaled_significand_header_sha256": "ea3fd5403acb65e9f5933447c0acd243b72dd30a7937f78705a2077d91218eaa",
+        "sm121_replay_partition_header_sha256": "65d3a2df16716b3983e04d17770fd9e474726d134683e56ba47122eda4bc2e9d",
+        "sm121_float_subgroup_header_sha256": "b00809e550c956b6aac73913d3f1015d026bf9b36c56dc6519cb1d111eaefaa6",
+        "sm121_subgroup_header_sha256": "dd9a0a9dc6be97ced3313de904c537a6af93472ca49b950323d0e301173a4be5",
+        "sm121_paired_products_header_sha256": "e607577cfafa72ea6e2e359ab9fe1f16c72a6b038405c9f29354f43764251b13",
+        "bf16_midpoint_selector_header_sha256": "c579c0376758858474aac256c9dc938485c662cca98b2ea597f9626d99886304",
+        "hipcc": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\hipcc.exe",
+        "clang": "C:\\Program Files\\AMD\\ROCm\\7.1\\bin\\clang++.exe",
+        "rocm_root": "C:\\Program Files\\AMD\\ROCm\\7.1",
+        "hipblaslt_import_source": "C:\\Program Files\\AMD\\ROCm\\7.1\\lib\\libhipblaslt.dll.a",
+        "hipblaslt_import_source_sha256": "f6c80b8bb0183561f5d27aeaa702e66f631b86ad2a9bf56a74aa1136450cb5da",
+        "host_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 1733.1226
+        },
+        "provider_compile": {
+          "completed": true,
+          "timed_out": false,
+          "exit_code": 0,
+          "wall_ms": 114797.9186
+        },
+        "host_compile_arguments": [
+          "-std=c++17",
+          "-O3",
+          "-mavx512f",
+          "-mavx512bf16",
+          "-ffp-contract=off",
+          "-c",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers\\q1_moe_avx512bf16_host_provider.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "provider_compile_arguments": [
+          "-DQRT_PREFILL_HAWKEYE_REPLAY_LANES=4",
+          "-DQRT_SM121_DPP_REDUCTION=1",
+          "-DQRT_SM121_COMPACT_NORMALIZE=1",
+          "-DQRT_QWEN36_W8A8_GROUP_SIZE=128",
+          "-DQRT_QWEN36_Q8192_WEIGHT_INT8_FP16_SCALES=0",
+          "-DQRT_ENABLE_Q1_MOE_AVX512BF16_HOST_PROVIDER=1",
+          "-DQRT_ENABLE_HIPBLASLT_RESIDENT_MATRIX_PROVIDER=1",
+          "-DQRT_ENABLE_ROCBLAS_FULL_ATTENTION_BMM=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_BATCHED=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_MOE_ROUTER=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_QKVZ=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LINEAR_OUT=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_FULL_Q=1",
+          "-DQRT_ENABLE_ROCBLAS_Q1_LM_HEAD=1",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety",
+          "-I",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\include",
+          "-L",
+          "C:\\Program Files\\AMD\\ROCm\\7.1\\lib",
+          "-std=c++17",
+          "-O2",
+          "--offload-arch=gfx1151",
+          "-DQRT_STATIC=1",
+          "-I",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\src",
+          "-I",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\native\\providers",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\tests\\native\\projection_safety_selftest.cpp",
+          "-o",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety\\qrt-projection-safety.exe",
+          "-lrocblas",
+          "-lhipblaslt",
+          "-Xlinker",
+          "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety\\q1_moe_avx512bf16_host_provider.obj"
+        ],
+        "artifacts": [
+          {
+            "name": "qrt-projection-safety.exe",
+            "bytes": 16685568,
+            "sha256": "80ca519d99c7d84100c4241755822d2be0fbe87b066dacd8e1b3418c483e3e48"
+          },
+          {
+            "name": "q1_moe_avx512bf16_host_provider.obj",
+            "bytes": 183170,
+            "sha256": "4e37e43677018bdeb0e86f82e58f851cd6609c26efbea1707cd0505264d9ef9a"
+          }
+        ]
+      }
+    },
+    "audit": {
+      "name": "conv-consumer-audit-r1",
+      "host": "BAIYING",
+      "command_file": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\scripts\\baiying_guarded_inference.ps1",
+      "spec": {
+        "executable": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1\\build\\conv-consumer-safety\\qrt-projection-safety.exe",
+        "arguments": [
+          "--conv-consumer-audit",
+          "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin",
+          "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin",
+          "D:\\projects\\sm121-qkv-reference-9510d980.bin",
+          "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\conv.bin",
+          "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input",
+          "D:\\projects\\sm121-silu-bf16-673f8dd1.bin"
+        ],
+        "working_directory": "D:\\projects\\AIMA-public-conv-consumer-20260917-r1",
+        "repo_commit": "f0ed6278f58a7c2370460bcdcbcbb688fac55da5",
+        "command_file": "D:\\projects\\run-native-conv-consumer-r1.ps1",
+        "command_file_sha256": "395b5cbb1dbd3f8a631b60aa8b7457414fe0f7c3216d3e20ac8c4b391e752555",
+        "model": "D:\\models\\Qwen3.6-35B-A3B; original captured layer-zero QKV and convolution",
+        "model_loaded": false,
+        "inference_acceptance": false,
+        "performance_acceptance": false,
+        "replay_lanes": 4,
+        "staging_groups": 2,
+        "purpose": "Read-only full-q8192 convolution consumer interval audit on captured layer-zero inputs. Use retained matrix algorithm4, original PPB1000 selector and every original staged-half correction. Observe potential omissions only; validate all declared constant outputs, actual corrected endpoints, exact GB10 projection and first7169 convolution outputs. The final3 projected rows remain protected for continuation. No runtime dispatch or output is changed; capture extension repeats1023 input rows and is not a new prompt or inference result. Certificate wall time includes dispatch completion only, not allocation, matrix production, correction or validation.",
+        "matrix_producer_algorithm": 4,
+        "build_run_sha256": "000c87cae330950ef42b08a71bbc3400c7741ce52869fce99d6332c16dad4a08",
+        "build_provenance_sha256": "21b18d6897da9f12e075d56dd42e28e6d95c9fdd9f73e05ff24fa386381a3191",
+        "tensor_inputs": [
+          {
+            "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161",
+            "path": "D:\\projects\\AIMA-public-exact-ab-20260910\\build\\fla-model-q7169-embeddingnorm-capture-r1\\input-rmsnorm-bf16.bin"
+          },
+          {
+            "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f",
+            "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\qkv.bin"
+          },
+          {
+            "sha256": "9510d98057e047e7dd6f4e7b9b6010862e54e938d37bb854078c2de419f0bf37",
+            "path": "D:\\projects\\sm121-qkv-reference-9510d980.bin"
+          },
+          {
+            "sha256": "196f8a5383dcc575e70695b134e8756f5c682e724e2c74dbbe2eecdd2a07ca38",
+            "path": "D:\\projects\\AIMA-public-capture-20260910\\build\\layer0-weights-r1\\conv.bin"
+          },
+          {
+            "sha256": "b060def5e5fcb028fdcd575d1be04275309ce2047601b984a6a18ef248e4ae1c",
+            "path": "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-q-bf16.bin"
+          },
+          {
+            "sha256": "601fa1266e4403da579bc7352a1a8650e4a8b22a06d847f730084aafd5080d14",
+            "path": "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-k-bf16.bin"
+          },
+          {
+            "sha256": "cc324c828ffa9f2e950235a14669a66d74fc9efd3babc148d0c0659b2ad19dd9",
+            "path": "D:\\projects\\AIMA-public-fla-20260909\\build\\fla-real-l0-input\\full-v-bf16.bin"
+          },
+          {
+            "sha256": "673f8dd1280700578c1e8743afd2e3b4da134b1fbd463c890527e1c4d9f796b8",
+            "path": "D:\\projects\\sm121-silu-bf16-673f8dd1.bin"
+          }
+        ],
+        "model_index_sha256": "41b9356101ebf8e7519e150dc811f80c4226e727301fbb032b890f006ed0be83",
+        "gb10_reference_host": "aitopatom-66c4",
+        "gb10_capture_sha256": "5522ec3e4725adf459e505dff61aa3981a08b416b7b2bfe40e929ccf250b4d8b",
+        "prompt_sha256": "26515be92b5563d921bade3ed6673ffe9e0c6560fbd7d78f587a0400da802804",
+        "reference_is_compute_input": false,
+        "selector_error_bound_ppb": 1000,
+        "tokens": 8192,
+        "source_tokens": 7169,
+        "repeated_input_rows": 1023
+      },
+      "launch": {
+        "pid": 3288,
+        "utc": "2026-09-17T13:45:35.3808540Z",
+        "timeout_seconds": 240,
+        "job_kill_on_close": true
+      },
+      "reason": "completed",
+      "exit_code": 0,
+      "wall_ms": 1597.432,
+      "host_checks": {
+        "same_boot": true,
+        "no_engine_process": true,
+        "host_memory_reserve": true,
+        "commit_reserve": true,
+        "amd_gpu_ok": true
+      },
+      "host_checks_pass": true,
+      "executable_sha256": "80ca519d99c7d84100c4241755822d2be0fbe87b066dacd8e1b3418c483e3e48",
+      "canonical_raw_sha256": {
+        "dispatch.json": "35ceac9921f50ffff7e7809c2bcf6bdf0f9bf26d09b624b10c0012ecd346e7d2",
+        "launch.json": "008142cbaa0bd7f9731f4ababb26ef4986257d129f28d50c4090882b99201a26",
+        "preflight.json": "ae6fcba682e96c3490d1c70da267807b52d2dcd0cda65b52ce293e9ecba3838b",
+        "product.stderr.log": "b25a56b1dfa407772c5aa1af580511051985feee9ac8c5122dc2bba49e9ccd31",
+        "product.stdout.jsonl": "0a0ee876c3c6de2c719e8addeae059cdc0eb1e7f09d75581556a0e159fb8af18",
+        "reports.json": "04786502bbfcabbb09a69aedaa36c8342dff57d36b11a6fa470bc3504b99535e",
+        "run-record.json": "ea50081c42e706832d7eca68a5bdee3e0ebb53c12711de34a8ac07be766840be"
+      },
+      "reports": [
+        {
+          "type": "conv_consumer_audit",
+          "tokens": 8192,
+          "source_tokens": 7169,
+          "elements": 67108864,
+          "selected": 4331635,
+          "valid_ranges": 3387694,
+          "omittable": 1221516,
+          "constant_outputs": 63177324,
+          "halo_selected_protected": 1760,
+          "projection_bf16_changes": 430461,
+          "omittable_bf16_changes": 17695,
+          "selector_failures": 0,
+          "range_failures": 0,
+          "certificate_failures": 0,
+          "unselected_endpoint_changes": 0,
+          "gb10_projection_mismatches": 0,
+          "gb10_convolution_mismatches": [
+            0,
+            0,
+            0
+          ],
+          "certificate_completed_wall_ms": 11.8626,
+          "all_original_candidates_replayed": true,
+          "redzones_pass": true,
+          "immutable_inputs": true,
+          "inference_acceptance": false
+        },
+        {
+          "type": "summary",
+          "status": "pass",
+          "mode": "--conv-consumer-audit",
+          "gpu_cases": 1,
+          "inference_success_claimed": false,
+          "numerical_scope": "captured_layer_zero_projection_and_convolution_consumer_interval"
+        }
+      ]
+    }
+  },
+  "observation": {
+    "report": {
+      "type": "conv_consumer_audit",
+      "tokens": 8192,
+      "source_tokens": 7169,
+      "elements": 67108864,
+      "selected": 4331635,
+      "valid_ranges": 3387694,
+      "omittable": 1221516,
+      "constant_outputs": 63177324,
+      "halo_selected_protected": 1760,
+      "projection_bf16_changes": 430461,
+      "omittable_bf16_changes": 17695,
+      "selector_failures": 0,
+      "range_failures": 0,
+      "certificate_failures": 0,
+      "unselected_endpoint_changes": 0,
+      "gb10_projection_mismatches": 0,
+      "gb10_convolution_mismatches": [
+        0,
+        0,
+        0
+      ],
+      "certificate_completed_wall_ms": 11.8626,
+      "all_original_candidates_replayed": true,
+      "redzones_pass": true,
+      "immutable_inputs": true,
+      "inference_acceptance": false
+    },
+    "omittable_fraction": 0.2819988295412702,
+    "omittable_actual_change_fraction": 0.04110709216398233,
+    "host_reports": [
+      {
+        "kind": "conv_consumer_interval_host",
+        "actual_sm121_table": false,
+        "segments": 64304,
+        "nonfinite_segments_declined": 0,
+        "boundary_rejections": 64303,
+        "interior_points": 192912,
+        "enumerated_combinations": 397536,
+        "constant_intervals": 16599,
+        "constant_combinations": 81182,
+        "halo_cases": 131616,
+        "graph_changed_inputs": 1499,
+        "graph_output_checks": 139264,
+        "graph_halo_checks": 24576,
+        "false_certificates": 0,
+        "model_loaded": false
+      },
+      {
+        "kind": "conv_consumer_interval_host",
+        "actual_sm121_table": true,
+        "segments": 64304,
+        "nonfinite_segments_declined": 1,
+        "boundary_rejections": 64303,
+        "interior_points": 192912,
+        "enumerated_combinations": 397536,
+        "constant_intervals": 20063,
+        "constant_combinations": 152403,
+        "halo_cases": 131616,
+        "graph_changed_inputs": 915,
+        "graph_output_checks": 139264,
+        "graph_halo_checks": 24576,
+        "false_certificates": 0,
+        "model_loaded": false
+      }
+    ]
+  },
+  "decision": {
+    "source_commit": "f0ed6278f58a7c2370460bcdcbcbb688fac55da5",
+    "observation": {
+      "report": {
+        "type": "conv_consumer_audit",
+        "tokens": 8192,
+        "source_tokens": 7169,
+        "elements": 67108864,
+        "selected": 4331635,
+        "valid_ranges": 3387694,
+        "omittable": 1221516,
+        "constant_outputs": 63177324,
+        "halo_selected_protected": 1760,
+        "projection_bf16_changes": 430461,
+        "omittable_bf16_changes": 17695,
+        "selector_failures": 0,
+        "range_failures": 0,
+        "certificate_failures": 0,
+        "unselected_endpoint_changes": 0,
+        "gb10_projection_mismatches": 0,
+        "gb10_convolution_mismatches": [
+          0,
+          0,
+          0
+        ],
+        "certificate_completed_wall_ms": 11.8626,
+        "all_original_candidates_replayed": true,
+        "redzones_pass": true,
+        "immutable_inputs": true,
+        "inference_acceptance": false
+      },
+      "omittable_fraction": 0.2819988295412702,
+      "omittable_actual_change_fraction": 0.04110709216398233,
+      "host_reports": [
+        {
+          "kind": "conv_consumer_interval_host",
+          "actual_sm121_table": false,
+          "segments": 64304,
+          "nonfinite_segments_declined": 0,
+          "boundary_rejections": 64303,
+          "interior_points": 192912,
+          "enumerated_combinations": 397536,
+          "constant_intervals": 16599,
+          "constant_combinations": 81182,
+          "halo_cases": 131616,
+          "graph_changed_inputs": 1499,
+          "graph_output_checks": 139264,
+          "graph_halo_checks": 24576,
+          "false_certificates": 0,
+          "model_loaded": false
+        },
+        {
+          "kind": "conv_consumer_interval_host",
+          "actual_sm121_table": true,
+          "segments": 64304,
+          "nonfinite_segments_declined": 1,
+          "boundary_rejections": 64303,
+          "interior_points": 192912,
+          "enumerated_combinations": 397536,
+          "constant_intervals": 20063,
+          "constant_combinations": 152403,
+          "halo_cases": 131616,
+          "graph_changed_inputs": 915,
+          "graph_output_checks": 139264,
+          "graph_halo_checks": 24576,
+          "false_certificates": 0,
+          "model_loaded": false
+        }
+      ]
+    },
+    "decision": "Keep read-only and revise interval coverage before considering runtime integration. Original projection and convolution comparisons pass, but only28.1999% of selected projections are provisionally omittable. The shared range helper rejects943941 selected intervals at its width/tiny/special boundary; convolution products are monotone and do not enumerate interior BF16 values, so investigate removing the inherited width cap while preserving all finite, numerical and continuation restrictions. No omission, net speedup, model inference or release is qualified."
+  },
+  "implementation": "For each original four-tap convolution, enclose every selected projection BF16 endpoint in the original empirical producer envelope plus both adjacent BF16 hypotheses. Propagate BF16-rounded products through four ordered FP32 additions. Only a single exact SM121 SiLU transition segment certifies the complete output; crossing signed zero, nonfinite, tiny, underflow-sensitive and wide cases decline. A projection correction can be considered for omission only when all four following convolution outputs are constant. The final3 input rows remain protected for continuation. Native audit replays every original candidate and observes certificates without affecting computation.",
+  "correctness_scope": "The sanitized host enumeration covers every exact table segment/boundary, independent four-tap combinations, complete consumer graphs and continuation halos. The native gfx1151 observer checks all67108864 selector decisions, every valid selected range against actual corrected endpoints, all constant convolution outputs against the unchanged production convolution, all67108864 BF16 projection outputs against held-out GB10 data, and all original7169 convolution rows across Q/K/V. The final1023 projection rows repeat original inputs, with matching independent-row reference copies; their convolution extension is checked only against original arithmetic, not a newly captured GB10 prompt. Empirical envelope coverage is observed for this captured layer, not proven for arbitrary inputs.",
+  "timing_scope": "One read-only certificate dispatch with host completion. Allocation, uploads, producer, L2 preparation, original correction, convolution, downloads and CPU validation are outside this clock. No correction is actually omitted and no net timing comparison, complete model load, output token, product TTFT or release qualification is measured.",
+  "current_product": {
+    "file": "benchmarks/correctness/moe-down-consumer-compact-product-20260917.json",
+    "bytes": 884564,
+    "sha256": "8ae8646fb5c93866c7e7c3588e26290c0fd5223c07bee104d01d208a0f1649cf"
+  },
+  "model_loaded": false,
+  "product_dispatch_changed": false,
+  "package_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}

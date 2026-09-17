@@ -29,6 +29,8 @@ class ConvConsumerIntervalTests(unittest.TestCase):
             self.assertEqual(result["false_certificates"], 0)
             self.assertGreater(result["enumerated_combinations"], 32768)
             self.assertGreater(result["constant_combinations"], 0)
+            self.assertGreater(result["wide_endpoint_checks"], 1000000)
+            self.assertGreater(result["wide_constant_checks"], 0)
             print(run.stdout.strip())
 
 

@@ -1,6 +1,7 @@
 #include "gdn/conv_consumer_interval.h"
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -10,6 +11,28 @@ unsigned random_word(){rng^=rng<<13;rng^=rng>>17;rng^=rng<<5;return rng;}
 float reference_product(uint16_t x,uint16_t w){return c::widen(c::rounded(float(double(c::widen(x))*double(c::widen(w)))));}
 float reference_sum(const uint16_t (&x)[4],const uint16_t (&w)[4],unsigned mask){float result=0.0f;for(unsigned t=0;t<4;++t)if(mask&(1u<<t)){volatile float next=result+reference_product(x[t],w[t]);result=next;}return result;}
 a::Interval between(uint32_t first,uint32_t last){float x=c::value(first),y=c::value(last);return {std::min(x,y),std::max(x,y),true};}
+void wide_check(const unsigned char* table,size_t& endpoints,size_t& constants){
+ for(unsigned attempt=0;attempt<128u;++attempt){
+  const float raw=std::ldexp((attempt&1u)?-1.25f:1.25f,int(attempt%61u)-30);
+  const float error=std::fabs(raw)*(attempt%3u?0.125f:4.0f);
+  const auto range=a::endpoint(raw,error,true);assert(range.valid&&unsigned(range.high-range.low)>8u);
+  assert(!c::range(raw,error).valid);
+  const float magnitude=std::max(std::fabs(c::widen(c::unordered(range.low))),std::fabs(c::widen(c::unordered(range.high))));
+  const uint16_t dominant=c::rounded(magnitude*1024.0f),fixed=c::ordered(dominant);
+  c::Range inputs[4]={range,{fixed,fixed,true},{c::ordered(0),c::ordered(0),true},{c::ordered(0),c::ordered(0),true}};
+  const uint16_t weights[4]={uint16_t(attempt&2u?0xbf80u:0x3f80u),0x3f80u,0x3f80u,0x3f80u};
+  const auto cert=a::certify(inputs,weights,15u,table);assert(cert.sum.valid);
+  for(unsigned key=range.low;key<=range.high;++key){
+   const uint16_t values[4]={c::unordered(uint16_t(key)),dominant,0u,0u};
+   const float result=reference_sum(values,weights,15u);
+   assert(result>=cert.sum.low&&result<=cert.sum.high);++endpoints;
+   if(cert.constant){assert(s::evaluate(table,result)==cert.output);++constants;}
+  }
+ }
+ for(float raw:{c::value(1u),0.0f,c::value(0x7f800000u)})assert(!a::endpoint(raw,1.0f,true).valid);
+ assert(!a::endpoint(1.0f,-1.0f,true).valid&&!a::endpoint(1.0f,c::value(0x7f800000u),true).valid);
+ assert(endpoints>1000000u&&constants>0u);
+}
 void graph_check(const unsigned char* table,size_t& changed,size_t& outputs,size_t& protected_halo){
  constexpr unsigned tokens=17u,features=16u;
  for(unsigned attempt=0;attempt<512u;++attempt){
@@ -94,5 +117,6 @@ int main(int argc,char** argv){
   assert(a::can_omit(token,tokens,fixed)==(token<tokens&&tokens-token>3u&&mask==15u));++halo_cases;
  }
  size_t graph_changed=0,graph_outputs=0,graph_halo=0;graph_check(table.data(),graph_changed,graph_outputs,graph_halo);
- std::cout<<"{\"kind\":\"conv_consumer_interval_host\",\"actual_sm121_table\":"<<(argc==2?"true":"false")<<",\"segments\":"<<segments<<",\"nonfinite_segments_declined\":"<<nonfinite_declined<<",\"boundary_rejections\":"<<boundaries<<",\"interior_points\":"<<interior<<",\"enumerated_combinations\":"<<combinations<<",\"constant_intervals\":"<<admitted<<",\"constant_combinations\":"<<admitted_combinations<<",\"halo_cases\":"<<halo_cases<<",\"graph_changed_inputs\":"<<graph_changed<<",\"graph_output_checks\":"<<graph_outputs<<",\"graph_halo_checks\":"<<graph_halo<<",\"false_certificates\":0,\"model_loaded\":false}\n";
+ size_t wide_endpoints=0,wide_constants=0;wide_check(table.data(),wide_endpoints,wide_constants);
+ std::cout<<"{\"kind\":\"conv_consumer_interval_host\",\"actual_sm121_table\":"<<(argc==2?"true":"false")<<",\"segments\":"<<segments<<",\"nonfinite_segments_declined\":"<<nonfinite_declined<<",\"boundary_rejections\":"<<boundaries<<",\"interior_points\":"<<interior<<",\"enumerated_combinations\":"<<combinations<<",\"constant_intervals\":"<<admitted<<",\"constant_combinations\":"<<admitted_combinations<<",\"halo_cases\":"<<halo_cases<<",\"graph_changed_inputs\":"<<graph_changed<<",\"graph_output_checks\":"<<graph_outputs<<",\"graph_halo_checks\":"<<graph_halo<<",\"wide_endpoint_checks\":"<<wide_endpoints<<",\"wide_constant_checks\":"<<wide_constants<<",\"false_certificates\":0,\"model_loaded\":false}\n";
 }
