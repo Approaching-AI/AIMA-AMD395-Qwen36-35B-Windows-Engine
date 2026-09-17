@@ -1,5 +1,30 @@
 # Real-model performance
 
+## Fused MoE down consumer collection, 2026-09-17
+
+Four fresh same-DLL q8192/out512 processes run OFF/ON/ON/OFF with adaptive
+linear OUT mode 2, combined exact attention and register PV held fixed.
+All2048 GB10 output IDs, original prompts and actual callbacks match; all
+first logits are 10.375 and all loads are below 30 seconds. The new MoE
+provider source is `9235750`; the other component builds remain pinned.
+
+OFF/ON TTFT medians are 25610.7622/25379.41695 ms, saving 231.34525 ms
+(0.9033%). Both ON samples are below both OFF samples. Each of 40 enabled
+calls applies the previous complete BF16 consumer certificate while
+publishing remaining candidates directly into the original bounded queue.
+It removes the omission bitmap and duplicate selector scan; 126904922 of
+158740988 down replays are omitted, with unchanged exact replay for the rest.
+The per-invocation counter/guard owner is 1056 bytes. Native generated tests
+also exercise the actual runtime launcher and all four comparison paths.
+
+Retain only the default-off experimental prefill setting. TPOT medians are
+100.942518/102.3135815 ms, so no decode or total-request gain is claimed.
+TTFT remains above 10 seconds, and the empirical error envelope, long-context
+and release gates are unchanged. [Implementation and full measurements](MOE_DOWN_CONSUMER_COMPACT.md).
+[Product evidence](../benchmarks/correctness/moe-down-consumer-compact-product-20260917.json):
+884564 bytes, SHA256
+`8ae8646fb5c93866c7e7c3588e26290c0fd5223c07bee104d01d208a0f1649cf`.
+
 ## Cached weight controls for exact replay, 2026-09-17
 
 Isolated source `110174d` keeps original BF16 weights and caches only the
