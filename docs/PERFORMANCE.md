@@ -19,6 +19,43 @@ and all long-context, retained-performance and release gates remain open.
 1269463 bytes, SHA256
 `e416abed136f64ed0c9ab8e01d34b3473c9a38695cde36a829f2f884dfe1b8c3`.
 
+## Completed current-stack phases, 2026-09-18
+
+The paired-GDN control passes a fresh q8192/out512 profile with every original
+GB10 ID, prompt, actual callback and first logit 10.375. Artifacts and numerical
+options match the retained run; only five profiling flags and marker filtering
+change. Load is 21283.6076 ms; instrumented TTFT is 28663.5245 ms and TPOT
+104.155783 ms. This does not replace the 24709.6139 ms ordinary baseline.
+
+| Surface | Completed time ms |
+| --- | ---: |
+| Linear core | 7146.189 |
+| Preceding linear projections, separate from core | 4355.962 |
+| Recurrent work, within linear core | 3314.694 |
+| Linear OUT, within linear core | 1963.548 |
+| Full attention, outer interval | 9147.449 |
+| CK attention, within full attention | 6793.513 |
+| QK, within CK | 3198.092 |
+| Fused softmax/native PV, within CK | 1663.966 |
+| Exact PV, within CK | 1739.224 |
+| MoE total; routed and shared overlap | 4953.601 |
+
+Nested and overlapping clocks must not be summed. All 240 linear phases,
+ten CK profiles and 40 MoE profiles complete. Every paired-GDN owner and all
+host guards pass; dense/coarse candidate counts match the ordinary control.
+The CK approximate-PV field remains an empty completion boundary, totaling
+0.3710 ms. All ten full-attention residual device intervals are negative;
+their original values remain recorded and excluded from totals. No MoE
+interval is negative in this run.
+
+Layer 39 full-prefix attention takes 894.791 ms. Final-layer query/output
+liveness is under investigation, with complete KV and original arithmetic
+required; it is not a qualified replacement. Broader changes remain necessary
+for the unchanged 10-second gate. [Complete same-artifact profile and GB10
+boundary](../benchmarks/correctness/paired-stack-completed-profile-20260918.json):
+637135 bytes, SHA256
+`265781252661a42bb009c5b145423680dca450bc66bfe93777f94487355d029e`.
+
 ## Fused probability/native PV, 2026-09-17
 
 Four fresh same-DLL q8192/out512 processes compare the source `df2ea51`
