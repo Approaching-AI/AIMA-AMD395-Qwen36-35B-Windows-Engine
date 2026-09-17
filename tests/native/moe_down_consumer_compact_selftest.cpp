@@ -33,8 +33,8 @@ template<class T>struct Buffer{
  explicit Buffer(size_t n,T value=T{}):Buffer(std::vector<T>(n,value)){}
  ~Buffer(){if(storage){(void)hipStreamSynchronize(stream);(void)hipFree(storage);}}
  T* data(){return storage+guard;}
- void reset(){ok(hipMemcpy(storage,initial.data(),initial.size()*sizeof(T),hipMemcpyHostToDevice),"upload");}
- std::vector<T> read(bool immutable=false){std::vector<T> result(initial.size());ok(hipMemcpy(result.data(),storage,result.size()*sizeof(T),hipMemcpyDeviceToHost),"read");
+ void reset(){ok(hipMemcpyAsync(storage,initial.data(),initial.size()*sizeof(T),hipMemcpyHostToDevice,stream),"upload");}
+ std::vector<T> read(bool immutable=false){std::vector<T> result(initial.size());ok(hipMemcpyAsync(result.data(),storage,result.size()*sizeof(T),hipMemcpyDeviceToHost,stream),"read");finish();
   require(std::equal(result.begin(),result.begin()+guard,initial.begin())&&std::equal(result.end()-guard,result.end(),initial.end()-guard),"redzone");
   if(immutable)require(!std::memcmp(result.data(),initial.data(),result.size()*sizeof(T)),"immutable input");
   return std::vector<T>(result.begin()+guard,result.end()-guard);
