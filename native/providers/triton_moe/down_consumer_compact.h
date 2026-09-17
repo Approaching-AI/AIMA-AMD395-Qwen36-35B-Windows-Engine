@@ -1,0 +1,110 @@
+#pragma once
+#include "down_consumer_filter.h"
+
+// Isolated certificate/collector replacement. A window owns complete tokens,
+// so its eight-route certificate can directly publish the remaining original
+// indices into the existing bounded queue. No full-shape omission mask or
+// second projection/selector scan is needed. Replay and combine stay unchanged.
+namespace qrt_moe_down_consumer_compact {
+namespace f = qrt_moe_down_consumer_filter;
+namespace c = qrt_routed_consumer;
+namespace interval = qrt_moe_down_consumer;
+namespace audit = qrt_moe_down_consumer_audit;
+struct View {
+    const float* native;
+    const float* weights;
+    const int32_t* experts;
+    const float* input_l2;
+    const float* weight_l2;
+    const uint16_t* shared_down;
+    const float* shared_gate;
+    float error_scale;
+    unsigned radius, exponent_threshold, tokens;
+};
+
+__global__ __launch_bounds__(256) void collect(View v, unsigned first_token,
+    unsigned token_count, unsigned* indices, unsigned* count, unsigned* stats) {
+    constexpr unsigned threads = 256u, routes = 8u, hidden = 2048u;
+    const unsigned local = blockIdx.x * threads + threadIdx.x;
+    const bool active = local < token_count * hidden;
+    const unsigned index = first_token * hidden + local;
+    const unsigned token = index / hidden, column = index % hidden;
+    __shared__ unsigned queue[threads * routes], queue_count, global_base;
+    __shared__ unsigned totals[8u][4u];
+    if (!threadIdx.x) queue_count = 0u;
+    __syncthreads();
+    unsigned mask = 0u, invariant = 0u, invalid = 0u;
+    if (active) {
+        float raw[routes], error[routes];
+#pragma unroll
+        for (unsigned r = 0u; r < routes; ++r) {
+            const unsigned route = token * routes + r;
+            const float down = v.native[size_t(route) * hidden + column], weight = v.weights[route];
+            raw[r] = interval::multiply(weight, down);
+            const int32_t expert = v.experts[route];
+            const bool good = expert >= 0 && expert < 256 && c::finite(weight);
+            error[r] = good ? v.input_l2[route] * v.weight_l2[size_t(expert) * hidden + column] * v.error_scale * fabsf(weight)
+                            : c::value(0x7f800000u);
+            invalid += !good || !c::finite(raw[r]);
+            if (audit::selected(down, raw[r], error[r], v.radius, v.exponent_threshold)) mask |= 1u << r;
+        }
+        const auto s = interval::enclose(raw, error, mask);
+        const float shared = interval::multiply(v.shared_gate[token], c::widen(v.shared_down[index]));
+        invalid += !c::finite(shared);
+        invariant = mask && !invalid && interval::combined_constant(s, shared);
+    }
+    const unsigned lane = threadIdx.x % 32u, warp = threadIdx.x / 32u;
+#pragma unroll
+    for (unsigned r = 0u; r < routes; ++r) {
+        const bool selected = active && !invariant && (mask & (1u << r));
+        const unsigned ballot = __ballot(selected);
+        unsigned base = !lane && ballot ? atomicAdd(&queue_count, unsigned(__popc(ballot))) : 0u;
+        base = __shfl(base, 0u, 32u);
+        if (selected) queue[base + unsigned(__popc(ballot & ((uint32_t(1u) << lane) - 1u)))] =
+            (token * routes + r) * hidden + column;
+    }
+    unsigned selected_count = unsigned(__popc(mask));
+    unsigned removed_count = invariant * selected_count;
+    for (unsigned offset = 16u; offset; offset >>= 1u) {
+        selected_count += __shfl_down(selected_count, offset, 32u);
+        removed_count += __shfl_down(removed_count, offset, 32u);
+        invariant += __shfl_down(invariant, offset, 32u);
+        invalid += __shfl_down(invalid, offset, 32u);
+    }
+    if (!lane) {
+        totals[warp][0] = selected_count; totals[warp][1] = removed_count;
+        totals[warp][2] = invariant; totals[warp][3] = invalid;
+    }
+    __syncthreads();
+    if (!threadIdx.x) {
+        global_base = queue_count ? atomicAdd(count, queue_count) : 0u;
+        unsigned selected = 0u, removed = 0u, constant = 0u, bad = 0u;
+#pragma unroll
+        for (unsigned i = 0u; i < 8u; ++i) {
+            selected += totals[i][0]; removed += totals[i][1];
+            constant += totals[i][2]; bad += totals[i][3];
+        }
+        atomicAdd(stats + f::Cells, min(threads, token_count * hidden - blockIdx.x * threads));
+        if (selected) { atomicAdd(stats + f::Candidates, selected); atomicAdd(stats + f::Collected, selected); }
+        if (removed) { atomicAdd(stats + f::Removable, removed); atomicAdd(stats + f::Omitted, removed); }
+        if (constant) atomicAdd(stats + f::InvariantCells, constant);
+        if (bad) atomicAdd(stats + f::InvalidValues, bad);
+    }
+    __syncthreads();
+    for (unsigned i = threadIdx.x; i < queue_count; i += threads) indices[global_base + i] = queue[i];
+}
+
+inline hipError_t launch(View v, unsigned first_token, unsigned token_count,
+    unsigned* indices, size_t capacity, unsigned* count, unsigned* stats, hipStream_t stream) {
+    if (!v.native || !v.weights || !v.experts || !v.input_l2 || !v.weight_l2 || !v.shared_down || !v.shared_gate ||
+        !indices || !count || !stats || !v.tokens || v.tokens > 8192u || !token_count || token_count > 256u ||
+        first_token >= v.tokens || token_count > v.tokens - first_token ||
+        capacity < size_t(token_count) * 8u * 2048u || !(v.error_scale > 0.0f) || !std::isfinite(v.error_scale))
+        return hipErrorInvalidValue;
+    // Worst-case selected count is all eight routes. The caller clears this
+    // device count and drains/reuses the bounded queue in original stream order.
+    hipLaunchKernelGGL(collect, dim3((token_count * 2048u + 255u) / 256u), dim3(256u), 0u, stream,
+        v, first_token, token_count, indices, count, stats);
+    return hipGetLastError();
+}
+} // namespace qrt_moe_down_consumer_compact
