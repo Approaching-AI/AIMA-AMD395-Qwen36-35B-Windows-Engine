@@ -8,7 +8,7 @@
 // PV replay. FuseQk=false consumes the original independent exact QK slab;
 // only that form is exposed through the default-off runtime consumer option.
 namespace qrt_streamed_exact_attention {
-using namespace qrt_blackwell_attention;
+namespace attention = qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
 namespace bound = qrt_sm121_pv_final_bound;
 
@@ -21,7 +21,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride,
     const unsigned char* exp2_table, const unsigned char* packed_exp,
     const unsigned char* rcp_table, bool vllm_sum, const float* source_scores = nullptr) {
-    static_assert(kHeadDim == 256u && kQueryHeads == 16u && kKvHeads == 2u);
+    static_assert(attention::kHeadDim == 256u && attention::kQueryHeads == 16u && attention::kKvHeads == 2u);
     __shared__ uint32_t qvalues[FuseQk ? 32 : 1][FuseQk ? 256 : 1];
     __shared__ uint32_t kvalues[FuseQk ? 128 : 1][FuseQk ? 32 : 1];
     __shared__ float scores[FuseQk ? 32 : 1][FuseQk ? 32 : 1], alpha[32], denominator[32];
@@ -42,7 +42,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     float running_max[4] = {-INFINITY, -INFINITY, -INFINITY, -INFINITY};
     float running_sum[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     // Each wave owns two 16-column tiles for both 16-query halves.
-    MantissaF32x8 accumulator[2][2]{}, error[2][2]{};
+    attention::MantissaF32x8 accumulator[2][2]{}, error[2][2]{};
     for (unsigned tile = 0u; tile < tiles; ++tile) {
         const unsigned key_base = tile * 32u;
         if constexpr (FuseQk) {
@@ -99,7 +99,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                 const float score = !active[q][k] ? -INFINITY : fallback[q][k]
                     ? qrt_decoded_window_qk::raw_dot(query + (size_t(start + row) * 16u + head) * 256u,
                         transposed_key + size_t(kv_head) * 256u * key_stride + key, key_stride)
-                    : carry[q][k] * kExactScale;
+                    : carry[q][k] * attention::kExactScale;
                 scores[local_row][column] = score;
                 if (diagnostic_scores && row < count && key < stride)
                     diagnostic_scores[(size_t(row) * 16u + head) * stride + key] = score;
@@ -122,10 +122,10 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                 for (unsigned mask = 16u; mask; mask >>= 1u)
                     next_max = fmaxf(next_max, __shfl_xor(next_max, mask, 32u));
                 const float a = qrt_sm121_exp2_native_delta::evaluate(exp2_table, packed_exp,
-                    (running_max[r] - next_max) * kExactLog2e);
+                    (running_max[r] - next_max) * attention::kExactLog2e);
                 p = key < tokens ? qrt_sm121_exp2_native_delta::evaluate(exp2_table, packed_exp,
-                    (score - next_max) * kExactLog2e) : 0.0f;
-                if (key < stride) probabilities[(size_t(row) * 16u + head) * stride + key] = f32_to_bf16(p);
+                    (score - next_max) * attention::kExactLog2e) : 0.0f;
+                if (key < stride) probabilities[(size_t(row) * 16u + head) * stride + key] = attention::f32_to_bf16(p);
                 float sum = p;
                 if (vllm_sum) {
                     constexpr unsigned order[] = {1u, 4u, 2u, 16u, 8u};
@@ -142,19 +142,19 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     scales[(size_t(row) * 16u + head) * (tile_stride + 1u) + tile] = a;
                 }
             }
-            probability[local_row][lane] = f32_to_bf16(p);
+            probability[local_row][lane] = attention::f32_to_bf16(p);
         }
         __syncthreads();
         for (unsigned part = 0u; part < 2u; ++part) {
 #pragma unroll
             for (unsigned q = 0u; q < 2u; ++q) {
-                NativeOperandRow left{};
+                attention::NativeOperandRow left{};
 #pragma unroll
                 for (unsigned i = 0u; i < 16u; ++i)
                     left.original[i] = probability[q * 16u + lane % 16u][part * 16u + i];
 #pragma unroll
                 for (unsigned c = 0u; c < 2u; ++c) {
-                    NativeOperandRow right{};
+                    attention::NativeOperandRow right{};
                     const unsigned column = (wave + c * 8u) * 16u + lane % 16u;
                     // Match the separate 16-query PV tile's value mask exactly.
                     const unsigned pv_last = start + min(row_tile + q * 16u + 16u, count);
@@ -172,8 +172,8 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                             accumulator[q][c][e] = bound::multiply(accumulator[q][c][e], alpha[local_row]);
                         }
                     }
-                    const auto next = blackwell_native_mma(left, right, accumulator[q][c]);
-                    const auto magnitudes = blackwell_native_mma<true>(left, right, MantissaF32x8{});
+                    const auto next = attention::blackwell_native_mma(left, right, accumulator[q][c]);
+                    const auto magnitudes = attention::blackwell_native_mma<true>(left, right, attention::MantissaF32x8{});
 #pragma unroll
                     for (unsigned e = 0u; e < 8u; ++e) {
                         const unsigned row = row_tile + q * 16u + 2u * e + lane / 16u;
