@@ -5,11 +5,11 @@ Historical audit date: 2026-08-22
 ## Current unreleased work, 2026-09-18
 
 The mission and release gates remain open. The latest experimental q8192
-control is FLA `7b20c90`, whole `2899246`, CK `df2ea51`, MoE `9235750` and
+control is FLA `7b20c90`, whole `ddacdc9`, CK `df2ea51`, MoE `9235750` and
 CLI `24c4304`. A same-DLL OFF/ON/ON/OFF comparison matches all 2,048 original
 GB10 output IDs, prompts, first logits and actual callbacks. Enabled median
-TTFT is 24287.47315 ms and load median 21408.80375 ms. Final-query liveness
-preserves complete KV capture and remains default off. The 10000 ms operating
+TTFT is 23902.4417 ms and load median 21281.16445 ms. Final-query and output
+liveness preserve complete KV capture and remain default off. The 10000 ms operating
 boundary and retained 4187.415605 ms target remain unchanged. These components
 are not yet an updated portable package; full long-context and release
 qualification do not transfer from earlier binaries.

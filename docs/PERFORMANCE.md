@@ -1,5 +1,37 @@
 # Real-model performance
 
+## Final-layer output liveness, 2026-09-18
+
+Whole source `ddacdc9` computes only the last 2048 OUT values inside the
+qualified final-query scope, using the original Q1 K16/width26 kernel and BF16
+endpoint. Complete QKV/KV capture, residual normalization and MoE remain.
+Four fresh same-DLL q8192/out512 processes change only
+`QRT_QWEN36_FINAL_QUERY_OUTPUT_LIVENESS`; attention liveness stays enabled.
+CK `df2ea51`, MoE `9235750`, FLA `7b20c90` and CLI `24c4304` are fixed.
+
+| Order / mode | Load ms | TTFT ms | TPOT ms |
+| --- | ---: | ---: | ---: |
+| 1 / OFF | 21682.8986 | 24160.1204 | 101.450072 |
+| 2 / ON | 21333.5847 | 23890.3918 | 100.741730 |
+| 3 / ON | 21228.7442 | 23914.4916 | 101.094719 |
+| 4 / OFF | 21263.0032 | 24160.9340 | 100.675371 |
+
+All 2048 original GB10 IDs, prompts, actual callbacks and first logits 10.375
+pass, as do every activation and host check. OFF/ON median TTFT improves
+24160.5272 to 23902.4417 ms, saving 258.0855 ms (1.0682%). Both ON samples
+are below both OFF samples. ON is the current experimental control. Load
+median is 21281.16445 ms; no decode gain is established. The output change
+adds no workspace. Attention liveness still uses 83886080 bytes of staging.
+
+The last coarse OUT call disappears; all 130 dense, first nine coarse and
+30 adaptive-linear candidate counts match. Defaults and package remain
+unchanged. Other prompts, context and release gates remain open; TTFT still
+exceeds 10 seconds and the retained 4187.415605 ms target is unchanged.
+[Implementation and limits](FINAL_QUERY_LIVENESS.md).
+[Four complete model runs](../benchmarks/correctness/final-query-output-product-20260918.json):
+1542773 bytes, SHA256
+`26efccafbce32f6d3bb2bb44a05b86341cb40cb46e9b92bb6f0a759f2f5619d3`.
+
 ## Final-layer query liveness, 2026-09-18
 
 Whole source `2899246` preserves complete final-layer QKV/KV capture and
@@ -18,7 +50,7 @@ CLI24c4304 remain fixed.
 | 4 / OFF | 21319.1887 | 24594.1967 | 100.208110 |
 
 OFF/ON medians24619.14745/24287.47315ms improve331.6743ms (1.3472%);
-both ON samples are below both OFF samples. ON is the current experimental
+both ON samples are below both OFF samples. ON became the preceding experimental
 control, with an additional83886080-byte suffix staging allocation. All loads
 stay below30seconds. No decode gain is established. Defaults/package remain
 unchanged and the10-second, retained-performance and context gates remain open.
@@ -26,8 +58,8 @@ unchanged and the10-second, retained-performance and context gates remain open.
 The downstream OUT owner selects16775587 candidates on zeroed dead contexts,
 versus3034571 in OFF; its first-pair completed time rises108.9004 to297.0241ms.
 The130 dense, first9 coarse and30 adaptive-linear counts otherwise match.
-An explicit original-K16 last-row OUT is the next experiment, not a qualified
-gain. [Implementation and limitations](FINAL_QUERY_LIVENESS.md).
+The later original-K16 last-row OUT comparison is recorded above.
+[Implementation and limitations](FINAL_QUERY_LIVENESS.md).
 [Four complete model runs](../benchmarks/correctness/final-query-liveness-product-20260918.json):
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
@@ -80,9 +112,9 @@ The CK approximate-PV field remains an empty completion boundary, totaling
 their original values remain recorded and excluded from totals. No MoE
 interval is negative in this run.
 
-Layer 39 full-prefix attention takes 894.791 ms. Final-layer query/output
-liveness is under investigation, with complete KV and original arithmetic
-required; it is not a qualified replacement. Broader changes remain necessary
+Layer 39 full-prefix attention takes 894.791 ms. Later final-layer query/output
+liveness comparisons are recorded above with complete KV and original arithmetic.
+This older profile does not describe those changes. Broader changes remain necessary
 for the unchanged 10-second gate. [Complete same-artifact profile and GB10
 boundary](../benchmarks/correctness/paired-stack-completed-profile-20260918.json):
 637135 bytes, SHA256
