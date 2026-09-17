@@ -157,10 +157,9 @@ fn tool_result_no_progress(value: &Value) -> bool {
                 return true;
             }
             if let Ok(decoded) = serde_json::from_str::<Value>(trimmed) {
-                // Do not recursively decode quoted strings indefinitely.
-                if !decoded.is_string() {
-                    return tool_result_no_progress(&decoded);
-                }
+                // A decoded string is strictly shorter than its quoted JSON
+                // representation. Preserve failures inside quoted tool output.
+                return tool_result_no_progress(&decoded);
             }
             let lower = trimmed.to_ascii_lowercase();
             // Recognize command-wrapper status lines, including a traceback
@@ -175,17 +174,36 @@ fn tool_result_no_progress(value: &Value) -> bool {
             }) {
                 return true;
             }
+            if let Some((prefix, _)) = lower.split_once("final output:") {
+                if matches!(
+                    prefix.trim(),
+                    "" | "exit code: 0" | "process exited with code 0"
+                ) {
+                    let payload = &trimmed[prefix.len() + "final output:".len()..];
+                    return tool_result_no_progress(&Value::String(payload.to_owned()));
+                }
+            }
             matches!(
                 lower.as_str(),
-                "no output" | "<no output>" | "exit code: 0" | "process exited with code 0"
+                "no output"
+                    | "<no output>"
+                    | "null"
+                    | "none"
+                    | "exit code: 0"
+                    | "process exited with code 0"
+                    | "failed"
+                    | "failure"
             ) || [
                 "error:",
+                "error ",
                 "failed:",
                 "failure:",
                 "tool execution failed",
+                "command failed",
                 "proxyerror",
                 "proxy error",
                 "curl: (",
+                "traceback (most recent call last):",
             ]
             .iter()
             .any(|prefix| lower.starts_with(prefix))
@@ -226,6 +244,23 @@ fn tool_result_no_progress(value: &Value) -> bool {
         }
         _ => false,
     }
+}
+
+fn tool_content_status(content: &Value) -> (bool, bool) {
+    if content.is_array() {
+        // Message parts are a transport representation of the text actually
+        // shown to the model. JSON arrays *inside* that text remain data in
+        // tool_result_no_progress. Admission rejects unsupported/invalid parts;
+        // direct internal use must not let them reset a failed retry window.
+        return match render_content(content) {
+            Ok(text) => tool_content_status(&Value::String(text)),
+            Err(_) => (true, false),
+        };
+    }
+    (
+        tool_result_no_progress(content),
+        tool_result_confirms_silent_success(content),
+    )
 }
 
 /// The caller still owns semantic retry/fallback decisions and idempotency.
@@ -269,12 +304,13 @@ pub fn apply_tool_progress_policy(
             if let Some(id) = &message.tool_call_id {
                 if results_seen.insert(id.clone()) {
                     if let Some((signature, call_turn)) = calls.get(id) {
-                        if tool_result_no_progress(&message.content) {
+                        let (no_progress, silent_success) = tool_content_status(&message.content);
+                        if no_progress {
                             failures
                                 .entry(signature.clone())
                                 .or_default()
                                 .push(*call_turn);
-                            if tool_result_confirms_silent_success(&message.content) {
+                            if silent_success {
                                 let latest = silent_progress
                                     .entry(signature.clone())
                                     .or_insert(*call_turn);
@@ -1117,6 +1153,88 @@ mod tests {
                 proposed_verification(&history).tool_calls.is_empty(),
                 "{result}"
             );
+        }
+    }
+
+    #[test]
+    fn tool_text_parts_preserve_failures_empty_results_and_silent_repairs() {
+        for (text, permits_repair) in [
+            ("", false),
+            (" \r\n ", false),
+            ("Error: repair failed", false),
+            ("Command failed: syntax", false),
+            ("Traceback (most recent call last):\nSyntaxError", false),
+            ("failed", false),
+            ("None", false),
+            ("Final output:", false),
+            (
+                "Process exited with code 0\r\nFinal output: Error: syntax",
+                false,
+            ),
+            ("Exit code: 0\nFinal output: {\"success\":false}", false),
+            ("\"Error: quoted failure\"", false),
+            ("{\"stdout\":\"useful payload\",\"exit_code\":1}", false),
+            ("{\"error\":\"failed\",\"output\":\"saved\"}", false),
+            ("Exit code: 0", true),
+            ("Process exited with code 0\r\nFinal output:", true),
+            ("{\"stdout\":\"\",\"exit_code\":0}", true),
+        ] {
+            let mut contents = vec![json!(text)];
+            for split in (0..=text.len()).filter(|&index| text.is_char_boundary(index)) {
+                contents.push(json!([
+                    {"type":"text", "text":&text[..split]},
+                    {"type":"text", "text":&text[split..]}
+                ]));
+            }
+            for content in contents {
+                let mut repeated = Vec::new();
+                append_tool(&mut repeated, "verify", content.clone());
+                append_tool(&mut repeated, "verify", content.clone());
+                let exhausted = proposed_verification(&repeated);
+                assert!(exhausted.tool_calls.is_empty(), "{content}");
+                assert_eq!(exhausted.tool_progress.history_no_progress_streak, 2);
+
+                let mut history = failed_verification_history();
+                append_tool(&mut history, "repair", content.clone());
+                let rendered = render_qwen_chat(&history, &[], false, false).unwrap();
+                history.last_mut().unwrap().content = json!(text);
+                assert_eq!(
+                    rendered,
+                    render_qwen_chat(&history, &[], false, false).unwrap()
+                );
+                history.last_mut().unwrap().content = content.clone();
+                let recovered = proposed_verification(&history);
+                assert_eq!(
+                    recovered.tool_calls.len(),
+                    usize::from(permits_repair),
+                    "{content}"
+                );
+                assert_eq!(recovered.tool_progress.history_no_progress_results, 2);
+                assert_eq!(
+                    recovered.tool_progress.history_no_progress_streak,
+                    if permits_repair { 0 } else { 2 },
+                    "{content}"
+                );
+            }
+        }
+    }
+
+    #[test]
+    fn useful_text_parts_and_json_data_arrays_remain_progress() {
+        for text in [
+            "Saved the repair 中文",
+            "Useful documentation mentioning Error: syntax and exit code: 1",
+            "Process exited with code 0\nFinal output: repaired",
+            "{\"stdout\":\"repaired\",\"exit_code\":0}",
+            "[{\"type\":\"text\",\"text\":\"Error: data, not message parts\"}]",
+        ] {
+            for content in [json!(text), json!([{ "type":"text", "text":text }])] {
+                let mut history = failed_verification_history();
+                append_tool(&mut history, "repair", content.clone());
+                let recovered = proposed_verification(&history);
+                assert_eq!(recovered.tool_calls.len(), 1, "{content}");
+                assert_eq!(recovered.tool_progress.history_no_progress_streak, 0);
+            }
         }
     }
 

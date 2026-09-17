@@ -90,6 +90,14 @@ unique. Each tool result must reference a preceding call exactly once;
 missing, unknown and replayed result IDs return HTTP 400 before tokenization
 or inference. Useful text merely mentioning an error remains useful.
 
+Tool results may use a string or an array of text parts. The retry policy
+classifies the concatenated text that the model receives, so splitting an
+empty result, explicit error or JSON failure into parts cannot reset the
+window. A zero-exit command wrapper containing a failed final output also
+remains a failure. JSON arrays encoded inside the result text remain ordinary
+payload data. Image/video parts, including mixed text/media tool results,
+return HTTP 400 at chat and tokenization endpoints; this runtime is text-only.
+
 When all proposed calls are exhausted, nonstreaming returns HTTP 400 with
 `error.code: "tool_call_no_progress"` and `qrt_tool_progress` diagnostics.
 SSE may already have HTTP 200 headers: it emits an error event followed by

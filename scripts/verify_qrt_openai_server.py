@@ -1725,8 +1725,20 @@ class Verifier:
         base = dict(model=self.model, max_completion_tokens=max_tokens, temperature=0, top_p=1,
                     thinking={"type": "disabled"}, parallel_tool_calls=False,
                     tool_choice={"type": "function", "function": {"name": "get_weather"}})
-        for label, repair in [("exhausted", None), ("completed_repair", "Saved the repaired service configuration."),
-                              ("silent_repair", "Exit code: 0")]:
+        cases = [
+            ("exhausted", None, False, True),
+            ("completed_repair", "Saved the repaired service configuration.", False, False),
+            ("silent_repair", "Exit code: 0", False, False),
+            ("parts_exhausted", None, True, True),
+            ("parts_empty_repair", "", True, True),
+            ("parts_failed_repair", "Error: repair failed", True, True),
+            ("parts_wrapped_error", "Process exited with code 0\r\nFinal output: Error: repair failed", True, True),
+            ("parts_json_error", '{"error":"failed","output":"saved"}', True, True),
+            ("parts_completed_repair", "Saved the repaired service configuration.", True, False),
+            ("parts_silent_repair", "Process exited with code 0\r\nFinal output:", True, False),
+            ("parts_silent_json_repair", '{"stdout":"","exit_code":0}', True, False),
+        ]
+        for label, repair, as_parts, exhausted in cases:
             messages = list(history)
             current_tools = list(tools)
             if repair is not None:
@@ -1737,10 +1749,14 @@ class Verifier:
                 ])
                 current_tools.append({"type": "function", "function": {"name": "repair_environment",
                     "description": "Repair service configuration.", "parameters": {"type": "object", "properties": {}}}})
+            if as_parts:
+                messages = [dict(message, content=[{"type": "text", "text": message["content"][:3]},
+                                                  {"type": "text", "text": message["content"][3:]}])
+                            if message["role"] == "tool" else message for message in messages]
             payload = dict(base, messages=messages + [final_user], tools=current_tools)
             nonstream = self.request("POST", "/v1/chat/completions", payload)
             streamed = self.request("POST", "/v1/chat/completions", dict(payload, stream=True))
-            details = self.check_tool_recovery_pair(nonstream, streamed, repair is None)
+            details = self.check_tool_recovery_pair(nonstream, streamed, exhausted)
             self.record("tool_recovery_" + label, **details)
         replayed = history + [history[-1], final_user]
         for path in ("/v1/chat/completions", "/tokenize"):
@@ -1750,6 +1766,43 @@ class Verifier:
             self.require(response.status == 400 and "must not repeat" in error.get("message", ""),
                          "replayed tool result must be rejected before generation/tokenization")
         self.record("tool_result_replay_rejected", endpoints=2)
+
+    def verify_tool_content_admission(self) -> None:
+        history = [
+            {"role": "user", "content": "Inspect the result."},
+            {"role": "assistant", "tool_calls": [{"id": "inspect", "type": "function",
+                "function": {"name": "inspect", "arguments": "{}"}}]},
+        ]
+        for text in ('Error: inspection failed', '{"error":"failed","output":"saved"}',
+                     'Saved the repair 中文', 'Process exited with code 0\r\nFinal output:'):
+            tokens = []
+            for content in (text, [{"type": "text", "text": text[:3]}, {"type": "text", "text": text[3:]}]):
+                _, result = self.request_json("POST", "/tokenize", dict(model=self.model,
+                    messages=history + [{"role": "tool", "tool_call_id": "inspect", "content": content}]))
+                self.require(isinstance(result.get("tokens"), list) and result["tokens"], "tool result tokenization is empty")
+                tokens.append(result["tokens"])
+            self.require(tokens[0] == tokens[1], "tool text-part tokenization differs from the same string")
+        self.record("tool_text_part_tokenization_parity", cases=4)
+        rejected = 0
+        for media in (
+            {"type": "image_url", "image_url": {"url": "https://example.invalid/unsupported.png"}},
+            {"type": "image", "image": "data:image/png;base64,AA=="},
+            {"type": "video", "video": "file:///unsupported.mp4"},
+        ):
+            for content in ([media], [{"type": "text", "text": "Error: failed"}, media],
+                            [media, {"type": "text", "text": '{"error":"failed"}'}]):
+                for path, stream in (("/v1/chat/completions", False), ("/v1/chat/completions", True), ("/tokenize", False)):
+                    payload = dict(model=self.model, messages=history + [
+                        {"role": "tool", "tool_call_id": "inspect", "content": content}])
+                    if path.endswith("completions"):
+                        payload.update(max_completion_tokens=8, stream=stream)
+                    response = self.request("POST", path, payload)
+                    error = json.loads(response.body).get("error", {})
+                    self.require(response.status == 400 and error.get("message") ==
+                        "image and video content are not supported by this text runtime",
+                        "tool media must be explicitly rejected before generation/tokenization")
+                    rejected += 1
+        self.record("tool_media_explicitly_rejected", requests=rejected, vision_support_claimed=False)
 
     def report(self, skipped_generation: bool, started: float) -> dict[str, Any]:
         return {
@@ -1863,6 +1916,7 @@ def main() -> int:
             verifier.verify_tool_call_and_continuation(args.max_completion_tokens)
             verifier.verify_tool_call_stream(args.max_completion_tokens)
             verifier.verify_tool_recovery(args.max_completion_tokens)
+            verifier.verify_tool_content_admission()
             verifier.verify_bounded_request_queue(
                 args.queue_concurrency,
                 args.prompt_token_id,

@@ -2504,6 +2504,165 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn tool_text_part_failures_and_repairs_match_json_and_sse() {
+        let output =
+            "<tool_call>{\"name\":\"exec\",\"arguments\":{\"cmd\":\"verify\"}}</tool_call>";
+        for (text, reopened) in [
+            ("", false),
+            ("Error: repair failed", false),
+            (
+                "Process exited with code 0\r\nFinal output: Error: failed",
+                false,
+            ),
+            ("{\"error\":\"failed\",\"stdout\":\"saved\"}", false),
+            ("Saved the repaired file 中文", true),
+            ("Process exited with code 0\r\nFinal output:", true),
+            ("{\"stdout\":\"\",\"exit_code\":0}", true),
+        ] {
+            for as_parts in [false, true] {
+                let content = |text: &str| {
+                    if as_parts {
+                        let split = text.char_indices().nth(3).map_or(text.len(), |(i, _)| i);
+                        json!([{"type":"text","text":&text[..split]},
+                            {"type":"text","text":&text[split..]}])
+                    } else {
+                        json!(text)
+                    }
+                };
+                for stream in [false, true] {
+                    let request = json!({"model":"test-model","messages":[
+                        {"role":"user","content":"Repair and verify."},
+                        {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":{"cmd":"verify"}}}]},
+                        {"role":"tool","tool_call_id":"a","content":content("Error: syntax")},
+                        {"role":"assistant","tool_calls":[{"id":"b","type":"function","function":{"name":"exec","arguments":{"cmd":"verify"}}}]},
+                        {"role":"tool","tool_call_id":"b","content":content("Error: syntax")},
+                        {"role":"assistant","tool_calls":[{"id":"repair","type":"function","function":{"name":"exec","arguments":{"cmd":"repair"}}}]},
+                        {"role":"tool","tool_call_id":"repair","content":content(text)}
+                    ],"max_tokens":output.len(),"stream":stream,
+                        "tools":[{"type":"function","function":{"name":"exec"}}],"tool_choice":"required"});
+                    let (status, body) = chat_test_response(output, request).await;
+                    let diagnostic = format!("text={text:?}, parts={as_parts}, stream={stream}");
+                    let progress = if stream {
+                        assert_eq!(status, StatusCode::OK, "{diagnostic}");
+                        let chunks = sse_values(&body);
+                        assert_eq!(
+                            String::from_utf8_lossy(&body)
+                                .matches("data: [DONE]")
+                                .count(),
+                            1
+                        );
+                        assert_eq!(
+                            chunks
+                                .iter()
+                                .filter(|c| c["error"]["code"] == "tool_call_no_progress")
+                                .count(),
+                            usize::from(!reopened),
+                            "{diagnostic}"
+                        );
+                        let terminal: Vec<_> = chunks
+                            .iter()
+                            .filter(|c| !c["choices"][0]["finish_reason"].is_null())
+                            .collect();
+                        assert_eq!(terminal.len(), usize::from(reopened), "{diagnostic}");
+                        let calls: Vec<_> = chunks
+                            .iter()
+                            .filter_map(|c| c["choices"][0]["delta"]["tool_calls"].as_array())
+                            .flatten()
+                            .collect();
+                        assert_eq!(calls.len(), usize::from(reopened), "{diagnostic}");
+                        if reopened {
+                            assert_eq!(terminal[0]["choices"][0]["finish_reason"], "tool_calls");
+                            assert_eq!(calls[0]["function"]["arguments"], "{\"cmd\":\"verify\"}");
+                        }
+                        chunks
+                            .iter()
+                            .find_map(|c| c.get("qrt_tool_progress"))
+                            .unwrap()
+                            .clone()
+                    } else {
+                        assert_eq!(
+                            status,
+                            if reopened {
+                                StatusCode::OK
+                            } else {
+                                StatusCode::BAD_REQUEST
+                            },
+                            "{diagnostic}"
+                        );
+                        let full: Value = serde_json::from_slice(&body).unwrap();
+                        if reopened {
+                            assert!(full.get("error").is_none());
+                            assert_eq!(full["choices"][0]["finish_reason"], "tool_calls");
+                            assert_eq!(
+                                full["choices"][0]["message"]["tool_calls"][0]["function"]
+                                    ["arguments"],
+                                "{\"cmd\":\"verify\"}"
+                            );
+                        } else {
+                            assert_eq!(full["error"]["code"], "tool_call_no_progress");
+                            assert!(full.get("choices").is_none());
+                        }
+                        full["qrt_tool_progress"].clone()
+                    };
+                    assert_eq!(progress["history_no_progress_results"], 2, "{diagnostic}");
+                    assert_eq!(
+                        progress["history_no_progress_streak"],
+                        if reopened { 0 } else { 2 },
+                        "{diagnostic}"
+                    );
+                    assert_eq!(progress["no_progress"], !reopened, "{diagnostic}");
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn tool_media_parts_are_rejected_before_chat_or_tokenization() {
+        for media in [
+            json!({"type":"image_url","image_url":{"url":"https://example.invalid/a.png"}}),
+            json!({"type":"image","image":"data:image/png;base64,AA=="}),
+            json!({"type":"video","video":"file:///unsupported.mp4"}),
+        ] {
+            for parts in [
+                json!([media]),
+                json!([{"type":"text","text":"Error: failed"},media]),
+                json!([media,{"type":"text","text":"{\"error\":\"failed\"}"}]),
+            ] {
+                for (path, stream) in [
+                    ("/v1/chat/completions", false),
+                    ("/v1/chat/completions", true),
+                    ("/tokenize", false),
+                ] {
+                    let request = json!({"model":"test-model","messages":[
+                        {"role":"user","content":"Inspect."},
+                        {"role":"assistant","tool_calls":[{"id":"a","type":"function","function":{"name":"exec","arguments":{}}}]},
+                        {"role":"tool","tool_call_id":"a","content":parts}
+                    ],"max_tokens":8,"stream":stream});
+                    let response = test_app("unused")
+                        .oneshot(
+                            Request::post(path)
+                                .header("content-type", "application/json")
+                                .body(Body::from(request.to_string()))
+                                .unwrap(),
+                        )
+                        .await
+                        .unwrap();
+                    assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+                    let body: Value = serde_json::from_slice(
+                        &response.into_body().collect().await.unwrap().to_bytes(),
+                    )
+                    .unwrap();
+                    assert_eq!(
+                        body["error"]["message"],
+                        "image and video content are not supported by this text runtime"
+                    );
+                    assert!(body.get("choices").is_none());
+                }
+            }
+        }
+    }
+
+    #[tokio::test]
     async fn duplicate_tool_results_fail_before_chat_or_tokenization() {
         let messages = json!([
             {"role":"user","content":"Verify."},
