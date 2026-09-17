@@ -20,16 +20,17 @@ namespace fused = qrt_moe_down_consumer_compact;
 namespace c = qrt_routed_consumer;
 namespace in = qrt_moe_down_consumer;
 constexpr size_t guard=128;
+hipStream_t stream=nullptr;
 void require(bool condition,const char* why){if(!condition)throw std::runtime_error(why);}
 void ok(hipError_t result,const char* why){if(result!=hipSuccess)throw std::runtime_error(std::string(why)+": "+hipGetErrorString(result));}
-void finish(){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){auto result=hipStreamQuery(nullptr);if(result==hipSuccess)return;ok(result==hipErrorNotReady?hipSuccess:result,"query");require(std::chrono::steady_clock::now()<deadline,"deadline");std::this_thread::yield();}}
+void finish(){const auto deadline=std::chrono::steady_clock::now()+std::chrono::seconds(30);for(;;){auto result=hipStreamQuery(stream);if(result==hipSuccess)return;ok(result==hipErrorNotReady?hipSuccess:result,"query");require(std::chrono::steady_clock::now()<deadline,"deadline");std::this_thread::yield();}}
 template<class T>struct Buffer{
  std::vector<T> initial;T* storage=nullptr;size_t count;
  explicit Buffer(const std::vector<T>& values):initial(values.size()+2*guard,T(93)),count(values.size()){
   std::copy(values.begin(),values.end(),initial.begin()+guard);ok(hipMalloc(reinterpret_cast<void**>(&storage),initial.size()*sizeof(T)),"malloc");reset();
  }
  explicit Buffer(size_t n,T value=T{}):Buffer(std::vector<T>(n,value)){}
- ~Buffer(){if(storage){(void)hipStreamSynchronize(nullptr);(void)hipFree(storage);}}
+ ~Buffer(){if(storage){(void)hipStreamSynchronize(stream);(void)hipFree(storage);}}
  T* data(){return storage+guard;}
  void reset(){ok(hipMemcpy(storage,initial.data(),initial.size()*sizeof(T),hipMemcpyHostToDevice),"upload");}
  std::vector<T> read(bool immutable=false){std::vector<T> result(initial.size());ok(hipMemcpy(result.data(),storage,result.size()*sizeof(T),hipMemcpyDeviceToHost),"read");
@@ -47,7 +48,7 @@ void invalid_calls(){
  fused::View view{floats.data(),floats.data(),experts.data(),floats.data(),floats.data(),bf16s.data(),floats.data(),512e-9f,0u,0u,1u};
  unsigned rejected=0u;
  auto call=[&](fused::View v,unsigned first,unsigned count,size_t capacity,unsigned* ids,unsigned* number,unsigned* stats){
-  require(fused::launch(v,first,count,ids,capacity,number,stats,nullptr)==hipErrorInvalidValue,"invalid fused view accepted");++rejected;
+  require(fused::launch(v,first,count,ids,capacity,number,stats,stream)==hipErrorInvalidValue,"invalid fused view accepted");++rejected;
  };
  for(unsigned which=0u;which<7u;++which){auto v=view;switch(which){case 0:v.native=nullptr;break;case 1:v.weights=nullptr;break;case 2:v.experts=nullptr;break;case 3:v.input_l2=nullptr;break;case 4:v.weight_l2=nullptr;break;case 5:v.shared_down=nullptr;break;case 6:v.shared_gate=nullptr;break;}call(v,0,1,16384,storage.data(),storage.data(),storage.data());}
  call(view,0,1,16384,nullptr,storage.data(),storage.data());call(view,0,1,16384,storage.data(),nullptr,storage.data());call(view,0,1,16384,storage.data(),storage.data(),nullptr);
@@ -108,9 +109,9 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
   for(unsigned side=0u;side<2u;++side){
    const uint16_t* source=side?dw.data():di.data();const unsigned rows=side?expert_count*columns:routes;
    auto* destination=reinterpret_cast<qrt_sm121_staged_half_projection::Row*>(side?prepared_weight.data():prepared_input.data());
-   hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((size_t(rows)*(width/16u)+255u)/256u),dim3(256u),0,nullptr,source,destination,rows,width);ok(hipGetLastError(),"prepare retained staged operands");
+   hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((size_t(rows)*(width/16u)+255u)/256u),dim3(256u),0,stream,source,destination,rows,width);ok(hipGetLastError(),"prepare retained staged operands");
    for(unsigned first=0u;first<rows;first+=4096u){
-    hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),dim3(std::min(4096u,rows-first)),dim3(256u),0,nullptr,source,norm_scratch.data(),nullptr,side?weight_flags.data():input_flags.data(),rows,width,first);ok(hipGetLastError(),"classify retained replay rows");
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(moe_bf16_row_l2_prepared_kernel<true>),dim3(std::min(4096u,rows-first)),dim3(256u),0,stream,source,norm_scratch.data(),nullptr,side?weight_flags.data():input_flags.data(),rows,width,first);ok(hipGetLastError(),"classify retained replay rows");
    }
   }
   finish();
@@ -122,24 +123,24 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
   const unsigned filtered=(attempt+position)%4u;
   if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=reset\n",tokens,mode,filtered);std::fflush(stderr);}
   dn.reset();output.reset();stats.reset();
-  fused::Owner owner(nullptr);ok(owner.initialize(filtered==3u,true),"actual compact owner initialization");
-  hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,nullptr),"same-call shared completion record");
+  fused::Owner owner(stream);ok(owner.initialize(filtered==3u,true),"actual compact owner initialization");
+  hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,stream),"same-call shared completion record");
   if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=shared_recorded\n",tokens,mode,filtered);std::fflush(stderr);}
   finish();
   const auto begin=std::chrono::steady_clock::now();
   if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=launch\n",tokens,mode,filtered);std::fflush(stderr);}
-  if(filtered==1u){hipLaunchKernelGGL(f::certify,dim3(throughput?4096u:17u),dim3(256),0,nullptr,dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),512e-9f,radius,0u,ds.data(),dg.data(),masks.data(),stats.data(),tokens);ok(hipGetLastError(),"certificate");}
+  if(filtered==1u){hipLaunchKernelGGL(f::certify,dim3(throughput?4096u:17u),dim3(256),0,stream,dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),512e-9f,radius,0u,ds.data(),dg.data(),masks.data(),stats.data(),tokens);ok(hipGetLastError(),"certificate");}
   using Phase=MoeCorrectionPhase;
   if(filtered<2u){
-  ok(launch_moe_routed_correction<false>(routed_down_batched_hawkeye_correction_kernel<Phase::Local>,routed_down_batched_hawkeye_correction_kernel<Phase::Collect>,routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,routed_down_batched_hawkeye_correction_kernel<Phase::Local>,unsigned((outputs+255u)/256u),nullptr,MoeL2::RoutedActivated,MoeL2::RoutedDown,nullptr,filtered?masks.data():nullptr,filtered?stats.data():nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u),"original replay");
+  ok(launch_moe_routed_correction<false>(routed_down_batched_hawkeye_correction_kernel<Phase::Local>,routed_down_batched_hawkeye_correction_kernel<Phase::Collect>,routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,routed_down_batched_hawkeye_correction_kernel<Phase::Local>,unsigned((outputs+255u)/256u),stream,MoeL2::RoutedActivated,MoeL2::RoutedDown,nullptr,filtered?masks.data():nullptr,filtered?stats.data():nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u),"original replay");
   }else if(filtered==2u){
    fused::View view{dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),ds.data(),dg.data(),512e-9f,radius,0u,tokens};
    const unsigned window_tokens=window_blocks*kNativeThreads/(8u*2048u);
    for(unsigned first=0u;first<tokens;first+=window_tokens){
     const unsigned n=std::min(window_tokens,tokens-first);
     if(!throughput)indices.reset();
-    ok(hipMemsetAsync(count.data(),0,sizeof(unsigned),nullptr),"fused count reset");
-    ok(fused::launch(view,first,n,indices.data(),size_t(window_blocks)*kNativeThreads,count.data(),stats.data(),nullptr),"fused certificate and collect");
+    ok(hipMemsetAsync(count.data(),0,sizeof(unsigned),stream),"fused count reset");
+    ok(fused::launch(view,first,n,indices.data(),size_t(window_blocks)*kNativeThreads,count.data(),stats.data(),stream),"fused certificate and collect");
     if(!throughput){
      finish();const auto queue=indices.read(),num=count.read();const auto old_mask=masks.read();
      require(num[0]<=n*8u*2048u,"fused queue capacity");
@@ -160,17 +161,17 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
      bounds.prevalidated_float=true;bounds.staged_half_replay=true;
      bounds.prepared_input=prepared_input.data();bounds.prepared_weights=prepared_weight.data();
      bounds.prepared_input_rows=input_flags.data();bounds.prepared_weight_rows=weight_flags.data();
-     ok(qrt_moe_expert_order::launch(indices.data(),count.data(),de.data(),2048u,{order_storage.data(),size_t(window_blocks)*kNativeThreads},nullptr),"unchanged expert permutation");
+     ok(qrt_moe_expert_order::launch(indices.data(),count.data(),de.data(),2048u,{order_storage.data(),size_t(window_blocks)*kNativeThreads},stream),"unchanged expert permutation");
      bounds.compacted_indices=order_storage.data();
     }
-    hipLaunchKernelGGL(routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,dim3(std::min(kMoeCompactionBlocks,n*64u)),dim3(kNativeThreads),0,nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,bounds);ok(hipGetLastError(),"unchanged original replay");
+    hipLaunchKernelGGL(routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,dim3(std::min(kMoeCompactionBlocks,n*64u)),dim3(kNativeThreads),0,stream,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,bounds);ok(hipGetLastError(),"unchanged original replay");
    }
   }else{
    ok(owner.prepare({dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),ds.data(),dg.data(),512e-9f,radius,0u,tokens},shared_done),"actual compact owner dependency");
-   ok(launch_moe_down_compacted(owner,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,nullptr),"actual provider compact launcher");
+   ok(launch_moe_down_compacted(owner,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,stream),"actual provider compact launcher");
   }
 
-  hipLaunchKernelGGL(full_v3_fused_combine_residual_kernel,dim3(unsigned((cells+kNativeThreads*kFusedCombineWidth-1)/(kNativeThreads*kFusedCombineWidth))),dim3(kNativeThreads),0,nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),ds.data(),dg.data(),dh.data(),output.data(),true,true,true,true,true,false,0u,cells);ok(hipGetLastError(),"production combine");finish();
+  hipLaunchKernelGGL(full_v3_fused_combine_residual_kernel,dim3(unsigned((cells+kNativeThreads*kFusedCombineWidth-1)/(kNativeThreads*kFusedCombineWidth))),dim3(kNativeThreads),0,stream,dn.data(),dt.data(),de.data(),di.data(),dw.data(),ds.data(),dg.data(),dh.data(),output.data(),true,true,true,true,true,false,0u,cells);ok(hipGetLastError(),"production combine");finish();
   ok(owner.finish(),"actual compact owner completion");
   if(throughput&&attempt)samples[filtered][attempt-1u]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
   auto actual=output.read(),actual_routes=dn.read();
@@ -222,6 +223,7 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
 }
 }
 int main(int argc,char** argv){try{
+ struct StreamScope {StreamScope(){test::ok(hipStreamCreateWithFlags(&test::stream,hipStreamNonBlocking),"test stream create");}~StreamScope(){(void)hipStreamSynchronize(test::stream);(void)hipStreamDestroy(test::stream);test::stream=nullptr;}} stream_scope;
  hipDeviceProp_t p{};test::ok(hipGetDeviceProperties(&p,0),"device");test::require(!std::strncmp(p.gcnArchName,"gfx1151",7),"requires gfx1151");
  if(argc==2&&!std::strcmp(argv[1],"--throughput")){test::run(8192u,1u,true);return 0;}
  test::require(argc==1,"unsupported argument");test::invalid_calls();
