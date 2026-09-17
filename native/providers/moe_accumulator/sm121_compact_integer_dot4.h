@@ -15,9 +15,9 @@
 namespace qrt_sm121_compact_integer_dot4 {
 using Value = qrt_q1_moe_hawkeye::Value;
 struct Row {
-    uint32_t pairs[8]{};
-    uint32_t exponents[4]{};
-    uint32_t control = 0u;
+    uint32_t pairs[8];
+    uint32_t exponents[4];
+    uint32_t control;
 };
 static_assert(sizeof(Row) == 52u); // Odd thirteen-dword LDS stride.
 

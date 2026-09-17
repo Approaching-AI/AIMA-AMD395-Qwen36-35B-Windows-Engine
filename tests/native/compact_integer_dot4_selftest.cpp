@@ -3,9 +3,11 @@
 #include <cstring>
 #include <cstdint>
 #include <cstdlib>
+#include <type_traits>
 #include "sm121_compact_integer_dot4.h"
 
 namespace compact = qrt_sm121_compact_integer_dot4;
+static_assert(std::is_trivial<compact::Row>::value, "HIP shared rows must need no initialization");
 using qrt_q1_moe_hawkeye::Value;
 static uint32_t seed = 0x3958192u;
 static uint32_t random_word() { seed ^= seed << 13; seed ^= seed >> 17; seed ^= seed << 5; return seed; }
