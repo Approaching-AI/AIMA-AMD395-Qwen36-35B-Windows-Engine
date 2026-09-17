@@ -1,5 +1,36 @@
 # Real-model performance
 
+## FP32-carry exact PV component, 2026-09-17
+
+Source `55cd4a7` compares current production REGISTER PV with direct BF16 and
+predecoded operands carrying each original K16 endpoint in one FP32 register.
+Both preserve K32 rescale, reciprocal and original candidate membership.
+Rejected rows or arithmetic endpoints restart complete original replay.
+All 288 generated comparisons pass, covering 43,794,432 output positions,
+empty/all/sparse selections, tails and special values. Operand and arithmetic
+fallbacks are exercised. All raw surfaces, CPU recurrence/encoding, guards,
+unused tails and immutable inputs pass; 14 invalid calls are rejected.
+
+Complete PV component medians include native production, collection, P
+preparation, fast replay, full fallback, V preparation and transpose:
+
+| Tokens | REGISTER control ms | Direct BF16 ms | Predecoded ms |
+| --- | ---: | ---: | ---: |
+| 7169 | 177.2326 | 161.5373 | 162.2950 |
+| 8192 | 277.6303 | 250.8002 | 282.2137 |
+
+One warmup and three rotated samples are checked in full. Both shapes match
+all 29,364,224 available GB10 context cells on every attempt and every original
+raw output; q8192 repeats the first 1023 captured Q/K/V rows. No model token
+loop or TTFT is measured. Keep both routes isolated: the direct route's
+26.8301 ms q8192 saving is useful component evidence, while the predecoded
+route regresses. This result does not establish a seconds-scale model gain.
+The product control remains `cf0f889`, median TTFT 26385.72255 ms.
+Windows build, host guards, local accumulator checks, C smoke and hygiene pass.
+[Native commands and evidence](../benchmarks/correctness/f32-carry-pv-replay-components-20260917.json):
+330238 bytes, SHA256
+`6209538fdb7d45c89aa5cf0a8b970db77d6f06ca7703b12a0157440baffbca56`.
+
 ## Fused linear input preparation component, 2026-09-17
 
 Source `deb2fa9` directly produces normalized compact Q/K and V from projected
