@@ -73,6 +73,23 @@ replay, and drains failures through the existing outer owner. Completed
 profile stage 1 includes both softmax and native PV; stage 2 is an empty
 completion boundary. The activation marker states this changed stage scope.
 
-Actual launcher, provider and real-model qualifications are pending.
+Source `df2ea51` qualifies the actual callback and query launcher. All 80
+generated cases pass. OFF/ON launcher runs both match the original 29364224
+GB10 context elements and produce identical four raw output, accumulator
+and denominator files. Both select the original 2198673 PV replays and
+separately verify and reuse the complete native EXP owner. The CK DLL builds
+on baiying. Real-model qualification is pending.
+
+The full local suite passes 493 Python tests with two environment skips,
+C/Rust/clippy and public hygiene. Integration first exposed an outdated
+workspace mock signature, which was repaired and extended with owner reuse,
+failure-drain and fallback checks. A CK compilation-unit name collision was
+then fixed solely by explicit namespace qualification; normalization proves
+the arithmetic source unchanged, targeted local checks pass and every native
+build/capture is repeated for the final commit. Both failures are retained.
+
+[Actual owner and provider evidence](../benchmarks/correctness/fused-probability-pv-provider-native-20260917.json):
+260817 bytes, SHA256
+`742453e878d7196f86c76c27f59692b4ef2973beff693a85b0dc64656bd37add`.
 
 No package, default or release gate changes.
