@@ -47,8 +47,25 @@ Scores/output require scalar matrices; state requires scalar columns eight;
 coarse-interval modes retain their existing route. Prefix checkpoint state
 capture retains its original implementation. A new launch test checks 4,320
 option/shape/error combinations and checkpoint fallback under ASan/UBSan;
-all six related launch tests pass. Native provider compilation, sync/async
-capture replay and real q8192/out512 model qualification are still pending.
+all six related launch tests pass. The Windows HIP build completes in
+51,563.531 ms, producing a 943,104-byte DLL, SHA256
+`67209121af32c1e7dce883c8ba4abfb7ea5152fac822dc0909b94aa586aad3a5`,
+from source `7b20c9041e14b2db133afb7e5b05b4e3223ed04c`.
+
+The new DLL passes full output/final-state reference comparison and sync/async
+parity for generated q64/q65 and original GB10 q7169 with the switch OFF/ON.
+The q65 process passes; its post-run observer incorrectly expected two rather
+than four markers per operation. Its actual `[64,1]` partition runs twice,
+including the asynchronous call. An offline correction validates all three
+operation sequences and preserves the initial transport failure and raw logs.
+No numerical result is changed or rerun. Native activation checks pass for
+all qualified calls. Real q8192/out512 model comparisons are underway.
+
+Provider evidence: [build and complete provider comparisons](../benchmarks/correctness/paired-score-gdn-provider-native-20260918.json),
+112,039 bytes, SHA256
+`bdb85abafd94b35fed2d12e403c4adaf14a8d9a4ff2ff8745a323eea8d4172c1`.
+Commands are `run-native-paired-score-gdn-provider-build-r1.ps1` and
+`run-native-paired-score-gdn-provider-probe-r1.ps1` on baiying.
 The component result does not change the 24,835.3024 ms model TTFT baseline,
 package defaults or release status.
 
