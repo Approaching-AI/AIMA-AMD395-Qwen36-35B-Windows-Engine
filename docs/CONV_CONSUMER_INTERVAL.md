@@ -56,13 +56,12 @@ not a controlled net performance comparison with the earlier clock.
 The remaining 871249 invalid ranges are tiny inputs. A separate inspection
 of the fingerprinted operands finds no all-zero input or weight row and no
 nonfinite BF16 operand. Keep the tiny-value guard and original empirical
-error envelope. Observe all 30 real-model linear layers before deciding
-whether the captured layer-zero coverage justifies runtime filtering.
+error envelope. The subsequent real-model observer covers all 30 linear layers.
 
 No correction is actually omitted in this observer. Its one dispatch clock
 excludes allocation, matrix production, L2 preparation, original correction,
-convolution and validation. There is no net speedup or model token result.
-The runtime, package and release gates remain unchanged.
+convolution and validation. Neither captured-data run establishes a net
+speedup or a model token result.
 
 [Pinned source, command, references and checks](../benchmarks/correctness/conv-consumer-interval-capture-20260917.json):
 46712 bytes, SHA256
@@ -71,3 +70,48 @@ The runtime, package and release gates remain unchanged.
 [Wide-interval source and capture](../benchmarks/correctness/conv-consumer-wide-interval-capture-20260917.json):
 62676 bytes, SHA256
 `e9ae24e12ea26245893095e5dfb348ca80c0997f851b57847f472f8ac4a1d277`.
+
+## Complete real-model observation
+
+Source `0e5bf7d` adds the default-off
+`QRT_QWEN36_Q8192_CONV_CONSUMER_AUDIT` option. It copies the original
+producer, executes every original correction, invokes the original
+convolution into private scratch and reduces all comparison counters on the
+GPU. Its 805310592-byte guarded temporary owner includes explicit completion
+and cleanup. Native capture checks match all 16 metrics with the separate
+full host audit; null-call rejection and cleanup after an injected replay
+failure also pass. Prefix suffixes and checkpoint stores are outside this
+observer route.
+
+One fresh baiying process uses the new whole DLL with the retained compact
+MoE1, adaptive OUT2, exact attention, register PV, FLA and CLI. All original
+8192 prompt IDs, 512 GB10 output IDs and actual callbacks pass, with first
+logit 10.375 and zero error. Load is 21241.5679 ms; instrumented TTFT is
+26121.1392 ms and TPOT is 101.348289 ms. Observation changes the measured
+wall, so these values do not replace the 25379.41695 ms experimental baseline.
+
+| Across all 30 linear layers | Count |
+| --- | ---: |
+| Original selected corrections | 160641307 |
+| Valid selected intervals | 157181502 |
+| Provisionally omittable corrections | 38931451 (24.2350%) |
+| Wide selected intervals | 3823556 |
+| Tiny selected inputs | 3459805 |
+| Tiny inputs that are nonzero | 3454144 |
+| Actual projection BF16 changes | 4144061 |
+| Changes among omittable candidates | 876722 |
+| Range, output-certificate and unselected-endpoint failures | 0 |
+
+Keep the observer default off and leave omission unimplemented for now.
+Whole-model coverage is lower than layer zero, and no net gain has been
+measured. With TTFT still above 10 seconds, prioritize a broader attention
+replacement. These results remain evidence for revisiting a materially
+improved consumer route. Package, retained-performance and release gates
+remain open.
+
+[Native owner qualification](../benchmarks/correctness/conv-consumer-runtime-observer-native-20260917.json):
+55290 bytes, SHA256
+`5aa2b0bd5cc5e5f416da11207a45041244fdbdd974d0b2bae5d05bc887723807`.
+[All-layer model boundary and observations](../benchmarks/correctness/conv-consumer-all-layer-observation-20260917.json):
+306481 bytes, SHA256
+`6e648226d496e9c7019f6484b245a9e6640853de8bfffb4649fd7f89d0a71ec9`.

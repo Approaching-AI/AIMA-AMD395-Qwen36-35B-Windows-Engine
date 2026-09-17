@@ -1,5 +1,22 @@
 # Real-model performance
 
+## Complete convolution-consumer observation, 2026-09-17
+
+The default-off observer in whole source `0e5bf7d` leaves every original
+QKV correction in place and measures potential omission across all 30
+linear layers. A fresh q8192/out512 run passes all original GB10 prompt and
+output IDs, actual callbacks and first logit 10.375 with zero error. Every
+observed selected endpoint interval and constant convolution output passes.
+It identifies 38931451 provisionally omittable corrections out of 160641307
+(24.2350%). The remaining tiny-input guard is preserved.
+
+Load is 21241.5679 ms; TTFT is 26121.1392 ms and TPOT is 101.348289 ms.
+These clocks include private copies, certificates, duplicate convolution,
+reductions and synchronization. They are not a performance comparison or a
+replacement for the uninstrumented 25379.41695 ms baseline. Keep the
+observer off and leave filtering unimplemented while prioritizing a broader
+attention route. [Implementation, component checks and model evidence](CONV_CONSUMER_INTERVAL.md).
+
 ## Fused MoE down consumer collection, 2026-09-17
 
 Four fresh same-DLL q8192/out512 processes run OFF/ON/ON/OFF with adaptive
