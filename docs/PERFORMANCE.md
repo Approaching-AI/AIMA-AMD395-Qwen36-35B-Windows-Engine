@@ -1,5 +1,39 @@
 # Real-model performance
 
+## Queued linear OUT on the combined-attention stack, 2026-09-17
+
+Four fresh same-artifact q8192/out512 processes, ordered OFF/ON/ON/OFF,
+retain combined exact attention and register PV throughout. The only option
+that differs is `QRT_QWEN36_Q8192_LINEAR_OUT_VARIANCE_REPLAY=0/2`.
+All 2048 original GB10 output IDs and actual callback IDs match; every prompt
+and first logit 10.375 pass. All loads are below 30 seconds.
+
+| Order / mode | Load ms | TTFT ms | TPOT ms |
+| --- | ---: | ---: | ---: |
+| 1 / OFF | 21281.5439 | 26248.7864 | 101.008479 |
+| 2 / ON | 21265.8075 | 25530.0511 | 101.539822 |
+| 3 / ON | 21340.1467 | 25694.8428 | 101.071900 |
+| 4 / OFF | 21300.1796 | 26401.5913 | 100.847431 |
+
+OFF/ON TTFT medians are 26325.18885/25612.44695 ms, a 712.7419 ms
+reduction (2.7075%). Both ON samples are below both OFF samples. Each ON
+process activates all 30 linear layers and skips 29191574 of 58489767
+original selected corrections (49.9089%). Remaining dense and coarse
+attention counts match. Certification remains conditional on the original
+producer envelope; observed violations force original replay, and none are
+reported here. GB10 tokens remain the correctness authority.
+
+Retain mode 2 as the next experimental q8192 baseline with whole `6e4908b`,
+CK `cf0f889`, and the same MoE/FLA/CLI assets. Keep code and package defaults
+unchanged. Two samples per mode provide a limited repeated comparison;
+OFF/ON TPOT medians are 100.927955/101.305861 ms, with no decode speedup
+claimed. Additional adaptive workspace is 170205188 bytes, separate from
+the retained attention table's 82182144 bytes; neither is total peak memory.
+TTFT remains above 10 seconds. Prefix, long-context, HTTP package and release
+gates remain open. [Commands, artifacts and all four boundaries](../benchmarks/correctness/out-variance-combined-product-20260917.json):
+795207 bytes, SHA256
+`808b651f4c4651dd0b5c64a5e18e65ea9e94287bc96916d1559c0750b4198dfb`.
+
 ## Shared exact GDN gate values, 2026-09-17
 
 Source `e320f47`, with observer correction `31b2e93`, prepares two exact FP32
@@ -47,7 +81,8 @@ raw output; q8192 repeats the first 1023 captured Q/K/V rows. No model token
 loop or TTFT is measured. Keep both routes isolated: the direct route's
 26.8301 ms q8192 saving is useful component evidence, while the predecoded
 route regresses. This result does not establish a seconds-scale model gain.
-The product control remains `cf0f889`, median TTFT 26385.72255 ms.
+The product control at this component measurement was `cf0f889`, median
+TTFT 26385.72255 ms; the later combined OUT comparison is recorded above.
 Windows build, host guards, local accumulator checks, C smoke and hygiene pass.
 [Native commands and evidence](../benchmarks/correctness/f32-carry-pv-replay-components-20260917.json):
 330238 bytes, SHA256
