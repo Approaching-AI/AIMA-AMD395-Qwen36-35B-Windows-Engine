@@ -60,3 +60,40 @@ target and release status remain unchanged.
 [Structured evidence](../benchmarks/correctness/microtile-exact-qk-native-components-20260917.json):
 170818bytes, SHA256
 `6705943de4958b60a9c995c12cb4319614a3c4ae8f130212ecf5ae35eee7ad53`.
+
+## Combined complete attention comparison
+
+Source `c3a7c3b0fc6a94222697fc7552999451b5942788` compares the two
+replacements independently and together. All four arms use the qualified
+register PV rescaling and original compacted canonical replay.
+
+| Arm | q7169 attention ms | q8192 attention ms | q8192 including preparation ms |
+| --- | ---: | ---: | ---: |
+| Retained prepared QK and source EXP | 545.0784 | 747.2801 | 751.0101 |
+| 2x2 QK only | 500.4656 | 694.0511 | 697.7811 |
+| Exact native EXP only | 513.4106 | 705.9507 | 723.5104 |
+| Both | 472.0864 | 654.7009 | 672.2606 |
+
+One warmup and three samples rotate across128-query slabs. Completed host
+clocks include QK and its full fallback scan, probability, native PV,
+collection and all exact replay. Common preparation includes Q/K encoding
+and V transpose. Candidate preparation also charges one device table build
+and one exhaustive328728576-input validation:8.1665+5.6632ms atq8192.
+The derived table occupies82182144bytes in addition to the original source.
+Nested probability events have no invalid intervals and are not added to
+the complete clock.
+
+Every attempted raw score, probability, scale, output, accumulator,
+denominator and error surface matches the independent original control.
+All29364224 available GB10 context cells and original candidate counts
+2198673/3127598 match atq7169/q8192. Full input/table immutability, guards,
+unused tails and228/256 CPU QK samples pass. The repeated-row q8192 scope
+and absence of a model token loop remain unchanged.
+
+Advance both replacements together to a default-off provider option with
+owned, validated derived storage. Real q8192/out512 GB10 qualification is
+still required before any runtime retention. C smoke, hygiene and all three
+bounded build/capture guards pass; unchanged core sources reuse the recent
+full suite. [Combined evidence](../benchmarks/correctness/combined-exact-attention-native-components-20260917.json):
+108869bytes, SHA256
+`5ad87a4be1ad93e61157a3d1730e83dc53f52397f1866b52a152f2399cc84af7`.

@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Combined exact attention components, 2026-09-17
+
+Source `c3a7c3b` combines2x2 exact QK and the exact native EXP decoder over
+the qualified register PV arithmetic. Complete q8192 attention falls from
+747.2801 to654.7009ms; including common preparation, table generation and
+exhaustive328728576-input validation,751.0101 becomes672.2606ms. All raw
+surfaces, original candidate counts and29364224 available GB10 context cells
+match. Advance the combined route to a default-off provider experiment.
+These captures supply no new model tokens, TTFT or release qualification.
+See [four-arm comparison and evidence](MULTI_SCORE_QK_EXPERIMENT.md).
+
 ## Shared inputs across exact QK scores, 2026-09-17
 
 Source `cbe357d` preserves all tested original raw scores while its2x2
