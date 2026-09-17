@@ -1,0 +1,334 @@
+{
+  "schema": 1,
+  "kind": "directed_canonical_loss_host_experiment",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_commit": "af735be902f2c821841d7b3fe681b1aae2d4604e",
+  "sources": [
+    {
+      "path": "native/providers/moe_accumulator/sm121_signed_loss_bound.h",
+      "bytes": 5133,
+      "sha256": "f7cacdd802e6ea3b5a212fd81b33c8e2e1ec10f1dac29afeb01d0b770738ec22"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_coarse_projection_bound.h",
+      "bytes": 3819,
+      "sha256": "4dddf8106a4ab91ba4beaca6a2e3ce9046902b2c646f8b8bb4201efedc7001d8"
+    },
+    {
+      "path": "native/providers/moe_accumulator/sm121_pv_error_bound.h",
+      "bytes": 3977,
+      "sha256": "f95855d26aecced76b0be61ccc6260f6d3a2098a09c9407075cfbe11dc61b8f7"
+    },
+    {
+      "path": "native/providers/moe_accumulator/q1_moe_hawkeye_bf16_accumulator.h",
+      "bytes": 12459,
+      "sha256": "c3e1fa03add35ae033d47c57f982f529b0ba8f62489d44144c1ac61beaf8b88a"
+    },
+    {
+      "path": "tests/native/signed_loss_bound_host.cpp",
+      "bytes": 10114,
+      "sha256": "a08b05a3305b78f6343e01213e986da7102d66e6e75db16e9b7d898693175ec1"
+    }
+  ],
+  "runs": {
+    "build": {
+      "args": [
+        "c++",
+        "-std=c++17",
+        "-O2",
+        "-ffp-contract=off",
+        "-fsanitize=undefined",
+        "-fno-sanitize-recover=all",
+        "<companion-checkout>/tests/native/signed_loss_bound_host.cpp",
+        "-o",
+        "local-capture/signed-loss-host-r2/signed-loss-host"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.5018436256796122,
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run": {
+      "args": [
+        "local-capture/signed-loss-host-r2/signed-loss-host"
+      ],
+      "returncode": 0,
+      "wall_seconds": 0.7123733749613166,
+      "log_sha256": "0869d46aee362cdcf4dc5b8582ac0fda78e8fd97834ded66c0b6a6f60a8ca58e",
+      "reports": [
+        {
+          "kind": "signed_loss_bound_generated",
+          "samples": 16384,
+          "width": 512,
+          "native_error_modes": 3,
+          "checkpoints": 393216,
+          "old_selected_prefixes": 79385,
+          "new_selected_prefixes": 77351,
+          "old_final_selected": 12797,
+          "new_final_selected": 12284,
+          "unsupported_dots": 0,
+          "stable_positive_blocks": 37335,
+          "stable_negative_blocks": 45076,
+          "normalized_width_ratio": 0.7691369854579272,
+          "external_bf16_checks": 0,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "signed_loss_metadata",
+          "bf16_encodings": 65536,
+          "support_masks": 65536,
+          "all_pass": true
+        }
+      ]
+    },
+    "out": {
+      "args": [
+        "local-capture/signed-loss-host-r2/signed-loss-host",
+        "local-capture/fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+        "local-capture/qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+        "local-capture/qrt-gb10-dense-out-20260915-r1/output/out-q8192-bf16.bin",
+        "2048",
+        "4096"
+      ],
+      "returncode": 0,
+      "wall_seconds": 5.847652666270733,
+      "inputs": [
+        {
+          "path": "fla-model-q7169-fa-out-r1/layer3-full-full_attention_gated_context-bf16.bin",
+          "bytes": 58728448,
+          "sha256": "5c9cefec4b17d9cf14055d82a5b97c62b6313601bf0f4c39f9f1ed8ae9cc6d65"
+        },
+        {
+          "path": "qrt-gb10-dense-out-20260915-r1/output/out-weight-bf16.bin",
+          "bytes": 16777216,
+          "sha256": "f4cb470eeff400e05add65afc846ca49ae934455237609da4e3a2d58380f02ab"
+        },
+        {
+          "path": "qrt-gb10-dense-out-20260915-r1/output/out-q8192-bf16.bin",
+          "bytes": 33554432,
+          "sha256": "f1239dae1a3126ad53dfecd1362c9459eb296c1bfc4b58c26d3bc3dcf486e4fa"
+        }
+      ],
+      "log_sha256": "faef14eb67ef2f94c28dd1496c82bc3b083142238ef1121b46306235365cf11a",
+      "reports": [
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 0
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 4096,
+          "native_error_modes": 1,
+          "checkpoints": 4194304,
+          "old_selected_prefixes": 527232,
+          "new_selected_prefixes": 428127,
+          "old_final_selected": 12270,
+          "new_final_selected": 9708,
+          "unsupported_dots": 0,
+          "stable_positive_blocks": 1023294,
+          "stable_negative_blocks": 1013196,
+          "normalized_width_ratio": 0.7287933872806717,
+          "external_bf16_checks": 65536,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 1
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 4096,
+          "native_error_modes": 1,
+          "checkpoints": 4194304,
+          "old_selected_prefixes": 527068,
+          "new_selected_prefixes": 427986,
+          "old_final_selected": 12180,
+          "new_final_selected": 9730,
+          "unsupported_dots": 0,
+          "stable_positive_blocks": 1023324,
+          "stable_negative_blocks": 1013159,
+          "normalized_width_ratio": 0.7287935145817234,
+          "external_bf16_checks": 65536,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 2
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 4096,
+          "native_error_modes": 1,
+          "checkpoints": 4194304,
+          "old_selected_prefixes": 527528,
+          "new_selected_prefixes": 427977,
+          "old_final_selected": 12277,
+          "new_final_selected": 9819,
+          "unsupported_dots": 0,
+          "stable_positive_blocks": 1023265,
+          "stable_negative_blocks": 1013233,
+          "normalized_width_ratio": 0.7287936133558177,
+          "external_bf16_checks": 65536,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    },
+    "qkv": {
+      "args": [
+        "local-capture/signed-loss-host-r2/signed-loss-host",
+        "local-capture/fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+        "local-capture/layer0-weights-r1/qkv.bin",
+        "-",
+        "8192",
+        "2048"
+      ],
+      "returncode": 0,
+      "wall_seconds": 2.923742082901299,
+      "inputs": [
+        {
+          "path": "fla-model-q7169-embeddingnorm-capture-r1/input-rmsnorm-bf16.bin",
+          "bytes": 29364224,
+          "sha256": "6c67321f81040780088a742070c48ab3023043b8ef9de71d1ed5a970a8fe9161"
+        },
+        {
+          "path": "layer0-weights-r1/qkv.bin",
+          "bytes": 33554432,
+          "sha256": "b06edcc9973be74f862d072f89a195e2eecea067ee615144be8510656122401f"
+        }
+      ],
+      "log_sha256": "67fd4f8713c0a77e29ba4adc71c31b10e0227b0882ca6fe9db78487ec51efc06",
+      "reports": [
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 0
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 2048,
+          "native_error_modes": 1,
+          "checkpoints": 2068480,
+          "old_selected_prefixes": 175389,
+          "new_selected_prefixes": 146274,
+          "old_final_selected": 8219,
+          "new_final_selected": 6962,
+          "unsupported_dots": 896,
+          "stable_positive_blocks": 372638,
+          "stable_negative_blocks": 367807,
+          "normalized_width_ratio": 0.7521064080843454,
+          "external_bf16_checks": 0,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 1
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 2048,
+          "native_error_modes": 1,
+          "checkpoints": 2068480,
+          "old_selected_prefixes": 175247,
+          "new_selected_prefixes": 146072,
+          "old_final_selected": 8254,
+          "new_final_selected": 6995,
+          "unsupported_dots": 896,
+          "stable_positive_blocks": 372651,
+          "stable_negative_blocks": 367795,
+          "normalized_width_ratio": 0.7521069629518445,
+          "external_bf16_checks": 0,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        },
+        {
+          "kind": "signed_loss_capture_mode",
+          "mode": 2
+        },
+        {
+          "kind": "signed_loss_bound_capture",
+          "samples": 65536,
+          "width": 2048,
+          "native_error_modes": 1,
+          "checkpoints": 2068480,
+          "old_selected_prefixes": 175150,
+          "new_selected_prefixes": 146023,
+          "old_final_selected": 8189,
+          "new_final_selected": 6943,
+          "unsupported_dots": 896,
+          "stable_positive_blocks": 372621,
+          "stable_negative_blocks": 367815,
+          "normalized_width_ratio": 0.7521062744195989,
+          "external_bf16_checks": 0,
+          "undercoverage": 0,
+          "false_certificates": 0,
+          "native_matrix_executed": false,
+          "native_error_coefficient": 1.9073486328125e-06,
+          "hardware_error_bound_proven": false,
+          "inference_acceptance": false,
+          "performance_acceptance": false
+        }
+      ]
+    }
+  },
+  "first_qkv_attempt": {
+    "returncode": 1,
+    "reason": "Diagnostic initially rejected an unsupported operand row instead of recording complete original fallback. The revised harness preserves original whole-row fallback, without changing the admitted domain.",
+    "log_sha256": "54196f637f262d521672f02bb8590a401a4a9ef12732b2a77925593a9e05252f",
+    "record_sha256": "61ed84acf6db1fe432a66e36bbfe8d95e63ce12177cc7519a6f6fe2a65c4f84b"
+  },
+  "comparison_scope": {
+    "sampling": "65536 unique affine-permuted logical q8192 cells per projection; captured 7169 input rows followed by first1023 rows. Input-independent indices match the preceding rounding diagnostic.",
+    "native_producer": "Host RN K16 products or separately checked +/-0.75*2^-19*L1 perturbations. Native matrix hardware is not executed.",
+    "reference_use": "Original arithmetic and OUT external GB10 values are comparison-only. Interval construction uses operand sign/nonzero masks and computed producer bounds.",
+    "out_external_reference": "benchmarks/correctness/projection-rounding-profile-host-20260915.json",
+    "qkv_external_reference": null,
+    "unsupported": "896 sampled QKV dots per mode retain complete original replay in both endpoint counts."
+  },
+  "decision": "Keep isolated. Host selection falls20.88% for OUT and15.29% for QKV before all native metadata/bound costs. This does not establish a complete native gain or seconds-scale model benefit; continue structural work.",
+  "native_gpu_executed": false,
+  "native_error_coefficient": 1.9073486328125e-06,
+  "hardware_error_bound_proven": false,
+  "product_dispatch_changed": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
