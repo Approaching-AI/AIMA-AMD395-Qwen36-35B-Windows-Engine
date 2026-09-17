@@ -38,11 +38,9 @@ QRT_CONTEXT_INTERVAL_INLINE Interval reciprocal(Interval denominator,const unsig
     // Two output-word steps enclose its possible nonmonotone excursions.
     return {bits::value(bits::bits(last)-2u),bits::value(bits::bits(first)+2u)};
 }
-QRT_CONTEXT_INTERVAL_INLINE bool stable(Interval numerator,Interval denominator,
-    const unsigned char* table,uint16_t* result) {
-    if(!table || !result || !valid(numerator) || !denominator_domain(denominator))return false;
-    const auto inverse=reciprocal(denominator,table);
-    if(!valid(inverse) || !(inverse.low>0.0f))return false;
+QRT_CONTEXT_INTERVAL_INLINE bool stable_reciprocal(Interval numerator,Interval inverse,
+    uint16_t* result) {
+    if(!result || !valid(numerator) || !valid(inverse) || !(inverse.low>0.0f))return false;
     const float a[2]={numerator.low,numerator.high},b[2]={inverse.low,inverse.high};
     uint16_t fixed=0u;
 #if defined(__HIPCC__)
@@ -65,6 +63,11 @@ QRT_CONTEXT_INTERVAL_INLINE bool stable(Interval numerator,Interval denominator,
         }
     }
     *result=fixed;return true;
+}
+QRT_CONTEXT_INTERVAL_INLINE bool stable(Interval numerator,Interval denominator,
+    const unsigned char* table,uint16_t* result) {
+    if(!table || !result || !valid(numerator) || !denominator_domain(denominator))return false;
+    return stable_reciprocal(numerator,reciprocal(denominator,table),result);
 }
 } // namespace qrt_attention_context_interval
 #undef QRT_CONTEXT_INTERVAL_INLINE

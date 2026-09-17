@@ -165,6 +165,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
 }
 } // namespace
 
+#ifndef QRT_STREAMED_ATTENTION_NO_MAIN
 int main(int argc,char** argv)try{
     if(argc!=4&&argc!=8)throw std::runtime_error("usage: safety EXP RCP | 7169|8192 Q K V GB10_CONTEXT EXP RCP");
     const bool safety_mode=argc==4&&!std::strcmp(argv[1],"safety");
@@ -184,3 +185,4 @@ int main(int argc,char** argv)try{
     else run_capture(tokens,argv[2],argv[3],argv[4],argv[5],de.data(),dd.data(),dc.data());
     de.immutable(exp);dc.immutable(rcp);dd.immutable(packed);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"streamed_exact_attention_error=%s\n",e.what());return 2;}
+#endif
