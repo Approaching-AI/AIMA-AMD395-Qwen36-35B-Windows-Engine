@@ -8,7 +8,7 @@
 namespace tile=qrt_sm121_packed_dot_tile;
 namespace original=qrt_q1_moe_hawkeye;
 namespace cases=qrt_float_alignment_cases;
-uint64_t checked=0u,outputs=0u;
+uint64_t checked=0u,outputs=0u,fast_tiles=0u,replayed_tiles=0u,late_restarts=0u;
 template<unsigned Width,unsigned Rows,unsigned Columns>
 void check(unsigned trials){
     constexpr unsigned lp=Width/2u+1u,rp=Columns+1u;
@@ -19,8 +19,9 @@ void check(unsigned trials){
         for(unsigned r=0u;r<Rows;++r){
             af[r]=1u;
             for(unsigned i=0u;i<Width;i+=2u){
-                const auto x=cases::input(trial+r,i/16u,i%16u).left;
-                const auto y=cases::input(trial+r,i/16u,i%16u+1u).left;
+                auto x=cases::input(trial+r,i/16u,i%16u).left;
+                auto y=cases::input(trial+r,i/16u,i%16u+1u).left;
+                if(trial%257u==1u)x=y=i<16u?0x3f80u:0x5f7fu;
                 a[r*lp+i/2u]=uint32_t(x)|(uint32_t(y)<<16u);
                 af[r]&=unsigned(qrt_sm121_float_alignment::eligible(x)&&qrt_sm121_float_alignment::eligible(y));
             }
@@ -29,8 +30,9 @@ void check(unsigned trials){
         for(unsigned c=0u;c<Columns;++c){
             bf[c]=1u;
             for(unsigned i=0u;i<Width;i+=2u){
-                const auto x=cases::input(trial+c+3u,i/16u,i%16u).right;
-                const auto y=cases::input(trial+c+3u,i/16u,i%16u+1u).right;
+                auto x=cases::input(trial+c+3u,i/16u,i%16u).right;
+                auto y=cases::input(trial+c+3u,i/16u,i%16u+1u).right;
+                if(trial%257u==1u)x=y=i<16u?0x3f80u:0x5f7fu;
                 b[i/2u*rp+c]=uint32_t(x)|(uint32_t(y)<<16u);
                 bf[c]&=unsigned(qrt_sm121_float_alignment::eligible(x)&&qrt_sm121_float_alignment::eligible(y));
             }
@@ -39,6 +41,13 @@ void check(unsigned trials){
         const auto saved_a=a;
         const auto saved_b=b;
         original::Value trace[Width/16u*Rows*Columns];
+        for(auto& v:trace)v={123u,300,true};
+        tile::Result<Rows,Columns> fast;
+        if(tile::try_tile<Width,lp,rp,Rows,Columns,true>(a.data(),b.data(),af,bf,&fast,trace))++fast_tiles;
+        else{
+            ++replayed_tiles;
+            late_restarts+=trace[0].exponent!=300;
+        }
         const auto result=tile::dot<Width,lp,rp,Rows,Columns,true>(a.data(),b.data(),af,bf,trace);
         if(a!=saved_a || b!=saved_b)throw std::runtime_error("tile input modified");
         for(unsigned r=0u;r<Rows;++r)for(unsigned c=0u;c<Columns;++c){
@@ -66,5 +75,6 @@ int main()try{
     check<64u,1u,2u>(4096u);check<64u,2u,2u>(4096u);
     check<128u,1u,2u>(4096u);check<128u,2u,2u>(4096u);
     check<256u,2u,1u>(4096u);check<2048u,2u,2u>(64u);
-    std::printf("{\"kind\":\"packed_dot_tile_host\",\"ordered_k16_states\":%llu,\"raw_outputs\":%llu,\"mismatches\":0,\"inputs_and_padding_unchanged\":true,\"native_qualification\":false,\"inference_acceptance\":false}\n",(unsigned long long)checked,(unsigned long long)outputs);
+    if(!fast_tiles || !replayed_tiles || !late_restarts)throw std::runtime_error("missing acceptance/restart coverage");
+    std::printf("{\"kind\":\"packed_dot_tile_host\",\"ordered_k16_states\":%llu,\"raw_outputs\":%llu,\"accepted_fast_tiles\":%llu,\"replayed_tiles\":%llu,\"late_restarts\":%llu,\"mismatches\":0,\"inputs_and_padding_unchanged\":true,\"native_qualification\":false,\"inference_acceptance\":false}\n",(unsigned long long)checked,(unsigned long long)outputs,(unsigned long long)fast_tiles,(unsigned long long)replayed_tiles,(unsigned long long)late_restarts);
 }catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}

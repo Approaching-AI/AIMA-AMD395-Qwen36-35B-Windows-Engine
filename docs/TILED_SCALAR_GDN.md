@@ -26,3 +26,20 @@ including mixed valid/invalid rows, forced original fallback, padded layouts
 and longer dots. Native build, complete q8192 timing and any real-model token
 qualification must be recorded separately. This source alone establishes no
 speedup, model correctness, runtime adoption or release acceptance.
+
+The initial native source `6b9b409` passes all 144 safety configurations and
+complete q8192 comparisons. Separate-U medians are 78.2491 / 104.4255 /
+206.7089 ms for control / 1x2 / 2x2; U=V medians are 72.5307 / 105.0905 /
+206.1345 ms. Both candidates regress. Their state kernels declare 164/376
+private bytes and register spills, versus zero private bytes in the control.
+These static declarations motivate revising live ranges, without establishing
+measured occupancy or a complete explanation of the slowdown.
+
+The next component revision keeps only one row of product groups live and
+uses the existing exact FP32 carry representation on its eligible domain.
+Any failed operand/endpoint classification restarts the complete tile with
+original arithmetic, including every early group. It processes exceptional
+dots individually after retiring fast products. The host audit explicitly
+checks late overflow restarts and overwrites every speculative carry trace.
+This revision requires a fresh native build, safety check and complete q8192
+comparison before any adoption decision.
