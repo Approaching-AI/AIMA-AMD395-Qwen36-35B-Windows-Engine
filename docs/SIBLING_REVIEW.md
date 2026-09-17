@@ -34,10 +34,31 @@ contains a before-fix failing regression, 53 passing Rust tests on both hosts,
 Windows MSVC/Rust service build, 10 caller-document tests and 2 verifier tests.
 The new in-process checks cover 56 JSON/SSE recovery requests and 27 media
 admission requests. Server C ABI sources, Cargo dependencies and provider math
-are unchanged. Real-model HTTP qualification is recorded separately after it
-completes; no package, performance or release acceptance follows from these
-CPU checks. The earlier `.9` repair/document changes remain in the unpublished
-R4 archive described in [performance evidence](PERFORMANCE.md).
+are unchanged. The [real-model HTTP record](../benchmarks/correctness/tool-text-parts-native-http-20260918.json)
+qualifies eleven JSON/SSE retry cases, four tokenizer parity cases and 27 media
+rejections. Its first process completed all 512 GB10 outputs and logit 10.375;
+an out32-only usage observer then reported failure. The original failure and
+independent out512 revalidation are retained. Only the remaining 61 HTTP
+requests were run in the next process, including final q8192/out32 SSE/logit.
+
+Source `b3d75e9` additionally peels nested final-output wrappers iteratively.
+The [native build](../benchmarks/correctness/tool-text-parts-bounded-native-20260918.json)
+passes 54 Rust tests, including 16,384 nested wrappers with error, empty, JSON
+and useful payloads in string/part form. Its new Windows executable is SHA256
+`6b3e5dd79a8e39652efcaf469410ebce1a106a499661f7fbe31ecdeba8d67dae`.
+The [same-process native HTTP check](../benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json)
+passes 45 requests: fresh q8192/out512, three nested-wrapper JSON/SSE pairs,
+four tokenizer pairs, 27 media rejections without inference, and final
+q8192/out32 SSE. All 512 original GB10 IDs and both first logits 10.375 pass;
+actual early callbacks, queue drain and normal shutdown pass.
+
+Both server experiments use the unchanged R4 provider/AOT/table inventory and
+numeric profile. The latest server loads in 21529.5239 ms; its cold TTFT is
+30231.4271 ms and TPOT 100.080780 ms. These are protocol-qualified R4 timings,
+not a replacement for the newer experimental performance stack. The `.9` R4
+archive remains unpublished and unchanged; the new server is not packaged,
+soaked or release-qualified. Retained performance and long-context gates remain
+open, as described in [performance evidence](PERFORMANCE.md).
 
 ## Initial September 13 review
 

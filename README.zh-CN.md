@@ -7,9 +7,10 @@
 [English](README.md) ·
 [配套 Linux 版本](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine)
 
-当前开发候选版本尚未达到发布条件。修复后的运行时已通过所列短输入、冷启动
-和 32k 续写正确性检查，但 q8192 首 token 延迟仍约为 62 秒，其他上下文和完整
-发布验收仍在进行。详见[当前测量](docs/PERFORMANCE.md)和
+当前开发候选版本尚未达到发布条件。最新实验配置的 q8192 输出与全部 512 个
+GB10 token 一致，首 token 延迟中位数为 24.710 秒，仍超过 10 秒工作门槛和
+保留的 4.187 秒目标。冷启动和前缀结果分别属于记录中的二进制，其他上下文和
+完整软件包验收仍在进行。详见[当前测量](docs/PERFORMANCE.md)和
 [发布就绪情况](docs/OPEN_SOURCE_READINESS.md)。下方已发布数据属于其历史版本，
 不能作为当前候选版本的验收结果。
 

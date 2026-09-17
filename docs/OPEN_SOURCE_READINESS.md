@@ -2,34 +2,33 @@
 
 Historical audit date: 2026-08-22
 
-## Current unreleased candidate, 2026-09-14
+## Current unreleased work, 2026-09-18
 
-The current candidate is **not release-ready**. The repaired r4 archive passes
-all eight cold cases, including q7169, all five short HTTP fixtures, and the
-declared HTTP and prefix-state checks. A broader attention correction bound
-subsequently repairs the original 32k prefix plus 1024 suffix and 512-token
-continuation. That newer configuration still needs renewed package, HTTP and
-soak qualification. The experimental chunked cold route also passes the
-declared 16k and q8192 boundaries, but remains disabled by default.
+The mission and release gates remain open. The latest experimental q8192
+control is FLA `7b20c90`, whole `6e4908b`, CK `df2ea51`, MoE `9235750` and
+CLI `24c4304`. A same-DLL OFF/ON/ON/OFF comparison matches all 2,048 original
+GB10 output IDs, prompts, first logits and actual callbacks. Enabled median
+TTFT is 24709.6139 ms and load median 21518.53165 ms. The 10000 ms operating
+boundary and retained 4187.415605 ms target remain unchanged. These components
+are not yet an updated portable package; full long-context and release
+qualification do not transfer from earlier binaries.
 
-The current q8192 control records callback TTFT of 37.811 seconds at
-whole/MoE `a50f15d` with grouping disabled, CK `4a5a5b0` and FLA `2ee6215`
-state 8, with four replay lanes and one MoE staged K16 group. All 512
-original GB10 tokens and stream callbacks match, with exact first logit 10.375.
-Grouping enabled passes the same boundary but regresses to 38.176 seconds;
-keep it disabled for the next structural investigation.
-It remains above the unchanged 4.187-second target and 10-second operating
-threshold. The preceding sixteen-lane MoE `9f00db5` stack passes all 512
-original 64k+1024 outputs and
-callbacks, exact first logit 5.9375, restoration and changed-prefix rejection.
-With long direct PV operands enabled, warm TTFT is 52.684 seconds and TPOT
-is 355.022 ms, both above target. Original 128k/256k reference capture is now
-complete; Windows 128k/256k and retained performance remain open.
-See [current measurements](PERFORMANCE.md),
-[HTTP token/logit and stability evidence](HTTP_STABILITY.md), and
-`benchmarks/correctness/prefix32k-admission-product-20260913.json`. The older
-decision and tables below describe their recorded historical basis; they do
-not approve promotion of the current candidate or imply a new publication.
+The last assembled archive, `v1.0.2-current-stack.20260915.r4`, remains
+unpublished. Its declared cold/prefix, protocol and one-hour soak evidence
+belongs to its original server `4fca963` and R3 runtime assets. The later
+Linux `.10` review found and repaired text-part tool results that could reset
+failed retry windows. Latest server `b3d75e9` passes 54 native Rust tests and
+45 real HTTP requests with the unchanged R4 runtime, including all 512 original
+q8192 GB10 IDs, first logits, early callbacks and normal shutdown. Its cold
+TTFT is 30231.4271 ms and load is 21529.5239 ms. New server packaging and soak
+remain open. Windows continues to reject visual tool results explicitly.
+
+See [current performance and component identities](PERFORMANCE.md),
+[the Linux `.10` source comparison and protocol checks](SIBLING_REVIEW.md), and
+[the latest server HTTP record](../benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json).
+Earlier context results remain attached to their exact configurations; none
+lowers the required context/performance targets. The historical audit below
+is not approval to publish the current work.
 
 ## Decision
 

@@ -8,9 +8,11 @@ resident batch-one runtime, an OpenAI-compatible HTTP API, and a structured
 [中文说明](README.zh-CN.md) ·
 [Linux companion](https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine)
 
-The current development candidate is not release-qualified. The repaired
-runtime passes the declared short, cold and 32k continuation boundaries, but
-current q8192 TTFT is about 62 seconds and broader qualification remains open.
+The current development candidate is not release-qualified. The latest
+experimental q8192 control matches all 512 GB10 output tokens and has a
+24.710-second median TTFT. It still exceeds the 10-second operating threshold
+and the retained 4.187-second target. Cold and prefix results apply to their
+recorded binaries; broader context and package qualification remain open.
 See [current measurements](docs/PERFORMANCE.md) and
 [release readiness](docs/OPEN_SOURCE_READINESS.md). The published results below
 describe their historical versions and do not qualify this candidate.
