@@ -7,7 +7,7 @@
 #define QRT_EXP_DELTA_INLINE inline
 #endif
 
-// Isolated component representation. Each original negative FP32 input owns
+// Each original negative FP32 input owns
 // a two-bit correction to the actual gfx1151 EXP instruction. Code3 escapes
 // to the complete SHA-bound source table. No bound on native SFU error is
 // assumed. Derived bytes must be built and verified on the execution device;
@@ -57,6 +57,13 @@ __global__ void build(const unsigned char* original, unsigned char* packed) {
             result |= encode(qrt_sm121_exp2::bits(native_exp(input)), source::decode(original, relative)) << (2u * part);
         }
         packed[byte] = static_cast<unsigned char>(result);
+    }
+}
+__global__ void verify(const unsigned char* original,const unsigned char* packed,unsigned* bad){
+    for(uint32_t cell=blockIdx.x*blockDim.x+threadIdx.x;cell<cells;cell+=gridDim.x*blockDim.x){
+        const float input=qrt_sm121_exp2::value(0x80000000u|(source::begin+cell));
+        if(qrt_sm121_exp2::bits(evaluate(original,packed,input))!=source::decode(original,cell))
+            atomicAdd(bad,1u);
     }
 }
 #endif

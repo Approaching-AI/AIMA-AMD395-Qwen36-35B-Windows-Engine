@@ -70,6 +70,11 @@ foreach ($required in @(
     (Join-Path $sourceDir "prepared_decoded_qk_workspace.h"),
     (Join-Path $sourceDir "selective_qk_tail_policy.h"),
     (Join-Path $sourceDir "register_pv_policy.h"),
+    (Join-Path $sourceDir "exact_attention_policy.h"),
+    (Join-Path $sourceDir "microtile_exact_qk.h"),
+    (Join-Path $sourceDir "deferred_qk_fallback.h"),
+    (Join-Path $sourceDir "native_delta_probability.h"),
+    (Join-Path $sourceDir "native_exp2_workspace.h"),
     (Join-Path $sourceDir "decoded_window_qk.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_decoded_bf16.h"),
     (Join-Path $sourceDir "..\moe_accumulator\sm121_f32_carry.h"),
@@ -83,6 +88,7 @@ foreach ($required in @(
     (Join-Path $sourceDir "..\moe_accumulator\sm121_float_subgroup.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_table.h"),
     (Join-Path $sourceDir "..\gdn\sm121_exp2_interpolated.h"),
+    (Join-Path $sourceDir "..\gdn\sm121_exp2_native_delta.h"),
     (Join-Path $sourceDir "..\gdn\sm121_attention_rcp.h"),
     (Join-Path $sourceDir "fmha_fwd_api.cpp"),
     (Join-Path $sourceDir "fmha_fwd_gfx1151_d256_bf16_f32out.cpp"),
@@ -271,6 +277,18 @@ $sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $OutPath).Hash.ToLowerInv
         -LiteralPath (Join-Path $sourceDir "prepared_decoded_qk.h")).Hash.ToLowerInvariant()
     prepared_decoded_qk_workspace_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "prepared_decoded_qk_workspace.h")).Hash.ToLowerInvariant()
+    exact_attention_policy_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "exact_attention_policy.h")).Hash.ToLowerInvariant()
+    microtile_exact_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "microtile_exact_qk.h")).Hash.ToLowerInvariant()
+    deferred_qk_fallback_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "deferred_qk_fallback.h")).Hash.ToLowerInvariant()
+    native_exp2_workspace_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "native_exp2_workspace.h")).Hash.ToLowerInvariant()
+    native_delta_probability_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "native_delta_probability.h")).Hash.ToLowerInvariant()
+    native_exp2_delta_header_sha256 = (Get-FileHash -Algorithm SHA256 `
+        -LiteralPath (Join-Path $sourceDir "..\gdn\sm121_exp2_native_delta.h")).Hash.ToLowerInvariant()
     decoded_window_qk_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $sourceDir "decoded_window_qk.h")).Hash.ToLowerInvariant()
     sm121_decoded_bf16_header_sha256 = (Get-FileHash -Algorithm SHA256 `

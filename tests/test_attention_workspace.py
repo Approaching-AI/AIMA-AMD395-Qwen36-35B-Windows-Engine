@@ -56,6 +56,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "#pragma once", "") + actual
         actual = (ROOT / "native/providers/ck_fmha/register_pv_policy.h").read_text().replace(
             "#pragma once", "") + actual
+        actual = (ROOT / "native/providers/ck_fmha/exact_attention_policy.h").read_text().replace(
+            "#pragma once", "") + actual
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -80,6 +82,11 @@ std::mutex g_sm121_mutex, g_state_mutex;
 struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; } g_state;
 #define QRT_CK_EXPORT
 #define QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL 1
+#define QRT_CK_SM121_INTERPOLATED_EXP2 1
+namespace qrt_native_exp2_workspace {
+struct Workspace { unsigned char* packed=nullptr; const unsigned char* original=nullptr; };
+}
+namespace qrt_sm121_exp2_native_delta { constexpr size_t packed_bytes=82182144u; constexpr unsigned cells=328728576u; }
 #include "''' + str(ROOT / 'native/providers/ck_fmha/prepared_decoded_qk_workspace.h') + r'''"
 ''' + range_workspace + globals_ + deadline + r'''
 using AttentionBudget = qrt_sm121_attention_deadline::Budget;
@@ -112,6 +119,8 @@ unsigned fail_sync = 0, profile_observations = 0;
 unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned register_pv_queries = 0;
+unsigned exact_attention_queries=0,native_exp_preparations=0,native_exp_builds=0;
+bool fail_native_exp=false;
 unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
 unsigned float_alignment_queries = 0;
@@ -156,6 +165,20 @@ template<class Validate>
 hipError_t load_sm121_table(const char*, size_t bytes, const unsigned char*, Validate,
                            unsigned char** output) {
     return hipMalloc(reinterpret_cast<void**>(output), bytes);
+}
+namespace qrt_native_exp2_workspace {
+int prepare(Workspace& owner,const unsigned char* source,hipStream_t){
+    ++native_exp_preparations;
+    if(fail_native_exp)return hipErrorUnknown;
+    if(owner.packed)return owner.original==source?hipSuccess:hipErrorInvalidValue;
+    unsigned char* next=nullptr;const auto result=hipMalloc(reinterpret_cast<void**>(&next),qrt_sm121_exp2_native_delta::packed_bytes);
+    if(result==hipSuccess){owner={next,source};++native_exp_builds;}return result;
+}
+void release(Workspace& owner){(void)hipFree(owner.packed);owner={};}
+int launch(const void*,const float*,uint16_t*,float*,unsigned,unsigned,unsigned,const unsigned char*,bool,hipStream_t){return hipSuccess;}
+}
+namespace qrt_microtile_exact_qk {
+int launch_workspace(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned){return hipSuccess;}
 }
 namespace qrt_prepared_decoded_qk {
 int prepare_workspace(const uint16_t*,const uint16_t*,uint16_t* transposed,const Workspace& workspace,hipStream_t) {
@@ -209,6 +232,10 @@ struct SplitQkProducer {
     const void* state;
     int (*launch)(const void*,const uint16_t*,const uint16_t*,float*,hipStream_t,unsigned,unsigned,unsigned,unsigned);
 };
+struct SplitProbabilityProducer {
+    const void* state;
+    int (*launch)(const void*,const float*,uint16_t*,float*,unsigned,unsigned,unsigned,const unsigned char*,bool,hipStream_t);
+};
 int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
                           unsigned tokens, hipStream_t) {
     ++preparations;
@@ -248,7 +275,8 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    unsigned = 1u, unsigned = 1u, bool final_pv_bound = false,
                    bool direct_pv_operands = false, bool float_alignment_qk = false,
                    unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr,
-                   bool all_pv_replay = false, bool register_pv_rescale = false) {
+                   bool all_pv_replay = false, bool register_pv_rescale = false,
+                   const SplitProbabilityProducer* probability_producer = nullptr) {
     ++queries;
     if (track_submissions) {
         ++pending_submissions;
@@ -268,10 +296,18 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
         if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
            workspace->words!=g_sm121_prepared_decoded_qk || workspace->tokens!=key_stride ||
-           producer->launch!=(masked_arena?qrt_exponent_mask_qk::launch_workspace:qrt_prepared_decoded_qk::launch_workspace) ||
+           producer->launch!=(probability_producer?qrt_microtile_exact_qk::launch_workspace:masked_arena?qrt_exponent_mask_qk::launch_workspace:qrt_prepared_decoded_qk::launch_workspace) ||
            !(masked_arena?mask_preparations:decoded_preparations) ||
            !float_alignment_qk || (layout!=22u && layout!=24u)) std::abort();
         if(masked_arena)++mask_queries;else ++decoded_queries;
+    }
+    if(probability_producer){
+        if(probability_producer->state!=&g_sm121_native_exp2||
+           probability_producer->launch!=qrt_native_exp2_workspace::launch||!g_sm121_native_exp2.packed||
+           g_sm121_native_exp2.original!=g_sm121_exp2||!producer||
+           producer->launch!=qrt_microtile_exact_qk::launch_workspace||!register_pv_rescale||layout!=22u||start+count>8192u)
+            std::abort();
+        ++exact_attention_queries;
     }
     if(float_alignment_qk) {
         if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
@@ -350,7 +386,7 @@ int launch_probability_attention(const uint16_t* q, const uint16_t* k, const uin
 }
 ''' + actual + r'''
 bool empty() {
-    return live.empty() && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
+    return live.empty() && !g_sm121_native_exp2.packed && !g_sm121_native_exp2.original && !g_sm121_exp2 && !g_sm121_rcp && !g_sm121_scores &&
            !g_sm121_transposed_keys && !g_sm121_transposed_values && !g_sm121_mantissa_scores && !g_sm121_prepared_values && !g_sm121_selective_qk && !g_sm121_prepared_decoded_qk &&
            !g_sm121_extended.scores && !g_sm121_extended.transposed_keys && !g_sm121_extended.mantissa_scores && !g_sm121_extended.prepared_values &&
            !g_sm121_long_values.cells && !g_sm121_long_values.capacity_tokens &&
@@ -364,6 +400,7 @@ void reset() {
     fail_sync = profile_observations = 0;
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
     register_pv_queries = 0;
+    exact_attention_queries=native_exp_preparations=native_exp_builds=0;fail_native_exp=false;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
@@ -1219,7 +1256,46 @@ int main() {
     }
     reset();setenv("QRT_CK_SM121_REGISTER_PV_RESCALE","0",1);
     if(launch(0u,129u)!=hipSuccess || register_pv_queries || queries!=2u) return 246;
-    reset();unsetenv("QRT_CK_SM121_REGISTER_PV_RESCALE");
+    reset();setenv("QRT_CK_SM121_REGISTER_PV_RESCALE","1",1);
+    setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","1",1);
+    for(unsigned count:{129u,7169u,8192u}){
+        reset();
+        if(launch(0u,count)!=hipSuccess||exact_attention_queries!=(count+127u)/128u||
+           native_exp_preparations!=1u||native_exp_builds!=1u||!g_sm121_native_exp2.packed)return 247;
+        auto* saved=g_sm121_native_exp2.packed;
+        // The mock's transpose invariant is per invocation; retain the real
+        // allocation owner and cumulative EXP counters across this call.
+        transposes=value_transposes=decoded_preparations=0u;
+        if(launch(0u,count)!=hipSuccess||exact_attention_queries!=2u*((count+127u)/128u)||
+           native_exp_preparations!=2u||native_exp_builds!=1u||g_sm121_native_exp2.packed!=saved)return 248;
+    }
+    for(unsigned start:{0u,8191u,8192u}){
+        reset();if(launch(start,1u)!=hipSuccess||native_exp_preparations||exact_attention_queries)return 249;
+    }
+    reset();if(launch(8191u,2u)!=hipSuccess||native_exp_preparations||exact_attention_queries)return 250;
+    reset();fail_native_exp=true;
+    if(launch(0u,8192u)!=hipErrorUnknown||queries||transposes||g_sm121_native_exp2.packed||native_exp_preparations!=1u)return 251;
+    reset();fail_allocation=5u;
+    if(launch(0u,8192u)!=hipErrorUnknown||queries||transposes||g_sm121_native_exp2.packed)return 252;
+    for(const char* invalid:{"2","01","1 ","true"}){
+        reset();setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE",invalid,1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue||allocations||queries)return 253;
+    }
+    setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","1",1);
+    for(const char* missing:{"QRT_CK_SM121_PREPARED_DECODED_QK","QRT_CK_SM121_REGISTER_PV_RESCALE"}){
+        reset();setenv(missing,"0",1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue||allocations||queries)return 254;
+        setenv(missing,"1",1);
+    }
+    reset();setenv("QRT_CK_SM121_EXPONENT_MASK_QK","1",1);
+    if(launch(0u,8192u)!=hipErrorInvalidValue||allocations||queries)return 255;
+    unsetenv("QRT_CK_SM121_EXPONENT_MASK_QK");
+    reset();setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","3",1);
+    if(launch(0u,8192u)!=hipErrorInvalidValue||allocations||queries)return 256;
+    setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
+    reset();setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","0",1);
+    if(launch(0u,129u)!=hipSuccess||native_exp_preparations||exact_attention_queries)return 257;
+    reset();unsetenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE");unsetenv("QRT_CK_SM121_REGISTER_PV_RESCALE");
     return 0;
 }
 '''

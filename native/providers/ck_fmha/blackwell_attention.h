@@ -2091,6 +2091,13 @@ struct SplitQkProducer {
     int (*launch)(const void*, const uint16_t*, const uint16_t*, float*, hipStream_t,
         unsigned, unsigned, unsigned, unsigned);
 };
+// An exact probability producer owns the complete probability/scale slab,
+// including its original ordered denominator, on the caller's stream.
+struct SplitProbabilityProducer {
+    const void* state;
+    int (*launch)(const void*, const float*, uint16_t*, float*, unsigned,
+        unsigned, unsigned, const unsigned char*, bool, hipStream_t);
+};
 inline int observe_split_stage(SplitCompletionObserver* observer, unsigned stage, hipStream_t stream) {
     return observer && observer->observe ? observer->observe(observer->state, stage, stream) : int(hipSuccess);
 }
@@ -2224,7 +2231,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool final_pv_bound = false, bool direct_pv_operands = false,
     bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
     bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr,
-    bool all_pv_replay = false, bool register_pv_rescale = false) {
+    bool all_pv_replay = false, bool register_pv_rescale = false,
+    const SplitProbabilityProducer* probability_producer = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= kSplitMaxTokens ||
         query_count > kSplitMaxTokens - query_start || output_start >= kSplitMaxTokens ||
@@ -2241,6 +2249,10 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         return int(hipErrorInvalidValue);
     if (qk_producer && (!qk_producer->state || !qk_producer->launch || !float_alignment_qk ||
             (memory_layout != 22u && memory_layout != 24u)))
+        return int(hipErrorInvalidValue);
+    if (probability_producer && (!probability_producer->state || !probability_producer->launch ||
+            !exp2_table || memory_layout != 22u || staged_probability ||
+            query_start + query_count > 8192u))
         return int(hipErrorInvalidValue);
     if (staged_probability && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
@@ -2383,7 +2395,12 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         if (split_separate_probability(memory_layout)) {
             auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
             auto* scales = reinterpret_cast<float*>(probabilities + cells);
-            if (staged_probability) {
+            if (probability_producer) {
+                const int producer_status = probability_producer->launch(probability_producer->state,
+                    score_scratch, probabilities, scales, query_start, query_count, stride,
+                    exp2_table, vllm_sum, stream);
+                if (producer_status != int(hipSuccess)) return producer_status;
+            } else if (staged_probability) {
                 hipLaunchKernelGGL(blackwell_staged_probability_kernel,
                     dim3(kQueryHeads, query_count), dim3(kThreads), 0u, stream,
                     score_scratch, probabilities, scales, query_start, stride, exp2_table, vllm_sum);

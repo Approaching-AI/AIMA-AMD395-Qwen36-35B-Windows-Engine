@@ -34,6 +34,9 @@
 #include "selective_qk.h"
 #include "selective_qk_tail_policy.h"
 #include "register_pv_policy.h"
+#include "exact_attention_policy.h"
+#include "microtile_exact_qk.h"
+#include "native_exp2_workspace.h"
 #include "prepared_decoded_qk.h"
 #include "exponent_mask_qk.h"
 #include "prepared_decoded_qk_range.h"
@@ -191,6 +194,7 @@ __global__ void pack_terminal_q_kv_kernel(
 #if defined(QRT_CK_FMHA_BLACKWELL_EXACT_TERMINAL)
 std::mutex g_sm121_mutex;
 unsigned char* g_sm121_exp2 = nullptr;
+qrt_native_exp2_workspace::Workspace g_sm121_native_exp2;
 unsigned char* g_sm121_rcp = nullptr;
 float* g_sm121_scores = nullptr;
 float* g_sm121_mantissa_scores = nullptr;
@@ -463,6 +467,16 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (exponent_mask_requested && query_start == 0u && query_count > 1u && query_count <= 8192u &&
         !prepared_decoded_qk) return int(hipErrorInvalidValue);
     const bool exponent_mask_qk = exponent_mask_requested && prepared_decoded_qk;
+#if defined(QRT_CK_SM121_INTERPOLATED_EXP2) && QRT_CK_SM121_INTERPOLATED_EXP2
+    constexpr bool interpolated_exp2 = true;
+#else
+    constexpr bool interpolated_exp2 = false;
+#endif
+    bool exact_attention = false;
+    if (!qrt_exact_attention_policy::select(std::getenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE"),
+            query_start, query_count, prepared_decoded_qk, exponent_mask_qk,
+            register_pv_rescale, compact_pv_mode, interpolated_exp2, exact_attention))
+        return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -487,6 +501,14 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     std::lock_guard<std::mutex> lock(g_sm121_mutex);
     int status = prepare_sm121_attention_locked();
     if (status != int(hipSuccess)) return status;
+    if (exact_attention) {
+        const bool creating = !g_sm121_native_exp2.packed;
+        status = qrt_native_exp2_workspace::prepare(g_sm121_native_exp2, g_sm121_exp2, stream);
+        if (status != int(hipSuccess)) return status;
+        if (creating) std::fprintf(stderr,
+            "SM121_NATIVE_EXP2_STORAGE bytes=%zu verified_inputs=%u source_table_unchanged=1\n",
+            qrt_sm121_exp2_native_delta::packed_bytes, qrt_sm121_exp2_native_delta::cells);
+    }
     const auto begin = std::chrono::steady_clock::now();
     // Completed host clocks avoid driver event intervals that can be negative.
     // This observer adds synchronization only when explicitly requested. All
@@ -601,7 +623,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const size_t transposed_value_elements = size_t(transposed_value_capacity) * kKvHeads * kHeadDim;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
+        exact_attention ? qrt_microtile_exact_qk::launch_workspace :
         exponent_mask_qk ? qrt_exponent_mask_qk::launch_workspace : qrt_prepared_decoded_qk::launch_workspace};
+    qrt_blackwell_attention::SplitProbabilityProducer exact_probability{
+        &g_sm121_native_exp2, qrt_native_exp2_workspace::launch};
     qrt_prepared_decoded_qk_range::Workspace long_decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer long_decoded_producer{&long_decoded_workspace,
         qrt_prepared_decoded_qk_range::launch_workspace};
@@ -697,7 +722,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
             prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr,
-            all_pv_replay, register_pv_rescale);
+            all_pv_replay, register_pv_rescale, exact_attention ? &exact_probability : nullptr);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -774,6 +799,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     if (register_pv_rescale)
         std::fprintf(stderr,"SM121_REGISTER_PV_RESCALE query_start=%u query_count=%u native_and_exact=1 original_k16=1 additional_workspace_bytes=0\n",
             query_start,query_count);
+    if (exact_attention)
+        std::fprintf(stderr,"SM121_EXACT_ATTENTION_PIPELINE query_start=%u query_count=%u query_rows=32 key_columns=32 exact_native_exp=1 verified_inputs=%u workspace_bytes=%zu\n",
+            query_start,query_count,qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes);
     if (all_pv_replay)
         std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",
             query_start,query_count);
@@ -781,8 +809,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",
             query_start,query_count,selective_prefix_queries);
     if (prepared_decoded_qk)
-        std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=16 key_columns=16 workspace_bytes=%zu refreshed=1 original_fallback=1\n",
-            query_start,query_count,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
+        std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=%u key_columns=%u workspace_bytes=%zu refreshed=1 original_fallback=1\n",
+            query_start,query_count,exact_attention?32u:16u,exact_attention?32u:16u,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
     if (exponent_mask_qk)
         std::fprintf(stderr,"SM121_EXPONENT_MASK_QK query_start=%u query_count=%u exact_maximum=1 carry_bound=1 original_fallback=1 refreshed=1 additional_workspace_bytes=0\n",
             query_start,query_count);
@@ -1662,6 +1690,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
     g_sm121_suffix = Sm121SuffixWorkspace{};
     {
         std::lock_guard<std::mutex> tables_lock(g_sm121_mutex);
+        qrt_native_exp2_workspace::release(g_sm121_native_exp2);
         (void)hipFree(g_sm121_exp2);
         (void)hipFree(g_sm121_rcp);
         (void)hipFree(g_sm121_scores);

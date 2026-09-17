@@ -1,7 +1,7 @@
 #pragma once
 #include "deferred_qk_fallback.h"
 
-// Isolated exact scalar matrix schedule. A thread owns a small rectangle of
+// Exact scalar matrix schedule. A thread owns a small rectangle of
 // independent score cells, sharing decoded operands between its key columns.
 // K16 products, exponent maxima, modulo sums and ordered carries are unchanged.
 // All rejected cells use the existing complete original-dot scan afterwards.
@@ -96,5 +96,27 @@ __global__ void scores(const uint32_t* packed_query, const uint32_t* packed_key,
                     : carry[q][k] * qrt_blackwell_attention::kExactScale;
         }
     }
+}
+inline int launch_workspace(const void* state,const uint16_t* query,
+    const uint16_t* transposed_key,float* output,hipStream_t stream,
+    unsigned start,unsigned count,unsigned stride,unsigned key_stride){
+    if(!state||!query||!transposed_key||!output)return int(hipErrorInvalidValue);
+    const auto& workspace=*static_cast<const qrt_prepared_decoded_qk::Workspace*>(state);
+    if(!qrt_prepared_decoded_qk::valid(workspace)||!count||count>128u||start>=workspace.tokens||
+        count>workspace.tokens-start||stride!=start+count||key_stride!=workspace.tokens)
+        return int(hipErrorInvalidValue);
+    const auto* q=workspace.words;
+    const auto* k=q+qrt_prepared_decoded_qk::query_words;
+    const auto* qflags=k+qrt_prepared_decoded_qk::key_words;
+    const auto* kflags=qflags+qrt_prepared_decoded_qk::query_flag_words;
+    hipLaunchKernelGGL(HIP_KERNEL_NAME(scores<2u,2u>),
+        dim3((stride+31u)/32u,qrt_blackwell_attention::kQueryHeads,(count+31u)/32u),
+        dim3(256u),0u,stream,q,k,qflags,kflags,output,start,count,stride,key_stride);
+    const auto status=hipGetLastError();
+    if(status!=hipSuccess)return int(status);
+    hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan,
+        dim3((size_t(count)*qrt_blackwell_attention::kQueryHeads*stride+255u)/256u),dim3(256u),
+        0u,stream,query,transposed_key,output,start,count,stride,key_stride);
+    return int(hipGetLastError());
 }
 } // namespace qrt_microtile_exact_qk

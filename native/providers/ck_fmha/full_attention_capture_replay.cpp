@@ -5,6 +5,9 @@
 #endif
 #include "blackwell_attention.h"
 #include "register_pv_policy.h"
+#include "exact_attention_policy.h"
+#include "microtile_exact_qk.h"
+#include "native_exp2_workspace.h"
 #include <windows.h>
 #include <bcrypt.h>
 #include <algorithm>
@@ -69,6 +72,10 @@ struct Event {
     Event() { check(hipEventCreate(&value)); }
     ~Event() { if (value) (void)hipEventDestroy(value); }
 };
+struct NativeExpOwner {
+    qrt_native_exp2_workspace::Workspace workspace;
+    ~NativeExpOwner() { qrt_native_exp2_workspace::release(workspace); }
+};
 float finish(Event& begin, Event& end, float limit_ms = 3000.0f) {
     check(hipEventRecord(end.value)); check(hipEventSynchronize(end.value));
     float result; check(hipEventElapsedTime(&result, begin.value, end.value));
@@ -83,7 +90,8 @@ bool report(const char* route, const std::vector<float>& output,
             float probabilities_ms = 0.0f, float value_ms = 0.0f,
             float preparation_ms = 0.0f, bool native_products = false,
             double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u,
-            bool all_pv_replay = false, bool register_pv_rescale = false) {
+            bool all_pv_replay = false, bool register_pv_rescale = false,
+            bool prepared_decoded_qk = false, bool exact_attention = false) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -171,6 +179,10 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"compacted_pv_replay\":" << (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u) ? "true" : "false")
               << ",\"all_pv_replay\":" << (all_pv_replay ? "true" : "false")
               << ",\"register_pv_rescale\":" << (register_pv_rescale ? "true" : "false")
+              << ",\"prepared_decoded_qk\":" << (prepared_decoded_qk ? "true" : "false")
+              << ",\"exact_attention_pipeline\":" << (exact_attention ? "true" : "false")
+              << ",\"native_exp2_verified_inputs\":" << (exact_attention ? qrt_sm121_exp2_native_delta::cells : 0u)
+              << ",\"native_exp2_workspace_bytes\":" << (exact_attention ? qrt_sm121_exp2_native_delta::packed_bytes : 0u)
               << ",\"all_pv_replay_cells\":" << (all_pv_replay ? output.size() : 0u)
               << ",\"parallel_probability\":" << (memory_layout == 24u ? "true" : "false")
               << ",\"compacted_pv_cells\":" << compacted_pv_cells
@@ -393,6 +405,23 @@ int main(int argc, char** argv) {
                 register_pv_rescale) || (register_pv_rescale && (all_pv_replay || float_pv_lanes)))
             throw std::runtime_error("invalid register PV rescale option or owner");
         std::fprintf(stderr,"REGISTER_PV_RESCALE enabled=%u native_and_exact=1\n",unsigned(register_pv_rescale));
+        const char* decoded_option = std::getenv("QRT_ATTENTION_REPLAY_PREPARED_DECODED_QK");
+        if (decoded_option && *decoded_option && std::strcmp(decoded_option,"0") && std::strcmp(decoded_option,"1"))
+            throw std::runtime_error("invalid prepared decoded QK option");
+        const bool prepared_decoded_qk = decoded_option && std::strcmp(decoded_option,"1")==0;
+        if (prepared_decoded_qk && (!float_alignment_qk || start || tokens>8192u ||
+                (memory_layout!=22u && memory_layout!=24u)))
+            throw std::runtime_error("prepared decoded QK requires the fixed cold owner");
+#if defined(QRT_CK_SM121_INTERPOLATED_EXP2) && QRT_CK_SM121_INTERPOLATED_EXP2
+        constexpr bool interpolated_exp2 = true;
+#else
+        constexpr bool interpolated_exp2 = false;
+#endif
+        bool exact_attention = false;
+        if (!qrt_exact_attention_policy::select(std::getenv("QRT_ATTENTION_REPLAY_EXACT_ATTENTION_PIPELINE"),
+                start,count,prepared_decoded_qk,false,register_pv_rescale,memory_layout==22u?1u:0u,
+                interpolated_exp2,exact_attention) || (exact_attention && staged_probability))
+            throw std::runtime_error("invalid combined exact attention option or owner");
         std::fprintf(stderr,"FLOAT_ALIGNMENT_QK enabled=%u\n",unsigned(float_alignment_qk));
         CompletedAttentionPhases completed_phases;
         qrt_blackwell_attention::SplitCompletionObserver observer{&completed_phases, CompletedAttentionPhases::observe};
@@ -548,6 +577,39 @@ int main(int argc, char** argv) {
             value_transpose_host_ms=std::chrono::duration<double,std::milli>(Clock::now()-transpose_begin).count();
             preparation_ms+=ms;total+=ms;maximum=std::max(maximum,ms);
         }
+        // Use the same fixed decoded owner and callbacks as the provider.
+        namespace decoded = qrt_prepared_decoded_qk;
+        Device decoded_storage((prepared_decoded_qk ? decoded::workspace_words+128u : 1u)*sizeof(uint32_t));
+        decoded::Workspace decoded_workspace{prepared_decoded_qk ? decoded_storage.as<uint32_t>()+64u : nullptr,tokens};
+        double decoded_prepare_host_ms=0.0, native_exp_prepare_host_ms=0.0;
+        if(prepared_decoded_qk){
+            check(hipMemset(decoded_storage.pointer,0xa5,(decoded::workspace_words+128u)*sizeof(uint32_t)));
+            const auto t=Clock::now();check(hipEventRecord(begin.value));
+            check(hipError_t(decoded::prepare_workspace(dq.as<uint16_t>(),dk.as<uint16_t>(),transposed_data,
+                decoded_workspace,nullptr)));
+            const float ms=finish(begin,end,100.0f);
+            decoded_prepare_host_ms=std::chrono::duration<double,std::milli>(Clock::now()-t).count();
+            preparation_ms+=ms;total+=ms;maximum=std::max(maximum,ms);
+        }
+        qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
+            exact_attention ? qrt_microtile_exact_qk::launch_workspace : decoded::launch_workspace};
+        NativeExpOwner native_exp;
+        std::vector<unsigned char> native_exp_original;
+        if(exact_attention){
+            if(!use_table)throw std::runtime_error("combined exact attention needs the original EXP table");
+            const auto t=Clock::now();check(hipEventRecord(begin.value));
+            check(hipError_t(qrt_native_exp2_workspace::prepare(native_exp.workspace,dt.as<unsigned char>(),nullptr)));
+            const float ms=finish(begin,end,100.0f);
+            native_exp_prepare_host_ms=std::chrono::duration<double,std::milli>(Clock::now()-t).count();
+            preparation_ms+=ms;total+=ms;maximum=std::max(maximum,ms);
+            const auto* saved=native_exp.workspace.packed;
+            check(hipError_t(qrt_native_exp2_workspace::prepare(native_exp.workspace,dt.as<unsigned char>(),nullptr)));
+            if(native_exp.workspace.packed!=saved)throw std::runtime_error("native EXP owner was not reused");
+            native_exp_original.resize(qrt_sm121_exp2_native_delta::packed_bytes);
+            check(hipMemcpy(native_exp_original.data(),saved,native_exp_original.size(),hipMemcpyDeviceToHost));
+        }
+        qrt_blackwell_attention::SplitProbabilityProducer probability_producer{
+            &native_exp.workspace,qrt_native_exp2_workspace::launch};
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores((score_elements + 128u) * sizeof(float));
@@ -573,8 +635,9 @@ int main(int argc, char** argv) {
                 prepared_value_data, prepare_values ? tokens : 0u,
                 prepacked_core ? &core_prepared : nullptr, host_phases ? &observer : nullptr,
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
-                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,nullptr,
-                all_pv_replay,register_pv_rescale)));
+                direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,
+                prepared_decoded_qk ? &decoded_producer : nullptr,
+                all_pv_replay,register_pv_rescale,exact_attention ? &probability_producer : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u)) {
@@ -757,12 +820,55 @@ int main(int argc, char** argv) {
                 }
             }
         }
+        if(prepared_decoded_qk){
+            std::vector<uint32_t> checked(decoded::workspace_words+128u);
+            check(hipMemcpy(checked.data(),decoded_storage.pointer,checked.size()*sizeof(uint32_t),hipMemcpyDeviceToHost));
+            for(size_t i=0u;i<64u;++i)
+                if(checked[i]!=0xa5a5a5a5u || checked[64u+decoded::workspace_words+i]!=0xa5a5a5a5u)
+                    throw std::runtime_error("decoded QK workspace redzone changed");
+            const auto* words=checked.data()+64u;
+            for(size_t i=0u;i<q.size();++i)
+                if(words[i]!=qrt_sm121_decoded_bf16::pack(q[i]))throw std::runtime_error("decoded Q changed");
+            for(unsigned token=0u;token<tokens;++token)for(unsigned feature=0u;feature<512u;++feature)
+                if(words[decoded::query_words+size_t(feature)*tokens+token]!=
+                    qrt_sm121_decoded_bf16::pack(k[size_t(token)*512u+feature]))
+                    throw std::runtime_error("decoded K changed");
+            const auto* qflags=words+decoded::query_words+decoded::key_words;
+            const auto* kflags=qflags+decoded::query_flag_words;
+            for(unsigned side=0u;side<2u;++side){
+                const auto& original=side?k:q;
+                const auto* flags=side?kflags:qflags;
+                for(size_t row=0u;row<original.size()/256u;++row){
+                    bool eligible=true;
+                    for(unsigned feature=0u;feature<256u;++feature)
+                        eligible=eligible&&qrt_sm121_float_alignment::eligible(original[row*256u+feature]);
+                    if(flags[row]!=unsigned(eligible))throw std::runtime_error("decoded row eligibility changed");
+                }
+            }
+            for(auto input:{std::make_pair(&dq,&q),std::make_pair(&dk,&k)}){
+                std::vector<uint16_t> checked_input(input.second->size());
+                check(hipMemcpy(checked_input.data(),input.first->pointer,checked_input.size()*2u,hipMemcpyDeviceToHost));
+                if(checked_input!=*input.second)throw std::runtime_error("decoded QK input changed");
+            }
+        }
+        if(exact_attention){
+            std::vector<unsigned char> checked(native_exp_original.size());
+            check(hipMemcpy(checked.data(),native_exp.workspace.packed,checked.size(),hipMemcpyDeviceToHost));
+            if(checked!=native_exp_original)throw std::runtime_error("native EXP table changed");
+            checked.resize(table.size());
+            check(hipMemcpy(checked.data(),dt.pointer,checked.size(),hipMemcpyDeviceToHost));
+            if(checked!=table)throw std::runtime_error("source EXP table changed");
+            std::fprintf(stderr,"EXACT_ATTENTION_PIPELINE enabled=1 verified_inputs=%u workspace_bytes=%zu cache_reused=1 inputs_immutable=1 decoded_prepare_host_ms=%.9f exp_prepare_host_ms=%.9f\n",
+                qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes,
+                decoded_prepare_host_ms,native_exp_prepare_host_ms);
+        }
         const char* route = use_table
             ? (use_rcp ? "blackwell-sm121-exp-rcp" : "blackwell-sm121-exp")
             : (use_rcp ? "blackwell-amd-exp-rcp" : "blackwell-amd-exp");
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
                           scores_total, probabilities_total, value_total, preparation_ms, native_products,
-                          completed_host_ms, compacted_pv_cells, all_pv_replay, register_pv_rescale);
+                          completed_host_ms, compacted_pv_cells, all_pv_replay, register_pv_rescale,
+                          prepared_decoded_qk, exact_attention);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

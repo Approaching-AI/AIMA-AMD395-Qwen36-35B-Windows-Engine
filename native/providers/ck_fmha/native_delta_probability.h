@@ -2,8 +2,8 @@
 #include "blackwell_attention.h"
 #include "../gdn/sm121_exp2_native_delta.h"
 
-// Isolated experiment: preserve the original one-wave recurrence and replace
-// only its exp2 decoder. Every non-encodable SFU result uses the source table.
+// Preserve the original one-wave recurrence and replace only its exp2 decoder.
+// Every non-encodable SFU result uses the source table.
 namespace qrt_native_delta_probability {
 using namespace qrt_blackwell_attention;
 __global__ void probabilities(

@@ -797,6 +797,70 @@ int main() {
     }
     launches=error_queries=memsets=fail_launch=0u;fail_memset=true;
     if(register_pv(true)!=hipErrorUnknown || launches!=3u || memsets!=1u) return 162;
+    fail_memset=false;
+    struct ProbabilityState {
+        unsigned calls=0u,start=0u,count=0u,stride=0u,seen_stages=0u,fail_stage=99u;
+        bool fail=false;
+    } probability_state;
+    SplitProbabilityProducer probability{&probability_state,[](const void* data,const float* scores,
+        uint16_t* probabilities,float* scales,unsigned start,unsigned count,unsigned stride,
+        const unsigned char* table,bool sum,hipStream_t)->int {
+        auto& state=*const_cast<ProbabilityState*>(static_cast<const ProbabilityState*>(data));
+        ++state.calls;state.start=start;state.count=count;state.stride=stride;
+        if(!scores||!probabilities||!scales||!table||!sum||state.seen_stages!=1u)
+            return hipErrorInvalidValue;
+        if(state.fail)return hipErrorUnknown;
+        record_launch("owned_native_exp_probability",blackwell_online_probability_kernel,
+            dim3(16u,count),dim3(32u));
+        return hipGetLastError();
+    }};
+    SplitCompletionObserver probability_observer{&probability_state,[](void* data,unsigned stage,hipStream_t)->int {
+        auto& state=*static_cast<ProbabilityState*>(data);
+        if(stage!=state.seen_stages++)return hipErrorInvalidValue;
+        return stage==state.fail_stage?hipErrorUnknown:hipSuccess;
+    }};
+    auto produced_probability=[&](const SplitProbabilityProducer* selected,unsigned start=1u,
+        unsigned count=17u,unsigned layout=22u,bool table=true,bool staged=false) {
+        return launch_queries(&operand,&operand,&operand,&output,nullptr,start,count,0u,
+            table?rcp:nullptr,nullptr,nullptr,true,rcp,layout,&scratch,SIZE_MAX,nullptr,nullptr,&operand,start+count,
+            false,nullptr,nullptr,0u,nullptr,&probability_observer,&operand,start+count,
+            1u,1u,false,false,true,0u,staged,&producer,false,false,selected);
+    };
+    auto reset_probability=[&](){
+        launches=error_queries=memsets=fail_launch=producer_seen[0]=0u;probability_state={};
+    };
+    reset_probability();
+    SplitProbabilityProducer no_state{nullptr,probability.launch},no_callback{&probability_state,nullptr};
+    if(produced_probability(&no_state)!=hipErrorInvalidValue ||
+       produced_probability(&no_callback)!=hipErrorInvalidValue ||
+       produced_probability(&probability,1u,17u,22u,false)!=hipErrorInvalidValue ||
+       produced_probability(&probability,1u,17u,22u,true,true)!=hipErrorInvalidValue ||
+       produced_probability(&probability,8192u,1u)!=hipErrorInvalidValue ||
+       produced_probability(&probability,0xffffffffu,17u)!=hipErrorInvalidValue ||
+       launches||memsets||probability_state.calls||probability_state.seen_stages)return 172;
+    for(unsigned layout:{0u,2u,4u,13u,15u,23u,24u})
+        if(produced_probability(&probability,1u,17u,layout)!=hipErrorInvalidValue ||
+           launches||memsets||probability_state.calls)return 173;
+    for(unsigned count:{1u,17u,128u}){
+        reset_probability();
+        if(produced_probability(&probability,8192u-count,count)!=hipSuccess||launches!=5u||
+           probability_state.calls!=1u||probability_state.start!=8192u-count||
+           probability_state.count!=count||probability_state.stride!=8192u||
+           probability_state.seen_stages!=5u||std::strcmp(launch_names[1],"owned_native_exp_probability"))return 174;
+        for(unsigned failure=1u;failure<=5u;++failure){
+            reset_probability();fail_launch=failure;
+            if(produced_probability(&probability,8192u-count,count)!=hipErrorUnknown||launches!=failure||
+               probability_state.calls!=(failure==1u?0u:1u)||probability_state.seen_stages!=failure-1u)return 175;
+        }
+        reset_probability();probability_state.fail=true;
+        if(produced_probability(&probability,8192u-count,count)!=hipErrorUnknown||launches!=1u||memsets||
+           probability_state.calls!=1u||probability_state.seen_stages!=1u)return 176;
+        for(unsigned stage=0u;stage<5u;++stage){
+            reset_probability();probability_state.fail_stage=stage;
+            if(produced_probability(&probability,8192u-count,count)!=hipErrorUnknown||launches!=stage+1u||
+               probability_state.calls!=(stage==0u?0u:1u)||probability_state.seen_stages!=stage+1u)return 177;
+        }
+    }
     return 0;
 }
 '''
