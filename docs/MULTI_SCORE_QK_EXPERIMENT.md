@@ -4,7 +4,8 @@ Source `cbe357d7f1e82fc3ce592251a6f45979c388cd53` assigns each thread
 two or four independent QK scores, amortizing cooperative operand staging
 and reusing a decoded query operand across two key columns. The best 2x2
 schedule reduces complete captured q8192 QK from353.4056 to300.9476ms.
-It remains an isolated component with no provider or package change.
+That component is now integrated behind the default-off combined option
+described below; the package remains unchanged.
 
 All cells retain the original BF16 products, exponent maxima, unsigned
 modulo sums, normalization and ascending K16 carry order. Each unsupported
@@ -97,3 +98,64 @@ bounded build/capture guards pass; unchanged core sources reuse the recent
 full suite. [Combined evidence](../benchmarks/correctness/combined-exact-attention-native-components-20260917.json):
 108869bytes, SHA256
 `5ad87a4be1ad93e61157a3d1730e83dc53f52397f1866b52a152f2399cc84af7`.
+
+## Provider integration and real-model qualification
+
+Source `cf0f889bf82bf8e9122a263f79360739d841c45a` adds
+`QRT_CK_SM121_EXACT_ATTENTION_PIPELINE=1`. The eligible owner is a cold call
+starting at zero with 2–8192 queries, prepared decoded QK, compact PV mode 1,
+register PV rescaling and the compiled interpolated EXP backend. Exponent
+masking is incompatible. Invalid option strings and conflicting eligible
+configurations fail before allocation. Decode, suffix and longer calls retain
+their prior dispatch. The exported ABI and source EXP artifact are unchanged.
+
+The provider owns an additional 82182144-byte table under its existing lock.
+It builds the two-bit codes on the execution device, separately checks all
+328728576 inputs, and publishes the owner only after completion and a zero
+mismatch count. Subsequent calls reuse it; release frees it before the source
+table. Failed allocation, submission, verification and readback drain work
+and discard the unpublished buffer. Local checks pass 54 Rust tests, clippy,
+488 Python tests with two existing skips, C/q16 ABI and public hygiene.
+
+Four bounded native build/replay actions pass on baiying. The actual production
+callbacks replay the original q7169 capture with 29364224 GB10 context matches
+in both modes, identical output/accumulator/denominator files, unchanged
+candidate counts, guards and immutable operands/tables. Completed query host
+clocks are 551.9448/477.5045 ms OFF/ON. The ON EXP initializer separately takes
+11.5977 ms. Legacy device-event preparation totals do not consistently cover
+that synchronized initializer and are not used as complete-owner timings.
+[Native integration evidence](../benchmarks/correctness/exact-attention-provider-native-20260917.json):
+177355 bytes, SHA256
+`b8a61c1ba302c407479852157b2a27a1a3952b55829b13fb879c9cab821e4b84`.
+
+`run-exact-attention-product-r1.ps1` then runs the real model at
+`D:\models\Qwen3.6-35B-A3B` in four fresh baiying processes. Both modes keep
+register PV enabled; only the combined option differs within the same DLL.
+All other whole/MoE/FLA/CLI artifacts and numerical options remain pinned.
+
+| Order | Combined option | Load ms | q8192 TTFT ms | TPOT ms |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 0 | 21288.8146 | 27266.7663 | 101.105092 |
+| 2 | 1 | 21286.2752 | 26385.5584 | 100.847081 |
+| 3 | 1 | 21272.8293 | 26385.8867 | 100.548759 |
+| 4 | 0 | 21279.4039 | 27259.2610 | 100.650795 |
+
+Each run matches the original 8192 prompt IDs, all 512 GB10 output IDs, all
+512 actual callbacks and first logit 10.375 with tolerance 0.125. Each ON run
+has ten eligible prefill activations and one verified EXP initialization,
+whose cost is included in first-callback TTFT. Decode has no activation.
+All 160 dense and ten coarse correction counts match as diagnostics.
+
+OFF/ON TTFT medians are 27263.01365/26385.72255 ms, a reduction of 877.2911 ms
+or 3.2179%. Both ON samples are below both OFF samples. Retain ON in the next
+experimental q8192 control. Two observations per mode do not establish long
+term stability; code/package defaults stay off. Prefix, long context,
+packaged HTTP, the 10000 ms gate and retained 4187.415605 ms target remain open.
+
+The CK DLL is
+`D:/projects/AIMA-public-exact-attention-provider-20260917/build/exact-attention-provider/qrt_ck_fmha_sm121.dll`,
+1780736 bytes, SHA256
+`2636dbf98b7c91028f9eebeacc3beb1920e9921bbb37209713502f11c142c027`.
+[Product evidence](../benchmarks/correctness/exact-attention-product-20260917.json):
+772770 bytes, SHA256
+`1a9d33a1c903efc86e8b0bfc51ec54c3f06fa01d58916347ea7ffd5721d84834`.

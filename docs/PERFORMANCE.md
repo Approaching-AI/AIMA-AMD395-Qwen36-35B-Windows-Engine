@@ -1,5 +1,46 @@
 # Real-model performance
 
+## Completed combined-attention stack profile, 2026-09-17
+
+The same qualified `cf0f889` CK DLL and pinned whole/MoE/FLA/CLI assets pass
+another original q8192/out512 GB10 boundary with all actual callbacks and
+first logit 10.375. Five profiling options plus disabled marker filtering
+give a diagnostic TTFT of 30769.9249 ms; synchronization and logging overhead
+prevent using that value as retained performance.
+
+Linear core is 8268.664 ms, with preceding projections separately 4384.565 ms.
+Within the core, recurrence is 3580.224 ms and OUT is 2930.8333 ms. Full attention
+is 9733.701 ms, containing CK 7388.2931 ms: QK 3189.587, probability 985.4753,
+native PV 1333.6734 and exact PV 1688.2369 ms. MoE totals 5292.834898 ms;
+routed/shared overlap. All 160 dense corrections total 4392.431 ms excluding
+their producers; candidate counts match the uninstrumented control.
+
+These nested clocks must not be added. Ten negative residual/postnorm device
+intervals remain recorded as invalid and are excluded. Initial EXP creation
+is outside the internal CK clock but remains in outer attention and TTFT.
+Investigate broader linear projection/recurrent and common exact-replay
+changes next. [Complete profile and GB10 boundary](../benchmarks/correctness/exact-attention-completed-profile-20260917.json):
+458897 bytes, SHA256
+`3c4403e4d10ad4c1b736c24be0f0adf872319ecfa5f03d8752e7400207507c33`.
+
+## Combined exact attention product comparison, 2026-09-17
+
+Source `cf0f889` integrates the 2x2 QK schedule and device-verified native EXP
+decoder behind one default-off option. Four fresh same-DLL q8192/out512
+processes, ordered OFF/ON/ON/OFF with register PV enabled throughout, match
+all 2048 GB10 output IDs and actual callback IDs, original prompts and first
+logit 10.375. TTFT medians are 27263.01365/26385.72255 ms OFF/ON, saving
+877.2911 ms (3.2179%); both ON samples are below both OFF samples. All loads
+remain below 30 seconds. Each ON process builds and verifies the additional
+82182144-byte EXP table once, inside actual first-callback TTFT.
+
+Retain ON in the next experimental control, with code/package defaults off.
+Native production callbacks also preserve every original q7169 GB10 context
+element and raw output file, and the complete local suite passes. The 10000 ms
+gate, retained targets, long contexts and release remain open. The completed
+profile above directs the next broad investigation.
+See [implementation, exact artifacts and four-run evidence](MULTI_SCORE_QK_EXPERIMENT.md).
+
 ## Combined exact attention components, 2026-09-17
 
 Source `c3a7c3b` combines2x2 exact QK and the exact native EXP decoder over
