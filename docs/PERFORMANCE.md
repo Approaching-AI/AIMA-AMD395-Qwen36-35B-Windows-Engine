@@ -1,5 +1,27 @@
 # Real-model performance
 
+## Shared exact GDN gate values, 2026-09-17
+
+Source `e320f47`, with observer correction `31b2e93`, prepares two exact FP32
+exponential values per token/head for WU, state8 and output. Original table,
+ordered dots, BF16 boundaries, final FMAs and U ownership remain unchanged.
+All 96 generated safety comparisons and all q8192 attempts match every raw
+output, final state, W/U, checkpoint and residual. Prepared values match CPU
+lookups; guards, immutable inputs and seven invalid-call rejections pass.
+
+Three rotated complete-owner samples include the extra preparation. With
+production-style `U=V`, original/prepared medians are 80.6180/74.4829 ms;
+with separate U they are 77.4745/82.4624 ms. Samples overlap. Keep the route
+isolated: the gain is modest and depends on ownership. q8192 inputs are
+generated and its full-length state call differs from production 1024-row
+segments; no model tokens, GB10 boundary or TTFT are newly qualified.
+One invalid device phase series is retained with a null median and excluded
+from phase conclusions. Complete host measurements and all numerical checks
+finish. The earlier observer failure is preserved in the evidence.
+[Commands, checks and samples](../benchmarks/correctness/prepared-gate-gdn-components-20260917.json):
+562973 bytes, SHA256
+`04de7cf9e0cd865f19e53a6720453dc954beaa52a2f3f2254f91224897208f67`.
+
 ## FP32-carry exact PV component, 2026-09-17
 
 Source `55cd4a7` compares current production REGISTER PV with direct BF16 and
