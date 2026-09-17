@@ -120,10 +120,14 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
  double samples[4][3]{};const unsigned attempts=throughput?4u:1u;
  for(unsigned attempt=0;attempt<attempts;++attempt)for(unsigned position=0;position<4;++position){
   const unsigned filtered=(attempt+position)%4u;
+  if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=reset\n",tokens,mode,filtered);std::fflush(stderr);}
   dn.reset();output.reset();stats.reset();
   fused::Owner owner(nullptr);ok(owner.initialize(filtered==3u,true),"actual compact owner initialization");
-  hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,nullptr),"same-call shared completion record");finish();
+  hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,nullptr),"same-call shared completion record");
+  if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=shared_recorded\n",tokens,mode,filtered);std::fflush(stderr);}
+  finish();
   const auto begin=std::chrono::steady_clock::now();
+  if(!throughput){std::fprintf(stderr,"COMPACT_CASE tokens=%u mode=%u variant=%u phase=launch\n",tokens,mode,filtered);std::fflush(stderr);}
   if(filtered==1u){hipLaunchKernelGGL(f::certify,dim3(throughput?4096u:17u),dim3(256),0,nullptr,dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),512e-9f,radius,0u,ds.data(),dg.data(),masks.data(),stats.data(),tokens);ok(hipGetLastError(),"certificate");}
   using Phase=MoeCorrectionPhase;
   if(filtered<2u){
