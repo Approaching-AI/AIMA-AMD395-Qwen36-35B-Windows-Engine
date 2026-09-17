@@ -64,6 +64,23 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Compact integer QK component, 2026-09-18
+
+Source `eac6932` reduces the isolated signed16 dot4 row from 156 to 52 bytes,
+with exact BF16 reconstruction and original K16 carries. Every native raw
+carry, all 72 generated configurations and 6543114240 captured score
+comparisons pass. Complete q8192 control/K64/K128 times are
+303.1695/2383.5624/2302.1050 ms. Both candidates remain isolated.
+
+Compiled LDS is 46080/59392 bytes with 8 bytes of private storage, exceeding
+explicit row storage by 32768 bytes. The captured host sample takes original
+fallback for 12238/65536 groups. A revised packed fallback is being checked;
+these measurements do not qualify it. No model baseline or default changes.
+[Implementation, compiler failure and scope](COMPACT_INTEGER_QK.md).
+[Complete evidence](../benchmarks/correctness/compact-integer-qk-native-components-20260918.json):
+161520 bytes, SHA256
+`b4c4e2b74a85c8c9b9676463ec98d9f5f6575ff6c405a9b0903f2aea8e9312f0`.
+
 ## Paired GDN scores and shared arenas, 2026-09-18
 
 Four fresh same-DLL OFF/ON/ON/OFF runs from FLA source `7b20c90` pass all

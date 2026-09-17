@@ -31,7 +31,35 @@ That extension is component arithmetic evidence, not a new GB10 prompt.
 Every warmup and timed score is checked outside its timer. Captured encoding
 coverage and 65536 independent host carry comparisons are diagnostics.
 
-Native compilation, correctness and speed are pending. No provider dispatch,
-runtime defaults or package changes. The current model baseline remains
+The initial HIP build rejects default member initialization for shared rows.
+Source `eac6932` removes it; local preparation value-initializes every row and
+shared tile loads overwrite every word. Host UBSan and all native checks pass:
+131072 raw carries, 72 generated configurations, 98544624 generated score
+comparisons and 6543114240 captured score comparisons. The failed compiler
+run remains in the evidence; it performs no GPU arithmetic.
+
+The full q8192 component is slower: control/K64/K128 totals are
+303.1695/2383.5624/2302.1050 ms, including preparation. Supported query/key
+groups are 1887537/2097152 and 236179/262144. The 65536 sampled carry paths
+contain 12238 fallbacks, 73 exact shifts and 53225 remainder corrections.
+All are exact against original arithmetic, but this is not a model run.
+The compiler declares 46080/59392 bytes of LDS and 8 bytes of private storage,
+which exceed the explicit shared row arrays by 32768 bytes. Occupancy is not
+measured. Both schedules remain isolated.
+
+[Complete first native comparison](../benchmarks/correctness/compact-integer-qk-native-components-20260918.json):
+161520 bytes, SHA256
+`b4c4e2b74a85c8c9b9676463ec98d9f5f6575ff6c405a9b0903f2aea8e9312f0`.
+It pins `run-native-compact-integer-qk-r2.ps1`, baiying, every build input and
+the original model capture.
+
+The next revision replaces the fallback's wide `Value[17]` temporary with
+the established one-word original product encoding and bounded modulo sum.
+It retains original products, exponent maxima and canonical normalization.
+The same host tests pass; native resource allocation and complete timings
+must determine whether this removes the observed overhead. The preceding
+native comparison does not qualify the revised fallback.
+
+No provider dispatch, runtime defaults or package changes. The current model baseline remains
 23902.4417 ms TTFT; the 10000 ms boundary, retained 4187.415605 ms target
 and full GB10 continuation requirements remain unchanged.

@@ -78,10 +78,16 @@ QRT_COMPACT_DOT4_INLINE Row prepare(const uint16_t* input) {
     return result;
 }
 QRT_COMPACT_DOT4_INLINE Value fallback(Value carry, const Row& a, const Row& b) {
-    Value values[17]; values[0] = carry;
+    // Keep fallback products in the established one-word original encoding.
+    // The preceding build reserves extra private/LDS storage with Value[17].
+    // This representation preserves its bounded K16 modulo sum.
+    uint32_t products[16];
+#pragma unroll
     for (unsigned i = 0u; i < 16u; ++i)
-        values[i + 1u] = qrt_q1_moe_hawkeye::multiply_bf16(original(a, i), original(b, i), -133);
-    return qrt_q1_moe_hawkeye::group_sum<26, -133>(values, 17u);
+        products[i] = qrt_sm121_group16::pack_product(
+            qrt_q1_moe_hawkeye::multiply_bf16(original(a, i), original(b, i), -133));
+    const auto sum = qrt_sm121_group16::sum_packed(carry, products);
+    return qrt_sm121_canonical::normalize(sum.value.magnitude, sum.value.negative, sum.max_exponent);
 }
 QRT_COMPACT_DOT4_INLINE int maximum(Value carry, const Row& a, const Row& b) {
     const int initial = carry.exponent > -133 ? carry.exponent : -133;
