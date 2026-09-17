@@ -239,4 +239,4 @@ __global__ void state_kernel(const uint16_t* k,const uint16_t* u,const uint16_t*
     for (unsigned cell=tid;cell<Columns*128u;cell+=threads)
         state[(head*128u+first_column+cell/128u)*128u+cell%128u]=current[cell/128u][cell%128u];
 }
-}} // namespace qrt_fla_tiled_scalar
+} // namespace qrt_fla_tiled_scalar
