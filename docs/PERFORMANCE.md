@@ -1,5 +1,35 @@
 # Real-model performance
 
+## Cached weight controls for exact replay, 2026-09-17
+
+Isolated source `110174d` keeps original BF16 weights and caches only the
+4-byte scale/nonzero control for each K16 group. Replay reconstructs the
+same FP16 payload on demand and calls the unchanged staged accumulator.
+The exhaustive sanitized host check covers all 65536 BF16 patterns and
+16777216 encoded pairs. Eighteen native cases match 2080134 ordered raw
+K16 states, including 622074 original fallback groups. Fourteen invalid
+views are rejected; guards, immutable operands and audit parity pass.
+
+Complete generated MoE owners include activation preparation and replay.
+The control also includes full weight preparation; the cached variant
+excludes its separately measured initial cache construction.
+
+| Geometry | Original ms | Cached controls ms | Per-call controls ms |
+| --- | ---: | ---: | ---: |
+| Gate/up: 262144 weight rows, K2048, 8192 inputs | 132.0360 | 174.4945 | 177.9072 |
+| Down: 524288 weight rows, K512, 65536 routed inputs | 21.2069 | 24.1325 | 26.5251 |
+
+One warmup and three rotated samples verify all selected raw outputs,
+all control/prepared words and 512 independent CPU dots across the shapes.
+The queues and values are synthetic. Initial cache construction takes
+6.9279/2.7965 ms for the two shapes; 40 layers would require 8053063680
+control bytes by allocation arithmetic, without a measured model peak-memory
+or load result. Keep this route isolated: both complete owners regress even
+with an existing cache. No provider, model token, GB10, package or release
+qualification follows. [Source, commands and measurements](../benchmarks/correctness/weight-control-projection-components-20260917.json):
+123596 bytes, SHA256
+`bedad5d042abd29eaf0d4dc7a5128570919042fd2b685d8ae3859af73ff16b65`.
+
 ## Queued linear OUT on the combined-attention stack, 2026-09-17
 
 Four fresh same-artifact q8192/out512 processes, ordered OFF/ON/ON/OFF,
