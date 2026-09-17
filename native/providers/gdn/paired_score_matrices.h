@@ -3,7 +3,7 @@
 
 // Isolated complete score producer. Adjacent value heads use the same Q/K
 // head; compute its original raw dot once and apply both original gates.
-// Callers own ceil(count/64)*64*32*64 score words, including zero query padding.
+// Callers own exactly count*32*64 score words; no padded query is stored.
 namespace qrt_fla_paired_score {
 namespace scalar=qrt_fla_blackwell_scalar;
 constexpr unsigned rows=8u,columns=32u,pairs=64u,threads=256u;
@@ -16,6 +16,7 @@ __global__ void kernel(const uint16_t* q,const uint16_t* k,const float* g,
     const unsigned first_column=blockIdx.x*columns,qk_head=blockIdx.y;
     const unsigned row=first_row+threadIdx.x/columns,column=first_column+threadIdx.x%columns;
     if(first_column>first_row+rows-1u||first_row>=valid){
+        if(row>=valid)return;
 #pragma unroll
         for(unsigned half=0u;half<2u;++half)
             scores[(size_t(offset+row)*32u+qk_head*2u+half)*64u+column]=0u;
@@ -42,7 +43,8 @@ __global__ void kernel(const uint16_t* q,const uint16_t* k,const float* g,
     }
     if(invalid)atomicOr(&unsupported,1u);
     __syncthreads();
-    if(row>=valid||column>row){
+    if(row>=valid)return;
+    if(column>row){
 #pragma unroll
         for(unsigned half=0u;half<2u;++half)
             scores[(size_t(offset+row)*32u+qk_head*2u+half)*64u+column]=0u;

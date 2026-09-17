@@ -4,10 +4,27 @@
 #undef main
 #include "../../native/providers/gdn/blackwell_lifetime_matrices.h"
 #include "../../native/providers/gdn/paired_score_matrices.h"
+#include "../../native/providers/moe_accumulator/sm121_subgroup.h"
 #include <array>
 #include <string>
 namespace lifetime=qrt_fla_lifetime;
 __global__ void capture_scores(const uint16_t*,const uint16_t*,const float*,uint16_t*,unsigned,const unsigned char*);
+// Production cooperative score kernel from blackwell_cooperative.cpp. Keep
+// its four-lane ownership and tight logical output span as the timed control.
+__global__ void current_scores(const uint16_t* q,const uint16_t* k,const float* g,
+    uint16_t* scores,unsigned count,const unsigned char* table){
+    constexpr unsigned lanes=4u,groups=256u/lanes;
+    const unsigned offset=blockIdx.z*64u,head=blockIdx.y;
+    const unsigned valid=min(64u,count-offset),cell=blockIdx.x*groups+threadIdx.x/lanes;
+    const unsigned token=cell/64u,source=cell%64u,lane=threadIdx.x&(lanes-1u);
+    const size_t index=(size_t(offset+token)*32u+head)*64u+source;
+    if(token>=valid)return;
+    if(source>token){if(!lane)scores[index]=0u;return;}
+    const float sum=qrt_sm121_subgroup::dot<lanes>(q+(size_t(offset+token)*16u+head/2u)*128u,
+        k+(size_t(offset+source)*16u+head/2u)*128u,128u);
+    if(!lane)scores[index]=scalar::to_bf16(sum*scalar::exponential(
+        g[size_t(offset+token)*32u+head]-g[size_t(offset+source)*32u+head],table));
+}
 void paired_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v,Device& beta,
  Device& inverse,Device& g,Device& scores,Device& u,Device& w,Device& output,Device& h,Device& vn,
  Device& state,Device& table,bool alias){
@@ -17,7 +34,7 @@ void paired_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v
  for(unsigned offset=0u;offset<count;offset+=1024u){
   const unsigned n=std::min(1024u,count-offset),chunks=(n+63u)/64u;
 #define QRT_PAIRED_SCORE_ARGS q.data<uint16_t>()+size_t(offset)*2048u,k.data<uint16_t>()+size_t(offset)*2048u,g.data<float>()+size_t(offset)*32u,scores.data<uint16_t>()+size_t(offset)*2048u,n,exp
-  if(!variant){hipLaunchKernelGGL(capture_scores,dim3(256u,32u,chunks),dim3(256u),0u,nullptr,QRT_PAIRED_SCORE_ARGS);}
+  if(!variant){hipLaunchKernelGGL(current_scores,dim3(64u,32u,chunks),dim3(256u),0u,nullptr,QRT_PAIRED_SCORE_ARGS);}
   else{hipLaunchKernelGGL(qrt_fla_paired_score::kernel,dim3(2u,16u,chunks*8u),dim3(256u),0u,nullptr,QRT_PAIRED_SCORE_ARGS);}
   check(hipGetLastError());
 #undef QRT_PAIRED_SCORE_ARGS
@@ -47,7 +64,8 @@ template<class T>void captured_rows(std::vector<T>& dest,const std::string& root
   std::copy_n(original.data()+size_t(src)*width,width,dest.data()+size_t(row)*width);}
 }
 // Extracted from blackwell_wu_output.cpp::score_kernel. Valid output arithmetic
-// is unchanged. The fixture owns and verifies the complete padded score span.
+// is unchanged; the observer omits padded stores to keep tight query guards.
+// Only current_scores above is timed as the production score control.
 __global__ void capture_scores(const uint16_t* q,const uint16_t* k,const float* g,
  uint16_t* scores,unsigned count,const unsigned char* table){
  using namespace qrt_fla_blackwell;
@@ -56,8 +74,9 @@ __global__ void capture_scores(const uint16_t* q,const uint16_t* k,const float* 
  count=count-offset<64u?count-offset:64u;
  const unsigned cell=blockIdx.x*(kThreads/kGroup)+threadIdx.x/kGroup;
  const unsigned token=cell/64u,source=cell%64u,head=blockIdx.y,lane=threadIdx.x%kGroup;
+ if(token>=count)return;
  const unsigned index=(token*32u+head)*64u+source;
- if(token>=count || source>token){if(!lane)scores[index]=0u;return;}
+ if(source>token){if(!lane)scores[index]=0u;return;}
  original::Value sum{0u,kZeroExponent,false};
  for(unsigned base=0u;base<128u;base+=kGroup){const unsigned d=base+lane;
   sum=accumulate(sum,q[(token*16u+head/2u)*128u+d],k[(source*16u+head/2u)*128u+d],lane);}
@@ -65,7 +84,7 @@ __global__ void capture_scores(const uint16_t* q,const uint16_t* k,const float* 
   scores[index]=to_bf16(original::value_to_float(sum)*scalar::exponential(g[token*32u+head]-g[source*32u+head],table));}
 }
 void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,const std::vector<unsigned char>& host_table,const char* capture_root=nullptr){
- const size_t small=size_t(count)*2048u,large=size_t(count)*4096u,gate=size_t(count)*32u,checkpoints=size_t((count+63u)/64u)*state_cells,score_cells=size_t((count+63u)/64u)*64u*2048u;
+ const size_t small=size_t(count)*2048u,large=size_t(count)*4096u,gate=size_t(count)*32u,checkpoints=size_t((count+63u)/64u)*state_cells,score_cells=small;
  std::vector<uint16_t> q(small),k(small),v(large),beta(gate),inverse(small),scores(score_cells);std::vector<float> g(gate),seed(state_cells);
  auto fill=[&](std::vector<uint16_t>& x,unsigned salt,unsigned exponent){for(size_t i=0u;i<x.size();++i){const unsigned r=random_word(unsigned(i)^salt);x[i]=mode?uint16_t((r&0x807fu)|((exponent+r%4u)<<7u)):uint16_t(r&0x8000u);if(mode==2u && i%29u==0u)x[i]=uint16_t(r&0x807fu);}};
  fill(q,395u,115u);fill(k,8192u,115u);fill(v,35u,120u);fill(inverse,3u,116u);fill(scores,121u,112u);
@@ -124,7 +143,7 @@ void paired_run(unsigned count,unsigned mode,unsigned measured,Device& table,con
 
   }
   const auto actual_scores=read<uint16_t>(ds,score_cells);guards(actual_scores);
-  require(std::equal(scores.begin(),scores.end(),actual_scores.begin()+guard),"complete original score or padded row differs");
+  require(std::equal(scores.begin(),scores.end(),actual_scores.begin()+guard),"complete original score differs");
   const auto actual=read<float>(output,large),next=read<float>(state,state_cells);
   const auto actual_w=read<uint16_t>(dw,large),actual_u=read<uint16_t>(alias?dv:du,large),actual_h=read<uint16_t>(h,checkpoints),actual_vn=read<uint16_t>(vn,large);
   guards(actual);guards(next);guards(actual_w);guards(actual_u);guards(actual_h);guards(actual_vn);
