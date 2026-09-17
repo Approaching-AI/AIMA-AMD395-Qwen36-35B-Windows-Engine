@@ -1,5 +1,16 @@
 # Real-model performance
 
+## Shared inputs across exact QK scores, 2026-09-17
+
+Source `cbe357d` preserves all tested original raw scores while its2x2
+per-thread schedule reduces captured q8192 QK353.4056 to300.9476ms;
+the unchanged deferred control is327.1309ms. All120 generated configurations
+and both complete captured geometries pass, including independent CPU dots,
+partial tiles, per-cell fallback and guards. Advance it to a combined
+attention experiment with exact native EXP correction. No provider change,
+model tokens, TTFT or release acceptance follows from these components.
+See [scope, clocks and evidence](MULTI_SCORE_QK_EXPERIMENT.md).
+
 ## Register PV rescaling product comparison, 2026-09-17
 
 Source `e669940` adds a default-off register-rescale option. Four fresh
