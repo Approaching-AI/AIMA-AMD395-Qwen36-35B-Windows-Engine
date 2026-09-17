@@ -14,7 +14,7 @@ struct DeferredWorkspace {
         lower((size_t(steps+1u)*state_cells+2u*guard)*4u),upper(lower.bytes),
         cache((size_t(steps)*state_cells+2u*guard)*4u),flags(size_t(steps)*state_cells+2u*guard),
         scaled((size_t(std::min(1024u,count))*4096u+2u*guard)*2u),coefficients((steps*32u+2u*guard)*4u),
-        statistics((7u+2u*guard)*4u),audit_lower((size_t(audit_states)*state_cells+2u*guard)*4u),audit_upper(audit_lower.bytes){}
+        statistics((size_t(audit_states)*(state_cells/256u)*7u+2u*guard)*4u),audit_lower((size_t(audit_states)*state_cells+2u*guard)*4u),audit_upper(audit_lower.bytes){}
     void reset(){for(auto* d:{&lower,&upper,&cache,&flags,&scaled,&coefficients,&statistics,&audit_lower,&audit_upper})d->reset();}
 };
 void deferred_launch(unsigned variant,unsigned count,Device& q,Device& k,Device& v,Device& beta,
@@ -24,7 +24,6 @@ void deferred_launch(unsigned variant,unsigned count,Device& q,Device& k,Device&
     if(!variant){launch(0u,count,q,k,v,beta,inverse,g,scores,u,w,output,h,vn,state,table,alias);return;}
     const auto* exp=reinterpret_cast<unsigned char*>(table.data<uint32_t>());
     auto* actual_u=alias?v.data<uint16_t>():u.data<uint16_t>();
-    check(hipMemsetAsync(workspace.statistics.data<unsigned>(),0,7u*4u,nullptr));
     for(unsigned offset=0u;offset<count;offset+=1024u){
         const unsigned n=std::min(1024u,count-offset),steps=(n+63u)/64u;
         const auto* keys=k.data<uint16_t>()+size_t(offset)*2048u;
@@ -33,6 +32,7 @@ void deferred_launch(unsigned variant,unsigned count,Device& q,Device& k,Device&
         auto* updated=vn.data<uint16_t>()+size_t(offset)*4096u;
         auto* archive=workspace.scaled.data<uint16_t>();
         const size_t audit_offset=size_t(offset/64u+offset/1024u)*state_cells;
+        auto* statistics=workspace.statistics.data<unsigned>()+(audit_offset/256u)*7u;
         float* audit_lo=audit?workspace.audit_lower.data<float>()+audit_offset:nullptr;
         float* audit_hi=audit?workspace.audit_upper.data<float>()+audit_offset:nullptr;
         hipLaunchKernelGGL(scalar::wu_kernel,dim3(16u,32u,steps),dim3(256u),0u,nullptr,
@@ -42,7 +42,7 @@ void deferred_launch(unsigned variant,unsigned count,Device& q,Device& k,Device&
         hipLaunchKernelGGL(deferred::initialize_history,dim3(state_cells/256u),dim3(256u),0u,nullptr,
             state.data<float>(),gates,workspace.lower.data<float>(),workspace.upper.data<float>(),
             workspace.coefficients.data<float>(),n,exp,audit_lo,audit_hi);check(hipGetLastError());
-#define QRT_DEFERRED_CHECKPOINT_ARGS keys,archive,n,step,workspace.lower.data<float>(),workspace.upper.data<float>(),workspace.cache.data<float>(),workspace.flags.data<unsigned char>(),workspace.coefficients.data<float>(),hw,state.data<float>(),workspace.statistics.data<unsigned>()
+#define QRT_DEFERRED_CHECKPOINT_ARGS keys,archive,n,step,workspace.lower.data<float>(),workspace.upper.data<float>(),workspace.cache.data<float>(),workspace.flags.data<unsigned char>(),workspace.coefficients.data<float>(),hw,state.data<float>(),statistics
         for(unsigned step=0u;step<steps;++step){
             hipLaunchKernelGGL((deferred::checkpoint<false>),dim3(state_cells/256u),dim3(256u),0u,nullptr,
                 QRT_DEFERRED_CHECKPOINT_ARGS);check(hipGetLastError());
@@ -116,8 +116,12 @@ std::array<unsigned,7> verify_deferred(DeferredWorkspace& w,Device& reference,un
     hipLaunchKernelGGL(inspect_history,dim3((size_t(last_steps+1u)*state_cells+255u)/256u),dim3(256u),0u,nullptr,
         reference.data<float>(),w.lower.data<float>(),w.upper.data<float>(),count,false,last_steps+1u,bad.data<unsigned>());check(hipGetLastError());finish();
     const auto errors=read<unsigned>(bad,1u);guards(errors);require(errors[guard]==0u,"native state interval escaped original arithmetic");
-    const auto statistics=read<unsigned>(w.statistics,7u);guards(statistics);std::array<unsigned,7> result{};
-    std::copy(statistics.begin()+guard,statistics.begin()+guard+7u,result.begin());
+    const size_t records=size_t(w.audit_states)*(state_cells/256u);
+    const auto statistics=read<unsigned>(w.statistics,records*7u);guards(statistics);std::array<unsigned,7> result{};
+    for(size_t record=0u;record<records;++record)for(unsigned i=0u;i<7u;++i){
+        const unsigned value=statistics[guard+record*7u+i];
+        result[i]=i==4u?std::max(result[i],value):result[i]+value;
+    }
     require(result[0]==state_cells*((count+63u)/64u+(count+1023u)/1024u),"incomplete deferred boundaries");
     require(result[2]<=state_cells*((count+63u)/64u) && result[4]<=16u && result[6]==0u,"deferred replay ownership or completion failure");
     for(auto* d:{&w.lower,&w.upper,&w.cache,&w.coefficients,&w.audit_lower,&w.audit_upper})device_guards(*d,4u);

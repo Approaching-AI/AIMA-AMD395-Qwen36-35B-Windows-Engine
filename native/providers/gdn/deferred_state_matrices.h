@@ -67,7 +67,8 @@ struct DeviceReplay {
     unsigned count,head,column,feature;
     __device__ float operator()(unsigned step)const{return original_delta(keys,residual,count,step,head,column,feature);}
 };
-__device__ void count_resolution(const Resolution& r,unsigned* statistics){
+__device__ void count_resolution(const Resolution& r,unsigned* statistics,unsigned step){
+    __shared__ unsigned waves[8][7];
     unsigned values[7]={1u,unsigned(r.depth!=0u),r.original_dots,r.depth,r.depth,
         unsigned(r.complete_replay),unsigned(!r.ready)};
 #pragma unroll
@@ -76,7 +77,13 @@ __device__ void count_resolution(const Resolution& r,unsigned* statistics){
         for(unsigned shift=16u;shift;shift>>=1u){
             const unsigned next=__shfl_down(value,shift,32u);value=i==4u?max(value,next):value+next;
         }
-        if(!(threadIdx.x%32u) && value){if(i==4u)atomicMax(statistics+i,value);else atomicAdd(statistics+i,value);}
+        if(!(threadIdx.x%32u))waves[threadIdx.x/32u][i]=value;
+    }
+    __syncthreads();
+    if(threadIdx.x<7u){
+        const unsigned i=threadIdx.x;unsigned value=0u;
+        for(unsigned wave=0u;wave<8u;++wave)value=i==4u?max(value,waves[wave][i]):value+waves[wave][i];
+        statistics[(size_t(step)*gridDim.x+blockIdx.x)*7u+i]=value;
     }
 }
 __global__ void initialize_history(const float* state,const float* gates,float* lower,float* upper,
@@ -99,7 +106,7 @@ __global__ void checkpoint(const uint16_t* keys,const uint16_t* residual,unsigne
     DeviceHistory history{lower,upper,cache,flags,coefficients,cell,head};
     DeviceReplay replay{keys,residual,count,head,column,feature};
     const auto result=resolve(history,replay,steps,Final?Boundary::fp32_state:Boundary::bf16_checkpoint);
-    count_resolution(result,statistics);
+    count_resolution(result,statistics,steps);
     if(result.ready){
         if constexpr(Final)state[cell]=result.state.lower;
         else checkpoints[size_t(steps)*state_cells+cell]=scalar::to_bf16(result.state.lower);
