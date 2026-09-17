@@ -3061,3 +3061,27 @@ compute throughput. Results are specific to the stated model, hardware,
 toolchain, runtime profile, and batch size.
 
 Machine-readable rows and hashes are under `benchmarks/performance/`.
+
+
+The checked-signed K16 map audit at `faf18b2` adds an independent wide-division
+and modulo64 crosscheck, including all1048576 boundaries in a deterministic
+65536-dot sample of original layer3 q7169 Q/K. It supplies host arithmetic
+coverage. The existing native dyadic scan remains slower; no repeated GPU
+implementation is adopted. See [the audit](CHECKED_QUANTIZED_MAP.md) and
+`benchmarks/correctness/checked-quantized-map-host-20260918.json`.
+
+The complete tiled GDN experiment at `ad6265b` shares operands across two/four
+independent ordered dots and moves exceptional full-dot replay outside fast
+product lifetimes. Native144 safety configurations and all complete q8192
+comparisons pass with the production1024-token segment boundary and both U
+ownership modes. Revised1x2 medians are70.3813/72.3855ms versus75.5091/76.3576ms
+for control;2x2 is85.6010/83.5985ms. Samples overlap. Keep both isolated because
+the limited generated gain does not establish a seconds-scale model change.
+All state/intermediate bits, original fallback, guards and CPU checks pass;
+this is no new GB10 or product-performance boundary. See
+[TILED_SCALAR_GDN.md](TILED_SCALAR_GDN.md) and
+`benchmarks/correctness/tiled-scalar-gdn-native-components-20260918.json`,
+SHA256`9160a1fb37b209b032b2b80996cf352318b191e7202667ad33438978482d0a9c`.
+Current qualified experimental TTFT stays24835.3024ms; package and release
+remain unqualified. Investigate a smaller exact attention EXP representation,
+with complete-domain verification before any component adoption.

@@ -41,5 +41,22 @@ Any failed operand/endpoint classification restarts the complete tile with
 original arithmetic, including every early group. It processes exceptional
 dots individually after retiring fast products. The host audit explicitly
 checks late overflow restarts and overwrites every speculative carry trace.
-This revision requires a fresh native build, safety check and complete q8192
-comparison before any adoption decision.
+Native source `ad6265b` passes a fresh build, all 144 safety configurations and
+every complete q8192 comparison. Per revision, the timed checks compare
+805306368 output words and 4039114752 state/intermediate words across all
+attempts; 172032 unique independent CPU dots accompany the q8192 case.
+The revised medians are 75.5091 / 70.3813 / 85.6010 ms with separate U and
+76.3576 / 72.3855 / 83.5985 ms with U=V. All kernels now declare zero private
+bytes and zero spills; these are static properties, not occupancy measurements.
+
+Keep both candidates isolated. The 1x2 revision saves 5.1278/3.9721 ms on
+these generated complete owners, with overlapping sample ranges. This gain
+does not establish a seconds-scale model opportunity while q8192 TTFT remains
+above 10 seconds. The 2x2 revision still regresses. No provider, model or
+package comparison follows, and the qualified product remains 24835.3024 ms.
+
+Evidence: `benchmarks/correctness/tiled-scalar-gdn-native-components-20260918.json`,
+543306 bytes, SHA256
+`9160a1fb37b209b032b2b80996cf352318b191e7202667ad33438978482d0a9c`.
+The proof retains the initial namespace compile failure, both complete native
+revisions, full build provenance and command scripts.
