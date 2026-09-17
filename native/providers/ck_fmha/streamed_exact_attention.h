@@ -12,7 +12,16 @@ namespace attention = qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
 namespace bound = qrt_sm121_pv_final_bound;
 
-template<bool FuseQk>
+struct NativeExp {
+    __device__ __forceinline__ static float evaluate(const unsigned char* original,
+        const unsigned char* packed, float argument) {
+        return qrt_sm121_exp2_native_delta::evaluate(original, packed, argument);
+    }
+};
+
+// The default remains the validated input-indexed native correction. Isolated
+// component tests may supply another independently verified EXP representation.
+template<bool FuseQk, class Exp = NativeExp>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -121,9 +130,9 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                 float next_max = fmaxf(running_max[r], score);
                 for (unsigned mask = 16u; mask; mask >>= 1u)
                     next_max = fmaxf(next_max, __shfl_xor(next_max, mask, 32u));
-                const float a = qrt_sm121_exp2_native_delta::evaluate(exp2_table, packed_exp,
+                const float a = Exp::evaluate(exp2_table, packed_exp,
                     (running_max[r] - next_max) * attention::kExactLog2e);
-                p = key < tokens ? qrt_sm121_exp2_native_delta::evaluate(exp2_table, packed_exp,
+                p = key < tokens ? Exp::evaluate(exp2_table, packed_exp,
                     (score - next_max) * attention::kExactLog2e) : 0.0f;
                 if (key < stride) probabilities[(size_t(row) * 16u + head) * stride + key] = attention::f32_to_bf16(p);
                 float sum = p;
