@@ -117,16 +117,18 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
  }
  const unsigned radius=mode==1?32768u:mode==2?128u:0u;
  std::vector<unsigned> actual_stats,reference_stats;size_t cpu_compared=0,changed_raw=0;
- double samples[3][3]{};const unsigned attempts=throughput?4u:1u;
- for(unsigned attempt=0;attempt<attempts;++attempt)for(unsigned position=0;position<3;++position){
-  const unsigned filtered=(attempt+position)%3u;
-  dn.reset();output.reset();stats.reset();finish();
+ double samples[4][3]{};const unsigned attempts=throughput?4u:1u;
+ for(unsigned attempt=0;attempt<attempts;++attempt)for(unsigned position=0;position<4;++position){
+  const unsigned filtered=(attempt+position)%4u;
+  dn.reset();output.reset();stats.reset();
+  fused::Owner owner(nullptr);ok(owner.initialize(filtered==3u,true),"actual compact owner initialization");
+  hipEvent_t shared_done=nullptr;ok(hipEventCreate(&shared_done),"shared completion create");ok(hipEventRecord(shared_done,nullptr),"same-call shared completion record");finish();
   const auto begin=std::chrono::steady_clock::now();
   if(filtered==1u){hipLaunchKernelGGL(f::certify,dim3(throughput?4096u:17u),dim3(256),0,nullptr,dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),512e-9f,radius,0u,ds.data(),dg.data(),masks.data(),stats.data(),tokens);ok(hipGetLastError(),"certificate");}
   using Phase=MoeCorrectionPhase;
   if(filtered<2u){
   ok(launch_moe_routed_correction<false>(routed_down_batched_hawkeye_correction_kernel<Phase::Local>,routed_down_batched_hawkeye_correction_kernel<Phase::Collect>,routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,routed_down_batched_hawkeye_correction_kernel<Phase::Local>,unsigned((outputs+255u)/256u),nullptr,MoeL2::RoutedActivated,MoeL2::RoutedDown,nullptr,filtered?masks.data():nullptr,filtered?stats.data():nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u),"original replay");
-  }else{
+  }else if(filtered==2u){
    fused::View view{dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),ds.data(),dg.data(),512e-9f,radius,0u,tokens};
    const unsigned window_tokens=window_blocks*kNativeThreads/(8u*2048u);
    for(unsigned first=0u;first<tokens;first+=window_tokens){
@@ -159,8 +161,13 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
     }
     hipLaunchKernelGGL(routed_down_batched_hawkeye_correction_kernel<Phase::Replay>,dim3(std::min(kMoeCompactionBlocks,n*64u)),dim3(kNativeThreads),0,nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,bounds);ok(hipGetLastError(),"unchanged original replay");
    }
+  }else{
+   ok(owner.prepare({dn.data(),dt.data(),de.data(),dinput.data(),dweight.data(),ds.data(),dg.data(),512e-9f,radius,0u,tokens},shared_done),"actual compact owner dependency");
+   ok(launch_moe_down_compacted(owner,dn.data(),dt.data(),de.data(),di.data(),dw.data(),routes,radius,0u,nullptr),"actual provider compact launcher");
   }
+
   hipLaunchKernelGGL(full_v3_fused_combine_residual_kernel,dim3(unsigned((cells+kNativeThreads*kFusedCombineWidth-1)/(kNativeThreads*kFusedCombineWidth))),dim3(kNativeThreads),0,nullptr,dn.data(),dt.data(),de.data(),di.data(),dw.data(),ds.data(),dg.data(),dh.data(),output.data(),true,true,true,true,true,false,0u,cells);ok(hipGetLastError(),"production combine");finish();
+  ok(owner.finish(),"actual compact owner completion");
   if(throughput&&attempt)samples[filtered][attempt-1u]=std::chrono::duration<double,std::milli>(std::chrono::steady_clock::now()-begin).count();
   auto actual=output.read(),actual_routes=dn.read();
   if(!filtered){control=actual;control_routes=actual_routes;
@@ -173,6 +180,7 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
   }else{
    require(!std::memcmp(actual.data(),control.data(),cells*sizeof(float)),"complete production residual");
    auto bitmap=masks.read();actual_stats=stats.read();changed_raw=0u;
+   if(filtered==3u)ok(hipMemcpy(actual_stats.data(),owner.stats(),actual_stats.size()*sizeof(unsigned),hipMemcpyDeviceToHost),"actual compact counters");
    if(filtered==1u)reference_stats=actual_stats;else require(actual_stats==reference_stats,"fused and old counter totals differ");
    unsigned selected=0,skipped=0,invariant=0;
    for(size_t index=0;index<cells;++index){unsigned mask=bitmap[index];if(mask)++invariant;skipped+=unsigned(__builtin_popcount(mask));}
@@ -189,6 +197,7 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
    if(mode==1)require(skipped>0&&skipped<selected&&changed_raw>0,"missing removed and retained work");
    if(mode==3)require(skipped==0&&selected>0,"wide interval must retain all");
   }
+  ok(hipEventDestroy(shared_done),"shared completion destroy");
  }
  di.read(true);dw.read(true);ds.read(true);dt.read(true);dg.read(true);dh.read(true);de.read(true);dinput.read(true);dweight.read(true);indices.read();count.read();
  if(throughput){
@@ -201,7 +210,7 @@ void run(unsigned tokens,unsigned mode,bool throughput=false){
   }
  }
  std::printf("{\"kind\":\"moe_down_consumer_compact\",\"staged_and_expert_order\":%s,\"per_window_permutation_checked\":%s,\"tokens\":%u,\"mode\":%u,\"output_cells\":%zu,\"selected\":%u,\"skipped\":%u,\"replayed\":%u,\"changed_raw_route_values\":%zu,\"independent_cpu_dots\":%zu,\"production_f32_mismatches\":0,\"actual_original_replay_checked\":true,\"counter_identities_pass\":true,\"immutable_inputs\":true,\"redzones_pass\":true,\"inference_acceptance\":false}\n",throughput?"true":"false",throughput?"false":"true",tokens,mode,cells,actual_stats[f::Candidates],actual_stats[f::Omitted],actual_stats[f::Replayed],changed_raw,cpu_compared);
- if(throughput)for(unsigned variant=0u;variant<3u;++variant){
+ if(throughput)for(unsigned variant=0u;variant<4u;++variant){
   std::array<double,3> ordered{samples[variant][0],samples[variant][1],samples[variant][2]};std::sort(ordered.begin(),ordered.end());
   std::printf("{\"kind\":\"moe_down_compact_timing\",\"tokens\":%u,\"mode\":%u,\"variant\":%u,\"complete_certificate_collect_replay_combine_ms\":%.6f,\"samples_ms\":[%.6f,%.6f,%.6f],\"warmups\":1,\"measured_attempts\":3,\"production_f32_mismatches\":0,\"all_attempts_verified\":true,\"allocation_and_upload_excluded\":true,\"model_loaded\":false,\"gb10_qualified\":false}\n",tokens,mode,variant,ordered[1],samples[variant][0],samples[variant][1],samples[variant][2]);std::fflush(stdout);
  }

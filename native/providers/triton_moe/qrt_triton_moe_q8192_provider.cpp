@@ -35,6 +35,7 @@
 #include "routed_consumer_audit.h"
 #include "down_consumer_audit.h"
 #include "down_consumer_filter.h"
+#include "down_consumer_compact.h"
 #include "expert_candidate_order.h"
 
 #if defined(_WIN32)
@@ -12674,6 +12675,58 @@ hipError_t launch_moe_routed_correction(
     return audit.finish();
 }
 
+#if QRT_TRITON_MOE_BATCHED_HAWKEYE
+hipError_t launch_moe_down_compacted(qrt_moe_down_consumer_compact::Owner& owner,
+    float* output, const float* topk_weights, const int32_t* topk_ids,
+    const uint16_t* activated, const uint16_t* weights, unsigned route_count,
+    unsigned radius, unsigned exponent_threshold, hipStream_t stream) {
+    const unsigned window = g_state.moe_compaction_blocks;
+    if (!route_count || route_count % 8u || route_count > kRoutes ||
+        !output || !topk_weights || !topk_ids || !activated || !weights ||
+        !g_state.compact_routed_hawkeye || !g_state.sm121_moe_absolute_error_ppb ||
+        g_state.partition_replay || window < kMoeCompactionBlocks || window > kMaximumMoeCompactionBlocks ||
+        (window & (window - 1u)) || !g_state.moe_compacted_indices || !g_state.moe_compacted_count ||
+        (g_state.moe_expert_order_active && (!g_state.moe_expert_order_storage || !g_state.topk_ids)))
+        return hipErrorInvalidValue;
+    const unsigned blocks = route_count * (kHidden / kNativeThreads);
+    for (unsigned first = 0u; first < blocks; first += window) {
+        const unsigned count = (std::min)(blocks - first, window);
+        MoeCorrectionBounds bounds{
+            g_state.moe_l2[size_t(MoeL2::RoutedActivated)],
+            g_state.moe_l2[size_t(MoeL2::RoutedDown)],
+            float(g_state.sm121_moe_absolute_error_ppb) * 1.0e-9f,
+            first, g_state.moe_compacted_indices, g_state.moe_compacted_count
+        };
+        bounds.float_replay = g_state.float_replay_active;
+        bounds.down_consumer_filter_stats = owner.stats();
+        if (g_state.prepared_replay_active || g_state.prevalidated_float_active) {
+            bounds.prevalidated_float = g_state.prevalidated_float_active;
+            bounds.staged_half_replay = g_state.staged_half_replay_active;
+            bounds.scaled_significand_fallback = bounds.prevalidated_float && g_state.scaled_significand_fallback;
+            bounds.prepared_input = g_state.prepared_replay_inputs;
+            bounds.prepared_weights = g_state.prepared_replay_weights;
+            bounds.prepared_input_rows = g_state.prepared_replay_input_rows;
+            bounds.prepared_weight_rows = g_state.prepared_replay_weight_rows;
+        }
+        auto status = hipMemsetAsync(bounds.compacted_count, 0, sizeof(unsigned), stream);
+        if (status == hipSuccess) status = owner.collect_blocks(first, count,
+            bounds.compacted_indices, size_t(window) * kNativeThreads, bounds.compacted_count);
+        if (status != hipSuccess) return status;
+        if (g_state.moe_expert_order_active) {
+            status = qrt_moe_expert_order::launch(bounds.compacted_indices, bounds.compacted_count,
+                g_state.topk_ids, kHidden, {g_state.moe_expert_order_storage, size_t(window) * kNativeThreads}, stream);
+            if (status != hipSuccess) return status;
+            bounds.compacted_indices = g_state.moe_expert_order_storage;
+        }
+        hipLaunchKernelGGL(routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Replay>,
+            dim3((std::min)(count,kMoeCompactionBlocks)), dim3(kNativeThreads), 0u, stream,
+            output, topk_weights, topk_ids, activated, weights, route_count, radius, exponent_threshold, bounds);
+        status = hipGetLastError(); if (status != hipSuccess) return status;
+    }
+    return hipSuccess;
+}
+#endif
+
 bool allocate_optional_moe_compaction() {
     if (!g_state.compact_routed_hawkeye) return true;
     return allocate(&g_state.moe_compacted_indices,
@@ -13888,7 +13941,8 @@ bool launch_routed_matrices_after_input_conversion(
     const RoutedProfileEvents *routed_profile = nullptr,
     qrt_moe_down_consumer_audit::Owner* down_audit = nullptr,
     qrt_moe_down_consumer_filter::Owner* down_filter = nullptr,
-    hipEvent_t shared_done = nullptr
+    hipEvent_t shared_done = nullptr,
+    qrt_moe_down_consumer_compact::Owner* down_compact = nullptr
 ) {
     struct PreparedReplayScope {
         explicit PreparedReplayScope(uint32_t tokens) {
@@ -15052,6 +15106,19 @@ bool launch_routed_matrices_after_input_conversion(
                 g_state.shared_down_projection, g_state.shared_gate_scales, shared_done);
             if (status != hipSuccess) { set_error("MoE down consumer filter", status); return false; }
         }
+        if (down_compact) {
+            status = down_compact->prepare({g_state.route_outputs,g_state.topk_weights,g_state.topk_ids,
+                g_state.moe_l2[size_t(MoeL2::RoutedActivated)],g_state.moe_l2[size_t(MoeL2::RoutedDown)],
+                g_state.shared_down_projection,g_state.shared_gate_scales,
+                float(g_state.sm121_moe_absolute_error_ppb)*1.0e-9f,
+                g_state.routed_down_contribution_hawkeye_midpoint_radius,
+                g_state.routed_down_hawkeye_low_exponent_threshold,token_count},shared_done);
+            if (status == hipSuccess) status = launch_moe_down_compacted(*down_compact,
+                g_state.route_outputs,g_state.topk_weights,g_state.topk_ids,g_state.activated,down_bf16,
+                token_count*kTopK,g_state.routed_down_contribution_hawkeye_midpoint_radius,
+                g_state.routed_down_hawkeye_low_exponent_threshold,stream);
+            if (status != hipSuccess) { set_error("MoE fused down consumer correction",status); return false; }
+        } else {
         const hipError_t correction_status = launch_moe_routed_correction<false>(
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Local>,
             routed_down_batched_hawkeye_correction_kernel<MoeCorrectionPhase::Collect>,
@@ -15070,6 +15137,7 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.routed_down_hawkeye_low_exponent_threshold
         );
         status = correction_status;
+        }
     }
 #endif
 #else
@@ -16516,6 +16584,19 @@ int launch_full_v3_impl(
         set_error("MoE down consumer filter initialization", down_filter_status); return 0;
     }
 
+    const char* down_compact_setting = std::getenv("QRT_QWEN36_MOE_DOWN_CONSUMER_COMPACT");
+    if (down_compact_setting && *down_compact_setting && std::strcmp(down_compact_setting,"0") && std::strcmp(down_compact_setting,"1")) {
+        set_error_text("invalid MoE down consumer compact setting"); return 0;
+    }
+    const bool down_compact_enabled = down_compact_setting && !std::strcmp(down_compact_setting,"1") && logical_tokens == 8192u;
+    qrt_moe_down_consumer_compact::Owner down_compact(stream);
+    const auto down_compact_status = down_compact.initialize(down_compact_enabled,
+        down_audit_compatible && !down_audit_enabled && !down_filter_enabled && !g_state.partition_replay &&
+        g_state.prevalidated_float && g_state.staged_half_replay && g_state.moe_expert_order);
+    if (down_compact_status != hipSuccess) {
+        set_error("MoE down consumer compact initialization",down_compact_status); return 0;
+    }
+
     const bool full_shared_hawkeye =
 #if QRT_TRITON_MOE_FULL_SHARED_HAWKEYE
         g_state.shared_projection_hawkeye_midpoint_radius >=
@@ -16647,7 +16728,8 @@ int launch_full_v3_impl(
             profile_routed_detail ? &slot->routed_detail : nullptr,
             down_audit_enabled ? &down_audit : nullptr,
             down_filter_enabled ? &down_filter : nullptr,
-            down_filter_enabled ? slot->shared_done : nullptr
+            (down_filter_enabled || down_compact_enabled) ? slot->shared_done : nullptr,
+            down_compact_enabled ? &down_compact : nullptr
         )) {
         drain_full_v3_streams(stream);
         return 0;
@@ -16705,6 +16787,10 @@ int launch_full_v3_impl(
     if (status != hipSuccess) {
         set_error("MoE down consumer filter completion", status);
         drain_full_v3_streams(stream); return 0;
+    }
+    status = down_compact.finish();
+    if (status != hipSuccess) {
+        set_error("MoE down consumer compact completion",status);drain_full_v3_streams(stream);return 0;
     }
     status = hipEventRecord(slot->caller_done, stream);
     if (status != hipSuccess) {

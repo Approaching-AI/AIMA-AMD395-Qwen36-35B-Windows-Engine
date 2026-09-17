@@ -107,4 +107,77 @@ inline hipError_t launch(View v, unsigned first_token, unsigned token_count,
         v, first_token, token_count, indices, count, stats);
     return hipGetLastError();
 }
+
+// Per-invocation ownership. The source view is valid only after this call's
+// shared completion event. No queue/count is retained between invocations.
+class Owner {
+    hipStream_t stream_;
+    unsigned* storage_ = nullptr;
+    View view_{};
+    bool prepared_ = false;
+public:
+    explicit Owner(hipStream_t stream) : stream_(stream) {}
+    Owner(const Owner&) = delete;
+    Owner& operator=(const Owner&) = delete;
+    ~Owner() {
+        if (storage_) { (void)hipStreamSynchronize(stream_); (void)hipFree(storage_); }
+    }
+    static constexpr size_t workspace_bytes = f::words * sizeof(unsigned);
+    unsigned* stats() const { return storage_ ? storage_ + f::guard : nullptr; }
+    hipError_t initialize(bool enabled, bool compatible) {
+        if (!enabled) return hipSuccess;
+        if (!compatible || storage_) return hipErrorInvalidValue;
+        auto status = hipMalloc(reinterpret_cast<void**>(&storage_), workspace_bytes);
+        if (status == hipSuccess) status = hipMemsetAsync(storage_, 0xa5, workspace_bytes, stream_);
+        if (status == hipSuccess) status = hipMemsetAsync(stats(), 0, f::CounterCount * sizeof(unsigned), stream_);
+        return status;
+    }
+    hipError_t prepare(View view, hipEvent_t shared_done) {
+        if (!storage_) return hipSuccess;
+        if (prepared_ || !shared_done || !view.native || !view.weights || !view.experts ||
+            !view.input_l2 || !view.weight_l2 || !view.shared_down || !view.shared_gate ||
+            !view.tokens || view.tokens > 8192u || !(view.error_scale > 0.0f) || !std::isfinite(view.error_scale))
+            return hipErrorInvalidValue;
+        const auto status = hipStreamWaitEvent(stream_, shared_done, 0u);
+        if (status == hipSuccess) { view_ = view; prepared_ = true; }
+        return status;
+    }
+    hipError_t collect_blocks(unsigned first, unsigned blocks, unsigned* indices,
+        size_t capacity, unsigned* count) {
+        if (!prepared_ || first % 64u || blocks % 64u) return hipErrorInvalidValue;
+        return launch(view_, first / 64u, blocks / 64u, indices, capacity, count, stats(), stream_);
+    }
+    hipError_t finish() {
+        if (!storage_) return hipSuccess;
+        if (!prepared_) return hipErrorInvalidValue;
+        const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(30);
+        for (;;) {
+            const auto status = hipStreamQuery(stream_);
+            if (status == hipSuccess) break;
+            if (status != hipErrorNotReady) return status;
+            if (std::chrono::steady_clock::now() >= deadline) return hipErrorLaunchTimeOut;
+            std::this_thread::yield();
+        }
+        std::array<unsigned, f::words> counters{};
+        const auto status = hipMemcpy(counters.data(), storage_, workspace_bytes, hipMemcpyDeviceToHost);
+        if (status != hipSuccess) return status;
+        for (unsigned i = 0u; i < f::guard; ++i)
+            if (counters[i] != 0xa5a5a5a5u || counters[f::guard + f::CounterCount + i] != 0xa5a5a5a5u)
+                return hipErrorInvalidValue;
+        const auto* s = counters.data() + f::guard;
+        if (s[f::Cells] != view_.tokens * 2048u || s[f::InvalidValues] ||
+            s[f::Candidates] != s[f::Collected] || s[f::Removable] != s[f::Omitted] ||
+            s[f::Omitted] > s[f::Collected] || s[f::Replayed] != s[f::Collected] - s[f::Omitted] ||
+            s[f::InvariantCells] > s[f::Cells]) return hipErrorInvalidValue;
+        std::fprintf(stderr,
+            "BATCH_MARK moe_down_consumer_compact tokens=%u cells=%u selected=%u skipped=%u replayed=%u "
+            "invariant_cells=%u invalid_values=%u workspace_bytes=%zu full_unrounded_residual_certificate=1 "
+            "original_selected_replay=1 shared_event_dependency=1 fused_collection=1 omission_bitmap_bytes=0 "
+            "counter_identities_pass=1 redzones_pass=1 completed=1\n",
+            view_.tokens,s[f::Cells],s[f::Collected],s[f::Omitted],s[f::Replayed],s[f::InvariantCells],
+            s[f::InvalidValues],workspace_bytes);
+        std::fflush(stderr);
+        return hipSuccess;
+    }
+};
 } // namespace qrt_moe_down_consumer_compact

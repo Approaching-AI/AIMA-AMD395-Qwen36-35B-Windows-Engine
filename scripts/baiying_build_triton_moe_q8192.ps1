@@ -1407,6 +1407,7 @@ $record = [ordered]@{
         -LiteralPath (Join-Path $repo 'native\providers\moe_accumulator\sm121_lane_reduce.h')).Hash.ToLowerInvariant()
     parallel_gate_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\triton_moe\routed_parallel_gate.h')).Hash.ToLowerInvariant()
+    down_consumer_compact_header_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $repo 'native\providers\triton_moe\down_consumer_compact.h')).Hash.ToLowerInvariant()
     routed_consumer_interval_header_sha256 = (Get-FileHash -Algorithm SHA256 `
         -LiteralPath (Join-Path $repo 'native\providers\triton_moe\routed_consumer_interval.h')).Hash.ToLowerInvariant()
     routed_consumer_audit_header_sha256 = (Get-FileHash -Algorithm SHA256 `
