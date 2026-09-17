@@ -3,6 +3,7 @@
 #define QRT_COMBINED_ATTENTION_NO_MAIN
 #include "combined_exact_attention_capture.cpp"
 #include "../../native/providers/ck_fmha/streamed_exact_attention.h"
+#include "../../native/providers/ck_fmha/fused_probability_pv.h"
 
 namespace {
 void immutable_transpose(Guarded& device,const std::vector<uint16_t>& source,unsigned tokens){
@@ -26,14 +27,11 @@ void streamed(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
     hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan,
         dim3((size_t(count)*16u*stride+255u)/256u),dim3(256u),0u,nullptr,
         q,kt,scores,start,count,stride,tokens);check(hipGetLastError());
-    hipLaunchKernelGGL((qrt_streamed_exact_attention::produce<false>),
-        dim3(16u,(count+31u)/32u),dim3(256u),0u,nullptr,
-        q,kt,v,prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
-        prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,
-        p,s,out.output.as<float>(),out.error.as<float>(),out.accumulator.as<float>(),
-        out.denominator.as<float>(),diagnostic?out.tensor.scores.as<float>()+guard:nullptr,
-        start,count,stride,tokens,exp,packed,rcp,true,scores);
-    check(hipGetLastError());
+    (void)diagnostic;
+    const qrt_native_exp2_workspace::Workspace owner{const_cast<unsigned char*>(packed),exp};
+    check(hipError_t(qrt_fused_probability_pv::launch(&owner,scores,v,p,s,
+        out.output.as<float>(),out.error.as<float>(),out.accumulator.as<float>(),out.denominator.as<float>(),
+        start,count,0u,stride,exp,rcp,true,nullptr)));
     check(hipError_t(launch_compacted_pv_replay(v,p,s,out.output.as<float>(),start,count,0u,stride,
         rcp,out.accumulator.as<float>(),out.denominator.as<float>(),out.error.as<float>(),
         out.indices.as<unsigned>(),out.count.as<unsigned>(),nullptr,nullptr,vt,tokens,0u,nullptr,true)));

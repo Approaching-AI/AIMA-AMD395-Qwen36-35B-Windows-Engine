@@ -42,12 +42,37 @@ this alone is not a measured occupancy or bottleneck explanation.
 94708 bytes, SHA256
 `3d9cba458d2df82cf68f46efe33530c22705f95afc44932d75a87c1a0490bcb6`.
 
-The next isolated revision retains the independently parallel 2x2 exact QK
+The revised consumer retains the independently parallel 2x2 exact QK
 producer and its complete fallback scan. Only softmax and native PV share a
 kernel. This removes repeated global probability/alpha reads by the native
 PV stage while preserving their writes for original exact replay. It retains
 the same 32-query tile and every arithmetic/error-bound operation. The
 updated test compares all original score bits on every attempt, as those
-scores are now an input to the fused consumer. Its results are pending.
+scores are now an input to the fused consumer.
+
+Source `d56ef47` passes the same 80 generated cases and all captured surfaces.
+q8192 complete attention improves from 633.5608 ms to 593.2034 ms;
+q7169 improves from 456.5003 ms to 421.3265 ms. Common preparation is
+3.7559 ms and 2.4290 ms respectively. Original PV candidate counts remain
+3127598 and 2198673. All 29364224 GB10 context cells pass in both geometries.
+Compiler allocation is 192 VGPRs, 2304 shared bytes and 12 private bytes.
+
+[Fused consumer component evidence](../benchmarks/correctness/fused-probability-pv-native-components-20260917.json):
+102600 bytes, SHA256
+`9a169d62177677ac700a7be5b34c51a65f1f1ee3b914f406f961c6bbf4531b4b`.
+
+## Default-off provider integration
+
+`QRT_CK_SM121_FUSED_PROBABILITY_PV=1` requires the qualified combined exact
+attention option for cold prefill from 2 through 8192 queries. Decode,
+nonzero-start suffix calls and longer prefill retain existing dispatch.
+Malformed option values and incompatible cold configurations are rejected.
+The consumer reuses the validated EXP owner and caller's scratch/stream.
+It adds no persistent allocation, retains original collection and exact PV
+replay, and drains failures through the existing outer owner. Completed
+profile stage 1 includes both softmax and native PV; stage 2 is an empty
+completion boundary. The activation marker states this changed stage scope.
+
+Actual launcher, provider and real-model qualifications are pending.
 
 No package, default or release gate changes.

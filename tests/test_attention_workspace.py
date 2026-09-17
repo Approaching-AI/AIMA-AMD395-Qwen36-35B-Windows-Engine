@@ -58,6 +58,8 @@ class AttentionWorkspaceTests(unittest.TestCase):
             "#pragma once", "") + actual
         actual = (ROOT / "native/providers/ck_fmha/exact_attention_policy.h").read_text().replace(
             "#pragma once", "") + actual
+        actual = (ROOT / "native/providers/ck_fmha/fused_probability_pv_policy.h").read_text().replace(
+            "#pragma once", "") + actual
         harness = r'''
 #include <algorithm>
 #include <chrono>
@@ -85,6 +87,11 @@ struct ProviderState { void* q = nullptr; void* k = nullptr; void* v = nullptr; 
 #define QRT_CK_SM121_INTERPOLATED_EXP2 1
 namespace qrt_native_exp2_workspace {
 struct Workspace { unsigned char* packed=nullptr; const unsigned char* original=nullptr; };
+}
+namespace qrt_fused_probability_pv {
+int launch(const void*,const float*,const uint16_t*,uint16_t*,float*,float*,float*,
+    float*,float*,unsigned,unsigned,unsigned,unsigned,const unsigned char*,
+    const unsigned char*,bool,hipStream_t){return hipSuccess;}
 }
 namespace qrt_sm121_exp2_native_delta { constexpr size_t packed_bytes=82182144u; constexpr unsigned cells=328728576u; }
 #include "''' + str(ROOT / 'native/providers/ck_fmha/prepared_decoded_qk_workspace.h') + r'''"
@@ -120,6 +127,7 @@ unsigned observed_layout = 0, largest_batch = 0;
 unsigned final_bound_queries = 0;
 unsigned register_pv_queries = 0;
 unsigned exact_attention_queries=0,native_exp_preparations=0,native_exp_builds=0;
+unsigned fused_probability_pv_queries=0;
 bool fail_native_exp=false;
 unsigned all_pv_queries = 0;
 unsigned direct_pv_queries = 0;
@@ -236,6 +244,12 @@ struct SplitProbabilityProducer {
     const void* state;
     int (*launch)(const void*,const float*,uint16_t*,float*,unsigned,unsigned,unsigned,const unsigned char*,bool,hipStream_t);
 };
+struct SplitProbabilityValueProducer {
+    const void* state;
+    int (*launch)(const void*,const float*,const uint16_t*,uint16_t*,float*,float*,float*,
+        float*,float*,unsigned,unsigned,unsigned,unsigned,const unsigned char*,
+        const unsigned char*,bool,hipStream_t);
+};
 int prepare_value_encoding(const uint16_t*, uint32_t* output, size_t elements,
                           unsigned tokens, hipStream_t) {
     ++preparations;
@@ -276,7 +290,8 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
                    bool direct_pv_operands = false, bool float_alignment_qk = false,
                    unsigned = 0u, bool = false, const SplitQkProducer* producer = nullptr,
                    bool all_pv_replay = false, bool register_pv_rescale = false,
-                   const SplitProbabilityProducer* probability_producer = nullptr) {
+                   const SplitProbabilityProducer* probability_producer = nullptr,
+                   const SplitProbabilityValueProducer* probability_value_producer = nullptr) {
     ++queries;
     if (track_submissions) {
         ++pending_submissions;
@@ -296,7 +311,7 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
         const auto* workspace=static_cast<const qrt_prepared_decoded_qk::Workspace*>(producer->state);
         if(!workspace || !qrt_prepared_decoded_qk::valid(*workspace) ||
            workspace->words!=g_sm121_prepared_decoded_qk || workspace->tokens!=key_stride ||
-           producer->launch!=(probability_producer?qrt_microtile_exact_qk::launch_workspace:masked_arena?qrt_exponent_mask_qk::launch_workspace:qrt_prepared_decoded_qk::launch_workspace) ||
+           producer->launch!=((probability_producer||probability_value_producer)?qrt_microtile_exact_qk::launch_workspace:masked_arena?qrt_exponent_mask_qk::launch_workspace:qrt_prepared_decoded_qk::launch_workspace) ||
            !(masked_arena?mask_preparations:decoded_preparations) ||
            !float_alignment_qk || (layout!=22u && layout!=24u)) std::abort();
         if(masked_arena)++mask_queries;else ++decoded_queries;
@@ -308,6 +323,14 @@ int launch_queries(const uint16_t*, const uint16_t*, const uint16_t*, float*, hi
            producer->launch!=qrt_microtile_exact_qk::launch_workspace||!register_pv_rescale||layout!=22u||start+count>8192u)
             std::abort();
         ++exact_attention_queries;
+    }
+    if(probability_value_producer){
+        if(probability_producer || probability_value_producer->state!=&g_sm121_native_exp2 ||
+           probability_value_producer->launch!=qrt_fused_probability_pv::launch || !g_sm121_native_exp2.packed ||
+           g_sm121_native_exp2.original!=g_sm121_exp2 || !producer ||
+           producer->launch!=qrt_microtile_exact_qk::launch_workspace || !register_pv_rescale ||
+           layout!=22u || start+count>8192u)std::abort();
+        ++exact_attention_queries;++fused_probability_pv_queries;
     }
     if(float_alignment_qk) {
         if(layout!=15u && layout!=16u && layout!=17u && layout!=22u && layout!=23u && layout!=24u)
@@ -401,6 +424,7 @@ void reset() {
     observed_layout = largest_batch = final_bound_queries = direct_pv_queries = selective_qk_queries = all_pv_queries = 0;
     register_pv_queries = 0;
     exact_attention_queries=native_exp_preparations=native_exp_builds=0;fail_native_exp=false;
+    fused_probability_pv_queries=0;
     float_alignment_queries = 0;decoded_preparations=decoded_queries=fail_decoded_prepare=0;
     mask_preparations=mask_queries=0;masked_arena=false;
     range_preparations=range_queries=fail_range_prepare=range_start=range_count=0;
@@ -1295,6 +1319,37 @@ int main() {
     setenv("QRT_CK_SM121_COMPACT_PV_REPLAY","1",1);
     reset();setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","0",1);
     if(launch(0u,129u)!=hipSuccess||native_exp_preparations||exact_attention_queries)return 257;
+    setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","1",1);
+    setenv("QRT_CK_SM121_FUSED_PROBABILITY_PV","1",1);
+    for(unsigned count:{2u,129u,7169u,8192u}){
+        reset();track_submissions=true;
+        if(launch(0u,count)!=hipSuccess || fused_probability_pv_queries!=(count+127u)/128u ||
+           exact_attention_queries!=fused_probability_pv_queries || native_exp_builds!=1u ||
+           pending_submissions)return 258;
+        auto* saved=g_sm121_native_exp2.packed;
+        transposes=value_transposes=decoded_preparations=0u;
+        if(launch(0u,count)!=hipSuccess || fused_probability_pv_queries!=2u*((count+127u)/128u) ||
+           native_exp_builds!=1u || g_sm121_native_exp2.packed!=saved || pending_submissions)return 259;
+    }
+    for(unsigned failure:{1u,3u,64u}){
+        reset();track_submissions=true;fail_query=failure;
+        if(launch(0u,8192u)!=hipErrorUnknown || fused_probability_pv_queries!=failure ||
+           pending_submissions || !syncs)return 260;
+        qrt_ck_fmha_q8192_release();if(!empty())return 261;
+    }
+    for(unsigned start:{0u,8191u,8192u}){
+        reset();if(launch(start,1u)!=hipSuccess || fused_probability_pv_queries || native_exp_builds)return 262;
+    }
+    reset();if(launch(8191u,2u)!=hipSuccess || fused_probability_pv_queries || native_exp_builds)return 263;
+    reset();if(launch(0u,8193u)!=hipSuccess || fused_probability_pv_queries || native_exp_builds)return 264;
+    reset();setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","0",1);
+    if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries)return 265;
+    setenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE","1",1);
+    for(const char* invalid:{"2","01","1 ","true"}){
+        reset();setenv("QRT_CK_SM121_FUSED_PROBABILITY_PV",invalid,1);
+        if(launch(0u,8192u)!=hipErrorInvalidValue || allocations || queries)return 266;
+    }
+    unsetenv("QRT_CK_SM121_FUSED_PROBABILITY_PV");
     reset();unsetenv("QRT_CK_SM121_EXACT_ATTENTION_PIPELINE");unsetenv("QRT_CK_SM121_REGISTER_PV_RESCALE");
     return 0;
 }

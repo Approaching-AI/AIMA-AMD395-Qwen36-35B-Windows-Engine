@@ -35,6 +35,8 @@
 #include "selective_qk_tail_policy.h"
 #include "register_pv_policy.h"
 #include "exact_attention_policy.h"
+#include "fused_probability_pv_policy.h"
+#include "fused_probability_pv.h"
 #include "microtile_exact_qk.h"
 #include "native_exp2_workspace.h"
 #include "prepared_decoded_qk.h"
@@ -477,6 +479,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start, query_count, prepared_decoded_qk, exponent_mask_qk,
             register_pv_rescale, compact_pv_mode, interpolated_exp2, exact_attention))
         return int(hipErrorInvalidValue);
+    bool fused_probability_pv = false;
+    if (!qrt_fused_probability_pv_policy::select(std::getenv("QRT_CK_SM121_FUSED_PROBABILITY_PV"),
+            query_start,query_count,exact_attention,fused_probability_pv))
+        return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -627,6 +633,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         exponent_mask_qk ? qrt_exponent_mask_qk::launch_workspace : qrt_prepared_decoded_qk::launch_workspace};
     qrt_blackwell_attention::SplitProbabilityProducer exact_probability{
         &g_sm121_native_exp2, qrt_native_exp2_workspace::launch};
+    qrt_blackwell_attention::SplitProbabilityValueProducer fused_probability_value{
+        &g_sm121_native_exp2, qrt_fused_probability_pv::launch};
     qrt_prepared_decoded_qk_range::Workspace long_decoded_workspace;
     qrt_blackwell_attention::SplitQkProducer long_decoded_producer{&long_decoded_workspace,
         qrt_prepared_decoded_qk_range::launch_workspace};
@@ -722,7 +730,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             transpose_value ? transposed_value : nullptr, transpose_value ? key_stride : 0u,
             1u, 1u, final_pv_bound, direct_pv_operands, float_alignment_qk, 0u, false,
             prepared_decoded_qk ? &decoded_producer : long_prepared_decoded_qk ? &long_decoded_producer : nullptr,
-            all_pv_replay, register_pv_rescale, exact_attention ? &exact_probability : nullptr);
+            all_pv_replay, register_pv_rescale, exact_attention && !fused_probability_pv ? &exact_probability : nullptr,
+            fused_probability_pv ? &fused_probability_value : nullptr);
         }
         if (status != int(hipSuccess)) {
             // Earlier slabs and this QK may be queued when a consumer fails.
@@ -804,6 +813,9 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             query_start,query_count,qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes);
     if (all_pv_replay)
         std::fprintf(stderr,"SM121_ALL_PV_REPLAY query_start=%u query_count=%u original_k16=1 approximate_pv=0 compaction=0 additional_workspace_bytes=0\n",
+            query_start,query_count);
+    if (fused_probability_pv)
+        std::fprintf(stderr,"SM121_FUSED_PROBABILITY_PV query_start=%u query_count=%u independent_exact_qk=1 original_probability_recurrence=1 original_final_bound=1 original_exact_replay=1 additional_workspace_bytes=0 profile_stage1_includes_native_pv=1\n",
             query_start,query_count);
     if (float_alignment_qk)
         std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=1 original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",

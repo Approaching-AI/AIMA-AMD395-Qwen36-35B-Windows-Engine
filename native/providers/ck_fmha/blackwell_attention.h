@@ -2098,6 +2098,14 @@ struct SplitProbabilityProducer {
     int (*launch)(const void*, const float*, uint16_t*, float*, unsigned,
         unsigned, unsigned, const unsigned char*, bool, hipStream_t);
 };
+// Combined probability/native-PV producer. It preserves the original error
+// surface and leaves P/scales live for the unchanged selected exact replay.
+struct SplitProbabilityValueProducer {
+    const void* state;
+    int (*launch)(const void*,const float*,const uint16_t*,uint16_t*,float*,float*,float*,
+        float*,float*,unsigned,unsigned,unsigned,unsigned,const unsigned char*,
+        const unsigned char*,bool,hipStream_t);
+};
 inline int observe_split_stage(SplitCompletionObserver* observer, unsigned stage, hipStream_t stream) {
     return observer && observer->observe ? observer->observe(observer->state, stage, stream) : int(hipSuccess);
 }
@@ -2232,7 +2240,8 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     bool float_alignment_qk = false, unsigned float_pv_lanes = 0u,
     bool staged_probability = false, const SplitQkProducer* qk_producer = nullptr,
     bool all_pv_replay = false, bool register_pv_rescale = false,
-    const SplitProbabilityProducer* probability_producer = nullptr) {
+    const SplitProbabilityProducer* probability_producer = nullptr,
+    const SplitProbabilityValueProducer* probability_value_producer = nullptr) {
     if (!q || !k || !v || !output || query_count == 0u ||
         query_count > 8192u || query_start >= kSplitMaxTokens ||
         query_count > kSplitMaxTokens - query_start || output_start >= kSplitMaxTokens ||
@@ -2253,6 +2262,11 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
     if (probability_producer && (!probability_producer->state || !probability_producer->launch ||
             !exp2_table || memory_layout != 22u || staged_probability ||
             query_start + query_count > 8192u))
+        return int(hipErrorInvalidValue);
+    if (probability_value_producer && (!probability_value_producer->state ||
+            !probability_value_producer->launch || !qk_producer || probability_producer ||
+            !register_pv_rescale || !exp2_table || memory_layout != 22u ||
+            staged_probability || query_start + query_count > 8192u))
         return int(hipErrorInvalidValue);
     if (staged_probability && ((memory_layout != 22u && memory_layout != 24u) ||
             query_start + query_count > 8192u)) return int(hipErrorInvalidValue);
@@ -2395,6 +2409,28 @@ inline int launch_queries(const uint16_t* q, const uint16_t* k,
         if (split_separate_probability(memory_layout)) {
             auto* probabilities = reinterpret_cast<uint16_t*>(score_scratch + cells);
             auto* scales = reinterpret_cast<float*>(probabilities + cells);
+            if (probability_value_producer) {
+                auto* errors = scales + size_t(query_count) * kQueryHeads * ((stride + 31u) / 32u + 1u);
+                const int producer_status = probability_value_producer->launch(probability_value_producer->state,
+                    score_scratch,v,probabilities,scales,output,errors,raw_accumulator,raw_denominator,
+                    query_start,query_count,output_start,stride,exp2_table,rcp_table,vllm_sum,stream);
+                if (producer_status != int(hipSuccess)) return producer_status;
+                if (probabilities_done) {
+                    const auto event_status = hipEventRecord(probabilities_done,stream);
+                    if (event_status != hipSuccess) return int(event_status);
+                }
+                // Stage 1 now owns probability plus native PV. Stage 2 is an
+                // empty completion boundary, preserving observer sequencing.
+                for (unsigned stage = 1u; stage <= 2u; ++stage) {
+                    const int completed = observe_split_stage(observer,stage,stream);
+                    if (completed != int(hipSuccess)) return completed;
+                }
+                auto* indices = reinterpret_cast<unsigned*>(errors + size_t(query_count)*kQueryHeads*kHeadDim);
+                auto* count = indices + size_t(query_count)*kQueryHeads*kHeadDim;
+                return launch_compacted_pv_replay(v,probabilities,scales,output,
+                    query_start,query_count,output_start,stride,rcp_table,raw_accumulator,raw_denominator,
+                    errors,indices,count,stream,observer,transposed_value,value_stride,0u,nullptr,true);
+            }
             if (probability_producer) {
                 const int producer_status = probability_producer->launch(probability_producer->state,
                     score_scratch, probabilities, scales, query_start, query_count, stride,

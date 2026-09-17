@@ -6,6 +6,8 @@
 #include "blackwell_attention.h"
 #include "register_pv_policy.h"
 #include "exact_attention_policy.h"
+#include "fused_probability_pv_policy.h"
+#include "fused_probability_pv.h"
 #include "microtile_exact_qk.h"
 #include "native_exp2_workspace.h"
 #include <windows.h>
@@ -91,7 +93,8 @@ bool report(const char* route, const std::vector<float>& output,
             float preparation_ms = 0.0f, bool native_products = false,
             double completed_host_ms = 0.0, uint64_t compacted_pv_cells = 0u,
             bool all_pv_replay = false, bool register_pv_rescale = false,
-            bool prepared_decoded_qk = false, bool exact_attention = false) {
+            bool prepared_decoded_qk = false, bool exact_attention = false,
+            bool fused_probability_pv = false) {
     size_t mismatches = 0, nonfinite = 0, first = size_t(-1), affected = 0;
     double error2 = 0, norm2 = 0; float maximum_error = 0;
     std::vector<uint16_t> rounded(output.size());
@@ -181,6 +184,7 @@ bool report(const char* route, const std::vector<float>& output,
               << ",\"register_pv_rescale\":" << (register_pv_rescale ? "true" : "false")
               << ",\"prepared_decoded_qk\":" << (prepared_decoded_qk ? "true" : "false")
               << ",\"exact_attention_pipeline\":" << (exact_attention ? "true" : "false")
+              << ",\"fused_probability_pv\":" << (fused_probability_pv ? "true" : "false")
               << ",\"native_exp2_verified_inputs\":" << (exact_attention ? qrt_sm121_exp2_native_delta::cells : 0u)
               << ",\"native_exp2_workspace_bytes\":" << (exact_attention ? qrt_sm121_exp2_native_delta::packed_bytes : 0u)
               << ",\"all_pv_replay_cells\":" << (all_pv_replay ? output.size() : 0u)
@@ -610,6 +614,12 @@ int main(int argc, char** argv) {
         }
         qrt_blackwell_attention::SplitProbabilityProducer probability_producer{
             &native_exp.workspace,qrt_native_exp2_workspace::launch};
+        bool fused_probability_pv = false;
+        if (!qrt_fused_probability_pv_policy::select(std::getenv("QRT_ATTENTION_REPLAY_FUSED_PROBABILITY_PV"),
+                start,count,exact_attention,fused_probability_pv))
+            throw std::runtime_error("unsupported fused probability PV option");
+        qrt_blackwell_attention::SplitProbabilityValueProducer probability_value_producer{
+            &native_exp.workspace,qrt_fused_probability_pv::launch};
         const size_t score_elements = memory_layout >= 2u
             ? qrt_blackwell_attention::split_scratch_elements(batch, tokens, memory_layout) : 1u;
         Device scores((score_elements + 128u) * sizeof(float));
@@ -637,7 +647,8 @@ int main(int argc, char** argv) {
                 transposed_value_data, transpose_value ? tokens : 0u, qk_lanes, qk_rows, final_pv_bound,
                 direct_pv_operands,float_alignment_qk,float_pv_lanes,staged_probability,
                 prepared_decoded_qk ? &decoded_producer : nullptr,
-                all_pv_replay,register_pv_rescale,exact_attention ? &probability_producer : nullptr)));
+                all_pv_replay,register_pv_rescale,exact_attention && !fused_probability_pv ? &probability_producer : nullptr,
+                fused_probability_pv ? &probability_value_producer : nullptr)));
             const float ms = finish(begin, end); total += ms; maximum = std::max(maximum, ms);
             completed_host_ms += std::chrono::duration<double, std::milli>(Clock::now() - host_begin).count();
             if (!all_pv_replay && (memory_layout == 22u || memory_layout == 24u)) {
@@ -868,7 +879,7 @@ int main(int argc, char** argv) {
         matched &= report(route, host, reference, start, argv[6], total, maximum, memory_layout,
                           scores_total, probabilities_total, value_total, preparation_ms, native_products,
                           completed_host_ms, compacted_pv_cells, all_pv_replay, register_pv_rescale,
-                          prepared_decoded_qk, exact_attention);
+                          prepared_decoded_qk, exact_attention, fused_probability_pv);
         check(hipMemcpy(host.data(), accumulator.pointer, host.size() * 4, hipMemcpyDeviceToHost));
         write(std::string(argv[6]) + "-accumulator-f32.bin", host);
         host.resize(size_t(count) * 16u);

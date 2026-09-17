@@ -5,7 +5,8 @@
 // Isolated complete producer. Keep 32 decoded query rows resident, consume
 // each original K32 tile in order, and retain native PV accumulators and their
 // original error bounds. P and alpha remain available for the unchanged exact
-// PV replay. No runtime dispatch uses this header.
+// PV replay. FuseQk=false consumes the original independent exact QK slab;
+// only that form is exposed through the default-off runtime consumer option.
 namespace qrt_streamed_exact_attention {
 using namespace qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
