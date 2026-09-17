@@ -20,6 +20,74 @@ unchanged. [Implementation and all four measurements](STREAMED_EXACT_ATTENTION.m
 965116 bytes, SHA256
 `9963b45485de6f944d2f5fadc1c5f588fa64e0c30f128359e019d3551e6a2758`.
 
+## Completed phases on the current fused stack, 2026-09-17
+
+The same qualified fused-PV1, compact-MoE1 and adaptive-OUT2 artifacts pass
+all 512 original GB10 tokens, prompts, callbacks and first logit 10.375.
+Only five profiling flags and marker filtering differ from the ordinary
+control. Load is 21343.2126 ms; instrumented TTFT is 29051.1805 ms and TPOT
+104.150362 ms. These include profiling overhead and do not replace the
+24835.3024 ms uninstrumented baseline.
+
+| Surface | Completed time ms |
+| --- | ---: |
+| Linear core | 7518.854 |
+| Preceding linear projections, separate from core | 4349.800 |
+| Recurrent work, within linear core | 3571.606 |
+| Linear OUT, within linear core | 1992.610 |
+| Full attention, outer interval | 9180.172 |
+| CK attention, within full attention | 6830.711 |
+| QK, within CK | 3199.114 |
+| Fused softmax/native PV, within CK | 1703.656 |
+| Exact PV, within CK | 1736.810 |
+| MoE total; routed and shared overlap | 4941.788 |
+
+Do not sum nested or overlapping intervals. All 240 linear phases, ten
+complete CK profiles and 40 MoE profiles are present. The old CK
+`approximate_pv_ms` field is now an empty completion boundary (0.4324 ms
+across ten calls); native PV is included in `probability_ms`. Its individual
+field is not comparable with the older unfused softmax field. Dense/coarse
+candidate counts match the ordinary control. Nine full-attention residual
+device intervals and one MoE input interval are negative, retained as invalid
+and excluded from totals; they do not invalidate the passing token boundary.
+
+The next arithmetic investigation concerns exact composition of fixed-grid
+K16 rounding maps, with independent integer checks and actual operand
+coverage before selecting a GPU implementation. No speedup is established.
+[Pinned artifacts, options, callbacks and completed phases](../benchmarks/correctness/fused-stack-completed-profile-20260917.json):
+489965 bytes, SHA256
+`541bb4a3020c3e100db873555685ef37506911b6e8579b2d0ca2e70c8f30e477`.
+
+## Certified K16 grids for scalar QK, 2026-09-17
+
+Isolated source `e34dc05` reuses per-row exponent and binary-unit bounds
+inside the current 2x2 scalar QK schedule. A dominating carry gives the
+original alignment grid directly; a higher grid is admitted only when every
+product and carry remains exact. Other groups retain the original paired
+exponent scan, and unsupported endpoints retain complete original-dot replay.
+No product dispatch changes.
+
+The sanitized host test checks 2097152 ordered K16 groups against the wide
+integer reference. All 48 generated GPU comparisons, 3072 independent CPU
+dots and 65696416 score cells pass. The complete q8192 captured geometry
+checks all 545259520 score slots on every warmup and measured attempt in
+both arms, plus 512 independent CPU dots. Every raw bit, prepared metadata,
+immutable input, redzone and unused tail passes. As in preceding component
+tests, q8192 repeats 1023 original q7169 rows and is not a model prompt.
+
+| Route | QK and fallback ms | Preparation ms | Total ms |
+| --- | ---: | ---: | ---: |
+| Retained 2x2 | 297.6979 | 9.4226 | 307.1205 |
+| Certified grids | 492.7468 | 10.1107 | 502.8575 |
+
+Keep the candidate isolated. Three rotated samples establish a substantial
+regression despite exact numerical agreement. Compiler metadata declares
+117/104 VGPRs, 32768/34816 shared bytes and zero private bytes for the two
+score kernels; these are allocation metadata, not measured occupancy.
+[Pinned source, commands and all numerical boundaries](../benchmarks/correctness/certified-group-qk-native-components-20260917.json):
+128957 bytes, SHA256
+`21f9908174f0cae3696f5fa621d7c103000995e8cc6f6042fba93716288b7519`.
+
 ## Complete convolution-consumer observation, 2026-09-17
 
 The default-off observer in whole source `0e5bf7d` leaves every original
