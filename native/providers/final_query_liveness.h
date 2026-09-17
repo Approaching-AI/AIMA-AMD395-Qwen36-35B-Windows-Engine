@@ -58,4 +58,30 @@ inline hipError_t launch(const uint16_t *q, const uint16_t *k,
 #endif
 }
 
+inline hipError_t output_projection(const uint16_t *weights,
+    const uint16_t *contexts, uint16_t *output, unsigned tokens) {
+    static_assert(kOutProjectionRows == 2048u && kValueFeatures == 4096u);
+    if (!active || tokens != 8192u || !weights || !contexts || !output)
+        return hipErrorInvalidValue;
+    const size_t last = tokens - 1u;
+    auto status = hipMemsetAsync(output, 0,
+        size_t(tokens) * kOutProjectionRows * sizeof(uint16_t), nullptr);
+    if (status != hipSuccess) return status;
+    // Reuse the original K16/width26 output dot already exercised by decode.
+    // Only this last row is consumed; zero dead rows need no interval selector
+    // or replay. The original residual and unrounded variance remain separate.
+    hipLaunchKernelGGL(q1_linear_output_sm121_kernel,
+        dim3(kOutProjectionRows / 16u), dim3(256u), 0, nullptr,
+        weights, contexts + last * kValueFeatures,
+        output + last * kOutProjectionRows);
+    status = hipGetLastError();
+    if (status == hipSuccess)
+        std::cerr << "BATCH_MARK final_query_output_liveness layer=39 tokens=8192"
+            << " live_rows=1 first_live_row=8191 output_features=2048 k=4096"
+            << " original_k16=1 original_bf16_endpoint=1 dead_rows_zeroed=1"
+            << " residual_norm_unchanged=1 additional_device_bytes=0 submitted=1"
+            << std::endl;
+    return status;
+}
+
 } // namespace qrt_final_query_liveness

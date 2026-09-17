@@ -41054,8 +41054,9 @@ private:
         if (line.rfind("BATCH_MARK ", 0u) != 0u) {
             return true;
         }
-        static constexpr std::array<const char *, 107> kRequiredMarkers = {{
+        static constexpr std::array<const char *, 108> kRequiredMarkers = {{
             "BATCH_MARK final_query_liveness",
+            "BATCH_MARK final_query_output_liveness",
             "BATCH_MARK full_attention_ck_compact_bf16",
             "BATCH_MARK full_attention_ck_q1_dynamic",
             "BATCH_MARK full_attention_ck_q1_kv8192",
@@ -134388,7 +134389,16 @@ bool run_full_attention_prefill_resident_core_for_targets(
                 run->score_value.output_elements
             );
         }
-        if (!full_attention_output_projection_bf16(
+        if (qrt_final_query_liveness::active &&
+            env_flag_enabled("QRT_QWEN36_FINAL_QUERY_OUTPUT_LIVENESS")) {
+            if (!fail_hip(qrt_final_query_liveness::output_projection(
+                    device_output_weight, device_score_bf16,
+                    device_output_projection_bf16, target_tokens_u32),
+                    prefix + "_final_query_output_liveness")) {
+                cleanup();
+                return false;
+            }
+        } else if (!full_attention_output_projection_bf16(
                 device_output_weight,
                 device_score_bf16,
                 device_output_projection_bf16,

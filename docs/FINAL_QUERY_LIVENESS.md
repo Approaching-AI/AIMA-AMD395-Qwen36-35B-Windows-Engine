@@ -38,3 +38,24 @@ workspace; this experiment adds that allocation to the cold full-prefix route.
 No dependency or package default changes. Native compilation and full GB10
 continuation checks are required before any performance retention. The broader
 10-second, retained-performance, context and release goals remain open.
+
+Source2899246 passes native HIP compilation and four fresh same-DLL
+OFF/ON/ON/OFF model runs. All2048 original GB10 IDs, first logits10.375,
+actual callbacks and host/owner checks pass. OFF TTFTs are24644.0982 and
+24594.1967ms; ON TTFTs are24316.0438 and24258.9025ms. Medians improve
+24619.14745 to24287.47315ms (331.6743ms,1.3472%). Both ON observations are
+below both OFF observations. All loads remain below30seconds; no decode gain
+is established. ON is retained as the experimental control, still default off.
+[Complete product evidence](../benchmarks/correctness/final-query-liveness-product-20260918.json)
+pins the new13453312-byte whole DLL, SHA256
+`f967ffd755869e6a2a29ddffa76541eefb3dd53855281a3a5f51727629446d0b`.
+
+Zeroing dead contexts makes the original coarse OUT interval selector replay
+almost every zero endpoint:16775587 candidates versus3034571 in OFF.
+The first pair's completed last-layer OUT rises108.9004 to297.0241ms.
+`QRT_QWEN36_FINAL_QUERY_OUTPUT_LIVENESS=1` is a subsequent default-off
+experiment, active only inside the existing liveness scope. It reuses the
+original Q1 K16/width26 output kernel for the last2048 values and zeroes unused
+OUT rows directly. Residual normalization, complete KV capture and MoE remain
+unchanged. It adds no workspace and requires its own native model comparison;
+the preceding four runs do not qualify this new output change.

@@ -10,7 +10,7 @@ resident batch-one runtime, an OpenAI-compatible HTTP API, and a structured
 
 The current development candidate is not release-qualified. The latest
 experimental q8192 control matches all 512 GB10 output tokens and has a
-24.710-second median TTFT. It still exceeds the 10-second operating threshold
+24.287-second median TTFT. It still exceeds the 10-second operating threshold
 and the retained 4.187-second target. Cold and prefix results apply to their
 recorded binaries; broader context and package qualification remain open.
 See [current measurements](docs/PERFORMANCE.md) and
