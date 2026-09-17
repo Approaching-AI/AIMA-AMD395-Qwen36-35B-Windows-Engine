@@ -1,6 +1,5 @@
-#define main qrt_prior_register_pv_main
+#define QRT_REGISTER_PV_ARITHMETIC_NO_MAIN
 #include "register_pv_arithmetic_selftest.cpp"
-#undef main
 #include "../../native/providers/ck_fmha/f32_carry_pv_replay.h"
 #include <limits>
 

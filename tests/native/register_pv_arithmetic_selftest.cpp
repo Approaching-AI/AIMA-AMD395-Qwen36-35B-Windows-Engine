@@ -287,6 +287,7 @@ void arithmetic_capture(unsigned tokens,const char* qfile,const char* kfile,cons
     }
 }
 } // namespace
+#ifndef QRT_REGISTER_PV_ARITHMETIC_NO_MAIN
 int main(int argc,char** argv)try{
     hipDeviceProp_t prop{};check(hipGetDeviceProperties(&prop,0));
     if(std::strncmp(prop.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
@@ -303,3 +304,4 @@ int main(int argc,char** argv)try{
         for(unsigned mode=0;mode<6u;++mode)for(bool vllm:{false,true})arithmetic_generated(shape.first,shape.second,mode,vllm,dex.as<unsigned char>(),drcp.as<unsigned char>(),rcp.data());
     unchanged(dex,exp);unchanged(drcp,rcp);return 0;
 }catch(const std::exception& e){std::fprintf(stderr,"register_pv_error=%s\n",e.what());return 2;}
+#endif
