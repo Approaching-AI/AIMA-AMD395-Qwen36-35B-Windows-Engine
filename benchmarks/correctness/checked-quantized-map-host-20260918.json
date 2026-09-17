@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "kind": "checked_signed_quantized_map_host_audit",
+  "host": "Jiawei-MacminideMac-mini.local",
+  "source_base_commit": "bd0c439f47b1c7fa1a605e2bbbbc256de77be55a",
+  "working_tree_source_sha256": {
+    "tests/native/checked_quantized_affine_map.h": "cecb467c670c5c555c7448494e3c91b60a25059414a4c7ec64b7257318e595ea",
+    "tests/native/quantized_affine_map_host.cpp": "46111a6e8ebf64005be6bba369b8eae1e626be894fb407680f4dda898d21c4b5",
+    "tests/native/quantized_k16_map_audit.cpp": "59cf30cb062b039a55723a14a8612f5031ff56ec294f5745ffc1909fbab57549",
+    "tests/test_quantized_affine_map.py": "3c81136b069960f8bf42cc8af64f07fd37caf05dc59779c77464b6819189169e",
+    "tests/test_quantized_k16_map.py": "58b699328da237a2770c63f7f37c4fbffef10e78d047e7fe4ac5e1321ee7f464",
+    "native/providers/moe_accumulator/sm121_dyadic_carry_scan.h": "44e4a2197f8d1a0d7e781738421edf04513c81dcec8bc4e8a7032d426d16d8f0",
+    "tests/native/float_alignment_cases.h": "645331b553deb6a1b795ff76fd52a190040e248fe1eb9c3c7b14b5c254792da1"
+  },
+  "local_validation": [
+    {
+      "name": "tests",
+      "command": [
+        "<private-home>/.local/share/uv/python/cpython-3.12.13-macos-aarch64-none/bin/python3.12",
+        "-m",
+        "unittest",
+        "tests.test_quantized_affine_map",
+        "tests.test_quantized_k16_map",
+        "tests.test_dyadic_carry_scan"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 3664.3104162067175,
+      "stdout": "{\"kind\":\"quantized_affine_map_host\",\"pair_evaluations\":6990291,\"triple_evaluations\":1000000,\"signed_rounding_steps\":1000000,\"checked_rejections\":7004,\"mismatches\":0,\"floating_domain_qualified\":false,\"inference_acceptance\":false}\n{\"kind\":\"quantized_k16_map_audit\",\"dataset\":\"generated_65536_dots\",\"accepted_dots\":35129,\"operand_reject\":16384,\"predictor_reject\":11386,\"representation_reject\":2628,\"composition_reject\":8,\"domain_reject\":1,\"admitted_original_groups\":562064,\"reference_groups\":1048576,\"mismatches\":0,\"host_only\":true,\"native_matrix_predictor\":false,\"performance_acceptance\":false,\"inference_acceptance\":false}\n{\"kind\":\"quantized_k16_map_audit\",\"dataset\":\"deliberately_wrong_first_grid_or_sign\",\"accepted_dots\":0,\"operand_reject\":0,\"predictor_reject\":1024,\"representation_reject\":0,\"composition_reject\":0,\"domain_reject\":31744,\"admitted_original_groups\":0,\"reference_groups\":524288,\"mismatches\":0,\"host_only\":true,\"native_matrix_predictor\":false,\"performance_acceptance\":false,\"inference_acceptance\":false}\n{\"kind\":\"dyadic_algebra\",\"exhaustive_pairs\":921600,\"random_pairs_and_triples\":200000,\"mismatches\":0}\n{\"kind\":\"dyadic_generated_trajectory\",\"groups\":4,\"trials\":16384,\"accepted\":12396,\"rejected\":3988,\"accepted_states\":49584,\"injected_wrong_predictions\":2341,\"binade_changes\":33674,\"mismatches\":0}\n{\"kind\":\"dyadic_generated_trajectory\",\"groups\":8,\"trials\":16384,\"accepted\":12396,\"rejected\":3988,\"accepted_states\":99168,\"injected_wrong_predictions\":2341,\"binade_changes\":57008,\"mismatches\":0}\n{\"kind\":\"dyadic_generated_trajectory\",\"groups\":16,\"trials\":16384,\"accepted\":12396,\"rejected\":3988,\"accepted_states\":198336,\"injected_wrong_predictions\":2341,\"binade_changes\":95113,\"mismatches\":0}\n{\"kind\":\"dyadic_generated_trajectory\",\"groups\":32,\"trials\":16384,\"accepted\":12395,\"rejected\":3989,\"accepted_states\":396640,\"injected_wrong_predictions\":2341,\"binade_changes\":157077,\"mismatches\":0}\n{\"kind\":\"dyadic_generated_trajectory\",\"groups\":64,\"trials\":16384,\"accepted\":12394,\"rejected\":3990,\"accepted_states\":793216,\"injected_wrong_predictions\":2341,\"binade_changes\":258191,\"mismatches\":0}\n",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 3.635s\n\nOK\n"
+    },
+    {
+      "name": "compile",
+      "command": [
+        "c++",
+        "-O2",
+        "-std=c++17",
+        "-fsanitize=undefined,float-cast-overflow",
+        "-fno-sanitize-recover=all",
+        "tests/native/quantized_k16_map_audit.cpp",
+        "-o",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/quantized-k16-map-host-r2/audit"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 418.33204217255116,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "capture",
+      "command": [
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/quantized-k16-map-host-r2/audit",
+        "--capture",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_q_norm_rope-bf16.bin",
+        "<private-home>/projects/amd395-windows-qwen/build/recovery-20260910/fla-model-q7169-fa-out-r1/layer3-full-full_attention_k_norm_rope-bf16.bin"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 640.8138750120997,
+      "stdout": "{\"kind\":\"quantized_k16_map_audit\",\"dataset\":\"captured_q7169_layer3_sampled_65536_dots\",\"accepted_dots\":65536,\"operand_reject\":0,\"predictor_reject\":0,\"representation_reject\":0,\"composition_reject\":0,\"domain_reject\":0,\"admitted_original_groups\":1048576,\"reference_groups\":1048576,\"mismatches\":0,\"host_only\":true,\"native_matrix_predictor\":false,\"performance_acceptance\":false,\"inference_acceptance\":false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "hygiene",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "elapsed_ms": 30.02641536295414,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "captures": [
+    {
+      "name": "layer3-full-full_attention_q_norm_rope-bf16.bin",
+      "bytes": 58728448,
+      "sha256": "c04de09df4879842e299db9822c76e0b6e13a70c345cb9803d74722e25f24b7d"
+    },
+    {
+      "name": "layer3-full-full_attention_k_norm_rope-bf16.bin",
+      "bytes": 7341056,
+      "sha256": "99bd880e732fd2786c12a68113fe5f834b5cc0fe87b09b0aaf5734c90bf3f2e8"
+    }
+  ],
+  "capture_scope": "65536 deterministic causal layer3 QK dots from original q7169 capture; every admitted original K16 boundary checked; no native prediction or GPU timing.",
+  "prediction": "Independent ordinary FP32 balanced product trees plus FP32 prefix addition. Original accumulator traces and GB10 outputs are comparison-only.",
+  "algebra": "Checked signed64 floor-grid composition independently crosschecks existing modulo64 composition and wide division. Every accepted floating path validates actual input/output signs, alignment grids, normal representability and original output truncation. Rejected paths do not publish a result.",
+  "prior_native": {
+    "file": "benchmarks/correctness/dyadic-scan-qk-native-components-20260916.json",
+    "bytes": 197763,
+    "sha256": "aa5305ce921551548a6797ad80fe52eddec6a4faca7e76610a3b1baa3af53f65",
+    "source_commit": "8a4a0400e828a0ba2c7445edc34056db5c6245d3",
+    "q8192_control_ms": 332.3032,
+    "q8192_best_scan_ms": 1066.5525
+  },
+  "decision": "Keep the independent signed oracle and coverage audit in tests. Existing native dyadic scan already tests this architecture and is slower; no repeated GPU implementation or runtime integration is justified by the new host coverage alone.",
+  "current_product_ttft_ms": 24835.3024,
+  "product_dispatch_changed": false,
+  "model_loaded": false,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false,
+  "published": false
+}
