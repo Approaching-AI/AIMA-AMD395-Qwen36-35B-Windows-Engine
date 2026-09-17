@@ -1,5 +1,24 @@
 # Real-model performance
 
+## Paired GDN scores and shared arenas, 2026-09-18
+
+Four fresh same-DLL OFF/ON/ON/OFF runs from FLA source `7b20c90` pass all
+2,048 original GB10 IDs, prompts and callbacks, with first logit 10.375 and
+zero error. Whole `6e4908b`, CK `df2ea51`, MoE `9235750`, CLI `24c4304` and
+all AOT/table assets remain fixed. Every ON run activates 240 segments for
+each of scores/state/output; all other owners and host guards pass.
+
+OFF/ON TTFT medians are 24,972.6823/24,709.6139 ms, saving 263.0684 ms
+(1.0534%). Both ON samples are below both OFF samples. Mode 1 is the current
+experimental control, with no new device workspace. All loads stay below
+30 seconds. TPOT medians are 100.4114965/100.5125505 ms, without evidence of
+a decode gain. Code/package defaults remain off; TTFT still exceeds 10 seconds
+and all long-context, retained-performance and release gates remain open.
+[Implementation, component limits and each product measurement](PAIRED_SCORE_GDN.md).
+[Product evidence](../benchmarks/correctness/paired-score-gdn-product-20260918.json):
+1269463 bytes, SHA256
+`e416abed136f64ed0c9ab8e01d34b3473c9a38695cde36a829f2f884dfe1b8c3`.
+
 ## Fused probability/native PV, 2026-09-17
 
 Four fresh same-DLL q8192/out512 processes compare the source `df2ea51`
@@ -9,8 +28,8 @@ prompts and actual callbacks match; every first logit is 10.375 with zero
 error. All loads are below 30 seconds and every owner/host guard passes.
 
 OFF/ON TTFT medians are 25376.85035/24835.3024 ms, saving 541.54795 ms
-(2.1340%); both ON samples are below both OFF samples. Mode 1 becomes the
-current experimental q8192 baseline. It retains independently parallel exact
+(2.1340%); both ON samples are below both OFF samples. Mode 1 became the
+preceding experimental q8192 baseline. It retains independently parallel exact
 QK and fuses only softmax/native PV, followed by the original selective exact
 replay. It adds no persistent workspace. Two samples per arm do not establish
 a decode gain: TPOT medians are 101.276713/101.1726645 ms. TTFT still exceeds
@@ -20,7 +39,7 @@ unchanged. [Implementation and all four measurements](STREAMED_EXACT_ATTENTION.m
 965116 bytes, SHA256
 `9963b45485de6f944d2f5fadc1c5f588fa64e0c30f128359e019d3551e6a2758`.
 
-## Completed phases on the current fused stack, 2026-09-17
+## Completed phases before paired GDN integration, 2026-09-17
 
 The same qualified fused-PV1, compact-MoE1 and adaptive-OUT2 artifacts pass
 all 512 original GB10 tokens, prompts, callbacks and first logit 10.375.
@@ -51,9 +70,10 @@ candidate counts match the ordinary control. Nine full-attention residual
 device intervals and one MoE input interval are negative, retained as invalid
 and excluded from totals; they do not invalidate the passing token boundary.
 
-The next arithmetic investigation concerns exact composition of fixed-grid
-K16 rounding maps, with independent integer checks and actual operand
-coverage before selecting a GPU implementation. No speedup is established.
+This profile precedes the paired GDN replacement. Its attention artifacts
+remain in the current control; the next structural investigation combines
+lossless scaled-half operands with four-score exact QK reuse. No new QK
+speedup is established.
 [Pinned artifacts, options, callbacks and completed phases](../benchmarks/correctness/fused-stack-completed-profile-20260917.json):
 489965 bytes, SHA256
 `541bb4a3020c3e100db873555685ef37506911b6e8579b2d0ca2e70c8f30e477`.
