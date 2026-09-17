@@ -32,3 +32,8 @@ Keep this as a host building block. Selection falls modestly before counting
 metadata preparation, extra bound arithmetic or replay scheduling. It does not
 establish a native component gain or a seconds-scale product route. No provider,
 runtime option, qualified model result or package changes.
+
+Evidence: [host record](../benchmarks/correctness/signed-loss-bound-host-20260918.json),
+12,635 bytes, SHA256
+`5da40ee7382e06700362f3581681c140d652d4133b7de80db33c2cbd02ff2b85`,
+pins source `af735be`, all commands, input hashes and the revised harness result.
