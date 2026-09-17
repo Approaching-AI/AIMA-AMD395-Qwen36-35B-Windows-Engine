@@ -71,9 +71,9 @@ device intervals and one MoE input interval are negative, retained as invalid
 and excluded from totals; they do not invalidate the passing token boundary.
 
 This profile precedes the paired GDN replacement. Its attention artifacts
-remain in the current control; the next structural investigation combines
-lossless scaled-half operands with four-score exact QK reuse. No new QK
-speedup is established.
+remain in the current control. The subsequent [lossless scaled-half four-score QK
+experiment](MICROTILE_HALF_QK.md) preserves all checked arithmetic but reduces
+complete q8192 QK only302.3008 to284.7096 ms; it remains isolated.
 [Pinned artifacts, options, callbacks and completed phases](../benchmarks/correctness/fused-stack-completed-profile-20260917.json):
 489965 bytes, SHA256
 `541bb4a3020c3e100db873555685ef37506911b6e8579b2d0ca2e70c8f30e477`.
