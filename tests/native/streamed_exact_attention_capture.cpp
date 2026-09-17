@@ -15,15 +15,24 @@ void streamed(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
     Prepared& prepared,AttentionOutputs& out,unsigned start,unsigned count,unsigned tokens,
     const unsigned char* exp,const unsigned char* packed,const unsigned char* rcp,bool diagnostic){
     const unsigned stride=start+count;
+    auto* scores=out.tensor.scores.as<float>()+guard;
     auto* p=out.tensor.probability.as<uint16_t>()+guard;
     auto* s=out.tensor.scales.as<float>()+guard;
-    hipLaunchKernelGGL(qrt_streamed_exact_attention::produce,
+    hipLaunchKernelGGL((qrt_microtile_exact_qk::scores<2u,2u>),
+        dim3((stride+31u)/32u,16u,(count+31u)/32u),dim3(256u),0u,nullptr,
+        prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
+        prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,scores,start,count,stride,tokens);
+    check(hipGetLastError());
+    hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan,
+        dim3((size_t(count)*16u*stride+255u)/256u),dim3(256u),0u,nullptr,
+        q,kt,scores,start,count,stride,tokens);check(hipGetLastError());
+    hipLaunchKernelGGL((qrt_streamed_exact_attention::produce<false>),
         dim3(16u,(count+31u)/32u),dim3(256u),0u,nullptr,
         q,kt,v,prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
         prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,
         p,s,out.output.as<float>(),out.error.as<float>(),out.accumulator.as<float>(),
         out.denominator.as<float>(),diagnostic?out.tensor.scores.as<float>()+guard:nullptr,
-        start,count,stride,tokens,exp,packed,rcp,true);
+        start,count,stride,tokens,exp,packed,rcp,true,scores);
     check(hipGetLastError());
     check(hipError_t(launch_compacted_pv_replay(v,p,s,out.output.as<float>(),start,count,0u,stride,
         rcp,out.accumulator.as<float>(),out.denominator.as<float>(),out.error.as<float>(),
@@ -93,13 +102,13 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         for(bool diagnostic:{true,false}){
             actual.reset();streamed(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),
                 prepared,actual,start,count,n,exp,packed,rcp,diagnostic);finish();
-            compare_stream(expected,actual,bad,diagnostic);++cases;
+            compare_stream(expected,actual,bad,true);++cases;
         }
         dq.immutable(q);dk.immutable(k);dv.immutable(v);prepared.verify();
         immutable_transpose(dt,k,n);immutable_transpose(vt,v,n);expected.guards();
         std::fprintf(stderr,"STREAMED_SAFETY tokens=%u start=%u queries=%u mode=%u pass=1\n",n,start,count,mode);
     }
-    std::printf("{\"kind\":\"streamed_exact_attention_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":5,\"diagnostic_and_score_free\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
+    std::printf("{\"kind\":\"streamed_exact_attention_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":5,\"diagnostic_and_no_duplicate_scores\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
 }
 
 void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
@@ -136,7 +145,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
             else streamed(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,
                 actual,start,count,tokens,exp,packed,rcp,!attempt);
             finish();const double ms=elapsed(timed);if(attempt)samples[variant][attempt-1u]+=ms;
-            compare_stream(expected,actual,bad,!variant||!attempt);
+            compare_stream(expected,actual,bad,true);
             if(!attempt){unsigned n=0;check(hipMemcpy(&n,actual.count.data(),4u,hipMemcpyDeviceToHost));candidates[variant]+=n;}
         }
         for(unsigned s=0;s<4u;++s){
@@ -153,7 +162,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     if(candidates[0]!=candidates[1])throw std::runtime_error("original PV selection differs");
     for(unsigned variant=0;variant<2u;++variant){
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
-        std::printf("{\"kind\":\"streamed_exact_attention_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"streamed_producer\":%s,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,variant?"true":"false",(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
+        std::printf("{\"kind\":\"streamed_exact_attention_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"fused_probability_pv\":%s,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,variant?"true":"false",(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }
 }
 } // namespace

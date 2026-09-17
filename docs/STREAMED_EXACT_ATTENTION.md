@@ -28,4 +28,26 @@ and this complete producer, each followed by the original selective replay.
 All attempts are checked. Component clocks exclude validation and common
 preparation and do not establish model TTFT or inference acceptance.
 
-Native results are pending. No package, default or release gate changes.
+## Complete fusion result
+
+Source `f0fbc91` passes all 80 generated cases, the complete q8192 component
+surfaces and all 29364224 original GB10 context cells. Both arms select
+3127598 original PV replays. Completed attention grows from 636.8399 ms to
+1067.5065 ms, with common preparation of 3.7360 ms outside both clocks.
+The candidate is not integrated. Compiler metadata reports 192 VGPRs,
+55552 bytes of shared storage and 320 bytes of private storage per work item;
+this alone is not a measured occupancy or bottleneck explanation.
+
+[Pinned native evidence](../benchmarks/correctness/streamed-exact-attention-native-20260917.json):
+94708 bytes, SHA256
+`3d9cba458d2df82cf68f46efe33530c22705f95afc44932d75a87c1a0490bcb6`.
+
+The next isolated revision retains the independently parallel 2x2 exact QK
+producer and its complete fallback scan. Only softmax and native PV share a
+kernel. This removes repeated global probability/alpha reads by the native
+PV stage while preserving their writes for original exact replay. It retains
+the same 32-query tile and every arithmetic/error-bound operation. The
+updated test compares all original score bits on every attempt, as those
+scores are now an input to the fused consumer. Its results are pending.
+
+No package, default or release gate changes.

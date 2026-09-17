@@ -11,6 +11,7 @@ using namespace qrt_blackwell_attention;
 namespace decoded = qrt_sm121_decoded_bf16;
 namespace bound = qrt_sm121_pv_final_bound;
 
+template<bool FuseQk>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -18,17 +19,18 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     float* raw_accumulator, float* raw_denominator, float* diagnostic_scores,
     unsigned start, unsigned count, unsigned stride, unsigned key_stride,
     const unsigned char* exp2_table, const unsigned char* packed_exp,
-    const unsigned char* rcp_table, bool vllm_sum) {
+    const unsigned char* rcp_table, bool vllm_sum, const float* source_scores = nullptr) {
     static_assert(kHeadDim == 256u && kQueryHeads == 16u && kKvHeads == 2u);
-    __shared__ uint32_t qvalues[32][256], kvalues[128][32];
-    __shared__ float scores[32][32], alpha[32], denominator[32];
+    __shared__ uint32_t qvalues[FuseQk ? 32 : 1][FuseQk ? 256 : 1];
+    __shared__ uint32_t kvalues[FuseQk ? 128 : 1][FuseQk ? 32 : 1];
+    __shared__ float scores[FuseQk ? 32 : 1][FuseQk ? 32 : 1], alpha[32], denominator[32];
     __shared__ uint16_t probability[32][32];
     const unsigned thread = threadIdx.x, lane = thread % 32u, wave = thread / 32u;
     const unsigned qr = thread / 16u, kc = thread % 16u;
     const unsigned head = blockIdx.x, kv_head = head / 8u, row_tile = blockIdx.y * 32u;
     const unsigned last_tokens = start + min(row_tile + 32u, count);
     const unsigned tiles = (last_tokens + 31u) / 32u, tile_stride = (stride + 31u) / 32u;
-    for (unsigned cell = thread; cell < 32u * 256u; cell += 256u) {
+    if constexpr (FuseQk) for (unsigned cell = thread; cell < 32u * 256u; cell += 256u) {
         const unsigned row = cell / 256u, feature = cell % 256u;
         qvalues[row][feature] = row_tile + row < count
             ? packed_query[(size_t(start + row_tile + row) * 16u + head) * 256u + feature]
@@ -42,6 +44,7 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     MantissaF32x8 accumulator[2][2]{}, error[2][2]{};
     for (unsigned tile = 0u; tile < tiles; ++tile) {
         const unsigned key_base = tile * 32u;
+        if constexpr (FuseQk) {
         float carry[2][2]{};
         bool active[2][2], fallback[2][2];
 #pragma unroll
@@ -102,13 +105,18 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
             }
         }
         __syncthreads();
+        }
 #pragma unroll
         for (unsigned r = 0u; r < 4u; ++r) {
             const unsigned local_row = wave + r * 8u, row = row_tile + local_row;
             const unsigned tokens = start + row + 1u, key = key_base + lane;
+            const float score = row < count && key < tokens
+                ? (FuseQk ? scores[local_row][lane] : source_scores[(size_t(row) * 16u + head) * stride + key])
+                : -INFINITY;
+            if constexpr (!FuseQk) if (diagnostic_scores && row < count && key < stride)
+                diagnostic_scores[(size_t(row) * 16u + head) * stride + key] = score;
             float p = 0.0f;
             if (row < count && tile < (tokens + 31u) / 32u) {
-                const float score = scores[local_row][lane];
                 float next_max = fmaxf(running_max[r], score);
                 for (unsigned mask = 16u; mask; mask >>= 1u)
                     next_max = fmaxf(next_max, __shfl_xor(next_max, mask, 32u));
