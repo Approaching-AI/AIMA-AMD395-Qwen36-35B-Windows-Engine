@@ -181,8 +181,15 @@ common tensor files,32 outputs and the complete first-logit tensor match the
 previous rejected routed16 run exactly. These values are not a qualified
 reference; the original expectations remain unchanged. Host, cleanup and
 frozen-Triton-cache checks pass. The identical-configuration row906 repeat
-is running while that reproducible alternate reference result is investigated.
-See the [preserved rejected control](../benchmarks/correctness/gb10-row906-observer-control-rejection-20260919.json).
+passes all576 original control/owner output IDs and complete owner first logits;
+all4205 downloaded files verify. Its21 selected prefill/decode rows include
+row906 in the first12 chunks and positions91017–91021. This independently
+qualifies the reference for the native row trace, without qualifying Windows
+long-context inference. See the [qualified row reference](../benchmarks/correctness/gb10-prefix128-row906-boundaries-20260919.json)
+and [preserved rejected control](../benchmarks/correctness/gb10-row906-observer-control-rejection-20260919.json).
+A further reference observation reads existing layer3 prefill-attention
+endpoints to investigate the reproducible alternate control result; it changes
+no model arithmetic and retains the same original acceptance checks.
 
 Independent CPU controls now reproduce all9 original QKV/Z/OUT projection
 rows and all6 gated/residual-normalization cases at positions8191,90111 and
