@@ -135,7 +135,15 @@ postconv surface to be absent. It does not enable the older stage-trace option
 that disables FLA device preparation. Copies use at most1 MiB host scratch
 and a90-second capture deadline; failures prevent a complete core record.
 Four sanitizer-backed capture tests and two existing suffix tests pass.
-Windows build and actual full-model capture remain pending for this observer.
+Source41cbbb9 builds on baiying in95271.403 ms; all91 pinned build inputs
+verify, and all494 embedded GPU kernels and AMDHSA metadata match the
+qualified control. With capture disabled, the original q8192 prompt, all512
+output IDs, first logit10.375 and512 callbacks pass. Load21313.516099 ms,
+TTFT23264.054501 ms and TPOT101.079970 ms are a single functional regression,
+not a new performance baseline. See the
+[native build and regression](../benchmarks/correctness/prefix-linear-capture-native-q8192-20260919.json).
+The actual first96k capture is running with the original90112–98303 target;
+it has not yet produced the selected window.
 
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
