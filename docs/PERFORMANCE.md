@@ -51,7 +51,12 @@ continuations, original first logits, callbacks, restoration and changed-prefix
 rejection. Independent scratch growth is observed at the owner and suffix
 boundaries. Load is 21281.3331 ms, hit TTFT 14602.8872 ms, TPOT 214.793319 ms
 and total 124426.6185 ms; the retained performance ceilings remain unmet.
-The cold 32k continuation, larger contexts and release remain unqualified.
+The original 65536-prefix + 1024-suffix case also passes both512-token
+continuations, first logit5.9375/error0, streaming, restoration and rejection.
+Load is21346.7386 ms; hit TTFT27707.133301 ms, TPOT345.768637 ms and
+total204461.080601 ms remain above the unchanged64k ceilings. All eight owner
+chunks and checked scratch growth complete within the1800-second native bound.
+Cold32k/64k continuations,128k/256k contexts and release remain unqualified.
 [Implementation, full timings and evidence](LONG_ATTENTION_PIPELINE.md).
 
 ## Long complete-attention components, 2026-09-18

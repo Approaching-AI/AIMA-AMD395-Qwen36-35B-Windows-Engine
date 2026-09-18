@@ -101,6 +101,19 @@ and total 124426.6185 ms. These are functional observations, without a
 paired performance claim. The retained 32k ceilings remain 3710.594246 ms,
 40.954169 ms and 24638.174622 ms respectively.
 
+The original 65536-prefix + 1024-suffix case passes both 512-token
+continuations, first logit 5.9375/error 0, all timed callbacks, restoration
+and changed-prefix rejection. All eight owner chunks complete, with owner
+first token 16/logit 24.25 matching GB10. Seventy owner and twenty suffix
+calls use the long route. Independent scratch grows through the owner
+extents to 65536-key capacity, then to 73728 for the 66560-key suffix.
+The separate cold owner 32-token continuation is not measured.
+
+Load is 21346.7386 ms and owner/retry seeding is 1377524.0273 ms. The timed
+hit has TTFT 27707.133301 ms, TPOT 345.768637 ms and total 204461.080601 ms.
+The original contract's 64k ceilings remain 5432.415542 ms, 46.658882 ms
+and 29275.104254 ms. This is a functional run with no paired speedup claim.
+
 The single short run does not replace the qualified q8192 median
 23353.80795 ms. The below-10-second gate, retained 4187.415605 ms target,
 prefix performance, larger contexts and release gates remain open. No
@@ -128,3 +141,11 @@ Command: `run-long-attention-prefix32k-r1.ps1`; native process wall is
 546225.070 ms, with a 900-second native deadline. The proof corrects inherited
 descriptive metadata using the executed command and original 32k oracle;
 the original source record and all native artifacts remain identified.
+
+[Original 64k prefix continuation evidence](../benchmarks/correctness/long-attention-pipeline-prefix64k-20260918.json):
+493132 bytes, SHA256
+`1ff5a36d8ad9a167726252db5cae9ed49c76d535ea22fe018b61bd22684f243f`.
+Command: `run-long-attention-prefix64k-r2.ps1`; native wall is 1603845.765 ms
+within an explicit 1800-second deadline. The first attempt's pinned wrapper
+rejected that deadline before launching a process. The retry preserves every
+host/process guard with a named wrapper and its complete command/hash.
