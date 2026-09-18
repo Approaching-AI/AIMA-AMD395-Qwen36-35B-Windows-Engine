@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "linux_release_refresh",
+  "retrieved_utc": "2026-09-18T09:19:59.183960+00:00",
+  "command": [
+    "gh",
+    "api",
+    "repos/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases?per_page=5"
+  ],
+  "returncode": 0,
+  "canonical_raw_file": "linux-release-refresh-20260918-r5.json",
+  "canonical_raw_sha256": "a557df7ea451b043b1c8ed7a64cd6f4c8b9354a35aede1c98ea85e25a8adc9df",
+  "latest_five_release_bodies_and_identities_unchanged": true,
+  "releases": [
+    {
+      "tag_name": "v1.5.1-native-vl.10",
+      "published_at": "2026-09-16T20:58:30Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.10",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "d69fbbcb839434ff9900ada60a733237b17717276a71a1557a1bcbdfcf6a77f5"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.9",
+      "published_at": "2026-09-14T09:54:52Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.9",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "add3c8dea37f57170da14b669d9815a1b5c943f12348e76c22f7f30f22ebd503"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.7",
+      "published_at": "2026-09-09T13:36:02Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.7",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "4e1d1ac062a9002d760ac7c6a3a740b4d7a52ff11071f6a04263e26ae0e9d9f9"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.6",
+      "published_at": "2026-09-08T04:54:46Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.6",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "5095ce0b6b3c0876cc752636806b66dc5b0f269cf88346b53591730108f56605"
+    },
+    {
+      "tag_name": "v1.5.1-native-vl.5",
+      "published_at": "2026-09-01T06:34:45Z",
+      "html_url": "https://github.com/skyguan92/AIMA-AMD395-Qwen36-35B-Linux-Engine/releases/tag/v1.5.1-native-vl.5",
+      "draft": false,
+      "prerelease": false,
+      "body_sha256": "133f1c75088a23b53ba22446ca2b1537f826840b73b853a616d92d8e2eac4d05"
+    }
+  ],
+  "earlier_fork_query": {
+    "file": "linux-release-refresh-20260918-r4.json",
+    "sha256": "96f374d1becc2fdffed55378861811cb34e9b48a2e7acf4a33e36085be2435c7",
+    "result": "Fork has no releases; upstream remote is the established release authority."
+  },
+  "previous_refresh": {
+    "file": "benchmarks/correctness/linux-release-refresh-20260918-r3.json",
+    "bytes": 3058,
+    "sha256": "df0eab9d237d1612f48770c26cd5c47ce9deeb722ea17c8387598562e9bc8674"
+  },
+  "existing_source_review": {
+    "file": "benchmarks/correctness/linux-tool-content-source-review-20260918.json",
+    "bytes": 16432,
+    "sha256": "109a911811760a25e0f0ab638c69a8b2b8a9e5e3dd7c3e5d7ac16f5eaf71d6cf"
+  },
+  "existing_http_qualification": {
+    "file": "benchmarks/correctness/tool-text-parts-bounded-native-http-20260918.json",
+    "bytes": 204282,
+    "sha256": "98cc086cf2a14473c673bbbdd86734139c1bba634139b98b84eb416a4b8dd0f5"
+  },
+  "decision": "Latest upstream release remains v1.5.1-native-vl.10. Existing Windows protocol port and native HTTP validation remain applicable; no new release delta was found. This read-only refresh does not qualify the new inference runtime or package."
+}

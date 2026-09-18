@@ -1,5 +1,24 @@
 # Real-model performance
 
+## Exact long-attention provider, 2026-09-18
+
+CK `65a2139` passes four real cold16384/out32 runs in OFF/ON/ON/OFF order:
+all 128 original GB10 IDs, prompts, first logits 25.625/error 0 and actual
+callbacks match. Same-DLL TTFT medians improve 85460.99605 to 76772.1976 ms,
+reducing 8688.79845 ms (10.17%). Both ON samples beat both OFF samples and
+all loads remain below 30 seconds. There is no decode improvement.
+
+The separate q8192/out512 regression passes all 512 GB10 IDs, first logit
+10.375 and callbacks, with the long route inactive; TTFT is 23351.8109 ms.
+The qualified short median remains 23353.80795 ms. The enabled long route
+becomes an experimental control, with defaults and package unchanged.
+The same stack also passes all 512 initial-retry and 512 timed-hit GB10 IDs
+for the original 16384-prefix + 1024-suffix case, including actual streaming,
+state restoration and changed-prefix rejection. Timed-hit TTFT is
+9047.9052 ms and TPOT 158.64168 ms; prefix performance targets remain open.
+Larger-context and release qualification remain separate.
+[Implementation, full timings and evidence](LONG_ATTENTION_PIPELINE.md).
+
 ## Long complete-attention components, 2026-09-18
 
 Isolated source `d926858` combines range-aware narrow QK, fused
