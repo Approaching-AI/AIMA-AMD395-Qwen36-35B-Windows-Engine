@@ -27,7 +27,10 @@ class FlaBlackwellKktContractTests(unittest.TestCase):
         body = source[start:end]
         timing = source[source.index("bool launch_blackwell_math("):start]
         self.assertIn("hipEventSynchronize(end.handle)", timing)
-        self.assertIn("milliseconds <= 100.0f", timing)
+        self.assertIn("qrt_fla_completion::evaluate(milliseconds, host_ms)", timing)
+        self.assertLess(timing.index("completion_timer;"), timing.index("hipEventRecord(begin.handle"))
+        self.assertLess(timing.index("hipEventSynchronize(end.handle)"), timing.index("completion_timer.elapsed_ms()"))
+        self.assertIn("if (!timing.accepted())", timing)
         self.assertIn('launch_blackwell_math("blackwell_kkt_chunks"', body)
         self.assertLess(body.index("}, &sequence_ms)) return false"), body.index('"a-dot-f32"'))
         self.assertLess(body.index('"a-dot-f32"'), body.index("qrt_fla_blackwell::gate_kernel"))

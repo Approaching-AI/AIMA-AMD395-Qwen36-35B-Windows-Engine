@@ -22,19 +22,29 @@ class FlaSequenceLaunchTests(unittest.TestCase):
         auxiliary = "template<class Operation>\nbool launch_blackwell_aux(" + provider.split(
             "template<class Operation>\nbool launch_blackwell_aux(", 1
         )[1].split("bool load_kernels(", 1)[0]
+        timing = timing.replace("qrt_fla_completion::Timer<>", "qrt_fla_completion::Timer<FakeCompletionClock>")
         source = r'''
 #include <cstdint>
+#include "native/providers/gdn/completion_guard.h"
+#include <limits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <initializer_list>
+double host_now=0.0, host_duration=20.0;
+struct FakeCompletionClock {
+ using duration=std::chrono::duration<double,std::milli>;
+ using time_point=std::chrono::time_point<FakeCompletionClock>;
+ static constexpr bool is_steady=true;
+ static time_point now(){return time_point{duration{host_now}};}
+};
 enum hipError_t { hipSuccess, hipErrorUnknown };
 using hipEvent_t = void*;
 using hipStream_t = void*;
 constexpr unsigned kSegmentTokens = 1024u, kChunk = 64u;
 unsigned creates, records, waits, drains, destroys, operations;
 unsigned fail_create, fail_record, fail_operation;
-bool fail_wait, enabled = true, table = true, ordered = true;
+bool fail_wait, fail_elapsed, enabled = true, table = true, ordered = true;
 float duration = 12.0f;
 hipError_t hipEventCreate(hipEvent_t* event) {
     if (++creates == fail_create) return hipErrorUnknown;
@@ -45,11 +55,11 @@ hipError_t hipEventRecord(hipEvent_t, hipStream_t) {
     return ++records == fail_record ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipEventSynchronize(hipEvent_t) {
-    ++waits; return fail_wait ? hipErrorUnknown : hipSuccess;
+    ++waits; host_now+=host_duration; return fail_wait ? hipErrorUnknown : hipSuccess;
 }
 hipError_t hipStreamSynchronize(hipStream_t) { ++drains; return hipSuccess; }
 hipError_t hipEventElapsedTime(float* value, hipEvent_t, hipEvent_t) {
-    *value = duration; return hipSuccess;
+    *value = duration; return fail_elapsed ? hipErrorUnknown : hipSuccess;
 }
 void set_error(const char*, hipError_t) {}
 void set_error_text(const char*) {}
@@ -64,7 +74,7 @@ void reset() {
     unsetenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES");
     creates = records = waits = drains = destroys = operations = 0u;
     fail_create = fail_record = fail_operation = UINT32_MAX;
-    fail_wait = false; enabled = table = ordered = true; duration = 12.0f;
+    fail_wait = fail_elapsed = false; enabled = table = ordered = true; duration = 12.0f; host_now=0;host_duration=20;
 }
 bool run(unsigned tokens, unsigned calls) {
     return launch_blackwell_aux("test", tokens, calls, nullptr,
@@ -104,10 +114,18 @@ int main() {
     if (run(1024u, 2u) || operations != 32u || waits || drains != 1u) return 9;
     reset(); fail_wait = true;
     if (run(1024u, 2u) || operations != 32u || waits != 1u || drains != 1u) return 10;
-    reset(); duration = 100.01f;
+    reset(); duration = 100.01f; host_duration=101;
     if (run(1024u, 2u) || operations != 32u || waits != 1u || drains) return 11;
     reset(); duration = 100.0f;
     if (!run(1024u, 2u) || operations != 32u || waits != 1u) return 12;
+    reset(); fail_elapsed=true; duration=std::numeric_limits<float>::quiet_NaN();
+    if(run(1024u,2u)||operations!=32u||waits!=1u||drains) return 15;
+    for(float value:{-1.0f,100.01f,std::numeric_limits<float>::infinity(),std::numeric_limits<float>::quiet_NaN()}){
+        reset();duration=value;
+        if(!run(1024u,2u)||operations!=32u||waits!=1u||drains) return 13;
+        reset();duration=value;host_duration=101;
+        if(run(1024u,2u)||operations!=32u||waits!=1u||drains) return 14;
+    }
     return 0;
 }
 '''
@@ -115,7 +133,7 @@ int main() {
             executable = str(Path(temporary) / "sequence-check")
             subprocess.run(
                 [os.environ.get("CXX", "c++"), "-std=c++17", "-Wall", "-Wextra",
-                 "-Werror", "-x", "c++", "-", "-o", executable],
+                 "-Werror", "-I", str(ROOT), "-x", "c++", "-", "-o", executable],
                 input=source, text=True, check=True, timeout=30,
             )
             subprocess.run([executable], check=True, timeout=5, capture_output=True)

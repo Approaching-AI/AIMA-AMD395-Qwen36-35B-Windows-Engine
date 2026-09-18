@@ -8,6 +8,7 @@
 #include "blackwell_inverse.h"
 #include "first_call_capture.h"
 #include "pipelined_segment_policy.h"
+#include "completion_guard.h"
 #include <algorithm>
 
 #include <array>
@@ -245,6 +246,7 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
     struct Event { hipEvent_t handle = nullptr; ~Event() { if (handle) (void)hipEventDestroy(handle); } } begin, end;
     hipError_t status = hipEventCreate(&begin.handle);
     if (status == hipSuccess) status = hipEventCreate(&end.handle);
+    const qrt_fla_completion::Timer<> completion_timer;
     if (status == hipSuccess) status = hipEventRecord(begin.handle, stream);
     bool operation_started = false;
     if (status == hipSuccess) {
@@ -260,14 +262,31 @@ bool launch_blackwell_math(const char* name, hipStream_t stream, Operation opera
         set_error(name, status);
         return false;
     }
+    const double host_ms = completion_timer.elapsed_ms();
     float milliseconds = 0;
     status = hipEventElapsedTime(&milliseconds, begin.handle, end.handle);
     if (status != hipSuccess) { set_error(name, status); return false; }
-    if (!(milliseconds <= 100.0f)) { set_error_text("Blackwell math sequence exceeded 100 ms; no further submission"); return false; }
-    if (completed_ms) *completed_ms = milliseconds;
+    const auto timing = qrt_fla_completion::evaluate(milliseconds, host_ms);
+    if (timing.source != qrt_fla_completion::ClockSource::gpu) {
+        std::fprintf(stderr,
+            "FLA_COMPLETION_GUARD stage=%s gpu_ms=%.6f host_ms=%.6f guard_ms=100 clock=%s completed=1 accepted=%u\n",
+            name, static_cast<double>(milliseconds), host_ms,
+            timing.accepted() ? "host" : "unavailable", timing.accepted() ? 1u : 0u);
+    }
+    if (!timing.accepted()) {
+        char message[384];
+        std::snprintf(message, sizeof(message),
+            "Blackwell math sequence exceeds 100 ms or has invalid clocks: stage=%s gpu_ms=%.6f host_ms=%.6f; no further submission",
+            name, static_cast<double>(milliseconds), host_ms);
+        set_error_text(message);
+        return false;
+    }
+    if (completed_ms) *completed_ms = static_cast<float>(timing.milliseconds);
     if (profile) std::fprintf(stderr,
-        "FLA_COMPLETED_STAGE stage=%s gpu_ms=%.6f timing_valid=%u completed=1 diagnostic_only=1\n",
-        name, static_cast<double>(milliseconds), milliseconds >= 0.0f ? 1u : 0u);
+        "FLA_COMPLETED_STAGE stage=%s gpu_ms=%.6f timing_valid=%u host_ms=%.6f guard_clock=%s completed=1 diagnostic_only=1\n",
+        name, static_cast<double>(milliseconds),
+        timing.source == qrt_fla_completion::ClockSource::gpu ? 1u : 0u,
+        host_ms, timing.source == qrt_fla_completion::ClockSource::gpu ? "gpu" : "host");
     return true;
 }
 

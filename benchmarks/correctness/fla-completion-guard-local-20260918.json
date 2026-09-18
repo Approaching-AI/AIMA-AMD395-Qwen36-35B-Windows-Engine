@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "fla_completion_guard_host_validation",
+  "source_base": "28462b176009cd5dba3ab59e1da53d0d414b760e",
+  "source_sha256": {
+    "native/providers/gdn/completion_guard.h": "6738bf5d5cf94c0356345cb6d4e60f9193acb16f248db51d74d3e1fce07ebee3",
+    "native/providers/gdn/qrt_fla_chunk_gdn_q8192_provider.cpp": "8d8e2588133a9528df1743538eabdcff52c6cbefbfec3a8f5314ca4a257051a1",
+    "scripts/baiying_build_fla_gdn.ps1": "eaa6ec590e3252c25e1bbdd4a59d72872172152b22931268595f5a87568f4fbd",
+    "tests/native/fla_completion_guard_host.cpp": "b8806e464df1a654f332493635182fdbee9ae9f3d62a7f7eafd5faf7afa2c4e5",
+    "tests/test_fla_completion_guard.py": "e993d7baf04d4bd89eb88bb6549e37e45905bdd12a305ebc88f34fdf55299ed7",
+    "tests/test_fla_sequence_launch.py": "0f621de5c832a6a670193ff1ab42bc4faa9f171178bcffbc0b37f4fcdf280bcb",
+    "tests/test_fla_segment_guard.py": "67516bbaeb82815deff7e8b454001f48d54bc260742837c1f01911424d52cb11",
+    "tests/test_fla_blackwell_kkt_contract.py": "b9dc84864f76eceece842c7cb9d7e13c55b70a38ab4dc87c30b9f1f9529c2bac",
+    "docs/FLA_COMPLETION_GUARD.md": "b7ff1790f95333715bb1cdeca90955a530cf38a35dfe7efff4d8b765b6766647"
+  },
+  "validation": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-p",
+      "test_fla_*.py"
+    ],
+    "working_directory": "<private-home>/projects/AIMA-public-r1191-candidate",
+    "returncode": 0,
+    "wall_seconds": 23.93910950049758,
+    "stdout": "coarse_gdn_launch_cases=1200 original_checkpoint_route=1 null_statistics=1 failures_propagated=1\npaired_score_launch_cases=4320 checkpoint_fallback=1 errors_propagated=1\n{\"kind\":\"pipelined_segment_owner_host\",\"eligibility_cases\":640,\"complete_dependency_graphs\":10,\"partial_submission_failures\":6,\"event_allocation_failures\":4,\"ring_reuse_and_ordered_state\":true,\"caller_dependency_and_completion\":true,\"all_streams_drained_on_error\":true,\"original_storage_preserved\":true}\n",
+    "stderr": "..................................................FLA_PIPELINED_SEGMENTS mode=1 tokens=64 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=1024 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=2048 segments=2 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=7168 segments=7 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=1 tokens=8192 segments=8 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=64 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=1024 segments=1 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=2048 segments=2 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=7168 segments=7 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\nFLA_PIPELINED_SEGMENTS mode=2 tokens=8192 segments=8 storage_slots=3 native_math_submissions=0 max_phase_ms=1.000000 state_ordered=1 caller_joined=1 completed=1\n............................owned capture deadline exceeded; inspect existing output, never automatically resubmit\n...s...............................\n----------------------------------------------------------------------\nRan 113 tests in 23.886s\n\nOK (skipped=1)\n"
+  },
+  "previous_local_attempt": {
+    "file": "fla-completion-guard-local-tests-r1.json",
+    "sha256": "1b1cba330b2c41a8f697c7133c1ce1ad1a378bec41a02eaa7f39f91172165014",
+    "reason": "One old source-text assertion required the former inline comparison. It was updated to check the bounded policy, clock enclosure and completed-event ordering; the actual wrapper tests already passed."
+  },
+  "guard_ms": 100,
+  "monotonic_completed_clock_fallback": true,
+  "numerical_source_changed": false,
+  "native_build_executed": false,
+  "real_model_executed": false,
+  "performance_acceptance": false,
+  "published": false
+}

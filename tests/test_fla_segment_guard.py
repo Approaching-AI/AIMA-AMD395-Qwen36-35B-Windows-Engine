@@ -20,20 +20,30 @@ class FlaSegmentGuardTests(unittest.TestCase):
         wrapper = 'int launch_guarded_segment_async(' + provider.split(
             'int launch_guarded_segment_async(', 1)[1].split(
                 '#include "pipelined_segment_owner.h"', 1)[0]
+        timing = timing.replace("qrt_fla_completion::Timer<>", "qrt_fla_completion::Timer<FakeCompletionClock>")
         source = r'''
 #include <cassert>
 #include <cstdint>
+#include "native/providers/gdn/completion_guard.h"
+#include <limits>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <string>
 #include <initializer_list>
+double host_now=0.0, host_duration=20.0;
+struct FakeCompletionClock {
+ using duration=std::chrono::duration<double,std::milli>;
+ using time_point=std::chrono::time_point<FakeCompletionClock>;
+ static constexpr bool is_steady=true;
+ static time_point now(){return time_point{duration{host_now}};}
+};
 enum hipError_t {hipSuccess,hipErrorUnknown};
 using hipEvent_t=void*;using hipStream_t=void*;
 constexpr int32_t kSegmentTokens=1024;constexpr unsigned kChunk=64;
 unsigned creates,records,waits,drains,destroys,operations,scratch,body_calls;
 unsigned fail_create,fail_record,fail_operation;
-bool fail_wait=false,fail_scratch=false,batched=true;
+bool fail_wait=false,fail_elapsed=false,fail_scratch=false,batched=true;
 float duration=40.0f;int last_tokens=0,last_valid=0;bool last_reset=false;
 void* expected_stream=nullptr;
 float data[4]{};
@@ -41,9 +51,9 @@ struct {char error[768]{};} g_state;
 hipError_t hipEventCreate(hipEvent_t* p){if(++creates==fail_create)return hipErrorUnknown;*p=reinterpret_cast<void*>(uintptr_t(creates));return hipSuccess;}
 hipError_t hipEventDestroy(hipEvent_t){++destroys;return hipSuccess;}
 hipError_t hipEventRecord(hipEvent_t,hipStream_t s){assert(s==expected_stream);return ++records==fail_record?hipErrorUnknown:hipSuccess;}
-hipError_t hipEventSynchronize(hipEvent_t){++waits;return fail_wait?hipErrorUnknown:hipSuccess;}
+hipError_t hipEventSynchronize(hipEvent_t){++waits;host_now+=host_duration;return fail_wait?hipErrorUnknown:hipSuccess;}
 hipError_t hipStreamSynchronize(hipStream_t s){assert(s==expected_stream);++drains;return hipSuccess;}
-hipError_t hipEventElapsedTime(float* p,hipEvent_t,hipEvent_t){*p=duration;return hipSuccess;}
+hipError_t hipEventElapsedTime(float* p,hipEvent_t,hipEvent_t){*p=duration;return fail_elapsed?hipErrorUnknown:hipSuccess;}
 void set_error(const char* s,hipError_t){std::snprintf(g_state.error,sizeof(g_state.error),"%s",s);}
 void set_error_text(const char* s){set_error(s,hipErrorUnknown);}
 bool blackwell_batched_enabled(){return batched;}
@@ -65,7 +75,7 @@ int launch_segment_async(const float* raw,const float* gates,float* output,float
 void reset(){
  assert(!BlackwellSegmentGuard::active);
  creates=records=waits=drains=destroys=operations=scratch=body_calls=0;
- fail_create=fail_record=fail_operation=UINT32_MAX;fail_wait=fail_scratch=false;batched=true;duration=40;
+ fail_create=fail_record=fail_operation=UINT32_MAX;fail_wait=fail_elapsed=fail_scratch=false;batched=true;duration=40;host_now=0;host_duration=20;
  setenv("QRT_FLA_GDN_SEGMENT_GUARD","1",1);unsetenv("QRT_FLA_GDN_DUMP_Q64_DIR");unsetenv("QRT_FLA_GDN_SYNC_EACH_STAGE");
  unsetenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES");
  g_state.error[0]=0;expected_stream=reinterpret_cast<void*>(uintptr_t(123));
@@ -91,7 +101,7 @@ int main(){
  reset();fail_record=1;assert(!run()&&!operations&&!body_calls&&!drains&&destroys==2);
  reset();fail_record=2;assert(!run()&&operations==6&&!waits&&drains==1&&!BlackwellSegmentGuard::active);
  reset();fail_wait=true;assert(!run()&&operations==6&&waits==1&&drains==1&&!BlackwellSegmentGuard::active);
- reset();duration=100.01f;assert(!run()&&operations==6&&waits==1&&!drains&&!BlackwellSegmentGuard::active);
+ reset();duration=100.01f;host_duration=101;assert(!run()&&operations==6&&waits==1&&!drains&&!BlackwellSegmentGuard::active);
  reset();duration=100;assert(run()&&operations==6&&waits==1);
  reset();{BlackwellSegmentGuard scope(expected_stream);assert(!run()&&!creates&&!scratch&&BlackwellSegmentGuard::active==&scope);
   assert(!launch_blackwell_math("foreign",nullptr,[]{++operations;return hipSuccess;}));assert(!operations);
@@ -106,12 +116,18 @@ int main(){
  reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES","1",1);unsetenv("QRT_FLA_GDN_SEGMENT_GUARD");
  assert(run()&&operations==6&&creates==12&&waits==6); // Per-stage completion is available.
  reset();setenv("QRT_FLA_GDN_PROFILE_COMPLETED_STAGES","1",1);duration=-1;
- assert(run()&&waits==1); // A negative event interval is flagged, never a numerical rejection.
+ assert(run()&&waits==1); // The independent host clock proves completion within100 ms.
+ reset();fail_elapsed=true;duration=std::numeric_limits<float>::quiet_NaN();assert(!run()&&waits==1&&operations==6&&!drains&&!BlackwellSegmentGuard::active);
+ for(float value:{-1.0f,100.01f,std::numeric_limits<float>::infinity(),std::numeric_limits<float>::quiet_NaN()}){
+  reset();duration=value;assert(run()&&waits==1&&operations==6);
+  reset();duration=value;host_duration=101;assert(!run()&&waits==1&&operations==6&&!BlackwellSegmentGuard::active);
+  assert(std::strstr(g_state.error,"stage=blackwell_complete_segment")&&std::strstr(g_state.error,"host_ms=101.000000"));
+ }
 }
 '''
         with tempfile.TemporaryDirectory() as temp:
             exe = str(Path(temp)/'segment-guard')
             subprocess.run(['c++','-std=c++17','-Wall','-Wextra','-Werror','-fsanitize=undefined',
-                '-fno-sanitize-recover=all','-x','c++','-','-o',exe],
+                '-fno-sanitize-recover=all','-I',str(ROOT),'-x','c++','-','-o',exe],
                 input=source,text=True,check=True,timeout=30)
             subprocess.run([exe],check=True,capture_output=True,timeout=10)

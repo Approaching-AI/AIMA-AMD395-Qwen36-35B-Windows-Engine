@@ -52,6 +52,7 @@ $pairedScoreHeader = Join-Path $repo 'native\providers\gdn\paired_score_matrices
 $pairedScorePolicyHeader = Join-Path $repo 'native\providers\gdn\paired_score_policy.h'
 $pipelinePolicyHeader = Join-Path $repo 'native\providers\gdn\pipelined_segment_policy.h'
 $pipelineOwnerHeader = Join-Path $repo 'native\providers\gdn\pipelined_segment_owner.h'
+$completionGuardHeader = Join-Path $repo 'native\providers\gdn\completion_guard.h'
 $fusedStateOutputHeader = Join-Path $repo 'native\providers\gdn\fused_state_output.h'
 $fusedStateOutputPolicyHeader = Join-Path $repo 'native\providers\gdn\fused_state_output_policy.h'
 $flaCheckpointHeader = Join-Path $repo 'native\providers\gdn\fla_checkpoint.h'
@@ -195,11 +196,13 @@ $record = [ordered]@{
     native_blackwell_state=$true; cooperative_exact_available=$true; cooperative_exact_lanes=4
     paired_score_arenas_available=$true; paired_score_arenas_default=0
     pipelined_segments_available=$true; pipelined_segments_default=0
+    completion_guard_ms=100; completion_guard_host_clock='std::chrono::steady_clock'
+    completion_guard_requires_completed_end_event=$true
     sm121_dpp_reduction=($DppReduction -ne 0)
     sm121_compact_normalize=($CompactNormalize -ne 0)
     sm121_canonical_normalize_header_sha256=(Get-FileHash (Join-Path $repo 'native\providers\moe_accumulator\sm121_canonical_normalize.h') -Algorithm SHA256).Hash.ToLowerInvariant()
     sm121_lane_reduce_header_sha256=(Get-FileHash $sm121LaneReduceHeader -Algorithm SHA256).Hash.ToLowerInvariant()
-    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121FloatAlignmentHeader, $sm121SubgroupHeader, $sm121PairedHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $blackwellScalarMatricesHeader, $blackwellScalarStateHeader, $blackwellLifetimeHeader, $pairedScoreHeader, $pairedScorePolicyHeader, $pipelinePolicyHeader, $pipelineOwnerHeader, $fusedStateOutputHeader, $fusedStateOutputPolicyHeader, $flaCheckpointHeader, $intervalMatricesHeader, $coarseIntervalHeader, $coarseIntervalPolicyHeader, $consumerIntervalHeader, $coarseProjectionBoundHeader, $projectionIntervalHeader, $pvErrorBoundHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
+    sources=@(@($generator, $provider, $smoke, $blackwellKkt, $blackwellAccumulator, $outputReplay, $upstreamReplay, $blackwellState, $blackwellStateHeader, $blackwellWave16, $sm121Wave16Header, $sm121Group16ModuloHeader, $sm121FloatAlignmentHeader, $sm121SubgroupHeader, $sm121PairedHeader, $sm121Exp2TableHeader, $blackwellAux, $blackwellAuxHeader, $blackwellCooperative, $blackwellCooperativeHeader, $blackwellScalarMatricesHeader, $blackwellScalarStateHeader, $blackwellLifetimeHeader, $pairedScoreHeader, $pairedScorePolicyHeader, $pipelinePolicyHeader, $pipelineOwnerHeader, $completionGuardHeader, $fusedStateOutputHeader, $fusedStateOutputPolicyHeader, $flaCheckpointHeader, $intervalMatricesHeader, $coarseIntervalHeader, $coarseIntervalPolicyHeader, $consumerIntervalHeader, $coarseProjectionBoundHeader, $projectionIntervalHeader, $pvErrorBoundHeader, $blackwellNorm, $blackwellNormHeader, $sm121RsqrtTableHeader, $blackwellInverse, $blackwellInverseHeader, $blackwellInverseMath, $firstCallCapture) | ForEach-Object {
         [ordered]@{path=$_;sha256=(Get-FileHash $_ -Algorithm SHA256).Hash.ToLowerInvariant()}
     })
     artifacts=$artifacts; numerical_acceptance=$false
