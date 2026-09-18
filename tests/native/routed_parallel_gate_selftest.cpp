@@ -81,10 +81,10 @@ void run() {
                 dim3((padded_count / 64 + 3) * qrt_routed_parallel_gate::kColumnBlocks), dim3(256),
                 0, stream, di.data(), dw.data(), ds.data(), de.data(), dp.data(), dout.data(), route_count);
         } else {
-            hipLaunchKernelGGL(native_wmma_gate_up_silu_lds_b_split_passes_kernel,
+            hipLaunchKernelGGL(native_wmma_gate_up_silu_lds_b_split_passes_kernel<false>,
                 dim3((padded_count / 64 + 3) * kNativeWmmaLdsBGateGridN), dim3(kNativeWmmaLdsBGateThreads),
                 0, stream, di.data(), dw.data(), ds.data(), de.data(), dp.data(),
-                static_cast<uint16_t *>(nullptr), dout.data(), static_cast<const uint16_t *>(nullptr), 0u, 0u);
+                static_cast<uint16_t *>(nullptr), dout.data(), static_cast<const uint16_t *>(nullptr), 0u, 0u, MoeCorrectionBounds{}, 0u, 0u);
         }
         hip_ok(hipGetLastError(), "matrix launch");
         hipEvent_t end = nullptr;

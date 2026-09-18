@@ -754,6 +754,24 @@ static_assert(
 #else
 #define QRT_TRITON_MOE_PATH_SEPARATOR "/"
 #endif
+// Producer replay is limited to the retained M64/overflow32, serial N32
+// matrix schedule. Other variants keep their existing kernel and correction.
+#define QRT_MOE_PRODUCER_GATE_SUPPORTED (QRT_TRITON_MOE_BATCHED_HAWKEYE && \
+    QRT_TRITON_MOE_NATIVE_WMMA_GATE && QRT_TRITON_MOE_NATIVE_WMMA_LDS_B && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_GATE_N32 && \
+    QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_FUSED_OVERFLOW32 && \
+    QRT_TRITON_MOE_BLOCK_M == 64 && QRT_MOE_ROUTED_REPLAY_LANES == 4 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DIRECT_M16 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_DUAL_M16 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_M64_QUAD_GATE_M16 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_N64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SERIAL_WIDE_N64 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_COMPACT_SPLIT_TAIL && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_ADAPTIVE_M128 && \
+    !QRT_TRITON_MOE_NATIVE_WMMA_WEIGHT_INT8)
+
 namespace {
 
 constexpr uint32_t kTokens = QRT_TRITON_MOE_TOKENS;
@@ -4827,6 +4845,10 @@ __global__ void native_wmma_gate_up_silu_lds_b_parallel_n32_kernel(
 // halving live accumulators from eight to four vectors per wave.  The extra A
 // read and one compact intermediate round trip are small beside the two cold
 // expert-weight matrices.
+#if QRT_MOE_PRODUCER_GATE_SUPPORTED
+#include "producer_gate_up_replay.h"
+#endif
+template<bool ProducerReplay = false>
 __global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
     const uint16_t *post_attention_bf16,
     const uint16_t *gate_up_bf16,
@@ -4861,7 +4883,12 @@ __global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
     uint32_t *routed_projection_hawkeye_correction_count_debug,
     uint32_t routed_projection_debug_token
 #endif
+    , MoeCorrectionBounds producer_bounds = {},
+    uint32_t producer_gate_low_exponent = 0u,
+    uint32_t producer_up_low_exponent = 0u
 ) {
+    static_assert(!ProducerReplay || QRT_MOE_PRODUCER_GATE_SUPPORTED,
+        "producer replay requires the original M64/overflow32 serial N32 schedule");
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_FUSED_OVERFLOW_DESCRIPTOR
     __shared__ NativeWmmaLdsBSplitGateSharedStorage shared;
 #else
@@ -5917,6 +5944,35 @@ __global__ void native_wmma_gate_up_silu_lds_b_split_passes_kernel(
                         }
                     }
                 }
+            }
+        }
+#endif
+#if QRT_MOE_PRODUCER_GATE_SUPPORTED
+        if constexpr (ProducerReplay) {
+            if (projection == 1u) {
+                static_assert(sizeof(shared.a) >= kNativeWmmaLdsBSerialRows * 32u * sizeof(uint16_t));
+                const uint32_t first_column = inter_macro * kNativeWmmaLdsBGateMacroN + n_group * 32u;
+                auto* count = reinterpret_cast<uint32_t*>(&shared.padding[0]);
+                moe_producer_projection_replay<false>(shared.routes, active_rows,
+                    uint32_t(shared.expert), first_column, shared.a, count,
+                    post_attention_bf16, gate_up_bf16, batched_hawkeye_gate_up_native_f32,
+                    activated_bf16, cuda_vllm_silu_bf16_domain_lut,
+                    routed_projection_hawkeye_midpoint_radius, producer_gate_low_exponent, producer_bounds
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+                    , routed_gate_projection_debug, routed_gate_projection_f32_debug,
+                    routed_projection_hawkeye_correction_count_debug, routed_projection_debug_token
+#endif
+                );
+                moe_producer_projection_replay<true>(shared.routes, active_rows,
+                    uint32_t(shared.expert), first_column, shared.a, count,
+                    post_attention_bf16, gate_up_bf16, batched_hawkeye_gate_up_native_f32,
+                    activated_bf16, cuda_vllm_silu_bf16_domain_lut,
+                    routed_up_projection_hawkeye_midpoint_radius, producer_up_low_exponent, producer_bounds
+#if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
+                    , routed_up_projection_debug, routed_up_projection_f32_debug,
+                    routed_projection_hawkeye_correction_count_debug, routed_projection_debug_token
+#endif
+                );
             }
         }
 #endif
@@ -14338,7 +14394,7 @@ bool launch_routed_matrices_after_input_conversion(
 #if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
             native_wmma_gate_up_silu_lds_b_parallel_n32_kernel,
 #elif QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES
-            native_wmma_gate_up_silu_lds_b_split_passes_kernel,
+            native_wmma_gate_up_silu_lds_b_split_passes_kernel<false>,
 #else
             native_wmma_gate_up_silu_lds_b_kernel,
 #endif
@@ -14400,6 +14456,9 @@ bool launch_routed_matrices_after_input_conversion(
             g_state.routed_up_projection_f32_debug,
             g_state.routed_projection_hawkeye_correction_count_debug,
             routed_projection_debug_token
+#endif
+#if QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_SPLIT_GATE_PASSES && !QRT_TRITON_MOE_NATIVE_WMMA_LDS_B_PARALLEL_GATE_UP_N32
+            , MoeCorrectionBounds{}, 0u, 0u
 #endif
         );
 #if QRT_TRITON_MOE_ROUTED_PROJECTION_DEBUG
