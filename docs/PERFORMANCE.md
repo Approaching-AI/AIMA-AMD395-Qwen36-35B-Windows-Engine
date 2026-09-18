@@ -46,7 +46,12 @@ The same stack also passes all 512 initial-retry and 512 timed-hit GB10 IDs
 for the original 16384-prefix + 1024-suffix case, including actual streaming,
 state restoration and changed-prefix rejection. Timed-hit TTFT is
 9047.9052 ms and TPOT 158.64168 ms; prefix performance targets remain open.
-Larger-context and release qualification remain separate.
+The original 32768-prefix + 1024-suffix case also passes both 512-token
+continuations, original first logits, callbacks, restoration and changed-prefix
+rejection. Independent scratch growth is observed at the owner and suffix
+boundaries. Load is 21281.3331 ms, hit TTFT 14602.8872 ms, TPOT 214.793319 ms
+and total 124426.6185 ms; the retained performance ceilings remain unmet.
+The cold 32k continuation, larger contexts and release remain unqualified.
 [Implementation, full timings and evidence](LONG_ATTENTION_PIPELINE.md).
 
 ## Long complete-attention components, 2026-09-18

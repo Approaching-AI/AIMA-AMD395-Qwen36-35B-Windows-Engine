@@ -87,6 +87,20 @@ and initial retry in 164928.7351 ms, and completes the timed hit in
 There is no paired prefix speedup claim. The retained prefix ceilings remain
 2977.539631 ms TTFT, 37.718887 ms TPOT and 22251.890998 ms total.
 
+The original 32768-prefix + 1024-suffix case also passes both 512-token
+continuations, first logit 5.59375/error 0, actual callbacks, restoration
+and changed-prefix rejection. All four cold owner chunks complete; the owner
+first token 16/logit 24.75 match GB10. Its separate 32-token continuation is
+not measured. Thirty owner and twenty suffix calls use the long route.
+Independent scratch grows to 32768-key capacity and then 40960-key capacity
+for the 33792-key suffix, while earlier chunks reuse the original slab.
+
+The fresh process loads in 21281.3331 ms; owner/retry seeding takes
+400026.366 ms. The timed hit has TTFT 14602.8872 ms, TPOT 214.793319 ms
+and total 124426.6185 ms. These are functional observations, without a
+paired performance claim. The retained 32k ceilings remain 3710.594246 ms,
+40.954169 ms and 24638.174622 ms respectively.
+
 The single short run does not replace the qualified q8192 median
 23353.80795 ms. The below-10-second gate, retained 4187.415605 ms target,
 prefix performance, larger contexts and release gates remain open. No
@@ -106,3 +120,11 @@ bytes, SHA256
 `c356e3a11436e6da0990ef038221388c9068dc573f8ad17f737570ce28000e99`.
 Command: `run-long-attention-prefix16k-r1.ps1`; native process wall is
 276968.093 ms, with a 480-second native deadline.
+
+[Original 32k prefix continuation evidence](../benchmarks/correctness/long-attention-pipeline-prefix32k-20260918.json):
+454702 bytes, SHA256
+`c6a71a11f362d3288e0dd539dfa74794d6a7b17567eaedd6b71dadd6d7e7afb3`.
+Command: `run-long-attention-prefix32k-r1.ps1`; native process wall is
+546225.070 ms, with a 900-second native deadline. The proof corrects inherited
+descriptive metadata using the executed command and original 32k oracle;
+the original source record and all native artifacts remain identified.
