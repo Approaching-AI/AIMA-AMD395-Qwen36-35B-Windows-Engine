@@ -37,9 +37,9 @@ struct Guarded {
 struct AttentionOutputs {
     Outputs tensor;
     Guarded output,accumulator,denominator,error,indices,count;
-    AttentionOutputs(unsigned tokens):tensor(query_batch,tokens),
-        output(size_t(query_batch)*4096u*4u),accumulator(output.bytes),
-        denominator(size_t(query_batch)*16u*4u),error(output.bytes),indices(output.bytes),count(4u){}
+    AttentionOutputs(unsigned tokens,unsigned capacity=query_batch):tensor(capacity,tokens),
+        output(size_t(capacity)*4096u*4u),accumulator(output.bytes),
+        denominator(size_t(capacity)*16u*4u),error(output.bytes),indices(output.bytes),count(4u){}
     void reset(){tensor.reset();for(auto* p:{&output,&accumulator,&denominator,&error,&indices,&count})p->reset();}
     void guards(){for(auto* p:{&output,&accumulator,&denominator,&error,&indices,&count})p->guards();}
 };

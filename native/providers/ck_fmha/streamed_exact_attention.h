@@ -21,7 +21,7 @@ struct NativeExp {
 
 // The default remains the validated input-indexed native correction. Isolated
 // component tests may supply another independently verified EXP representation.
-template<bool FuseQk, class Exp = NativeExp>
+template<bool FuseQk, class Exp = NativeExp, bool FinalBound = true>
 __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
     const uint16_t* value, const uint32_t* packed_query, const uint32_t* packed_key,
     const unsigned* query_flags, const unsigned* key_flags,
@@ -177,7 +177,10 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     for (unsigned e = 0u; e < 8u; ++e) {
                         const unsigned local_row = q * 16u + 2u * e + lane / 16u, row = row_tile + local_row;
                         if (!part && row < count && tile < (start + row + 32u) / 32u) {
-                            error[q][c][e] = bound::rescale(error[q][c][e], accumulator[q][c][e], alpha[local_row]);
+                            if constexpr (FinalBound)
+                                error[q][c][e] = bound::rescale(error[q][c][e], accumulator[q][c][e], alpha[local_row]);
+                            else
+                                error[q][c][e] = qrt_sm121_pv_bound::rescale(error[q][c][e], accumulator[q][c][e], alpha[local_row]);
                             accumulator[q][c][e] = bound::multiply(accumulator[q][c][e], alpha[local_row]);
                         }
                     }
@@ -187,7 +190,10 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     for (unsigned e = 0u; e < 8u; ++e) {
                         const unsigned row = row_tile + q * 16u + 2u * e + lane / 16u;
                         if (row < count && tile < (start + row + 32u) / 32u) {
-                            error[q][c][e] = bound::group(error[q][c][e], accumulator[q][c][e], magnitudes[e]);
+                            if constexpr (FinalBound)
+                                error[q][c][e] = bound::group(error[q][c][e], accumulator[q][c][e], magnitudes[e]);
+                            else
+                                error[q][c][e] = qrt_sm121_pv_bound::group(error[q][c][e], accumulator[q][c][e], magnitudes[e]);
                             accumulator[q][c][e] = next[e];
                         }
                     }
@@ -208,7 +214,9 @@ __global__ void produce(const uint16_t* query, const uint16_t* transposed_key,
                     const size_t cell = (size_t(row) * 16u + head) * 256u + column;
                     const float reciprocal = qrt_sm121_attention_rcp::evaluate(rcp_table, denominator[local_row]);
                     output[cell] = accumulator[q][c][e] * reciprocal;
-                    const float final_error = bound::finalize(error[q][c][e], ((start + row + 32u) / 32u) * 2u);
+                    const float final_error = FinalBound
+                        ? bound::finalize(error[q][c][e], ((start + row + 32u) / 32u) * 2u)
+                        : error[q][c][e];
                     errors[cell] = qrt_sm121_pv_bound::finish(final_error, accumulator[q][c][e], reciprocal);
                     if (raw_accumulator) raw_accumulator[cell] = accumulator[q][c][e];
                     if (!column) {
