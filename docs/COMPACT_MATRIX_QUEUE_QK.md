@@ -39,5 +39,27 @@ the additional metadata preparation is reported separately and must be added
 when comparing totals. These are component measurements, not model TTFT.
 
 Host ASan/UBSan checks cover lossless reconstruction, ordered carry equality,
-unchanged output on rejection and wave source-rank selection. Native build,
-safety and timing results are pending.
+unchanged output on rejection and wave source-rank selection. Native build and all 320 safety configurations pass on baiying, including
+the forced-original queue. Both captures preserve all original score and
+attention surfaces, candidate identities, immutable inputs and 29,364,224
+original GB10 context values per variant.
+
+| Complete attention plus route preparation | Retained | Direct fallback | Wave fallback |
+| --- | ---: | ---: | ---: |
+| q7169 | 382.2061 ms | 796.6028 ms | 709.9250 ms |
+| q8192 | 540.3715 ms | 1102.1330 ms | 989.6595 ms |
+
+Every candidate timing sample is slower than every control sample. The common
+decoded preparation and V transpose, excluded equally from these totals, cost
+2.4259/3.7167 ms. Static control/direct/wave/forced resources use
+167/71/73/57 VGPRs and 24576/28160/28160/28160 shared bytes with zero private
+scratch or spills. Reduced registers do not establish a throughput improvement.
+The additional q8192 row metadata occupies 141,557,760 bytes.
+
+Keep this source isolated and continue broader scheduling or arithmetic work.
+The qualified model control remains 23353.80795 ms; no provider, package or
+release change follows. Native source `7c9628c`, guarded command
+`run-native-compact-matrix-queue-qk-r1.ps1` and all run/executable/input hashes
+are pinned in the [complete evidence](../benchmarks/correctness/compact-matrix-queue-qk-native-components-20260918.json):
+146505 bytes, SHA256
+`def3391fc2fb17070fe46ead130a1aa41273c6fda43f63a6934c019b4cfe720a`.

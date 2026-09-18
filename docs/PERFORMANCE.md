@@ -107,6 +107,24 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Compact matrix QK with wave fallback, 2026-09-18
+
+Source `7c9628c` retains exact ordered carries with 60-byte lossless rows,
+four IU8 matrices per K16 group and either direct or register-shuffle fallback.
+Host ASan/UBSan and all320 native configurations pass, including forced
+original scheduling. q7169/q8192 preserve every original attention surface,
+candidate count, metadata and guard, plus29364224 original GB10 context cells
+per variant. The repeated1023 rows have original-arithmetic coverage only.
+
+Complete attention plus route preparation regresses382.2061 to796.6028/
+709.925ms at q7169 and540.3715 to1102.133/989.6595ms at q8192. Every candidate
+sample exceeds every control. Static VGPR use falls167 to71/73 without spills,
+but the complete operation slows. Keep the source isolated; pursue broader
+scheduling or arithmetic replacement. The23353.80795ms model control and all
+open mission gates remain unchanged.
+
+[Design and complete evidence](COMPACT_MATRIX_QUEUE_QK.md).
+
 ## Captured QK integer-domain and submission audit, 2026-09-18
 
 Host-only source `cf1f046` samples65536 deterministic causal QK dots from the
