@@ -63,12 +63,12 @@ std::vector<uint16_t> read_words(const char* name,size_t words){
     std::vector<uint16_t> v(words);file.seekg(0);file.read(reinterpret_cast<char*>(v.data()),words*2u);require(bool(file),"capture read");return v;
 }
 struct Measurement {double ms=0.0,prefix_ms=0.0;unsigned selected=0u;};
-constexpr unsigned variants=3u;
-const char* names[variants]={"c64_domain_vector","c64_domain_shared64x64","signed_loss_shared64x64"};
+constexpr unsigned variants=4u;
+const char* names[variants]={"c64_domain_vector","c64_domain_shared64x64","signed_loss_shared64x64","signed_loss_shared64x32"};
 struct Test {
     unsigned rows,tokens,width,cells;bool captured;
     std::vector<uint16_t> weights,inputs,reference;
-    std::vector<float> canonical,baseline_centers,baseline_errors;
+    std::vector<float> canonical,baseline_centers,baseline_errors,directional_lower,directional_upper;
     std::vector<Row> expected_pw,expected_px;
     std::vector<unsigned> expected_wf,expected_xf;
     Buffer<uint16_t> w,x;
@@ -117,14 +117,16 @@ struct Test {
         hipLaunchKernelGGL(matrix::eligibility,dim3(tokens),dim3(256u),0u,nullptr,x.data(),xf.data(),tokens,width);check(hipGetLastError());
         if(variant==0u)hipLaunchKernelGGL((matrix::produce<64u,1u,true,19u,true>),dim3((rows+127u)/128u,(tokens+15u)/16u),dim3(256u),0u,nullptr,w.data(),x.data(),wf.data(),xf.data(),centers.data(),errors.data(),rows,tokens,width);
         else if(variant==1u)shared_producer<64u,true>();
-        else hipLaunchKernelGGL((directed::produce<64u,true>),dim3((rows+63u)/64u,(tokens+63u)/64u),dim3(256u),0u,nullptr,
+        else if(variant==2u)hipLaunchKernelGGL((directed::produce<64u,true>),dim3((rows+63u)/64u,(tokens+63u)/64u),dim3(256u),0u,nullptr,
+            w.data(),x.data(),wf.data(),xf.data(),centers.data(),errors.data(),upper_errors.data(),rows,tokens,width);
+        else hipLaunchKernelGGL((directed::produce<64u,true,1u>),dim3((rows+63u)/64u,(tokens+31u)/32u),dim3(256u),0u,nullptr,
             w.data(),x.data(),wf.data(),xf.data(),centers.data(),errors.data(),upper_errors.data(),rows,tokens,width);
         check(hipGetLastError());
     }
     Measurement run(unsigned variant){
         ids.reset();centers.reset();errors.reset();upper_errors.reset();output.reset();check(hipMemset(counter.data(),0,4u));finish();
         const auto begin=std::chrono::steady_clock::now();prepare();producer(variant);
-        if(variant==2u)hipLaunchKernelGGL(directed::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
+        if(variant>=2u)hipLaunchKernelGGL(directed::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,
             centers.data(),errors.data(),upper_errors.data(),output.data(),ids.data(),counter.data(),cells);
         else hipLaunchKernelGGL(matrix::compact,dim3((cells+255u)/256u),dim3(256u),0u,nullptr,centers.data(),errors.data(),output.data(),ids.data(),counter.data(),cells);
         check(hipGetLastError());finish();Measurement result;
@@ -136,18 +138,22 @@ struct Test {
     }
     void verify(unsigned variant,const Measurement& measurement){
         const auto out=output.read(),c=centers.read(),e=errors.read(),upper=upper_errors.read();
-        if(variant!=2u)marker_tail(upper,0u);const auto selected=ids.read();
+        if(variant<2u)marker_tail(upper,0u);const auto selected=ids.read();
         marker_tail(selected,measurement.selected);require(counter.read()[0]==measurement.selected,"counter changed after replay");
         if(baseline_centers.empty()){require(variant==0u,"baseline must run first");baseline_centers=c;baseline_errors=e;}
         else {
             require(!std::memcmp(c.data(),baseline_centers.data(),size_t(cells)*4u),"C64 raw center changed");
-            if(variant!=2u)require(!std::memcmp(e.data(),baseline_errors.data(),size_t(cells)*4u),"control envelope changed");
+            if(variant<2u)require(!std::memcmp(e.data(),baseline_errors.data(),size_t(cells)*4u),"control envelope changed");
+        }
+        if(variant>=2u) {
+            if(directional_lower.empty()){directional_lower=e;directional_upper=upper;}
+            else require(!std::memcmp(e.data(),directional_lower.data(),size_t(cells)*4u)&&!std::memcmp(upper.data(),directional_upper.data(),size_t(cells)*4u),"directional envelope changed with schedule");
         }
         std::vector<unsigned char> seen(cells,0u);
         for(unsigned i=0u;i<measurement.selected;++i){require(selected[i]<cells&&!seen[selected[i]],"coarse candidate permutation");seen[selected[i]]=1u;}
         for(unsigned cell=0u;cell<cells;++cell){
-            const float high=variant==2u?upper[cell]:e[cell];
-            const bool accepted=variant==2u?loss::certified({c[cell],e[cell],high}):bound::certified({c[cell],e[cell]});
+            const float high=variant>=2u?upper[cell]:e[cell];
+            const bool accepted=variant>=2u?loss::certified({c[cell],e[cell],high}):bound::certified({c[cell],e[cell]});
             require(bool(seen[cell])==!accepted,"complete candidate mask differs from actual interval");
             require(double(c[cell])-double(canonical[cell])<=double(e[cell])&&double(canonical[cell])-double(c[cell])<=double(high),"directional original interval undercoverage");
             require(e[cell]<=baseline_errors[cell]&&high<=baseline_errors[cell],"directional envelope widened");
@@ -166,14 +172,15 @@ struct Test {
             else {require(result.selected==warm[variant].selected,"candidate work changed across samples");samples[variant][attempt-1u]=result.ms;prefix[variant][attempt-1u]=result.prefix_ms;}
         }
         dc.unchanged(canonical);
+        require(warm[2].selected==warm[3].selected,"directional schedule changed candidate count");
         for(unsigned variant=0u;variant<variants;++variant){
-            require(variant==2u?warm[variant].selected<=warm[0].selected:warm[variant].selected==warm[0].selected,"candidate count violates subset");
+            require(variant>=2u?warm[variant].selected<=warm[0].selected:warm[variant].selected==warm[0].selected,"candidate count violates subset");
             auto sorted=std::array<double,3>{samples[variant][0],samples[variant][1],samples[variant][2]};std::sort(sorted.begin(),sorted.end());
             std::printf("{\"kernel\":\"signed_loss_projection\",\"variant\":\"%s\",\"variant_id\":%u,\"rows\":%u,\"tokens\":%u,\"width\":%u,\"mode\":%u,\"weight_skew_words\":%u,\"input_skew_words\":%u,\"captured\":%s,\"cells\":%u,\"candidates\":%u,\"replay_groups\":%llu,",
                 names[variant],variant,rows,tokens,width,mode,w.skew,x.skew,captured?"true":"false",cells,warm[variant].selected,static_cast<unsigned long long>(warm[variant].selected)*(width/16u));
             std::printf("\"owner_ms\":%.7f,\"owner_samples_ms\":[%.7f,%.7f,%.7f],\"prefix_ms\":%.7f,\"prefix_samples_ms\":[%.7f,%.7f,%.7f],\"warm_samples\":%u,\"measured_samples\":%u,\"independent_cpu_dots\":%u,",
                 captured?sorted[1]:warm[variant].ms,samples[variant][0],samples[variant][1],samples[variant][2],warm[variant].prefix_ms,prefix[variant][0],prefix[variant][1],prefix[variant][2],unsigned(captured),captured?3u:1u,cpu_dots);
-            std::printf("\"bf16_mismatches\":0,\"full_replay_raw_mismatches\":0,\"interval_undercoverage\":0,\"raw_centers_unchanged\":true,\"directional_envelopes_contain_original\":true,\"original_certificate_subset_preserved\":true,\"complete_candidate_permutation_checked\":true,\"all_attempts_verified\":true,\"all_prepared_words_checked\":true,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"real_model_prompt\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n");
+            std::printf("\"bf16_mismatches\":0,\"full_replay_raw_mismatches\":0,\"interval_undercoverage\":0,\"raw_centers_unchanged\":true,\"directional_envelopes_contain_original\":true,\"directional_envelopes_unchanged_between_schedules\":true,\"original_certificate_subset_preserved\":true,\"complete_candidate_permutation_checked\":true,\"all_attempts_verified\":true,\"all_prepared_words_checked\":true,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"hardware_error_bound_proven\":false,\"real_model_prompt\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n");
             std::fflush(stdout);
         }
     }
