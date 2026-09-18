@@ -1,5 +1,32 @@
 # Real-model performance
 
+## Current stack at 16k, 2026-09-18
+
+The same qualified whole `ddacdc9`, CK `1c2770d`, MoE `9235750`,
+FLA `7b20c90` and CLI `24c4304` run the real 16384-token cold owner on
+baiying. All 32 original GB10 continuation IDs, prompt IDs and actual callbacks
+match; first token is 16 and raw logit 25.625, error 0. Load is 21371.6083 ms,
+instrumented TTFT 86113.7805 ms and TPOT 128.642813 ms. Only the existing
+cold chunk option, five profiling flags and full markers differ from the
+q8192 control. This single profile is not an uninstrumented speed comparison.
+
+The two complete 8192-token chunks preserve their original state and KV
+owners. Final-query/output liveness correctly stays inactive inside both
+transactions. Ten first-chunk CK calls total 6516.5173 ms; ten second-chunk
+calls total 36526.6208 ms. The latter contains 11745.5448 ms QK,
+3760.1110 ms probabilities, 7301.9270 ms native PV and 13160.9654 ms exact PV.
+The complete second chunk takes 57750.3 ms. These CK intervals are nested
+inside full attention. Allocation, H2D and free clocks remain milliseconds;
+pooling does not address the dominant measured work. Negative GPU event
+intervals remain invalid and are excluded from totals.
+
+This validates only the cold 16k owner and 32-token continuation, without a
+prefix hit, 512-token continuation or larger-context qualification. The
+qualified q8192 median remains 23353.80795 ms and all performance/release
+targets remain open. [Complete profile evidence](../benchmarks/correctness/narrow-stack-long-completed-profile-20260918.json):
+218711 bytes, SHA256
+`2a68f76e32a303defd218a6b29ada8ed3ff435708e0a0d92a19eac6ba0f55dce`.
+
 
 ## Current narrow-QK stack profile, 2026-09-18
 
