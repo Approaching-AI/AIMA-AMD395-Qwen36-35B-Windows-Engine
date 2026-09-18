@@ -69,6 +69,31 @@ no native value is supplied to the service. Selected64k/96k/later prefill rows
 and40 layer carriers at the divergent decode input are available for diagnosis.
 See the [qualified intermediate reference](../benchmarks/correctness/gb10-prefix128-divergence-boundaries-20260919.json).
 
+The subsequent native diagnostic at whole50a/FLA1d localizes an earlier
+prefill difference. All40 BF16-rounded layer carriers and the actual final
+normalization vector match GB10 at each of the first11 chunk-terminal rows,
+through position90111. At position98303, layers0–15 still match; layer16 has
+286 differing BF16 values. The final normalization then differs in2025 of2048
+values, with maximum absolute error1.10546875. Position106495 also first
+differs at layer16. These observations cover selected rows, not every prior
+input or recurrent state, and do not identify the faulty operator.
+
+Codex deliberately stopped this diagnostic after13 complete chunks and seven
+layer observations in the next chunk to run a focused first12-chunk observer.
+Native wall3214709.929 ms, exit-1, the explicit owned-process cancellation and
+all passing host/cleanup checks are preserved. The128k prompt did not finish;
+no product output or target decode capture was produced. This is neither a
+new runtime-error finding nor full128k qualification. See the
+[external prefill comparison and recorded stop](../benchmarks/correctness/prefix128-prefill-layer16-divergence-20260919.json).
+
+An independent [layer16 reference window](../benchmarks/correctness/gb10-prefix128-layer16-window-20260919.json)
+now contains the original8192 inputs at positions90112–98303, gates, initial
+and final FP32 states, and BF16 core output. Its eight tensors total207093760
+bytes. All576 original owner/control IDs and the full owner first-logit
+tensor reproduce; all2047 downloaded files and host/cleanup checks pass.
+The original observer and compute methods are unchanged. This window enables
+component diagnosis without supplying native inputs to the reference.
+
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
 

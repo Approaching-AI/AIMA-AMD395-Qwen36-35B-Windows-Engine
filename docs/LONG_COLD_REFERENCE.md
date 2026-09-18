@@ -54,6 +54,16 @@ dependency source9b2a99ed and model computation remain pinned. See the
 This gives the Windows diagnostic an external comparison at each chunk
 boundary without changing the original acceptance cases or their outputs.
 
+The optional `QRT_GB10_PREFILL_MOE_SELECTED_ROWS=1` also permits the existing
+read-only MoE hooks on selected real rows of prefill chunks up to8192 tokens.
+It preserves position selection, returns original model results unchanged,
+and retains the512 MiB per-case cap. Transactions outside the declared prompt
+or beyond that chunk extent are excluded; invalid option values are rejected.
+Missing required selected-row stages fail capture completion. Nineteen
+boundary tests and six token-matrix tests pass, including the actual98303
+row identity and unchanged default selection. New reference captures still
+require the original output IDs and full first-logit tensors to reproduce.
+
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
 

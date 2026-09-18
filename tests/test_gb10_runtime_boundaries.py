@@ -13,7 +13,8 @@ from capture_gb10_runtime_boundaries import (  # noqa: E402
     full_prefill_attention_window, full_prefill_linear_window, matches_linear_window,
     full_prefill_linear_core_only, full_prefill_linear_labels,
     observation_positions, observation_timeout_seconds, prepared_token_ids, qualify_transaction,
-    recurrent_state_selection, short_prefill_moe_observation, target_rows,
+    recurrent_state_selection, selected_prefill_moe_observation,
+    short_prefill_moe_observation, target_rows,
 )
 
 
@@ -173,6 +174,34 @@ class RuntimeBoundaryTests(unittest.TestCase):
             for args in ((0, 0, 0), (385, 0, 385), (7169, 0, 7169),
                          (5, 0, 4), (5, 1, 5), (5, 5, 2)):
                 self.assertFalse(short_prefill_moe_observation(*args))
+
+    def test_selected_long_prefill_moe_keeps_actual_chunk_row_identity(self):
+        case = 'long-prefix131072-owner-out512'
+        plan = {case: [90111, 98303]}
+        with patch.dict(os.environ, {'QRT_GB10_CASE_PREFILL_POSITIONS': json.dumps(plan)}, clear=True):
+            before = observation_positions(case, 131072)
+            self.assertFalse(selected_prefill_moe_observation(131072, 90112, 8192))
+            with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_SELECTED_ROWS': '1'}):
+                self.assertTrue(selected_prefill_moe_observation(131072, 90112, 8192))
+                selected = observation_positions(case, 131072)
+                self.assertEqual(selected, before)
+                rows = target_rows(list(range(90112, 98304)), [42] * 8192, [8191], selected)
+                self.assertEqual(rows, [dict(row=8191, position=98303, input_token_id=42, logit_row=0)])
+                transaction = dict(first_position=90112, input_token_ids=[42] * 8192, rows=rows)
+                self.assertTrue(qualify_transaction(transaction, [42] * 131072)[0]['matches_generated_history'])
+                self.assertFalse(selected_prefill_moe_observation(131072, 131072, 2))
+
+    def test_selected_prefill_moe_rejects_unbounded_or_cross_prompt_chunks(self):
+        with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_SELECTED_ROWS': '1'}, clear=True):
+            for args in ((0, 0, 1), (263169, 0, 8192), (131072, -1, 8192),
+                         (131072, 90112, 0), (131072, 90112, 8193),
+                         (131072, 131071, 2), (131072, True, 8192), (131072, 0, 8192.0)):
+                self.assertFalse(selected_prefill_moe_observation(*args))
+            self.assertTrue(selected_prefill_moe_observation(263168, 262144, 1024))
+        for value in ('', 'true', '2', '-1'):
+            with patch.dict(os.environ, {'QRT_GB10_PREFILL_MOE_SELECTED_ROWS': value}, clear=True):
+                with self.assertRaisesRegex(ValueError, 'requires 0 or 1'):
+                    selected_prefill_moe_observation(131072, 90112, 8192)
 
     def test_all_short_prefill_rows_preserve_actual_history_and_long_controls(self):
         with patch.dict(os.environ, {'QRT_GB10_SHORT_PREFILL_ALL_ROWS_MAX_TOKENS': '85'},
