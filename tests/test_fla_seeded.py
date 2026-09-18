@@ -16,6 +16,7 @@ class FlaSeededTests(unittest.TestCase):
         export = function(text, "QRT_FLA_GDN_EXPORT int qrt_fla_gdn_launch_async_seeded_f32_v1(")
         source = r'''
 #include "native/providers/gdn/fla_checkpoint.h"
+#include "native/providers/gdn/pipelined_segment_policy.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -26,6 +27,7 @@ using hipStream_t=void*;using hipError_t=int;
 constexpr int hipSuccess=0,hipMemcpyDeviceToDevice=1;
 struct {bool prepared=true;float *padded_postconv=nullptr,*padded_gate=nullptr,*padded_output=nullptr;char error[256]{};} g_state;
 bool enabled=true;
+bool pipeline_compatible(){return enabled;}bool pipeline_diagnostic(){return false;}
 bool blackwell_state_enabled(){return enabled;}bool blackwell_batched_enabled(){return enabled;}
 namespace qrt_fla_blackwell_cooperative {bool enabled(){return ::enabled;}}
 bool supported_tokens(int n){return n>0&&n<=65536;}
@@ -35,6 +37,12 @@ bool ensure_scratch(int n){assert(n>0&&n<=1024&&n%64==0);return true;}
 int hipMemsetAsync(void*,int,size_t,void*){return 0;}
 int hipMemcpyAsync(void*,const void*,size_t,int,void*){return 0;}
 unsigned calls=0,resets=0;int processed=0;
+unsigned windows=0;bool fail_window=false;
+bool launch_pipeline_window(const float*,const float*,float*,float* state,void*,unsigned count,bool reset,int mode){
+ assert(count&&count<=8192&&count%64==0&&(mode==1||mode==2));++calls;++windows;
+ if(fail_window)return false;
+ processed+=int(count);if(reset){++resets;*state=0;}*state+=float(count);return true;
+}
 std::vector<unsigned> observed_offsets;
 bool capture_segment_boundary(unsigned offset,const float* state,void*){
  assert(state);observed_offsets.push_back(offset);return true;
@@ -56,16 +64,24 @@ int main(){
  g_state.padded_postconv=(float*)std::malloc(64*8192*4);
  g_state.padded_gate=(float*)std::malloc(64*64*4);
  g_state.padded_output=(float*)std::malloc(64*4096*4);
- for(int n:{1,63,64,65,127,128,1023,1024,1025,7169,8192,8193}){
-  calls=resets=processed=0;*state=123;observed_offsets.clear();
+ for(const char* mode:{"0","1","2"})for(int n:{1,63,64,65,127,128,1023,1024,1025,7169,8192,8193}){
+  setenv("QRT_FLA_GDN_PIPELINED_SEGMENTS",mode,1);
+  calls=resets=processed=windows=0;*state=123;observed_offsets.clear();
   assert(qrt_fla_gdn_launch_async_seeded_f32_v1(raw,gate,out,state,0,nullptr,n));
   assert(calls&&resets==0&&processed==n&&*state==123+n);
-  assert(observed_offsets.size()==calls&&observed_offsets.front()==0);
+  if(mode[0]=='0'||n<=1024)assert(observed_offsets.size()==calls&&observed_offsets.front()==0&&!windows);
+  else assert(windows==1u && calls==windows+(n%64?1u:0u));
   for(size_t i=1;i<observed_offsets.size();++i) assert(observed_offsets[i]>observed_offsets[i-1]);
-  calls=resets=processed=0;*state=123;
+  calls=resets=processed=windows=0;*state=123;
   assert(launch_pipeline_async_impl(raw,gate,out,state,0,nullptr,n));
   assert(resets==1&&processed==n&&*state==n);
  }
+ fail_window=true;calls=resets=processed=windows=0;*state=123;
+ assert(!qrt_fla_gdn_launch_async_seeded_f32_v1(raw,gate,out,state,0,nullptr,8193));
+ assert(calls==1u&&windows==1u&&!processed&&!resets&&*state==123);fail_window=false;
+ setenv("QRT_FLA_GDN_PIPELINED_SEGMENTS","3",1);calls=0;
+ assert(!qrt_fla_gdn_launch_async_seeded_f32_v1(raw,gate,out,state,0,nullptr,8192)&&!calls);
+ unsetenv("QRT_FLA_GDN_PIPELINED_SEGMENTS");
  auto reject=[&](const float* r,const float* g,float* o,float* s,int n=65,int decay=0){
   unsigned before=calls;*state=321;
   assert(!qrt_fla_gdn_launch_async_seeded_f32_v1(r,g,o,s,decay,nullptr,n));

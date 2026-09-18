@@ -15,8 +15,11 @@ class FlaSegmentGuardTests(unittest.TestCase):
         scope = function(provider, 'struct BlackwellSegmentGuard {') + ';'
         timing = function(provider, 'int completed_stage_profile_mode()') + '\n'
         timing += 'template<class Operation>\n' + function(provider, 'bool launch_blackwell_math(')
+        # The default Segment{} argument contains braces before the body.
+        # Bound this wrapper by the adjacent owner include instead.
         wrapper = 'int launch_guarded_segment_async(' + provider.split(
-            'int launch_guarded_segment_async(', 1)[1].split('int launch_pipeline_async_impl(', 1)[0]
+            'int launch_guarded_segment_async(', 1)[1].split(
+                '#include "pipelined_segment_owner.h"', 1)[0]
         source = r'''
 #include <cassert>
 #include <cstdint>

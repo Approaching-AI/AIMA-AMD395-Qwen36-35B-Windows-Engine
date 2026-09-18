@@ -7,6 +7,7 @@
 #include "blackwell_l2norm.h"
 #include "blackwell_inverse.h"
 #include "first_call_capture.h"
+#include "pipelined_segment_policy.h"
 #include <algorithm>
 
 #include <array>
@@ -96,24 +97,27 @@ struct KernelSpec {
 // compatible with this Triton/FLA pipeline and must not share its directory.
 #include "qrt_fla_gdn_kernel_specs.inc"
 
-struct ProviderState {
-    std::array<hipModule_t, static_cast<size_t>(KernelIndex::kCount)> modules{};
-    std::array<hipFunction_t, static_cast<size_t>(KernelIndex::kCount)>
-        functions{};
+struct SegmentStorage {
     uint16_t *compact_qkv = nullptr;
     float *gate_and_beta = nullptr;
     void *a_or_w = nullptr;
     void *ai_or_v_new = nullptr;
     uint16_t *chunk_state = nullptr;
     float *blackwell_temporary_state = nullptr;
-    // Independent of segment scratch: ensure_scratch may resize during a seeded call.
-    float *seeded_row_state = nullptr;
     uint16_t *blackwell_residual = nullptr;
     size_t blackwell_residual_bytes = 0u;
     float *padded_postconv = nullptr;
     float *padded_gate = nullptr;
     float *padded_output = nullptr;
     int32_t scratch_tokens = 0;
+};
+
+struct ProviderState : SegmentStorage {
+    std::array<hipModule_t, static_cast<size_t>(KernelIndex::kCount)> modules{};
+    std::array<hipFunction_t, static_cast<size_t>(KernelIndex::kCount)>
+        functions{};
+    // Independent of segment storage, including the pipeline ring.
+    float *seeded_row_state = nullptr;
     bool prepared = false;
     bool q64_dumped = false;
     qrt_fla_capture::FirstCall first_call_capture;
@@ -361,7 +365,10 @@ void release_scratch() {
     g_state.scratch_tokens = 0;
 }
 
+void release_pipeline();
+
 void release_state() {
+    release_pipeline();
     if (g_state.seeded_row_state) (void)hipFree(g_state.seeded_row_state);
     g_state.seeded_row_state = nullptr;
     release_scratch();
@@ -768,8 +775,12 @@ int launch_segment_async(
     int32_t tokens,
     bool reset_state,
     int32_t valid_tokens = 0,
-    qrt_fla_checkpoint::Segment checkpoints = {}
+    qrt_fla_checkpoint::Segment checkpoints = {},
+    unsigned phase = 0u
 ) {
+    if (phase > 3u || (phase && (checkpoints.count || !BlackwellSegmentGuard::active))) {
+        set_error_text("Split GDN phases require the guarded pipeline owner"); return 0;
+    }
     if (valid_tokens == 0) valid_tokens = tokens;
     if (tokens <= 0 || tokens % static_cast<int32_t>(kChunk) ||
         valid_tokens <= tokens - static_cast<int32_t>(kChunk) || valid_tokens > tokens) {
@@ -792,7 +803,7 @@ int launch_segment_async(
     }
 
     hipStream_t stream = static_cast<hipStream_t>(stream_pointer);
-    if (reset_state) {
+    if (reset_state && (phase == 0u || phase == 2u)) {
         const hipError_t status = hipMemsetAsync(
             final_state_f32,
             0,
@@ -824,6 +835,12 @@ int launch_segment_async(
     const float *raw_pointer = postconv_raw_f32;
     uint16_t *q_pointer = q_bf16;
     uint16_t *k_pointer = k_bf16;
+    uint16_t *v_pointer = v_bf16;
+    float *g_pointer = g_cumsum;
+    uint16_t *w_pointer = static_cast<uint16_t *>(g_state.a_or_w);
+    uint16_t *u_pointer = v_pointer;
+    const uint32_t chunks = static_cast<uint32_t>(tokens / int32_t(kChunk));
+    if (phase == 0u || phase == 1u) {
     void *qk_arguments[] = {
         &raw_pointer,
         &q_pointer,
@@ -856,7 +873,6 @@ int launch_segment_async(
         !dump_q64_stage(dump, "gate-f32", gate_f32, 64u * 64u * 4u)) return 0;
 
     const float *gate_pointer = gate_f32;
-    uint16_t *v_pointer = v_bf16;
     uint16_t *beta_pointer = beta_bf16;
     void *v_beta_arguments[] = {
         &raw_pointer,
@@ -882,7 +898,6 @@ int launch_segment_async(
     if (!dump_q64_stage(dump, "v-bf16", v_pointer, 64u * 4096u * 2u) ||
         !dump_q64_stage(dump, "beta-bf16", beta_pointer, 64u * 32u * 2u)) return 0;
 
-    float *g_pointer = g_cumsum;
     void *cumsum_arguments[] = {
         &gate_pointer,
         &g_pointer,
@@ -890,8 +905,6 @@ int launch_segment_async(
         &global_scratch,
         &profile_scratch,
     };
-    const uint32_t chunks =
-        static_cast<uint32_t>(tokens / static_cast<int32_t>(kChunk));
     if (!launch(
             KernelIndex::kGateCumsum,
             chunks,
@@ -972,8 +985,6 @@ int launch_segment_async(
     // A is dead after solve; inverse is dead after recompute. Each recompute
     // CTA owns one complete (chunk, value-head), so its V -> U alias has no
     // inter-program reader. State/output run only after recompute on this stream.
-    uint16_t *w_pointer = static_cast<uint16_t *>(g_state.a_or_w);
-    uint16_t *u_pointer = v_pointer;
     void *recompute_arguments[] = {
         &k_pointer, &v_pointer, &beta_pointer, &w_pointer, &u_pointer,
         &inverse_pointer, &g_pointer, &launch_tokens,
@@ -1006,6 +1017,16 @@ int launch_segment_async(
     if (!dump_q64_stage(dump, "w-bf16", w_pointer, 64u * 4096u * 2u) ||
         !dump_q64_stage(dump, "u-bf16", u_pointer, 64u * 4096u * 2u)) return 0;
 
+    if (phase == 1u) {
+        if (!launch_blackwell_math("blackwell_pipeline_scores", stream, [&] {
+            return qrt_fla_blackwell_cooperative::scores(q_pointer, k_pointer, g_pointer,
+                g_state.blackwell_residual, static_cast<unsigned>(valid_tokens),
+                qrt_fla_blackwell_state::exp2_table_device(), stream);
+        })) return 0;
+        return 1;
+    }
+    }
+
     uint16_t *v_new_pointer = static_cast<uint16_t *>(g_state.ai_or_v_new);
     uint16_t *chunk_state_pointer = g_state.chunk_state;
     const float *initial_state_pointer = final_state_f32;
@@ -1015,6 +1036,7 @@ int launch_segment_async(
         &initial_state_pointer, &chunk_state_pointer, &final_state_pointer,
         &launch_tokens, &global_scratch, &profile_scratch,
     };
+    if (phase != 3u) {
     if (fused_state_output) {
         if (!launch_blackwell_fused_state_output(q_pointer,k_pointer,u_pointer,w_pointer,g_pointer,
             output_f32,dump?chunk_state_pointer:nullptr,dump?v_new_pointer:nullptr,final_state_f32,
@@ -1030,6 +1052,17 @@ int launch_segment_async(
     }
     if (!dump_q64_stage(dump, "v-new-bf16", v_new_pointer, 64u * 4096u * 2u) ||
         !dump_q64_stage(dump, "chunk-state-bf16", chunk_state_pointer, 32u * 128u * 128u * 2u)) return 0;
+
+    if (phase == 2u) return 1;
+    }
+    if (phase == 3u) {
+        if (!launch_blackwell_math("blackwell_pipeline_output", stream, [&] {
+            return qrt_fla_blackwell_cooperative::output(q_pointer, v_new_pointer,
+                chunk_state_pointer, g_pointer, g_state.blackwell_residual, output_f32,
+                static_cast<unsigned>(valid_tokens), qrt_fla_blackwell_state::exp2_table_device(), stream);
+        })) return 0;
+        return 1;
+    }
 
     float *output_pointer = output_f32;
     void *output_arguments[] = {
@@ -1139,6 +1172,8 @@ int launch_guarded_segment_async(
     return 1;
 }
 
+#include "pipelined_segment_owner.h"
+
 int launch_pipeline_async_impl(
     const float *postconv_raw_f32,
     const float *gate_f32,
@@ -1164,6 +1199,28 @@ int launch_pipeline_async_impl(
             "and non-null surfaces"
         );
         return 0;
+    }
+
+    const int pipeline=qrt_fla_pipeline_policy::mode();
+    if(pipeline<0) {set_error_text("QRT_FLA_GDN_PIPELINED_SEGMENTS must be 0, 1 or 2");return 0;}
+    if(qrt_fla_pipeline_policy::selected(pipeline,pipeline_compatible(),unsigned(tokens),
+        checkpoints!=nullptr,pipeline_diagnostic(),
+        qrt_fla_checkpoint::valid_seeded(postconv_raw_f32,gate_f32,output_f32,final_state_f32,tokens))) {
+        const unsigned aligned=unsigned(tokens)/64u*64u;
+        for(unsigned offset=0u;offset<aligned;offset+=8192u) {
+            const unsigned count=(std::min)(8192u,aligned-offset);
+            if(!launch_pipeline_window(postconv_raw_f32+size_t(offset)*kQkvRows,
+                gate_f32+size_t(offset)*kGateRows,output_f32+size_t(offset)*kValueFeatures,
+                final_state_f32,static_cast<hipStream_t>(stream_pointer),count,
+                reset_initial_state && !offset,pipeline))return 0;
+        }
+        // One logical tail retains the existing neutral padding and original
+        // arithmetic; the completed prefix leaves its unrounded FP32 state.
+        if(aligned<unsigned(tokens))return launch_pipeline_async_impl(
+            postconv_raw_f32+size_t(aligned)*kQkvRows,gate_f32+size_t(aligned)*kGateRows,
+            output_f32+size_t(aligned)*kValueFeatures,final_state_f32,gate_values_are_decay,
+            stream_pointer,tokens-int32_t(aligned),nullptr,false);
+        g_state.error[0]='\0';return 1;
     }
 
     if (tokens % static_cast<int32_t>(kChunk) != 0) {
@@ -1437,6 +1494,11 @@ QRT_FLA_GDN_EXPORT int qrt_aiter_fused_gdn_q8192_prepare(
         release_state();
         set_error_text("Blackwell W/U and output stages require the SHA-bound exponent state route");
         return 0;
+    }
+    const int pipeline=qrt_fla_pipeline_policy::mode();
+    if(pipeline<0 || (pipeline && pipeline_compatible() && !pipeline_diagnostic() && !ensure_pipeline())) {
+        const std::string error=pipeline<0 ? "QRT_FLA_GDN_PIPELINED_SEGMENTS must be 0, 1 or 2" : g_state.error;
+        release_state();set_error_text(error.c_str());return 0;
     }
     g_state.prepared = true;
     g_state.error[0] = '\0';
