@@ -20,7 +20,10 @@ foreach ($seconds in @(1, 90, 900, 1800)) {
 foreach ($seconds in @(0, -1, 1801, [int]::MaxValue)) {
     $rejected = $false
     try { $null = & $parameterCheck @commonParameters -TimeoutSeconds $seconds }
-    catch [Management.Automation.ParameterBindingValidationException] { $rejected = $true }
+    catch {
+        if ($_.FullyQualifiedErrorId -notlike 'ParameterArgumentValidationError*') { throw }
+        $rejected = $true
+    }
     if (-not $rejected) { throw 'Out-of-range timeout was admitted' }
 }
 $quote = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Quote-Argument'}, $true)
