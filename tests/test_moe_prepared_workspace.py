@@ -15,6 +15,8 @@ class MoePreparedWorkspaceTests(unittest.TestCase):
         s = (ROOT / 'native/providers/triton_moe/qrt_triton_moe_q8192_provider.cpp').read_text()
         order = (ROOT / 'native/providers/triton_moe/expert_candidate_order.h').read_text()
         allocations = 'namespace qrt_moe_expert_order {' + order.split('namespace qrt_moe_expert_order {', 1)[1].split('struct Views', 1)[0] + '}\n'
+        classified = (ROOT / 'native/providers/triton_moe/class_expert_candidate_order.h').read_text()
+        allocations += 'namespace qrt_moe_class_expert_order {' + classified.split('namespace qrt_moe_class_expert_order {', 1)[1].split('struct Views', 1)[0] + '}\n'
         allocations += function(s, 'bool allocate_optional_moe_compaction()')
         allocations += '\n' + function(s, 'bool allocate_optional_moe_prepared_replay()')
         allocations += '\n' + function(s, 'constexpr bool shared_replay_surface(')
@@ -48,6 +50,8 @@ namespace qrt_sm121_staged_half_projection { struct Row { uint32_t pairs[8],cont
 namespace qrt_sm121_scaled_half_projection { constexpr int prepare_rows=5; }
 struct State {
     bool compact_routed_hawkeye=false,partition_replay=false,moe_expert_order=false;
+    bool moe_class_expert_order=false,moe_class_expert_order_active=false;
+    uint32_t *moe_half_input_classes=nullptr,*moe_half_weight_classes=nullptr;
     unsigned moe_compaction_blocks=16384;
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr,*moe_expert_order_storage=nullptr;
     bool prepared_replay=false,prepared_replay_active=false,scaled_l2=false;
@@ -114,18 +118,28 @@ template<class... Args> void launch(int kernel,dim3 grid,dim3 block,int shared,h
 hipError_t hipGetLastError() {
     return (last_staged?fail_staged:(launches==fail_launch))?hipErrorUnknown:hipSuccess;
 }
+namespace qrt_sm121_classified_half_projection {
+hipError_t prepare(const uint16_t* input,qrt_sm121_staged_half_projection::Row* output,uint32_t* flags,
+    unsigned rows,unsigned columns,hipStream_t q){
+    assert(flags==g_state.moe_half_input_classes||flags==g_state.moe_half_weight_classes);
+    if(!flags)return hipErrorInvalidValue;
+    launch(5,dim3((size_t(rows)*(columns/16)+255)/256),dim3(256),0,q,input,output,rows,columns);
+    return hipGetLastError();
+}
+}
 ''' + allocations + scans + '\nbool release_prefix() {' + release + r'''
     g_state=State{};return true;
 }
 int main() {
     static_assert(qrt_moe_expert_order::maximum_blocks == 1024u);
+    static_assert(qrt_moe_class_expert_order::threads == 256u && qrt_moe_class_expert_order::maximum_blocks == 1024u);
     assert(allocate_optional_moe_compaction()&&sizes.empty());
-    for(bool ordered:{false,true})for(unsigned blocks:{2048u,16384u}){
+    for(unsigned ordered:{0u,1u,2u})for(unsigned blocks:{2048u,16384u}){
         const std::vector<size_t> wanted=ordered
-            ?std::vector<size_t>{size_t(blocks)*1024u,4u,(size_t(blocks)*256u+769u)*4u}
+            ?std::vector<size_t>{size_t(blocks)*1024u,4u,(size_t(blocks)*256u+(ordered==2u?2305u:769u))*4u}
             :std::vector<size_t>{size_t(blocks)*1024u,4u};
         for(unsigned fault=1;fault<=wanted.size()+1u;++fault){
-            g_state=State{};g_state.compact_routed_hawkeye=true;g_state.moe_expert_order=ordered;
+            g_state=State{};g_state.compact_routed_hawkeye=true;g_state.moe_expert_order=ordered;g_state.moe_class_expert_order=ordered==2u;
             g_state.moe_compaction_blocks=blocks;sizes.clear();free_calls=0;fail_allocation=fault;
             const bool success=fault>wanted.size();
             assert(allocate_optional_moe_compaction()==success);
@@ -280,6 +294,28 @@ int main() {
     assert(run(MoeL2::Input,8192,2048)&&covered==8192&&staged_launches==0);
     free_calls=0;drain_ok=false;assert(!release_prefix()&&free_calls==0);
     drain_ok=true;assert(release_prefix()&&free_calls==4);
+
+    const std::vector<size_t> classified_bytes{1207959552,75497472,2097152,262144,2097152,262144};
+    for(unsigned fault=1;fault<=7;++fault){
+        g_state=State{};g_state.prevalidated_float=g_state.staged_half_replay=g_state.moe_class_expert_order=true;
+        sizes.clear();free_calls=0;fail_allocation=fault;
+        assert(allocate_optional_moe_prepared_replay()==(fault==7));
+        assert(sizes==std::vector<size_t>(classified_bytes.begin(),classified_bytes.begin()+(fault==7?6:fault)));
+        drain_ok=false;assert(!release_prefix()&&free_calls==0);
+        drain_ok=true;assert(release_prefix()&&free_calls==(fault==7?6:fault-1));
+    }
+    g_state.prevalidated_float=g_state.prevalidated_float_active=true;
+    g_state.staged_half_replay=g_state.staged_half_replay_active=true;
+    g_state.moe_class_expert_order=g_state.moe_class_expert_order_active=true;
+    fail_allocation=0;sizes.clear();assert(allocate_optional_moe_prepared_replay());expected_kernel=3;
+    for(auto surface:{MoeL2::Input,MoeL2::RoutedGateUp,MoeL2::RoutedActivated,MoeL2::RoutedDown}){
+        unsigned rows=unsigned(kMoeL2Rows[size_t(surface)]);
+        unsigned columns=surface==MoeL2::RoutedActivated||surface==MoeL2::RoutedDown?512:2048;
+        cache_result=0;assert(run(surface,rows,columns)&&staged_launches==1&&covered==rows);
+        cache_result=1;assert(run(surface,rows,columns)&&staged_launches==1&&launches==0);
+        fail_staged=true;assert(!run(surface,rows,columns)&&staged_launches==1&&cache_calls==0);fail_staged=false;
+    }
+    cache_result=0;free_calls=0;assert(release_prefix()&&free_calls==6);
 
     const std::vector<size_t> shared_staged_bytes{32768,37748736,2048,2359296,2048,2359296,32768,9437184,8192,2359296};
     for(unsigned fault=1;fault<=11;++fault){

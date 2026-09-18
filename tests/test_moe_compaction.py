@@ -23,7 +23,7 @@ class MoeCompactionTests(unittest.TestCase):
         definitions += 'template<uint32_t ProjectionRows, uint32_t InputDivisor, uint32_t WeightRows, uint32_t WeightOffset>\n' + function(s, 'void moe_collect_partitioned(') + '\n'
         definitions += function(s, 'uint32_t moe_replay_count(') + '\n'
         definitions += function(s, 'uint32_t moe_replay_cell(') + '\n'
-        definitions += 'template<unsigned Lanes>\n' + function(s, 'float moe_routed_replay_dot(') + '\n'
+        definitions += 'template<unsigned Lanes, unsigned ReplayClass = 0u>\n' + function(s, 'float moe_routed_replay_dot(') + '\n'
         helpers = '\n'.join(function(s, signature) for signature in (
             'float routed_silu_from_gate_bf16(',
             'bool\nrouted_gate_projection_needs_hawkeye_replay(',
@@ -33,9 +33,10 @@ class MoeCompactionTests(unittest.TestCase):
         names = ['routed_gate_batched_hawkeye_correction_kernel',
                  'routed_up_batched_hawkeye_correction_activation_kernel',
                  'routed_down_batched_hawkeye_correction_kernel']
-        kernels = '\n'.join('template<MoeCorrectionPhase Phase>\n' + function(s, 'void ' + name + '(') for name in names)
+        kernels = '\n'.join('template<MoeCorrectionPhase Phase, unsigned ReplayClass = 0u>\n' + function(s, 'void ' + name + '(') for name in names)
         launchers = function(s, 'template <uint32_t MaximumBlocks = kMaximumMoeCorrectionBlocks,')
-        launchers += '\n' + function(s, 'template<bool NeedsFinalize, typename Kernel, typename... Args>')
+        launchers += '\n' + s[s.index('template<typename Kernel> struct MoeClassReplay {'):s.index('// The counter and list never leave the routed stream.')]
+        launchers += '\n' + function(s, 'template<bool NeedsFinalize, typename Kernel, typename Replay, typename... Args>')
         source = r'''
 #include <algorithm>
 #include <array>
@@ -127,6 +128,14 @@ template<unsigned Groups> float dot(const Row* a,const Row* b,unsigned columns) 
     return value;
 }
 }
+std::atomic<unsigned> sparse_calls{0},nonzero_calls{0};
+namespace qrt_sm121_partitioned_half_projection {
+template<bool Nonzero> float dot(const qrt_sm121_staged_half_projection::Row* a,
+    const qrt_sm121_staged_half_projection::Row* b,unsigned columns) {
+    if(!(threadIdx.x&3u))++(Nonzero?nonzero_calls:sparse_calls);
+    return qrt_sm121_staged_half_projection::dot<2u>(a,b,columns);
+}
+}
 namespace qrt_moe_down_consumer_filter {
 inline bool omitted(const uint8_t*,unsigned) { assert(false);return false; }
 inline void collected(unsigned*,unsigned,unsigned) { assert(false); }
@@ -166,7 +175,8 @@ struct State {
     uint32_t sm121_moe_absolute_error_ppb=1000;
     std::array<float *,9> moe_l2{};
     uint32_t *moe_compacted_indices=nullptr,*moe_compacted_count=nullptr;
-    bool moe_expert_order_active=false;
+    bool moe_expert_order_active=false,moe_class_expert_order_active=false;
+    uint32_t *moe_half_input_classes=nullptr,*moe_half_weight_classes=nullptr;
     uint32_t* moe_expert_order_storage=nullptr;
     int32_t* topk_ids=nullptr;
 } g_state;
@@ -244,6 +254,37 @@ hipError_t launch(const uint32_t* indices,const uint32_t* count,const int32_t* i
     return hipSuccess;
 }
 }
+namespace qrt_moe_class_expert_order {
+constexpr unsigned experts=256u;
+enum class Projection : unsigned { Gate,Up,Down };
+struct Workspace { uint32_t* storage;size_t capacity; };
+struct Rows { const uint32_t *input,*weights;Projection projection; };
+struct Views { uint32_t* offsets; };
+Views views(Workspace workspace){return {workspace.storage+workspace.capacity+768u};}
+hipError_t launch(const uint32_t* indices,const uint32_t* count,const int32_t* ids,
+    Rows rows,Workspace workspace,hipStream_t stream){
+    assert(stream==wanted_stream&&ids==g_state.topk_ids&&workspace.storage==g_state.moe_expert_order_storage);
+    assert(rows.input==g_state.moe_half_input_classes&&rows.weights==g_state.moe_half_weight_classes);
+    assert(workspace.capacity==g_state.moe_compaction_blocks*kNativeThreads);
+    for(unsigned phase=0;phase<4;++phase){auto status=hipGetLastError();if(status!=hipSuccess)return status;}
+    if(execute_kernels){
+        const bool down=rows.projection==Projection::Down;
+        const unsigned columns=down?kHidden:kIntermediate;
+        auto bucket=[&](unsigned cell){
+            unsigned route=cell/columns,expert=unsigned(ids[route]);
+            unsigned w=expert*(down?kHidden:2u*kIntermediate)+cell%columns+(rows.projection==Projection::Up?kIntermediate:0u);
+            unsigned code=rows.input[down?route:route/kTopK]&rows.weights[w];
+            return (code==3u?2u:code==1u?1u:0u)*256u+expert;
+        };
+        std::vector<uint32_t> ordered(indices,indices+*count);
+        std::stable_sort(ordered.begin(),ordered.end(),[&](unsigned a,unsigned b){return bucket(a)<bucket(b);});
+        std::copy(ordered.begin(),ordered.end(),workspace.storage);
+        auto* offsets=views(workspace).offsets;unsigned position=0;
+        for(unsigned b=0;b<=768u;++b){while(position<*count&&bucket(ordered[position])<b)++position;offsets[b]=position;}
+    }
+    return hipSuccess;
+}
+}
 ''' + launchers + r'''
 struct Data {
     std::vector<float> native,down,input_norm,weight_norm,gate_f32,up_f32;
@@ -287,13 +328,13 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     using P=MoeCorrectionPhase;
     auto status=launch_moe_routed_correction<false>(
         routed_gate_batched_hawkeye_correction_kernel<P::Local>,routed_gate_batched_hawkeye_correction_kernel<P::Collect>,
-        routed_gate_batched_hawkeye_correction_kernel<P::Replay>,routed_gate_batched_hawkeye_correction_kernel<P::Local>,
+        moe_class_replay(routed_gate_batched_hawkeye_correction_kernel<P::Replay>,routed_gate_batched_hawkeye_correction_kernel<P::Replay,1u>,routed_gate_batched_hawkeye_correction_kernel<P::Replay,3u>),routed_gate_batched_hawkeye_correction_kernel<P::Local>,
         blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,nullptr,nullptr,nullptr,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
         d.activated.data(),d.lut.data(),routes,radius,exponent,d.gate_debug.data(),d.gate_f32.data(),&d.debug_count,0u);
     if(status!=hipSuccess)return status;
     status=launch_moe_routed_correction<true>(
         routed_up_batched_hawkeye_correction_activation_kernel<P::Local>,routed_up_batched_hawkeye_correction_activation_kernel<P::Collect>,
-        routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>,routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
+        moe_class_replay(routed_up_batched_hawkeye_correction_activation_kernel<P::Replay>,routed_up_batched_hawkeye_correction_activation_kernel<P::Replay,1u>,routed_up_batched_hawkeye_correction_activation_kernel<P::Replay,3u>),routed_up_batched_hawkeye_correction_activation_kernel<P::Finalize>,
         blocks,wanted_stream,MoeL2::Input,MoeL2::Weight,nullptr,nullptr,nullptr,d.native.data(),d.input.data(),d.weights.data(),d.ids.data(),
         d.activated.data(),d.lut.data(),routes,radius,exponent,d.up_debug.data(),d.up_f32.data(),&d.debug_count,0u);
     if(status!=hipSuccess)return status;
@@ -303,24 +344,28 @@ hipError_t run(Data &d,unsigned routes,unsigned radius,unsigned exponent) {
     }
     return launch_moe_routed_correction<false>(
         routed_down_batched_hawkeye_correction_kernel<P::Local>,routed_down_batched_hawkeye_correction_kernel<P::Collect>,
-        routed_down_batched_hawkeye_correction_kernel<P::Replay>,routed_down_batched_hawkeye_correction_kernel<P::Local>,
+        moe_class_replay(routed_down_batched_hawkeye_correction_kernel<P::Replay>,routed_down_batched_hawkeye_correction_kernel<P::Replay,1u>,routed_down_batched_hawkeye_correction_kernel<P::Replay,3u>),routed_down_batched_hawkeye_correction_kernel<P::Local>,
         blocks,wanted_stream,MoeL2::RoutedActivated,MoeL2::RoutedDown,nullptr,nullptr,nullptr,d.down.data(),d.topk.data(),d.ids.data(),d.activated.data(),
         d.down_weights.data(),routes,radius,exponent);
 }
 int main() {
     std::vector<uint32_t> indices(kMoeCompactionCapacity+17,0xabcdef),counter(18,0xabcdef);
     g_state.moe_compacted_indices=indices.data();g_state.moe_compacted_count=counter.data();
-    std::vector<uint32_t> ordered(kMoeCompactionCapacity+17,0xabcdef);
+    std::vector<uint32_t> ordered(kMoeCompactionCapacity+2305u+17,0xabcdef);
     g_state.moe_expert_order_storage=ordered.data();
     std::vector<uint32_t> input_flags(kRoutes),weight_flags(2*kHidden);
     for(unsigned i=0;i<input_flags.size();++i)input_flags[i]=i%2;
     for(unsigned i=0;i<weight_flags.size();++i)weight_flags[i]=i%3!=0;
     g_state.prepared_replay_input_rows=input_flags.data();g_state.prepared_replay_weight_rows=weight_flags.data();
-    for(unsigned route_mode:{0u,1u,2u,3u,4u,5u}) {
+    std::vector<uint32_t> input_classes(kRoutes),weight_classes(2*kHidden);
+    for(unsigned i=0;i<input_classes.size();++i)input_classes[i]=i%5==0?0:i%3==0?1:3;
+    for(unsigned i=0;i<weight_classes.size();++i)weight_classes[i]=i%7==0?0:i%5==0?1:3;
+    g_state.moe_half_input_classes=input_classes.data();g_state.moe_half_weight_classes=weight_classes.data();
+    for(unsigned route_mode:{0u,1u,2u,3u,4u,5u,6u}) {
     std::fill(counter.begin(),counter.end(),0xabcdef);
     g_state.float_replay_active=route_mode==1;g_state.prevalidated_float_active=route_mode>=2;g_state.partition_replay=route_mode==3;
     g_state.staged_half_replay_active=route_mode>=4;
-    g_state.moe_expert_order_active=route_mode==5;
+    g_state.moe_expert_order_active=route_mode>=5;g_state.moe_class_expert_order_active=route_mode==6;
     for(unsigned window:{kMoeCompactionBlocks,kMaximumMoeCompactionBlocks}) {
     g_state.moe_compaction_blocks=window;
     for(unsigned routes:{1u,3u,9u,19u})for(unsigned mode:{0u,1u,2u,3u}) {
@@ -337,7 +382,7 @@ int main() {
         assert(compact.input==original.input&&compact.weights==original.weights&&compact.down_weights==original.down_weights);
         assert(compact.ids==original.ids&&compact.topk==original.topk&&compact.lut==original.lut);
         for(size_t i=kMoeCompactionCapacity;i<indices.size();++i)assert(indices[i]==0xabcdef);
-        for(size_t i=kMoeCompactionCapacity;i<ordered.size();++i)assert(ordered[i]==0xabcdef);
+        for(size_t i=kMoeCompactionCapacity+2305u;i<ordered.size();++i)assert(ordered[i]==0xabcdef);
         for(size_t i=g_state.partition_replay?2u:1u;i<counter.size();++i)assert(counter[i]==0xabcdef);
     }
     execute_kernels=false;Data d(19);
@@ -354,7 +399,7 @@ int main() {
     execute_kernels=true;
     }
     }
-    assert(validated_calls>0&&fallback_calls>0&&staged_calls>0);
+    assert(validated_calls>0&&fallback_calls>0&&staged_calls>0&&sparse_calls>0&&nonzero_calls>0);
     Data d(19);g_state.moe_compacted_count=nullptr;api_calls=0;
     assert(run(d,19,32768,0)==hipErrorInvalidValue&&api_calls==0);
 

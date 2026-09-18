@@ -1,6 +1,7 @@
 #include <hip/hip_runtime.h>
 #include "../../native/providers/moe_accumulator/sm121_partitioned_half_projection.h"
 #include "strong_float_replay_cases.h"
+#include "../../native/providers/moe_accumulator/sm121_classified_half_projection.h"
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
@@ -86,18 +87,39 @@ void variant(unsigned rows,unsigned width,Device& a,Device& b,Device& pa,Device&
  std::printf("{\"kind\":\"partitioned_half_projection_safety\",\"lanes\":%u,\"variant\":%u,\"rows\":%u,\"width\":%u,\"ordered_raw_carry_states\":%zu,\"transformed_groups\":%u,\"original_groups\":%u,\"original_pair_count\":%u,\"sparse_pair_count\":%u,\"nonzero_pair_count\":%u,\"raw_bit_mismatches\":0,\"unaligned_operands\":true,\"production_diagnostic_parity\":true,\"all_encoded_words_checked\":true,\"independent_row_classification_checked\":true,\"redzones_pass\":true,\"immutable_inputs\":true,\"inference_acceptance\":false}\n",Lanes,Variant,rows,width,groups,floating,original,classes[0],classes[1],classes[2]);std::fflush(stdout);
  if(!floating || !original || floating+original!=groups)throw std::runtime_error("missing numerical path coverage");
 }
-void run(unsigned rows,unsigned width){
+void run(unsigned rows,unsigned width,bool fused=false){
  const size_t words=size_t(rows)*width,groups=words/16u;std::vector<uint16_t> left(words),right(words);std::vector<uint32_t> expected(groups*3u);std::vector<unsigned> transformed(rows,0u);
  for(unsigned row=0u;row<rows;++row){qrt_q1_moe_hawkeye::Value carry{0u,-133,false};for(unsigned group=0u;group<width/16u;++group){qrt_q1_moe_hawkeye::Value terms[17];terms[0]=carry;const size_t base=size_t(row)*width+group*16u;for(unsigned i=0u;i<16u;++i){auto input=cases::input(row,group,i);if(row%64u==63u)input={uint16_t(group+1u==width/16u&&i==15u?1u:0x3f81u),uint16_t(0x3f82u)};left[base+i]=input.x;right[base+i]=input.y;terms[i+1u]=qrt_q1_moe_hawkeye::multiply_bf16(input.x,input.y,-133);}transformed[row]+=eligible(left.data()+base)&&eligible(right.data()+base);carry=qrt_q1_moe_hawkeye::group_sum<26,-133>(terms,17u);const size_t out=base/16u*3u;expected[out]=carry.significand;expected[out+1u]=uint32_t(int32_t(carry.exponent));expected[out+2u]=unsigned(carry.negative);}}
  Device af((rows+2u*guard)*4u),bf((rows+2u*guard)*4u);
  Device a((words+2u*guard)*2u),b((words+2u*guard)*2u),pa((groups+2u*guard)*sizeof(scaled::Row)),pb((groups+2u*guard)*sizeof(scaled::Row)),out((rows+2u*guard)*sizeof(Result)),trace((groups*3u+2u*guard)*4u);
  check(hipMemcpy(a.data<uint16_t>(),left.data(),words*2u,hipMemcpyHostToDevice));check(hipMemcpy(b.data<uint16_t>(),right.data(),words*2u,hipMemcpyHostToDevice));
+ if(fused){
+  check(qrt_sm121_classified_half_projection::prepare(a.data<uint16_t>(),pa.data<scaled::Row>(),af.data<unsigned>(),rows,width,nullptr));
+  check(qrt_sm121_classified_half_projection::prepare(b.data<uint16_t>(),pb.data<scaled::Row>(),bf.data<unsigned>(),rows,width,nullptr));finish();
+ }else{
  hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((groups+255u)/256u+1u),dim3(256u),0u,nullptr,a.data<uint16_t>(),pa.data<scaled::Row>(),rows,width);check(hipGetLastError());
  hipLaunchKernelGGL(qrt_sm121_scaled_half_projection::prepare_rows,dim3((groups+255u)/256u+1u),dim3(256u),0u,nullptr,b.data<uint16_t>(),pb.data<scaled::Row>(),rows,width);check(hipGetLastError());finish();
  hipLaunchKernelGGL(partitioned::classify_rows,dim3(rows+1u),dim3(256u),0u,nullptr,pa.data<scaled::Row>(),af.data<unsigned>(),rows,width);check(hipGetLastError());
  hipLaunchKernelGGL(partitioned::classify_rows,dim3(rows+1u),dim3(256u),0u,nullptr,pb.data<scaled::Row>(),bf.data<unsigned>(),rows,width);check(hipGetLastError());finish();
+ }
  variant<0u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
  variant<1u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
  variant<2u>(rows,width,a,b,pa,pb,af,bf,out,trace,left,right,expected,transformed);
 }
-int main()try{hipDeviceProp_t p{};check(hipGetDeviceProperties(&p,0));if(std::strncmp(p.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");run(257u,16u);run(4096u,272u);run(2048u,2048u);run(1024u,4096u);run(129u,4112u);run(129u,8192u);return 0;}catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
+int main(int argc,char** argv)try{
+ hipDeviceProp_t p{};check(hipGetDeviceProperties(&p,0));if(std::strncmp(p.gcnArchName,"gfx1151",7u))throw std::runtime_error("requires gfx1151");
+ if(argc==2&&std::strcmp(argv[1],"--fused")==0){
+  uint16_t input=0u;scaled::Row output{};uint32_t flags=0u;
+  auto invalid=[&](const uint16_t* i,scaled::Row* o,uint32_t* f,unsigned r,unsigned w){
+   if(qrt_sm121_classified_half_projection::prepare(i,o,f,r,w,nullptr)!=hipErrorInvalidValue)
+    throw std::runtime_error("invalid fused preparation accepted");
+  };
+  invalid(nullptr,&output,&flags,1u,512u);invalid(&input,nullptr,&flags,1u,512u);invalid(&input,&output,nullptr,1u,512u);
+  invalid(&input,&output,&flags,0u,512u);
+  for(unsigned width:{0u,16u,496u,528u,768u,4112u,8192u})invalid(&input,&output,&flags,1u,width);
+  run(257u,512u,true);run(129u,1024u,true);run(1025u,2048u,true);run(257u,4096u,true);
+  std::printf("{\"kind\":\"fused_half_preparation_safety\",\"cases\":4,\"classification_and_encoding_checked\":true,\"raw_carry_checked\":true,\"inference_acceptance\":false}\n");
+ }else if(argc==1){run(257u,16u);run(4096u,272u);run(2048u,2048u);run(1024u,4096u);run(129u,4112u);run(129u,8192u);}
+ else throw std::runtime_error("expected optional --fused");
+ return 0;
+}catch(const std::exception& e){std::fprintf(stderr,"%s\n",e.what());return 1;}
