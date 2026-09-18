@@ -64,6 +64,25 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Native RZ tree QK rejection, 2026-09-18
+
+CK source `0cc0459` replaces per-product integer alignment with a native FP32
+RZ tree only under an explicit experiment flag. Independent host/GPU scalar
+addition checks and all native tree, fallback, memory and wave-mode checks
+pass. The original arithmetic's score bits are not an acceptance gate.
+
+The actual q8192/out512 control passes all 512 GB10 IDs at 23890.9927 ms TTFT.
+Enabling the tree gives 23100.9178 ms but fails 451 output positions, starting
+at index 1 (expected 255, actual 244). First token 144/logit 10.375 and actual
+callbacks pass in both runs. Reject the candidate timing because its original
+GB10 continuation fails; keep the qualified 23902.4417 ms baseline and the
+option disabled. Other providers, both terminal liveness flags and all
+numerical thresholds are identical between arms.
+[Implementation and native checks](RZ_TREE_QK.md).
+[Two complete model runs](../benchmarks/correctness/rz-tree-qk-product-rejection-20260918.json):
+801237 bytes, SHA256
+`1fb39c12224971d03213277e077b07f6e2695fb90a4213b7ae56750bb695663f`.
+
 ## Compact integer QK component, 2026-09-18
 
 Source `eac6932` reduces the isolated signed16 dot4 row from 156 to 52 bytes,

@@ -29,7 +29,29 @@ and explicit adjacent-FP32 handling when the exponent gap exceeds29. Generated
 scores must match that independent specification; original-score differences
 remain visible diagnostics.
 
-Native compilation, arithmetic checks and the original model continuation
-are pending. The current accepted experimental control remains23902.4417ms
-TTFT with complete GB10 output identity. Runtime/package defaults and all
-mission, numerical and release thresholds remain unchanged.
+Native source `0cc0459` passes compilation and the independent arithmetic
+checks. The host and GPU each check 1,048,576 scalar additions. The 24 GPU
+QK cases check 32,848,208 score slots for masks, guards and finiteness, every
+one of 27,300 original fallback scores, 1,536 independent CPU dots, complete
+prepared encodings and immutable inputs. All 352,128 audited waves restore
+the prior mode. Internal score differences remain recorded diagnostics.
+[Native evidence](../benchmarks/correctness/rz-tree-qk-native-20260918.json).
+
+The complete same-DLL q8192/out512 product comparison rejects this arithmetic:
+
+| Mode | Load ms | TTFT ms | TPOT ms | GB10 outputs |
+| --- | ---: | ---: | ---: | --- |
+| OFF | 21415.6378 | 23890.9927 | 101.003586 | All 512 match |
+| ON | 21386.5601 | 23100.9178 | 101.018390 | 451 positions differ |
+
+Both runs produce first token 144 with logit 10.375, but ON differs at output
+index 1: expected 255, actual 244. All 512 actual callbacks and host checks
+complete. Nine cold attention calls use the new route; ten original single
+query replays retain their recorded behavior. The earlier offline observer
+mistakenly counted all 19 generic attention markers as cold calls; its fix
+preserves both raw runs and changes no numerical gate.
+[Full product evidence](../benchmarks/correctness/rz-tree-qk-product-rejection-20260918.json).
+
+Do not retain the ON timing as performance. Keep the option off and the
+qualified 23902.4417 ms experimental baseline. Runtime/package defaults,
+GB10 tolerances, context goals and all release thresholds remain unchanged.
