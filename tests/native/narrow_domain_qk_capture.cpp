@@ -4,7 +4,7 @@
 #include "combined_exact_attention_capture.cpp"
 #include "../../native/providers/ck_fmha/streamed_exact_attention.h"
 #include "../../native/providers/ck_fmha/fused_probability_pv.h"
-#include "../../native/providers/ck_fmha/narrow_domain_qk.h"
+#include "../../native/providers/ck_fmha/narrow_domain_qk_workspace.h"
 
 namespace {
 void immutable_transpose(Guarded& device,const std::vector<uint16_t>& source,unsigned tokens){
@@ -16,34 +16,22 @@ void immutable_transpose(Guarded& device,const std::vector<uint16_t>& source,uns
 struct NarrowDomain {
     Guarded query,key,statistics;std::vector<unsigned> expected_query,expected_key;double ms=0.0;
     NarrowDomain(const uint16_t* q,const uint16_t* k,const std::vector<uint16_t>& hq,
-        const std::vector<uint16_t>& hk,unsigned tokens):query(size_t(tokens)*16u*4u),key(size_t(tokens)*2u*4u),
+        const std::vector<uint16_t>& hk,Prepared& prepared,unsigned tokens):query(size_t(tokens)*16u*4u),key(size_t(tokens)*2u*4u),
         statistics(8u),expected_query(size_t(tokens)*16u,1u),expected_key(size_t(tokens)*2u,1u){
         for(auto pair:{std::make_pair(&expected_query,&hq),std::make_pair(&expected_key,&hk)})
             for(size_t row=0;row<pair.first->size();++row)for(unsigned i=0u;i<256u;++i)
                 (*pair.first)[row]&=unsigned(qrt_sm121_narrow_f32_carry::eligible((*pair.second)[row*256u+i]));
         finish();const auto begin=std::chrono::steady_clock::now();
-        hipLaunchKernelGGL(qrt_narrow_domain_qk::classify_rows,dim3(tokens*16u),dim3(256u),0u,nullptr,q,query.as<unsigned>(),tokens*16u);
-        check(hipGetLastError());
-        hipLaunchKernelGGL(qrt_narrow_domain_qk::classify_rows,dim3(tokens*2u),dim3(256u),0u,nullptr,k,key.as<unsigned>(),tokens*2u);
-        check(hipGetLastError());finish();ms=elapsed(begin);verify();
+        const auto w=workspace(prepared,tokens);
+        check(hipError_t(qrt_narrow_domain_qk::prepare_domain(q,k,w,nullptr)));finish();ms=elapsed(begin);verify();
+    }
+    qrt_narrow_domain_qk::Workspace workspace(Prepared& p,unsigned tokens){
+        return {p.qp.as<uint32_t>()+guard,p.kp.as<uint32_t>()+guard,
+            p.qf.as<unsigned>()+guard,p.kf.as<unsigned>()+guard,query.as<unsigned>(),
+            key.as<unsigned>(),statistics.as<unsigned>(),tokens};
     }
     void verify(){query.immutable(expected_query);key.immutable(expected_key);statistics.guards();}
 };
-template<unsigned Queries,unsigned Keys,unsigned Window>
-void narrow_scores(Prepared& prepared,NarrowDomain& domain,float* scores,
-    unsigned start,unsigned count,unsigned stride,unsigned tokens){
-    const dim3 grid((stride+Keys*16u-1u)/(Keys*16u),16u,(count+Queries*16u-1u)/(Queries*16u));
-    hipLaunchKernelGGL((qrt_narrow_domain_qk::scores<true,Queries,Keys,Window>),grid,dim3(256u),0u,nullptr,
-        prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
-        prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,
-        domain.query.as<unsigned>(),domain.key.as<unsigned>(),scores,domain.statistics.as<unsigned>(),start,count,stride,tokens);
-    check(hipGetLastError());
-    hipLaunchKernelGGL((qrt_narrow_domain_qk::scores<false,Queries,Keys,Window>),grid,dim3(256u),0u,nullptr,
-        prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
-        prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,
-        domain.query.as<unsigned>(),domain.key.as<unsigned>(),scores,domain.statistics.as<unsigned>(),start,count,stride,tokens);
-    check(hipGetLastError());
-}
 
 void producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint16_t* vt,
     Prepared& prepared,NarrowDomain& domain,AttentionOutputs& out,unsigned start,unsigned count,unsigned tokens,
@@ -59,13 +47,17 @@ void producer(const uint16_t* q,const uint16_t* kt,const uint16_t* v,const uint1
         prepared.qp.as<uint32_t>()+guard,prepared.kp.as<uint32_t>()+guard,
         prepared.qf.as<unsigned>()+guard,prepared.kf.as<unsigned>()+guard,scores,start,count,stride,tokens);
     check(hipGetLastError());
-    }else if(variant==1u)narrow_scores<2u,2u,128u>(prepared,domain,scores,start,count,stride,tokens);
-    else if(variant==2u)narrow_scores<4u,2u,64u>(prepared,domain,scores,start,count,stride,tokens);
-    else if(variant==3u)narrow_scores<2u,4u,64u>(prepared,domain,scores,start,count,stride,tokens);
-    else throw std::runtime_error("invalid QK variant");
     hipLaunchKernelGGL(qrt_deferred_qk_fallback::replay_scan,
         dim3((size_t(count)*16u*stride+255u)/256u),dim3(256u),0u,nullptr,
         q,kt,scores,start,count,stride,tokens);check(hipGetLastError());
+    }else{
+        const auto workspace=domain.workspace(prepared,tokens);
+        auto launch=variant==1u?qrt_narrow_domain_qk::launch_tiled_workspace<2u,2u,128u>:
+            variant==2u?qrt_narrow_domain_qk::launch_tiled_workspace<4u,2u,64u>:
+            variant==3u?qrt_narrow_domain_qk::launch_workspace:nullptr;
+        if(!launch)throw std::runtime_error("invalid QK variant");
+        check(hipError_t(launch(&workspace,q,kt,scores,nullptr,start,count,stride,tokens)));
+    }
     const qrt_native_exp2_workspace::Workspace owner{const_cast<unsigned char*>(packed),exp};
     check(hipError_t(qrt_fused_probability_pv::launch(&owner,scores,v,p,s,
         out.output.as<float>(),out.error.as<float>(),out.accumulator.as<float>(),out.denominator.as<float>(),
@@ -121,7 +113,7 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         dq.put(q);dk.put(k);dv.put(v);
         Prepared prepared(dq.as<uint16_t>(),dk.as<uint16_t>(),dt.as<uint16_t>(),q.data(),k.data(),n);
         check(hipError_t(transpose_keys(dv.as<uint16_t>(),vt.as<uint16_t>(),v.size(),n,nullptr)));finish();
-        NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,n);
+        NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,prepared,n);
         AttentionOutputs expected(n),native_control(n),actual(n);Device bad(4u);check(hipMemset(bad.pointer,0,4u));
         attention(dq.as<uint16_t>(),dt.as<uint16_t>(),dv.as<uint16_t>(),vt.as<uint16_t>(),prepared,
             expected,start,count,n,exp,nullptr,rcp,true,0u,nullptr);finish();
@@ -139,7 +131,7 @@ void run_safety(const unsigned char* exp,const unsigned char* packed,const unsig
         immutable_transpose(dt,k,n);immutable_transpose(vt,v,n);expected.guards();
         std::fprintf(stderr,"NARROW_DOMAIN_QK_SAFETY tokens=%u start=%u queries=%u mode=%u pass=1\n",n,start,count,mode);
     }
-    std::printf("{\"kind\":\"narrow_domain_qk_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":9,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
+    std::printf("{\"kind\":\"narrow_domain_qk_safety\",\"cases\":%u,\"shapes\":8,\"data_modes\":9,\"production_workspace_callbacks\":true,\"pre_replay_native_surfaces_and_complete_replay\":true,\"domain_extremes_and_nearby_rejections\":true,\"raw_bit_mismatches\":0,\"guards_pass\":true,\"immutable_inputs\":true}\n",cases);
 }
 
 void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char* vfile,const char* reference_file,
@@ -156,7 +148,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     check(hipError_t(transpose_keys(dv.as<uint16_t>(),vt.as<uint16_t>(),v.size(),tokens,nullptr)));finish();
     const double transpose_ms=elapsed(begin);
     const auto reference=read_words(reference_file,7169u*4096u);Guarded dr(reference.size()*2u);dr.put(reference);
-    NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,tokens);
+    NarrowDomain domain(dq.as<uint16_t>(),dk.as<uint16_t>(),q,k,prepared,tokens);
     AttentionOutputs expected(tokens),native_control(tokens),actual(tokens);Device bad(4u);check(hipMemset(bad.pointer,0,4u));
     double samples[4][3]{};uint64_t candidates[4]{},fast_tiles[4]{},slow_tiles[4]{},score_cells=0u;unsigned cpu_dots=0u;
     for(unsigned start=0;start<tokens;start+=query_batch){
@@ -203,7 +195,7 @@ void run_capture(unsigned tokens,const char* qfile,const char* kfile,const char*
     }
     for(unsigned variant=0;variant<4u;++variant){
         auto sorted=std::vector<double>(samples[variant],samples[variant]+3u);std::sort(sorted.begin(),sorted.end());
-        std::printf("{\"kind\":\"narrow_domain_qk_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,variant==2u?4u:2u,variant==3u?4u:2u,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],variant?domain.ms:0.0,(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
+        std::printf("{\"kind\":\"narrow_domain_qk_capture\",\"tokens\":%u,\"source_capture_tokens\":7169,\"repeated_rows\":%u,\"variant\":%u,\"query_cells\":%u,\"key_cells\":%u,\"narrow_tiles\":%llu,\"original_tiles\":%llu,\"domain_classification_ms\":%.9f,\"production_workspace_callbacks\":true,\"pre_replay_native_surfaces_checked_on_warmup\":true,\"query_batch\":128,\"score_slots\":%llu,\"output_cells\":%u,\"gb10_context_cells\":29364224,\"cpu_dots\":%u,\"pv_candidates\":%llu,\"completed_attention_samples_ms\":[%.9f,%.9f,%.9f],\"median_completed_attention_ms\":%.9f,\"common_preparation_ms\":%.9f,\"raw_bit_mismatches\":0,\"gb10_context_mismatches\":0,\"all_attempts_checked\":true,\"warmups_per_slab\":1,\"timed_attempts_per_slab\":3,\"original_qk_and_pv\":true,\"reference_is_compute_input\":false,\"redzones_and_unused_tails_pass\":true,\"immutable_inputs\":true,\"model_loaded\":false,\"inference_acceptance\":false,\"performance_acceptance\":false}\n",tokens,tokens-7169u,variant,variant==2u?4u:2u,variant==3u?4u:2u,(unsigned long long)fast_tiles[variant],(unsigned long long)slow_tiles[variant],variant?domain.ms:0.0,(unsigned long long)score_cells,tokens*4096u,cpu_dots,(unsigned long long)candidates[variant],samples[variant][0],samples[variant][1],samples[variant][2],sorted[1],prepared.ms+transpose_ms);
     }
 }
 } // namespace

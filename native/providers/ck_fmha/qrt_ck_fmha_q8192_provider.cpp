@@ -38,6 +38,8 @@
 #include "fused_probability_pv_policy.h"
 #include "fused_probability_pv.h"
 #include "microtile_exact_qk.h"
+#include "narrow_domain_qk_policy.h"
+#include "narrow_domain_qk_workspace.h"
 #include "rz_tree_qk.h"
 #include "native_exp2_workspace.h"
 #include "prepared_decoded_qk.h"
@@ -206,6 +208,7 @@ uint16_t* g_sm121_transposed_keys = nullptr;
 uint16_t* g_sm121_transposed_values = nullptr;
 uint32_t* g_sm121_prepared_values = nullptr;
 uint32_t* g_sm121_prepared_decoded_qk = nullptr;
+unsigned* g_sm121_narrow_qk_domain = nullptr;
 struct Sm121LongDecodedQkWorkspace {
     uint32_t* words = nullptr;
     unsigned capacity_tokens = 0u;
@@ -491,6 +494,10 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         query_start == 0u && query_count == 8192u;
     if (rz_tree_qk && (!exact_attention || !prepared_decoded_qk || exponent_mask_qk || matrix_mode))
         return int(hipErrorInvalidValue);
+    bool narrow_domain_qk = false;
+    if (!qrt_narrow_domain_qk_policy::select(std::getenv("QRT_CK_SM121_NARROW_DOMAIN_QK"),
+            query_start,query_count,exact_attention,prepared_decoded_qk,exponent_mask_qk,
+            rz_tree_qk,matrix_mode,narrow_domain_qk)) return int(hipErrorInvalidValue);
     const char* profile_option = std::getenv("QRT_CK_SM121_PROFILE_COMPLETED_STAGES");
     if (profile_option && *profile_option && std::strcmp(profile_option,"0") &&
         std::strcmp(profile_option,"1")) return int(hipErrorInvalidValue);
@@ -636,6 +643,7 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
     const unsigned transposed_value_capacity = long_transpose_value ? g_sm121_long_values.capacity_tokens : 8192u;
     const size_t transposed_value_elements = size_t(transposed_value_capacity) * kKvHeads * kHeadDim;
     qrt_prepared_decoded_qk::Workspace decoded_workspace;
+    qrt_narrow_domain_qk::Workspace narrow_workspace;
     qrt_blackwell_attention::SplitQkProducer decoded_producer{&decoded_workspace,
         rz_tree_qk ? qrt_rz_tree_qk::launch_workspace :
         exact_attention ? qrt_microtile_exact_qk::launch_workspace :
@@ -661,6 +669,21 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
             ? qrt_exponent_mask_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream)
             : qrt_prepared_decoded_qk::prepare_workspace(q, k, transposed_keys, decoded_workspace, stream);
         if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+    }
+    if (narrow_domain_qk) {
+        if (!g_sm121_narrow_qk_domain) {
+            status = int(hipMalloc(reinterpret_cast<void**>(&g_sm121_narrow_qk_domain),
+                qrt_narrow_domain_qk::domain_words * sizeof(unsigned)));
+            if (status != int(hipSuccess)) {
+                g_sm121_narrow_qk_domain = nullptr;
+                (void)hipStreamSynchronize(stream);
+                return status;
+            }
+        }
+        narrow_workspace = qrt_narrow_domain_qk::attach(decoded_workspace,g_sm121_narrow_qk_domain);
+        status = qrt_narrow_domain_qk::prepare_domain(q,k,narrow_workspace,stream);
+        if (status != int(hipSuccess)) { (void)hipStreamSynchronize(stream); return status; }
+        decoded_producer = {&narrow_workspace,qrt_narrow_domain_qk::launch_workspace};
     }
     if (long_prepared_decoded_qk) {
         if (g_sm121_long_decoded_qk.capacity_tokens < key_stride) {
@@ -819,8 +842,15 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_REGISTER_PV_RESCALE query_start=%u query_count=%u native_and_exact=1 original_k16=1 additional_workspace_bytes=0\n",
             query_start,query_count);
     if (exact_attention && !rz_tree_qk)
-        std::fprintf(stderr,"SM121_EXACT_ATTENTION_PIPELINE query_start=%u query_count=%u query_rows=32 key_columns=32 exact_native_exp=1 verified_inputs=%u workspace_bytes=%zu\n",
-            query_start,query_count,qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes);
+        std::fprintf(stderr,"SM121_EXACT_ATTENTION_PIPELINE query_start=%u query_count=%u query_rows=32 key_columns=%u exact_native_exp=1 verified_inputs=%u workspace_bytes=%zu\n",
+            query_start,query_count,narrow_domain_qk?64u:32u,qrt_sm121_exp2_native_delta::cells,qrt_sm121_exp2_native_delta::packed_bytes);
+    if (narrow_domain_qk) {
+        unsigned counts[2]{};
+        status = int(hipMemcpy(counts,narrow_workspace.tile_counts,sizeof(counts),hipMemcpyDeviceToHost));
+        if (status != int(hipSuccess)) return status;
+        std::fprintf(stderr,"SM121_NARROW_DOMAIN_QK query_start=%u query_count=%u query_rows=32 key_columns=64 window=64 bf16_exponents=95:159 classified_rows=%u narrow_tiles=%u original_tiles=%u original_k16=1 complete_fallback=1 refreshed=1 workspace_bytes=%zu stream_drained=1\n",
+            query_start,query_count,key_stride*18u,counts[1],counts[0],qrt_narrow_domain_qk::domain_words*sizeof(unsigned));
+    }
     if (rz_tree_qk)
         std::fprintf(stderr,"SM121_QK_RZ_TREE query_start=%u query_count=%u query_rows=32 key_columns=32 group_size=16 original_qk=0 narrow_bf16_exponents=96:158 original_exceptional_dot_replay=1 wave_mode_restored=1 exact_native_exp=1 original_pv=1 additional_workspace_bytes=0 gb10_product_gate_required=1\n",
             query_start,query_count);
@@ -834,8 +864,8 @@ int launch_sm121_attention(const uint16_t* q, const uint16_t* k,
         std::fprintf(stderr,"SM121_FLOAT_ALIGNMENT_QK query_start=%u query_count=%u canonical_k16=%u original_fallback=1 additional_workspace_bytes=0 selective_prefix_queries=%u\n",
             query_start,query_count,unsigned(!rz_tree_qk),selective_prefix_queries);
     if (prepared_decoded_qk)
-        std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=128 query_rows=%u key_columns=%u workspace_bytes=%zu refreshed=1 original_fallback=1\n",
-            query_start,query_count,exact_attention?32u:16u,exact_attention?32u:16u,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
+        std::fprintf(stderr,"SM121_PREPARED_DECODED_QK query_start=%u query_count=%u window=%u query_rows=%u key_columns=%u workspace_bytes=%zu refreshed=1 original_fallback=1\n",
+            query_start,query_count,narrow_domain_qk?64u:128u,exact_attention?32u:16u,narrow_domain_qk?64u:exact_attention?32u:16u,qrt_prepared_decoded_qk::workspace_words*sizeof(uint32_t));
     if (exponent_mask_qk)
         std::fprintf(stderr,"SM121_EXPONENT_MASK_QK query_start=%u query_count=%u exact_maximum=1 carry_bound=1 original_fallback=1 refreshed=1 additional_workspace_bytes=0\n",
             query_start,query_count);
@@ -1727,6 +1757,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         g_sm121_long_values = Sm121LongValueWorkspace{};
         (void)hipFree(g_sm121_prepared_values);
         (void)hipFree(g_sm121_prepared_decoded_qk);
+        (void)hipFree(g_sm121_narrow_qk_domain);
         (void)hipFree(g_sm121_long_decoded_qk.words);
         g_sm121_long_decoded_qk = Sm121LongDecodedQkWorkspace{};
         (void)hipFree(g_sm121_extended.prepared_values);
@@ -1743,6 +1774,7 @@ QRT_CK_EXPORT int qrt_ck_fmha_q8192_release() {
         g_sm121_transposed_values = nullptr;
         g_sm121_prepared_values = nullptr;
         g_sm121_prepared_decoded_qk = nullptr;
+        g_sm121_narrow_qk_domain = nullptr;
     }
 #endif
     return static_cast<int>(hipSuccess);

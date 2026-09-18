@@ -64,6 +64,16 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Exact narrow-domain QK components, 2026-09-18
+
+Complete q8192 attention in source `397ddc8` improves from 605.9593 ms to
+546.1894 ms including original-input classification. Both revisions pass
+288 generated cases, every raw captured score/output comparison and all
+29364224 original GB10 context values. The selected 2x4/K64 layout preserves
+ordered K16 arithmetic and original fallback. This is a component result;
+same-DLL real-model validation is pending and the qualified 23902.4417 ms
+TTFT baseline remains. [Implementation, all layouts and evidence](NARROW_DOMAIN_QK.md).
+
 ## Inline attention-probability repair, 2026-09-18
 
 Isolated source `878d8c0` combines maximum/probability repair and denominator
