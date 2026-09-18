@@ -49,8 +49,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
     const bool staged_f32_replay = staged_f32_option && !std::strcmp(staged_f32_option,"1");
     const char* staged_device_option = std::getenv("QRT_PROJECTION_SAFETY_STAGED_DEVICE_REPLAY");
     const bool staged_device_replay = staged_device_option && !std::strcmp(staged_device_option,"1");
+    const char* sparse_byte_option = std::getenv("QRT_PROJECTION_SAFETY_SPARSE_BYTE_REPLAY");
+    const bool sparse_byte_replay = sparse_byte_option && !std::strcmp(sparse_byte_option,"1");
     require(!output_projection || (extend_q8192 && ppb == 10000u &&
-        ((cooperative && !std::strcmp(cooperative,"1")) || staged_device_replay || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || pair_replay || transfer_replay || parallel_transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
+        ((cooperative && !std::strcmp(cooperative,"1")) || sparse_byte_replay || staged_device_replay || staged_f32_replay || embedded_replay || matrix_replay || dominant_replay || weight_bucket_replay || slab_bucket_replay || resident_input_replay || folded_replay || pair_replay || transfer_replay || parallel_transfer_replay || partitioned_half_replay || coarse_interval || coarse_owner || exponent_loss)),
         "real OUT requires a full-shape replay comparison and original FA bound");
     const unsigned tokens = extend_q8192 ? 8192u : source_tokens;
     const size_t elements = static_cast<size_t>(rows) * tokens;
@@ -80,7 +82,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
             dw.data(),di.data(),dout.data(),rows,k,tokens,0u,nullptr,
             "real_out_producer",&stage,&failure);
         require(produced, (stage+": "+failure).c_str());
-    } else if (staged_device_replay || pair_replay) {
+    } else if (staged_device_replay || pair_replay || sparse_byte_replay) {
         std::string stage, failure;
         require(resident_bf16_matrix_matmul_f32_output_with_heuristic_index(
             dw.data(),di.data(),dout.data(),rows,k,tokens,4u,nullptr,
@@ -147,7 +149,7 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
         const float margin = std::fabs(value - midpoint);
         const bool tiny = ((bits >> 23u) & 255u) < 32u;
         const float error = upper * (static_cast<float>(ppb) * 1e-9f);
-        const bool selected = distance <= 512u || tiny || ((partitioned_half_replay || pair_replay)
+        const bool selected = distance <= 512u || tiny || ((partitioned_half_replay || pair_replay || sparse_byte_replay)
             ? qrt_bf16_midpoint::within_error(value,error) : margin <= error);
         candidates += selected;
         if (selected) selected_indices.push_back(static_cast<unsigned>(i));
@@ -172,6 +174,10 @@ void run_real_qkv(const char *input_path, const char *weight_path, const char *r
               << ",\"required_ppb_observed\":" << required_ppb << ",\"configured_ppb\":" << ppb
               << ",\"prospective_candidates\":" << candidates << ",\"maximum_blocks\":" << blocks
               << ",\"inference_acceptance\":false}" << std::endl;
+    if (sparse_byte_replay) {
+        run_sparse_byte_replays(dw,di,dout,weights,inputs,reference,output,selected_indices,rows,tokens,k);
+        return;
+    }
     if (coarse_owner) {
         require(output_projection,"coarse owner requires full-attention OUT");
         run_coarse_owner_projection(dw,di,weights,inputs,reference,rows,tokens,k);

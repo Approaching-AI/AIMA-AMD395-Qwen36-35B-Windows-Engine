@@ -392,6 +392,7 @@ void run_correction_case(unsigned int rows, unsigned int tokens, unsigned int k,
 #include "projection_folded_half_replay_suite.h"
 #include "projection_pair_replay_suite.h"
 #include "projection_staged_device_suite.h"
+#include "projection_sparse_byte_suite.h"
 #include "projection_real_replay.h"
 #include "conv_consumer_audit_suite.h"
 #include "absolute_product_hipblaslt_selftest.h"
@@ -407,6 +408,15 @@ int main(int argc, char **argv) {
     try {
         require(argc >= 2, "select a synthetic or real-tensor mode");
         const std::string mode = argv[1];
+        if (mode == "--sparse-byte-replay") {
+            require(argc==2,"--sparse-byte-replay takes no tensors");
+            host_contract();hip_ok(hipInit(0),"hip_init");
+            hipDeviceProp_t properties{};hip_ok(hipGetDeviceProperties(&properties,0),"device_properties");
+            require(std::string(properties.gcnArchName).find("gfx1151")==0u,"expected gfx1151 before sparse replay");
+            const unsigned cases=run_sparse_byte_safety();
+            std::printf("{\"type\":\"summary\",\"status\":\"pass\",\"mode\":\"--sparse-byte-replay\",\"gpu_cases\":%u,\"inference_success_claimed\":false}\n",cases);
+            return 0;
+        }
         if (mode == "--conv-consumer-audit") {
             require(argc == 8,"--conv-consumer-audit INPUT PROJECTION_WEIGHT PROJECTION_REFERENCE CONV_WEIGHT CONV_REFERENCE_DIR TABLE");
             host_contract(); hip_ok(hipInit(0),"hip_init");
