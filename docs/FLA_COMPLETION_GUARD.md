@@ -85,6 +85,18 @@ the model. The diagnostic is disabled in the portable profile.
 All117 local FLA tests pass, with one Linux-only test skipped on macOS.
 The new checks exercise partial/full segments, byte preservation, copy and
 filesystem failures, invalid completion evidence and the actual submission
-wrapper's observation reset. Native compilation, captured replay and another
-long diagnostic run are still required. Larger contexts, package qualification
-and performance acceptance remain open.
+wrapper's observation reset. Diagnostic source
+`7a33fc99e248faaeebeb9b5ec3064246c133c6e7` builds natively on baiying;
+all46 compiler inputs match. Its979968-byte DLL SHA256 is
+`ac234c0b416967b4c0978bd22a3d36a5bc3546287934c614ff6d6bb68c4789a1`.
+The original q7169 output and final state match bitwise. With capture disabled,
+q8192/out512 passes every original GB10 ID, callback and first logit
+10.375/error0. Load is21345.493299 ms, TTFT23192.6479 ms and
+TPOT101.249491 ms. This single run does not replace the qualified performance
+median. See the [native diagnostic build and short regression](../benchmarks/correctness/fla-output-failure-capture-native-q8192-20260919.json).
+
+The original128k owner/suffix diagnostic is running with capture enabled and
+the unchanged7200-second process budget. Actual failed-input capture, delay
+identification and long-context recovery remain pending. The published
+portable candidate retains FLA `2b33665`; this diagnostic is not part of its
+archive. Performance and release acceptance remain open.
