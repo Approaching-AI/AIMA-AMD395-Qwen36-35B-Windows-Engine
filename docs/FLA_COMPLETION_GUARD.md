@@ -40,8 +40,23 @@ Load is21278.6683 ms, TTFT23363.176899 ms and TPOT101.670414 ms. The run has
 no latency outlier or host-clock fallback. This is a functional regression,
 not a paired speed comparison or a new retained performance median. See the
 [native build and original q8192 boundary](../benchmarks/correctness/fla-completed-latency-native-q8192-20260919.json).
-The repaired original128k owner/suffix run is active under the same7200-second
-process deadline, with capture disabled and all original comparisons retained.
+The repaired original128k owner/suffix run completes all sixteen owner chunks
+but fails the initial suffix continuation. Owner first token16 and logit24.875
+pass the original25.0 reference at the0.125 tolerance boundary. Suffix first
+token248045 and logit6.34375 also pass, with0.0625 logit error. The first122
+suffix IDs match; output index122 is466 instead of321, and382 of512 positions
+differ overall. The CLI exits6 before the cached owner32 and timed suffix
+requests. Full128k correctness is rejected, with all original references and
+tolerances retained.
+
+The completed guard policy is exercised once by an output-stage interval of
+279.346100 ms GPU/279.481000 ms host, and three invalid GPU intervals use valid
+host clocks. All owner chunks complete in5006058.3825 ms; the initial suffix
+takes362333.5653 ms. Native process wall is5390442.832 ms, inside the unchanged
+7200-second deadline, with all host and cleanup checks passing. These clocks
+are diagnostic; the failed seed provides no engine-load or timed-hit summary.
+No evidence attributes the numerical divergence to the completed latency
+outlier. See the [full failed continuation](../benchmarks/correctness/fla-completed-latency-prefix128k-divergence-20260919.json).
 
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:

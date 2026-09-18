@@ -34,6 +34,19 @@ The [local verification](../benchmarks/correctness/hawkeye-completed-latency-pol
 binds commands, changed sources and the include comparison. It follows the
 [independent failed-FLA-output comparison](../benchmarks/correctness/fla-failed-layer8-gb10-output-comparison-20260919.json)
 without transferring that numerical evidence to a new projection build.
-Native build and real-model regression are pending. The ongoing128k FLA
-repair run still uses the earlier whole-provider DLL. No package, performance
-or release acceptance follows from these host tests.
+Source`50a5718cc588d38826d458abd2f5d09450c109f2` builds on baiying in95247.781 ms.
+The13454848-byte DLL SHA256 is
+`305b925419de180943beb707c3907843b5f29bd9b067148643237d9f4db17614`.
+All494 compiled GPU kernels preserve the control's executable sections and
+complete AMDHSA metadata. This comparison excludes host code and device
+non-executable storage; actual numerical acceptance comes from the GB10 run.
+
+The original q8192/out512 regression passes every output ID, actual callback
+and first logit10.375/error0. Load is21273.614 ms, TTFT23241.4512 ms and
+TPOT101.286092 ms. This single functional sample does not replace the retained
+performance median. The run observes no projection latency outlier. See the
+[native build, compiled comparison and q8192 boundary](../benchmarks/correctness/hawkeye-completed-latency-native-q8192-20260919.json).
+
+The completed128k FLA repair run used the earlier whole-provider DLL and fails
+the initial suffix token sequence; it does not qualify this new whole build.
+Package, larger-context, performance and release acceptance remain open.
