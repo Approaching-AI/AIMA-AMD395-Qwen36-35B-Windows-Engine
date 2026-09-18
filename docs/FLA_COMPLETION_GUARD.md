@@ -58,6 +58,17 @@ are diagnostic; the failed seed provides no engine-load or timed-hit summary.
 No evidence attributes the numerical divergence to the completed latency
 outlier. See the [full failed continuation](../benchmarks/correctness/fla-completed-latency-prefix128k-divergence-20260919.json).
 
+An independent GB10 observation reproduces all1088 output IDs across the two
+long512-token cases and two short controls, including both unchanged complete
+first-logit tensors. At the first divergent suffix output, the matching input
+is token11256 at position132217. GB10 assigns both321 and466 logit24.0 and
+selects321. The failed native log instead reports466 at24.25 and321 at24.0.
+The observed difference is numerical, not a choice between equal native
+logits. The reference observer returns every original compute result unchanged;
+no native value is supplied to the service. Selected64k/96k/later prefill rows
+and40 layer carriers at the divergent decode input are available for diagnosis.
+See the [qualified intermediate reference](../benchmarks/correctness/gb10-prefix128-divergence-boundaries-20260919.json).
+
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
 
