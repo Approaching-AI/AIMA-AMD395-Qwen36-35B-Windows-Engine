@@ -187,9 +187,21 @@ row906 in the first12 chunks and positions91017–91021. This independently
 qualifies the reference for the native row trace, without qualifying Windows
 long-context inference. See the [qualified row reference](../benchmarks/correctness/gb10-prefix128-row906-boundaries-20260919.json)
 and [preserved rejected control](../benchmarks/correctness/gb10-row906-observer-control-rejection-20260919.json).
-A further reference observation reads existing layer3 prefill-attention
-endpoints to investigate the reproducible alternate control result; it changes
-no model arithmetic and retains the same original acceptance checks.
+The [additional layer3 attention observation](../benchmarks/correctness/gb10-prefix128-row906-full3-boundaries-20260919.json)
+passes all576 original control/owner IDs and complete owner first logits.
+All4325 downloaded files verify; eight original prefill attention endpoints
+are checked at selected rows. A same-configuration repeat remains active to
+investigate the reproducible alternate control result. This read-only observer
+changes no model arithmetic or original acceptance check.
+
+[CPU arithmetic controls](../benchmarks/correctness/row906-cpu-arithmetic-controls-20260919.json)
+now qualify positions91017–91021 directly:15 QKV/Z/OUT projections,10 gated/
+post-attention norms,5 residual rows and5 input norms all reproduce GB10
+bitwise. The input-norm replay uses the original unrounded FP32 sum for
+variance and its BF16 value as numerator. Ten selected layer3 rows, including
+both immutable short controls, also reproduce output projection and following
+norm exactly. These saved-input CPU controls support diagnosis of actual
+native operands; they are not Windows model or performance acceptance.
 
 Independent CPU controls now reproduce all9 original QKV/Z/OUT projection
 rows and all6 gated/residual-normalization cases at positions8191,90111 and
