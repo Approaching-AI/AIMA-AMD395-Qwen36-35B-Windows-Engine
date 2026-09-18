@@ -97,6 +97,23 @@ median. See the [native diagnostic build and short regression](../benchmarks/cor
 
 The original128k owner/suffix diagnostic is running with capture enabled and
 the unchanged7200-second process budget. Actual failed-input capture, delay
-identification and long-context recovery remain pending. The published
+identification and long-context recovery remain pending. The unpublished R6
 portable candidate retains FLA `2b33665`; this diagnostic is not part of its
 archive. Performance and release acceptance remain open.
+
+`native/providers/gdn/output_failure_replay.cpp` is a standalone diagnostic
+for these seven captured surfaces. It supports combined, scores-only,
+output-only, split, and64-token tile modes using the same production kernels
+and validated original exp2 table. Every interval requires successful HIP
+completion and the same100 ms bound. A rejected interval stops subsequent
+kernel submissions; completed rows are still compared bitwise against the
+native failed-stage capture. Immutable inputs, outer redzones and unsubmitted
+output rows are checked. This comparison is diagnostic, not a GB10 oracle
+or product performance result. The replay is not linked into the runtime.
+
+Four local tests compile this executable against a CPU HIP shim with address
+and undefined-behavior sanitizers. They exercise1/65/1024-token shapes in all
+five modes, rebased chunk-state pointers, exact comparison spans, failed
+completion/API calls, immutable inputs, redzones, malformed input and cleanup.
+These tests validate orchestration only; native compilation and actual
+captured GPU execution remain pending.
