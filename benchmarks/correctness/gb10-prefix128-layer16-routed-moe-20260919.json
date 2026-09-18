@@ -1,0 +1,1724 @@
+{
+  "analysis": {
+    "kind": "gb10_original128k_selected_layer16_routed_moe",
+    "authority_host": "gb10-4t",
+    "runtime_host": "aitopatom-66c4",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "observer_source_commit": "ec2ab868ce091db7bc0cb9d3aaab413eb6ce84cc",
+    "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+    "model": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "source_manifest": {
+      "name": "qrt-gb10-prefix128-routed16-20260919-r2",
+      "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+      "observer_source_commit": "ec2ab868ce091db7bc0cb9d3aaab413eb6ce84cc",
+      "observer_change": "Optional selected-row original routed MoE projection reads; pinned original computation and all results unchanged.",
+      "archive": "qrt-gb10-prefix128-routed16-20260919-r2.tar",
+      "archive_sha256": "fccc288e3bb874c284c977fa0878a62c8307391118abad255496f4d9caa7bb9c",
+      "archive_bytes": 6154240,
+      "script": "run-qrt-gb10-prefix128-routed16-20260919-r2.py",
+      "script_sha256": "71f5a77f0603f4fd237da29338433a749dcff709cafcd5425e5cfbb11a709381",
+      "dispatcher": "dispatch_gb10_prefix128_routed16_r2.py",
+      "dispatcher_sha256": "4fcee10eace7236edf0aafbda7ea0a16598f545f636bff89c16d7fc3c6ef8fb2",
+      "capture_script_sha256": "6012ce9e6f8f34a1eb8f8843f9e43515b0751cb96b8dd17913c6492d424e5804",
+      "boundary_observer_sha256": "ab889ca9f7267827e12358634d8096d48b9aceec0ff75f73ee8a5f040e040e9e",
+      "source_inputs_sha256": "0f47d96062573374f1a53caef96a3aebbf435aac66539b36fb50fcb7fb674fd9",
+      "anchors_sha256": "f7499cd2cfad0971dedcbf71aecb5539526c35aa9d819d2ee9b05625d748a6ab",
+      "prefill_positions": {
+        "long-prefix131072-owner-out512": [
+          8191,
+          90111,
+          98303
+        ]
+      },
+      "moe_layer": 16,
+      "total_cases_with_controls": 3,
+      "expected_total_outputs": 576,
+      "capture_timeout_seconds": 1800,
+      "container_timeout_seconds": 1830,
+      "host_supervisor_seconds": 1842,
+      "ssh_timeout_seconds": 1935,
+      "reference_math_configuration_unchanged": true,
+      "original512_and_full_first_logits_required": true,
+      "source_generator": "prepare_gb10_prefix128_routed16_r2.py",
+      "source_generator_sha256": "22a3063fccf70b0ccc733151649f8802a6b66e3fbc1dd71dbe839138001a26f8",
+      "windows_acceptance": false
+    },
+    "capture_sha256": "e7005293349bd8a9835aa677603618d1fc170fed0b62b1d00716cea1535a7113",
+    "dispatch_sha256": "3ea420380716b7e20213c674f3541d4f841afbdaab2676adf8c25456f200a261",
+    "downloaded_manifest_sha256": "dc6e70cad2f8e4372207c6606c8a9070e7f336ff6f547731ad5eede606083264",
+    "downloaded_files_verified": 2162,
+    "command_file": "run-qrt-gb10-prefix128-routed16-20260919-r2.py",
+    "command_file_sha256": "71f5a77f0603f4fd237da29338433a749dcff709cafcd5425e5cfbb11a709381",
+    "cases": [
+      {
+        "name": "q7169-out32",
+        "prompt_tokens": 7169,
+        "outputs": 32,
+        "first_token": 82,
+        "first_logit": 9.25,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "719813bb031f041544c91840b0092fd43a0e3ef96ccbb9ac44cd2f713a5763c9",
+        "case_sha256": "373368ba7c22d67ae43e65c711f83c04af1b8d1f416f016a77db0b9a989c540e",
+        "request_seconds": 11.21600781509187,
+        "original_all_output_ids_pass": true,
+        "original_methods_returned_unchanged": true,
+        "selected_rows_requalified": true
+      },
+      {
+        "name": "q8192-out32",
+        "prompt_tokens": 8192,
+        "outputs": 32,
+        "first_token": 144,
+        "first_logit": 10.375,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "145adfd0d14158d649b4c57f1dbb5151466d73f9183821e7da24e831d74112c0",
+        "case_sha256": "bba0d4ef9b2c4ab8b90dd4857af58e2c151a290cf35904715dcd511294d48ce4",
+        "request_seconds": 3.2609885659767315,
+        "original_all_output_ids_pass": true,
+        "original_methods_returned_unchanged": true,
+        "selected_rows_requalified": true
+      },
+      {
+        "name": "long-prefix131072-owner-out512",
+        "prompt_tokens": 131072,
+        "outputs": 512,
+        "first_token": 16,
+        "first_logit": 25.0,
+        "first_logit_absolute_error": 0.0,
+        "full_first_logits_sha256": "595f2b764ddf1dcfdeaa2bb2e3cf3e74daa057775dc2a17fdc567ede17c452ec",
+        "case_sha256": "d91f38a1c45a9cfb7d54fea3a6113ccb5b82d17aa945a6f49b7c14c8b7c7fa4a",
+        "request_seconds": 119.9424827459734,
+        "original_all_output_ids_pass": true,
+        "original_methods_returned_unchanged": true,
+        "selected_rows_requalified": true
+      }
+    ],
+    "selected_moe_rows": [
+      {
+        "position": 8191,
+        "transaction": 0,
+        "first_position": 0,
+        "tokens": 8192,
+        "qualified_row": {
+          "row": 8191,
+          "position": 8191,
+          "input_token_id": 16602,
+          "logit_row": 0,
+          "matches_generated_history": true
+        },
+        "input_history_verified": true,
+        "files": {
+          "input": {
+            "file": "txn0000-moe-16-input-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "7aa5a048d86e80187684bc06dc734d046ebe0b780ba1d326d116d04417b5085e",
+            "transaction": 0,
+            "label": "moe-16-input",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "7aa5a048d86e80187684bc06dc734d046ebe0b780ba1d326d116d04417b5085e",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-input-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "router": {
+            "file": "txn0000-moe-16-router-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              256
+            ],
+            "bytes": 512,
+            "sha256": "bcc17d487c0032988bc7c07cef6763c7fda97b70aa3fbffa5c3f25625f866263",
+            "transaction": 0,
+            "label": "moe-16-router",
+            "row_index": 0,
+            "selected_bytes": 512,
+            "selected_sha256": "bcc17d487c0032988bc7c07cef6763c7fda97b70aa3fbffa5c3f25625f866263",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-router-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "output": {
+            "file": "txn0000-moe-16-output-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "9f90840d600dcb22d8235bfd7aaa5a6a2356e372c94e2c90d3f208b9fdc73476",
+            "transaction": 0,
+            "label": "moe-16-output",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "9f90840d600dcb22d8235bfd7aaa5a6a2356e372c94e2c90d3f208b9fdc73476",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-output-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared": {
+            "file": "txn0000-moe-16-shared-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "f83c26ac6d3bad0cab5bfffd20b56f2166bc7a98824edbdc9527102c96ddfeed",
+            "transaction": 0,
+            "label": "moe-16-shared",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "f83c26ac6d3bad0cab5bfffd20b56f2166bc7a98824edbdc9527102c96ddfeed",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-shared-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate-up": {
+            "file": "txn0000-moe-16-shared-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1024
+            ],
+            "bytes": 2048,
+            "sha256": "57192052929278c1402de86c64792524e9979ee740cebfa55179cfae589c9a2e",
+            "transaction": 0,
+            "label": "moe-16-shared-gate-up",
+            "row_index": 0,
+            "selected_bytes": 2048,
+            "selected_sha256": "57192052929278c1402de86c64792524e9979ee740cebfa55179cfae589c9a2e",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-shared-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-activated": {
+            "file": "txn0000-moe-16-shared-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              512
+            ],
+            "bytes": 1024,
+            "sha256": "b15497434d1746729de4a2a314e46ba23cc72d4cc64738e28ed77263a1ece651",
+            "transaction": 0,
+            "label": "moe-16-shared-activated",
+            "row_index": 0,
+            "selected_bytes": 1024,
+            "selected_sha256": "b15497434d1746729de4a2a314e46ba23cc72d4cc64738e28ed77263a1ece651",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-shared-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-down": {
+            "file": "txn0000-moe-16-shared-down-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "9c7da576dc39ed0d3dcfe100e3bc28dba9a9206dffac39871e7a843a38877b4a",
+            "transaction": 0,
+            "label": "moe-16-shared-down",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "9c7da576dc39ed0d3dcfe100e3bc28dba9a9206dffac39871e7a843a38877b4a",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-shared-down-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate": {
+            "file": "txn0000-moe-16-shared-gate-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1
+            ],
+            "bytes": 2,
+            "sha256": "10b923a772d4e0335436de92becbc90b0b96b92f63787981f2ad0cdaf4d7c2e5",
+            "transaction": 0,
+            "label": "moe-16-shared-gate",
+            "row_index": 0,
+            "selected_bytes": 2,
+            "selected_sha256": "10b923a772d4e0335436de92becbc90b0b96b92f63787981f2ad0cdaf4d7c2e5",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-shared-gate-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-weights": {
+            "file": "txn0000-moe-16-topk-weights-f32.bin",
+            "dtype": "f32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "f5303e491f6c318220b4e6ab6bf88f0bb4c6745a2d6e2558bb8298ba8a7c66d5",
+            "transaction": 0,
+            "label": "moe-16-topk-weights",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "f5303e491f6c318220b4e6ab6bf88f0bb4c6745a2d6e2558bb8298ba8a7c66d5",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-topk-weights-f32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-ids": {
+            "file": "txn0000-moe-16-topk-ids-i32.bin",
+            "dtype": "i32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "72fb1e5cd818dcd9b65e47e8d01fadbaa2ad98d14e5a6fa09249bc47344e9751",
+            "transaction": 0,
+            "label": "moe-16-topk-ids",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "72fb1e5cd818dcd9b65e47e8d01fadbaa2ad98d14e5a6fa09249bc47344e9751",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-topk-ids-i32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-0": {
+            "file": "txn0000-moe-16-expert-part-0-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "f83c26ac6d3bad0cab5bfffd20b56f2166bc7a98824edbdc9527102c96ddfeed",
+            "transaction": 0,
+            "label": "moe-16-expert-part-0",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "f83c26ac6d3bad0cab5bfffd20b56f2166bc7a98824edbdc9527102c96ddfeed",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-expert-part-0-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-1": {
+            "file": "txn0000-moe-16-expert-part-1-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "04b50ef093cdbe4697b7ae847f40e76290d07624af11a997014fc0054a06578d",
+            "transaction": 0,
+            "label": "moe-16-expert-part-1",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "04b50ef093cdbe4697b7ae847f40e76290d07624af11a997014fc0054a06578d",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-expert-part-1-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "next-hidden": {
+            "file": "txn0000-moe-16-next-hidden-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "9f90840d600dcb22d8235bfd7aaa5a6a2356e372c94e2c90d3f208b9fdc73476",
+            "transaction": 0,
+            "label": "moe-16-next-hidden",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "9f90840d600dcb22d8235bfd7aaa5a6a2356e372c94e2c90d3f208b9fdc73476",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-next-hidden-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "residual": {
+            "file": "txn0000-moe-16-residual-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "a89acc658cf948af79ea319e2bc4d80ee6331f57d2af890c9636aa9b1840143e",
+            "transaction": 0,
+            "label": "moe-16-residual",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "a89acc658cf948af79ea319e2bc4d80ee6331f57d2af890c9636aa9b1840143e",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-residual-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-gate-up": {
+            "file": "txn0000-moe-16-routed-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              8192
+            ],
+            "bytes": 16384,
+            "sha256": "28432458c7c17d5637c8b40e5de5cf65f931d3a323456658533d9862a98b257e",
+            "transaction": 0,
+            "label": "moe-16-routed-gate-up",
+            "row_index": 0,
+            "selected_bytes": 16384,
+            "selected_sha256": "28432458c7c17d5637c8b40e5de5cf65f931d3a323456658533d9862a98b257e",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-routed-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-activated": {
+            "file": "txn0000-moe-16-routed-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              4096
+            ],
+            "bytes": 8192,
+            "sha256": "5180c31d0a34dc522c9201ae75cf43a28e6a6ac73e6d8e4134bee26cc2ab4002",
+            "transaction": 0,
+            "label": "moe-16-routed-activated",
+            "row_index": 0,
+            "selected_bytes": 8192,
+            "selected_sha256": "5180c31d0a34dc522c9201ae75cf43a28e6a6ac73e6d8e4134bee26cc2ab4002",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-routed-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-weighted": {
+            "file": "txn0000-moe-16-routed-weighted-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              16384
+            ],
+            "bytes": 32768,
+            "sha256": "3bc3e0d69d7ae42c120ae1a1a828dc50ce28264b77dfd993107d3026da64c995",
+            "transaction": 0,
+            "label": "moe-16-routed-weighted",
+            "row_index": 0,
+            "selected_bytes": 32768,
+            "selected_sha256": "3bc3e0d69d7ae42c120ae1a1a828dc50ce28264b77dfd993107d3026da64c995",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0000-moe-16-routed-weighted-bf16.bin",
+            "nonfinite_selected_elements": 0
+          }
+        }
+      },
+      {
+        "position": 90111,
+        "transaction": 10,
+        "first_position": 81920,
+        "tokens": 8192,
+        "qualified_row": {
+          "row": 8191,
+          "position": 90111,
+          "input_token_id": 16602,
+          "logit_row": 0,
+          "matches_generated_history": true
+        },
+        "input_history_verified": true,
+        "files": {
+          "input": {
+            "file": "txn0010-moe-16-input-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "723ebc893b24cb2802239d56863dea5ff612d2b2937da19ce8d27b5c6d915e47",
+            "transaction": 10,
+            "label": "moe-16-input",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "723ebc893b24cb2802239d56863dea5ff612d2b2937da19ce8d27b5c6d915e47",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-input-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "router": {
+            "file": "txn0010-moe-16-router-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              256
+            ],
+            "bytes": 512,
+            "sha256": "4131c3f4654faf67fd6fcb76325184d87f546d4dff16a51ec93695b9338e93b9",
+            "transaction": 10,
+            "label": "moe-16-router",
+            "row_index": 0,
+            "selected_bytes": 512,
+            "selected_sha256": "4131c3f4654faf67fd6fcb76325184d87f546d4dff16a51ec93695b9338e93b9",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-router-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "output": {
+            "file": "txn0010-moe-16-output-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "90bb61b19757e86942777f94d4eadc4007509735a43c6143ca1e513ca17c4e34",
+            "transaction": 10,
+            "label": "moe-16-output",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "90bb61b19757e86942777f94d4eadc4007509735a43c6143ca1e513ca17c4e34",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-output-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared": {
+            "file": "txn0010-moe-16-shared-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "eaff5432a5aecaff91c8de08e3fe6c5e999e35324a5719ca1bfbb5b9313e5f50",
+            "transaction": 10,
+            "label": "moe-16-shared",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "eaff5432a5aecaff91c8de08e3fe6c5e999e35324a5719ca1bfbb5b9313e5f50",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-shared-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate-up": {
+            "file": "txn0010-moe-16-shared-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1024
+            ],
+            "bytes": 2048,
+            "sha256": "af44d83b6f3ea6ab6d3c6d5a9b3dca1a0e7f813481012f018a3d94de11cc57bb",
+            "transaction": 10,
+            "label": "moe-16-shared-gate-up",
+            "row_index": 0,
+            "selected_bytes": 2048,
+            "selected_sha256": "af44d83b6f3ea6ab6d3c6d5a9b3dca1a0e7f813481012f018a3d94de11cc57bb",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-shared-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-activated": {
+            "file": "txn0010-moe-16-shared-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              512
+            ],
+            "bytes": 1024,
+            "sha256": "932c3011d59fec6a78962624b3fe1874972d64b63fc6c2218f81727438b25a85",
+            "transaction": 10,
+            "label": "moe-16-shared-activated",
+            "row_index": 0,
+            "selected_bytes": 1024,
+            "selected_sha256": "932c3011d59fec6a78962624b3fe1874972d64b63fc6c2218f81727438b25a85",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-shared-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-down": {
+            "file": "txn0010-moe-16-shared-down-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "aebc585b230ec0e67ccf95763f3c57df5c8259723d46fe1f997574d0e8577ef6",
+            "transaction": 10,
+            "label": "moe-16-shared-down",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "aebc585b230ec0e67ccf95763f3c57df5c8259723d46fe1f997574d0e8577ef6",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-shared-down-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate": {
+            "file": "txn0010-moe-16-shared-gate-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1
+            ],
+            "bytes": 2,
+            "sha256": "d8e08f04509ea078597c949fb77721574d1cf920732aa2d162ac1a5fb058de3b",
+            "transaction": 10,
+            "label": "moe-16-shared-gate",
+            "row_index": 0,
+            "selected_bytes": 2,
+            "selected_sha256": "d8e08f04509ea078597c949fb77721574d1cf920732aa2d162ac1a5fb058de3b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-shared-gate-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-weights": {
+            "file": "txn0010-moe-16-topk-weights-f32.bin",
+            "dtype": "f32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "ff4bc979dcfc2725eaa5a72f824313e9e37c79533e26c6d46b314820ed239b12",
+            "transaction": 10,
+            "label": "moe-16-topk-weights",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "ff4bc979dcfc2725eaa5a72f824313e9e37c79533e26c6d46b314820ed239b12",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-topk-weights-f32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-ids": {
+            "file": "txn0010-moe-16-topk-ids-i32.bin",
+            "dtype": "i32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "98e6e1db5055191e19a625064f7417a70930759f3bc734872f73f4211d3df0e8",
+            "transaction": 10,
+            "label": "moe-16-topk-ids",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "98e6e1db5055191e19a625064f7417a70930759f3bc734872f73f4211d3df0e8",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-topk-ids-i32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-0": {
+            "file": "txn0010-moe-16-expert-part-0-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "eaff5432a5aecaff91c8de08e3fe6c5e999e35324a5719ca1bfbb5b9313e5f50",
+            "transaction": 10,
+            "label": "moe-16-expert-part-0",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "eaff5432a5aecaff91c8de08e3fe6c5e999e35324a5719ca1bfbb5b9313e5f50",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-expert-part-0-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-1": {
+            "file": "txn0010-moe-16-expert-part-1-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "b05c177d2362a533a66b93c4237447a8cb324ac41196e615e72e262b3499e854",
+            "transaction": 10,
+            "label": "moe-16-expert-part-1",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "b05c177d2362a533a66b93c4237447a8cb324ac41196e615e72e262b3499e854",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-expert-part-1-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "next-hidden": {
+            "file": "txn0010-moe-16-next-hidden-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "90bb61b19757e86942777f94d4eadc4007509735a43c6143ca1e513ca17c4e34",
+            "transaction": 10,
+            "label": "moe-16-next-hidden",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "90bb61b19757e86942777f94d4eadc4007509735a43c6143ca1e513ca17c4e34",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-next-hidden-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "residual": {
+            "file": "txn0010-moe-16-residual-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "fc25d91b754916acc1e3af3a9508b5d4dbe60f8feba31ff89a78a4e34652f740",
+            "transaction": 10,
+            "label": "moe-16-residual",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "fc25d91b754916acc1e3af3a9508b5d4dbe60f8feba31ff89a78a4e34652f740",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-residual-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-gate-up": {
+            "file": "txn0010-moe-16-routed-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              8192
+            ],
+            "bytes": 16384,
+            "sha256": "71636c981f231fa451f729da56786efeb84e3e68122b1c6f354241422ce07e2c",
+            "transaction": 10,
+            "label": "moe-16-routed-gate-up",
+            "row_index": 0,
+            "selected_bytes": 16384,
+            "selected_sha256": "71636c981f231fa451f729da56786efeb84e3e68122b1c6f354241422ce07e2c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-routed-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-activated": {
+            "file": "txn0010-moe-16-routed-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              4096
+            ],
+            "bytes": 8192,
+            "sha256": "5af4d5eba65bf4ff4b27e9abaaca6a98c4dbe7e6c0b806e59001678a4cbb9216",
+            "transaction": 10,
+            "label": "moe-16-routed-activated",
+            "row_index": 0,
+            "selected_bytes": 8192,
+            "selected_sha256": "5af4d5eba65bf4ff4b27e9abaaca6a98c4dbe7e6c0b806e59001678a4cbb9216",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-routed-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-weighted": {
+            "file": "txn0010-moe-16-routed-weighted-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              16384
+            ],
+            "bytes": 32768,
+            "sha256": "950dd7047a423aa17e022b433d7a66bd3bbe1ffac551edc1827db277f87a8462",
+            "transaction": 10,
+            "label": "moe-16-routed-weighted",
+            "row_index": 0,
+            "selected_bytes": 32768,
+            "selected_sha256": "950dd7047a423aa17e022b433d7a66bd3bbe1ffac551edc1827db277f87a8462",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0010-moe-16-routed-weighted-bf16.bin",
+            "nonfinite_selected_elements": 0
+          }
+        }
+      },
+      {
+        "position": 98303,
+        "transaction": 11,
+        "first_position": 90112,
+        "tokens": 8192,
+        "qualified_row": {
+          "row": 8191,
+          "position": 98303,
+          "input_token_id": 16602,
+          "logit_row": 0,
+          "matches_generated_history": true
+        },
+        "input_history_verified": true,
+        "files": {
+          "input": {
+            "file": "txn0011-moe-16-input-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b",
+            "transaction": 11,
+            "label": "moe-16-input",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "4639d022c739d475ee8607acaffe1a9b209642c1ab0aa9039894bbe82cf53c8b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-input-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "router": {
+            "file": "txn0011-moe-16-router-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              256
+            ],
+            "bytes": 512,
+            "sha256": "0d025706365909d97ce355ccca8c69e7a9146ffb8f0a28ad1c71a5d38e0aae3c",
+            "transaction": 11,
+            "label": "moe-16-router",
+            "row_index": 0,
+            "selected_bytes": 512,
+            "selected_sha256": "0d025706365909d97ce355ccca8c69e7a9146ffb8f0a28ad1c71a5d38e0aae3c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-router-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "output": {
+            "file": "txn0011-moe-16-output-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "fd2213afee49e93559a64c3d4ec4a5ffa2520dc42063fa4e82941a8b8d7c04ab",
+            "transaction": 11,
+            "label": "moe-16-output",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "fd2213afee49e93559a64c3d4ec4a5ffa2520dc42063fa4e82941a8b8d7c04ab",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-output-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared": {
+            "file": "txn0011-moe-16-shared-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "10901f69aa3d1c888435c883990eb60ad1ba4b6904292fd259542f4ebe6ad3b0",
+            "transaction": 11,
+            "label": "moe-16-shared",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "10901f69aa3d1c888435c883990eb60ad1ba4b6904292fd259542f4ebe6ad3b0",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-shared-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate-up": {
+            "file": "txn0011-moe-16-shared-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1024
+            ],
+            "bytes": 2048,
+            "sha256": "c4020875afd79768095d9b5c8b58fa896e7db86a23ebfa8cc1ea636fcf4fd9f6",
+            "transaction": 11,
+            "label": "moe-16-shared-gate-up",
+            "row_index": 0,
+            "selected_bytes": 2048,
+            "selected_sha256": "c4020875afd79768095d9b5c8b58fa896e7db86a23ebfa8cc1ea636fcf4fd9f6",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-shared-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-activated": {
+            "file": "txn0011-moe-16-shared-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              512
+            ],
+            "bytes": 1024,
+            "sha256": "4374bc28a545ba69631db1d132cb2920e5b1a244ce3d8ef82e323b193a284c3e",
+            "transaction": 11,
+            "label": "moe-16-shared-activated",
+            "row_index": 0,
+            "selected_bytes": 1024,
+            "selected_sha256": "4374bc28a545ba69631db1d132cb2920e5b1a244ce3d8ef82e323b193a284c3e",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-shared-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-down": {
+            "file": "txn0011-moe-16-shared-down-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "88bf55fbb5fd9c62d1220327b16c72f74b30096678e382f022c4a55df13e1867",
+            "transaction": 11,
+            "label": "moe-16-shared-down",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "88bf55fbb5fd9c62d1220327b16c72f74b30096678e382f022c4a55df13e1867",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-shared-down-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate": {
+            "file": "txn0011-moe-16-shared-gate-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1
+            ],
+            "bytes": 2,
+            "sha256": "859ad1a485cad2960d589dc5ab6f923e492d2ceaf5588c8470557c15cea7b818",
+            "transaction": 11,
+            "label": "moe-16-shared-gate",
+            "row_index": 0,
+            "selected_bytes": 2,
+            "selected_sha256": "859ad1a485cad2960d589dc5ab6f923e492d2ceaf5588c8470557c15cea7b818",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-shared-gate-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-weights": {
+            "file": "txn0011-moe-16-topk-weights-f32.bin",
+            "dtype": "f32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "8e0adacfa9a549ecfdbd5620325a3a25d939c552b8b64b4ea41f3e9d9ce103e1",
+            "transaction": 11,
+            "label": "moe-16-topk-weights",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "8e0adacfa9a549ecfdbd5620325a3a25d939c552b8b64b4ea41f3e9d9ce103e1",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-topk-weights-f32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-ids": {
+            "file": "txn0011-moe-16-topk-ids-i32.bin",
+            "dtype": "i32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "a37b0680e5d9af931cc7e0fa23bd6d5b5cde394f8e8cf9189b8dc710a9077b8b",
+            "transaction": 11,
+            "label": "moe-16-topk-ids",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "a37b0680e5d9af931cc7e0fa23bd6d5b5cde394f8e8cf9189b8dc710a9077b8b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-topk-ids-i32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-0": {
+            "file": "txn0011-moe-16-expert-part-0-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "10901f69aa3d1c888435c883990eb60ad1ba4b6904292fd259542f4ebe6ad3b0",
+            "transaction": 11,
+            "label": "moe-16-expert-part-0",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "10901f69aa3d1c888435c883990eb60ad1ba4b6904292fd259542f4ebe6ad3b0",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-expert-part-0-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-1": {
+            "file": "txn0011-moe-16-expert-part-1-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "8e7291f7890600677dbae226b3319a7d3cf1ba29a674cc84a9b6b759d5c757f4",
+            "transaction": 11,
+            "label": "moe-16-expert-part-1",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "8e7291f7890600677dbae226b3319a7d3cf1ba29a674cc84a9b6b759d5c757f4",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-expert-part-1-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "next-hidden": {
+            "file": "txn0011-moe-16-next-hidden-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "fd2213afee49e93559a64c3d4ec4a5ffa2520dc42063fa4e82941a8b8d7c04ab",
+            "transaction": 11,
+            "label": "moe-16-next-hidden",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "fd2213afee49e93559a64c3d4ec4a5ffa2520dc42063fa4e82941a8b8d7c04ab",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-next-hidden-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "residual": {
+            "file": "txn0011-moe-16-residual-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "23ef1716bbf7045533f68f70e61ed96d165ea58fb58870adc4cef089080d17ba",
+            "transaction": 11,
+            "label": "moe-16-residual",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "23ef1716bbf7045533f68f70e61ed96d165ea58fb58870adc4cef089080d17ba",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-residual-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-gate-up": {
+            "file": "txn0011-moe-16-routed-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              8192
+            ],
+            "bytes": 16384,
+            "sha256": "545deac7b1ee13cec643582ecae2ee1a796ad2f02c19007339a7a8e4a75f358b",
+            "transaction": 11,
+            "label": "moe-16-routed-gate-up",
+            "row_index": 0,
+            "selected_bytes": 16384,
+            "selected_sha256": "545deac7b1ee13cec643582ecae2ee1a796ad2f02c19007339a7a8e4a75f358b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-routed-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-activated": {
+            "file": "txn0011-moe-16-routed-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              4096
+            ],
+            "bytes": 8192,
+            "sha256": "eb6bff85c16f73660ce791b329fc8094b422b5a55051625affdcf517a5602445",
+            "transaction": 11,
+            "label": "moe-16-routed-activated",
+            "row_index": 0,
+            "selected_bytes": 8192,
+            "selected_sha256": "eb6bff85c16f73660ce791b329fc8094b422b5a55051625affdcf517a5602445",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-routed-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-weighted": {
+            "file": "txn0011-moe-16-routed-weighted-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              16384
+            ],
+            "bytes": 32768,
+            "sha256": "63310fe1db0949fdec50ae66fda8b34169874f7f3aeb80c5a3a078e87731e13a",
+            "transaction": 11,
+            "label": "moe-16-routed-weighted",
+            "row_index": 0,
+            "selected_bytes": 32768,
+            "selected_sha256": "63310fe1db0949fdec50ae66fda8b34169874f7f3aeb80c5a3a078e87731e13a",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0011-moe-16-routed-weighted-bf16.bin",
+            "nonfinite_selected_elements": 0
+          }
+        }
+      },
+      {
+        "position": 131071,
+        "transaction": 15,
+        "first_position": 122880,
+        "tokens": 8192,
+        "qualified_row": {
+          "row": 8191,
+          "position": 131071,
+          "input_token_id": 271,
+          "logit_row": 0,
+          "matches_generated_history": true
+        },
+        "input_history_verified": true,
+        "files": {
+          "input": {
+            "file": "txn0015-moe-16-input-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "41757e643a80f34ad78832de368057087f15d561e9d13b14dec062a88e03957d",
+            "transaction": 15,
+            "label": "moe-16-input",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "41757e643a80f34ad78832de368057087f15d561e9d13b14dec062a88e03957d",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-input-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "router": {
+            "file": "txn0015-moe-16-router-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              256
+            ],
+            "bytes": 512,
+            "sha256": "8565e661d57a2466e091f7b3b555825ed7e258c1627883028d536db5257189f4",
+            "transaction": 15,
+            "label": "moe-16-router",
+            "row_index": 0,
+            "selected_bytes": 512,
+            "selected_sha256": "8565e661d57a2466e091f7b3b555825ed7e258c1627883028d536db5257189f4",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-router-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "output": {
+            "file": "txn0015-moe-16-output-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "3dd46a8592ce79eb6a5aedd6498355a2ac49828263ea9dd0aa9b1734349ffc3b",
+            "transaction": 15,
+            "label": "moe-16-output",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "3dd46a8592ce79eb6a5aedd6498355a2ac49828263ea9dd0aa9b1734349ffc3b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-output-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared": {
+            "file": "txn0015-moe-16-shared-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "39cd679467c90f9d44870305dea82146dbe7c669e6b8249a2960e1c3e33a3c1c",
+            "transaction": 15,
+            "label": "moe-16-shared",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "39cd679467c90f9d44870305dea82146dbe7c669e6b8249a2960e1c3e33a3c1c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-shared-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate-up": {
+            "file": "txn0015-moe-16-shared-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1024
+            ],
+            "bytes": 2048,
+            "sha256": "b2657c7ebc1c22f4522a968dafaa7aa4dcd48d09af17caadc9af1ef87c95fe17",
+            "transaction": 15,
+            "label": "moe-16-shared-gate-up",
+            "row_index": 0,
+            "selected_bytes": 2048,
+            "selected_sha256": "b2657c7ebc1c22f4522a968dafaa7aa4dcd48d09af17caadc9af1ef87c95fe17",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-shared-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-activated": {
+            "file": "txn0015-moe-16-shared-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              512
+            ],
+            "bytes": 1024,
+            "sha256": "f81d96945c4868a2e4ccf28be8bd7035d4969fefe97cc0af5f606a74b7285d3c",
+            "transaction": 15,
+            "label": "moe-16-shared-activated",
+            "row_index": 0,
+            "selected_bytes": 1024,
+            "selected_sha256": "f81d96945c4868a2e4ccf28be8bd7035d4969fefe97cc0af5f606a74b7285d3c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-shared-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-down": {
+            "file": "txn0015-moe-16-shared-down-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "1fc27ebef9d0311a07374563e68e3e66f2b7067e89e8db53e24b60f6c83480f5",
+            "transaction": 15,
+            "label": "moe-16-shared-down",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "1fc27ebef9d0311a07374563e68e3e66f2b7067e89e8db53e24b60f6c83480f5",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-shared-down-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate": {
+            "file": "txn0015-moe-16-shared-gate-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1
+            ],
+            "bytes": 2,
+            "sha256": "22c93eb0c3b7fdb27ccaf74d6f291b48a186a930934646ebe51f6e5da8897572",
+            "transaction": 15,
+            "label": "moe-16-shared-gate",
+            "row_index": 0,
+            "selected_bytes": 2,
+            "selected_sha256": "22c93eb0c3b7fdb27ccaf74d6f291b48a186a930934646ebe51f6e5da8897572",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-shared-gate-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-weights": {
+            "file": "txn0015-moe-16-topk-weights-f32.bin",
+            "dtype": "f32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "624bc680c5f96ec168c8eadd9cbdd7583dbbf6e48dc8ac9255053c1fa08a698c",
+            "transaction": 15,
+            "label": "moe-16-topk-weights",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "624bc680c5f96ec168c8eadd9cbdd7583dbbf6e48dc8ac9255053c1fa08a698c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-topk-weights-f32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-ids": {
+            "file": "txn0015-moe-16-topk-ids-i32.bin",
+            "dtype": "i32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "2bae5e24fbcf965794602a2288db729ca6d2721efa738246dc94e2bf884db80f",
+            "transaction": 15,
+            "label": "moe-16-topk-ids",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "2bae5e24fbcf965794602a2288db729ca6d2721efa738246dc94e2bf884db80f",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-topk-ids-i32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-0": {
+            "file": "txn0015-moe-16-expert-part-0-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "39cd679467c90f9d44870305dea82146dbe7c669e6b8249a2960e1c3e33a3c1c",
+            "transaction": 15,
+            "label": "moe-16-expert-part-0",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "39cd679467c90f9d44870305dea82146dbe7c669e6b8249a2960e1c3e33a3c1c",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-expert-part-0-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-1": {
+            "file": "txn0015-moe-16-expert-part-1-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "532afdcbfe17863cbadbae11ce6e56bfe1043e02e5073174cc37291552029f11",
+            "transaction": 15,
+            "label": "moe-16-expert-part-1",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "532afdcbfe17863cbadbae11ce6e56bfe1043e02e5073174cc37291552029f11",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-expert-part-1-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "next-hidden": {
+            "file": "txn0015-moe-16-next-hidden-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "3dd46a8592ce79eb6a5aedd6498355a2ac49828263ea9dd0aa9b1734349ffc3b",
+            "transaction": 15,
+            "label": "moe-16-next-hidden",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "3dd46a8592ce79eb6a5aedd6498355a2ac49828263ea9dd0aa9b1734349ffc3b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-next-hidden-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "residual": {
+            "file": "txn0015-moe-16-residual-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "3b3ecca9bfd8f91ed71ee1cc52173aefa4a37dc080dab370975c84157d7513cf",
+            "transaction": 15,
+            "label": "moe-16-residual",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "3b3ecca9bfd8f91ed71ee1cc52173aefa4a37dc080dab370975c84157d7513cf",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-residual-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-gate-up": {
+            "file": "txn0015-moe-16-routed-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              8192
+            ],
+            "bytes": 16384,
+            "sha256": "a4160422f557cc2ff616edba40bdc7c55c87d006ddba85eddac32e5b4f5df677",
+            "transaction": 15,
+            "label": "moe-16-routed-gate-up",
+            "row_index": 0,
+            "selected_bytes": 16384,
+            "selected_sha256": "a4160422f557cc2ff616edba40bdc7c55c87d006ddba85eddac32e5b4f5df677",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-routed-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-activated": {
+            "file": "txn0015-moe-16-routed-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              4096
+            ],
+            "bytes": 8192,
+            "sha256": "8c1e51d1c161458f7f52cf911303b9fcb16d53f625da55ac8a4fed4a86f501e3",
+            "transaction": 15,
+            "label": "moe-16-routed-activated",
+            "row_index": 0,
+            "selected_bytes": 8192,
+            "selected_sha256": "8c1e51d1c161458f7f52cf911303b9fcb16d53f625da55ac8a4fed4a86f501e3",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-routed-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "routed-weighted": {
+            "file": "txn0015-moe-16-routed-weighted-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              16384
+            ],
+            "bytes": 32768,
+            "sha256": "7317f22544bef69539315c9ca789b504adb1b0287558de747fa5eb529b8ab65f",
+            "transaction": 15,
+            "label": "moe-16-routed-weighted",
+            "row_index": 0,
+            "selected_bytes": 32768,
+            "selected_sha256": "7317f22544bef69539315c9ca789b504adb1b0287558de747fa5eb529b8ab65f",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0015-moe-16-routed-weighted-bf16.bin",
+            "nonfinite_selected_elements": 0
+          }
+        }
+      },
+      {
+        "position": 131072,
+        "transaction": 16,
+        "first_position": 131072,
+        "tokens": 2,
+        "qualified_row": {
+          "row": 0,
+          "position": 131072,
+          "input_token_id": 16,
+          "logit_row": 0,
+          "matches_generated_history": true
+        },
+        "input_history_verified": true,
+        "files": {
+          "input": {
+            "file": "txn0016-moe-16-input-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "a481523c9902028097bded9d3ff331e4519861e72ab995bd02dd1d86046b9a05",
+            "transaction": 16,
+            "label": "moe-16-input",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "a481523c9902028097bded9d3ff331e4519861e72ab995bd02dd1d86046b9a05",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-input-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "router": {
+            "file": "txn0016-moe-16-router-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              256
+            ],
+            "bytes": 512,
+            "sha256": "04328f1ba9d824af87fdfd9c90354e7e2c6e4792e88ac4ad150d5bde2c84cb09",
+            "transaction": 16,
+            "label": "moe-16-router",
+            "row_index": 0,
+            "selected_bytes": 512,
+            "selected_sha256": "04328f1ba9d824af87fdfd9c90354e7e2c6e4792e88ac4ad150d5bde2c84cb09",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-router-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "output": {
+            "file": "txn0016-moe-16-output-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "6769f6314f5e8bb19c058926dd5e988f7a319345162c368e630efc5414312e7b",
+            "transaction": 16,
+            "label": "moe-16-output",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "6769f6314f5e8bb19c058926dd5e988f7a319345162c368e630efc5414312e7b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-output-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared": {
+            "file": "txn0016-moe-16-shared-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "cca07212a994ccaa9a5616502b00158baae3070e6c31bb45872a909394378eb4",
+            "transaction": 16,
+            "label": "moe-16-shared",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "cca07212a994ccaa9a5616502b00158baae3070e6c31bb45872a909394378eb4",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-shared-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate-up": {
+            "file": "txn0016-moe-16-shared-gate-up-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1024
+            ],
+            "bytes": 2048,
+            "sha256": "16e36b8d725cd22546e619ac3cf0273f0914f6f30b79586cabcb9cc8dcb09a65",
+            "transaction": 16,
+            "label": "moe-16-shared-gate-up",
+            "row_index": 0,
+            "selected_bytes": 2048,
+            "selected_sha256": "16e36b8d725cd22546e619ac3cf0273f0914f6f30b79586cabcb9cc8dcb09a65",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-shared-gate-up-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-activated": {
+            "file": "txn0016-moe-16-shared-activated-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              512
+            ],
+            "bytes": 1024,
+            "sha256": "3cb6f2b8c5e4e951f53a14f7c546bccf16ad0ffb965701248f8954364c76cb64",
+            "transaction": 16,
+            "label": "moe-16-shared-activated",
+            "row_index": 0,
+            "selected_bytes": 1024,
+            "selected_sha256": "3cb6f2b8c5e4e951f53a14f7c546bccf16ad0ffb965701248f8954364c76cb64",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-shared-activated-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-down": {
+            "file": "txn0016-moe-16-shared-down-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "142ee729045e52c0617b41033456c716f23790c850b3f080c786087f578104cc",
+            "transaction": 16,
+            "label": "moe-16-shared-down",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "142ee729045e52c0617b41033456c716f23790c850b3f080c786087f578104cc",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-shared-down-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "shared-gate": {
+            "file": "txn0016-moe-16-shared-gate-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              1
+            ],
+            "bytes": 2,
+            "sha256": "786529c5a794e5f27d56cc23712744017f55dd5aaacf18ca2b7fa99ea6c95a82",
+            "transaction": 16,
+            "label": "moe-16-shared-gate",
+            "row_index": 0,
+            "selected_bytes": 2,
+            "selected_sha256": "786529c5a794e5f27d56cc23712744017f55dd5aaacf18ca2b7fa99ea6c95a82",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-shared-gate-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-weights": {
+            "file": "txn0016-moe-16-topk-weights-f32.bin",
+            "dtype": "f32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "fabe822206de114d5b486fea6b692a8f665ae46d8a304280b69aa9ea81299e85",
+            "transaction": 16,
+            "label": "moe-16-topk-weights",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "fabe822206de114d5b486fea6b692a8f665ae46d8a304280b69aa9ea81299e85",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-topk-weights-f32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "topk-ids": {
+            "file": "txn0016-moe-16-topk-ids-i32.bin",
+            "dtype": "i32",
+            "shape": [
+              1,
+              8
+            ],
+            "bytes": 32,
+            "sha256": "48bfc26e533df04739ca5a23137404b569fb48ba8773874f8d6316e3d88c56d7",
+            "transaction": 16,
+            "label": "moe-16-topk-ids",
+            "row_index": 0,
+            "selected_bytes": 32,
+            "selected_sha256": "48bfc26e533df04739ca5a23137404b569fb48ba8773874f8d6316e3d88c56d7",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-topk-ids-i32.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-0": {
+            "file": "txn0016-moe-16-expert-part-0-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "cca07212a994ccaa9a5616502b00158baae3070e6c31bb45872a909394378eb4",
+            "transaction": 16,
+            "label": "moe-16-expert-part-0",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "cca07212a994ccaa9a5616502b00158baae3070e6c31bb45872a909394378eb4",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-expert-part-0-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "expert-part-1": {
+            "file": "txn0016-moe-16-expert-part-1-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "ad295d38e5633594663b072aec2db3b429f9fa3616b09c4850af84d21a862f62",
+            "transaction": 16,
+            "label": "moe-16-expert-part-1",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "ad295d38e5633594663b072aec2db3b429f9fa3616b09c4850af84d21a862f62",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-expert-part-1-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "next-hidden": {
+            "file": "txn0016-moe-16-next-hidden-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "6769f6314f5e8bb19c058926dd5e988f7a319345162c368e630efc5414312e7b",
+            "transaction": 16,
+            "label": "moe-16-next-hidden",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "6769f6314f5e8bb19c058926dd5e988f7a319345162c368e630efc5414312e7b",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-next-hidden-bf16.bin",
+            "nonfinite_selected_elements": 0
+          },
+          "residual": {
+            "file": "txn0016-moe-16-residual-bf16.bin",
+            "dtype": "bf16",
+            "shape": [
+              1,
+              2048
+            ],
+            "bytes": 4096,
+            "sha256": "0400a8ffb7e27a13a57e615e7d11caa5ad08db8dad4004e2ff55f884ea422d8f",
+            "transaction": 16,
+            "label": "moe-16-residual",
+            "row_index": 0,
+            "selected_bytes": 4096,
+            "selected_sha256": "0400a8ffb7e27a13a57e615e7d11caa5ad08db8dad4004e2ff55f884ea422d8f",
+            "local_file": "qrt-gb10-prefix128-routed16-20260919-r2/capture/long-prefix131072-owner-out512/txn0016-moe-16-residual-bf16.bin",
+            "nonfinite_selected_elements": 0
+          }
+        }
+      }
+    ],
+    "original512_output_ids_and_full_first_logits_reproduced": true,
+    "reference_qualified": true,
+    "original_selected_surface_checks": [
+      {
+        "case": "q7169-out32",
+        "original_surface_count": 470,
+        "every_original_surface_unchanged": true,
+        "old_case_sha256": "c29dfeec337cdc417d899099cd95cf1dd538546f8279a2955f3cbf15af5bde6e"
+      },
+      {
+        "case": "q8192-out32",
+        "original_surface_count": 470,
+        "every_original_surface_unchanged": true,
+        "old_case_sha256": "7c8757be16c944d16c17970a876bac44b5310e885343294bab04046634e259b8"
+      },
+      {
+        "case": "long-prefix131072-owner-out512",
+        "original_surface_count": 1160,
+        "every_original_surface_unchanged": true,
+        "old_case_sha256": "5373c316fcc881024760b780a1853a5b16d1cee50598bb7deb3bc371518835bd"
+      }
+    ],
+    "observer_only_change": "Optional selected-row original routed MoE projection reads; pinned original computation and all results unchanged.",
+    "windows_failed_stage_inputs_supplied": false,
+    "original_oracles_changed": false,
+    "windows_acceptance": false,
+    "performance_acceptance": false
+  },
+  "dispatch": {
+    "host": "aitopatom-66c4",
+    "command": [
+      "docker",
+      "run",
+      "--name",
+      "qrt-gb10-prefix128-routed16-20260919-r2",
+      "--hostname",
+      "aitopatom-66c4",
+      "--gpus",
+      "all",
+      "--network",
+      "none",
+      "--memory",
+      "108g",
+      "--shm-size",
+      "8g",
+      "--cpus",
+      "8",
+      "-e",
+      "PYTHONPATH=/work/scripts",
+      "-e",
+      "QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1",
+      "-e",
+      "VLLM_ALLOW_LONG_MAX_MODEL_LEN=1",
+      "-e",
+      "VLLM_WORKER_MULTIPROC_METHOD=spawn",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2:/work",
+      "-v",
+      "/mnt/data/models/Qwen3.6-35B-A3B:/models:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro",
+      "-v",
+      "<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro",
+      "-e",
+      "QRT_GB10_BOUNDARY_LINEAR_LAYERS=16",
+      "-e",
+      "QRT_GB10_BOUNDARY_MOE_LAYERS=16",
+      "-e",
+      "QRT_GB10_PREFILL_MOE_SELECTED_ROWS=1",
+      "-e",
+      "QRT_GB10_PREFILL_MOE_ROUTED_ROWS=1",
+      "-e",
+      "QRT_GB10_CASE_PREFILL_POSITIONS={\"long-prefix131072-owner-out512\":[8191,90111,98303]}",
+      "-w",
+      "/work",
+      "--entrypoint",
+      "timeout",
+      "sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d",
+      "--signal=TERM",
+      "--kill-after=10",
+      "1830",
+      "python3",
+      "scripts/capture_gb10_token_matrix.py",
+      "--runtime-boundaries",
+      "--source-commit",
+      "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "--oracle-q7169",
+      "contracts/arbitrary_q7169_gb10_oracle.json",
+      "--oracle-q8192",
+      "contracts/hprefill_q8192_gb10_oracle.json",
+      "--additional-cases",
+      "additional-cases.json",
+      "--maximum-prompt-tokens",
+      "131072",
+      "--output-dir",
+      "capture",
+      "--expected-host",
+      "aitopatom-66c4",
+      "--timeout-seconds",
+      "1800",
+      "--execute"
+    ],
+    "command_file": "<private-home>/run-qrt-gb10-prefix128-routed16-20260919-r2.py",
+    "command_file_sha256": "71f5a77f0603f4fd237da29338433a749dcff709cafcd5425e5cfbb11a709381",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "returncode": 0,
+    "reason": "completed",
+    "wall_seconds": 435.87012373597827,
+    "minimum_host_available_bytes": 12471267328,
+    "container_status": "false 0",
+    "archive_sha256": "fccc288e3bb874c284c977fa0878a62c8307391118abad255496f4d9caa7bb9c",
+    "gpu_processes_after": "",
+    "host_guard_pass": true,
+    "frozen_autotune_profile_sha256": "e56809a3c40509122313bce164745787b0aa217081ddc0398ffc97646930df4e",
+    "unexpected_new_autotune_cache_files": [],
+    "frozen_autotune_cache_no_misses": true,
+    "long_reference_reproduced": true,
+    "long_reference_checks": [
+      {
+        "name": "long-prefix131072-owner-out512",
+        "prompt_matches": true,
+        "outputs_complete": true,
+        "all512_match": true,
+        "first_logit_matches": true,
+        "full_first_logits_equal": true
+      }
+    ],
+    "reference_boundary_qualified": true
+  },
+  "original_reference": {
+    "file": "benchmarks/correctness/gb10-long-cold512-reference-20260919.json",
+    "bytes": 20377,
+    "sha256": "93d457e3ca76144a1eef2fcccbccde7d958024fad5d2d39d91fb1b3a66194e6e"
+  },
+  "command_file": {
+    "file": "run-qrt-gb10-prefix128-routed16-20260919-r2.py",
+    "sha256": "71f5a77f0603f4fd237da29338433a749dcff709cafcd5425e5cfbb11a709381",
+    "text": "import subprocess,socket,json,time,hashlib,tarfile,shutil\nfrom pathlib import Path\nassert socket.gethostname()==\"aitopatom-66c4\"\nname=\"qrt-gb10-prefix128-routed16-20260919-r2\";root=Path(\"<private-home>\")/name;archive=root.with_suffix(\".tar\")\nassert not root.exists()\nassert shutil.disk_usage(root.parent).free > 4*(1<<30)\nassert hashlib.sha256(archive.read_bytes()).hexdigest()==\"fccc288e3bb874c284c977fa0878a62c8307391118abad255496f4d9caa7bb9c\"\nassert subprocess.check_output([\"docker\",\"inspect\",\"--format\",\"{{.State.Running}}\",\"qwen36-lm-head-capture\"],text=True,timeout=10).strip()==\"false\"\nroot.mkdir()\nwith tarfile.open(archive) as t:t.extractall(root,filter=\"data\")\ncommand=['docker', 'run', '--name', 'qrt-gb10-prefix128-routed16-20260919-r2', '--hostname', 'aitopatom-66c4', '--gpus', 'all', '--network', 'none', '--memory', '108g', '--shm-size', '8g', '--cpus', '8', '-e', 'PYTHONPATH=/work/scripts', '-e', 'QRT_GB10_OBSERVE_FLASHINFER_AUTOTUNER=1', '-e', 'VLLM_ALLOW_LONG_MAX_MODEL_LEN=1', '-e', 'VLLM_WORKER_MULTIPROC_METHOD=spawn', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2:/work', '-v', '/mnt/data/models/Qwen3.6-35B-A3B:/models:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:/tmp/torchinductor_root/triton/0/2CJTOSHYLMSPKXL7RUUHQ4LLQALA7NZQI4QTHJQXPRCMHXIYAM2A:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:/tmp/torchinductor_root/triton/0/VPMREUOOCIQFFM6F2BD52MW5DBLQX5MZYNP3NPO4UDGLHEDVJVMA:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:/tmp/torchinductor_root/triton/0/42KM3SNV53RK5Y26DFKIXJEYDZCQTCZFTX4FAQ4QEZFO6Y6BAYFQ:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:/tmp/torchinductor_root/triton/0/IB2KXOFEBUNQLGXRBO4ASRKBFUBVKHFDUETYFVNLYJUB5KHB3DWA:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:/tmp/torchinductor_root/triton/0/FQEL5X3XJ2UCDIC5NKUXRW3EGK2GKQ22I6WJMORTF3C67DNK7VJQ:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:/tmp/torchinductor_root/triton/0/MLDITCPF2J4K5FFLCBFKNAOPPXKDUDXR5GXFBFC3EWL45CST37QA:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:/tmp/torchinductor_root/triton/0/OWQNSEVIE4AD2W4XQTOVELAPLYMNYRTD6QSBEJ6WPSVYOWSE3UOQ:ro', '-v', '<private-home>/qrt-gb10-prefix128-routed16-20260919-r2/frozen-autotune/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:/tmp/torchinductor_root/triton/0/B5RPHOQP75ILD4MSVARVLZXQKTG77NPCDWVFXCXRH7VNQBYQU2IA:ro', '-e', 'QRT_GB10_BOUNDARY_LINEAR_LAYERS=16', '-e', 'QRT_GB10_BOUNDARY_MOE_LAYERS=16', '-e', 'QRT_GB10_PREFILL_MOE_SELECTED_ROWS=1', '-e', 'QRT_GB10_PREFILL_MOE_ROUTED_ROWS=1', '-e', 'QRT_GB10_CASE_PREFILL_POSITIONS={\"long-prefix131072-owner-out512\":[8191,90111,98303]}', '-w', '/work', '--entrypoint', 'timeout', 'sha256:822f5c399ce6a08c0583302e0d82ff3938158b73977b6e1fbdf00ed72735a30d', '--signal=TERM', '--kill-after=10', '1830', 'python3', 'scripts/capture_gb10_token_matrix.py', '--runtime-boundaries', '--source-commit', '1c9511395bf7f9dcc78a8aedcb05c700feee0568', '--oracle-q7169', 'contracts/arbitrary_q7169_gb10_oracle.json', '--oracle-q8192', 'contracts/hprefill_q8192_gb10_oracle.json', '--additional-cases', 'additional-cases.json', '--maximum-prompt-tokens', '131072', '--output-dir', 'capture', '--expected-host', 'aitopatom-66c4', '--timeout-seconds', '1800', '--execute']\ninputs=json.loads((root/'source-inputs.json').read_text())\nassert inputs['source_commit']=='1c9511395bf7f9dcc78a8aedcb05c700feee0568'\nfor relative,expected in inputs['files'].items():\n assert hashlib.sha256((root/relative).read_bytes()).hexdigest()==expected\nprofile=json.loads((root/'frozen-autotune-profile.json').read_text())\nfor entry in profile['records']:\n assert hashlib.sha256((root/entry['stage_path']).read_bytes()).hexdigest()==entry['sha256']\ndef available():\n for line in Path(\"/proc/meminfo\").read_text().splitlines():\n  if line.startswith(\"MemAvailable:\"):return int(line.split()[1])*1024\nassert available()>110*(1<<30)\nassert not subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader'],text=True,timeout=10).strip()\nstart=time.monotonic();minimum=available();reason=\"completed\"\nwith (root/\"container.log\").open(\"w\") as log:\n process=subprocess.Popen(command,stdout=log,stderr=subprocess.STDOUT)\n while process.poll() is None:\n  minimum=min(minimum,available())\n  if time.monotonic()-start>1842 or minimum<8*(1<<30):\n   reason=\"deadline\" if time.monotonic()-start>1842 else \"host_memory_reserve\"\n   subprocess.run([\"docker\",\"kill\",name],capture_output=True,timeout=15)\n   break\n  try:process.wait(timeout=1)\n  except subprocess.TimeoutExpired:pass\n process.wait(timeout=20)\ngpu_after=subprocess.check_output(['nvidia-smi','--query-compute-apps=pid','--format=csv,noheader'],text=True,timeout=10).strip()\n# Persist any unexpected GPU cleanup result before qualification.\nstatus=subprocess.check_output([\"docker\",\"inspect\",\"--format\",\"{{.State.Running}} {{.State.ExitCode}}\",name],text=True,timeout=10).strip()\nrecord=dict(host=socket.gethostname(),command=command,command_file=__file__,command_file_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),source_commit=\"1c9511395bf7f9dcc78a8aedcb05c700feee0568\",returncode=process.returncode,reason=reason,wall_seconds=time.monotonic()-start,minimum_host_available_bytes=minimum,container_status=status,archive_sha256=\"fccc288e3bb874c284c977fa0878a62c8307391118abad255496f4d9caa7bb9c\")\nrecord['gpu_processes_after']=gpu_after\nrecord['host_guard_pass']=not gpu_after and minimum>=8*(1<<30)\nrecord['frozen_autotune_profile_sha256']=hashlib.sha256((root/'frozen-autotune-profile.json').read_bytes()).hexdigest()\n(root/'dispatch-core.json').write_text(json.dumps(record,indent=2)+'\\n')\ntry:\n diff=subprocess.check_output(['docker','diff',name],text=True,timeout=45)\n (root/'docker-diff.txt').write_text(diff)\n record['unexpected_new_autotune_cache_files']=[line[2:] for line in diff.splitlines() if line.endswith('.autotune.json')]\n record['frozen_autotune_cache_no_misses']=not record['unexpected_new_autotune_cache_files']\nexcept subprocess.TimeoutExpired:\n record['postprocessing_error']='docker diff exceeded 45 seconds; durable dispatch-core.json preserved'\n record['unexpected_new_autotune_cache_files']=None\n record['frozen_autotune_cache_no_misses']=None\ncapture_path=root/'capture/capture.json'\nrecord['long_reference_reproduced']=False\nif capture_path.exists():\n captured=json.loads(capture_path.read_text());anchors=json.loads((root/'continuation-anchors.json').read_text());rows=[]\n for expected in anchors:\n  actual=next((c for c in captured['cases'] if c['name']==expected['name']),None)\n  rows.append(dict(name=expected['name'],prompt_matches=actual is not None and actual['prompt']['u32le_sha256']==expected['prompt_u32le_sha256'],outputs_complete=actual is not None and len(actual['output_token_ids'])==512,all512_match=actual is not None and actual['output_token_ids']==expected['original_outputs'],first_logit_matches=actual is not None and abs(actual['first_token_raw_logit']-expected['original_first_logit'])<=0.125,full_first_logits_equal=actual is not None and actual['worker']['sha256']==expected['original_first_logits_sha256']))\n record['long_reference_checks']=rows\n record['long_reference_reproduced']=captured['completed'] and captured['controls_qualified'] and len(captured['cases'])==3 and all(all(v for k,v in row.items() if k!='name') for row in rows)\nrecord['reference_boundary_qualified']=bool(record['long_reference_reproduced'] and record['frozen_autotune_cache_no_misses'] and record['host_guard_pass'])\n(root/\"dispatch.json\").write_text(json.dumps(record,indent=2)+\"\\n\")\nprint(json.dumps(record))\nfor line in (root/\"container.log\").read_text(errors=\"replace\").splitlines()[-22:]:print(line[:1000])\nselected=[p for p in root.rglob('*') if p.is_file() and (p.suffix in ('.json','.txt','.log','.py') or p.suffix=='.bin')]\nselected_bytes=sum(p.stat().st_size for p in selected)\nassert selected_bytes<192*(1<<20)\nmanifest={str(p.relative_to(root)):dict(bytes=p.stat().st_size,sha256=hashlib.sha256(p.read_bytes()).hexdigest()) for p in selected}\n(root/'compact-download-manifest.json').write_text(json.dumps(manifest,indent=2)+'\\n')\nselected.append(root/'compact-download-manifest.json')\ncompact=root/'compact-download.tar'\nwith tarfile.open(compact,'w') as t:\n for p in selected:t.add(p,arcname=str(p.relative_to(root)))\nprint(json.dumps(dict(compact_archive_bytes=compact.stat().st_size,compact_archive_sha256=hashlib.sha256(compact.read_bytes()).hexdigest(),selected_files=len(selected),selected_bytes=selected_bytes)),flush=True)\nraise SystemExit(process.returncode or (0 if record['reference_boundary_qualified'] else 1))\n"
+  }
+}

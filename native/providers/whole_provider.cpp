@@ -106323,6 +106323,28 @@ bool emit_qwen36_exact_arbitrary_output_residual_trace(
     );
 }
 
+bool capture_qwen36_original_prefix_linear_row(
+    unsigned layer, unsigned tokens, const char *surface, const void *device,
+    size_t width, size_t element_bytes, std::string *failure_stage, std::string *failure
+) {
+    const auto *scope = ScopedQwen36PrefixBatchSuffix::active;
+    if (!scope) return true;
+    const char *directory = std::getenv("QRT_QWEN36_PREFIX_LINEAR_CAPTURE_DIR");
+    if (!directory || !*directory) return true;
+    if (!failure || !failure_stage) return false;
+    qrt_prefix_linear_capture::Plan plan;
+    if (!qrt_prefix_linear_capture::environment(plan, *failure) ||
+        !qrt_prefix_linear_capture::row(plan, layer, scope->prefix, tokens, surface,
+            device, width, element_bytes,
+            [](void *host, const void *source, size_t bytes) {
+                return hipMemcpy(host, source, bytes, hipMemcpyDeviceToHost) == hipSuccess;
+            }, *failure)) {
+        *failure_stage = "original_prefix_linear_row_capture";
+        return false;
+    }
+    return true;
+}
+
 bool emit_qwen36_exact_arbitrary_linear_stage_trace(
     unsigned int layer_index,
     unsigned int prefill_tokens,
@@ -106332,6 +106354,8 @@ bool emit_qwen36_exact_arbitrary_linear_stage_trace(
     std::string *failure_stage,
     std::string *failure
 ) {
+    if (!capture_qwen36_original_prefix_linear_row(layer_index, prefill_tokens, surface,
+            device_output, row_width, sizeof(float), failure_stage, failure)) return false;
     const unsigned int selected_layer = env_u32_or_default(
         "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER",
         UINT_MAX
@@ -106423,6 +106447,8 @@ bool emit_qwen36_exact_arbitrary_linear_stage_bf16_trace(
     std::string *failure_stage,
     std::string *failure
 ) {
+    if (!capture_qwen36_original_prefix_linear_row(layer_index, prefill_tokens, surface,
+            device_output, row_width, sizeof(uint16_t), failure_stage, failure)) return false;
     const unsigned int selected_layer = env_u32_or_default(
         "QRT_QWEN36_EXACT_ARBITRARY_LINEAR_STAGE_TRACE_LAYER",
         UINT_MAX

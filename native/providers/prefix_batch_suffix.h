@@ -3,6 +3,7 @@
 // replaced by the temporary prefill session used for suffix orchestration.
 #pragma once
 #include "sm121_attention_capacity.h"
+#include "prefix_linear_capture.h"
 
 __global__ void qwen36_prefix_suffix_halo_kernel(
     const float *qkv, const float *ring_f32, const uint16_t *ring_bf16,
@@ -157,7 +158,18 @@ struct ScopedQwen36PrefixBatchSuffix {
             launch = layer.recurrent_state_key_major ? provider.seeded_key_major_launch : provider.seeded_launch;
         }
         if (!launch) return reject("FLA provider lacks the original FP32 seeded state interface");
-        if (!launch(raw, gates, output, layer.device_recurrent_state, 0, nullptr, count)) {
+        qrt_prefix_linear_capture::Plan capture;
+        if (!qrt_prefix_linear_capture::environment(capture, failure)) return 0;
+        const auto original_launch = [&] {
+            return launch(raw, gates, output, layer.device_recurrent_state, 0, nullptr, count) != 0;
+        };
+        const bool captured = qrt_prefix_linear_capture::run(capture, layer_index, prefix, tokens,
+            raw, gates, output, layer.device_recurrent_state, layer.recurrent_state_key_major,
+            [](void *host, const void *device, size_t bytes) {
+                return hipMemcpy(host, device, bytes, hipMemcpyDeviceToHost) == hipSuccess;
+            }, original_launch, failure);
+        if (!captured) {
+            if (!failure.empty()) return 0;
             failure = fla_chunk_gdn_dynamic_provider_last_error(); return 0;
         }
         if (canonical_state) {

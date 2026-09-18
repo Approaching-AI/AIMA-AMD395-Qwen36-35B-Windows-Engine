@@ -1,0 +1,373 @@
+{
+  "kind": "independent_original_gb10_layer16_seeded_gdn_component",
+  "host": "baiying",
+  "model": "D:/models/Qwen3.6-35B-A3B; original GB10 tensors only, model not loaded",
+  "source_commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+  "source_manifest": {
+    "file": "gb10-prefix128-layer16-native-source-r1.json",
+    "bytes": 2926,
+    "sha256": "4a9827922efaf9a7b124bd4952be540d43a444c04b11277c3140456daeb2ca84"
+  },
+  "tool_source_commit": "37c8504d1a059ec889b8ca3775d19bb374dec066",
+  "run": {
+    "name": "gb10-prefix128-layer16-seeded-key-major-r1",
+    "host": "BAIYING",
+    "wall_ms": 1194.436,
+    "exit_code": 0,
+    "host_checks": {
+      "same_boot": true,
+      "no_engine_process": true,
+      "host_memory_reserve": true,
+      "commit_reserve": true,
+      "amd_gpu_ok": true
+    },
+    "after_processes": [],
+    "spec": {
+      "executable": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\gb10-prefix128-layer16-seeded-key-major-r1-tool\\qrt-fla-seeded-capture-replay.exe",
+      "arguments": [
+        "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\fla",
+        "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\fla\\qrt_fla_chunk_gdn_provider.dll",
+        "D:\\projects\\gb10-prefix128-layer16-seeded-inputs-r1",
+        "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1\\build\\gb10-prefix128-layer16-seeded-key-major-r1-outputs",
+        "8192",
+        "key-major"
+      ],
+      "working_directory": "D:\\projects\\AIMA-public-fla-completed-latency-20260919-r1",
+      "repo_commit": "1d11bf742268924ecf5df1e0e66a0e19fb7cec15",
+      "command_file": "D:\\projects\\run-native-gb10-prefix128-layer16-seeded-r1.ps1",
+      "command_file_sha256": "149cde52394d2c6c9335460470fd66d4de57f925120736d2f27de1bfc19bda76",
+      "source_manifest_sha256": "4a9827922efaf9a7b124bd4952be540d43a444c04b11277c3140456daeb2ca84",
+      "model": "GB10 Qwen3.6-35B-A3B original131072-token prompt, layer16 transaction11 positions90112..98303",
+      "model_loaded": false,
+      "native_tensor_inputs": true,
+      "inference_acceptance": false,
+      "performance_acceptance": false,
+      "purpose": "Independent seeded component comparison of original GB10 operands and state. No full-model acceptance. Use the qualified completed-latency provider; compare all original outputs and final-state cells. Repeat exact seed and zero-state negative control only if preceding launch completed successfully.",
+      "tool_source_commit": "37c8504d1a059ec889b8ca3775d19bb374dec066",
+      "tool_metadata_sha256": "e3ae6568e02c1264cb24f4039ef363fb2fd36333c261c27339828e63519a50f6",
+      "tool_source_inputs": [
+        {
+          "sha256": "3ee6cbff4c75c75b69396ab94248c80e85913f1d508ce4cebca3c6fe77c000a9",
+          "file": "D:\\projects\\AIMA-public-seeded-fla-core8192-20260912\\native\\providers\\gdn\\fla_seeded_capture_replay.cpp"
+        },
+        {
+          "sha256": "3d29c0e4fd00d5ce39cea30dc2e9ecf2ea2a53f580c63b1c309bfe150c6a1307",
+          "file": "D:\\projects\\AIMA-public-seeded-fla-core8192-20260912\\native\\providers\\gdn\\fla_checkpoint.h"
+        }
+      ],
+      "build_metadata_sha256": "1286c84384fc9dd71fff7db8b7f2b2e59b5c7b0665a0320b2d96c3560a817eba",
+      "provider_sha256": "a6b110c3482ca8bc1bb7ef1b6c8213133bb98d53afa5d3a491ba4194bc1d3a88",
+      "reference_manifest_sha256": "b2b110002fc7f5a027f7656e35f2c591f13957b63a2842558700d7b51e52900b",
+      "reference_capture_sha256": "c4adaff1003657b7d518006362496e76a756630037179376c4a0c4828e521550",
+      "reference_source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+      "reference_all512_and_logits_pass": true,
+      "interface_state_layout": "key-major",
+      "capture_state_layout": "value_head_value_key_fp32",
+      "environment": {
+        "QRT_FLA_GDN_SYNC_EACH_STAGE": "0",
+        "QRT_FLA_GDN_STATE_BLACKWELL": "1",
+        "QRT_FLA_GDN_KKT_BLACKWELL": "1",
+        "QRT_FLA_GDN_SM121_EXP2_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+        "QRT_FLA_GDN_WU_BLACKWELL": "1",
+        "QRT_FLA_GDN_OUTPUT_BLACKWELL": "1",
+        "QRT_FLA_GDN_NORM_BLACKWELL": "1",
+        "QRT_FLA_GDN_INVERSE_BLACKWELL": "1",
+        "QRT_FLA_GDN_SM121_RSQRT_TABLE": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+        "QRT_FLA_GDN_COOPERATIVE_EXACT": "1",
+        "QRT_FLA_GDN_BATCHED_EXACT": "1",
+        "QRT_FLA_GDN_CAPTURE_FIRST_DIR": "",
+        "QRT_FLA_GDN_SEGMENT_GUARD": "0",
+        "QRT_FLA_GDN_TILED_KKT": "2",
+        "QRT_FLA_GDN_SCALAR_FLOAT_MATRICES": "1",
+        "QRT_FLA_GDN_SCALAR_FLOAT_STATE": "8",
+        "QRT_FLA_GDN_COARSE_INTERVAL": "0",
+        "QRT_FLA_GDN_FUSED_STATE_OUTPUT": "0",
+        "QRT_FLA_GDN_PAIRED_SCORE_ARENAS": "1"
+      },
+      "prior_run_sha256": "fcc4eda6002cd140365fdb4b97f67329b581f4f998a7c3a1272532a66f23e93c",
+      "tables": [
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-exp2-negative-f490940d.bin",
+          "sha256": "f490940df2bd80421159a96424c3e922330b7ca120d5ae7b629a973b9183730b"
+        },
+        {
+          "path": "D:/projects/AIMA-public-runtime-environment-20260915/build/relocated current package r3/AIMA-AMD395-Qwen36-35B-Windows-Engine-v1.0.2-current-stack.20260915.r3/tables/sm121-rsqrt-positive-ca0230a8.bin",
+          "sha256": "ca0230a8bae9bd101ac368f8a7c34007cda637df6513dbe4714253c36b940850"
+        }
+      ]
+    },
+    "summary": null,
+    "raw_files": [
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/run-record.json",
+        "bytes": 19784,
+        "sha256": "14dae2917c9825e87156295dfb4762eab390fe304bedf0480fff1884b05a5f3e"
+      },
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/preflight.json",
+        "bytes": 8742,
+        "sha256": "1cce82a90831dc6ffa523708b0bff7b2170c0172e8de20ea27cfde59673a2ccf"
+      },
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/launch.json",
+        "bytes": 131,
+        "sha256": "273203bc95f8195feb294252b39ac7f326218ff9391ba96d1aeac6ebca47c081"
+      },
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/dispatch.json",
+        "bytes": 2479,
+        "sha256": "5d3c516a0e9ef75eab2756ce1156da5cf6dc6152bbcf57a8a6dbd569ebb0f898"
+      },
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/product.stderr.log",
+        "bytes": 25336,
+        "sha256": "487eef8f4969991170b3d046cc64976a569c6a5446a8bb76633bedced66ccbb3"
+      },
+      {
+        "file": "gb10-prefix128-layer16-seeded-key-major-r1/product.stdout.jsonl",
+        "bytes": 50,
+        "sha256": "f3d91ab7343fef894d7cf1d142d56edc8c1fec96a9deef4f07917448d6624879"
+      }
+    ]
+  },
+  "result": {
+    "kind": "original_seeded_fla_capture_replay",
+    "host": "baiying",
+    "tokens": 8192,
+    "capture_state_layout": "value_head_value_key_fp32",
+    "interface_state_layout": "key-major",
+    "fixture_state_transpose": true,
+    "diagnostic_only": true,
+    "product_acceptance": false,
+    "component_pass": true,
+    "output_bf16": {
+      "elements": 33554432,
+      "bit_mismatches": 0,
+      "maximum_absolute_error": 0,
+      "relative_l2": 0
+    },
+    "state_f32": {
+      "elements": 524288,
+      "bit_mismatches": 0,
+      "maximum_absolute_error": 0,
+      "relative_l2": 0
+    },
+    "state_absolute_and_relative_tolerance": 1e-05,
+    "seeded_repeat_bitwise": true,
+    "inputs_unchanged": true,
+    "zero_initial_state_vs_seeded": {
+      "elements": 33554432,
+      "bit_mismatches": 20176281,
+      "maximum_absolute_error": 0.10516357421875,
+      "relative_l2": 0.7035722554603863
+    },
+    "operator_gpu_ms": [
+      89.15440368652344,
+      86.29556274414062,
+      87.77289581298828
+    ]
+  },
+  "output_manifest": [
+    {
+      "sha256": "ab89430c04734d4e67a84cf1e0e5e9c4ea53330d5796ddd8be4ba028db0c5859",
+      "file": "native-output-bf16.bin",
+      "bytes": 67108864
+    },
+    {
+      "sha256": "13ac96945c010fc2ea02c243cc35bdb63ea965c68083b48d283739854ef8b935",
+      "file": "native-value-major-f32.bin",
+      "bytes": 2097152
+    },
+    {
+      "sha256": "d317ff8de7241f5b096049ba7482946cdf5bc607660adf324619701f8c96588b",
+      "file": "result.json",
+      "bytes": 809
+    }
+  ],
+  "fixture_manifest": {
+    "kind": "gb10_original128k_layer16_seeded_fixture",
+    "source_commit": "1c9511395bf7f9dcc78a8aedcb05c700feee0568",
+    "dependency_source_commit": "9b2a99edeede83ce77a4b775a509256f65894a7f",
+    "model_reference": "/mnt/data/models/Qwen3.6-35B-A3B",
+    "authority_host": "gb10-4t",
+    "reference_runtime_host": "aitopatom-66c4",
+    "assembly_host": "Mac",
+    "command_file": "assemble_gb10_prefix128_layer16_r1.py",
+    "command_file_sha256": "65acb072deaf6a083d2ddc618eec0a76b96fb8c946fdec31d071d8fd245cca2e",
+    "reference_analysis_sha256": "810fa2314b8aa0f63bb12eb8b3e7a80875338631a7c6f4c762c89d32080cc9b3",
+    "reference_capture_sha256": "c4adaff1003657b7d518006362496e76a756630037179376c4a0c4828e521550",
+    "case": "long-prefix131072-owner-out512",
+    "layer": 16,
+    "first_position": 90112,
+    "tokens": 8192,
+    "original_transaction": 11,
+    "original512_output_ids_and_full_first_logits_reproduced": true,
+    "reference_qualified": true,
+    "state_layout": "value_head_value_key_fp32",
+    "initial_state_from_original_call": true,
+    "existing_state_layout_source": {
+      "file": "<private-home>/seeded-fla-layout-source-r2.py",
+      "sha256": "bcce3501c8213a446895467e16180a0256d7b289d9317bde7549959e00029fd2",
+      "original_path": "fla/ops/chunk.py",
+      "initial_and_final_layout": "N,H,V,K"
+    },
+    "original_source_files": {
+      "q-core-input": {
+        "file": "txn0011-full-prefill-linear-16-q-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          2048
+        ],
+        "bytes": 33554432,
+        "sha256": "8c6562e327925f7f538785a3797d1a36f1af6ab14ecab27f3c2e4cb302bca9a8",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-q-core-input",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-q-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "k-core-input": {
+        "file": "txn0011-full-prefill-linear-16-k-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          2048
+        ],
+        "bytes": 33554432,
+        "sha256": "0a9e908af6c9ed517148e23e6e2372dae10a7c234bb4c2a20f35648956ad5820",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-k-core-input",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-k-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "v-core-input": {
+        "file": "txn0011-full-prefill-linear-16-v-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          4096
+        ],
+        "bytes": 67108864,
+        "sha256": "ab71e38c81e9f65da670e1c3f44833660bbf9a017b09bcc365edd1042e3e50ae",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-v-core-input",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-v-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "g-core-input": {
+        "file": "txn0011-full-prefill-linear-16-g-core-input-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          8192,
+          32
+        ],
+        "bytes": 1048576,
+        "sha256": "51e4b4c2eafa5e38ecc7e4528e141522811ceaa675e3e19b49ba73d0a92d558c",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-g-core-input",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-g-core-input-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "beta-core-input": {
+        "file": "txn0011-full-prefill-linear-16-beta-core-input-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          32
+        ],
+        "bytes": 524288,
+        "sha256": "7cc46de7c93cce3c52b535f62d54aff6c7b304121f22c4f47fcd347ee57bfa61",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-beta-core-input",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-beta-core-input-bf16.bin",
+        "nonfinite_elements": 0
+      },
+      "initial-state": {
+        "file": "txn0011-full-prefill-linear-16-initial-state-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "bytes": 2097152,
+        "sha256": "a8dada149d8210ffb3ddf38ffc55c84903c7363891761339a57d183c3a7af4a0",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-initial-state",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-initial-state-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "final-state": {
+        "file": "txn0011-full-prefill-linear-16-final-state-f32.bin",
+        "dtype": "f32",
+        "shape": [
+          1,
+          32,
+          128,
+          128
+        ],
+        "bytes": 2097152,
+        "sha256": "13ac96945c010fc2ea02c243cc35bdb63ea965c68083b48d283739854ef8b935",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-final-state",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-final-state-f32.bin",
+        "nonfinite_elements": 0
+      },
+      "core": {
+        "file": "txn0011-full-prefill-linear-16-core-bf16.bin",
+        "dtype": "bf16",
+        "shape": [
+          8192,
+          4096
+        ],
+        "bytes": 67108864,
+        "sha256": "ab89430c04734d4e67a84cf1e0e5e9c4ea53330d5796ddd8be4ba028db0c5859",
+        "transaction": 11,
+        "label": "full-prefill-linear-16-core",
+        "local_file": "qrt-gb10-prefix128-layer16-20260919-r1/capture/long-prefix131072-owner-out512/txn0011-full-prefill-linear-16-core-bf16.bin",
+        "nonfinite_elements": 0
+      }
+    },
+    "raw_layout": "token_q2048_k2048_v4096_fp32_exact_bf16_extension",
+    "gate_layout": "token_g32_fp32_beta32_exact_bf16_extension",
+    "reference_values_select_runtime_work": false,
+    "diagnostic_only": true,
+    "model_inference_acceptance": false,
+    "files": {
+      "expected-output-bf16.bin": {
+        "bytes": 67108864,
+        "sha256": "ab89430c04734d4e67a84cf1e0e5e9c4ea53330d5796ddd8be4ba028db0c5859"
+      },
+      "expected-value-major-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "13ac96945c010fc2ea02c243cc35bdb63ea965c68083b48d283739854ef8b935"
+      },
+      "gates-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "b6b2a48ae4c3c57ffbf3f6fcf01be7050d58c75b6bad1ee4eadfdbbe0bdb59f4"
+      },
+      "initial-value-major-f32.bin": {
+        "bytes": 2097152,
+        "sha256": "a8dada149d8210ffb3ddf38ffc55c84903c7363891761339a57d183c3a7af4a0"
+      },
+      "raw-f32.bin": {
+        "bytes": 268435456,
+        "sha256": "6ebbe689e5753ed7c1e664d35fd7de985795332f2f879fd8b2c90e2d867c487b"
+      }
+    }
+  },
+  "reference": {
+    "file": "benchmarks/correctness/gb10-prefix128-layer16-window-20260919.json",
+    "bytes": 170382,
+    "sha256": "f030504737d8240a4ca4a2c1fa69d046e523822ea0fd2bd0023706dc11ff51d6"
+  },
+  "original_position": 90112,
+  "tokens": 8192,
+  "layer": 16,
+  "conclusion": "Current seeded key-major provider matches the independent original GB10 window bitwise. This does not establish that full-model Windows supplied these same operands or state.",
+  "diagnostic_only": true,
+  "inference_acceptance": false,
+  "performance_acceptance": false,
+  "release_qualified": false
+}

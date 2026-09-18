@@ -83,8 +83,18 @@ Triton MoE source. The observer reads the two original projection calls,
 returns their results unchanged and restores the original entry point even
 on errors. It retains the existing artifact and transaction limits; missing
 stages fail qualification. Twenty-one boundary tests and six token-matrix
-tests pass. Actual capture still requires all original outputs and first-logit
-tensors to reproduce before the new endpoints can be used as references.
+tests pass. Source `ec2ab868` now reproduces all576 original output IDs and
+complete first-logit tensors. All previous selected surfaces are bitwise
+unchanged; the2162 downloaded files and host, frozen-autotune and cleanup
+checks pass. Seventeen stages are retained for each selected prefill row.
+See the [qualified routed endpoints](../benchmarks/correctness/gb10-prefix128-layer16-routed-moe-20260919.json).
+
+The preceding attempt from that same source failed the q7169 control and is
+retained as [rejected reference evidence](../benchmarks/correctness/gb10-routed16-observer-control-rejection-20260919.json).
+Its first observed difference was at layer3, before the new layer16 hook.
+The cause is unresolved. None of that failed attempt's new tensors is used
+as a golden reference; the successful attempt independently checks all original
+histories and prior captured surfaces.
 
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.

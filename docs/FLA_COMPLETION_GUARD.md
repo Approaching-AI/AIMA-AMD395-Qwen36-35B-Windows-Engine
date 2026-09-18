@@ -102,6 +102,41 @@ and output boundaries. All2144 downloads and original-history checks pass.
 It supports the focused Windows diagnostic; it does not identify the faulty
 operator or qualify the unfinished Windows continuation.
 
+The focused first98304-input diagnostic now completes all12 chunks with
+whole50a/FLA1d. At98303, the layer16 input norm is bitwise exact, but the
+attention update differs in201 BF16 cells, the actual residual in55, and
+the post-attention norm supplied to MoE in51. Routing IDs and weights are
+exact. The first observable discrepancy therefore precedes MoE. At8191 and
+90111, two and five attention-update cells differ, respectively, while the
+actual residual and normalized consumer remain exact; these earlier dead
+differences alone do not identify an error in the selective projection repair.
+See the [completed diagnostic](../benchmarks/correctness/prefix96-layer16-attention-divergence-20260919.json).
+
+Native exit0, one emitted token248046/logit31.875 and all host/cleanup checks
+are preserved. The outer wrapper incorrectly checked `output_token_count`
+instead of the actual `output_tokens`; its failed validation is preserved
+alongside the successful native record. No expected output sequence was
+supplied to this diagnostic. It does not qualify the128k product case.
+
+An independent [native layer16 GDN component](../benchmarks/correctness/prefix128-layer16-native-seeded-gdn-20260919.json)
+using the original GB10 window at90112–98303 matches every33554432 BF16 output
+and524288 FP32 state cell bitwise. The seeded repeat and unchanged inputs
+pass; the zero-state control differs. This narrows diagnosis but does not
+establish that Windows full-model execution supplied the same operands.
+
+The optional `QRT_QWEN36_PREFIX_LINEAR_CAPTURE_DIR`, `_LAYER`, `_POSITION`
+and `_TOKENS` select one original seeded linear transaction. The directory
+must be new, the layer linear, the position aligned to8192 and the input
+extent1024 or8192 within the supported capacity. The observer copies original
+raw/gate inputs, initial/final resident FP32 state, complete core output and
+existing terminal projection surfaces, without modifying values or rerunning
+kernels. It retains the actual state layout and allows the unused legacy
+postconv surface to be absent. It does not enable the older stage-trace option
+that disables FLA device preparation. Copies use at most1 MiB host scratch
+and a90-second capture deadline; failures prevent a complete core record.
+Four sanitizer-backed capture tests and two existing suffix tests pass.
+Windows build and actual full-model capture remain pending for this observer.
+
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
 
