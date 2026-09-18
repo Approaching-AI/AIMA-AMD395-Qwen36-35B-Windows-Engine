@@ -8,11 +8,13 @@ namespace {
 struct Pipeline {
  std::array<hipStream_t,3> streams{};
  std::array<hipEvent_t,8> prepared{},advanced{};
+ hipEvent_t completed=nullptr;
  Pipeline(){
   try {
    for(auto& stream:streams)check(hipStreamCreateWithFlags(&stream,hipStreamNonBlocking));
    for(auto& event:prepared)check(hipEventCreateWithFlags(&event,hipEventDisableTiming));
    for(auto& event:advanced)check(hipEventCreateWithFlags(&event,hipEventDisableTiming));
+   check(hipEventCreateWithFlags(&completed,hipEventDisableTiming));
   } catch(...) {release();throw;}
  }
  Pipeline(const Pipeline&)=delete;
@@ -23,6 +25,7 @@ struct Pipeline {
   for(auto stream:streams)if(stream)(void)hipStreamSynchronize(stream);
   for(auto& event:prepared)if(event){(void)hipEventDestroy(event);event=nullptr;}
   for(auto& event:advanced)if(event){(void)hipEventDestroy(event);event=nullptr;}
+  if(completed){(void)hipEventDestroy(completed);completed=nullptr;}
   for(auto& stream:streams)if(stream){(void)hipStreamDestroy(stream);stream=nullptr;}
  }
  ~Pipeline(){release();}
@@ -77,13 +80,19 @@ void pipelined_launch(unsigned variant,unsigned count,Device& q,Device& k,Device
     scores.data<uint16_t>()+size_t(offset)*2048u,output.data<float>()+size_t(offset)*4096u,n,exp);
    check(hipGetLastError());
   }
+  // The inherited bounded completion helper records an event on the default
+  // stream; nonblocking streams have no implicit dependency on that event.
+  // The final consumer covers every earlier stage transitively. Join it back
+  // before the helper starts polling or any observer reads/reuses storage.
+  check(hipEventRecord(owner.completed,consumer));
+  check(hipStreamWaitEvent(nullptr,owner.completed,0u));
  } catch(...) {
   // The shared fixture's Device locals unwind before the outer Pipeline, so
   // waiting only in Pipeline's destructor would release their storage early.
   for(auto stream:owner.streams)(void)hipStreamSynchronize(stream);
   throw;
  }
- // The fixture drains the device before stopping its complete host timer.
+ // The fixture's bounded default-stream event now covers the complete graph.
  // Events/streams are reused only after that completion and validation.
 }
 const PairedFixturePolicy pipeline_policy{

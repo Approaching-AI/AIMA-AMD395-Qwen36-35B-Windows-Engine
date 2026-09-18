@@ -33,3 +33,12 @@ families, partial segments and both U ownership modes.
 Native results, resource declarations and any product integration must be
 recorded separately. This source has no runtime dispatcher, model-token result,
 claimed speedup or release qualification.
+
+The first native build at `41231ba` succeeds, but safety stops with a score
+comparison failure before any case completes. The inherited completion helper
+waits on a default-stream event, which does not cover nonblocking streams.
+The corrected owner records one final event on the consumer and makes the
+default stream wait on it. That event transitively covers every producer and
+state segment before the bounded helper finishes, observers read storage or
+another attempt reuses it. The original failed run remains evidence; it is
+not an arithmetic comparison or performance result.
