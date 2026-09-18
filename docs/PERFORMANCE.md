@@ -82,6 +82,17 @@ The later original-K16 last-row OUT comparison is recorded above.
 1542704 bytes, SHA256
 `1cb8d1b7e81e475424ffd6185dcf1e56c8b4961bda175fe1604fd9536becd375`.
 
+## Checked narrow QK lookahead, 2026-09-18
+
+Source `774e5e8` prepares two or four K16 groups from exact byte metadata,
+using native partials only to predict alignment. Every plan checks the actual
+original carry before use. All host tests, 400 native configurations and
+complete q8192 original/GB10 boundaries pass, including 178502656 deliberately
+rejected scores. However, attention including route preparation regresses
+543.8702 to 597.8399/637.3632 ms. The same-run byte 4x4 route takes 519.6112 ms.
+Keep both schedules outside dispatch and preserve the 23353.80795 ms model
+control. [Implementation, exact scope and evidence](NARROW_QK_LOOKAHEAD.md).
+
 ## Byte-exponent exact QK component, 2026-09-18
 
 Source `5f0fcc1` obtains exact K16 alignment scales from packed exponent

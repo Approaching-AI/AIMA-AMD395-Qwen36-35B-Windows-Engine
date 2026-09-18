@@ -45,5 +45,30 @@ original exact PV. Route preparation is charged separately and common
 decoded preparation/V transpose is reported. One warmup and three rotated
 measurements are used per slab.
 
-Native validation is pending. Runtime dispatch and packaging are unchanged;
-this is not model inference, model TTFT or release acceptance.
+Source `774e5e82b8f4077f4aa3e9bb52a6a61bc8c31823` passes the Windows build,
+all 400 generated configurations and the complete q8192 comparison on
+baiying. Forced mismatches replay 178502656 scores with zero output
+differences. Both normal lookahead routes reject only 1679 captured scores.
+All 545259520 score slots, 33554432 output cells, 29364224 original GB10
+context cells and 3127598 PV candidates match; CPU metadata, independent
+original dots, guards and immutable inputs pass on every required surface.
+
+| Route | Attention median ms | Preparation ms | Combined ms | VGPRs | Shared bytes |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Retained narrow 2x4 | 542.6030 | 1.2672 | 543.8702 | 167 | 24576 |
+| Byte exponents 4x4 | 519.0002 | 0.6110 | 519.6112 | 140 | 26880 |
+| Two-group lookahead | 597.2289 | 0.6110 | 597.8399 | 95 | 14976 |
+| Four-group lookahead | 636.7522 | 0.6110 | 637.3632 | 113 | 29824 |
+
+Common decoded preparation and V transpose add 3.8008 ms to every route.
+All kernels declare zero private bytes and spills. Static resource counts
+do not measure occupancy or explain the regression. Both lookahead schedules
+remain outside runtime dispatch. The same-run byte layout remains a modest
+isolated improvement; this experiment adds no model performance evidence.
+
+[Commands, all source/binary hashes, host and native records](../benchmarks/correctness/narrow-qk-lookahead-native-components-20260918.json):
+133949 bytes, SHA256
+`29e8948fda7f7558b6c22dfad8222c6f5945ba2af9399cebd1316714d9776013`.
+The command file is `run-native-narrow-qk-lookahead-r1.ps1`; all 279 compiler
+inputs match the source commit. Preserve the 23353.80795 ms qualified model
+control. Runtime dispatch, packaging and release acceptance remain unchanged.
