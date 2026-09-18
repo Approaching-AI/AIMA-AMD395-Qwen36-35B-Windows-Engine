@@ -5,6 +5,24 @@ $path = Join-Path $repo 'scripts\baiying_guarded_inference.ps1'
 $tokens = $null; $errors = $null
 $ast = [Management.Automation.Language.Parser]::ParseFile($path, [ref]$tokens, [ref]$errors)
 if ($errors.Count -ne 0) { throw 'Guard script parse error' }
+# Exercise the actual parameter declarations without executing a guard body,
+# creating a process, or acquiring the GPU mutex. The 64k acceptance run needs
+# an explicit 1800-second deadline; the previous 900 ceiling rejected it before
+# preflight. Default duration and rejection of out-of-range values stay.
+$parameterCheck = [ScriptBlock]::Create($ast.ParamBlock.Extent.Text + "`nreturn $" + 'TimeoutSeconds')
+$commonParameters = @{SpecPath='unused-spec.json';OutDir='unused-output'}
+if ((& $parameterCheck @commonParameters) -ne 90) { throw 'Default timeout changed' }
+foreach ($seconds in @(1, 90, 900, 1800)) {
+    if ((& $parameterCheck @commonParameters -TimeoutSeconds $seconds) -ne $seconds) {
+        throw 'Explicit bounded timeout was not admitted'
+    }
+}
+foreach ($seconds in @(0, -1, 1801, [int]::MaxValue)) {
+    $rejected = $false
+    try { $null = & $parameterCheck @commonParameters -TimeoutSeconds $seconds }
+    catch [Management.Automation.ParameterBindingValidationException] { $rejected = $true }
+    if (-not $rejected) { throw 'Out-of-range timeout was admitted' }
+}
 $quote = $ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Quote-Argument'}, $true)
 if ($null -eq $quote) { throw 'Missing original quoting function' }
 Invoke-Expression $quote.Extent.Text
@@ -37,4 +55,4 @@ foreach ($case in $cases) {
         -not $process.pass_thru -or -not $process.no_window -or $process.stdout -cne $stdoutPath -or
         $process.stderr -cne $stderrPath) { throw 'Actual process parameter transport changed' }
 }
-[ordered]@{kind='guarded_process_arguments';cases=$cases.Count;pass=$true;actual_guard_block=$true;process_started=$false} | ConvertTo-Json -Compress
+[ordered]@{kind='guarded_process_arguments';cases=$cases.Count;timeout_cases=9;maximum_timeout_seconds=1800;pass=$true;actual_guard_block=$true;actual_parameter_declarations=$true;process_started=$false} | ConvertTo-Json -Compress

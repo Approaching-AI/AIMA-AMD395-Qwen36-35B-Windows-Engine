@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$SpecPath,
     [Parameter(Mandatory = $true)][string]$OutDir,
-    [ValidateRange(1, 900)][int]$TimeoutSeconds = 90,
+    [ValidateRange(1, 1800)][int]$TimeoutSeconds = 90,
     [switch]$PreflightOnly
 )
 

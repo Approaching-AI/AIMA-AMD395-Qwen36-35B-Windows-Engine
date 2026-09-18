@@ -130,6 +130,10 @@ Use `scripts/baiying_guarded_inference.ps1 -SpecPath <spec.json> -OutDir
 The JSON spec contains `executable`, `working_directory`, and an `arguments`
 array; include `repo_commit` to check source identity. `-PreflightOnly` checks
 the inputs and host without launching the executable. Use absolute paths.
+The default deadline is 90 seconds. Explicit deadlines from 1 through 1800
+seconds support the longer context checks; every run retains its declared
+deadline and the same process-tree cleanup. Parameter-only tests cover the
+default, accepted endpoints and rejection outside that interval.
 
 The runner holds a machine-wide experiment mutex, rejects an existing engine
 or compiler, reserves 8 GiB of host memory and 20 GiB of commit headroom,
