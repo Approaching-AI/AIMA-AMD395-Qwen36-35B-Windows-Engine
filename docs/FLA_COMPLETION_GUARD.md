@@ -94,6 +94,14 @@ tensor reproduce; all2047 downloaded files and host/cleanup checks pass.
 The original observer and compute methods are unchanged. This window enables
 component diagnosis without supplying native inputs to the reference.
 
+The [selected layer16 MoE reference](../benchmarks/correctness/gb10-prefix128-layer16-moe-20260919.json)
+also reproduces all576 owner/control IDs and the original complete first-logit
+tensors. Observer8cf7575 retains14 original MoE stages at positions8191,
+90111,98303,131071 and131072, including actual input, routing, shared expert
+and output boundaries. All2144 downloads and original-history checks pass.
+It supports the focused Windows diagnostic; it does not identify the faulty
+operator or qualify the unfinished Windows continuation.
+
 The policy repair follows three preserved failed 128k owner/suffix runs.
 Each completed 14 owner chunks through 114688 tokens and produced no output:
 

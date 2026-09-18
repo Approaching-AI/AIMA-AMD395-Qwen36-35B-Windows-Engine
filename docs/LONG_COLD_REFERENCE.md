@@ -64,6 +64,18 @@ boundary tests and six token-matrix tests pass, including the actual98303
 row identity and unchanged default selection. New reference captures still
 require the original output IDs and full first-logit tensors to reproduce.
 
+Observer source `8cf75752997fdde87a8f2800803c0b9e93050aa7` now passes that
+reference check. The original128k owner512 and both controls reproduce all576
+IDs and complete first-logit tensors. Fourteen MoE stages are retained at
+layer16 for actual positions8191,90111,98303,131071 and131072. Each selected
+row is checked against the original prompt or generated history; all values
+are finite. The2144 downloaded files, frozen-autotune check, host guards and
+GPU cleanup pass. Command `run-qrt-gb10-prefix128-moe16-20260919-r1.py` uses
+the original model on `aitopatom-66c4` through `gb10-4t`, with capture1c951139
+and dependency9b2a99ed unchanged. See the
+[selected layer16 MoE reference](../benchmarks/correctness/gb10-prefix128-layer16-moe-20260919.json).
+No Windows tensor is supplied to the reference computation.
+
 These references enable the Windows cold out512 checks. They do not establish
 Windows correctness or performance at any newly captured length.
 
